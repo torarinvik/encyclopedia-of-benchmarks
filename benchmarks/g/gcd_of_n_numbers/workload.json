@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "gcd-of-n-numbers-v1",
+  "algorithm": "gcd_of_n_numbers",
+  "input": {
+    "kind": "array_of_positive_signed_32_bit_integers",
+    "minimum_length": 1,
+    "maximum_length": 64,
+    "valid_value_range": [1, 2147483647],
+    "invalid_result": -1,
+    "output_encoding": "greatest positive integer that divides every input value"
+  },
+  "cases": [
+    {"id":"single_value", "input_values":[42], "expected_result":42},
+    {"id":"coprime_pair", "input_values":[35,64], "expected_result":1},
+    {"id":"shared_factor_pair", "input_values":[18,45], "expected_result":9},
+    {"id":"three_values", "input_values":[60,24,18], "expected_result":6},
+    {"id":"shared_factor_multiple", "input_values":[100,200,300], "expected_result":100},
+    {"id":"many_values", "input_values":[2,4,6,8,10,12,14,16], "expected_result":2},
+    {"id":"early_unit_gcd", "input_values":[35,64,2147483647,999983], "expected_result":1},
+    {"id":"maximum_length", "input_values":[6,12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114,120,126,132,138,144,150,156,162,168,174,180,186,192,198,204,210,216,222,228,234,240,246,252,258,264,270,276,282,288,294,300,306,312,318,324,330,336,342,348,354,360,366,372,378,384], "expected_result":6},
+    {"id":"empty_invalid", "input_values":[], "expected_result":-1},
+    {"id":"zero_invalid", "input_values":[0,12], "expected_result":-1},
+    {"id":"negative_invalid", "input_values":[12,-3], "expected_result":-1},
+    {"id":"above_signed_32_bit_invalid", "input_values":[2147483648], "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

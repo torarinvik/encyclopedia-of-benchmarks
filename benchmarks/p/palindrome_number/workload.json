@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "palindrome-number-v1",
+  "algorithm": "palindrome_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [
+      0,
+      2147483647
+    ],
+    "result_encoding": {
+      "palindrome": 1,
+      "not_palindrome": 0
+    },
+    "invalid_result": -1,
+    "negative_values": "outside benchmark range"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "single_digit",
+      "input_value": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "two_digit_palindrome",
+      "input_value": 11,
+      "expected_result": 1
+    },
+    {
+      "id": "two_digit_non_palindrome",
+      "input_value": 12,
+      "expected_result": 0
+    },
+    {
+      "id": "even_palindrome",
+      "input_value": 1221,
+      "expected_result": 1
+    },
+    {
+      "id": "odd_palindrome",
+      "input_value": 12321,
+      "expected_result": 1
+    },
+    {
+      "id": "ordinary_non_palindrome",
+      "input_value": 123,
+      "expected_result": 0
+    },
+    {
+      "id": "trailing_zero",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "multiple_trailing_zeroes",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "palindrome_with_inner_zero",
+      "input_value": 1001,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_i32_palindrome",
+      "input_value": 2147447412,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_i32_non_palindrome",
+      "input_value": 2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "large_palindrome",
+      "input_value": 1000000001,
+      "expected_result": 1
+    },
+    {
+      "id": "large_non_palindrome",
+      "input_value": 1000000002,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_input",
+      "input_value": -121,
+      "expected_result": -1
+    },
+    {
+      "id": "above_i32",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "i64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

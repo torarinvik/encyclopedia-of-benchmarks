@@ -1,0 +1,44 @@
+# Bottom-up stable merge sort with a fixed scratch buffer.
+const MAX_VALUES: usize = 1024
+
+def merge_sort_nr_impl(values: mutable i64&, length: usize) -> void:
+    if length > MAX_VALUES:
+        return
+    scratch: mutable i64[1024] = zeroed
+    width: mutable usize = 1
+    while width < length:
+        start: mutable usize = 0
+        while start < length:
+            middle: mutable usize = start + width
+            if middle > length:
+                middle <- length
+            end_index: mutable usize = middle + width
+            if end_index > length:
+                end_index <- length
+            left: mutable usize = start
+            right: mutable usize = middle
+            output: mutable usize = start
+            while left < middle and right < end_index:
+                if values[left] <= values[right]:
+                    scratch[output] <- values[left]
+                    left <- left + 1
+                else:
+                    scratch[output] <- values[right]
+                    right <- right + 1
+                output <- output + 1
+            while left < middle:
+                scratch[output] <- values[left]
+                left <- left + 1
+                output <- output + 1
+            while right < end_index:
+                scratch[output] <- values[right]
+                right <- right + 1
+                output <- output + 1
+            start <- start + width * 2
+        index: mutable usize = 0
+        while index < length:
+            values[index] <- scratch[index]
+            index <- index + 1
+        width <- width * 2
+
+export fn merge_sort_nr(values: mutable i64&, length: usize) -> void = merge_sort_nr_impl

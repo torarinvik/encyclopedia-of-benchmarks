@@ -1,0 +1,71 @@
+# Patience sorting with lower-bound piles and a binary min-heap merge.
+const MAX_INPUT_LENGTH: usize = 1024
+
+def patience_node_less(keys: i64&, left: usize, right: usize) -> bool:
+    return keys[left] < keys[right] or (keys[left] == keys[right] and left < right)
+
+def patience_sift_down(keys: i64&, merge_heap: mutable usize&, heap_length: usize, root_value: usize) -> void:
+    root: mutable usize = root_value
+    while root < heap_length / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < heap_length and patience_node_less(keys, merge_heap[child + 1], merge_heap[child]):
+            child <- child + 1
+        if not patience_node_less(keys, merge_heap[child], merge_heap[root]):
+            break
+        temporary: usize = merge_heap[root]
+        merge_heap[root] <- merge_heap[child]
+        merge_heap[child] <- temporary
+        root <- child
+
+def patience_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return
+    keys: mutable i64[1024] = zeroed
+    pile_tops: mutable usize[1024] = zeroed
+    next_in_pile: mutable usize[1024] = zeroed
+    merge_heap: mutable usize[1024] = zeroed
+    pile_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < length:
+        keys[index] <- values[index]
+        next_in_pile[index] <- length
+        low: mutable usize = 0
+        high: mutable usize = pile_count
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if keys[pile_tops[middle]] >= keys[index]:
+                high <- middle
+            else:
+                low <- middle + 1
+        if low == pile_count:
+            pile_tops[pile_count] <- index
+            pile_count <- pile_count + 1
+        else:
+            next_in_pile[index] <- pile_tops[low]
+            pile_tops[low] <- index
+        index <- index + 1
+    pile: mutable usize = 0
+    while pile < pile_count:
+        merge_heap[pile] <- pile_tops[pile]
+        pile <- pile + 1
+    heap_length: mutable usize = pile_count
+    start: mutable usize = heap_length / 2
+    while start > 0:
+        start <- start - 1
+        patience_sift_down(&keys[0], &merge_heap[0], heap_length, start)
+    output: mutable usize = 0
+    while heap_length > 0:
+        node: usize = merge_heap[0]
+        values[output] <- keys[node]
+        output <- output + 1
+        successor: usize = next_in_pile[node]
+        if successor < length:
+            merge_heap[0] <- successor
+        else:
+            heap_length <- heap_length - 1
+            if heap_length > 0:
+                merge_heap[0] <- merge_heap[heap_length]
+        if heap_length > 0:
+            patience_sift_down(&keys[0], &merge_heap[0], heap_length, 0)
+
+export fn patience_sort(values: mutable i64&, length: usize) -> void = patience_sort_impl

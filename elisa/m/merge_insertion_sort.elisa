@@ -1,0 +1,106 @@
+# Pair values, sort pair minima, then binary-insert pair maxima.
+const MAX_VALUES: usize = 256
+const MAX_PAIRS: usize = 128
+
+def sort_pairs(low: mutable i64&, high: mutable i64&, scratch_low: mutable i64&, scratch_high: mutable i64&, count: usize) -> void:
+    width: mutable usize = 1
+    while width < count:
+        start: mutable usize = 0
+        while start < count:
+            middle: mutable usize = start + width
+            if middle > count:
+                middle <- count
+            end_index: mutable usize = middle + width
+            if end_index > count:
+                end_index <- count
+            left: mutable usize = start
+            right: mutable usize = middle
+            output: mutable usize = start
+            while left < middle and right < end_index:
+                if low[left] <= low[right]:
+                    scratch_low[output] <- low[left]
+                    scratch_high[output] <- high[left]
+                    left <- left + 1
+                else:
+                    scratch_low[output] <- low[right]
+                    scratch_high[output] <- high[right]
+                    right <- right + 1
+                output <- output + 1
+            while left < middle:
+                scratch_low[output] <- low[left]
+                scratch_high[output] <- high[left]
+                left <- left + 1
+                output <- output + 1
+            while right < end_index:
+                scratch_low[output] <- low[right]
+                scratch_high[output] <- high[right]
+                right <- right + 1
+                output <- output + 1
+            index: mutable usize = start
+            while index < end_index:
+                low[index] <- scratch_low[index]
+                high[index] <- scratch_high[index]
+                index <- index + 1
+            start <- start + width * 2
+        if width > count / 2:
+            break
+        width <- width * 2
+
+def binary_insert(values: mutable i64&, length: usize, item: i64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = length
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if values[middle] < item:
+            low <- middle + 1
+        else:
+            high <- middle
+    index: mutable usize = length
+    while index > low:
+        values[index] <- values[index - 1]
+        index <- index - 1
+    values[low] <- item
+    return length + 1
+
+def merge_insertion_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > MAX_VALUES:
+        return
+    pair_low: mutable i64[128] = zeroed
+    pair_high: mutable i64[128] = zeroed
+    scratch_low: mutable i64[128] = zeroed
+    scratch_high: mutable i64[128] = zeroed
+    chain: mutable i64[256] = zeroed
+    pair_count: usize = length / 2
+    pair: mutable usize = 0
+    while pair < pair_count:
+        first: i64 = values[pair * 2]
+        second: i64 = values[pair * 2 + 1]
+        if first <= second:
+            pair_low[pair] <- first
+            pair_high[pair] <- second
+        else:
+            pair_low[pair] <- second
+            pair_high[pair] <- first
+        pair <- pair + 1
+    sort_pairs(pair_low[0], pair_high[0], scratch_low[0], scratch_high[0], pair_count)
+    chain_length: mutable usize = 0
+    pair <- 0
+    while pair < pair_count:
+        chain[chain_length] <- pair_low[pair]
+        chain_length <- chain_length + 1
+        pair <- pair + 1
+    if pair_count > 0:
+        chain[chain_length] <- pair_high[pair_count - 1]
+        chain_length <- chain_length + 1
+    if length % 2 != 0:
+        chain_length <- binary_insert(chain[0], chain_length, values[length - 1])
+    pair <- 0
+    while pair + 1 < pair_count:
+        chain_length <- binary_insert(chain[0], chain_length, pair_high[pair])
+        pair <- pair + 1
+    index: mutable usize = 0
+    while index < length:
+        values[index] <- chain[index]
+        index <- index + 1
+
+export fn merge_insertion_sort(values: mutable i64&, length: usize) -> void = merge_insertion_sort_impl

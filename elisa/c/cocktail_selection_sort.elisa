@@ -1,0 +1,30 @@
+# Selection sort variant that places one minimum and maximum per pass.
+const MAX_VALUES: usize = 1024
+
+def cocktail_selection_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > MAX_VALUES:
+        return
+    low: mutable usize = 0
+    high: mutable usize = length
+    while low < high and high - low > 1:
+        minimum_index: mutable usize = low
+        maximum_index: mutable usize = low
+        index: mutable usize = low + 1
+        while index < high:
+            if values[index] < values[minimum_index]:
+                minimum_index <- index
+            if values[index] > values[maximum_index]:
+                maximum_index <- index
+            index <- index + 1
+        minimum: i64 = values[minimum_index]
+        values[minimum_index] <- values[low]
+        values[low] <- minimum
+        if maximum_index == low:
+            maximum_index <- minimum_index
+        maximum: i64 = values[maximum_index]
+        values[maximum_index] <- values[high - 1]
+        values[high - 1] <- maximum
+        low <- low + 1
+        high <- high - 1
+
+export fn cocktail_selection_sort(values: mutable i64&, length: usize) -> void = cocktail_selection_sort_impl

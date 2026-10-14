@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "insertion-sort-recursive-v1",
+  "algorithm": "insertion_sort_recursive",
+  "input": {
+    "lengths": [0, 1, 16, 64, 128, 256],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "values[index] = ((index * 48271) mod 2000003) - 1000001"
+    }
+  },
+  "measurement": {
+    "comparison_model": "sort_call",
+    "warmup_rounds": 1,
+    "sample_count": 5,
+    "maximum_recursive_length": 256
+  }
+}

@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "fibonacci", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "happy_number", "automorphic_number")
+ALGORITHMS = ("factorial", "fibonacci", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -32,6 +32,15 @@ def fibonacci_pair(n: int) -> tuple[int, int]:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "power_of_four":
+        if not -(2**31) <= n <= 2**31 - 1:
+            return -1
+        return int(n > 0 and (n & (n - 1)) == 0 and (n & 0x55555555) != 0)
+    if algorithm == "palindrome_number":
+        if not 0 <= n <= 2**31 - 1:
+            return -1
+        digits = str(n)
+        return int(digits == digits[::-1])
     if algorithm == "number_of_digits":
         return len(str(abs(n)))
     if algorithm == "happy_number":
@@ -114,7 +123,7 @@ def oracle(algorithm: str, n: int) -> int:
         return math.comb(2 * n, n) // (n + 1) if 0 <= n <= 35 else -1
     if algorithm == "factorial":
         return math.factorial(n) if 0 <= n <= 20 else -1
-    if algorithm == "fibonacci":
+    if algorithm in {"fibonacci", "fibonacci_fast"}:
         return fibonacci_pair(n)[0] if 0 <= n <= 92 else -1
     if algorithm == "armstrong_number":
         if n < 0:
@@ -168,7 +177,7 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     if algorithm == "factorial":
         inputs.update(range(-4, 26))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
-    elif algorithm == "fibonacci":
+    elif algorithm in {"fibonacci", "fibonacci_fast"}:
         inputs.update(range(-4, 98))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
     elif algorithm == "aliquot_sum":
@@ -248,6 +257,21 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         for value in known:
             inputs.update([value - 1, value, value + 1])
         inputs.update([I64_MIN, I64_MIN + 1, -1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "palindrome_number":
+        inputs.update(range(-16, 100_001))
+        inputs.update(rng.randrange(-1, 2**31 + 2) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 9, 10, 11, 99, 100,
+                       101, 1001, 1000000001, 2147447412, 2**31 - 1,
+                       2**31, I64_MAX - 1, I64_MAX])
+    elif algorithm == "power_of_four":
+        inputs.update(range(-1024, 10_001))
+        inputs.update(rng.randrange(-(2**31) - 1, 2**31 + 2) for _ in range(512))
+        inputs.update([I64_MIN, -(2**31) - 1, -(2**31), -1, 0, 1, 2, 3, 4, 8,
+                       16, 32, 64, 128, 256, 1024, 1 << 29, 1 << 30,
+                       2**31 - 1, 2**31, I64_MAX])
+        for exponent in range(16):
+            value = 4**exponent
+            inputs.update([value - 1, value, value + 1])
     elif algorithm == "catalan_number":
         inputs.update(range(-4, 42))
         inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(256))

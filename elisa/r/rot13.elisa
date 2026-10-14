@@ -1,0 +1,28 @@
+# Apply case-preserving ROT13 to a non-NUL ASCII byte sequence.
+def rot13_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 66:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 1 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if output_capacity < length:
+        return -2
+    while index < length |index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        mapped: mutable i64 = value
+        if value >= 65 and value <= 90:
+            mapped <- 65 + (value - 65 + 13) % 26
+        elif value >= 97 and value <= 122:
+            mapped <- 97 + (value - 97 + 13) % 26
+        output[index] <- mapped.u8()
+        index <- index + 1
+        output
+    length.i64()
+
+export fn rot13(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rot13_impl

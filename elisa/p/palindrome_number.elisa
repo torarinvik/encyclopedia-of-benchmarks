@@ -1,0 +1,20 @@
+# Reverse half the digits to avoid overflow.
+def palindrome_number_impl(value: i64) -> i64:
+    if value < 0 or value > 2147483647:
+        return -1
+    if value == 0:
+        return 1
+    if value % 10 == 0:
+        return 0
+    result: i64 =
+        while remaining > reversed_half |remaining: mutable i64 = value, reversed_half: mutable i64 = 0, answer: mutable i64 = 0| -> answer:
+            reversed_half <- reversed_half * 10 + remaining % 10
+            remaining <- remaining / 10
+            if remaining == reversed_half or remaining == reversed_half / 10:
+                answer <- 1
+                break
+            if remaining <= reversed_half:
+                break
+    result
+
+export fn palindrome_number(value: i64) -> i64 = palindrome_number_impl(value)

@@ -22,6 +22,18 @@ KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm in {"rot13", "theoretical_rot13"}:
+        if (len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytearray(values)
+        for index, value in enumerate(output):
+            if algorithm == "rot13" and ord("A") <= value <= ord("Z"):
+                output[index] = ord("A") + (value - ord("A") + 13) % 26
+            elif ord("a") <= value <= ord("z"):
+                output[index] = ord("a") + (value - ord("a") + 13) % 26
+        return len(output), bytes(output)
+
     if algorithm == "tower_of_hanoi":
         if (len(values) != 4 or any(type(value) is not int for value in values)
                 or not 0 <= values[0] <= 12

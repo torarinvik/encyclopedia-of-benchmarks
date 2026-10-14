@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-fast-v1",
+  "algorithm": "fibonacci_fast",
+  "input": {
+    "kind": "zero_based_fibonacci_index",
+    "valid_range": [0, 92],
+    "invalid_result": -1,
+    "output_encoding": "exact signed 64-bit Fibonacci number"
+  },
+  "cases": [
+    {"id":"zero", "input_value":0, "expected_result":0},
+    {"id":"one", "input_value":1, "expected_result":1},
+    {"id":"two", "input_value":2, "expected_result":1},
+    {"id":"small_even", "input_value":10, "expected_result":55},
+    {"id":"small_odd", "input_value":11, "expected_result":89},
+    {"id":"medium", "input_value":40, "expected_result":102334155},
+    {"id":"large", "input_value":70, "expected_result":190392490709135},
+    {"id":"largest_signed_result", "input_value":92, "expected_result":7540113804746346429},
+    {"id":"negative_invalid", "input_value":-1, "expected_result":-1},
+    {"id":"above_range_invalid", "input_value":93, "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

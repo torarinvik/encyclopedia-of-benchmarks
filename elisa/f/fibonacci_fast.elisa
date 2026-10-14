@@ -1,0 +1,23 @@
+# Compute Fibonacci numbers by portable 64-bit fast doubling.
+def fibonacci_fast_impl(input: i64) -> i64:
+    if input < 0 or input > 92:
+        return -1
+    n: u64 = input.u64()
+    bit: mutable u64 = 1
+    while bit <= n / 2:
+        bit <- bit * 2
+    current: mutable u64 = 0
+    next: mutable u64 = 1
+    while bit != 0:
+        even: u64 = current * (2 * next - current)
+        odd: u64 = current * current + next * next
+        if (n & bit) != 0:
+            current <- odd
+            next <- even + odd
+        else:
+            current <- even
+            next <- odd
+        bit <- bit / 2
+    current.i64()
+
+export fn fibonacci_fast(input: i64) -> i64 = fibonacci_fast_impl

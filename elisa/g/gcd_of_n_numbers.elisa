@@ -1,0 +1,26 @@
+# Fold positive signed 32-bit values with Euclid's GCD algorithm.
+def gcd_pair_impl(left_input: i64, right_input: i64) -> i64:
+    while right != 0 |left: mutable i64 = left_input, right: mutable i64 = right_input| -> left:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+        left
+
+def gcd_of_n_numbers_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 64:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < 1 or value > 2147483647:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    while index < length |index: mutable usize = 1, result: mutable i64 = values[0]| -> result:
+        result <- gcd_pair_impl(result, values[index])
+        index <- index + 1
+        result
+
+export fn gcd_of_n_numbers(values: i64&, length: usize) -> i64 = gcd_of_n_numbers_impl

@@ -1,0 +1,45 @@
+# Heap sort that builds its max heap by repeated insertion.
+const MAX_VALUES: usize = 1024
+
+def heap_sift_up(values: mutable i64&, index_value: usize) -> void:
+    index: mutable usize = index_value
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if values[parent] >= values[index]:
+            return
+        temporary: i64 = values[parent]
+        values[parent] <- values[index]
+        values[index] <- temporary
+        index <- parent
+
+def heap_sift_down(values: mutable i64&, size: usize) -> void:
+    root_index: mutable usize = 0
+    while root_index < size / 2:
+        left: usize = root_index * 2 + 1
+        largest: mutable usize = left
+        right: usize = left + 1
+        if right < size and values[right] > values[left]:
+            largest <- right
+        if values[root_index] >= values[largest]:
+            return
+        temporary: i64 = values[root_index]
+        values[root_index] <- values[largest]
+        values[largest] <- temporary
+        root_index <- largest
+
+def heap_sort_2_impl(values: mutable i64&, length: usize) -> void:
+    if length > MAX_VALUES:
+        return
+    index: mutable usize = 0
+    while index < length:
+        heap_sift_up(values, index)
+        index <- index + 1
+    size: mutable usize = length
+    while size > 1:
+        maximum: i64 = values[0]
+        values[0] <- values[size - 1]
+        values[size - 1] <- maximum
+        size <- size - 1
+        heap_sift_down(values, size)
+
+export fn heap_sort_2(values: mutable i64&, length: usize) -> void = heap_sort_2_impl

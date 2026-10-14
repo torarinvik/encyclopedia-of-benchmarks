@@ -1,0 +1,26 @@
+# Shell sort using the Ciura gap sequence.
+def shell_sort2_impl(values: mutable i64&, length: usize) -> void:
+    gaps: usize[8] = zeroed
+    gaps[0] <- 701
+    gaps[1] <- 301
+    gaps[2] <- 132
+    gaps[3] <- 57
+    gaps[4] <- 23
+    gaps[5] <- 10
+    gaps[6] <- 4
+    gaps[7] <- 1
+    gap_index: mutable usize = 0
+    while gap_index < 8:
+        gap: usize = gaps[gap_index]
+        index: mutable usize = gap
+        while index < length:
+            key: i64 = values[index]
+            position: mutable usize = index
+            while position >= gap and values[position - gap] > key:
+                values[position] <- values[position - gap]
+                position <- position - gap
+            values[position] <- key
+            index <- index + 1
+        gap_index <- gap_index + 1
+
+export fn shell_sort2(values: mutable i64&, length: usize) -> void = shell_sort2_impl

@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "best-time-to-buy-sell-stock-v1",
+  "algorithm": "best_time_to_buy_and_sell_stock",
+  "function_symbol": "best_time_to_buy_and_sell_stock",
+  "input": {
+    "kind": "signed_64_bit_price_array",
+    "encoding": "[price_0, price_1, ...]",
+    "maximum_price_count": 4096,
+    "price_range": [
+      0,
+      1000000000
+    ],
+    "transaction_rule": "Buy once and sell once on a later day; return zero when no positive profit exists.",
+    "empty_array_result": 0,
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "empty_prices",
+      "input_values": [],
+      "expected_result": 0,
+      "input_length": 0
+    },
+    {
+      "id": "one_price",
+      "input_values": [
+        7
+      ],
+      "expected_result": 0,
+      "input_length": 1
+    },
+    {
+      "id": "classic_example",
+      "input_values": [
+        7,
+        1,
+        5,
+        3,
+        6,
+        4
+      ],
+      "expected_result": 5,
+      "input_length": 6
+    },
+    {
+      "id": "strictly_increasing",
+      "input_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_result": 4,
+      "input_length": 5
+    },
+    {
+      "id": "strictly_decreasing",
+      "input_values": [
+        9,
+        7,
+        4,
+        3,
+        1
+      ],
+      "expected_result": 0,
+      "input_length": 5
+    },
+    {
+      "id": "late_minimum",
+      "input_values": [
+        8,
+        7,
+        6,
+        2,
+        9
+      ],
+      "expected_result": 7,
+      "input_length": 5
+    },
+    {
+      "id": "zero_price_buy",
+      "input_values": [
+        5,
+        0,
+        0,
+        8
+      ],
+      "expected_result": 8,
+      "input_length": 4
+    },
+    {
+      "id": "repeated_minimum",
+      "input_values": [
+        4,
+        2,
+        2,
+        7
+      ],
+      "expected_result": 5,
+      "input_length": 4
+    },
+    {
+      "id": "no_positive_trade",
+      "input_values": [
+        6,
+        6,
+        3,
+        3
+      ],
+      "expected_result": 0,
+      "input_length": 4
+    },
+    {
+      "id": "maximum_price_gain",
+      "input_values": [
+        0,
+        1000000000
+      ],
+      "expected_result": 1000000000,
+      "input_length": 2
+    },
+    {
+      "id": "maximum_price_no_gain",
+      "input_values": [
+        1000000000,
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 2
+    },
+    {
+      "id": "equal_prices",
+      "input_values": [
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12
+      ],
+      "expected_result": 0,
+      "input_length": 8
+    },
+    {
+      "id": "smallest_gain",
+      "input_values": [
+        999999999,
+        1000000000
+      ],
+      "expected_result": 1,
+      "input_length": 2
+    },
+    {
+      "id": "alternating_prices",
+      "input_values": [
+        5,
+        1,
+        6,
+        2,
+        7,
+        3
+      ],
+      "expected_result": 6,
+      "input_length": 6
+    },
+    {
+      "id": "invalid_negative_price",
+      "input_values": [
+        -1,
+        5
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "invalid_price_above_limit",
+      "input_values": [
+        1000000001
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  }
+}

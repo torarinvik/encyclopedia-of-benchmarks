@@ -1,0 +1,50 @@
+# Binary-search-tree sort with iterative insertion and in-order traversal.
+const MAX_VALUES: usize = 1024
+
+def tree_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > MAX_VALUES:
+        return
+    keys: mutable i64[1024] = zeroed
+    left: mutable usize[1024] = zeroed
+    right: mutable usize[1024] = zeroed
+    traversal_stack: mutable usize[1024] = zeroed
+    root_index: mutable usize = length
+    index: mutable usize = 0
+    while index < length:
+        keys[index] <- values[index]
+        left[index] <- length
+        right[index] <- length
+        if root_index == length:
+            root_index <- index
+        else:
+            node: mutable usize = root_index
+            inserted: mutable bool = false
+            while not inserted:
+                if keys[index] < keys[node]:
+                    if left[node] == length:
+                        left[node] <- index
+                        inserted <- true
+                    else:
+                        node <- left[node]
+                else:
+                    if right[node] == length:
+                        right[node] <- index
+                        inserted <- true
+                    else:
+                        node <- right[node]
+        index <- index + 1
+    current: mutable usize = root_index
+    stack_size: mutable usize = 0
+    output: mutable usize = 0
+    while current != length or stack_size > 0:
+        while current != length:
+            traversal_stack[stack_size] <- current
+            stack_size <- stack_size + 1
+            current <- left[current]
+        stack_size <- stack_size - 1
+        current <- traversal_stack[stack_size]
+        values[output] <- keys[current]
+        output <- output + 1
+        current <- right[current]
+
+export fn tree_sort(values: mutable i64&, length: usize) -> void = tree_sort_impl

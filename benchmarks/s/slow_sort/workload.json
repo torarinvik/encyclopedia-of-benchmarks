@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "slow-sort-v1",
+  "algorithm": "slow_sort",
+  "abi": "mutable_i64_array",
+  "input": {
+    "lengths": [
+      0,
+      1,
+      2,
+      4,
+      8,
+      12,
+      16
+    ],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 4,
+      "modulus": 17,
+      "offset": 0,
+      "formula": "values[index] = (index * 4) mod 17"
+    }
+  },
+  "measurement": {
+    "comparison_model": "sort_call",
+    "warmup_rounds": 1,
+    "sample_count": 7,
+    "maximum_recursive_length": 16
+  }
+}
