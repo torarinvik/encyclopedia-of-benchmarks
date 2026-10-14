@@ -1,0 +1,27 @@
+# Count primes through limit with the linear (Euler) sieve.
+def linear_sieve_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 4096:
+        return -1
+    if limit < 2:
+        return 0
+    limit_usize: usize = limit.usize()
+
+    final_state: i64[4662] =
+        for value in 2..<(limit_usize + 1) |state: mutable i64[4662] = zeroed| -> state:
+            if state[value] == 0:
+                count: usize = state[4661].usize()
+                state[value] <- value.i64()
+                state[4097 + count] <- value.i64()
+                state[4661] <- (count + 1).i64()
+            prime_count: usize = state[4661].usize()
+            updated_state: i64[4662] =
+                while prime_index < prime_count |prime_index: mutable usize = 0, work_state: mutable i64[4662] = state| -> work_state:
+                    prime: usize = work_state[4097 + prime_index].usize()
+                    if prime > work_state[value].usize() or prime > limit_usize / value:
+                        break work_state
+                    work_state[value * prime] <- prime.i64()
+                    prime_index <- prime_index + 1
+            rebind state = updated_state
+    final_state[4661]
+
+export fn linear_sieve(limit: i64) -> i64 = linear_sieve_impl

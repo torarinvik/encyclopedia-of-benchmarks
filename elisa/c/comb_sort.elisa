@@ -1,0 +1,24 @@
+# Comb sort with a rational 10/13 gap shrink factor.
+def shrink_gap(gap: usize) -> usize:
+    (gap / 13) * 10 + ((gap % 13) * 10) / 13
+
+def comb_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    gap: mutable usize = length
+    swapped: mutable bool = true
+    while gap > 1 or swapped:
+        gap <- shrink_gap(gap)
+        if gap < 1:
+            gap <- 1
+        swapped <- false
+        index: mutable usize = 0
+        while index < length - gap:
+            if values[index] > values[index + gap]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + gap]
+                values[index + gap] <- temporary
+                swapped <- true
+            index <- index + 1
+
+export fn comb_sort(values: mutable i64&, length: usize) -> void = comb_sort_impl

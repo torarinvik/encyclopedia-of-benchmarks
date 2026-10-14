@@ -1,0 +1,42 @@
+# Stable bottom-up merge sort using caller-provided scratch storage.
+def merge_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    width: mutable usize = 1
+    while width < length:
+        low: mutable usize = 0
+        while low < length:
+            middle: mutable usize = low + width
+            if middle > length:
+                middle <- length
+            high: mutable usize = middle + width
+            if high > length:
+                high <- length
+            left: mutable usize = low
+            right: mutable usize = middle
+            output: mutable usize = low
+            while left < middle and right < high:
+                if values[left] <= values[right]:
+                    scratch[output] <- values[left]
+                    output <- output + 1
+                    left <- left + 1
+                else:
+                    scratch[output] <- values[right]
+                    output <- output + 1
+                    right <- right + 1
+            while left < middle:
+                scratch[output] <- values[left]
+                output <- output + 1
+                left <- left + 1
+            while right < high:
+                scratch[output] <- values[right]
+                output <- output + 1
+                right <- right + 1
+            index: mutable usize = low
+            while index < high:
+                values[index] <- scratch[index]
+                index <- index + 1
+            low <- high
+        if width > length / 2:
+            break
+        width <- width * 2
+
+export fn merge_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = merge_sort_impl

@@ -1,0 +1,66 @@
+# Dense Prim scan over a bounded packed undirected edge list.
+def prim_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 12290:
+        return -2
+    if values[0] < 0 or values[0] > 64 or values[1] < 0 or values[1] > 4096:
+        return -2
+    vertices: usize = values[0].usize()
+    edges: usize = values[1].usize()
+    if length != 2 + 3 * edges or (vertices == 0 and edges != 0):
+        return -2
+    if vertices == 0:
+        return 0
+
+    present: mutable bool[4096] = zeroed
+    weights: mutable i64[4096] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        u_value: i64 = values[2 + 3 * edge]
+        v_value: i64 = values[3 + 3 * edge]
+        cost: i64 = values[4 + 3 * edge]
+        if u_value < 0 or v_value < 0 or u_value >= vertices.i64() or v_value >= vertices.i64() or cost < 0 or cost > 2147483647:
+            return -2
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if u != v:
+            uv: usize = u * 64 + v
+            vu: usize = v * 64 + u
+            if not present[uv] or cost < weights[uv]:
+                present[uv] <- true
+                present[vu] <- true
+                weights[uv] <- cost
+                weights[vu] <- cost
+        edge <- edge + 1
+
+    in_tree: mutable bool[64] = zeroed
+    has_best: mutable bool[64] = zeroed
+    best: mutable i64[64] = zeroed
+    has_best[0] <- true
+    total: mutable i64 = 0
+    step: mutable usize = 0
+    while step < vertices:
+        selected: mutable usize = vertices
+        vertex: mutable usize = 0
+        while vertex < vertices:
+            if not in_tree[vertex] and has_best[vertex]:
+                if selected == vertices:
+                    selected <- vertex
+                else:
+                    if best[vertex] < best[selected]:
+                        selected <- vertex
+            vertex <- vertex + 1
+        if selected == vertices:
+            return -1
+        in_tree[selected] <- true
+        total <- total + best[selected]
+        vertex <- 0
+        while vertex < vertices:
+            slot: usize = selected * 64 + vertex
+            if not in_tree[vertex] and present[slot] and (not has_best[vertex] or weights[slot] < best[vertex]):
+                has_best[vertex] <- true
+                best[vertex] <- weights[slot]
+            vertex <- vertex + 1
+        step <- step + 1
+    total
+
+export fn prim(values: i64&, length: usize) -> i64 = prim_impl

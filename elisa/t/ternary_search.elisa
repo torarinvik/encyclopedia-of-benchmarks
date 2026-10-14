@@ -1,0 +1,24 @@
+# Ternary search in an ascending sequence for the shared benchmark contract.
+def ternary_search_impl(values: i64&, length: usize, target: i64) -> i64:
+    low: mutable usize = 0
+    high: mutable usize = length
+    while low < high:
+        third: usize = (high - low) / 3
+        first: usize = low + third
+        second: usize = high - third - 1
+        first_value: i64 = values[first]
+        second_value: i64 = values[second]
+        if first_value == target:
+            return first.i64()
+        if second_value == target:
+            return second.i64()
+        if target < first_value:
+            high <- first
+        elif target > second_value:
+            low <- second + 1
+        else:
+            low <- first + 1
+            high <- second
+    -1
+
+export fn ternary_search(values: i64&, length: usize, target: i64) -> i64 = ternary_search_impl

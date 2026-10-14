@@ -1,0 +1,1570 @@
+{
+  "schema_version": 1,
+  "id": "dijkstra-v1",
+  "algorithm": "dijkstra",
+  "input": {
+    "kind": "directed_edge_triples",
+    "weight_type": "nonnegative_i64",
+    "unreachable": "separate u8 flag; zero distance storage"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "vertices": 0,
+      "source": 0,
+      "edges": [],
+      "expected_status": 0,
+      "expected_distances": []
+    },
+    {
+      "id": "empty_invalid_source",
+      "vertices": 0,
+      "source": 1,
+      "edges": [],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "singleton",
+      "vertices": 1,
+      "source": 0,
+      "edges": [],
+      "expected_status": 0,
+      "expected_distances": [
+        0
+      ]
+    },
+    {
+      "id": "single_edge",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          7
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "source_is_destination",
+      "vertices": 2,
+      "source": 1,
+      "edges": [
+        [
+          0,
+          1,
+          7
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        null,
+        0
+      ]
+    },
+    {
+      "id": "disconnected",
+      "vertices": 5,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          4,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        2,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "textbook_graph",
+      "vertices": 6,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          7
+        ],
+        [
+          0,
+          2,
+          9
+        ],
+        [
+          0,
+          5,
+          14
+        ],
+        [
+          1,
+          2,
+          10
+        ],
+        [
+          1,
+          3,
+          15
+        ],
+        [
+          2,
+          3,
+          11
+        ],
+        [
+          2,
+          5,
+          2
+        ],
+        [
+          3,
+          4,
+          6
+        ],
+        [
+          4,
+          5,
+          9
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        7,
+        9,
+        20,
+        26,
+        11
+      ]
+    },
+    {
+      "id": "parallel_edges",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          7
+        ],
+        [
+          1,
+          2,
+          2
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "zero_weight_cycle",
+      "vertices": 4,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          2,
+          3,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "equal_cost_routes",
+      "vertices": 4,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          2,
+          2
+        ],
+        [
+          1,
+          3,
+          3
+        ],
+        [
+          2,
+          3,
+          3
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        2,
+        2,
+        5
+      ]
+    },
+    {
+      "id": "nonzero_source",
+      "vertices": 5,
+      "source": 2,
+      "edges": [
+        [
+          2,
+          0,
+          8
+        ],
+        [
+          2,
+          3,
+          1
+        ],
+        [
+          3,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        8,
+        5,
+        0,
+        1,
+        null
+      ]
+    },
+    {
+      "id": "self_loops",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        3,
+        null
+      ]
+    },
+    {
+      "id": "negative_edge",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          -1
+        ]
+      ],
+      "expected_status": -4,
+      "expected_distances": null
+    },
+    {
+      "id": "unreachable_negative_edge",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          1,
+          2,
+          -1
+        ]
+      ],
+      "expected_status": -4,
+      "expected_distances": null
+    },
+    {
+      "id": "negative_min_weight",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          -9223372036854775808
+        ]
+      ],
+      "expected_status": -4,
+      "expected_distances": null
+    },
+    {
+      "id": "invalid_source",
+      "vertices": 3,
+      "source": 3,
+      "edges": [
+        [
+          0,
+          1,
+          1
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "negative_endpoint",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          -1,
+          1,
+          2
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "endpoint_equal_vertex_count",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          2,
+          1
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "edge_in_empty_graph",
+      "vertices": 0,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "maximum_finite_distance",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9223372036854775807
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        9223372036854775807
+      ]
+    },
+    {
+      "id": "max_then_zero",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9223372036854775807
+        ],
+        [
+          1,
+          2,
+          0
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        9223372036854775807,
+        9223372036854775807
+      ]
+    },
+    {
+      "id": "positive_overflow_path",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9223372036854775807
+        ],
+        [
+          1,
+          2,
+          1
+        ]
+      ],
+      "expected_status": -2,
+      "expected_distances": null
+    },
+    {
+      "id": "overflow_nonimproving_candidate",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9223372036854775807
+        ],
+        [
+          0,
+          2,
+          0
+        ],
+        [
+          1,
+          2,
+          1
+        ]
+      ],
+      "expected_status": -2,
+      "expected_distances": null
+    },
+    {
+      "id": "maximum_distance_no_overflow",
+      "vertices": 4,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          9223372036854775805
+        ],
+        [
+          1,
+          2,
+          1
+        ],
+        [
+          2,
+          3,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        9223372036854775805,
+        9223372036854775806,
+        9223372036854775807
+      ]
+    },
+    {
+      "id": "reverse_chain_16",
+      "vertices": 16,
+      "source": 15,
+      "edges": [
+        [
+          15,
+          14,
+          1
+        ],
+        [
+          14,
+          13,
+          1
+        ],
+        [
+          13,
+          12,
+          1
+        ],
+        [
+          12,
+          11,
+          1
+        ],
+        [
+          11,
+          10,
+          1
+        ],
+        [
+          10,
+          9,
+          1
+        ],
+        [
+          9,
+          8,
+          1
+        ],
+        [
+          8,
+          7,
+          1
+        ],
+        [
+          7,
+          6,
+          1
+        ],
+        [
+          6,
+          5,
+          1
+        ],
+        [
+          5,
+          4,
+          1
+        ],
+        [
+          4,
+          3,
+          1
+        ],
+        [
+          3,
+          2,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        15,
+        14,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "reverse_chain_64",
+      "vertices": 64,
+      "source": 63,
+      "edges": [
+        [
+          63,
+          62,
+          4
+        ],
+        [
+          62,
+          61,
+          3
+        ],
+        [
+          61,
+          60,
+          2
+        ],
+        [
+          60,
+          59,
+          1
+        ],
+        [
+          59,
+          58,
+          5
+        ],
+        [
+          58,
+          57,
+          4
+        ],
+        [
+          57,
+          56,
+          3
+        ],
+        [
+          56,
+          55,
+          2
+        ],
+        [
+          55,
+          54,
+          1
+        ],
+        [
+          54,
+          53,
+          5
+        ],
+        [
+          53,
+          52,
+          4
+        ],
+        [
+          52,
+          51,
+          3
+        ],
+        [
+          51,
+          50,
+          2
+        ],
+        [
+          50,
+          49,
+          1
+        ],
+        [
+          49,
+          48,
+          5
+        ],
+        [
+          48,
+          47,
+          4
+        ],
+        [
+          47,
+          46,
+          3
+        ],
+        [
+          46,
+          45,
+          2
+        ],
+        [
+          45,
+          44,
+          1
+        ],
+        [
+          44,
+          43,
+          5
+        ],
+        [
+          43,
+          42,
+          4
+        ],
+        [
+          42,
+          41,
+          3
+        ],
+        [
+          41,
+          40,
+          2
+        ],
+        [
+          40,
+          39,
+          1
+        ],
+        [
+          39,
+          38,
+          5
+        ],
+        [
+          38,
+          37,
+          4
+        ],
+        [
+          37,
+          36,
+          3
+        ],
+        [
+          36,
+          35,
+          2
+        ],
+        [
+          35,
+          34,
+          1
+        ],
+        [
+          34,
+          33,
+          5
+        ],
+        [
+          33,
+          32,
+          4
+        ],
+        [
+          32,
+          31,
+          3
+        ],
+        [
+          31,
+          30,
+          2
+        ],
+        [
+          30,
+          29,
+          1
+        ],
+        [
+          29,
+          28,
+          5
+        ],
+        [
+          28,
+          27,
+          4
+        ],
+        [
+          27,
+          26,
+          3
+        ],
+        [
+          26,
+          25,
+          2
+        ],
+        [
+          25,
+          24,
+          1
+        ],
+        [
+          24,
+          23,
+          5
+        ],
+        [
+          23,
+          22,
+          4
+        ],
+        [
+          22,
+          21,
+          3
+        ],
+        [
+          21,
+          20,
+          2
+        ],
+        [
+          20,
+          19,
+          1
+        ],
+        [
+          19,
+          18,
+          5
+        ],
+        [
+          18,
+          17,
+          4
+        ],
+        [
+          17,
+          16,
+          3
+        ],
+        [
+          16,
+          15,
+          2
+        ],
+        [
+          15,
+          14,
+          1
+        ],
+        [
+          14,
+          13,
+          5
+        ],
+        [
+          13,
+          12,
+          4
+        ],
+        [
+          12,
+          11,
+          3
+        ],
+        [
+          11,
+          10,
+          2
+        ],
+        [
+          10,
+          9,
+          1
+        ],
+        [
+          9,
+          8,
+          5
+        ],
+        [
+          8,
+          7,
+          4
+        ],
+        [
+          7,
+          6,
+          3
+        ],
+        [
+          6,
+          5,
+          2
+        ],
+        [
+          5,
+          4,
+          1
+        ],
+        [
+          4,
+          3,
+          5
+        ],
+        [
+          3,
+          2,
+          4
+        ],
+        [
+          2,
+          1,
+          3
+        ],
+        [
+          1,
+          0,
+          2
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        189,
+        187,
+        184,
+        180,
+        175,
+        174,
+        172,
+        169,
+        165,
+        160,
+        159,
+        157,
+        154,
+        150,
+        145,
+        144,
+        142,
+        139,
+        135,
+        130,
+        129,
+        127,
+        124,
+        120,
+        115,
+        114,
+        112,
+        109,
+        105,
+        100,
+        99,
+        97,
+        94,
+        90,
+        85,
+        84,
+        82,
+        79,
+        75,
+        70,
+        69,
+        67,
+        64,
+        60,
+        55,
+        54,
+        52,
+        49,
+        45,
+        40,
+        39,
+        37,
+        34,
+        30,
+        25,
+        24,
+        22,
+        19,
+        15,
+        10,
+        9,
+        7,
+        4,
+        0
+      ]
+    },
+    {
+      "id": "dense_nonnegative",
+      "vertices": 8,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          2,
+          6
+        ],
+        [
+          0,
+          3,
+          9
+        ],
+        [
+          0,
+          4,
+          12
+        ],
+        [
+          0,
+          5,
+          2
+        ],
+        [
+          0,
+          6,
+          5
+        ],
+        [
+          0,
+          7,
+          8
+        ],
+        [
+          1,
+          0,
+          7
+        ],
+        [
+          1,
+          2,
+          0
+        ],
+        [
+          1,
+          3,
+          3
+        ],
+        [
+          1,
+          4,
+          6
+        ],
+        [
+          1,
+          5,
+          9
+        ],
+        [
+          1,
+          6,
+          12
+        ],
+        [
+          1,
+          7,
+          2
+        ],
+        [
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          1,
+          4
+        ],
+        [
+          2,
+          3,
+          10
+        ],
+        [
+          2,
+          4,
+          0
+        ],
+        [
+          2,
+          5,
+          3
+        ],
+        [
+          2,
+          6,
+          6
+        ],
+        [
+          2,
+          7,
+          9
+        ],
+        [
+          3,
+          0,
+          8
+        ],
+        [
+          3,
+          1,
+          11
+        ],
+        [
+          3,
+          2,
+          1
+        ],
+        [
+          3,
+          4,
+          7
+        ],
+        [
+          3,
+          5,
+          10
+        ],
+        [
+          3,
+          6,
+          0
+        ],
+        [
+          3,
+          7,
+          3
+        ],
+        [
+          4,
+          0,
+          2
+        ],
+        [
+          4,
+          1,
+          5
+        ],
+        [
+          4,
+          2,
+          8
+        ],
+        [
+          4,
+          3,
+          11
+        ],
+        [
+          4,
+          5,
+          4
+        ],
+        [
+          4,
+          6,
+          7
+        ],
+        [
+          4,
+          7,
+          10
+        ],
+        [
+          5,
+          0,
+          9
+        ],
+        [
+          5,
+          1,
+          12
+        ],
+        [
+          5,
+          2,
+          2
+        ],
+        [
+          5,
+          3,
+          5
+        ],
+        [
+          5,
+          4,
+          8
+        ],
+        [
+          5,
+          6,
+          1
+        ],
+        [
+          5,
+          7,
+          4
+        ],
+        [
+          6,
+          0,
+          3
+        ],
+        [
+          6,
+          1,
+          6
+        ],
+        [
+          6,
+          2,
+          9
+        ],
+        [
+          6,
+          3,
+          12
+        ],
+        [
+          6,
+          4,
+          2
+        ],
+        [
+          6,
+          5,
+          5
+        ],
+        [
+          6,
+          7,
+          11
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          1,
+          0
+        ],
+        [
+          7,
+          2,
+          3
+        ],
+        [
+          7,
+          3,
+          6
+        ],
+        [
+          7,
+          4,
+          9
+        ],
+        [
+          7,
+          5,
+          12
+        ],
+        [
+          7,
+          6,
+          2
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        3,
+        3,
+        6,
+        3,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "many_parallel",
+      "vertices": 4,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          32
+        ],
+        [
+          0,
+          1,
+          31
+        ],
+        [
+          0,
+          1,
+          30
+        ],
+        [
+          0,
+          1,
+          29
+        ],
+        [
+          0,
+          1,
+          28
+        ],
+        [
+          0,
+          1,
+          27
+        ],
+        [
+          0,
+          1,
+          26
+        ],
+        [
+          0,
+          1,
+          25
+        ],
+        [
+          0,
+          1,
+          24
+        ],
+        [
+          0,
+          1,
+          23
+        ],
+        [
+          0,
+          1,
+          22
+        ],
+        [
+          0,
+          1,
+          21
+        ],
+        [
+          0,
+          1,
+          20
+        ],
+        [
+          0,
+          1,
+          19
+        ],
+        [
+          0,
+          1,
+          18
+        ],
+        [
+          0,
+          1,
+          17
+        ],
+        [
+          0,
+          1,
+          16
+        ],
+        [
+          0,
+          1,
+          15
+        ],
+        [
+          0,
+          1,
+          14
+        ],
+        [
+          0,
+          1,
+          13
+        ],
+        [
+          0,
+          1,
+          12
+        ],
+        [
+          0,
+          1,
+          11
+        ],
+        [
+          0,
+          1,
+          10
+        ],
+        [
+          0,
+          1,
+          9
+        ],
+        [
+          0,
+          1,
+          8
+        ],
+        [
+          0,
+          1,
+          7
+        ],
+        [
+          0,
+          1,
+          6
+        ],
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          2,
+          2
+        ],
+        [
+          2,
+          3,
+          1
+        ]
+      ],
+      "expected_status": 0,
+      "expected_distances": [
+        0,
+        1,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "invalid_endpoint_precedes_negative",
+      "vertices": 2,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          4,
+          -5
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "invalid_source_precedes_negative",
+      "vertices": 2,
+      "source": 2,
+      "edges": [
+        [
+          0,
+          1,
+          -5
+        ]
+      ],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "maximum_size_t_source",
+      "vertices": 1,
+      "source": 18446744073709551615,
+      "edges": [],
+      "expected_status": -3,
+      "expected_distances": null
+    },
+    {
+      "id": "negative_edge_before_later_invalid_endpoint",
+      "vertices": 3,
+      "source": 0,
+      "edges": [
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          3,
+          2
+        ]
+      ],
+      "expected_status": -4,
+      "expected_distances": null
+    }
+  ],
+  "measurement": {
+    "comparison_model": "shortest_path_call",
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 32,
+    "sample_count": 7
+  }
+}

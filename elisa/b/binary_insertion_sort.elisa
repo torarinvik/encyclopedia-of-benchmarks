@@ -1,0 +1,21 @@
+# Stable binary insertion sort using an upper-bound search for each key.
+def binary_insertion_sort_impl(values: mutable i64&, length: usize) -> void:
+    index: mutable usize = 1
+    while index < length:
+        key: i64 = values[index]
+        low: mutable usize = 0
+        high: mutable usize = index
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if values[middle] <= key:
+                low <- middle + 1
+            else:
+                high <- middle
+        position: mutable usize = index
+        while position > low:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[low] <- key
+        index <- index + 1
+
+export fn binary_insertion_sort(values: mutable i64&, length: usize) -> void = binary_insertion_sort_impl

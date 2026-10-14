@@ -1,0 +1,96 @@
+# Heapsort packed undirected edges, then union their components by rank.
+def kruskal_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 12290:
+        return -2
+    if values[0] < 0 or values[0] > 64 or values[1] < 0 or values[1] > 4096:
+        return -2
+    vertices: usize = values[0].usize()
+    edges: usize = values[1].usize()
+    if length != 2 + 3 * edges or (vertices == 0 and edges != 0):
+        return -2
+    if vertices == 0:
+        return 0
+    keys: mutable i64[4096] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        u: mutable i64 = values[2 + 3 * edge]
+        v: mutable i64 = values[3 + 3 * edge]
+        weight: i64 = values[4 + 3 * edge]
+        if u < 0 or v < 0 or u >= vertices.i64() or v >= vertices.i64() or weight < 0 or weight > 2147483647:
+            return -2
+        if u > v:
+            temporary: i64 = u
+            u <- v
+            v <- temporary
+        keys[edge] <- weight * 4096 + u * 64 + v
+        edge <- edge + 1
+    start: mutable usize = edges / 2
+    while start > 0:
+        start <- start - 1
+        root: mutable usize = start
+        while root < edges / 2:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < edges and keys[child] < keys[child + 1]:
+                child <- child + 1
+            if keys[root] >= keys[child]:
+                break
+            temporary: i64 = keys[root]
+            keys[root] <- keys[child]
+            keys[child] <- temporary
+            root <- child
+    end: mutable usize = edges
+    while end > 1:
+        end <- end - 1
+        temporary: i64 = keys[0]
+        keys[0] <- keys[end]
+        keys[end] <- temporary
+        root: mutable usize = 0
+        while root < end / 2:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < end and keys[child] < keys[child + 1]:
+                child <- child + 1
+            if keys[root] >= keys[child]:
+                break
+            temporary_root: i64 = keys[root]
+            keys[root] <- keys[child]
+            keys[child] <- temporary_root
+            root <- child
+
+    parent: mutable usize[64] = zeroed
+    ranks: mutable usize[64] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        parent[vertex] <- vertex
+        vertex <- vertex + 1
+    selected: mutable usize = 0
+    total: mutable i64 = 0
+    edge <- 0
+    while edge < edges and selected + 1 < vertices:
+        key: i64 = keys[edge]
+        u: usize = ((key % 4096) / 64).usize()
+        v: usize = (key % 64).usize()
+        root_u: mutable usize = u
+        while parent[root_u] != root_u:
+            parent[root_u] <- parent[parent[root_u]]
+            root_u <- parent[root_u]
+        root_v: mutable usize = v
+        while parent[root_v] != root_v:
+            parent[root_v] <- parent[parent[root_v]]
+            root_v <- parent[root_v]
+        if root_u != root_v:
+            total <- total + key / 4096
+            selected <- selected + 1
+            if ranks[root_u] < ranks[root_v]:
+                parent[root_u] <- root_v
+            else:
+                if ranks[root_u] > ranks[root_v]:
+                    parent[root_v] <- root_u
+                else:
+                    parent[root_v] <- root_u
+                    ranks[root_u] <- ranks[root_u] + 1
+        edge <- edge + 1
+    if selected + 1 == vertices:
+        return total
+    -1
+
+export fn kruskal(values: i64&, length: usize) -> i64 = kruskal_impl

@@ -1,0 +1,28 @@
+# Bead sort for the benchmark's nonnegative 0..63 domain.
+def bead_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    level: mutable usize = 0
+    while level < 64:
+        scratch[level] <- 0
+        level <- level + 1
+    index: mutable usize = 0
+    while index < length:
+        bead: mutable i64 = 0
+        while bead < values[index]:
+            scratch[bead.usize()] <- scratch[bead.usize()] + 1
+            bead <- bead + 1
+        index <- index + 1
+    index <- 0
+    while index < length:
+        row_from_bottom: usize = length - 1 - index
+        value: mutable i64 = 0
+        level <- 0
+        while level < 64:
+            if scratch[level] > row_from_bottom.i64():
+                value <- value + 1
+            level <- level + 1
+        values[index] <- value
+        index <- index + 1
+
+export fn bead_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = bead_sort_impl

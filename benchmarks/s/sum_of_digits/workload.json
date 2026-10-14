@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-digits-v1",
+  "algorithm": "sum_of_digits",
+  "input": {
+    "kind": "signed_32_bit_integer",
+    "range": [-2147483648, 2147483647],
+    "negative_sign": "ignored",
+    "outside_range_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"single_digit","input_value":9,"expected_result":9},
+    {"id":"power_of_ten","input_value":1000000,"expected_result":1},
+    {"id":"ascending_digits","input_value":12345,"expected_result":15},
+    {"id":"cpp_example","input_value":119765,"expected_result":29},
+    {"id":"negative_value","input_value":-12256,"expected_result":16},
+    {"id":"negative_with_trailing_zeroes","input_value":-1000000,"expected_result":1},
+    {"id":"signed_32_minimum","input_value":-2147483648,"expected_result":47},
+    {"id":"signed_32_maximum","input_value":2147483647,"expected_result":46},
+    {"id":"outside_positive_range","input_value":2147483648,"expected_result":-1},
+    {"id":"outside_negative_range","input_value":-2147483649,"expected_result":-1},
+    {"id":"alternating_zeroes","input_value":1010101010,"expected_result":5}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

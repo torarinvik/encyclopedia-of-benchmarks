@@ -1,0 +1,20 @@
+# Check whether an exact ASCII string is a palindrome.
+def palindrome_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    valid: i64 =
+        while index < length |index: mutable usize = 0, result: mutable i64 = 1| -> result:
+            if values[index] < 0 or values[index] > 127:
+                break -1
+            index <- index + 1
+    if valid != 1:
+        return -1
+    result: i64 =
+        while left < right |left: mutable usize = 0, right: mutable usize = length, result: mutable i64 = 1| -> result:
+            right <- right - 1
+            if values[left] != values[right]:
+                break 0
+            left <- left + 1
+    result
+
+export fn palindrome(values: i64&, length: usize) -> i64 = palindrome_impl

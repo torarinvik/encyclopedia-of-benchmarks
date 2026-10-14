@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "leonardo-number-v1",
+  "algorithm": "leonardo_number",
+  "input": {
+    "kind": "zero_based_index",
+    "range": [0, 89],
+    "recurrence": "L(0)=L(1)=1; L(n)=L(n-1)+L(n-2)+1",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":3},
+    {"id":"three","input_value":3,"expected_result":5},
+    {"id":"four","input_value":4,"expected_result":9},
+    {"id":"five","input_value":5,"expected_result":15},
+    {"id":"ten","input_value":10,"expected_result":177},
+    {"id":"twenty","input_value":20,"expected_result":21891},
+    {"id":"thirty","input_value":30,"expected_result":2692537},
+    {"id":"forty","input_value":40,"expected_result":331160281},
+    {"id":"fifty","input_value":50,"expected_result":40730022147},
+    {"id":"seventy_five","input_value":75,"expected_result":6832909245813413},
+    {"id":"eighty_eight","input_value":88,"expected_result":3559958832009428377},
+    {"id":"maximum_supported_index","input_value":89,"expected_result":5760134388741632239},
+    {"id":"first_overflowing_index","input_value":90,"expected_result":-1},
+    {"id":"large_invalid_index","input_value":65535,"expected_result":-1},
+    {"id":"minimum_i64","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"maximum_i64","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 1000,
+    "warmup_rounds": 1,
+    "sample_count": 7
+  }
+}

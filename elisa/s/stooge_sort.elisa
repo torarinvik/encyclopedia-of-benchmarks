@@ -1,0 +1,20 @@
+# Stooge sort on half-open ranges.
+def stooge_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
+    length: usize = high - low
+    if length < 2:
+        return
+    if values[low] > values[high - 1]:
+        temporary: i64 = values[low]
+        values[low] <- values[high - 1]
+        values[high - 1] <- temporary
+    if length > 2:
+        third: usize = length / 3
+        stooge_sort_range(values, low, high - third)
+        stooge_sort_range(values, low + third, high)
+        stooge_sort_range(values, low, high - third)
+
+def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > 1:
+        stooge_sort_range(values, 0, length)
+
+export fn stooge_sort(values: mutable i64&, length: usize) -> void = stooge_sort_impl

@@ -1,0 +1,24 @@
+# Return the exact zero-based Catalan number through the signed 64-bit range.
+def catalan_gcd_impl(left: i64, right: i64) -> i64:
+    common: i64 =
+        while b != 0 |a: i64 = left, b: i64 = right| -> a:
+            remainder: i64 = a % b
+            a <- b
+            b <- remainder
+    common
+
+def catalan_number_impl(n: i64) -> i64:
+    if n < 0 or n > 35:
+        return -1
+    value: i64 =
+        while index <= n |index: i64 = 1, current: i64 = 1| -> current:
+            numerator: i64 = 4 * index - 2
+            denominator: i64 = index + 1
+            common: i64 = catalan_gcd_impl(numerator, denominator)
+            reduced_numerator: i64 = numerator / common
+            reduced_denominator: i64 = denominator / common
+            current <- (current / reduced_denominator) * reduced_numerator
+            index <- index + 1
+    value
+
+export fn catalan_number(n: i64) -> i64 = catalan_number_impl

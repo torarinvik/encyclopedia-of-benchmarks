@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "double-factorial-v1",
+  "algorithm": "double_factorial",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 33],
+    "negative_or_overflow_result": -1,
+    "definition": "n!! is the product of positive integers at most n with the same parity as n; 0!! = 1"
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":2},
+    {"id":"three","input_value":3,"expected_result":3},
+    {"id":"four","input_value":4,"expected_result":8},
+    {"id":"five","input_value":5,"expected_result":15},
+    {"id":"ten","input_value":10,"expected_result":3840},
+    {"id":"python_example","input_value":15,"expected_result":2027025},
+    {"id":"largest_even_input","input_value":32,"expected_result":1371195958099968000},
+    {"id":"largest_accepted_input","input_value":33,"expected_result":6332659870762850625},
+    {"id":"first_overflowing_input","input_value":34,"expected_result":-1},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

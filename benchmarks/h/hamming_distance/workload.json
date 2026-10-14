@@ -1,0 +1,866 @@
+{
+  "schema_version": 1,
+  "id": "hamming_distance-v1",
+  "algorithm": "hamming_distance",
+  "input": {
+    "kind": "unsigned_64_pair",
+    "meaning": "Hamming distance between the two 64-bit values, counted over all 64 bit positions"
+  },
+  "cases": [
+    {
+      "id": "zero_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_one",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "same_max",
+      "input_values": [
+        18446744073709551615,
+        18446744073709551615
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_all_bits",
+      "input_values": [
+        0,
+        18446744073709551615
+      ],
+      "expected_result": 64
+    },
+    {
+      "id": "alternating_bits",
+      "input_values": [
+        12297829382473034410,
+        6148914691236517205
+      ],
+      "expected_result": 64
+    },
+    {
+      "id": "upstream_11_2",
+      "input_values": [
+        11,
+        2
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "upstream_2_0",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "upstream_11_0",
+      "input_values": [
+        11,
+        0
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "low_byte",
+      "input_values": [
+        240,
+        15
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "high_byte",
+      "input_values": [
+        18374686479671623680,
+        71776119061217280
+      ],
+      "expected_result": 16
+    },
+    {
+      "id": "single_bit_00",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_01",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_02",
+      "input_values": [
+        4,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_03",
+      "input_values": [
+        8,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_04",
+      "input_values": [
+        16,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_05",
+      "input_values": [
+        32,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_06",
+      "input_values": [
+        64,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_07",
+      "input_values": [
+        128,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_08",
+      "input_values": [
+        256,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_09",
+      "input_values": [
+        512,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_10",
+      "input_values": [
+        1024,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_11",
+      "input_values": [
+        2048,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_12",
+      "input_values": [
+        4096,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_13",
+      "input_values": [
+        8192,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_14",
+      "input_values": [
+        16384,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_15",
+      "input_values": [
+        32768,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_16",
+      "input_values": [
+        65536,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_17",
+      "input_values": [
+        131072,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_18",
+      "input_values": [
+        262144,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_19",
+      "input_values": [
+        524288,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_20",
+      "input_values": [
+        1048576,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_21",
+      "input_values": [
+        2097152,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_22",
+      "input_values": [
+        4194304,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_23",
+      "input_values": [
+        8388608,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_24",
+      "input_values": [
+        16777216,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_25",
+      "input_values": [
+        33554432,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_26",
+      "input_values": [
+        67108864,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_27",
+      "input_values": [
+        134217728,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_28",
+      "input_values": [
+        268435456,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_29",
+      "input_values": [
+        536870912,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_30",
+      "input_values": [
+        1073741824,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_31",
+      "input_values": [
+        2147483648,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_32",
+      "input_values": [
+        4294967296,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_33",
+      "input_values": [
+        8589934592,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_34",
+      "input_values": [
+        17179869184,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_35",
+      "input_values": [
+        34359738368,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_36",
+      "input_values": [
+        68719476736,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_37",
+      "input_values": [
+        137438953472,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_38",
+      "input_values": [
+        274877906944,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_39",
+      "input_values": [
+        549755813888,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_40",
+      "input_values": [
+        1099511627776,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_41",
+      "input_values": [
+        2199023255552,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_42",
+      "input_values": [
+        4398046511104,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_43",
+      "input_values": [
+        8796093022208,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_44",
+      "input_values": [
+        17592186044416,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_45",
+      "input_values": [
+        35184372088832,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_46",
+      "input_values": [
+        70368744177664,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_47",
+      "input_values": [
+        140737488355328,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_48",
+      "input_values": [
+        281474976710656,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_49",
+      "input_values": [
+        562949953421312,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_50",
+      "input_values": [
+        1125899906842624,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_51",
+      "input_values": [
+        2251799813685248,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_52",
+      "input_values": [
+        4503599627370496,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_53",
+      "input_values": [
+        9007199254740992,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_54",
+      "input_values": [
+        18014398509481984,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_55",
+      "input_values": [
+        36028797018963968,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_56",
+      "input_values": [
+        72057594037927936,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_57",
+      "input_values": [
+        144115188075855872,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_58",
+      "input_values": [
+        288230376151711744,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_59",
+      "input_values": [
+        576460752303423488,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_60",
+      "input_values": [
+        1152921504606846976,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_61",
+      "input_values": [
+        2305843009213693952,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_62",
+      "input_values": [
+        4611686018427387904,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_bit_63",
+      "input_values": [
+        9223372036854775808,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_00",
+      "input_values": [
+        10065100486563720674,
+        12497841742432866612
+      ],
+      "expected_result": 39
+    },
+    {
+      "id": "random_01",
+      "input_values": [
+        2758348324299329082,
+        8883554403956458128
+      ],
+      "expected_result": 26
+    },
+    {
+      "id": "random_02",
+      "input_values": [
+        9369521500074168202,
+        11678123917283403453
+      ],
+      "expected_result": 35
+    },
+    {
+      "id": "random_03",
+      "input_values": [
+        5893367740707706447,
+        6539525754134721448
+      ],
+      "expected_result": 32
+    },
+    {
+      "id": "random_04",
+      "input_values": [
+        2810032217105122896,
+        10059624756336176687
+      ],
+      "expected_result": 31
+    },
+    {
+      "id": "random_05",
+      "input_values": [
+        14946858436768644342,
+        16495673597931486729
+      ],
+      "expected_result": 33
+    },
+    {
+      "id": "random_06",
+      "input_values": [
+        7976960383290286509,
+        4362649238647362608
+      ],
+      "expected_result": 33
+    },
+    {
+      "id": "random_07",
+      "input_values": [
+        12902099680339975502,
+        8251370088967344308
+      ],
+      "expected_result": 37
+    },
+    {
+      "id": "random_08",
+      "input_values": [
+        5795987008098788693,
+        12190785621822182976
+      ],
+      "expected_result": 32
+    },
+    {
+      "id": "random_09",
+      "input_values": [
+        14559951526582055734,
+        10765857729412680974
+      ],
+      "expected_result": 33
+    },
+    {
+      "id": "random_10",
+      "input_values": [
+        7432901234423498181,
+        14493556863293184634
+      ],
+      "expected_result": 39
+    },
+    {
+      "id": "random_11",
+      "input_values": [
+        13948643298395277557,
+        10491070574255078628
+      ],
+      "expected_result": 27
+    },
+    {
+      "id": "random_12",
+      "input_values": [
+        17784748872475037777,
+        12956854247068791531
+      ],
+      "expected_result": 28
+    },
+    {
+      "id": "random_13",
+      "input_values": [
+        3977705132802241405,
+        7043250468992438232
+      ],
+      "expected_result": 26
+    },
+    {
+      "id": "random_14",
+      "input_values": [
+        221009800472132152,
+        13444459662737096994
+      ],
+      "expected_result": 35
+    },
+    {
+      "id": "random_15",
+      "input_values": [
+        6824315365507285399,
+        7229323725871896527
+      ],
+      "expected_result": 29
+    },
+    {
+      "id": "random_16",
+      "input_values": [
+        2224790847115255817,
+        8015148004621941665
+      ],
+      "expected_result": 32
+    },
+    {
+      "id": "random_17",
+      "input_values": [
+        7030823611879232047,
+        2442122467930772859
+      ],
+      "expected_result": 31
+    },
+    {
+      "id": "random_18",
+      "input_values": [
+        16380795500541720830,
+        15278448336170475466
+      ],
+      "expected_result": 32
+    },
+    {
+      "id": "random_19",
+      "input_values": [
+        15424005373390521972,
+        16347267813439761133
+      ],
+      "expected_result": 29
+    },
+    {
+      "id": "random_20",
+      "input_values": [
+        14035036296969089648,
+        5025643383773826430
+      ],
+      "expected_result": 37
+    },
+    {
+      "id": "random_21",
+      "input_values": [
+        1051534319195698868,
+        15583340545021081470
+      ],
+      "expected_result": 30
+    },
+    {
+      "id": "random_22",
+      "input_values": [
+        18048281749967003037,
+        1057435349875538986
+      ],
+      "expected_result": 36
+    },
+    {
+      "id": "random_23",
+      "input_values": [
+        162830586253299912,
+        5468811995558155610
+      ],
+      "expected_result": 27
+    },
+    {
+      "id": "random_24",
+      "input_values": [
+        10247826643756085844,
+        34860252403017457
+      ],
+      "expected_result": 29
+    },
+    {
+      "id": "random_25",
+      "input_values": [
+        15374086884864240226,
+        16070373600956394273
+      ],
+      "expected_result": 27
+    },
+    {
+      "id": "random_26",
+      "input_values": [
+        6815901606349265971,
+        13235893627133151477
+      ],
+      "expected_result": 31
+    },
+    {
+      "id": "random_27",
+      "input_values": [
+        13806587244387760460,
+        13629971114147914989
+      ],
+      "expected_result": 36
+    },
+    {
+      "id": "random_28",
+      "input_values": [
+        14738114181392749200,
+        121226733370093714
+      ],
+      "expected_result": 27
+    },
+    {
+      "id": "random_29",
+      "input_values": [
+        1835541301044161,
+        14034692542321288975
+      ],
+      "expected_result": 35
+    },
+    {
+      "id": "random_30",
+      "input_values": [
+        8844143482407049048,
+        12717578350016366928
+      ],
+      "expected_result": 29
+    },
+    {
+      "id": "random_31",
+      "input_values": [
+        3941200379025615537,
+        15382638100396808578
+      ],
+      "expected_result": 38
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "binary_scalar_call",
+    "repetitions_per_sample": 64,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

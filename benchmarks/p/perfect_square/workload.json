@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "perfect-square-v1",
+  "algorithm": "perfect_square",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "negative_result": 0,
+    "true_result": 1,
+    "false_result": 0
+  },
+  "cases": [
+    {"id":"negative_one","input_value":-1,"expected_result":0},
+    {"id":"negative_square_magnitude","input_value":-81,"expected_result":0},
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"small_square","input_value":144,"expected_result":1},
+    {"id":"small_non_square","input_value":145,"expected_result":0},
+    {"id":"integer_square_root_boundary","input_value":2147395600,"expected_result":1},
+    {"id":"square_above_signed_32_bit","input_value":2147488281,"expected_result":1},
+    {"id":"large_signed_64_square","input_value":9223372030926249001,"expected_result":1},
+    {"id":"one_below_large_square","input_value":9223372030926249000,"expected_result":0},
+    {"id":"signed_64_maximum","input_value":9223372036854775807,"expected_result":0},
+    {"id":"signed_64_minimum","input_value":-9223372036854775808,"expected_result":0}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

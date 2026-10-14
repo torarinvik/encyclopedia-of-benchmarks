@@ -1,0 +1,30 @@
+# Convert a most-significant-first bit array to radix 8 text.
+def binary_to_octal_impl(bits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 63:
+        return -1
+    value: i64 =
+        while index < length |index: mutable usize = 0, accumulated: mutable i64 = 0| -> accumulated:
+            bit: i64 = bits[index]
+            if bit < 0 or bit > 1:
+                break -1
+            accumulated <- accumulated * 2 + bit
+            index <- index + 1
+    if value < 0:
+        return -1
+    width: usize =
+        while remaining >= 8 |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / 8
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
+        position <- position - 1
+        digit: i64 = remaining % 8
+        if digit < 10:
+            output[position] <- (48 + digit).u8()
+        else:
+            output[position] <- (87 + digit).u8()
+        remaining <- remaining / 8
+    width.i64()
+
+export fn binary_to_octal(bits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_to_octal_impl

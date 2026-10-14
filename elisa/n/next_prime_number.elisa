@@ -1,0 +1,28 @@
+# Find the smallest prime strictly greater than the input.
+def next_prime_number_impl(value: i64) -> i64:
+    if value < -4096 or value > 4096:
+        return -1
+
+    candidate: mutable i64 = value + 1
+    if candidate < 2:
+        candidate <- 2
+    answer: i64 =
+        while not is_prime(candidate) |candidate: mutable i64 = candidate| -> candidate:
+            candidate <- candidate + 1
+    answer
+
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value == 2:
+        return true
+    if value % 2 == 0:
+        return false
+    composite: bool =
+        while divisor <= value / divisor |divisor: mutable i64 = 3, found: bool = false| -> found:
+            if value % divisor == 0:
+                break true
+            divisor <- divisor + 2
+    not composite
+
+export fn next_prime_number(value: i64) -> i64 = next_prime_number_impl

@@ -1,0 +1,7 @@
+# Return the signed 64-bit magnitude, or -1 when it cannot be represented.
+def abs_i64_impl(input: i64) -> i64:
+    return -1 if input == -9223372036854775807 - 1
+    -input if input < 0 else input
+
+
+export fn abs_i64(input: i64) -> i64 = abs_i64_impl

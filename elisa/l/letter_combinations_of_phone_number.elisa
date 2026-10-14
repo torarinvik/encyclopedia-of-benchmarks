@@ -1,0 +1,62 @@
+# Recursively enumerate 2–9 phone keypad letters into fixed-width output slots.
+def letter_count(digit: i64) -> usize:
+    if digit == 7 or digit == 9:
+        return 4
+    3
+
+def letter_base(digit: i64) -> u8:
+    if digit == 2:
+        return 97
+    if digit == 3:
+        return 100
+    if digit == 4:
+        return 103
+    if digit == 5:
+        return 106
+    if digit == 6:
+        return 109
+    if digit == 7:
+        return 112
+    if digit == 8:
+        return 116
+    119
+
+def expand(digits: i64&, length: usize, index: usize, output: mutable u8&,
+           output_offset: usize, combination_count: usize) -> void:
+    if index == length:
+        return
+    alternatives: usize = letter_count(digits[index])
+    block_count: usize = combination_count / alternatives
+    base: u8 = letter_base(digits[index])
+    letter: mutable usize = 0
+    while letter < alternatives:
+        branch_offset: usize = output_offset + letter * block_count * length
+        row: mutable usize = 0
+        while row < block_count:
+            output[branch_offset + row * length + index] <- (base.i64() + letter.i64()).u8()
+            row <- row + 1
+        expand(digits, length, index + 1, output, branch_offset, block_count)
+        letter <- letter + 1
+
+def letter_combinations_of_phone_number_impl(digits: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0:
+        return 0
+    if length > 6:
+        return -1
+    count: mutable usize = 1
+    index: mutable usize = 0
+    while index < length:
+        digit: i64 = digits[index]
+        if digit < 2 or digit > 9:
+            return -1
+        count <- count * letter_count(digit)
+        index <- index + 1
+    required: usize = count * length
+    if output_capacity < required:
+        return -2
+    expand(digits, length, 0, output, 0, count)
+    count.i64()
+
+export fn letter_combinations_of_phone_number(digits: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = letter_combinations_of_phone_number_impl

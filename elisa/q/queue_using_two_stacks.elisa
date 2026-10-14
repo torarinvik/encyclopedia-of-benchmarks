@@ -1,0 +1,56 @@
+# Amortized FIFO queue implemented with an input and an output stack.
+def queue_using_two_stacks_impl(values: i64&, length: usize) -> i64:
+    if length > 1024 or length % 2 != 0:
+        return -1
+    operation_count: usize = length / 2
+    checksum: i64 =
+        while operation < operation_count |operation: mutable usize = 0, in_stack: mutable i64[256] = zeroed, in_count: mutable usize = 0, out_stack: mutable i64[256] = zeroed, out_count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
+            opcode: i64 = values[2 * operation]
+            payload: i64 = values[2 * operation + 1]
+            observed: mutable i64 = 0
+            returns_value: mutable bool = true
+            if opcode == 0:
+                if payload < -1000000 or payload > 1000000 or in_count + out_count == 256:
+                    break -1
+                in_stack[in_count] <- payload
+                in_count <- in_count + 1
+                returns_value <- false
+            elif opcode == 1 or opcode == 2:
+                if payload != 0:
+                    break -1
+                if out_count == 0:
+                    out_stack <- for index in 0..<in_count |output: mutable i64[256] = out_stack| -> output:
+                        output[in_count - index - 1] <- in_stack[index]
+                    out_count <- in_count
+                    in_count <- 0
+                if out_count == 0:
+                    break -1
+                if opcode == 1:
+                    out_count <- out_count - 1
+                    observed <- out_stack[out_count]
+                else:
+                    observed <- out_stack[out_count - 1]
+            elif opcode == 3:
+                if payload != 0:
+                    break -1
+                if in_count + out_count == 0:
+                    observed <- 1
+            elif opcode == 4:
+                if payload != 0:
+                    break -1
+                observed <- (in_count + out_count).i64()
+            else:
+                break -1
+            if returns_value:
+                checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+            operation <- operation + 1
+            if operation == operation_count:
+                checksum <- while index < out_count |index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + index + 1).i64() * (out_stack[out_count - index - 1] + 1000000)
+                    index <- index + 1
+                checksum <- while index < in_count |index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + out_count + index + 1).i64() * (in_stack[index] + 1000000)
+                    index <- index + 1
+    checksum
+
+export fn queue_using_two_stacks_benchmark(values: i64&, length: usize) -> i64 = queue_using_two_stacks_impl

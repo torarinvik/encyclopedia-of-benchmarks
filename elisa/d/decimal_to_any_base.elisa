@@ -1,0 +1,25 @@
+# Convert a nonnegative signed 64-bit value to base 2 through 36.
+def decimal_to_any_base_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    value: i64 = input[0]
+    base: i64 = input[1]
+    if value < 0 or base < 2 or base > 36:
+        return -1
+    width: usize =
+        while remaining >= base |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / base
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
+        position <- position - 1
+        digit: i64 = remaining % base
+        if digit < 10:
+            output[position] <- (48 + digit).u8()
+        else:
+            output[position] <- (55 + digit).u8()
+        remaining <- remaining / base
+    width.i64()
+
+export fn decimal_to_any_base(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = decimal_to_any_base_impl

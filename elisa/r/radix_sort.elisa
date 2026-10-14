@@ -1,0 +1,43 @@
+# Stable LSD radix sort for signed 64-bit values.
+def radix_order_key(value: i64) -> u64:
+    sign_bit: u64 = 1.u64() << 63
+    if value < 0:
+        return sign_bit - 1.u64() - (-(value + 1)).u64()
+    return sign_bit + value.u64()
+
+def radix_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    digit_pass: mutable usize = 0
+    while digit_pass < 8:
+        bucket: mutable usize = 0
+        while bucket < 256:
+            scratch[bucket] <- 0
+            bucket <- bucket + 1
+        shift: usize = digit_pass * 8
+        index: mutable usize = 0
+        while index < length:
+            digit: usize = ((radix_order_key(values[index]) >> shift) & 255.u64()).usize()
+            scratch[digit] <- scratch[digit] + 1
+            index <- index + 1
+        next: mutable usize = 0
+        bucket <- 0
+        while bucket < 256:
+            count: usize = scratch[bucket].usize()
+            scratch[bucket] <- next.i64()
+            next <- next + count
+            bucket <- bucket + 1
+        index <- 0
+        while index < length:
+            digit: usize = ((radix_order_key(values[index]) >> shift) & 255.u64()).usize()
+            destination: usize = scratch[digit].usize()
+            scratch[digit] <- scratch[digit] + 1
+            scratch[256 + destination] <- values[index]
+            index <- index + 1
+        index <- 0
+        while index < length:
+            values[index] <- scratch[256 + index]
+            index <- index + 1
+        digit_pass <- digit_pass + 1
+
+export fn radix_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = radix_sort_impl

@@ -1,0 +1,59 @@
+# Directed edge triples, nonnegative weights, separate reachability.
+def dijkstra_impl(edges: i64&, vertices: usize, edge_count: usize, source: usize, distances: mutable i64&, reachable: mutable u8&) -> i64:
+    if vertices == 0:
+        return 0 if source == 0 and edge_count == 0 else -3
+    if source >= vertices:
+        return -3
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin: i64 = edges[3 * edge]
+        destination: i64 = edges[3 * edge + 1]
+        weight: i64 = edges[3 * edge + 2]
+        if origin < 0 or destination < 0:
+            return -3
+        if origin.u64() >= vertices.u64() or destination.u64() >= vertices.u64():
+            return -3
+        if weight < 0:
+            return -4
+        edge <- edge + 1
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        distances[vertex] <- 0
+        reachable[vertex] <- 0
+        vertex <- vertex + 1
+    reachable[source] <- 1
+    round: mutable usize = 0
+    while round < vertices:
+        selected: mutable usize = vertices
+        best: mutable i64 = 0
+        vertex <- 0
+        while vertex < vertices:
+            if reachable[vertex] == 1 and (selected == vertices or distances[vertex] < best):
+                selected <- vertex
+                best <- distances[vertex]
+            vertex <- vertex + 1
+        if selected == vertices:
+            break
+        reachable[selected] <- 2
+        edge <- 0
+        while edge < edge_count:
+            if edges[3 * edge].usize() == selected:
+                destination: usize = edges[3 * edge + 1].usize()
+                weight: i64 = edges[3 * edge + 2]
+                base: i64 = distances[selected]
+                if base > 9223372036854775807 - weight:
+                    return -2
+                candidate: i64 = base + weight
+                if reachable[destination] != 2 and (reachable[destination] == 0 or candidate < distances[destination]):
+                    distances[destination] <- candidate
+                    reachable[destination] <- 1
+            edge <- edge + 1
+        round <- round + 1
+    vertex <- 0
+    while vertex < vertices:
+        if reachable[vertex] == 2:
+            reachable[vertex] <- 1
+        vertex <- vertex + 1
+    0
+
+export fn dijkstra(edges: i64&, vertices: usize, edge_count: usize, source: usize, distances: mutable i64&, reachable: mutable u8&) -> i64 = dijkstra_impl

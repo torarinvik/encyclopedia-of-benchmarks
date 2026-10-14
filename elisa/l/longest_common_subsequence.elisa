@@ -1,0 +1,36 @@
+# Return the LCS length of two packed ASCII sequences.
+def longest_common_subsequence_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 512:
+        return -1
+    left_length_value: i64 = input_values[0]
+    right_length_value: i64 = input_values[1]
+    if left_length_value < 0 or left_length_value > 255 or right_length_value < 0 or right_length_value > 255:
+        return -1
+    left_length: usize = left_length_value.usize()
+    right_length: usize = right_length_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1
+
+    index: mutable usize = 0
+    while index < left_length + right_length:
+        value: i64 = input_values[2 + index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    result: i64 =
+        while left < left_length |left: usize = 0, dp: mutable i64[256] = zeroed| -> dp[right_length]:
+            diagonal: mutable i64 = 0
+            right: mutable usize = 1
+            while right <= right_length:
+                above: i64 = dp[right]
+                if input_values[2 + left] == input_values[2 + left_length + right - 1]:
+                    dp[right] <- diagonal + 1
+                elif dp[right - 1] > dp[right]:
+                    dp[right] <- dp[right - 1]
+                diagonal <- above
+                right <- right + 1
+            left <- left + 1
+    result
+
+export fn longest_common_subsequence(input_values: i64&, length: usize) -> i64 = longest_common_subsequence_impl

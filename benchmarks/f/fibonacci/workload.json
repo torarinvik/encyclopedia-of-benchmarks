@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-v1",
+  "algorithm": "fibonacci",
+  "input": {
+    "minimum": 0,
+    "maximum": 92,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 1},
+    {"id": "ten", "input_value": 10, "expected_result": 55},
+    {"id": "twenty", "input_value": 20, "expected_result": 6765},
+    {"id": "forty_six", "input_value": 46, "expected_result": 1836311903},
+    {"id": "maximum", "input_value": 92, "expected_result": 7540113804746346429},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 93, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

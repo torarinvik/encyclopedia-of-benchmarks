@@ -1,0 +1,59 @@
+# Stable top-byte bucket sort for signed 64-bit values.
+def bucket_order_key(value: i64) -> u64:
+    sign_bit: u64 = 1.u64() << 63
+    if value < 0:
+        return sign_bit - 1.u64() - (-(value + 1)).u64()
+    return sign_bit + value.u64()
+
+def bucket_sort_insertion(values: mutable i64&, base: usize, low: usize, high: usize) -> void:
+    index: mutable usize = low
+    if low < high:
+        index <- index + 1
+    while index < high:
+        key: i64 = values[base + index]
+        position: mutable usize = index
+        while position > low and values[base + position - 1] > key:
+            values[base + position] <- values[base + position - 1]
+            position <- position - 1
+        values[base + position] <- key
+        index <- index + 1
+
+def bucket_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    bucket: mutable usize = 0
+    while bucket < 256:
+        scratch[bucket] <- 0
+        bucket <- bucket + 1
+    index: mutable usize = 0
+    while index < length:
+        bucket: usize = (bucket_order_key(values[index]) >> 56).usize()
+        scratch[bucket] <- scratch[bucket] + 1
+        index <- index + 1
+    next: mutable usize = 0
+    bucket <- 0
+    while bucket < 256:
+        count: usize = scratch[bucket].usize()
+        scratch[bucket] <- next.i64()
+        next <- next + count
+        bucket <- bucket + 1
+    index <- 0
+    while index < length:
+        bucket: usize = (bucket_order_key(values[index]) >> 56).usize()
+        destination: usize = scratch[bucket].usize()
+        scratch[bucket] <- scratch[bucket] + 1
+        scratch[256 + destination] <- values[index]
+        index <- index + 1
+    low: mutable usize = 0
+    bucket <- 0
+    while bucket < 256:
+        high: usize = scratch[bucket].usize()
+        bucket_sort_insertion(scratch, 256, low, high)
+        low <- high
+        bucket <- bucket + 1
+    index <- 0
+    while index < length:
+        values[index] <- scratch[256 + index]
+        index <- index + 1
+
+export fn bucket_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = bucket_sort_impl

@@ -1,0 +1,36 @@
+# Convert a nonnegative signed 64-bit value with a LIFO digit stack.
+def decimal_to_any_using_stack_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    value: i64 = input[0]
+    base: i64 = input[1]
+    if value < 0 or base < 2 or base > 16:
+        return -1
+    width: usize =
+        while remaining >= base |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / base
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    top: mutable usize = 0
+    if value == 0:
+        output[0] <- 48
+        top <- 1
+    else:
+        top <- while remaining > 0 |remaining: mutable i64 = value, position: mutable usize = 0, output| -> position:
+            digit: i64 = remaining % base
+            if digit < 10:
+                output[position] <- (48 + digit).u8()
+            else:
+                output[position] <- (55 + digit).u8()
+            position <- position + 1
+            remaining <- remaining / base
+    while left < right |left: mutable usize = 0, right: mutable usize = top - 1, output| -> output:
+        temporary: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    top.i64()
+
+export fn decimal_to_any_using_stack(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = decimal_to_any_using_stack_impl

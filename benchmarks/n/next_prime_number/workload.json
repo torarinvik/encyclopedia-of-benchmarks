@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "next-prime-number-v1",
+  "algorithm": "next_prime_number",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": -4096,
+    "maximum_value": 4096,
+    "result": "smallest prime strictly greater than the input",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_minimum","input_value":-4096,"expected_result":2},
+    {"id":"negative","input_value":-10,"expected_result":2},
+    {"id":"minus_one","input_value":-1,"expected_result":2},
+    {"id":"zero","input_value":0,"expected_result":2},
+    {"id":"one","input_value":1,"expected_result":2},
+    {"id":"two","input_value":2,"expected_result":3},
+    {"id":"three","input_value":3,"expected_result":5},
+    {"id":"composite","input_value":14,"expected_result":17},
+    {"id":"prime","input_value":97,"expected_result":101},
+    {"id":"perfect_square","input_value":121,"expected_result":127},
+    {"id":"near_thousand","input_value":997,"expected_result":1009},
+    {"id":"maximum","input_value":4096,"expected_result":4099},
+    {"id":"below_range","input_value":-4097,"expected_result":-1},
+    {"id":"above_range","input_value":4097,"expected_result":-1},
+    {"id":"signed_64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,26 @@
+# Check whether the square ends with the original nonnegative integer.
+def add_mod(left: u64, right: u64, modulus: u64) -> u64:
+    if left >= modulus - right:
+        return left - (modulus - right)
+    left + right
+
+def multiply_mod(left: u64, right: u64, modulus: u64) -> u64:
+    while multiplier != 0.u64() |factor: mutable u64 = left, multiplier: mutable u64 = right, result: mutable u64 = 0.u64()| -> result:
+        if (multiplier & 1.u64()) != 0.u64():
+            result <- add_mod(result, factor, modulus)
+        multiplier <- multiplier >> 1
+        if multiplier != 0.u64():
+            factor <- add_mod(factor, factor, modulus)
+    
+
+def automorphic_number_impl(n: i64) -> i64:
+    return 0 if n < 0
+        
+    number: u64 = n.u64()
+    modulus: u64 =
+        while digits >= 10.u64() |digits: mutable u64 = number, power: mutable u64 = 10.u64()| -> power:
+            digits <- digits / 10.u64()
+            power <- power * 10.u64()
+    1 if multiply_mod(number, number, modulus) == number else 0
+
+export fn automorphic_number(n: i64) -> i64 = automorphic_number_impl

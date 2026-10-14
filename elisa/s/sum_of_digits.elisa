@@ -1,0 +1,16 @@
+# Iteratively add the decimal digits of a signed 32-bit integer's magnitude.
+def sum_of_digits_impl(input: i64) -> i64:
+    if input < -2147483648 or input > 2147483647:
+        return -1
+    magnitude: mutable u64 = 0
+    if input < 0:
+        magnitude <- (-input).u64()
+    else:
+        magnitude <- input.u64()
+    result: i64 =
+        while remaining > 0 |remaining: u64 = magnitude, total: u64 = 0| -> total.i64():
+            total <- total + remaining % 10
+            remaining <- remaining / 10
+    result
+
+export fn sum_of_digits(input: i64) -> i64 = sum_of_digits_impl

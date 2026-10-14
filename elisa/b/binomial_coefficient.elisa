@@ -1,0 +1,25 @@
+# Calculate C(n, k) by updating one row of Pascal's triangle.
+def binomial_coefficient_impl(n: u64, k: u64) -> i64:
+    if n > 66:
+        return -1
+    if k > n:
+        return 0
+    if k == 0:
+        return 1
+    n_value: usize = n.usize()
+    k_value: usize = k.usize()
+    coefficients: i64[67] =
+        while row <= n_value |row: mutable usize = 1, values: mutable i64[67] = zeroed| -> values:
+            values[0] <- 1
+            column: mutable usize = row
+            if k_value < row:
+                column <- k_value
+            updated: i64[67] =
+                while column > 0 |column: mutable usize = column, work_values: mutable i64[67] = values| -> work_values:
+                    work_values[column] <- work_values[column] + work_values[column - 1]
+                    column <- column - 1
+            rebind values = updated
+            row <- row + 1
+    coefficients[k_value]
+
+export fn binomial_coefficient(n: u64, k: u64) -> i64 = binomial_coefficient_impl

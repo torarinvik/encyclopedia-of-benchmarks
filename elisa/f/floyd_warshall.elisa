@@ -1,0 +1,77 @@
+# Bounded Floyd-Warshall all-pairs paths, returning one requested source row.
+def floyd_warshall_impl(edges: i64&, vertices: usize, edge_count: usize, source: usize,
+                        distances: mutable i64&, reachable: mutable u8&) -> i64:
+    if vertices == 0:
+        return 0 if source == 0 and edge_count == 0 else -3
+    if vertices > 64 or source >= vertices:
+        return -3
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin: i64 = edges[3 * edge]
+        destination: i64 = edges[3 * edge + 1]
+        if origin < 0 or destination < 0 or origin.u64() >= vertices.u64() or destination.u64() >= vertices.u64():
+            return -3
+        edge <- edge + 1
+
+    all_distances: mutable i64[4096] = zeroed
+    present: mutable bool[4096] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        present[vertex * vertices + vertex] <- true
+        vertex <- vertex + 1
+    edge <- 0
+    while edge < edge_count:
+        origin: usize = edges[3 * edge].usize()
+        destination: usize = edges[3 * edge + 1].usize()
+        index: usize = origin * vertices + destination
+        weight: i64 = edges[3 * edge + 2]
+        if not present[index] or weight < all_distances[index]:
+            all_distances[index] <- weight
+            present[index] <- true
+        edge <- edge + 1
+
+    middle: mutable usize = 0
+    while middle < vertices:
+        origin: mutable usize = 0
+        while origin < vertices:
+            left_index: usize = origin * vertices + middle
+            if present[left_index]:
+                destination: mutable usize = 0
+                while destination < vertices:
+                    right_index: usize = middle * vertices + destination
+                    if present[right_index]:
+                        left: i64 = all_distances[left_index]
+                        right: i64 = all_distances[right_index]
+                        if right > 0 and left > 9223372036854775807 - right:
+                            return -2
+                        if right < 0 and left < (-9223372036854775807 - 1) - right:
+                            return -2
+                        candidate: i64 = left + right
+                        index: usize = origin * vertices + destination
+                        if not present[index] or candidate < all_distances[index]:
+                            all_distances[index] <- candidate
+                            present[index] <- true
+                    destination <- destination + 1
+            origin <- origin + 1
+        middle <- middle + 1
+
+    vertex <- 0
+    while vertex < vertices:
+        index: usize = source * vertices + vertex
+        diagonal: usize = vertex * vertices + vertex
+        if present[index] and present[diagonal] and all_distances[diagonal] < 0:
+            return -1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < vertices:
+        index: usize = source * vertices + vertex
+        reachable[vertex] <- present[index].u8()
+        if present[index]:
+            distances[vertex] <- all_distances[index]
+        else:
+            distances[vertex] <- 0
+        vertex <- vertex + 1
+    0
+
+export fn floyd_warshall(edges: i64&, vertices: usize, edge_count: usize, source: usize,
+                         distances: mutable i64&, reachable: mutable u8&) -> i64 = floyd_warshall_impl

@@ -1,0 +1,20 @@
+# Write the most-significant-first binary representation of a nonnegative i64.
+def decimal_to_binary_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 0:
+        return -1
+    width: usize =
+        while remaining > 1 |remaining: i64 = value, count: usize = 1| -> count:
+            remaining <- remaining / 2
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: usize = width, remaining: i64 = value, output| -> output:
+        position <- position - 1
+        if remaining % 2 == 0:
+            output[position] <- 48
+        else:
+            output[position] <- 49
+        remaining <- remaining / 2
+    width.i64()
+
+export fn decimal_to_binary(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = decimal_to_binary_impl

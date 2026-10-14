@@ -1,0 +1,32 @@
+# Recursive circle sort for the shared signed 64-bit benchmark contract.
+def circle_pass(values: mutable i64&, low: usize, high: usize) -> bool:
+    length: usize = high - low
+    if length < 2:
+        return false
+    swapped: mutable bool = false
+    left: mutable usize = low
+    right: mutable usize = high - 1
+    while left < right:
+        if values[left] > values[right]:
+            temporary: i64 = values[left]
+            values[left] <- values[right]
+            values[right] <- temporary
+            swapped <- true
+        left <- left + 1
+        right <- right - 1
+    if length % 2 != 0 and left == right and right + 1 < high and values[right + 1] < values[right]:
+        temporary: i64 = values[right]
+        values[right] <- values[right + 1]
+        values[right + 1] <- temporary
+        swapped <- true
+    split: usize = low + length / 2 + length % 2
+    left_swapped: bool = circle_pass(values, low, split)
+    right_swapped: bool = circle_pass(values, split, high)
+    swapped or left_swapped or right_swapped
+
+def circle_sort_impl(values: mutable i64&, length: usize) -> void:
+    keep_going: mutable bool = true
+    while keep_going:
+        keep_going <- length > 1 and circle_pass(values, 0, length)
+
+export fn circle_sort(values: mutable i64&, length: usize) -> void = circle_sort_impl

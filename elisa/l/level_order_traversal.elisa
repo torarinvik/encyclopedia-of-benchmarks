@@ -1,0 +1,53 @@
+# Breadth-first indexed binary-tree traversal, recording each level boundary.
+def level_order_traversal_impl(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        level_offsets: mutable usize&, level_offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64:
+    if node_count == 0:
+        if root_index != -1:
+            return -1
+        if level_offsets_capacity < 1:
+            return -2
+        level_offsets[0] <- 0
+        return 0
+    if node_count > 4096 or root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    if output_capacity < node_count or level_offsets_capacity < node_count + 1 or queue_capacity < node_count:
+        return -2
+    head: mutable usize = 0
+    queue_end: mutable usize = 1
+    visited: mutable usize = 0
+    levels: mutable usize = 0
+    queue[0] <- root_index.usize()
+    level_offsets[0] <- 0
+    while head < queue_end:
+        level_end: usize = queue_end
+        while head < level_end:
+            node: usize = queue[head]
+            head <- head + 1
+            output_values[visited] <- nodes[3 * node]
+            visited <- visited + 1
+            left: i64 = nodes[3 * node + 1]
+            right: i64 = nodes[3 * node + 2]
+            if left < -1 or right < -1:
+                return -1
+            if left >= 0:
+                if left.u64() >= node_count.u64() or queue_end >= queue_capacity:
+                    return -1
+                queue[queue_end] <- left.usize()
+                queue_end <- queue_end + 1
+            if right >= 0:
+                if right.u64() >= node_count.u64() or queue_end >= queue_capacity:
+                    return -1
+                queue[queue_end] <- right.usize()
+                queue_end <- queue_end + 1
+        levels <- levels + 1
+        level_offsets[levels] <- visited
+    if visited != node_count:
+        return -1
+    levels.i64()
+
+export fn level_order_traversal(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        level_offsets: mutable usize&, level_offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64 = level_order_traversal_impl

@@ -1,0 +1,54 @@
+# Test ASCII pattern presence with a Rabin-Karp rolling hash.
+def rabin_karp_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 512:
+        return -1
+    text_length_value: i64 = input_values[0]
+    pattern_length_value: i64 = input_values[1]
+    if text_length_value < 0 or text_length_value > 255 or pattern_length_value < 0 or pattern_length_value > 255:
+        return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+
+    index: mutable usize = 0
+    while index < text_length + pattern_length:
+        value: i64 = input_values[2 + index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    if pattern_length == 0:
+        return 1
+    if pattern_length > text_length:
+        return 0
+
+    pattern_hash: mutable i64 = 0
+    rolling_hash: mutable i64 = 0
+    high_power: mutable i64 = 1
+    index <- 0
+    while index < pattern_length:
+        pattern_hash <- (pattern_hash * 256 + input_values[2 + text_length + index]) % 1000003
+        rolling_hash <- (rolling_hash * 256 + input_values[2 + index]) % 1000003
+        if index + 1 < pattern_length:
+            high_power <- (high_power * 256) % 1000003
+        index <- index + 1
+
+    last_start: usize = text_length - pattern_length
+    matched: i64 =
+        for start in 0..<(last_start + 1) |found: mutable i64 = 0, rolling: mutable i64 = rolling_hash| -> found:
+            if rolling == pattern_hash:
+                equal: bool =
+                    for offset in 0..<pattern_length |same: mutable bool = true| -> same:
+                        break false if input_values[2 + start + offset] != input_values[2 + text_length + offset]
+                if equal:
+                    break 1
+            if start < last_start:
+                removed: i64 = (input_values[2 + start] * high_power) % 1000003
+                rolling <- (rolling - removed) % 1000003
+                if rolling < 0:
+                    rolling <- rolling + 1000003
+                rolling <- (rolling * 256 + input_values[2 + start + pattern_length]) % 1000003
+    matched
+
+export fn rabin_karp(input_values: i64&, length: usize) -> i64 = rabin_karp_impl

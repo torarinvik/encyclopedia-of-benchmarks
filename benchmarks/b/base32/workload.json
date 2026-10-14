@@ -1,0 +1,896 @@
+{
+  "schema_version": 1,
+  "id": "base32-v1",
+  "algorithm": "base32",
+  "input": {
+    "kind": "signed_64_bit_mode_and_byte_array",
+    "modes": {
+      "0": "encode bytes as uppercase RFC 4648 Base32 ASCII",
+      "1": "decode uppercase RFC 4648 Base32 ASCII bytes"
+    },
+    "minimum_length": 1,
+    "maximum_length": 66,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "decode_padding": "canonical RFC padding or valid unpadded form"
+  },
+  "cases": [
+    {
+      "id": "encode_empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "decode_empty",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "decode_empty_unpadded",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "encode_one_byte_f",
+      "input_values": [
+        0,
+        102
+      ],
+      "expected_result": 8,
+      "expected_output": "MY======"
+    },
+    {
+      "id": "decode_one_byte_f",
+      "input_values": [
+        1,
+        77,
+        89,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "66"
+    },
+    {
+      "id": "decode_one_byte_f_unpadded",
+      "input_values": [
+        1,
+        77,
+        89
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "66"
+    },
+    {
+      "id": "encode_two_bytes_fo",
+      "input_values": [
+        0,
+        102,
+        111
+      ],
+      "expected_result": 8,
+      "expected_output": "MZXQ===="
+    },
+    {
+      "id": "decode_two_bytes_fo",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        81,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "666f"
+    },
+    {
+      "id": "decode_two_bytes_fo_unpadded",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        81
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "666f"
+    },
+    {
+      "id": "encode_three_bytes_foo",
+      "input_values": [
+        0,
+        102,
+        111,
+        111
+      ],
+      "expected_result": 8,
+      "expected_output": "MZXW6==="
+    },
+    {
+      "id": "decode_three_bytes_foo",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "666f6f"
+    },
+    {
+      "id": "decode_three_bytes_foo_unpadded",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "666f6f"
+    },
+    {
+      "id": "encode_four_bytes_foob",
+      "input_values": [
+        0,
+        102,
+        111,
+        111,
+        98
+      ],
+      "expected_result": 8,
+      "expected_output": "MZXW6YQ="
+    },
+    {
+      "id": "decode_four_bytes_foob",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        81,
+        61
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "666f6f62"
+    },
+    {
+      "id": "decode_four_bytes_foob_unpadded",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        81
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "666f6f62"
+    },
+    {
+      "id": "encode_five_bytes_fooba",
+      "input_values": [
+        0,
+        102,
+        111,
+        111,
+        98,
+        97
+      ],
+      "expected_result": 8,
+      "expected_output": "MZXW6YTB"
+    },
+    {
+      "id": "decode_five_bytes_fooba",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        84,
+        66
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "666f6f6261"
+    },
+    {
+      "id": "decode_five_bytes_fooba_unpadded",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        84,
+        66
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "666f6f6261"
+    },
+    {
+      "id": "encode_six_bytes_foobar",
+      "input_values": [
+        0,
+        102,
+        111,
+        111,
+        98,
+        97,
+        114
+      ],
+      "expected_result": 16,
+      "expected_output": "MZXW6YTBOI======"
+    },
+    {
+      "id": "decode_six_bytes_foobar",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        84,
+        66,
+        79,
+        73,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "666f6f626172"
+    },
+    {
+      "id": "decode_six_bytes_foobar_unpadded",
+      "input_values": [
+        1,
+        77,
+        90,
+        88,
+        87,
+        54,
+        89,
+        84,
+        66,
+        79,
+        73
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "666f6f626172"
+    },
+    {
+      "id": "encode_hello_world",
+      "input_values": [
+        0,
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33
+      ],
+      "expected_result": 24,
+      "expected_output": "JBSWY3DPEBLW64TMMQQQ===="
+    },
+    {
+      "id": "decode_hello_world",
+      "input_values": [
+        1,
+        74,
+        66,
+        83,
+        87,
+        89,
+        51,
+        68,
+        80,
+        69,
+        66,
+        76,
+        87,
+        54,
+        52,
+        84,
+        77,
+        77,
+        81,
+        81,
+        81,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "48656c6c6f20576f726c6421"
+    },
+    {
+      "id": "decode_hello_world_unpadded",
+      "input_values": [
+        1,
+        74,
+        66,
+        83,
+        87,
+        89,
+        51,
+        68,
+        80,
+        69,
+        66,
+        76,
+        87,
+        54,
+        52,
+        84,
+        77,
+        77,
+        81,
+        81,
+        81
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "48656c6c6f20576f726c6421"
+    },
+    {
+      "id": "encode_decimal_text",
+      "input_values": [
+        0,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "expected_result": 16,
+      "expected_output": "GEZDGNBVGY======"
+    },
+    {
+      "id": "decode_decimal_text",
+      "input_values": [
+        1,
+        71,
+        69,
+        90,
+        68,
+        71,
+        78,
+        66,
+        86,
+        71,
+        89,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "313233343536"
+    },
+    {
+      "id": "decode_decimal_text_unpadded",
+      "input_values": [
+        1,
+        71,
+        69,
+        90,
+        68,
+        71,
+        78,
+        66,
+        86,
+        71,
+        89
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "313233343536"
+    },
+    {
+      "id": "encode_binary_sample",
+      "input_values": [
+        0,
+        0,
+        1,
+        127,
+        128,
+        255,
+        0
+      ],
+      "expected_result": 16,
+      "expected_output": "AAAX7AH7AA======"
+    },
+    {
+      "id": "decode_binary_sample",
+      "input_values": [
+        1,
+        65,
+        65,
+        65,
+        88,
+        55,
+        65,
+        72,
+        55,
+        65,
+        65,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "00017f80ff00"
+    },
+    {
+      "id": "decode_binary_sample_unpadded",
+      "input_values": [
+        1,
+        65,
+        65,
+        65,
+        88,
+        55,
+        65,
+        72,
+        55,
+        65,
+        65
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "00017f80ff00"
+    },
+    {
+      "id": "encode_forty_bytes",
+      "input_values": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "expected_result": 64,
+      "expected_output": "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYPSAIJCEMSCKJRH"
+    },
+    {
+      "id": "decode_forty_bytes",
+      "input_values": [
+        1,
+        65,
+        65,
+        65,
+        81,
+        69,
+        65,
+        89,
+        69,
+        65,
+        85,
+        68,
+        65,
+        79,
+        67,
+        65,
+        74,
+        66,
+        73,
+        70,
+        81,
+        89,
+        68,
+        73,
+        79,
+        66,
+        52,
+        73,
+        66,
+        67,
+        69,
+        81,
+        84,
+        67,
+        81,
+        75,
+        82,
+        77,
+        70,
+        89,
+        89,
+        68,
+        69,
+        78,
+        66,
+        87,
+        72,
+        65,
+        53,
+        68,
+        89,
+        80,
+        83,
+        65,
+        73,
+        74,
+        67,
+        69,
+        77,
+        83,
+        67,
+        75,
+        74,
+        82,
+        72
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324252627"
+    },
+    {
+      "id": "decode_forty_bytes_unpadded",
+      "input_values": [
+        1,
+        65,
+        65,
+        65,
+        81,
+        69,
+        65,
+        89,
+        69,
+        65,
+        85,
+        68,
+        65,
+        79,
+        67,
+        65,
+        74,
+        66,
+        73,
+        70,
+        81,
+        89,
+        68,
+        73,
+        79,
+        66,
+        52,
+        73,
+        66,
+        67,
+        69,
+        81,
+        84,
+        67,
+        81,
+        75,
+        82,
+        77,
+        70,
+        89,
+        89,
+        68,
+        69,
+        78,
+        66,
+        87,
+        72,
+        65,
+        53,
+        68,
+        89,
+        80,
+        83,
+        65,
+        73,
+        74,
+        67,
+        69,
+        77,
+        83,
+        67,
+        75,
+        74,
+        82,
+        72
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324252627"
+    },
+    {
+      "id": "encode_maximum_payload",
+      "input_values": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "expected_result": 104,
+      "expected_output": "AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYPSAIJCEMSCKJRHFAUSUKZMFUXC6MBRGIZTINJWG44DSOR3HQ6T4P2A"
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_byte",
+      "input_values": [
+        0,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "byte_overflow",
+      "input_values": [
+        0,
+        256
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "lowercase_symbol",
+      "input_values": [
+        1,
+        109,
+        121,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_symbol",
+      "input_values": [
+        1,
+        77,
+        48,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonzero_unused_bits",
+      "input_values": [
+        1,
+        77,
+        90,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_little_padding",
+      "input_values": [
+        1,
+        77,
+        89,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_much_padding",
+      "input_values": [
+        1,
+        77,
+        89,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "data_after_padding",
+      "input_values": [
+        1,
+        77,
+        61,
+        89,
+        61,
+        61,
+        61,
+        61,
+        61
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "illegal_symbol_count",
+      "input_values": [
+        1,
+        77,
+        89,
+        87
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

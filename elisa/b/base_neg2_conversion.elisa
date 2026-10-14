@@ -1,0 +1,39 @@
+# Convert a signed 64-bit integer to canonical negabinary digits.
+def base_neg2_conversion_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1:
+        return -1
+    width: mutable usize =
+        while remaining != 0 |remaining: mutable i64 = input[0], count: mutable usize = 0| -> count:
+            quotient: mutable i64 = remaining / -2
+            digit: mutable i64 = remaining % -2
+            if digit < 0:
+                digit <- digit + 2
+                quotient <- quotient + 1
+            remaining <- quotient
+            count <- count + 1
+    if input[0] == 0:
+        width <- 1
+    if output_capacity < width:
+        return -2
+    top: mutable usize =
+        while remaining != 0 |remaining: mutable i64 = input[0], position: mutable usize = 0, output| -> position:
+            quotient: mutable i64 = remaining / -2
+            digit: mutable i64 = remaining % -2
+            if digit < 0:
+                digit <- digit + 2
+                quotient <- quotient + 1
+            output[position] <- (48 + digit).u8()
+            remaining <- quotient
+            position <- position + 1
+    if input[0] == 0:
+        output[0] <- 48
+        top <- 1
+    while left < right |left: mutable usize = 0, right: mutable usize = top - 1, output| -> output:
+        temporary: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    top.i64()
+
+export fn base_neg2_conversion(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = base_neg2_conversion_impl

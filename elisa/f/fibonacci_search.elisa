@@ -1,0 +1,38 @@
+# Fibonacci search in an ascending sequence for the shared benchmark contract.
+def fibonacci_search_impl(values: i64&, length: usize, target: i64) -> i64:
+    if length == 0:
+        return -1
+    fib_minus_two: mutable usize = 0
+    fib_minus_one: mutable usize = 1
+    fib: mutable usize = 1
+    while fib < length:
+        fib_minus_two <- fib_minus_one
+        fib_minus_one <- fib
+        fib <- fib_minus_two + fib_minus_one
+
+    offset_plus_one: mutable usize = 0
+    found: mutable i64 = -1
+    while fib > 1:
+        index: mutable usize = offset_plus_one + fib_minus_two - 1
+        if index >= length:
+            index <- length - 1
+        value: i64 = values[index]
+        if value == target:
+            found <- index.i64()
+            break
+        if value < target:
+            fib <- fib_minus_one
+            fib_minus_one <- fib_minus_two
+            fib_minus_two <- fib - fib_minus_one
+            offset_plus_one <- index + 1
+        else:
+            fib <- fib_minus_two
+            fib_minus_one <- fib_minus_one - fib_minus_two
+            fib_minus_two <- fib - fib_minus_one
+    if found >= 0:
+        return found
+    if fib_minus_one != 0 and offset_plus_one < length and values[offset_plus_one] == target:
+        return offset_plus_one.i64()
+    -1
+
+export fn fibonacci_search(values: i64&, length: usize, target: i64) -> i64 = fibonacci_search_impl

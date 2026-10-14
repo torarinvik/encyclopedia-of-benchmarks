@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "automorphic-number-i64-v1",
+  "algorithm": "automorphic_number",
+  "input": {
+    "kind": "signed_i64",
+    "negative_result": 0,
+    "result_encoding": {
+      "automorphic": 1,
+      "not_automorphic": 0
+    },
+    "definition": "For n >= 0, n is automorphic when n squared ends in the decimal digits of n."
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "five",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "six",
+      "input_value": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "seven",
+      "input_value": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "twenty_five",
+      "input_value": 25,
+      "expected_result": 1
+    },
+    {
+      "id": "seventy_six",
+      "input_value": 76,
+      "expected_result": 1
+    },
+    {
+      "id": "three_hundred_seventy_six",
+      "input_value": 376,
+      "expected_result": 1
+    },
+    {
+      "id": "six_hundred_twenty_five",
+      "input_value": 625,
+      "expected_result": 1
+    },
+    {
+      "id": "nine_thousand_three_hundred_seventy_six",
+      "input_value": 9376,
+      "expected_result": 1
+    },
+    {
+      "id": "large_source_example",
+      "input_value": 259918212890625,
+      "expected_result": 1
+    },
+    {
+      "id": "large_source_example_neighbor",
+      "input_value": 259918212890636,
+      "expected_result": 0
+    },
+    {
+      "id": "large_source_example_two",
+      "input_value": 740081787109376,
+      "expected_result": 1
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": 0
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

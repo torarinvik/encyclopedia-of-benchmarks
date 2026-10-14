@@ -1,0 +1,36 @@
+# Recursively emit the canonical Tower of Hanoi move sequence.
+def emit_hanoi(disks: usize, source: u8, destination: u8, auxiliary: u8,
+        output: mutable u8&, position: usize) -> usize:
+    if disks == 0:
+        return position
+    after_first: usize = emit_hanoi(disks - 1, source, auxiliary, destination, output, position)
+    output[after_first] <- source
+    output[after_first + 1] <- destination
+    emit_hanoi(disks - 1, auxiliary, destination, source, output, after_first + 2)
+
+def tower_of_hanoi_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length != 4:
+        return -1
+    disks_value: i64 = values[0]
+    source_value: i64 = values[1]
+    destination_value: i64 = values[2]
+    auxiliary_value: i64 = values[3]
+    if disks_value < 0 or disks_value > 12:
+        return -1
+    if source_value < 0 or source_value > 2 or destination_value < 0 or destination_value > 2:
+        return -1
+    if auxiliary_value < 0 or auxiliary_value > 2:
+        return -1
+    if source_value == destination_value or source_value == auxiliary_value or destination_value == auxiliary_value:
+        return -1
+    disks: usize = disks_value.usize()
+    move_count: usize = (1 << disks) - 1
+    required: usize = move_count * 2
+    if output_capacity < required:
+        return -2
+    emit_hanoi(disks, source_value.u8(), destination_value.u8(), auxiliary_value.u8(), output, 0)
+    move_count.i64()
+
+export fn tower_of_hanoi(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = tower_of_hanoi_impl

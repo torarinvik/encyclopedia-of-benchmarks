@@ -1,0 +1,819 @@
+{
+  "schema_version": 1,
+  "id": "level-order-traversal-v1",
+  "algorithm": "level_order_traversal",
+  "input": {
+    "kind": "indexed_binary_tree_triplets",
+    "maximum_nodes": 4096,
+    "node_record": [
+      "value",
+      "left_child_index",
+      "right_child_index"
+    ],
+    "missing_child": -1,
+    "root_index": "node table index, or -1 for an empty tree",
+    "tree_requirement": "Every non-root node has exactly one parent; the root has no parent; all nodes are reachable from the root.",
+    "output": "Breadth-first node values and cumulative offsets delimiting each level; offsets begin with 0.",
+    "invalid_root_result": -1,
+    "insufficient_buffer_result": -2
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "nodes": [],
+      "root_index": -1,
+      "expected_result": 0,
+      "expected_output_values": [],
+      "expected_level_offsets": [
+        0
+      ]
+    },
+    {
+      "id": "single_node",
+      "nodes": [
+        [
+          42,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 1,
+      "expected_output_values": [
+        42
+      ],
+      "expected_level_offsets": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "complete_15_nodes",
+      "nodes": [
+        [
+          -50,
+          1,
+          2
+        ],
+        [
+          -33,
+          3,
+          4
+        ],
+        [
+          -16,
+          5,
+          6
+        ],
+        [
+          1,
+          7,
+          8
+        ],
+        [
+          18,
+          9,
+          10
+        ],
+        [
+          35,
+          11,
+          12
+        ],
+        [
+          -49,
+          13,
+          14
+        ],
+        [
+          -32,
+          -1,
+          -1
+        ],
+        [
+          -15,
+          -1,
+          -1
+        ],
+        [
+          2,
+          -1,
+          -1
+        ],
+        [
+          19,
+          -1,
+          -1
+        ],
+        [
+          36,
+          -1,
+          -1
+        ],
+        [
+          -48,
+          -1,
+          -1
+        ],
+        [
+          -31,
+          -1,
+          -1
+        ],
+        [
+          -14,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 4,
+      "expected_output_values": [
+        -50,
+        -33,
+        -16,
+        1,
+        18,
+        35,
+        -49,
+        -32,
+        -15,
+        2,
+        19,
+        36,
+        -48,
+        -31,
+        -14
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        7,
+        15
+      ]
+    },
+    {
+      "id": "sparse_mixed_tree",
+      "nodes": [
+        [
+          8,
+          1,
+          2
+        ],
+        [
+          3,
+          -1,
+          3
+        ],
+        [
+          10,
+          4,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          6,
+          5,
+          6
+        ],
+        [
+          7,
+          -1,
+          -1
+        ],
+        [
+          9,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 4,
+      "expected_output_values": [
+        8,
+        3,
+        10,
+        4,
+        6,
+        7,
+        9
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "left_chain_16",
+      "nodes": [
+        [
+          -5,
+          1,
+          -1
+        ],
+        [
+          -4,
+          2,
+          -1
+        ],
+        [
+          -3,
+          3,
+          -1
+        ],
+        [
+          -2,
+          4,
+          -1
+        ],
+        [
+          -1,
+          5,
+          -1
+        ],
+        [
+          0,
+          6,
+          -1
+        ],
+        [
+          1,
+          7,
+          -1
+        ],
+        [
+          2,
+          8,
+          -1
+        ],
+        [
+          3,
+          9,
+          -1
+        ],
+        [
+          4,
+          10,
+          -1
+        ],
+        [
+          5,
+          11,
+          -1
+        ],
+        [
+          6,
+          12,
+          -1
+        ],
+        [
+          7,
+          13,
+          -1
+        ],
+        [
+          8,
+          14,
+          -1
+        ],
+        [
+          9,
+          15,
+          -1
+        ],
+        [
+          10,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 16,
+      "expected_output_values": [
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "id": "right_chain_16",
+      "nodes": [
+        [
+          -5,
+          -1,
+          1
+        ],
+        [
+          -4,
+          -1,
+          2
+        ],
+        [
+          -3,
+          -1,
+          3
+        ],
+        [
+          -2,
+          -1,
+          4
+        ],
+        [
+          -1,
+          -1,
+          5
+        ],
+        [
+          0,
+          -1,
+          6
+        ],
+        [
+          1,
+          -1,
+          7
+        ],
+        [
+          2,
+          -1,
+          8
+        ],
+        [
+          3,
+          -1,
+          9
+        ],
+        [
+          4,
+          -1,
+          10
+        ],
+        [
+          5,
+          -1,
+          11
+        ],
+        [
+          6,
+          -1,
+          12
+        ],
+        [
+          7,
+          -1,
+          13
+        ],
+        [
+          8,
+          -1,
+          14
+        ],
+        [
+          9,
+          -1,
+          15
+        ],
+        [
+          10,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 16,
+      "expected_output_values": [
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "id": "duplicate_values",
+      "nodes": [
+        [
+          5,
+          1,
+          2
+        ],
+        [
+          5,
+          3,
+          4
+        ],
+        [
+          5,
+          5,
+          6
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        7
+      ]
+    },
+    {
+      "id": "signed_boundary_values",
+      "nodes": [
+        [
+          -9223372036854775808,
+          1,
+          2
+        ],
+        [
+          9223372036854775807,
+          3,
+          -1
+        ],
+        [
+          0,
+          -1,
+          4
+        ],
+        [
+          -1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        -9223372036854775808,
+        9223372036854775807,
+        0,
+        -1,
+        1
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "nonzero_root_and_shuffled_indices",
+      "nodes": [
+        [
+          30,
+          -1,
+          -1
+        ],
+        [
+          40,
+          -1,
+          -1
+        ],
+        [
+          10,
+          3,
+          0
+        ],
+        [
+          20,
+          1,
+          4
+        ],
+        [
+          50,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 2,
+      "expected_result": 3,
+      "expected_output_values": [
+        10,
+        20,
+        30,
+        40,
+        50
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "complete_31_nodes",
+      "nodes": [
+        [
+          -50,
+          1,
+          2
+        ],
+        [
+          -33,
+          3,
+          4
+        ],
+        [
+          -16,
+          5,
+          6
+        ],
+        [
+          1,
+          7,
+          8
+        ],
+        [
+          18,
+          9,
+          10
+        ],
+        [
+          35,
+          11,
+          12
+        ],
+        [
+          -49,
+          13,
+          14
+        ],
+        [
+          -32,
+          15,
+          16
+        ],
+        [
+          -15,
+          17,
+          18
+        ],
+        [
+          2,
+          19,
+          20
+        ],
+        [
+          19,
+          21,
+          22
+        ],
+        [
+          36,
+          23,
+          24
+        ],
+        [
+          -48,
+          25,
+          26
+        ],
+        [
+          -31,
+          27,
+          28
+        ],
+        [
+          -14,
+          29,
+          30
+        ],
+        [
+          3,
+          -1,
+          -1
+        ],
+        [
+          20,
+          -1,
+          -1
+        ],
+        [
+          37,
+          -1,
+          -1
+        ],
+        [
+          -47,
+          -1,
+          -1
+        ],
+        [
+          -30,
+          -1,
+          -1
+        ],
+        [
+          -13,
+          -1,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          21,
+          -1,
+          -1
+        ],
+        [
+          38,
+          -1,
+          -1
+        ],
+        [
+          -46,
+          -1,
+          -1
+        ],
+        [
+          -29,
+          -1,
+          -1
+        ],
+        [
+          -12,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          22,
+          -1,
+          -1
+        ],
+        [
+          39,
+          -1,
+          -1
+        ],
+        [
+          -45,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 5,
+      "expected_output_values": [
+        -50,
+        -33,
+        -16,
+        1,
+        18,
+        35,
+        -49,
+        -32,
+        -15,
+        2,
+        19,
+        36,
+        -48,
+        -31,
+        -14,
+        3,
+        20,
+        37,
+        -47,
+        -30,
+        -13,
+        4,
+        21,
+        38,
+        -46,
+        -29,
+        -12,
+        5,
+        22,
+        39,
+        -45
+      ],
+      "expected_level_offsets": [
+        0,
+        1,
+        3,
+        7,
+        15,
+        31
+      ]
+    }
+  ],
+  "measurement": {
+    "comparison_model": "tree_level_order_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 500
+  }
+}

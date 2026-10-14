@@ -1,0 +1,12 @@
+# Convert most-significant-first octal digits to a signed 64-bit value.
+def octal_to_decimal_impl(digits: i64&, length: usize) -> i64:
+    if length == 0 or length > 21:
+        return -1
+    while index < length |index: mutable usize = 0, value: mutable i64 = 0| -> value:
+        digit: i64 = digits[index]
+        if digit < 0 or digit > 7:
+            break -1
+        value <- value * 8 + digit
+        index <- index + 1
+
+export fn octal_to_decimal(digits: i64&, length: usize) -> i64 = octal_to_decimal_impl

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "binomial-coefficient-v1",
+  "algorithm": "binomial_coefficient",
+  "input": {
+    "kind": "unsigned_pair",
+    "n_range": [0, 66],
+    "k_range": [0, 66],
+    "result": "exact binomial coefficient C(n, k), or 0 when k > n",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero_zero","input_values":[0,0],"expected_result":1},
+    {"id":"zero_choose_one","input_values":[0,1],"expected_result":0},
+    {"id":"choose_zero","input_values":[10,0],"expected_result":1},
+    {"id":"choose_all","input_values":[10,10],"expected_result":1},
+    {"id":"k_greater_than_n","input_values":[5,6],"expected_result":0},
+    {"id":"choose_two","input_values":[5,2],"expected_result":10},
+    {"id":"pascal_example","input_values":[10,5],"expected_result":252},
+    {"id":"symmetry","input_values":[20,17],"expected_result":1140},
+    {"id":"middle_row","input_values":[52,26],"expected_result":495918532948104},
+    {"id":"maximum_signed_result","input_values":[66,33],"expected_result":7219428434016265740},
+    {"id":"maximum_n_small_k","input_values":[66,2],"expected_result":2145},
+    {"id":"first_unsupported_n","input_values":[67,1],"expected_result":-1},
+    {"id":"unsupported_n_large_k","input_values":[67,68],"expected_result":-1},
+    {"id":"maximum_unsigned_n","input_values":[18446744073709551615,1],"expected_result":-1},
+    {"id":"maximum_unsigned_k","input_values":[66,18446744073709551615],"expected_result":0}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

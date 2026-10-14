@@ -1,0 +1,9 @@
+# Return 1 when n is a positive power of two, otherwise 0.
+def power_of_two_impl(n: i64) -> i64:
+    if n <= 0:
+        return 0
+    if (n & (n - 1)) == 0:
+        return 1
+    0
+
+export fn power_of_two(n: i64) -> i64 = power_of_two_impl

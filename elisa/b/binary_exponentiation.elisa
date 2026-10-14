@@ -1,0 +1,25 @@
+# Exponentiation by squaring with exact i64 overflow detection.
+def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    base_input: i64 = values[0]
+    exponent_input: i64 = values[1]
+    if base_input < 0 or base_input > 2147483647 or exponent_input < 0 or exponent_input > 2147483647:
+        return -1
+    base: mutable u64 = base_input.u64()
+    exponent: mutable u64 = exponent_input.u64()
+    result: mutable u64 = 1.u64()
+    maximum: u64 = 9223372036854775807.u64()
+    while exponent != 0.u64():
+        if (exponent & 1.u64()) != 0.u64():
+            if base != 0.u64() and result > maximum / base:
+                return -1
+            result <- result * base
+        exponent <- exponent >> 1
+        if exponent != 0.u64():
+            if base != 0.u64() and base > maximum / base:
+                return -1
+            base <- base * base
+    result.i64()
+
+export fn binary_exponentiation(values: i64&, length: usize) -> i64 = binary_exponentiation_impl

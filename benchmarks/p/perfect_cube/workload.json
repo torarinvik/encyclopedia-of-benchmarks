@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "perfect-cube-v1",
+  "algorithm": "perfect_cube",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": -1000000000000,
+    "maximum_value": 1000000000000,
+    "result": "1 for an exact signed integer cube, otherwise 0",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"negative_one","input_value":-1,"expected_result":1},
+    {"id":"eight","input_value":8,"expected_result":1},
+    {"id":"negative_eight","input_value":-8,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":0},
+    {"id":"twenty_seven","input_value":27,"expected_result":1},
+    {"id":"negative_twenty_seven","input_value":-27,"expected_result":1},
+    {"id":"one_below_cube","input_value":26,"expected_result":0},
+    {"id":"one_above_cube","input_value":28,"expected_result":0},
+    {"id":"large_cube","input_value":1000000000,"expected_result":1},
+    {"id":"maximum_cube","input_value":1000000000000,"expected_result":1},
+    {"id":"maximum_non_cube","input_value":999999999999,"expected_result":0},
+    {"id":"negative_maximum","input_value":-1000000000000,"expected_result":1},
+    {"id":"below_range","input_value":-1000000000001,"expected_result":-1},
+    {"id":"above_range","input_value":1000000000001,"expected_result":-1},
+    {"id":"signed_64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,16 @@
+# Shell sort with a halving gap sequence for the shared contract.
+def shell_sort_impl(values: mutable i64&, length: usize) -> void:
+    gap: mutable usize = length / 2
+    while gap > 0:
+        index: mutable usize = gap
+        while index < length:
+            key: i64 = values[index]
+            position: mutable usize = index
+            while position >= gap and values[position - gap] > key:
+                values[position] <- values[position - gap]
+                position <- position - gap
+            values[position] <- key
+            index <- index + 1
+        gap <- gap / 2
+
+export fn shell_sort(values: mutable i64&, length: usize) -> void = shell_sort_impl

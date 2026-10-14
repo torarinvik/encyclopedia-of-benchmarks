@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "catalan-number-v1",
+  "algorithm": "catalan_number",
+  "input": {
+    "kind": "signed_64_bit_integer_index",
+    "tested_range": [0, 35],
+    "out_of_range_result": -1,
+    "sequence_definition": {"C_0": 1, "C_n": "sum(C_i * C_(n-i-1), i=0..n-1)"}
+  },
+  "cases": [
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"catalan_zero","input_value":0,"expected_result":1},
+    {"id":"catalan_one","input_value":1,"expected_result":1},
+    {"id":"catalan_two","input_value":2,"expected_result":2},
+    {"id":"catalan_three","input_value":3,"expected_result":5},
+    {"id":"catalan_four","input_value":4,"expected_result":14},
+    {"id":"catalan_five","input_value":5,"expected_result":42},
+    {"id":"catalan_ten","input_value":10,"expected_result":16796},
+    {"id":"catalan_twenty","input_value":20,"expected_result":6564120420},
+    {"id":"catalan_twenty_five","input_value":25,"expected_result":4861946401452},
+    {"id":"catalan_thirty","input_value":30,"expected_result":3814986502092304},
+    {"id":"catalan_thirty_four","input_value":34,"expected_result":812944042149730764},
+    {"id":"largest_signed_64_bit_catalan","input_value":35,"expected_result":3116285494907301262},
+    {"id":"first_value_over_signed_64_bit","input_value":36,"expected_result":-1},
+    {"id":"larger_index","input_value":50,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,11 @@
+# Portable iterative Euclidean GCD for nonnegative signed 64-bit inputs.
+def gcd_impl(left: u64, right: u64) -> i64:
+    dividend: mutable u64 = left
+    divisor: mutable u64 = right
+    while divisor != 0:
+        remainder: u64 = dividend % divisor
+        dividend <- divisor
+        divisor <- remainder
+    dividend.i64()
+
+export fn gcd(left: u64, right: u64) -> i64 = gcd_impl

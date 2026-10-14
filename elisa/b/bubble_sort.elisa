@@ -1,0 +1,18 @@
+# Stable bubble sort for the shared mutable in-place sorting contract.
+def bubble_sort_impl(values: mutable i64&, length: usize) -> void:
+    end: mutable usize = length
+    while end > 1:
+        swapped: mutable bool = false
+        index: mutable usize = 0
+        while index + 1 < end:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+                swapped <- true
+            index <- index + 1
+        if swapped == false:
+            break
+        end <- end - 1
+
+export fn bubble_sort(values: mutable i64&, length: usize) -> void = bubble_sort_impl

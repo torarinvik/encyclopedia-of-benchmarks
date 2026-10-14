@@ -1,0 +1,49 @@
+# Count primes through limit with the Sieve of Atkin.
+def sieve_of_atkin_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 4096:
+        return -1
+    if limit < 2:
+        return 0
+    n: usize = limit.usize()
+
+    candidates: bool[4097] =
+        while x <= n / x |x: mutable usize = 1, flags: mutable bool[4097] = zeroed| -> flags:
+            x_squared: usize = x * x
+            row_flags: bool[4097] =
+                while y <= n / y |y: mutable usize = 1, work_flags: mutable bool[4097] = flags| -> work_flags:
+                    y_squared: usize = y * y
+                    first: usize = 4 * x_squared + y_squared
+                    if first <= n and (first % 12 == 1 or first % 12 == 5):
+                        work_flags[first] <- not work_flags[first]
+                    second: usize = 3 * x_squared + y_squared
+                    if second <= n and second % 12 == 7:
+                        work_flags[second] <- not work_flags[second]
+                    if x > y:
+                        third: usize = 3 * x_squared - y_squared
+                        if third <= n and third % 12 == 11:
+                            work_flags[third] <- not work_flags[third]
+                    y <- y + 1
+            rebind flags = row_flags
+            x <- x + 1
+
+    final_flags: bool[4097] =
+        while candidate <= n / candidate |candidate: mutable usize = 5, flags: mutable bool[4097] = candidates| -> flags:
+            if flags[candidate]:
+                square: usize = candidate * candidate
+                cleared_flags: bool[4097] =
+                    while multiple <= n |multiple: mutable usize = square, work_flags: mutable bool[4097] = flags| -> work_flags:
+                        work_flags[multiple] <- false
+                        multiple <- multiple + square
+                rebind flags = cleared_flags
+            candidate <- candidate + 1
+
+    base_count: mutable i64 = 1
+    if n >= 3:
+        base_count <- base_count + 1
+    prime_count: i64 =
+        for value in 5..<(n + 1) |count: mutable i64 = base_count| -> count:
+            if final_flags[value]:
+                count <- count + 1
+    prime_count
+
+export fn sieve_of_atkin(limit: i64) -> i64 = sieve_of_atkin_impl

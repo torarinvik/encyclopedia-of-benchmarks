@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-binary-v1",
+  "algorithm": "decimal_to_binary",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 9223372036854775807],
+    "output_encoding": "most-significant-first ASCII binary digits without a prefix",
+    "negative_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1,"expected_output":"0"},
+    {"id":"one","input_value":1,"expected_result":1,"expected_output":"1"},
+    {"id":"two","input_value":2,"expected_result":2,"expected_output":"10"},
+    {"id":"seven","input_value":7,"expected_result":3,"expected_output":"111"},
+    {"id":"eight","input_value":8,"expected_result":4,"expected_output":"1000"},
+    {"id":"rust_example","input_value":542,"expected_result":10,"expected_output":"1000011110"},
+    {"id":"swift_example","input_value":92,"expected_result":7,"expected_output":"1011100"},
+    {"id":"signed_32_bit_max","input_value":2147483647,"expected_result":31,"expected_output":"1111111111111111111111111111111"},
+    {"id":"signed_64_bit_max","input_value":9223372036854775807,"expected_result":63,"expected_output":"111111111111111111111111111111111111111111111111111111111111111"},
+    {"id":"negative_one","input_value":-1,"expected_result":-1,"expected_output":""},
+    {"id":"signed_64_bit_min","input_value":-9223372036854775808,"expected_result":-1,"expected_output":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

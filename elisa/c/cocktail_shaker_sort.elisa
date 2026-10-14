@@ -1,0 +1,30 @@
+# Stable full-range bidirectional adjacent-swap sort.
+def cocktail_shaker_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    keep_going: mutable bool = true
+    while keep_going:
+        swapped: mutable bool = false
+        index: mutable usize = 0
+        while index + 1 < length:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+                swapped <- true
+            index <- index + 1
+        if not swapped:
+            break
+        swapped <- false
+        index <- length - 1
+        while index > 0:
+            if values[index - 1] > values[index]:
+                temporary: i64 = values[index - 1]
+                values[index - 1] <- values[index]
+                values[index] <- temporary
+                swapped <- true
+            index <- index - 1
+        if not swapped:
+            break
+
+export fn cocktail_shaker_sort(values: mutable i64&, length: usize) -> void = cocktail_shaker_sort_impl

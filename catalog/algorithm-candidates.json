@@ -405,7 +405,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -421,7 +421,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/0_1_knapsack.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "knapsack_zero_one_tabulation",
+      "review_notes": "The pinned C++ source fills a bottom-up 0/1 knapsack table with the same item/capacity recurrence as the canonical tabulation candidate. This filename is retained as an alias to share one workload and contract.",
+      "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md"
     },
     {
       "candidate_id": "1",
@@ -3796,7 +3799,7 @@
         "nim",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -3903,7 +3906,9 @@
           "url": "https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/Abs.sol",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C-Sharp, Dart, F-Sharp, both Go, JavaScript, Julia, Lua, Mojo, Nim, Python, Ruby, Rust, Scala, and Solidity sources. They provide absolute magnitude operations for integer or numeric inputs; Go also includes a bitwise integer version, and several files provide min/max helpers. The shared benchmark selects signed 64-bit integers, returns -1 when INT64_MIN has no representable positive result, and exposes the distinct C-ABI symbol abs_i64.",
+      "benchmark_contract": "benchmarks/a/abs/README.md"
     },
     {
       "candidate_id": "abs_max",
@@ -4049,7 +4054,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -4065,7 +4070,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/absolute_value.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "abs",
+      "review_notes": "The pinned Java and TypeScript sources return the same integer absolute-value mapping as the canonical abs candidate. This filename is retained as an alias and shares the signed 64-bit overflow contract.",
+      "benchmark_contract": "benchmarks/a/abs/README.md"
     },
     {
       "candidate_id": "abundant_number",
@@ -4861,7 +4869,7 @@
         "nim",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -4947,7 +4955,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/aliquot_sum.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The C++ example returns zero for zero and one, Nim accepts a positive input type, and Rust panics on zero. The local contract explicitly defines zero, negative inputs, result width, and overflow behavior while preserving the divisor scan.",
+      "benchmark_contract": "benchmarks/a/aliquot_sum/README.md"
     },
     {
       "candidate_id": "aliquot_sum_calculator",
@@ -5702,8 +5712,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -5712,7 +5732,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/AnyBaseToAnyBase.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java utility converts a validated base-2-through-36 digit string through decimal into another radix. The local array contract preserves its radix and uppercase-digit semantics and adds checked signed 64-bit accumulation for portable cross-language behavior.",
+      "benchmark_contract": "benchmarks/a/any_base_to_any_base/README.md"
     },
     {
       "candidate_id": "any_base_to_decimal",
@@ -5720,8 +5742,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -5730,7 +5762,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/AnyBaseToDecimal.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The Java source converts radix digits to an integer. The shared contract encodes digits as 0-35 in most-significant-first order and rejects invalid digits or values outside signed 64-bit range.",
+      "benchmark_contract": "benchmarks/a/any_base_to_decimal/README.md"
     },
     {
       "candidate_id": "anyto_any",
@@ -5858,7 +5892,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -5867,7 +5901,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/ArbitraryBase.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "any_base_to_any_base",
+      "review_notes": "The pinned JavaScript source converts between arbitrary character alphabets by folding source digits to an integer and re-encoding in the target alphabet. Under the shared standard digit alphabet and signed 64-bit contract, it is the same base-conversion algorithm as any_base_to_any_base.",
+      "benchmark_contract": "benchmarks/a/any_base_to_any_base/README.md"
     },
     {
       "candidate_id": "arc_length",
@@ -6259,7 +6296,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -6352,7 +6389,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/armstrong_number.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The C reference uses integer exponentiation and an `int` input; C++ uses floating-point `std::pow` and handles negative values; Rust uses unsigned 32-bit digits and powers. The local contract uses the full signed 64-bit input range, exact integer arithmetic, and an integer predicate result.",
+      "benchmark_contract": "benchmarks/a/armstrong_number/README.md"
     },
     {
       "candidate_id": "armstrong_number_templated",
@@ -7074,7 +7113,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -7911,9 +7950,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -7929,7 +7976,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/base16.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Python and Rust sources provide Base16 encoding and strict uppercase decoding. The shared mode-based array contract covers both directions, rejects lowercase and malformed encodings, and uses the same byte output representation in all target languages.",
+      "benchmark_contract": "benchmarks/b/base16/README.md"
     },
     {
       "candidate_id": "base32",
@@ -7939,9 +7988,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -7957,7 +8014,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/base32.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Python and Rust sources provide Base32 encoding and decoding with the RFC 4648 alphabet. The shared contract accepts canonical padded or valid unpadded uppercase byte input, checks canonical trailing bits, and records portable ports in all nine target languages.",
+      "benchmark_contract": "benchmarks/b/base32/README.md"
     },
     {
       "candidate_id": "base58",
@@ -7986,9 +8045,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -8011,7 +8078,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/base64.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Go, Java, and Rust sources implement Base64 byte encoding and decoding. The benchmark normalizes them to one RFC 4648 byte-array contract, accepts canonical padded or valid unpadded input, and includes portable implementations in all nine target languages.",
+      "benchmark_contract": "benchmarks/b/base64/README.md"
     },
     {
       "candidate_id": "base64_cipher",
@@ -8147,8 +8216,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -8157,7 +8236,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/base_neg2_conversion.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source repeatedly divides by -2 and adjusts negative remainders to emit 0/1 digits. The local contract returns canonical digit bytes for every signed 64-bit input, avoiding the upstream representation as a decimal integer.",
+      "benchmark_contract": "benchmarks/b/base_neg2_conversion/README.md"
     },
     {
       "candidate_id": "base_x",
@@ -8166,7 +8247,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -8175,7 +8256,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/BaseX.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "decimal_to_any_base",
+      "review_notes": "The pinned PHP source repeatedly collects remainders and reverses them. Within the normalized domain of nonnegative values and bases 2 through 10, it is the same positional conversion as decimal_to_any_base; bases above 10 are excluded because the source does not encode alphabetic digits.",
+      "benchmark_contract": "benchmarks/d/decimal_to_any_base/README.md"
     },
     {
       "candidate_id": "basic",
@@ -8438,7 +8522,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -8609,7 +8693,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -8688,7 +8772,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/graph/bellman_ford.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The inspected C and C++ sources use signed int distances and sentinel-based reachability; the C++ source also indexes a vector after reserving capacity without resizing it. The Rust source uses a generic ordered-map graph and predecessor results. The local benchmark uses an explicit directed edge-list ABI with signed 64-bit weights, separate reachability flags, checked addition, and a documented error status for reachable negative cycles.",
+      "benchmark_contract": "benchmarks/b/bellman_ford/README.md"
     },
     {
       "candidate_id": "bellman_ford_shortest_path",
@@ -9317,7 +9403,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -9489,7 +9575,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -9554,7 +9640,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/binary_insertion_sort.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The C and C++ examples binary-search the sorted prefix before shifting larger items; their recursive search boundaries differ, and the C midpoint expression does not consistently account for the lower bound. Rust uses a lower-bound helper and rotates a slice. The local stable contract uses an upper-bound search and signed 64-bit values.",
+      "benchmark_contract": "benchmarks/b/binary_insertion_sort/README.md"
     },
     {
       "candidate_id": "binary_insertion_sorter",
@@ -10012,7 +10100,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -10098,7 +10186,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/search/binarySearchTree.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The 12 pinned sources share unbalanced binary-search-tree ordering and operations such as insert, search, delete, extrema, or traversal, but differ on duplicates and API details. The benchmark standardizes unique-key set semantics, predecessor-based deletion, and a bounded index pool.",
+      "benchmark_contract": "benchmarks/b/binary_search_tree/README.md"
     },
     {
       "candidate_id": "binary_search_tree2",
@@ -10264,7 +10354,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -10329,7 +10419,9 @@
           "url": "https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/algorithms/conversion/binary-to-decimal.swift",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, JavaScript, PHP, Python, Ruby, Rust, and Swift sources. They convert binary digit sequences to their decimal value, taking bits from strings or decimal-encoded digits; the C and Rust sources validate the input, while Dart and Python also support a leading negative sign. The shared benchmark selects unsigned bits, represented as a most-significant-first array of at most 63 elements so results fit signed 64-bit.",
+      "benchmark_contract": "benchmarks/b/binary_to_decimal/README.md"
     },
     {
       "candidate_id": "binary_to_excess3",
@@ -10417,7 +10509,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -10454,7 +10546,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/binary_to_hexadecimal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, and Python sources. They convert decimal-encoded binary digits or binary strings to hexadecimal text, with differing validation, sign, case, and prefix behavior. The cataloged Rust path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first bit array of length 1 through 63, validates bits 0 and 1, and writes prefix-free lowercase hexadecimal output.",
+      "benchmark_contract": "benchmarks/b/binary_to_hexadecimal/README.md"
     },
     {
       "candidate_id": "binary_to_octal",
@@ -10470,7 +10564,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -10507,7 +10601,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/binary_to_octal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, and Python sources. They convert decimal-encoded binary digits or binary strings to octal text, with differing validation and signed-input behavior. The cataloged Rust path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first bit array of length 1 through 63, validates bits 0 and 1, and writes prefix-free octal output.",
+      "benchmark_contract": "benchmarks/b/binary_to_octal/README.md"
     },
     {
       "candidate_id": "binary_tree",
@@ -10881,7 +10977,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -10925,7 +11021,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/binomial_coefficient.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned sources compute the binomial coefficient C(n,k), with Java and Python using Pascal-triangle/recursive formulations and Rust using an arbitrary-precision multiplicative recurrence. The Python implementation returns 1 for (n=0,k>0) because it handles zero before k>n; the local contract uses the standard definition and returns 0 when k>n. Rust assumes k<=n and subtracts unsigned values, so the local implementation validates this case. The shared binary-scalar contract supports n<=66, exact results in signed 64-bit range, and returns -1 for larger n.",
+      "benchmark_contract": "benchmarks/b/binomial_coefficient/README.md"
     },
     {
       "candidate_id": "binomial_dist",
@@ -11390,7 +11488,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -11830,7 +11928,7 @@
         "nim",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -11926,7 +12024,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -11935,7 +12033,8 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/BogoSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "bogo_sort"
     },
     {
       "candidate_id": "bogosort",
@@ -11945,7 +12044,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -11961,7 +12060,8 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/bogosort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "bogo_sort"
     },
     {
       "candidate_id": "bom",
@@ -12449,7 +12549,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -12521,7 +12621,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/breadth_first_search.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ implementation supports directed or bidirectional edges and returns all visited vertices; the Rust implementation uses directed edges and returns history only until a requested target. The shared contract normalizes both APIs to a complete directed traversal in deterministic ascending-neighbor order.",
+      "benchmark_contract": "benchmarks/b/breadth_first_search/README.md"
     },
     {
       "candidate_id": "breadth_first_search_2",
@@ -13207,7 +13309,9 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ implementations compare adjacent values, swap out-of-order pairs, and stop early after a pass without swaps. The local contract sorts signed 64-bit values in ascending order in place and is stable.",
+      "benchmark_contract": "benchmarks/b/bubble_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -13535,7 +13639,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -14359,7 +14463,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -14375,7 +14479,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/catalan.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "catalan_number",
+      "review_notes": "The pinned C and Go catalan sources compute the standard indexed Catalan sequence; both filenames alias the exact scalar catalan_number contract.",
+      "benchmark_contract": "benchmarks/c/catalan_number/README.md"
     },
     {
       "candidate_id": "catalan_number",
@@ -14386,7 +14493,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -14409,7 +14516,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/catalan_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Pinned C, C++, C-Sharp, Go, Java, JavaScript, Julia, Nim, Python, R, and Rust sources cover the standard Catalan sequence, using direct formulas, dynamic programming, or sequence generation. The exact scalar benchmark returns C(n) for indices 0 through 35. The second Rust source under src/math returns values modulo 1,000,000,007 and is a distinct output variant outside this contract.",
+      "benchmark_contract": "benchmarks/c/catalan_number/README.md"
     },
     {
       "candidate_id": "catalan_numbers",
@@ -14429,7 +14538,7 @@
         "nim",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -14494,7 +14603,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/catalan_numbers.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "catalan_number",
+      "review_notes": "The pinned C++, JavaScript, Nim, Python, R, and Rust dynamic-programming sources compute the standard Catalan sequence. The Rust src/math file instead applies a modulus and is documented as a distinct variant outside the exact scalar contract.",
+      "benchmark_contract": "benchmarks/c/catalan_number/README.md"
     },
     {
       "candidate_id": "catalan_sequence",
@@ -14503,7 +14615,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -14512,7 +14624,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/CatalanSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "catalan_number",
+      "review_notes": "The pinned C-Sharp CatalanSequence yields the standard exact Catalan sequence; its indexed values share the catalan_number contract.",
+      "benchmark_contract": "benchmarks/c/catalan_number/README.md"
     },
     {
       "candidate_id": "catalannumber",
@@ -14521,7 +14636,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -14530,7 +14645,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/catalan/catalannumber.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "catalan_number",
+      "review_notes": "The pinned Go CatalanNumber function computes an indexed value of the standard Catalan sequence; the filename aliases catalan_number.",
+      "benchmark_contract": "benchmarks/c/catalan_number/README.md"
     },
     {
       "candidate_id": "ceil",
@@ -15471,7 +15589,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -15494,7 +15612,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/CheckPrime.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prime_check",
+      "review_notes": "The pinned C++ copies and PHP source named check_prime all implement scalar primality by trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "check_rearrange_palindrome",
@@ -15827,7 +15948,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -16106,7 +16227,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -16150,7 +16271,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/data_structures/queue/circular_queue.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "queue",
+      "review_notes": "The pinned Dart, Java, JavaScript, Python, Ruby, and TypeScript sources implement bounded FIFO queues using circular buffers. Their capacities and empty/full signaling differ, while the queue operation contract is the same. The canonical queue benchmark already includes capacity overflow, empty operations, and a full wraparound trace, so this filename is recorded as an alias rather than a duplicate benchmark."
     },
     {
       "candidate_id": "circular_queue_linked_list",
@@ -16615,7 +16738,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -16662,7 +16785,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -16811,7 +16934,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -16911,7 +17034,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dynamicProgramming/coinChange.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned files across all 13 source repositories, including both Java files. The C++, Dart, Java dynamic-programming, Julia, R, Ruby, Rust, TypeScript, and Zig sources include minimum-coin change; JavaScript and Ruby also expose combination counting, Scala counts combinations, and the Lua and Java greedy files return a currency-dependent coin list. The local contract selects minimum count with unlimited positive denominations, defines zero amount as 0 and unreachable or invalid input as -1, and caps amount and denomination count for a fixed-array portable ABI.",
+      "benchmark_contract": "benchmarks/c/coin_change/README.md"
     },
     {
       "candidate_id": "coin_change_topdown",
@@ -16923,7 +17048,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -16939,7 +17064,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/coin_change_topdown.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "coin_change",
+      "review_notes": "The two pinned C++ top-down sources recursively solve the same unlimited-denomination minimum-coin problem as coin_change. Their memo table is passed by value and their unreachable-case sentinel is not robust, so the shared contract supplies explicit unreachable and invalid-input results.",
+      "benchmark_contract": "benchmarks/c/coin_change/README.md"
     },
     {
       "candidate_id": "coinchange",
@@ -17163,7 +17291,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ sources shrink the comparison gap by about 1.3 and swap out-of-order pairs. The local contract uses a portable rational 10/13 shrink, enforces a minimum gap of one, and completes a no-swap adjacent pass before returning.",
+      "benchmark_contract": "benchmarks/c/comb_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -19080,7 +19210,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -19174,7 +19304,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/sorts/counting_sort.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The C source prints counts for nonnegative values; C++ finds the minimum and maximum and returns a separate array; Rust sorts unsigned keys in place with a caller-provided maximum. The local workload and contract use signed 64-bit keys in [-128, 128] and a shared histogram scratch area.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "counting_sort_string",
@@ -19930,7 +20062,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -20002,7 +20134,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/sorts/cycle_sort.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The checked C source counts writes, C++ returns a sorted vector copy, and Rust mutates a slice. All use rank counting and cycle placement; local ports use a shared in-place signed 64-bit contract with bounds-checked duplicate skips.",
+      "benchmark_contract": "benchmarks/c/cycle_sort/README.md"
     },
     {
       "candidate_id": "cycle_sorter",
@@ -20501,7 +20635,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -20517,7 +20651,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/decimal_to_any.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The Dart and Python sources perform the same decimal-to-radix conversion as decimal_to_any_base for the normalized base-2-through-36 contract. This candidate aliases decimal_to_any_base to avoid duplicating the same algorithm.",
+      "alias_of": "decimal_to_any_base",
+      "benchmark_contract": "benchmarks/d/decimal_to_any_base/README.md"
     },
     {
       "candidate_id": "decimal_to_any_base",
@@ -20527,9 +20664,17 @@
         "Java"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -20545,7 +20690,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/DecimalToAnyBase.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The C and Java sources convert decimal values to a requested radix. The shared contract supports nonnegative signed 64-bit values and radices 2-36, emitting uppercase prefix-free digits; local ports use portable integer division and remainder.",
+      "benchmark_contract": "benchmarks/d/decimal_to_any_base/README.md"
     },
     {
       "candidate_id": "decimal_to_any_using_stack",
@@ -20553,8 +20700,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -20563,7 +20720,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/stacks/DecimalToAnyUsingStack.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java source uses a LIFO character stack after successive division. The shared contract preserves radix 2 through 16 and upper-case output, while widening the number input to nonnegative signed 64-bit for a common cross-language ABI.",
+      "benchmark_contract": "benchmarks/d/decimal_to_any_using_stack/README.md"
     },
     {
       "candidate_id": "decimal_to_binary",
@@ -20586,7 +20745,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -20665,7 +20824,9 @@
           "url": "https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/algorithms/conversion/decimal-to-binary.swift",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, both C++ repository copies, Dart, Java, JavaScript, PHP, Python, Ruby, Rust, and Swift sources. They produce a binary digit string or decimal-encoded bit digits; some print or return an empty value for zero, and negative-input behavior varies. The shared contract writes an unprefixed most-significant-first ASCII representation for nonnegative signed 64-bit inputs, spells zero as \"0\", rejects negatives with -1, and returns -2 when the caller output buffer is too small.",
+      "benchmark_contract": "benchmarks/d/decimal_to_binary/README.md"
     },
     {
       "candidate_id": "decimal_to_binary_recursion",
@@ -20768,7 +20929,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -20812,7 +20973,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/decimal_to_hexadecimal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned sources convert by repeated division and remainder. The C++ console example uses uppercase digits and interactive I/O; the Python source uses lowercase with a 0x prefix and supports negative values. The local contract writes prefix-free lowercase hexadecimal digits for nonnegative signed 64-bit inputs into a caller buffer, returns -1 for negatives, and -2 for insufficient capacity.",
+      "benchmark_contract": "benchmarks/d/decimal_to_hexadecimal/README.md"
     },
     {
       "candidate_id": "decimal_to_octal",
@@ -20829,7 +20992,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -20873,7 +21036,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/decimal_to_octal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned sources repeatedly divide decimal input by eight and emit octal digits; the Python source adds a 0o prefix and constructs place values through floating point, while the C console example fails to print zero. The local contract writes prefix-free octal digits for nonnegative signed 64-bit inputs into a caller buffer, returns -1 for negatives, and -2 for insufficient capacity.",
+      "benchmark_contract": "benchmarks/d/decimal_to_octal/README.md"
     },
     {
       "candidate_id": "decimal_to_octal_recursion",
@@ -21227,7 +21392,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -21306,7 +21471,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/depth_first_search.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ implementation traverses an undirected adjacency list recursively from a fixed start; the Rust source named depth_first_search uses a deque as a stack and returns history through a requested target. The shared contract normalizes both APIs to a complete directed recursive-preorder traversal with ascending neighbors.",
+      "benchmark_contract": "benchmarks/d/depth_first_search/README.md"
     },
     {
       "candidate_id": "depth_first_search_2",
@@ -22149,7 +22316,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -22235,7 +22402,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/graph/dijkstra.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The inspected C source uses an adjacency matrix, signed int distances, and a static remembered minimum-vertex index; C++ uses a priority queue for a source-to-target query but stores queue distances as int while its distance vector is int64_t; Rust returns a predecessor map for reachable vertices using an ordered set. The local contract standardizes all-source distances, nonnegative signed 64-bit weights, and explicit overflow and invalid-input statuses. Nine ports use the same flat-edge-list, no-allocation minimum-selection variant.",
+      "benchmark_contract": "benchmarks/d/dijkstra/README.md"
     },
     {
       "candidate_id": "dijkstra_2",
@@ -23266,7 +23435,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -23296,7 +23465,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/double_factorial.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C++ sources in both C++ repositories, the C-Sharp BigInteger implementation, and the Python recursive and iterative forms. They compute the same-parity product with 0!! = 1; arbitrary-precision inputs and exception behavior vary. The shared scalar contract accepts 0 through 33, returns the exact signed 64-bit value, and returns -1 for negative inputs or values above 33.",
+      "benchmark_contract": "benchmarks/d/double_factorial/README.md"
     },
     {
       "candidate_id": "double_factorial_iterative",
@@ -23484,7 +23655,7 @@
         "cpp",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -23584,7 +23755,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/doublyLinkedList.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The 14 pinned implementations share a doubly linked list structure, while their APIs vary across positional insertion/deletion, end operations, search, reversal, and size. The benchmark normalizes this family to append/prepend, pop at either end, remove the first matching value, contains, and length; its bounded index-based node pool is a portable benchmark representation.",
+      "benchmark_contract": "benchmarks/d/doubly_linked_list/README.md"
     },
     {
       "candidate_id": "doubly_linked_list_node",
@@ -23853,7 +24026,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -24208,7 +24381,7 @@
         "cpp",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -24266,7 +24439,8 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dynamicProgramming/editDistance.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "alias_of": "levenshtein_distance"
     },
     {
       "candidate_id": "editdistance",
@@ -25055,7 +25229,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -25064,7 +25238,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/EratosthenesSieve.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned PHP source intends the same Sieve of Eratosthenes, but leaves 1 in its returned array. The shared contract uses corrected sieve semantics and counts primes from 2.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "erosion_operation",
@@ -25752,7 +25929,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -26401,7 +26578,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -26578,7 +26755,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/factorial.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The inspected C source prints arbitrary-precision decimal digits, and C++ uses recursion with an input limit of 20. The local scalar contract uses an iterative signed 64-bit product for inputs 0 through 20 and returns -1 outside that range.",
+      "benchmark_contract": "benchmarks/f/factorial/README.md"
     },
     {
       "candidate_id": "factorial_approximation",
@@ -27684,7 +27863,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -27854,7 +28033,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/fibonacci.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The inspected C source uses a one-based argument and naive recursion; C++ uses zero-based naive recursion, and the Rust source includes multiple indexing conventions and variants. The local scalar contract defines the classical zero-based sequence, uses the iterative recurrence, and returns -1 outside 0 through 92.",
+      "benchmark_contract": "benchmarks/f/fibonacci/README.md"
     },
     {
       "candidate_id": "fibonacci2",
@@ -28256,7 +28437,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C, C++, and Rust implementations use Fibonacci-number probes over sorted arrays, with differing index widths and result APIs. The local contract standardizes ascending signed 64-bit input, an index or -1 result, and explicit empty-input handling.",
+      "benchmark_contract": "benchmarks/f/fibonacci_search/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -28611,7 +28794,7 @@
         "Scala"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -28648,7 +28831,9 @@
           "url": "https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/FindMax.scala",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned implementations scan arrays for their maximum; the Python source provides iterative and recursive versions and raises an error for an empty list. The local contract uses an iterative scan over 1..512 signed 64-bit values, returning -1 for an empty or oversized array.",
+      "benchmark_contract": "benchmarks/f/find_max/README.md"
     },
     {
       "candidate_id": "find_max_recursion",
@@ -28697,7 +28882,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -28748,7 +28933,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/find_min.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned implementations scan arrays for their minimum; the Python source provides iterative and recursive versions, while the Dart entry prints the result and assumes a nonempty list. The local contract uses an iterative scan over 1..512 signed 64-bit values, returning -1 for an empty or oversized array.",
+      "benchmark_contract": "benchmarks/f/find_min/README.md"
     },
     {
       "candidate_id": "find_min_iterator",
@@ -29612,10 +29799,16 @@
       ],
       "local_source_folders": [
         "c",
+        "c3",
         "cpp",
-        "rust"
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -29687,7 +29880,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/graph/floyd_warshall.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C, C++, and Rust sources implement the Floyd-Warshall recurrence with matrix or map graphs. The benchmark normalizes them to a bounded directed edge-list contract, chooses the minimum parallel edge, and returns one source row after all-pairs computation in all nine target languages.",
+      "benchmark_contract": "benchmarks/f/floyd_warshall/README.md"
     },
     {
       "candidate_id": "floyds_algorithm",
@@ -30884,7 +31079,7 @@
         "c",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -30921,7 +31116,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/gcd.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The pinned C source uses recursive Euclid with signed int inputs and returns the first input when the second is zero. The Zig source uses iterative Euclid with unsigned inputs, supports one zero input, and asserts that both are not zero. The local contract uses iterative Euclid over nonnegative values through INT64_MAX, defines gcd(0, 0) as zero, and returns a signed 64-bit result. All nine ports use the shared binary-scalar ABI.",
+      "benchmark_contract": "benchmarks/g/gcd/README.md"
     },
     {
       "candidate_id": "gcd_iterative_euclidean",
@@ -31967,7 +32164,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ sources walk adjacent pairs, moving forward when ordered and swapping backward when not. The local contract guards the beginning of the sequence and sorts signed 64-bit values in place.",
+      "benchmark_contract": "benchmarks/g/gnome_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -32992,7 +33191,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "F-Sharp",
@@ -33036,7 +33235,8 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/greatest_common_divisor.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "gcd"
     },
     {
       "candidate_id": "greatest_common_factor",
@@ -33523,7 +33723,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -33630,7 +33830,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/hamming_distance.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C source implements Hamming distance for null-terminated strings, while the C++ and Rust bit-manipulation sources implement both string and unsigned 64-bit integer variants. The local benchmark selects the unsigned integer variant, counts all 64 bit positions, and uses two unsigned 64-bit ABI inputs. The C port supplies that integer contract separately from the upstream C string routine.",
+      "benchmark_contract": "benchmarks/h/hamming_distance/README.md"
     },
     {
       "candidate_id": "hamming_numbers",
@@ -33746,7 +33948,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -34566,7 +34768,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -34723,7 +34925,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/sort/heapSort.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The checked C source uses a one-based heap in an interactive example, while C++ builds and extracts from a zero-based max heap. The local benchmark standardizes in-place ascending sorting of signed 64-bit values with a zero-based heap.",
+      "benchmark_contract": "benchmarks/h/heap_sort/README.md"
     },
     {
       "candidate_id": "heap_sort_2",
@@ -35130,7 +35334,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -35146,7 +35350,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/hexadecimal_to_binary.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Dart source. It maps hexadecimal characters to binary groups and accepts a leading sign. The cataloged Rust source path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first hexadecimal digit array of length 1 through 16, rejects values above INT64_MAX, and writes canonical prefix-free binary output.",
+      "benchmark_contract": "benchmarks/h/hexadecimal_to_binary/README.md"
     },
     {
       "candidate_id": "hexadecimal_to_decimal",
@@ -35160,7 +35366,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -35190,7 +35396,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/hexadecimal_to_decimal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Dart, PHP, and Python sources. They convert hexadecimal digit strings to decimal values, with differing whitespace and signed-input handling. The cataloged Rust source URL does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark uses a most-significant-first numeric digit array, accepts digits 0 through 15 and nonnegative values through INT64_MAX, and returns -1 for malformed, empty, overlength, or overflowing inputs.",
+      "benchmark_contract": "benchmarks/h/hexadecimal_to_decimal/README.md"
     },
     {
       "candidate_id": "hexadecimal_to_octal",
@@ -35204,7 +35412,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -35227,7 +35435,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/hexadecimal_to_octal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C and Dart sources. The C console program converts through a binary-looking numeric intermediate; Dart converts through decimal using floating-point powers and accepts a leading sign. The cataloged Rust source path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first hexadecimal digit array of length 1 through 16, rejects values above INT64_MAX, and writes prefix-free octal output.",
+      "benchmark_contract": "benchmarks/h/hexadecimal_to_octal/README.md"
     },
     {
       "candidate_id": "hexadecimal_to_octal2",
@@ -36983,7 +37193,9 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ sources build a sorted prefix by shifting larger values and inserting the next key. The local contract sorts signed 64-bit values in ascending order in place and preserves equal-key order.",
+      "benchmark_contract": "benchmarks/i/insertion_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -37344,7 +37556,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -37353,7 +37565,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/IntToBase.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "decimal_to_any_base",
+      "review_notes": "The pinned JavaScript source repeatedly divides the absolute value by a numeric base and concatenates decimal remainders; for nonnegative inputs in bases 2 through 10, it emits the same canonical digits as decimal_to_any_base. Its negative handling is outside the shared nonnegative contract.",
+      "benchmark_contract": "benchmarks/d/decimal_to_any_base/README.md"
     },
     {
       "candidate_id": "int_to_negative_binary_base",
@@ -37362,7 +37577,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -37371,7 +37586,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/int_to_negative_binary_base.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "base_neg2_conversion",
+      "review_notes": "The pinned Python source performs the same repeated division by -2 and negative-remainder correction as base_neg2_conversion. It shares the canonical negabinary conversion contract.",
+      "benchmark_contract": "benchmarks/b/base_neg2_conversion/README.md"
     },
     {
       "candidate_id": "int_to_string",
@@ -37690,7 +37908,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The inspected implementations interpolate a probe position over sorted integer values but use differing widths and result APIs. The local benchmark standardizes strictly ascending signed 64-bit values, explicit empty handling, and an arithmetic-bound precondition satisfied by the declared workload.",
+      "benchmark_contract": "benchmarks/i/interpolation_search/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -38019,7 +38239,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -38441,7 +38661,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -38471,7 +38691,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/is_even.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Java, JavaScript, Python, and TypeScript sources. They test parity using a bit check or modulo and return a boolean; Python and TypeScript additionally validate integer inputs. The shared benchmark uses the signed 64-bit integer domain and returns 1 for even and 0 for odd, covering the full range without taking absolute values.",
+      "benchmark_contract": "benchmarks/i/is_even/README.md"
     },
     {
       "candidate_id": "is_graph_bipartite",
@@ -38866,7 +39088,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -38889,7 +39111,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/is_power_of_two.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "power_of_two",
+      "review_notes": "Inspected the pinned JavaScript, Python, and Rust sources. Each tests whether the input has exactly one set bit; their zero behavior differs from the shared positive-power contract. This filename is consolidated with power_of_two under the same explicit n > 0 predicate.",
+      "benchmark_contract": "benchmarks/p/power_of_two/README.md"
     },
     {
       "candidate_id": "is_power_two",
@@ -38935,7 +39160,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Kotlin",
@@ -38951,7 +39176,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/math/prime/is_prime.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prime_check",
+      "review_notes": "The pinned Kotlin and Lua sources named is_prime test the same mathematical primality predicate. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract, including negative inputs returning false.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "is_pronic",
@@ -40426,7 +40654,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked sources use square-root-sized blocks followed by a linear scan, but their index types and empty-input handling differ. The local contract standardizes ascending signed 64-bit input, any matching index or -1, and empty-input behavior.",
+      "benchmark_contract": "benchmarks/j/jump_search/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -41911,7 +42141,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -41920,7 +42150,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/KnapsackZeroOneTabulation.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Java tabulation source. Its two-dimensional table uses the standard 0/1 recurrence over items and capacities. The pinned C++ 0_1_knapsack and Kotlin zero_one_knapsack_problem sources use the same bottom-up recurrence; their source filenames are recorded as aliases. The shared implementation stores one row and scans capacities downward so each item is still used at most once.",
+      "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md"
     },
     {
       "candidate_id": "knearest_neighbors",
@@ -42488,7 +42720,7 @@
         "c",
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -43357,7 +43589,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -43394,7 +43626,9 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/discrete_mathematics/lcm.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The inspected TheAlgorithms implementations calculate the least common multiple for integer inputs, but their multiply-before-divide formulations can overflow fixed-width integer types. The shared benchmark defines nonnegative signed-64-bit inputs, returns zero when either input is zero, computes after reducing by the gcd, and returns -1 when the mathematical result exceeds INT64_MAX. Portable implementations are present in all nine local languages.",
+      "benchmark_contract": "benchmarks/l/lcm/README.md"
     },
     {
       "candidate_id": "lcm_of_n_numbers",
@@ -43405,7 +43639,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -43414,7 +43648,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/lcm_of_n_numbers.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The Rust reference recursively folds a nonempty slice and computes a * b / gcd(a, b) using usize, so empty input is unsupported and intermediate multiplication can overflow. The shared contract defines the empty identity, zero behavior, nonnegative signed-64-bit inputs, and an explicit overflow result; the nine local ports reduce by the GCD before checked multiplication.",
+      "benchmark_contract": "benchmarks/l/lcm_of_n_numbers/README.md"
     },
     {
       "candidate_id": "lcm_sum",
@@ -43426,7 +43662,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -43442,7 +43678,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/lcm_sum.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The two C++ references compute sum(LCM(i, n)) for 1 <= i <= n using the weighted Euler-totient identity and accept a uint16_t input. Their sieve and accumulation allocate arrays. The shared contract returns -1 outside 1..65535; the local ports use the same identity, enumerate divisor pairs, and calculate the needed totients by factorization without host-specific instructions or dynamic allocation.",
+      "benchmark_contract": "benchmarks/l/lcm_sum/README.md"
     },
     {
       "candidate_id": "lcs",
@@ -43456,7 +43694,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -43486,7 +43724,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/dynamic_programming/lcs.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_common_subsequence",
+      "review_notes": "The pinned C, Julia, Kotlin, and TypeScript sources use the longest common subsequence recurrence. They share the canonical benchmark contract, which measures the length of an LCS.",
+      "benchmark_contract": "benchmarks/l/longest_common_subsequence/README.md"
     },
     {
       "candidate_id": "leaf",
@@ -43595,7 +43836,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -43646,7 +43887,8 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/least_common_multiple.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "lcm"
     },
     {
       "candidate_id": "least_recently_used",
@@ -43902,7 +44144,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -43911,7 +44153,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/LeonardoNumber.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The Java reference provides recursive and iterative implementations of L(0)=L(1)=1 and L(n)=L(n-1)+L(n-2)+1, and returns int. The shared contract extends exact values to index 89 with signed 64-bit results and returns -1 outside 0..89; local ports use the iterative recurrence.",
+      "benchmark_contract": "benchmarks/l/leonardo_number/README.md"
     },
     {
       "candidate_id": "lerp",
@@ -43923,7 +44167,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -43939,7 +44183,9 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/lerp.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The C source offers both start + t * (end - start) and an alternate weighted-sum expression; Go uses the weighted-sum expression with float64. The shared contract selects the classic expression over bounded finite binary64 inputs, and defines an input-scaled tolerance so rounding remains comparable near cancellation.",
+      "benchmark_contract": "benchmarks/l/lerp/README.md"
     },
     {
       "candidate_id": "letter_combination",
@@ -43948,7 +44194,10 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "alias_of": "letter_combinations_of_phone_number",
+      "review_notes": "The JavaScript source recursively constructs the Cartesian product of keypad letters for digits 2 through 9. It is the same algorithm as the Java phone-number candidate and shares that benchmark contract; this filename is retained as an alias to avoid duplicating one algorithm in the benchmark catalog.",
+      "benchmark_contract": "benchmarks/l/letter_combinations_of_phone_number/README.md",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -43966,7 +44215,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -43975,7 +44224,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/LetterCombinationsOfPhoneNumber.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The Java source recursively enumerates phone keypad letters as a Cartesian product, matching the JavaScript letter_combination candidate. The shared contract uses digits 2 through 9, ordered fixed-width byte output, zero combinations for empty input, and rejects invalid digits.",
+      "benchmark_contract": "benchmarks/l/letter_combinations_of_phone_number/README.md"
     },
     {
       "candidate_id": "level_order_traversal",
@@ -43984,7 +44235,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -43993,7 +44244,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/LevelOrderTraversal.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The Java source's traverse method uses a FIFO queue, captures the queue size before each depth, processes children left-to-right, and returns one value list per level. The same file also contains a recursive printGivenLevel helper; this benchmark selects the queue-based grouped traversal and records flat values with level offsets.",
+      "benchmark_contract": "benchmarks/l/level_order_traversal/README.md"
     },
     {
       "candidate_id": "levenshtein",
@@ -44003,7 +44256,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Lua",
@@ -44019,7 +44272,10 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/string_manipulation/levenshtein.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "levenshtein_distance",
+      "review_notes": "The Lua and R filename match uses the same unit-cost insertion/deletion/substitution distance as the canonical candidate. The shared ASCII contract removes differences in character indexing. This source filename is retained as an alias to share one benchmark contract.",
+      "benchmark_contract": "benchmarks/l/levenshtein_distance/README.md"
     },
     {
       "candidate_id": "levenshtein_distance",
@@ -44037,7 +44293,7 @@
         "nim",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -44095,7 +44351,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/levenshtein_distance.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/l/levenshtein_distance/README.md",
+      "review_notes": "Inspected the pinned C-Sharp, F-Sharp, Java, both JavaScript, Nim, Python, Rust, Lua, R, and Go source files. The standard implementations compute the minimum insertion, deletion, and substitution cost; Java also exposes an optimized implementation, and Go accepts configurable costs that reduce to ordinary Levenshtein distance when all three costs are one. The shared benchmark restricts inputs to ASCII bytes so byte-indexed and character-indexed sources use identical units. Adjacent transposition support is cataloged separately as Damerau-Levenshtein distance."
     },
     {
       "candidate_id": "levenshteindistance",
@@ -44104,7 +44362,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -44113,7 +44371,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/strings/levenshtein/levenshteindistance.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "levenshtein_distance",
+      "review_notes": "The Go source exposes insertion, substitution, and deletion weights; setting each weight to one gives the same ordinary Levenshtein distance as the canonical candidate. This source filename is retained as an alias to share one benchmark contract.",
+      "benchmark_contract": "benchmarks/l/levenshtein_distance/README.md"
     },
     {
       "candidate_id": "lexicographic_permutations",
@@ -45008,7 +45269,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -45031,7 +45292,9 @@
           "url": "https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/LinearSieve.scala",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript and Scala sources implement the linear (Euler) sieve and return primes through an inclusive limit. Rust also stores the minimum-prime-factor table for later factorization. Its inner loop stops at p > i rather than p > minimum_prime_factor[i], so the local ports use the standard bound that marks each composite once. The shared contract returns the prime count for limits 0..4096; limits below two normalize to zero.",
+      "benchmark_contract": "benchmarks/l/linear_sieve/README.md"
     },
     {
       "candidate_id": "linear_without_inbuilt",
@@ -45124,7 +45387,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -45189,7 +45452,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/linkedList.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The nine pinned sources cover singly linked lists, doubly linked lists, and a TypeScript list interface, with differing APIs. The benchmark standardizes common sequence operations and uses a bounded singly linked index pool in every target language.",
+      "benchmark_contract": "benchmarks/l/linked_list/README.md"
     },
     {
       "candidate_id": "linked_list_item",
@@ -45971,7 +46236,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -46029,7 +46294,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/longest_common_subsequence.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, Dart, Java, JavaScript, Python, R, Julia, Kotlin, Rust, C, and TypeScript sources implement longest common subsequence. Their APIs vary: some return an actual subsequence while others return its length. The shared contract standardizes on length for two ASCII sequences; the ASCII restriction keeps byte- and character-indexed sources on the same units. The shorter lcs filename is cataloged as an alias. Longest common substring is a distinct algorithm.",
+      "benchmark_contract": "benchmarks/l/longest_common_subsequence/README.md"
     },
     {
       "candidate_id": "longest_common_substring",
@@ -46113,7 +46380,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -46171,7 +46438,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dynamicProgramming/longestIncreasingSubsequence.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, Java, Rust, and Zig sources compute a strictly increasing subsequence; the Rust source returns a sequence while this benchmark standardizes its length. The pinned Python file with the canonical filename uses >= and therefore permits equal values, a non-decreasing variant. The local contract uses strict signed-i64 LIS length for inputs up to 512 elements, with -1 for longer inputs.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longest_increasing_subsequence_iterative",
@@ -46198,7 +46467,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -46207,7 +46476,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/LongestIncreasingSubsequenceNLogN.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned Java NLogN implementation uses a lower-bound tails array and returns the strict LIS length; it shares the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longest_increasing_subsequence_nlogn",
@@ -46219,7 +46491,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -46235,7 +46507,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/longest_increasing_subsequence_%28nlogn%29.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned C++ NLogN sources use lower-bound tails updates and return the strict LIS length; both share the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longest_increasing_subsequence_o_nlogn",
@@ -46244,7 +46519,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -46253,7 +46528,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/longest_increasing_subsequence_o_nlogn.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned Python O(n log n) implementation uses lower-bound tails updates and returns the strict LIS length; it shares the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longest_increasing_subsequence_using_binary_search",
@@ -46264,7 +46542,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -46273,7 +46551,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/search/longest_increasing_subsequence_using_binary_search.cpp",
           "local_folder_source": "cpp"
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned C++ binary-search implementation maintains strict LIS tails and returns their length; it shares the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longest_non_repetitive_substring",
@@ -46604,7 +46885,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -46613,7 +46894,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/longestincreasingsubsequence.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned Go implementation computes strict LIS length with dynamic programming; its normalized filename is an alias of the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longestincreasingsubsequencegreedy",
@@ -46622,7 +46906,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -46631,7 +46915,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/longestincreasingsubsequencegreedy.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "longest_increasing_subsequence",
+      "review_notes": "The pinned Go greedy implementation computes strict LIS length with a tails sequence; its normalized filename is an alias of the canonical contract.",
+      "benchmark_contract": "benchmarks/l/longest_increasing_subsequence/README.md"
     },
     {
       "candidate_id": "longestpalindrome",
@@ -50527,7 +50814,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -50712,7 +50999,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/sort/mergeSort.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The C implementation recursively merges inclusive ranges and allocates a fresh buffer per merge; C++ allocates two vectors per merge; Rust provides top-down and bottom-up variants with temporary vectors. The local benchmark fixes stable bottom-up merging with a reusable scratch buffer allocated outside timing.",
+      "benchmark_contract": "benchmarks/m/merge_sort/README.md"
     },
     {
       "candidate_id": "merge_sort_linked_list",
@@ -52794,7 +53083,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -54624,8 +54913,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -54634,7 +54933,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/negative_binary_base_to_int.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source evaluates base -2 binary digits as signed positional values. The cross-language contract accepts a most-significant-first bit array of up to 63 digits, ensuring every possible prefix and final value fits signed 64-bit.",
+      "benchmark_contract": "benchmarks/n/negative_binary_base_to_int/README.md"
     },
     {
       "candidate_id": "negative_integers_sequence",
@@ -55232,7 +55533,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -55241,7 +55542,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/next_prime_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k\u00b11 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload.",
+      "benchmark_contract": "benchmarks/n/next_prime_number/README.md"
     },
     {
       "candidate_id": "next_smaller_element",
@@ -55892,7 +56195,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -56253,7 +56556,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -56290,7 +56593,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/octal_to_binary.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, and Python sources. They convert octal text or decimal-encoded octal digits to binary; C uses floating-point powers, Dart accepts signed input, and Python emits three bits per input digit including leading zeroes. The cataloged Rust source path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first octal digit array of length 1 through 21 and writes canonical prefix-free binary output.",
+      "benchmark_contract": "benchmarks/o/octal_to_binary/README.md"
     },
     {
       "candidate_id": "octal_to_decimal",
@@ -56307,7 +56612,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -56351,7 +56656,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/octal_to_decimal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, PHP, Python, and Rust sources. They convert octal digit representations to decimal; the C source uses floating-point powers and does not validate octal digits, while Python and Rust validate textual input. The shared benchmark represents digits as a most-significant-first array, validates digits 0 through 7, and caps the length at 21 so conversion fits signed 64-bit.",
+      "benchmark_contract": "benchmarks/o/octal_to_decimal/README.md"
     },
     {
       "candidate_id": "octal_to_hexadecimal",
@@ -56367,7 +56674,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -56404,7 +56711,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/octal_to_hexadecimal.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C, Dart, Java, and Python sources. They convert octal text or decimal-encoded octal digits to hexadecimal and differ in signed-input handling, prefixes, and letter case. The cataloged Rust source path does not resolve at its pinned revision, so it was not used to infer the shared contract. The benchmark accepts a most-significant-first octal digit array of length 1 through 21 and writes prefix-free lowercase hexadecimal output.",
+      "benchmark_contract": "benchmarks/o/octal_to_hexadecimal/README.md"
     },
     {
       "candidate_id": "odd_even_sort",
@@ -56424,7 +56733,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ sources alternate odd and even adjacent-pair phases until a full round makes no swaps. The local contract standardizes ascending in-place sorting of signed 64-bit values.",
+      "benchmark_contract": "benchmarks/o/odd_even_sort/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -56527,7 +56838,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -56536,7 +56847,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/odd_sieve.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned Python source stores only odd candidates and explicitly describes itself as an optimized Sieve of Eratosthenes. It uses an exclusive upper bound and returns a prime list; the shared contract standardizes the inclusive limit and prime count.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "oddevensort",
@@ -57526,7 +57840,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -57931,7 +58245,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C and C++ sources find the maximum in each remaining prefix and use prefix reversals to move it to its final position. The local contract standardizes ascending in-place sorting of signed 64-bit values.",
+      "benchmark_contract": "benchmarks/p/pancake_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -59034,7 +59350,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -59078,7 +59394,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/perfect_cube.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned implementations test whether a signed integer is a perfect cube, and Rust explicitly accepts negative perfect cubes. The Python source includes both a floating cube-root method and an exact binary-search method; the Rust search negates signed values and multiplies midpoint cubes directly, which can overflow on wider inputs. The local contract bounds inputs to \u00b11,000,000,000,000 and uses exact integer binary search over root magnitudes 0..10000, returning 1 for a cube, 0 otherwise, and -1 outside the supported range.",
+      "benchmark_contract": "benchmarks/p/perfect_cube/README.md"
     },
     {
       "candidate_id": "perfect_cube_checker",
@@ -59112,7 +59430,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -59177,7 +59495,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/perfect_number.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Dart, Java, JavaScript, Julia, PHP, Python, R, and TypeScript sources define perfect numbers as positive integers equal to the sum of their positive proper divisors. The implementations include direct scans and paired-divisor scans through the square root; the two Python paths duplicate the same predicate, and Java contains both direct and optimized methods.",
+      "benchmark_contract": "benchmarks/p/perfect_number/README.md"
     },
     {
       "candidate_id": "perfect_number_checker",
@@ -59186,7 +59506,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -59195,7 +59515,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/PerfectNumberChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "perfect_number",
+      "review_notes": "The pinned C-Sharp PerfectNumberChecker source sums positive proper divisors and returns whether the sum equals the input. It has the same predicate as perfect_number; its negative-input exception is normalized by the shared contract.",
+      "benchmark_contract": "benchmarks/p/perfect_number/README.md"
     },
     {
       "candidate_id": "perfect_numbers",
@@ -59251,7 +59574,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -59316,7 +59639,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/perfect_square.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Java, JavaScript, Julia, PHP, Python, R, Rust, Solidity, and TypeScript sources. They define the nonnegative perfect-square predicate with floating-point square roots, integer square roots, or binary search; Rust contains both floating-point and exact binary-search variants. The benchmark uses exact integer binary search over signed 64-bit values, with negative inputs returning false.",
+      "benchmark_contract": "benchmarks/p/perfect_square/README.md"
     },
     {
       "candidate_id": "perfect_square_checker",
@@ -59343,7 +59668,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -59352,7 +59677,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/perfectnumber.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "perfect_number",
+      "review_notes": "The pinned Go perfectnumber source checks whether the sum of positive proper divisors equals the input. It has the same predicate as perfect_number; the unsigned Go API is normalized by the shared signed-integer contract.",
+      "benchmark_contract": "benchmarks/p/perfect_number/README.md"
     },
     {
       "candidate_id": "perimeter",
@@ -60003,7 +60331,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -60692,7 +61020,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -61047,7 +61375,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -61084,7 +61412,9 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/power_of_two.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C++ copies, Dart implementation, and both Ruby paths; the related is_power_of_two candidate also has JavaScript, Python, and Rust implementations. The bit-test sources disagree on zero, and the C++ form also needs a positive-domain guard. The shared contract follows the mathematical predicate for positive powers of two over signed 64-bit inputs: 1 for n > 0 with one set bit, otherwise 0. The is_power_of_two filename is an alias of this normalized predicate.",
+      "benchmark_contract": "benchmarks/p/power_of_two/README.md"
     },
     {
       "candidate_id": "power_of_two_or_not",
@@ -61696,7 +62026,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -61812,7 +62142,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -61835,7 +62165,10 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/prime.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prime_check",
+      "review_notes": "The pinned C, F-Sharp, and R sources named prime each expose a scalar primality predicate using trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "prime_check",
@@ -61852,7 +62185,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -61903,7 +62236,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_check.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned Dart, Java, JavaScript, Julia, MATLAB-Octave, Python, and Rust prime_check sources; the related prime, check_prime, and is_prime candidates provide C, F-Sharp, R, C++, PHP, Kotlin, and Lua forms of the same primality predicate. Most use trial division; Java also includes an optional randomized Fermat check. The shared deterministic contract returns 1 for prime values in 2..=2147483647, 0 for negatives, values below 2, and composites, and -1 above the practical signed-32-bit limit. The other three filename candidates are aliases of this contract.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "prime_checker",
@@ -62162,7 +62497,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -62171,7 +62506,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/prime_sieve.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned C source implements a fixed-bound Sieve of Eratosthenes and includes a count helper over the marked flags. Its fixed upstream bound is replaced by the shared contract.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "prime_sieve_eratosthenes",
@@ -62180,7 +62518,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -62189,7 +62527,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/prime_sieve_eratosthenes.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned Python source returns primes up to an inclusive bound using the same p-squared marking recurrence. Its rejection of zero is normalized to the shared contract.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "primecheck",
@@ -68941,7 +69282,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -69295,7 +69636,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -69318,7 +69659,8 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/QueueUsingTwoStacks.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The two pinned C++ copies use eager reversal during every enqueue; the Java implementation uses input/output stacks and transfers elements when dequeue or front peek needs them. The normalized benchmark explicitly selects the lazy-transfer algorithm and standardizes bounded FIFO semantics across all nine target languages."
     },
     {
       "candidate_id": "queuearray",
@@ -69479,7 +69821,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -69650,7 +69992,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/sort/quickSort.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The checked C and C++ implementations use the final value as a Lomuto pivot but differ in range convention and container API. The local ports use half-open ranges, in-place signed 64-bit values, and recurse into the smaller partition to bound call-stack depth.",
+      "benchmark_contract": "benchmarks/q/quick_sort/README.md"
     },
     {
       "candidate_id": "quick_sort_3",
@@ -69942,7 +70286,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -70007,7 +70351,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/rabin_karp.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ sources return the first matching index; Java, C-Sharp, JavaScript, Julia, and Rust sources return all indices; Python and F-Sharp return a boolean. The local contract normalizes these results to ASCII pattern presence. Empty-pattern behavior varies or is unspecified, so the shared contract defines an empty pattern as present. The C++ source does not guard a pattern longer than the text before unsigned length subtraction, and the JavaScript source starts checking after the initial window; the benchmark ports use a validated length bound and check the first window. Every hash match is byte-verified to prevent collisions from becoming false positives.",
+      "benchmark_contract": "benchmarks/r/rabin_karp/README.md"
     },
     {
       "candidate_id": "rabin_karp_algorithm",
@@ -70198,7 +70544,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -70299,7 +70645,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/sort/radixSort.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The checked C and C++ examples use decimal digit passes on nonnegative integers, while Rust accepts unsigned values and chooses a radix from the input length. The local contract standardizes stable byte-wise radix passes on signed 64-bit values using a sign-order transform and reusable scratch.",
+      "benchmark_contract": "benchmarks/r/radix_sort/README.md"
     },
     {
       "candidate_id": "radix_sort2",
@@ -71473,7 +71821,9 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked Java implementation recursively searches a sorted array, compares the midpoint value, and narrows one half until it returns an index or -1. The local contract standardizes this as recursive search over ascending signed 64-bit input with explicit empty-input behavior.",
+      "benchmark_contract": "benchmarks/r/recursive_binary_search/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -71513,7 +71863,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -75319,7 +75669,9 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C source repeatedly selects the minimum value from the remaining suffix and places it at the next output position. The local contract standardizes ascending in-place sorting of signed 64-bit values; stability is not promised.",
+      "benchmark_contract": "benchmarks/s/selection_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -75498,7 +75850,7 @@
         "c",
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -75703,7 +76055,9 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C, Java, and Python implementations place the target at the end as a sentinel to remove the loop's per-element end check, though they differ on empty input, mutation APIs, and result conventions. The local contract uses a mutable signed 64-bit array, restores its final element before returning, and standardizes the result as an index or -1.",
+      "benchmark_contract": "benchmarks/s/sentinel_linear_search/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -76294,7 +76648,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C source uses a halving gap sequence to sort progressively closer subsequences. The local contract standardizes that gap sequence and ascending in-place sorting of signed 64-bit values; stability is not promised.",
+      "benchmark_contract": "benchmarks/s/shell_sort/README.md",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -76980,7 +77336,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -76989,7 +77345,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/prime/sieve2.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned Go source uses the same inclusive-bound Eratosthenes sieve, marking multiples from p squared. It shares the canonical prime-count contract.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "sieve_er",
@@ -76998,7 +77357,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "MATLAB-Octave",
@@ -77007,7 +77366,10 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Sieve_of_Eratosthenes/sieveER.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "sieve_of_eratosthenes",
+      "review_notes": "The pinned MATLAB-Octave source implements the Sieve of Eratosthenes and returns prime indices from 2 through the inclusive limit. It shares the canonical prime-count contract.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "sieve_of_atkin",
@@ -77017,7 +77379,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -77033,7 +77395,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/sieve_of_atkin.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java and Python sources implement the Sieve of Atkin: they toggle candidates from the three quadratic forms modulo 12, remove multiples of prime squares, and include 2 and 3 explicitly. Both return prime lists; Python rejects negative limits while Java returns an empty list below one. The local scalar contract normalizes this to the prime count for inclusive limits 0..4096 and returns -1 outside that range, using a fixed 4097-entry buffer.",
+      "benchmark_contract": "benchmarks/s/sieve_of_atkin/README.md"
     },
     {
       "candidate_id": "sieve_of_eratosthenes",
@@ -77056,7 +77420,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -77149,7 +77513,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/sieve_of_eratosthenes.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned sources use the Sieve of Eratosthenes to identify primes through an inclusive upper bound. Most return a boolean sieve or prime list; Java and R also include a prime-count helper. The sources differ at limits below two (notably Python rejects zero), and one JavaScript implementation starts marking at 2p instead of p squared; these choices do not change the shared prime-count result for the documented domain. The local scalar contract counts primes through limits 0..4096 and returns -1 outside that range, with a fixed 4097-entry buffer. Filename variants prime_sieve, prime_sieve_eratosthenes, eratosthenes_sieve, sieve_er, sieve2, and odd_sieve are cataloged as aliases; the PHP variant erroneously retains 1 in its output.",
+      "benchmark_contract": "benchmarks/s/sieve_of_eratosthenes/README.md"
     },
     {
       "candidate_id": "sigmoid",
@@ -77251,7 +77617,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -77281,7 +77647,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/signum.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned JavaScript, Python, Rust, and TypeScript sources. They return -1, 0, or 1 according to the sign of a numeric input; the real-number variants also have NaN behavior. The shared benchmark selects signed 64-bit integer inputs, supported by the scalar ABI, and comparison-based implementations preserve behavior at both signed endpoints.",
+      "benchmark_contract": "benchmarks/s/signum/README.md"
     },
     {
       "candidate_id": "similar_matrices",
@@ -77992,7 +78360,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -78057,7 +78425,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/data_structures/list/singly_linked_list.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "linked_list",
+      "review_notes": "The nine pinned sources provide singly linked list operations such as head/tail insertion, deletion, search or indexed access, and length. Their common sequence operations use the same bounded linked-list contract and workload as the canonical linked_list benchmark.",
+      "benchmark_contract": "benchmarks/l/linked_list/README.md"
     },
     {
       "candidate_id": "singly_linked_list_node",
@@ -80322,7 +80693,7 @@
         "cpp",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -81102,7 +81473,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -81160,7 +81531,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/stooge_sort.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The inspected C, C++, and Rust implementations compare the endpoints, then recursively sort the first two thirds, last two thirds, and first two thirds again. Their range conventions and empty-input guards differ. The local contract standardizes half-open ranges and small benchmark sizes for signed 64-bit values.",
+      "benchmark_contract": "benchmarks/s/stooge_sort/README.md"
     },
     {
       "candidate_id": "straight_line_depreciation",
@@ -81213,7 +81586,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -82399,7 +82772,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -82464,7 +82837,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/sum_of_digits.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned C++, C-Sharp, Java, JavaScript, MATLAB, Python, Ruby, and Rust sources. The common iterative variant accumulates base-10 remainders and ignores a negative sign; Rust safely obtains the magnitude of signed 32-bit minimum. Java and Python include recursive or string-based alternatives, while C-Sharp rejects negative values. The benchmark chooses the common iterative behavior, defines signed 32-bit input, and returns -1 outside that range.",
+      "benchmark_contract": "benchmarks/s/sum_of_digits/README.md"
     },
     {
       "candidate_id": "sum_of_geometric_progression",
@@ -83557,7 +83932,9 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The checked C, C++, and Rust implementations search sorted sequences by dividing the active range into thirds, with differing recursion, precision, and result conventions. The local contract standardizes exact iterative search on ascending signed 64-bit values and returns any matching index or -1, including for empty input.",
+      "benchmark_contract": "benchmarks/t/ternary_search/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -83914,7 +84291,7 @@
         {
           "repository": "Jupyter",
           "language": "Jupyter Notebook",
-          "path": "numerical_methods/the_Simpson’s_method.ipynb",
+          "path": "numerical_methods/the_Simpson\u2019s_method.ipynb",
           "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/numerical_methods/the_Simpson%E2%80%99s_method.ipynb",
           "local_folder_source": null
         }
@@ -84241,7 +84618,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -84714,7 +85091,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -84786,7 +85163,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/topological_sort.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C and C++ sources use visited-only depth-first postorder and do not reliably reject cycles; the C implementation also uses a fixed 40-node stack. The pinned Rust source uses Kahn's algorithm and reports cycles. The shared bounded contract normalizes all ports to deterministic FIFO Kahn order, coalesced duplicate edges, explicit cycle detection, and fixed-capacity portable storage.",
+      "benchmark_contract": "benchmarks/t/topological_sort/README.md"
     },
     {
       "candidate_id": "topological_sort_by_kahns_algo",
@@ -84897,7 +85276,7 @@
         "c",
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -84955,7 +85334,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/tower_of_hanoi.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C and Python sources recursively emit the standard three-peg move sequence. The pinned C++ source simulates the same recurrence while moving disks between explicit tower states. The shared contract accepts zero through twelve disks and distinct peg IDs, emits each move as a from/to byte pair, and reports invalid parameters or insufficient capacity without partial output.",
+      "benchmark_contract": "benchmarks/t/tower_of_hanoi/README.md"
     },
     {
       "candidate_id": "towers_of_hanoi",
@@ -84964,7 +85345,7 @@
         "Haskell"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Haskell",
@@ -84973,7 +85354,10 @@
           "url": "https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Misc/TowersOfHanoi.hs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "tower_of_hanoi",
+      "review_notes": "The pinned Haskell implementation recursively emits the same three-peg Tower of Hanoi move recurrence as tower_of_hanoi. This plural filename is retained as an alias and shares the canonical workload and contract.",
+      "benchmark_contract": "benchmarks/t/tower_of_hanoi/README.md"
     },
     {
       "candidate_id": "trailing_zeroes",
@@ -86519,7 +86903,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -89947,7 +90331,7 @@
         "Kotlin"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Kotlin",
@@ -89956,7 +90340,10 @@
           "url": "https://github.com/TheAlgorithms/Kotlin/blob/b913c1d85c972fd1e679c5d832d6458b21be8fb0/src/main/kotlin/dynamicProgramming/ZeroOneKnapsackProblem.kt",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "knapsack_zero_one_tabulation",
+      "review_notes": "The pinned Kotlin source fills a bottom-up 0/1 knapsack table with the same item/capacity recurrence as the canonical tabulation candidate. This filename is retained as an alias to share one workload and contract.",
+      "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md"
     },
     {
       "candidate_id": "zero_sequence",

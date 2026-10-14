@@ -1,0 +1,16 @@
+# In-place exchange sort for the shared sorting contract.
+def exchange_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    first: mutable usize = 0
+    while first + 1 < length:
+        other: mutable usize = first + 1
+        while other < length:
+            if values[other] < values[first]:
+                temporary: i64 = values[first]
+                values[first] <- values[other]
+                values[other] <- temporary
+            other <- other + 1
+        first <- first + 1
+
+export fn exchange_sort(values: mutable i64&, length: usize) -> void = exchange_sort_impl

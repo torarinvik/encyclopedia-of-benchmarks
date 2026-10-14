@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "dutch_national_flag_sort-v1",
+  "algorithm": "dutch_national_flag_sort",
+  "input": {
+    "lengths": [
+      0,
+      16,
+      256,
+      1024,
+      4096
+    ],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 2,
+      "modulus": 3,
+      "offset": 0,
+      "formula": "values[index] = (index * 2) mod 3"
+    }
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

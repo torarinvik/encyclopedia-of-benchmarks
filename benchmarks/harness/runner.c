@@ -12,12 +12,18 @@
 #include <string.h>
 #include <time.h>
 
-typedef int64_t (*search_fn)(const int64_t *, size_t, int64_t);
-
 #ifndef BENCHMARK_FUNCTION
 #error "Compile with -DBENCHMARK_FUNCTION=<exported search symbol>"
 #endif
+#ifdef BENCHMARK_MUTABLE_INPUT
+typedef int64_t (*search_fn)(int64_t *, size_t, int64_t);
+typedef int64_t *benchmark_values_t;
+extern int64_t BENCHMARK_FUNCTION(int64_t *values, size_t length, int64_t target);
+#else
+typedef int64_t (*search_fn)(const int64_t *, size_t, int64_t);
+typedef const int64_t *benchmark_values_t;
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length, int64_t target);
+#endif
 
 /* Volatile function-pointer reads prevent the repeated calls being folded away. */
 static search_fn volatile search = BENCHMARK_FUNCTION;
@@ -60,7 +66,7 @@ static int parse_i64(const char *text, int64_t *value)
     return 1;
 }
 
-static int64_t run_batch(const int64_t *values, size_t length, int64_t target,
+static int64_t run_batch(benchmark_values_t values, size_t length, int64_t target,
                          size_t repetitions, uint64_t *checksum)
 {
     int64_t last_result = -1;

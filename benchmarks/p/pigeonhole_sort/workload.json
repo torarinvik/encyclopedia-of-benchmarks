@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "pigeonhole_sort-v1",
+  "algorithm": "pigeonhole_sort",
+  "abi": "mutable_i64_with_scratch",
+  "input": {
+    "lengths": [0, 16, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 73,
+      "modulus": 257,
+      "offset": 128,
+      "formula": "values[index] = ((index * 73) mod 257) - 128"
+    }
+  },
+  "scratch_elements_extra": 257,
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "scratch_allocation_timed": false
+  }
+}

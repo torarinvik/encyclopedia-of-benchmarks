@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "power-of-two-v1",
+  "algorithm": "power_of_two",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "result_encoding": {"power_of_two": 1, "otherwise": 0},
+    "zero_is_power": false
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":0},
+    {"id":"sixteen","input_value":16,"expected_result":1},
+    {"id":"seventeen","input_value":17,"expected_result":0},
+    {"id":"highest_signed_power_of_two","input_value":4611686018427387904,"expected_result":1},
+    {"id":"maximum_signed_integer","input_value":9223372036854775807,"expected_result":0},
+    {"id":"minimum_signed_integer","input_value":-9223372036854775808,"expected_result":0},
+    {"id":"negative_one","input_value":-1,"expected_result":0}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

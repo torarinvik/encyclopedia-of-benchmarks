@@ -1,0 +1,26 @@
+# Fold a list of nonnegative values with overflow-safe Euclidean LCM.
+def lcm_of_n_numbers_impl(values: i64&, length: usize) -> i64:
+    index: mutable usize = 0
+    while index < length:
+        if values[index] == 0:
+            return 0
+        index <- index + 1
+    accumulator: mutable u64 = 1
+    maximum: u64 = 9223372036854775807.u64()
+    index <- 0
+    while index < length:
+        left: mutable u64 = accumulator
+        value: u64 = values[index].u64()
+        right: mutable u64 = value
+        while right != 0:
+            remainder: u64 = left % right
+            left <- right
+            right <- remainder
+        reduced: u64 = accumulator / left
+        if reduced > maximum / value:
+            return -1
+        accumulator <- reduced * value
+        index <- index + 1
+    accumulator.i64()
+
+export fn lcm_of_n_numbers(values: i64&, length: usize) -> i64 = lcm_of_n_numbers_impl

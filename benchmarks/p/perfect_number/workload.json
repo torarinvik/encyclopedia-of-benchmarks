@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "perfect-number-v1",
+  "algorithm": "perfect_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [1, 1000000000000],
+    "out_of_range_result": -1,
+    "result_encoding": {"perfect": 1, "not_perfect_or_below_two": 0}
+  },
+  "cases": [
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":0},
+    {"id":"negative","input_value":-17,"expected_result":0},
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":0},
+    {"id":"small_perfect","input_value":6,"expected_result":1},
+    {"id":"source_example_nonperfect","input_value":12,"expected_result":0},
+    {"id":"second_perfect","input_value":28,"expected_result":1},
+    {"id":"perfect_square","input_value":36,"expected_result":0},
+    {"id":"another_perfect","input_value":496,"expected_result":1},
+    {"id":"fourth_perfect","input_value":8128,"expected_result":1},
+    {"id":"known_perfect_33550336","input_value":33550336,"expected_result":1},
+    {"id":"below_known_perfect","input_value":33550335,"expected_result":0},
+    {"id":"above_known_perfect","input_value":33550337,"expected_result":0},
+    {"id":"prime","input_value":49999,"expected_result":0},
+    {"id":"largest_supported_input","input_value":1000000000000,"expected_result":0},
+    {"id":"first_out_of_range","input_value":1000000000001,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}

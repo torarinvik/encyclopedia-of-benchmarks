@@ -37,6 +37,20 @@ def generated_value(index: int, length: int, generation: dict[str, Any]) -> int:
     raise ValueError(f"unsupported input generation kind: {kind}")
 
 
+def integer_sqrt(value: int) -> int:
+    if value < 2:
+        return value
+    low, high, result = 1, value // 2 + 1, 1
+    while low <= high:
+        middle = low + (high - low) // 2
+        if middle <= value // middle:
+            result = middle
+            low = middle + 1
+        else:
+            high = middle - 1
+    return result
+
+
 def binary_search_comparisons(length: int, target: int, generation: dict[str, Any]) -> int:
     low = 0
     high = length
@@ -52,6 +66,32 @@ def binary_search_comparisons(length: int, target: int, generation: dict[str, An
             low = middle + 1
         else:
             high = middle
+    return max(1, comparisons)
+
+
+def jump_search_comparisons(length: int, target: int, generation: dict[str, Any]) -> int:
+    if length == 0:
+        return 1
+    step = max(1, integer_sqrt(length))
+    block_start = 0
+    block_end = min(step, length)
+    comparisons = 0
+    while True:
+        comparisons += 1
+        if generated_value(block_end - 1, length, generation) >= target:
+            break
+        if block_end == length:
+            return max(1, comparisons)
+        block_start = block_end
+        block_end = min(block_end + step, length)
+    for index in range(block_start, block_end):
+        value = generated_value(index, length, generation)
+        comparisons += 1
+        if value == target:
+            return comparisons
+        comparisons += 1
+        if value > target:
+            return comparisons
     return max(1, comparisons)
 
 
@@ -80,6 +120,105 @@ def exponential_search_comparisons(length: int, target: int, generation: dict[st
         else:
             high = middle
     return max(1, comparisons)
+
+
+def fibonacci_search_comparisons(length: int, target: int, generation: dict[str, Any]) -> int:
+    if length == 0:
+        return 1
+    fib_minus_two, fib_minus_one, fib = 0, 1, 1
+    while fib < length:
+        fib_minus_two, fib_minus_one, fib = fib_minus_one, fib, fib_minus_one + fib
+    offset_plus_one = 0
+    comparisons = 0
+    while fib > 1:
+        index = min(offset_plus_one + fib_minus_two - 1, length - 1)
+        value = generated_value(index, length, generation)
+        comparisons += 1
+        if value == target:
+            return max(1, comparisons)
+        comparisons += 1
+        if value < target:
+            fib, fib_minus_one, fib_minus_two = fib_minus_one, fib_minus_two, fib_minus_one - fib_minus_two
+            offset_plus_one = index + 1
+        else:
+            fib, fib_minus_one, fib_minus_two = fib_minus_two, fib_minus_one - fib_minus_two, fib_minus_two - (fib_minus_one - fib_minus_two)
+    if fib_minus_one != 0 and offset_plus_one < length:
+        comparisons += 1
+        if generated_value(offset_plus_one, length, generation) == target:
+            return comparisons
+    return max(1, comparisons)
+
+
+def interpolation_search_comparisons(length: int, target: int, generation: dict[str, Any]) -> int:
+    if length == 0:
+        return 1
+    low = 0
+    high = length - 1
+    comparisons = 0
+    while low <= high:
+        low_value = generated_value(low, length, generation)
+        high_value = generated_value(high, length, generation)
+        comparisons += 1
+        if target < low_value:
+            return max(1, comparisons)
+        comparisons += 1
+        if target > high_value:
+            return max(1, comparisons)
+        comparisons += 1
+        if low_value == high_value:
+            comparisons += 1
+            return comparisons if low_value == target else max(1, comparisons)
+        numerator = (target - low_value) * (high - low)
+        position = low + numerator // (high_value - low_value)
+        value = generated_value(position, length, generation)
+        comparisons += 1
+        if value == target:
+            return comparisons
+        comparisons += 1
+        if value < target:
+            low = position + 1
+        else:
+            high = position - 1
+    return max(1, comparisons)
+
+
+def ternary_search_comparisons(length: int, target: int, generation: dict[str, Any]) -> int:
+    low = 0
+    high = length
+    comparisons = 0
+    while low < high:
+        third = (high - low) // 3
+        first = low + third
+        second = high - third - 1
+        first_value = generated_value(first, length, generation)
+        second_value = generated_value(second, length, generation)
+        comparisons += 1
+        if first_value == target:
+            return comparisons
+        comparisons += 1
+        if second_value == target:
+            return comparisons
+        comparisons += 1
+        if target < first_value:
+            high = first
+        else:
+            comparisons += 1
+            if target > second_value:
+                low = second + 1
+            else:
+                low = first + 1
+                high = second
+    return max(1, comparisons)
+
+
+def sentinel_linear_search_comparisons(length: int, expected: int) -> int:
+    if length == 0:
+        return 1
+    if expected == length - 1:
+        return 1
+    if expected >= 0:
+        return expected + 2
+    return length + 1
 
 
 def workload_cases(workload: dict[str, Any]) -> list[dict[str, int | str]]:
@@ -221,12 +360,30 @@ def main() -> int:
         comparison_model = timing["comparison_model"]
         if comparison_model == "linear_scan":
             comparisons_per_call = expected + 1 if expected >= 0 else length
+        elif comparison_model == "sentinel_linear_scan":
+            comparisons_per_call = sentinel_linear_search_comparisons(length, expected)
         elif comparison_model == "binary_search":
             comparisons_per_call = binary_search_comparisons(
                 length, int(case["target"]), workload["input"]["generation"]
             )
         elif comparison_model == "exponential_search":
             comparisons_per_call = exponential_search_comparisons(
+                length, int(case["target"]), workload["input"]["generation"]
+            )
+        elif comparison_model == "jump_search":
+            comparisons_per_call = jump_search_comparisons(
+                length, int(case["target"]), workload["input"]["generation"]
+            )
+        elif comparison_model == "fibonacci_search":
+            comparisons_per_call = fibonacci_search_comparisons(
+                length, int(case["target"]), workload["input"]["generation"]
+            )
+        elif comparison_model == "interpolation_search":
+            comparisons_per_call = interpolation_search_comparisons(
+                length, int(case["target"]), workload["input"]["generation"]
+            )
+        elif comparison_model == "ternary_search":
+            comparisons_per_call = ternary_search_comparisons(
                 length, int(case["target"]), workload["input"]["generation"]
             )
         else:

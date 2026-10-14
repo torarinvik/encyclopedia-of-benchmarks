@@ -1,3 +1,6 @@
 # macOS Finder metadata files
-**/.DS_Store
-**/.ds_store
+**/.[dD][sS]_[sS][tT][oO][rR][eE]
+
+# Local benchmark builds, validation reports, and Python bytecode
+/build/
+__pycache__/

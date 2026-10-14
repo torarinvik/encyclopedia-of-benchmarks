@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "armstrong_number-v1",
+  "algorithm": "armstrong_number",
+  "input": {
+    "minimum": -9223372036854775808,
+    "maximum": 9223372036854775807,
+    "result": "1 for an Armstrong number; 0 otherwise"
+  },
+  "cases": [
+    {
+      "id": "negative_9223372036854775808",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_1",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "n_0",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "n_1",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "n_9",
+      "input_value": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "n_10",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "n_153",
+      "input_value": 153,
+      "expected_result": 1
+    },
+    {
+      "id": "n_154",
+      "input_value": 154,
+      "expected_result": 0
+    },
+    {
+      "id": "n_370",
+      "input_value": 370,
+      "expected_result": 1
+    },
+    {
+      "id": "n_371",
+      "input_value": 371,
+      "expected_result": 1
+    },
+    {
+      "id": "n_407",
+      "input_value": 407,
+      "expected_result": 1
+    },
+    {
+      "id": "n_9474",
+      "input_value": 9474,
+      "expected_result": 1
+    },
+    {
+      "id": "n_9475",
+      "input_value": 9475,
+      "expected_result": 0
+    },
+    {
+      "id": "n_912985153",
+      "input_value": 912985153,
+      "expected_result": 1
+    },
+    {
+      "id": "n_912985154",
+      "input_value": 912985154,
+      "expected_result": 0
+    },
+    {
+      "id": "n_4679307774",
+      "input_value": 4679307774,
+      "expected_result": 1
+    },
+    {
+      "id": "n_4498128791164624869",
+      "input_value": 4498128791164624869,
+      "expected_result": 1
+    },
+    {
+      "id": "n_4929273885928088826",
+      "input_value": 4929273885928088826,
+      "expected_result": 1
+    },
+    {
+      "id": "n_8888888888888888888",
+      "input_value": 8888888888888888888,
+      "expected_result": 0
+    },
+    {
+      "id": "n_9223372036854775807",
+      "input_value": 9223372036854775807,
+      "expected_result": 0
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "lcm-sum-v1",
+  "algorithm": "lcm_sum",
+  "input": {
+    "kind": "integer_n",
+    "range": [1, 65535],
+    "out_of_range_result": -1,
+    "mathematical_result": "sum of lcm(i, n) for i from 1 through n"
+  },
+  "cases": [
+    {"id":"negative_one","input_value":-1,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":-1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":4},
+    {"id":"three","input_value":3,"expected_result":12},
+    {"id":"four","input_value":4,"expected_result":24},
+    {"id":"five","input_value":5,"expected_result":55},
+    {"id":"six","input_value":6,"expected_result":66},
+    {"id":"ten","input_value":10,"expected_result":320},
+    {"id":"eleven","input_value":11,"expected_result":616},
+    {"id":"twelve","input_value":12,"expected_result":468},
+    {"id":"fifteen","input_value":15,"expected_result":1110},
+    {"id":"sixteen","input_value":16,"expected_result":1376},
+    {"id":"thirty","input_value":30,"expected_result":6630},
+    {"id":"prime_127","input_value":127,"expected_result":1016254},
+    {"id":"power_of_two_256","input_value":256,"expected_result":5592576},
+    {"id":"prime_997","input_value":997,"expected_result":495017479},
+    {"id":"power_of_two_1024","input_value":1024,"expected_result":357914624},
+    {"id":"maximum","input_value":65535,"expected_result":86517304381470},
+    {"id":"first_above_range","input_value":65536,"expected_result":-1},
+    {"id":"minimum_i64","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"maximum_i64","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 100,
+    "warmup_rounds": 1,
+    "sample_count": 7
+  }
+}

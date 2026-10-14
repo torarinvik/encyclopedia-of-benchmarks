@@ -1,0 +1,14 @@
+# Count base-10 digits in the magnitude of any signed 64-bit value.
+def number_of_digits_impl(value: i64) -> i64:
+    magnitude: mutable u64 = 0.u64()
+    if value < 0:
+        magnitude <- (-(value + 1)).u64() + 1.u64()
+    else:
+        magnitude <- value.u64()
+    digits: mutable i64 = 1
+    while magnitude >= 10.u64():
+        magnitude <- magnitude / 10.u64()
+        digits <- digits + 1
+    digits
+
+export fn number_of_digits(value: i64) -> i64 = number_of_digits_impl

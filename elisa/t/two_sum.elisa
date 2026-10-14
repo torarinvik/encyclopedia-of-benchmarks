@@ -1,0 +1,42 @@
+# One-pass two-sum with portable open addressing and first-pair ordering.
+def two_sum_hash_slot(key: i64, capacity: usize) -> usize:
+    prime: i64 = 2147483647
+    normalized: mutable i64 = key % prime
+    if normalized < 0:
+        normalized <- normalized + prime
+    mixed: i64 = (normalized * 48271) % prime
+    mixed.usize() % capacity
+
+def two_sum_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 257:
+        return -2
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -2
+        index <- index + 1
+
+    target: i64 = values[0]
+    value_count: usize = length - 1
+    capacity: mutable usize = 1
+    while capacity < value_count * 2:
+        capacity <- capacity * 2
+    result: i64 =
+        for index in 0..<value_count |keys: mutable i64[512] = zeroed, first_indices: mutable usize[512] = zeroed, occupied: mutable bool[512] = zeroed| -> -1:
+            current: i64 = values[index + 1]
+            complement: i64 = target - current
+            slot: mutable usize = two_sum_hash_slot(complement, capacity)
+            while occupied[slot] and keys[slot] != complement:
+                slot <- (slot + 1) % capacity
+            if occupied[slot]:
+                return (first_indices[slot] * 256 + index).i64()
+            slot <- two_sum_hash_slot(current, capacity)
+            while occupied[slot] and keys[slot] != current:
+                slot <- (slot + 1) % capacity
+            if not occupied[slot]:
+                occupied[slot] <- true
+                keys[slot] <- current
+                first_indices[slot] <- index
+    result
+
+export fn two_sum(values: i64&, length: usize) -> i64 = two_sum_impl

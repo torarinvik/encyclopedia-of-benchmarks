@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-hexadecimal-v1",
+  "algorithm": "decimal_to_hexadecimal",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 9223372036854775807],
+    "radix": 16,
+    "output_encoding": "most-significant-first lowercase ASCII hexadecimal digits without a prefix",
+    "negative_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1,"expected_output":"0"},
+    {"id":"one","input_value":1,"expected_result":1,"expected_output":"1"},
+    {"id":"nine","input_value":9,"expected_result":1,"expected_output":"9"},
+    {"id":"ten","input_value":10,"expected_result":1,"expected_output":"a"},
+    {"id":"fifteen","input_value":15,"expected_result":1,"expected_output":"f"},
+    {"id":"sixteen","input_value":16,"expected_result":2,"expected_output":"10"},
+    {"id":"two_fifty_five","input_value":255,"expected_result":2,"expected_output":"ff"},
+    {"id":"four_thousand_ninety_six","input_value":4096,"expected_result":4,"expected_output":"1000"},
+    {"id":"source_example","input_value":999098,"expected_result":5,"expected_output":"f3eba"},
+    {"id":"signed_64_bit_max","input_value":9223372036854775807,"expected_result":16,"expected_output":"7fffffffffffffff"},
+    {"id":"negative_one","input_value":-1,"expected_result":-1,"expected_output":""},
+    {"id":"signed_64_bit_min","input_value":-9223372036854775808,"expected_result":-1,"expected_output":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

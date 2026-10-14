@@ -1,0 +1,80 @@
+# Introsort with quicksort partitioning, a heapsort depth fallback, and insertion cutoff.
+def swap_i64(values: mutable i64&, left: usize, right: usize) -> void:
+    temporary: i64 = values[left]
+    values[left] <- values[right]
+    values[right] <- temporary
+
+def insertion_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
+    index: mutable usize = low + 1
+    while index < high:
+        key: i64 = values[index]
+        cursor: mutable usize = index
+        while cursor > low and values[cursor - 1] > key:
+            values[cursor] <- values[cursor - 1]
+            cursor <- cursor - 1
+        values[cursor] <- key
+        index <- index + 1
+
+def sift_down(values: mutable i64&, start: usize, count: usize, root_start: usize) -> void:
+    root: mutable usize = root_start
+    while root < count / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < count and values[start + child] < values[start + child + 1]:
+            child <- child + 1
+        if values[start + root] >= values[start + child]:
+            return
+        swap_i64(values, start + root, start + child)
+        root <- child
+
+def heap_sort_range(values: mutable i64&, low: usize, count: usize) -> void:
+    parent: mutable usize = count / 2
+    while parent > 0:
+        parent <- parent - 1
+        sift_down(values, low, count, parent)
+    end: mutable usize = count
+    while end > 1:
+        end <- end - 1
+        swap_i64(values, low, low + end)
+        sift_down(values, low, end, 0)
+
+def partition_range(values: mutable i64&, low: usize, high: usize) -> usize:
+    last: usize = high - 1
+    pivot_index: usize = low + (high - low) / 2
+    swap_i64(values, pivot_index, last)
+    pivot: usize = values[last]
+    boundary: mutable usize = low
+    probe: mutable usize = low
+    while probe < last:
+        if values[probe] <= pivot:
+            swap_i64(values, boundary, probe)
+            boundary <- boundary + 1
+        probe <- probe + 1
+    swap_i64(values, boundary, last)
+    boundary
+
+def intro_sort_range(values: mutable i64&, low: usize, high: usize, depth: usize) -> void:
+    count: usize = high - low
+    if count <= 16:
+        insertion_sort_range(values, low, high)
+        return
+    if depth == 0:
+        heap_sort_range(values, low, count)
+        return
+    pivot: usize = partition_range(values, low, high)
+    intro_sort_range(values, low, pivot, depth - 1)
+    intro_sort_range(values, pivot + 1, high, depth - 1)
+
+def depth_limit(length: usize) -> usize:
+    remaining: mutable usize = length
+    logarithm: mutable usize = 0
+    while remaining > 1:
+        remaining <- remaining / 2
+        logarithm <- logarithm + 1
+    logarithm * 2
+
+def intro_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    intro_sort_range(values, 0, length, depth_limit(length))
+
+export fn intro_sort(values: mutable i64&, length: usize) -> void = intro_sort_impl

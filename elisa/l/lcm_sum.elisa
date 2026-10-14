@@ -1,0 +1,34 @@
+# Sum LCM(i, n), 1 <= i <= n, using the Euler-totient identity.
+def euler_phi(value: u64) -> u64:
+    result: mutable u64 = value
+    remaining: mutable u64 = value
+    factor: mutable u64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            result <- result - result / factor
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+        if factor == 2:
+            factor <- 3
+        else:
+            factor <- factor + 2
+    if remaining > 1:
+        result <- result - result / remaining
+    result
+
+def lcm_sum_impl(input: i64) -> i64:
+    if input < 1 or input > 65535:
+        return -1
+    n: u64 = input.u64()
+    weighted_totients: mutable u64 = 1
+    divisor: mutable u64 = 1
+    while divisor <= n / divisor:
+        if n % divisor == 0:
+            weighted_totients <- weighted_totients + divisor * euler_phi(divisor)
+            paired: u64 = n / divisor
+            if paired != divisor:
+                weighted_totients <- weighted_totients + paired * euler_phi(paired)
+        divisor <- divisor + 1
+    ((weighted_totients * n) / 2).i64()
+
+export fn lcm_sum(input: i64) -> i64 = lcm_sum_impl

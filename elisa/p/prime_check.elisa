@@ -1,0 +1,20 @@
+# Trial-division primality check over the shared bounded integer domain.
+def prime_check_impl(n: i64) -> i64:
+    if n < 2:
+        return 0
+    if n > 2147483647:
+        return -1
+    if n % 2 == 0:
+        if n == 2:
+            return 1
+        return 0
+    composite: bool =
+        while factor <= n / factor |factor: i64 = 3, found: bool = false| -> found:
+            if n % factor == 0:
+                break true
+            factor <- factor + 2
+    if composite:
+        return 0
+    1
+
+export fn prime_check(n: i64) -> i64 = prime_check_impl

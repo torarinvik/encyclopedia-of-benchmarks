@@ -1,0 +1,37 @@
+# Cycle sort aims to minimize writes while placing each item at its rank.
+def cycle_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    cycle_start: mutable usize = 0
+    while cycle_start < length - 1:
+        item: mutable i64 = values[cycle_start]
+        position: mutable usize = cycle_start
+        scan: mutable usize = cycle_start + 1
+        while scan < length:
+            if values[scan] < item:
+                position <- position + 1
+            scan <- scan + 1
+        if position != cycle_start:
+            while position < length and item == values[position]:
+                position <- position + 1
+            if position < length:
+                temporary: mutable i64 = values[position]
+                values[position] <- item
+                item <- temporary
+                while position != cycle_start:
+                    position <- cycle_start
+                    scan <- cycle_start + 1
+                    while scan < length:
+                        if values[scan] < item:
+                            position <- position + 1
+                        scan <- scan + 1
+                    while position < length and item == values[position]:
+                        position <- position + 1
+                    if position == length:
+                        break
+                    temporary <- values[position]
+                    values[position] <- item
+                    item <- temporary
+        cycle_start <- cycle_start + 1
+
+export fn cycle_sort(values: mutable i64&, length: usize) -> void = cycle_sort_impl

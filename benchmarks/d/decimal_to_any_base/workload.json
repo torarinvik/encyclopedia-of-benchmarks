@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-any-base-v1",
+  "algorithm": "decimal_to_any_base",
+  "input": {
+    "kind": "two_signed_64_bit_values",
+    "values": [
+      "nonnegative decimal value",
+      "radix"
+    ],
+    "radix_range": [
+      2,
+      36
+    ],
+    "output_encoding": "most-significant-first ASCII digits 0-9 and uppercase A-Z without a prefix",
+    "negative_or_invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "zero_binary",
+      "input_values": [
+        0,
+        2
+      ],
+      "expected_result": 1,
+      "expected_output": "0"
+    },
+    {
+      "id": "one_binary",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 1,
+      "expected_output": "1"
+    },
+    {
+      "id": "ten_binary",
+      "input_values": [
+        10,
+        2
+      ],
+      "expected_result": 4,
+      "expected_output": "1010"
+    },
+    {
+      "id": "eighty_three_octal",
+      "input_values": [
+        83,
+        8
+      ],
+      "expected_result": 3,
+      "expected_output": "123"
+    },
+    {
+      "id": "signed_32_bit_max_hex",
+      "input_values": [
+        2147483647,
+        16
+      ],
+      "expected_result": 8,
+      "expected_output": "7FFFFFFF"
+    },
+    {
+      "id": "255_hex_uppercase",
+      "input_values": [
+        255,
+        16
+      ],
+      "expected_result": 2,
+      "expected_output": "FF"
+    },
+    {
+      "id": "35_base36",
+      "input_values": [
+        35,
+        36
+      ],
+      "expected_result": 1,
+      "expected_output": "Z"
+    },
+    {
+      "id": "36_base36",
+      "input_values": [
+        36,
+        36
+      ],
+      "expected_result": 2,
+      "expected_output": "10"
+    },
+    {
+      "id": "signed_64_bit_max_binary",
+      "input_values": [
+        9223372036854775807,
+        2
+      ],
+      "expected_result": 63,
+      "expected_output": "111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "id": "signed_64_bit_max_base36",
+      "input_values": [
+        9223372036854775807,
+        36
+      ],
+      "expected_result": 13,
+      "expected_output": "1Y2P0IJ32E8E7"
+    },
+    {
+      "id": "negative_one",
+      "input_values": [
+        -1,
+        10
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "base_below_range",
+      "input_values": [
+        42,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "base_above_range",
+      "input_values": [
+        42,
+        37
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

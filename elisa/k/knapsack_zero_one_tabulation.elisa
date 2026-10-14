@@ -1,0 +1,37 @@
+# Bottom-up 0/1 knapsack using one row and descending capacities.
+def knapsack_zero_one_tabulation_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 258:
+        return -1
+    capacity_value: i64 = input_values[0]
+    item_count_value: i64 = input_values[1]
+    if capacity_value < 0 or capacity_value > 512 or item_count_value < 0 or item_count_value > 128:
+        return -1
+    capacity: usize = capacity_value.usize()
+    item_count: usize = item_count_value.usize()
+    if length != 2 + 2 * item_count:
+        return -1
+
+    item: mutable usize = 0
+    while item < item_count:
+        weight: i64 = input_values[2 + 2 * item]
+        value: i64 = input_values[3 + 2 * item]
+        if weight < 1 or weight > 4096 or value < 0 or value > 1000000000:
+            return -1
+        item <- item + 1
+
+    width: usize = capacity + 1
+    steps: usize = item_count * width
+    result: i64 =
+        while step < steps |step: usize = 0, dp: mutable i64[513] = zeroed| -> dp[capacity]:
+            current_item: usize = step / width
+            current_capacity: usize = capacity - step % width
+            weight: usize = input_values[2 + 2 * current_item].usize()
+            value: i64 = input_values[3 + 2 * current_item]
+            if weight <= current_capacity:
+                candidate: i64 = dp[current_capacity - weight] + value
+                if candidate > dp[current_capacity]:
+                    dp[current_capacity] <- candidate
+            step <- step + 1
+    result
+
+export fn knapsack_zero_one_tabulation(input_values: i64&, length: usize) -> i64 = knapsack_zero_one_tabulation_impl

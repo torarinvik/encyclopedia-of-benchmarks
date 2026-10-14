@@ -1,0 +1,25 @@
+# Stable odd-even transposition sort for the shared sorting contract.
+def odd_even_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    swapped: mutable bool = true
+    while swapped:
+        swapped <- false
+        index: mutable usize = 0
+        while index + 1 < length:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+                swapped <- true
+            index <- index + 2
+        index <- 1
+        while index + 1 < length:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+                swapped <- true
+            index <- index + 2
+
+export fn odd_even_sort(values: mutable i64&, length: usize) -> void = odd_even_sort_impl

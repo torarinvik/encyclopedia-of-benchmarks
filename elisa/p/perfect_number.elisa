@@ -1,0 +1,21 @@
+# Check whether n equals the sum of its positive proper divisors.
+def perfect_number_impl(n: i64) -> i64:
+    if n <= 1:
+        return 0
+    if n > 1000000000000:
+        return -1
+    divisor_sum: i64 =
+        while factor <= n / factor |factor: i64 = 2, total: i64 = 1| -> total:
+            if n % factor == 0:
+                total <- total + factor
+                partner: i64 = n / factor
+                if partner != factor:
+                    total <- total + partner
+                if total > n:
+                    break total
+            factor <- factor + 1
+    if divisor_sum == n:
+        return 1
+    0
+
+export fn perfect_number(n: i64) -> i64 = perfect_number_impl

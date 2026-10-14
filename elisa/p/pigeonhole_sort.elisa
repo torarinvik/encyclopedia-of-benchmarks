@@ -1,0 +1,23 @@
+# Portable pigeonhole sort for signed keys in [-128, 128].
+def pigeonhole_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    bucket: mutable usize = 0
+    while bucket < 257:
+        scratch[bucket] <- 0
+        bucket <- bucket + 1
+    index: mutable usize = 0
+    while index < length:
+        bucket: usize = (values[index] + 128).usize()
+        scratch[bucket] <- scratch[bucket] + 1
+        index <- index + 1
+    index <- 0
+    bucket <- 0
+    while bucket < 257:
+        while scratch[bucket] > 0:
+            values[index] <- bucket.i64() - 128
+            index <- index + 1
+            scratch[bucket] <- scratch[bucket] - 1
+        bucket <- bucket + 1
+
+export fn pigeonhole_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = pigeonhole_sort_impl

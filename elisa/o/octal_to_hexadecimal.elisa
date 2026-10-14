@@ -1,0 +1,30 @@
+# Convert a most-significant-first octal digit array to radix 16 text.
+def octal_to_hexadecimal_impl(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 21:
+        return -1
+    value: i64 =
+        while index < length |index: mutable usize = 0, accumulated: mutable i64 = 0| -> accumulated:
+            octal_digit: i64 = digits[index]
+            if octal_digit < 0 or octal_digit > 7:
+                break -1
+            accumulated <- accumulated * 8 + octal_digit
+            index <- index + 1
+    if value < 0:
+        return -1
+    width: usize =
+        while remaining >= 16 |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / 16
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
+        position <- position - 1
+        digit: i64 = remaining % 16
+        if digit < 10:
+            output[position] <- (48 + digit).u8()
+        else:
+            output[position] <- (87 + digit).u8()
+        remaining <- remaining / 16
+    width.i64()
+
+export fn octal_to_hexadecimal(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = octal_to_hexadecimal_impl

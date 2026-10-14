@@ -1,0 +1,31 @@
+# Count the primes through limit using the Sieve of Eratosthenes.
+def sieve_of_eratosthenes_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 4096:
+        return -1
+    if limit < 2:
+        return 0
+    limit_usize: usize = limit.usize()
+
+    initialized_flags: bool[4097] =
+        while initialize_index <= limit_usize |initialize_index: mutable usize = 0, flags: mutable bool[4097] = zeroed| -> flags:
+            if initialize_index >= 2:
+                flags[initialize_index] <- true
+            initialize_index <- initialize_index + 1
+
+    sieve_result: bool[4097] =
+        while factor <= limit_usize / factor |factor: mutable usize = 2, flags: mutable bool[4097] = initialized_flags| -> flags:
+            if flags[factor]:
+                marked_flags: bool[4097] =
+                    while multiple <= limit_usize |multiple: mutable usize = factor * factor, work_flags: mutable bool[4097] = flags| -> work_flags:
+                        work_flags[multiple] <- false
+                        multiple <- multiple + factor
+                rebind flags = marked_flags
+            factor <- factor + 1
+
+    prime_count: i64 =
+        for value in 2..<(limit_usize + 1) |count: mutable i64 = 0| -> count:
+            if sieve_result[value]:
+                count <- count + 1
+    prime_count
+
+export fn sieve_of_eratosthenes(limit: i64) -> i64 = sieve_of_eratosthenes_impl

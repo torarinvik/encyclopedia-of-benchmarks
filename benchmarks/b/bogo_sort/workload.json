@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "bogo_sort-v1",
+  "algorithm": "bogo_sort",
+  "abi": "mutable_i64_array",
+  "input": {
+    "lengths": [0, 1, 2, 3, 4, 5, 6],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 4,
+      "modulus": 7,
+      "offset": 0,
+      "formula": "values[index] = (index * 4) mod 7"
+    }
+  },
+  "max_input_length": 6,
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 1,
+    "sample_count": 5,
+    "scratch_allocation_timed": false
+  }
+}

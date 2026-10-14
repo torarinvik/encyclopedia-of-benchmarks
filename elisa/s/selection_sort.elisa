@@ -1,0 +1,17 @@
+# In-place selection sort for the shared sorting contract.
+def selection_sort_impl(values: mutable i64&, length: usize) -> void:
+    index: mutable usize = 0
+    while index + 1 < length:
+        minimum: mutable usize = index
+        probe: mutable usize = index + 1
+        while probe < length:
+            if values[probe] < values[minimum]:
+                minimum <- probe
+            probe <- probe + 1
+        if minimum != index:
+            temporary: i64 = values[index]
+            values[index] <- values[minimum]
+            values[minimum] <- temporary
+        index <- index + 1
+
+export fn selection_sort(values: mutable i64&, length: usize) -> void = selection_sort_impl

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "absolute-value-v1",
+  "algorithm": "abs",
+  "function_symbol": "abs_i64",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "unrepresentable_magnitude_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"positive_one","input_value":1,"expected_result":1},
+    {"id":"negative_one","input_value":-1,"expected_result":1},
+    {"id":"positive_value","input_value":123456789,"expected_result":123456789},
+    {"id":"negative_value","input_value":-123456789,"expected_result":123456789},
+    {"id":"negative_32_bit_boundary","input_value":-2147483648,"expected_result":2147483648},
+    {"id":"positive_64_bit_boundary","input_value":9223372036854775807,"expected_result":9223372036854775807},
+    {"id":"negative_64_bit_boundary_overflows","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"negative_power_of_ten","input_value":-1000000000000,"expected_result":1000000000000},
+    {"id":"negative_near_maximum","input_value":-9223372036854775807,"expected_result":9223372036854775807},
+    {"id":"positive_small","input_value":42,"expected_result":42},
+    {"id":"negative_small","input_value":-42,"expected_result":42}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5000
+  }
+}

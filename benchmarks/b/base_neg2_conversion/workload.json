@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "base-neg2-conversion-v1",
+  "algorithm": "base_neg2_conversion",
+  "input": {
+    "kind": "one_signed_64_bit_integer",
+    "accepted_range": [
+      -9223372036854775808,
+      9223372036854775807
+    ],
+    "output_encoding": "canonical most-significant-first negabinary (base -2) digits as ASCII 0 and 1",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0
+      ],
+      "expected_result": 1,
+      "expected_output": "0"
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1
+      ],
+      "expected_result": 1,
+      "expected_output": "1"
+    },
+    {
+      "id": "negative_one",
+      "input_values": [
+        -1
+      ],
+      "expected_result": 2,
+      "expected_output": "11"
+    },
+    {
+      "id": "four",
+      "input_values": [
+        4
+      ],
+      "expected_result": 3,
+      "expected_output": "100"
+    },
+    {
+      "id": "seven",
+      "input_values": [
+        7
+      ],
+      "expected_result": 5,
+      "expected_output": "11011"
+    },
+    {
+      "id": "negative_nineteen",
+      "input_values": [
+        -19
+      ],
+      "expected_result": 6,
+      "expected_output": "111101"
+    },
+    {
+      "id": "negative_thirty_eight",
+      "input_values": [
+        -38
+      ],
+      "expected_result": 6,
+      "expected_output": "101110"
+    },
+    {
+      "id": "negative_150",
+      "input_values": [
+        -150
+      ],
+      "expected_result": 8,
+      "expected_output": "10111110"
+    },
+    {
+      "id": "signed_32_bit_max",
+      "input_values": [
+        2147483647
+      ],
+      "expected_result": 33,
+      "expected_output": "110000000000000000000000000000011"
+    },
+    {
+      "id": "signed_32_bit_min",
+      "input_values": [
+        -2147483648
+      ],
+      "expected_result": 32,
+      "expected_output": "10000000000000000000000000000000"
+    },
+    {
+      "id": "signed_64_bit_max",
+      "input_values": [
+        9223372036854775807
+      ],
+      "expected_result": 65,
+      "expected_output": "11000000000000000000000000000000000000000000000000000000000000011"
+    },
+    {
+      "id": "signed_64_bit_min",
+      "input_values": [
+        -9223372036854775808
+      ],
+      "expected_result": 64,
+      "expected_output": "1000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "alternating_pattern",
+      "input_values": [
+        6148914691236517205
+      ],
+      "expected_result": 63,
+      "expected_output": "101010101010101010101010101010101010101010101010101010101010101"
+    },
+    {
+      "id": "minus_alternating_pattern",
+      "input_values": [
+        -6148914691236517205
+      ],
+      "expected_result": 64,
+      "expected_output": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

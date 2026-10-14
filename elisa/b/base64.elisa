@@ -1,0 +1,106 @@
+# Encode and decode bytes with the RFC 4648 Base64 alphabet.
+def base64_value(byte: i64) -> i64:
+    if byte >= 65 and byte <= 90:
+        return byte - 65
+    if byte >= 97 and byte <= 122:
+        return byte - 71
+    if byte >= 48 and byte <= 57:
+        return byte + 4
+    if byte == 43:
+        return 62
+    if byte == 47:
+        return 63
+    -1
+
+def base64_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 66:
+        return -1
+    mode: i64 = input[0]
+    if mode == 0:
+        count: usize = length - 1
+        while index < length |index: mutable usize = 1|:
+            if input[index] < 0 or input[index] > 255:
+                return -1
+            index <- index + 1
+        output_length: mutable usize = 0
+        if count > 0:
+            output_length <- ((count + 2) / 3) * 4
+        symbols: usize = (count * 8 + 5) / 6
+        if output_capacity < output_length:
+            return -2
+        while output_index < output_length |output_index: mutable usize = 0, output| -> output:
+            if output_index >= symbols:
+                output[output_index] <- 61.u8()
+            else:
+                value: i64 =
+                    while bit < output_index * 6 + 6 |bit: mutable usize = output_index * 6, current: mutable i64 = 0| -> current:
+                        current <- current * 2
+                        if bit < count * 8:
+                            byte: i64 = input[1 + bit / 8]
+                            current <- current + ((byte / (1 << (7 - bit % 8))) % 2)
+                        bit <- bit + 1
+                if value < 26:
+                    output[output_index] <- (65 + value).u8()
+                elif value < 52:
+                    output[output_index] <- (97 + value - 26).u8()
+                elif value < 62:
+                    output[output_index] <- (48 + value - 52).u8()
+                elif value == 62:
+                    output[output_index] <- 43.u8()
+                else:
+                    output[output_index] <- 47.u8()
+            output_index <- output_index + 1
+            output
+        output_length.i64()
+    else:
+        if mode != 1:
+            return -1
+        encoded_length: usize = length - 1
+        content_length: usize = encoded_length
+        while index < encoded_length |index: mutable usize = 0|:
+            if input[index + 1] == 61:
+                content_length <- index
+                index <- encoded_length
+            else:
+                index <- index + 1
+        padding: usize = encoded_length - content_length
+        while index < content_length |index: mutable usize = 0|:
+            if base64_value(input[index + 1]) < 0:
+                return -1
+            index <- index + 1
+        while index < encoded_length |index: mutable usize = content_length|:
+            if input[index + 1] != 61:
+                return -1
+            index <- index + 1
+        remainder: usize = content_length % 4
+        expected_padding: mutable usize = 0
+        if remainder == 2:
+            expected_padding <- 2
+        elif remainder == 3:
+            expected_padding <- 1
+        elif remainder != 0:
+            return -1
+        if padding != 0 and (encoded_length % 4 != 0 or padding != expected_padding):
+            return -1
+        if content_length > 0 and remainder != 0:
+            final_value: i64 = base64_value(input[content_length])
+            unused: mutable usize = 2
+            if remainder == 2:
+                unused <- 4
+            if final_value % (1 << unused) != 0:
+                return -1
+        output_length: usize = content_length * 6 / 8
+        if output_capacity < output_length:
+            return -2
+        while index < output_length |index: mutable usize = 0, output| -> output:
+            byte: i64 =
+                while bit < index * 8 + 8 |bit: mutable usize = index * 8, current: mutable i64 = 0| -> current:
+                    symbol: usize = base64_value(input[1 + bit / 6]).usize()
+                    current <- current * 2 + ((symbol / (1 << (5 - bit % 6))) % 2).i64()
+                    bit <- bit + 1
+            output[index] <- byte.u8()
+            index <- index + 1
+            output
+        output_length.i64()
+
+export fn base64(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = base64_impl

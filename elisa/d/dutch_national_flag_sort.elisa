@@ -1,0 +1,21 @@
+# Dutch national flag sort for values restricted to 0, 1, and 2.
+def dutch_national_flag_sort_impl(values: mutable i64&, length: usize) -> void:
+    low: mutable usize = 0
+    middle: mutable usize = 0
+    high: mutable usize = length
+    while middle < high:
+        if values[middle] == 0:
+            temporary: i64 = values[low]
+            values[low] <- values[middle]
+            values[middle] <- temporary
+            low <- low + 1
+            middle <- middle + 1
+        elif values[middle] == 1:
+            middle <- middle + 1
+        else:
+            high <- high - 1
+            temporary: i64 = values[middle]
+            values[middle] <- values[high]
+            values[high] <- temporary
+
+export fn dutch_national_flag_sort(values: mutable i64&, length: usize) -> void = dutch_national_flag_sort_impl

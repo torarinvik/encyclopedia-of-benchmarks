@@ -1,0 +1,111 @@
+# Encode and decode bytes with the RFC 4648 Base32 alphabet.
+def base32_value(byte: i64) -> i64:
+    if byte >= 65 and byte <= 90:
+        return byte - 65
+    if byte >= 50 and byte <= 55:
+        return byte - 24
+    -1
+
+def base32_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 66:
+        return -1
+    mode: i64 = input[0]
+    if mode == 0:
+        count: usize = length - 1
+        while index < length |index: mutable usize = 1|:
+            if input[index] < 0 or input[index] > 255:
+                return -1
+            index <- index + 1
+        output_length: mutable usize = 0
+        if count > 0:
+            output_length <- ((count + 4) / 5) * 8
+        if output_capacity < output_length:
+            return -2
+        while output_index < output_length |output_index: mutable usize = 0, output| -> output:
+            group: usize = output_index / 8
+            symbol: usize = output_index % 8
+            start: usize = group * 5
+            bytes: mutable usize = count - start
+            if bytes > 5:
+                bytes <- 5
+            bits: usize = bytes * 8
+            symbols: usize = (bits + 4) / 5
+            if symbol >= symbols:
+                output[output_index] <- 61.u8()
+            else:
+                value: i64 =
+                    while bit < symbol * 5 + 5 |bit: mutable usize = symbol * 5, current: mutable i64 = 0| -> current:
+                        current <- current * 2
+                        if bit < bits:
+                            byte: i64 = input[1 + start + bit / 8]
+                            current <- current + ((byte / (1 << (7 - bit % 8))) % 2)
+                        bit <- bit + 1
+                if value < 26:
+                    output[output_index] <- (65 + value).u8()
+                else:
+                    output[output_index] <- (50 + value - 26).u8()
+            output_index <- output_index + 1
+            output
+        output_length.i64()
+    else:
+        if mode != 1:
+            return -1
+        encoded_length: usize = length - 1
+        content_length: usize = encoded_length
+        while index < encoded_length |index: mutable usize = 0|:
+            if input[index + 1] == 61:
+                content_length <- index
+                index <- encoded_length
+            else:
+                index <- index + 1
+        padding: usize = encoded_length - content_length
+        while index < content_length |index: mutable usize = 0|:
+            if base32_value(input[index + 1]) < 0:
+                return -1
+            index <- index + 1
+        while index < encoded_length |index: mutable usize = content_length|:
+            if input[index + 1] != 61:
+                return -1
+            index <- index + 1
+        remainder: usize = content_length % 8
+        expected_padding: mutable usize = 0
+        if remainder == 2:
+            expected_padding <- 6
+        elif remainder == 4:
+            expected_padding <- 4
+        elif remainder == 5:
+            expected_padding <- 3
+        elif remainder == 7:
+            expected_padding <- 1
+        elif remainder != 0:
+            return -1
+        if padding != 0 and (encoded_length % 8 != 0 or padding != expected_padding):
+            return -1
+        if content_length > 0 and remainder != 0:
+            final_value: i64 = base32_value(input[content_length])
+            unused: mutable usize = 3
+            if remainder == 2:
+                unused <- 2
+            elif remainder == 4:
+                unused <- 4
+            elif remainder == 5:
+                unused <- 1
+            elif remainder == 7:
+                unused <- 3
+            if final_value % (1 << unused) != 0:
+                return -1
+        output_length: usize = content_length * 5 / 8
+        if output_capacity < output_length:
+            return -2
+        while index < output_length |index: mutable usize = 0, output| -> output:
+            byte: i64 =
+                while bit < index * 8 + 8 |bit: mutable usize = index * 8, current: mutable i64 = 0| -> current:
+                    symbol: usize = base32_value(input[1 + bit / 5]).usize()
+                    current <- current * 2 + ((symbol / (1 << (4 - bit % 5))) % 2).i64()
+                    bit <- bit + 1
+            output[index] <- byte.u8()
+            index <- index + 1
+            output
+        output_length.i64()
+
+export fn base32(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = base32_impl

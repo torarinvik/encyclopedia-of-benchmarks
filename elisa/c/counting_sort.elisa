@@ -1,0 +1,21 @@
+# Counting sort for signed keys in the inclusive range [-128, 128].
+def counting_sort_impl(values: mutable i64&, counts: mutable i64&, length: usize) -> void:
+    bucket: mutable usize = 0
+    while bucket < 257:
+        counts[bucket] <- 0
+        bucket <- bucket + 1
+    index: mutable usize = 0
+    while index < length:
+        bucket <- (values[index] + 128).usize()
+        counts[bucket] <- counts[bucket] + 1
+        index <- index + 1
+    output: mutable usize = 0
+    bucket <- 0
+    while bucket < 257:
+        while counts[bucket] > 0:
+            values[output] <- bucket.i64() - 128
+            output <- output + 1
+            counts[bucket] <- counts[bucket] - 1
+        bucket <- bucket + 1
+
+export fn counting_sort(values: mutable i64&, counts: mutable i64&, length: usize) -> void = counting_sort_impl

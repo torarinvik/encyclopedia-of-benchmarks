@@ -1,0 +1,121 @@
+# Bounded unbalanced binary search tree with an index-based node pool.
+def binary_search_tree_impl(values: i64&, length: usize) -> i64:
+    if length > 1024 or length % 2 != 0:
+        return -1
+    operation_count: usize = length / 2
+    initialized_free_next: usize[256] =
+        for index in 0..<256 |links: mutable usize[256] = zeroed| -> links:
+            links[index] <- index + 1
+    checksum: i64 =
+        while operation < operation_count |operation: mutable usize = 0, key: mutable i64[256] = zeroed, left: mutable usize[256] = zeroed, right: mutable usize[256] = zeroed, free_next: mutable usize[256] = initialized_free_next, free_head: mutable usize = 0, root: mutable usize = 256, count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
+            opcode: i64 = values[2 * operation]
+            payload: i64 = values[2 * operation + 1]
+            observed: mutable i64 = 0
+            if opcode == 0:
+                if payload < -1000000 or payload > 1000000:
+                    break -1
+                pair: usize =
+                    while current != 256 and key[current] != payload |current: mutable usize = root, previous: mutable usize = 256| -> previous * 257 + current:
+                        previous <- current
+                        if payload < key[current]:
+                            current <- left[current]
+                        else:
+                            current <- right[current]
+                parent: usize = pair / 257
+                node: usize = pair % 257
+                if node == 256:
+                    if count == 256 or free_head == 256:
+                        break -1
+                    node <- free_head
+                    free_head <- free_next[node]
+                    key[node] <- payload
+                    left[node] <- 256
+                    right[node] <- 256
+                    if parent == 256:
+                        root <- node
+                    elif payload < key[parent]:
+                        left[parent] <- node
+                    else:
+                        right[parent] <- node
+                    count <- count + 1
+                    observed <- 1
+            elif opcode == 1:
+                if payload < -1000000 or payload > 1000000:
+                    break -1
+                pair: usize =
+                    while current != 256 and key[current] != payload |current: mutable usize = root, previous: mutable usize = 256| -> previous * 257 + current:
+                        previous <- current
+                        if payload < key[current]:
+                            current <- left[current]
+                        else:
+                            current <- right[current]
+                parent: mutable usize = pair / 257
+                node: mutable usize = pair % 257
+                if node != 256:
+                    observed <- 1
+                    if left[node] != 256 and right[node] != 256:
+                        pred_pair: usize =
+                            while right[current] != 256 |current: mutable usize = left[node], previous: mutable usize = node| -> previous * 257 + current:
+                                previous <- current
+                                current <- right[current]
+                        pred_parent: usize = pred_pair / 257
+                        pred: usize = pred_pair % 257
+                        key[node] <- key[pred]
+                        parent <- pred_parent
+                        node <- pred
+                    child: mutable usize = left[node]
+                    if child == 256:
+                        child <- right[node]
+                    if parent == 256:
+                        root <- child
+                    elif left[parent] == node:
+                        left[parent] <- child
+                    else:
+                        right[parent] <- child
+                    free_next[node] <- free_head
+                    free_head <- node
+                    count <- count - 1
+            elif opcode == 2:
+                if payload < -1000000 or payload > 1000000:
+                    break -1
+                node: usize =
+                    while current != 256 and key[current] != payload |current: mutable usize = root| -> current:
+                        if payload < key[current]:
+                            current <- left[current]
+                        else:
+                            current <- right[current]
+                if node != 256:
+                    observed <- 1
+            elif opcode == 3 or opcode == 4:
+                if payload != 0 or root == 256:
+                    break -1
+                node: usize = root
+                if opcode == 3:
+                    node <- while left[current] != 256 |current: mutable usize = node| -> current:
+                        current <- left[current]
+                else:
+                    node <- while right[current] != 256 |current: mutable usize = node| -> current:
+                        current <- right[current]
+                observed <- key[node]
+            elif opcode == 5:
+                if payload != 0:
+                    break -1
+                observed <- count.i64()
+            else:
+                break -1
+            checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+            operation <- operation + 1
+            if operation == operation_count:
+                checksum <- while current != 256 or top != 0 |current: mutable usize = root, top: mutable usize = 0, traversal_stack: mutable usize[256] = zeroed, index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    while current != 256:
+                        traversal_stack[top] <- current
+                        top <- top + 1
+                        current <- left[current]
+                    top <- top - 1
+                    current <- traversal_stack[top]
+                    total <- total + (operation_count + index + 1).i64() * (key[current] + 1000000)
+                    index <- index + 1
+                    current <- right[current]
+    checksum
+
+export fn binary_search_tree_benchmark(values: i64&, length: usize) -> i64 = binary_search_tree_impl

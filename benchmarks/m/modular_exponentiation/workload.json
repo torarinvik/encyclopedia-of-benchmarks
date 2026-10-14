@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "modular-exponentiation-i32-v1",
+  "algorithm": "modular_exponentiation",
+  "input": {
+    "kind": "base_exponent_modulus_i32",
+    "encoding": "[base, exponent, modulus]",
+    "base_range": [
+      -2147483648,
+      2147483647
+    ],
+    "exponent_range": [
+      0,
+      2147483647
+    ],
+    "modulus_range": [
+      1,
+      2147483647
+    ],
+    "invalid_result": -1,
+    "result_range": "[0, modulus)"
+  },
+  "cases": [
+    {
+      "id": "classic_example",
+      "input_values": [
+        2,
+        5,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 6
+    },
+    {
+      "id": "negative_base_normalization",
+      "input_values": [
+        -2,
+        5,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 7
+    },
+    {
+      "id": "zero_exponent",
+      "input_values": [
+        7,
+        0,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_to_zero",
+      "input_values": [
+        0,
+        0,
+        17
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "modulus_one",
+      "input_values": [
+        123456,
+        987654,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "base_multiple_of_modulus",
+      "input_values": [
+        -52,
+        81,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_base_even_exponent",
+      "input_values": [
+        -7,
+        42,
+        101
+      ],
+      "input_length": 3,
+      "expected_result": 21
+    },
+    {
+      "id": "large_exponent_small_modulus",
+      "input_values": [
+        1234567,
+        2147483647,
+        97
+      ],
+      "input_length": 3,
+      "expected_result": 72
+    },
+    {
+      "id": "signed_minimum_base",
+      "input_values": [
+        -2147483648,
+        17,
+        2147483647
+      ],
+      "input_length": 3,
+      "expected_result": 2147483646
+    },
+    {
+      "id": "signed_maximum_base",
+      "input_values": [
+        2147483647,
+        2147483647,
+        2147483646
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_modulus",
+      "input_values": [
+        1234567890,
+        123456789,
+        2147483647
+      ],
+      "input_length": 3,
+      "expected_result": 217929380
+    },
+    {
+      "id": "maximum_residue_case",
+      "input_values": [
+        2147483646,
+        1,
+        2147483647
+      ],
+      "input_length": 3,
+      "expected_result": 2147483646
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 500
+  }
+}

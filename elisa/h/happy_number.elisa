@@ -1,0 +1,27 @@
+# Standard happy-number test using Floyd cycle detection.
+def digit_square_sum(n: i64) -> i64:
+    total: mutable i64 = 0
+    value: mutable i64 = n
+    while value > 0:
+        digit: i64 = value % 10
+        total <- total + digit * digit
+        value <- value / 10
+    total
+
+def happy_number_impl(n: i64) -> i64:
+    if n <= 0:
+        return -1
+    initial_slow: i64 = digit_square_sum(n)
+    initial_fast: i64 = digit_square_sum(digit_square_sum(n))
+    initial_result: mutable i64 = 0
+    if initial_slow == 1:
+        initial_result <- 1
+    result: i64 =
+        while slow != fast |slow: mutable i64 = initial_slow, fast: mutable i64 = initial_fast, result: mutable i64 = initial_result| -> result:
+            slow <- digit_square_sum(slow)
+            fast <- digit_square_sum(digit_square_sum(fast))
+            if slow == fast and slow == 1:
+                result <- 1
+    result
+
+export fn happy_number(n: i64) -> i64 = happy_number_impl

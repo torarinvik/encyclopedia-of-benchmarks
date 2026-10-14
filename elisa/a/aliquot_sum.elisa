@@ -1,0 +1,11 @@
+# Scan proper divisors under the shared signed 64-bit contract.
+def aliquot_sum_impl(n: i64) -> i64:
+    return -1 if n < 0
+        
+    while divisor <= n / 2 |divisor: i64 = 1, total: i64 = 0| -> total:
+        if n % divisor == 0:
+            return -1 if total > 9223372036854775807 - divisor
+            total <- total + divisor
+        divisor <- divisor + 1
+
+export fn aliquot_sum(n: i64) -> i64 = aliquot_sum_impl

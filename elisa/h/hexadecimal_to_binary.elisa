@@ -1,0 +1,32 @@
+# Convert a most-significant-first hexadecimal digit array to radix 2 text.
+def hexadecimal_to_binary_impl(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 16:
+        return -1
+    if length == 16 and digits[0] > 7:
+        return -1
+    value: i64 =
+        while index < length |index: mutable usize = 0, accumulated: mutable i64 = 0| -> accumulated:
+            hex_digit: i64 = digits[index]
+            if hex_digit < 0 or hex_digit > 15:
+                break -1
+            accumulated <- accumulated * 16 + hex_digit
+            index <- index + 1
+    if value < 0:
+        return -1
+    width: usize =
+        while remaining >= 2 |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / 2
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
+        position <- position - 1
+        digit: i64 = remaining % 2
+        if digit < 10:
+            output[position] <- (48 + digit).u8()
+        else:
+            output[position] <- (87 + digit).u8()
+        remaining <- remaining / 2
+    width.i64()
+
+export fn hexadecimal_to_binary(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = hexadecimal_to_binary_impl

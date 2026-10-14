@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "number-of-digits-i64-v1",
+  "algorithm": "number_of_digits",
+  "input": {
+    "kind": "signed_i64",
+    "minimum_value": -9223372036854775808,
+    "maximum_value": 9223372036854775807,
+    "result": "number of base-10 digits in the magnitude; zero has one digit"
+  },
+  "cases": [
+    {
+      "id": "case_00",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "case_01",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "case_02",
+      "input_value": -1,
+      "expected_result": 1
+    },
+    {
+      "id": "case_03",
+      "input_value": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "case_04",
+      "input_value": -9,
+      "expected_result": 1
+    },
+    {
+      "id": "case_05",
+      "input_value": 10,
+      "expected_result": 2
+    },
+    {
+      "id": "case_06",
+      "input_value": -10,
+      "expected_result": 2
+    },
+    {
+      "id": "case_07",
+      "input_value": 99,
+      "expected_result": 2
+    },
+    {
+      "id": "case_08",
+      "input_value": -99,
+      "expected_result": 2
+    },
+    {
+      "id": "case_09",
+      "input_value": 100,
+      "expected_result": 3
+    },
+    {
+      "id": "case_10",
+      "input_value": -100,
+      "expected_result": 3
+    },
+    {
+      "id": "case_11",
+      "input_value": 999999999,
+      "expected_result": 9
+    },
+    {
+      "id": "case_12",
+      "input_value": -999999999,
+      "expected_result": 9
+    },
+    {
+      "id": "case_13",
+      "input_value": 999999999999999999,
+      "expected_result": 18
+    },
+    {
+      "id": "case_14",
+      "input_value": 1000000000000000000,
+      "expected_result": 19
+    },
+    {
+      "id": "case_15",
+      "input_value": 1000000000000000001,
+      "expected_result": 19
+    },
+    {
+      "id": "case_16",
+      "input_value": -1000000000000000000,
+      "expected_result": 19
+    },
+    {
+      "id": "case_17",
+      "input_value": 100000000100,
+      "expected_result": 12
+    },
+    {
+      "id": "case_18",
+      "input_value": -9223372036854775808,
+      "expected_result": 19
+    },
+    {
+      "id": "case_19",
+      "input_value": -9223372036854775807,
+      "expected_result": 19
+    },
+    {
+      "id": "case_20",
+      "input_value": 9223372036854775806,
+      "expected_result": 19
+    },
+    {
+      "id": "case_21",
+      "input_value": 9223372036854775807,
+      "expected_result": 19
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

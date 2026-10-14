@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "id": "gcd-v1",
+  "algorithm": "gcd",
+  "input": {
+    "kind": "nonnegative_signed_64_pair",
+    "range": [
+      0,
+      9223372036854775807
+    ],
+    "zero_zero_result": 0
+  },
+  "cases": [
+    {
+      "id": "zero_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_right",
+      "input_values": [
+        0,
+        8
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "zero_left",
+      "input_values": [
+        8,
+        0
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "one_zero",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "euclid_8_12",
+      "input_values": [
+        8,
+        12
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "euclid_12_8",
+      "input_values": [
+        12,
+        8
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "coprime",
+      "input_values": [
+        35,
+        64
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "equal",
+      "input_values": [
+        123456789,
+        123456789
+      ],
+      "expected_result": 123456789
+    },
+    {
+      "id": "upstream_small",
+      "input_values": [
+        49865,
+        69811
+      ],
+      "expected_result": 9973
+    },
+    {
+      "id": "upstream_large",
+      "input_values": [
+        300000,
+        2300000
+      ],
+      "expected_result": 100000
+    },
+    {
+      "id": "max_zero",
+      "input_values": [
+        9223372036854775807,
+        0
+      ],
+      "expected_result": 9223372036854775807
+    },
+    {
+      "id": "zero_max",
+      "input_values": [
+        0,
+        9223372036854775807
+      ],
+      "expected_result": 9223372036854775807
+    },
+    {
+      "id": "max_and_previous",
+      "input_values": [
+        9223372036854775807,
+        9223372036854775806
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "large_coprime_fibonacci",
+      "input_values": [
+        7540113804746346429,
+        4660046610375530309
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "large_common_factor",
+      "input_values": [
+        4611686018427387904,
+        3458764513820540928
+      ],
+      "expected_result": 1152921504606846976
+    },
+    {
+      "id": "same_large_multiple",
+      "input_values": [
+        1729382256910270464,
+        2594073385365405696
+      ],
+      "expected_result": 864691128455135232
+    },
+    {
+      "id": "prime_pair",
+      "input_values": [
+        2147483647,
+        4294967291
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "multiple_pair",
+      "input_values": [
+        9876543210,
+        1234567890
+      ],
+      "expected_result": 90
+    },
+    {
+      "id": "small_factor_large",
+      "input_values": [
+        9223372036854775807,
+        3
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "powers_two",
+      "input_values": [
+        1152921504606846976,
+        35184372088832
+      ],
+      "expected_result": 35184372088832
+    },
+    {
+      "id": "random_00",
+      "input_values": [
+        5032550244844170722,
+        6248920869444423988
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_01",
+      "input_values": [
+        1379174161651846714,
+        4441777201564517008
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_02",
+      "input_values": [
+        4684760749158846346,
+        5839061959351969469
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_03",
+      "input_values": [
+        2946683871122495055,
+        3269762878197461928
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "random_04",
+      "input_values": [
+        1405016108115969616,
+        5029812380174167599
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_05",
+      "input_values": [
+        7473429219320872182,
+        8247836797485121033
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_06",
+      "input_values": [
+        3988480192596255149,
+        2181324619904209968
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_07",
+      "input_values": [
+        6451049838151228750,
+        4125685046288748724
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_08",
+      "input_values": [
+        2897993503416116565,
+        6095392813005313600
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "random_09",
+      "input_values": [
+        7279975762224247606,
+        5382928866048822542
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_10",
+      "input_values": [
+        3716450618557072837,
+        7246778430174517882
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_11",
+      "input_values": [
+        6974321647616248053,
+        5245535288033737956
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "random_12",
+      "input_values": [
+        8892374434521239633,
+        6478427123694170859
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_13",
+      "input_values": [
+        1988852567121916797,
+        3521625234734436312
+      ],
+      "expected_result": 21
+    },
+    {
+      "id": "random_14",
+      "input_values": [
+        110504900445960760,
+        6722229833201565986
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_15",
+      "input_values": [
+        3412157680709353879,
+        3614661863530682319
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_16",
+      "input_values": [
+        1112395425552818185,
+        4007574004237597601
+      ],
+      "expected_result": 97
+    },
+    {
+      "id": "random_17",
+      "input_values": [
+        3515411808024105519,
+        1221061234158441851
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_18",
+      "input_values": [
+        8190397750171089150,
+        7639224168392253386
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_19",
+      "input_values": [
+        7712002688428836468,
+        8173633908835937005
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_20",
+      "input_values": [
+        7017518150049493616,
+        2512821691497942398
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_21",
+      "input_values": [
+        525767160376243892,
+        7791670271167723390
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_22",
+      "input_values": [
+        9024140876467854749,
+        528717673077783594
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_23",
+      "input_values": [
+        81415293564506312,
+        2734405999814481242
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "random_24",
+      "input_values": [
+        5123913320845111892,
+        17430124064614129
+      ],
+      "expected_result": 11
+    },
+    {
+      "id": "random_25",
+      "input_values": [
+        7687043444565551714,
+        8035186798908025633
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_26",
+      "input_values": [
+        3407950803363060787,
+        6617946814725277941
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "random_27",
+      "input_values": [
+        6903293623856265548,
+        6814985555980264685
+      ],
+      "expected_result": 11
+    },
+    {
+      "id": "random_28",
+      "input_values": [
+        7369057088759124624,
+        60613367455166610
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "random_29",
+      "input_values": [
+        917771214398401,
+        7017346271402944271
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "random_30",
+      "input_values": [
+        4422071740293011288,
+        6358789177054366032
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "random_31",
+      "input_values": [
+        1970600187402709681,
+        7691319050219723138
+      ],
+      "expected_result": 1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "binary_scalar_call",
+    "repetitions_per_sample": 32,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

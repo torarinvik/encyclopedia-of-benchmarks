@@ -1,0 +1,15 @@
+# Iteratively compute L(0)=L(1)=1 and L(n)=L(n-1)+L(n-2)+1.
+def leonardo_number_impl(input: i64) -> i64:
+    if input < 0 or input > 89:
+        return -1
+    previous: mutable i64 = 1
+    current: mutable i64 = 1
+    index: mutable i64 = 2
+    while index <= input:
+        next: i64 = current + previous + 1
+        previous <- current
+        current <- next
+        index <- index + 1
+    current
+
+export fn leonardo_number(input: i64) -> i64 = leonardo_number_impl

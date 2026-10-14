@@ -1,0 +1,18 @@
+# Stable gnome sort for the shared mutable in-place sorting contract.
+def gnome_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    position: mutable usize = 1
+    while position < length:
+        if values[position] >= values[position - 1]:
+            position <- position + 1
+        else:
+            temporary: i64 = values[position - 1]
+            values[position - 1] <- values[position]
+            values[position] <- temporary
+            if position > 1:
+                position <- position - 1
+            else:
+                position <- 1
+
+export fn gnome_sort(values: mutable i64&, length: usize) -> void = gnome_sort_impl

@@ -1,0 +1,9 @@
+# Iterative double factorial for the signed 64-bit benchmark contract.
+def double_factorial_impl(n: i64) -> i64:
+    if n < 0 or n > 33:
+        return -1
+    while factor > 1 |factor: i64 = n, product: i64 = 1| -> product:
+        product <- product * factor
+        factor <- factor - 2
+
+export fn double_factorial(n: i64) -> i64 = double_factorial_impl

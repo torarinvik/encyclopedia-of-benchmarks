@@ -2,8 +2,8 @@
 def binary_search_impl(values: i64&, length: usize, target: i64) -> i64:
     found: i64 =
         while low < high |low: usize = 0, high: usize = length, result: i64 = -1| -> result:
-            middle := low + (high - low) / 2
-            value := values[middle]
+            middle: usize = low + (high - low) / 2
+            value: i64 = values[middle]
             if value == target:
                 break middle.i64()
             if value < target:

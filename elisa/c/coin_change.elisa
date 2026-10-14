@@ -1,0 +1,37 @@
+# Return the minimum number of unlimited coins needed to reach an amount.
+def coin_change_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 130:
+        return -1
+    amount: i64 = input_values[0]
+    coin_count_value: i64 = input_values[1]
+    if amount < 0 or amount > 512 or coin_count_value < 0 or coin_count_value > 128:
+        return -1
+    coin_count: usize = coin_count_value.usize()
+    if length != 2 + coin_count:
+        return -1
+
+    coin_index: mutable usize = 0
+    while coin_index < coin_count:
+        denomination: i64 = input_values[2 + coin_index]
+        if denomination < 1 or denomination > 4096:
+            return -1
+        coin_index <- coin_index + 1
+
+    minimum: i64 =
+        while current_amount <= amount |current_amount: i64 = 1, dp: mutable i64[513] = zeroed| -> dp[amount.usize()]:
+            best: i64 =
+                while index < coin_count |index: usize = 0, current_best: mutable i64 = 513| -> current_best:
+                    denomination: i64 = input_values[2 + index]
+                    if denomination <= current_amount:
+                        prior: i64 = dp[(current_amount - denomination).usize()]
+                        candidate: i64 = prior + 1
+                        if prior < 513 and candidate < current_best:
+                            current_best <- candidate
+                    index <- index + 1
+            dp[current_amount.usize()] <- best
+            current_amount <- current_amount + 1
+    if minimum >= 513:
+        return -1
+    minimum
+
+export fn coin_change(input_values: i64&, length: usize) -> i64 = coin_change_impl

@@ -1,0 +1,48 @@
+# Stable strand sort using caller-provided temporary storage.
+def strand_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    remaining: mutable usize = length
+    result_length: mutable usize = 0
+    while remaining > 0:
+        strand_length: mutable usize = 0
+        remaining_write: mutable usize = 0
+        read: mutable usize = 0
+        while read < remaining:
+            value: i64 = values[read]
+            take: mutable bool = strand_length == 0
+            if strand_length > 0 and value >= scratch[strand_length - 1]:
+                take <- true
+            if take:
+                scratch[strand_length] <- value
+                strand_length <- strand_length + 1
+            else:
+                values[remaining_write] <- value
+                remaining_write <- remaining_write + 1
+            read <- read + 1
+        old_start: usize = length - result_length
+        new_start: usize = old_start - strand_length
+        index: mutable usize = 0
+        while index < result_length:
+            values[new_start + index] <- values[old_start + index]
+            index <- index + 1
+        left: mutable usize = result_length
+        right: mutable usize = strand_length
+        destination: mutable usize = length
+        while left > 0 and right > 0:
+            if values[new_start + left - 1] > scratch[right - 1]:
+                left <- left - 1
+                destination <- destination - 1
+                values[destination] <- values[new_start + left]
+            else:
+                right <- right - 1
+                destination <- destination - 1
+                values[destination] <- scratch[right]
+        while right > 0:
+            right <- right - 1
+            destination <- destination - 1
+            values[destination] <- scratch[right]
+        remaining <- remaining_write
+        result_length <- result_length + strand_length
+
+export fn strand_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = strand_sort_impl

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "factorial-v1",
+  "algorithm": "factorial",
+  "input": {
+    "minimum": 0,
+    "maximum": 20,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 1},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "five", "input_value": 5, "expected_result": 120},
+    {"id": "ten", "input_value": 10, "expected_result": 3628800},
+    {"id": "fifteen", "input_value": 15, "expected_result": 1307674368000},
+    {"id": "maximum", "input_value": 20, "expected_result": 2432902008176640000},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 21, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

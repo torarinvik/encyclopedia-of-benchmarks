@@ -1,0 +1,21 @@
+# Write lowercase hexadecimal digits of a nonnegative signed 64-bit input.
+def decimal_to_hexadecimal_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 0:
+        return -1
+    width: usize =
+        while remaining >= 16 |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / 16
+            count <- count + 1
+    if output_capacity < width:
+        return -2
+    while position > 0 |position: mutable usize = width, remaining: mutable i64 = value, output| -> output:
+        position <- position - 1
+        digit: i64 = remaining % 16
+        if digit < 10:
+            output[position] <- (48 + digit).u8()
+        else:
+            output[position] <- (87 + digit).u8()
+        remaining <- remaining / 16
+    width.i64()
+
+export fn decimal_to_hexadecimal(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = decimal_to_hexadecimal_impl

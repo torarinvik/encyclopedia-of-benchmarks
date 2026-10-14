@@ -1,0 +1,67 @@
+# Kahn topological sort over a bounded directed graph encoded as edge pairs.
+def topological_sort_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length == 0 or length > 66:
+        return -2
+    vertices_value: i64 = values[0]
+    if vertices_value < 0 or vertices_value > 64 or (length - 1) % 2 != 0:
+        return -2
+    vertices: usize = vertices_value.usize()
+    edge_count: usize = (length - 1) / 2
+    adjacency: mutable u64[64] = zeroed
+    indegree: mutable usize[64] = zeroed
+    queue: mutable usize[64] = zeroed
+    order: mutable usize[64] = zeroed
+
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[1 + 2 * edge]
+        destination_value: i64 = values[2 + 2 * edge]
+        if origin_value < 0 or destination_value < 0:
+            return -2
+        if origin_value.u64() >= vertices.u64() or destination_value.u64() >= vertices.u64():
+            return -2
+        origin: usize = origin_value.usize()
+        destination: usize = destination_value.usize()
+        mask: u64 = 1.u64() << destination
+        if (adjacency[origin] & mask) == 0:
+            adjacency[origin] <- adjacency[origin] | mask
+            indegree[destination] <- indegree[destination] + 1
+        edge <- edge + 1
+
+    head: mutable usize = 0
+    queue_end: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        if indegree[vertex] == 0:
+            queue[queue_end] <- vertex
+            queue_end <- queue_end + 1
+        vertex <- vertex + 1
+
+    count: mutable usize = 0
+    while head < queue_end:
+        origin: usize = queue[head]
+        head <- head + 1
+        order[count] <- origin
+        count <- count + 1
+        destination: mutable usize = 0
+        while destination < vertices:
+            if (adjacency[origin] & (1.u64() << destination)) != 0:
+                indegree[destination] <- indegree[destination] - 1
+                if indegree[destination] == 0:
+                    queue[queue_end] <- destination
+                    queue_end <- queue_end + 1
+            destination <- destination + 1
+    if count != vertices:
+        return -1
+    if output_capacity < vertices:
+        return -2
+
+    index: mutable usize = 0
+    while index < count:
+        output[index] <- order[index].u8()
+        index <- index + 1
+    count.i64()
+
+export fn topological_sort(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = topological_sort_impl

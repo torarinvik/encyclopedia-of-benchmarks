@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "base16-v1",
+  "algorithm": "base16",
+  "input": {
+    "kind": "signed_64_bit_mode_and_byte_array",
+    "modes": {
+      "0": "encode input bytes as uppercase hexadecimal ASCII",
+      "1": "decode uppercase hexadecimal ASCII to bytes"
+    },
+    "minimum_length": 1,
+    "maximum_length": 65,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "encode_empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "encode_hello_world",
+      "input_values": [
+        0,
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33
+      ],
+      "expected_result": 24,
+      "expected_output": "48656C6C6F20576F726C6421"
+    },
+    {
+      "id": "encode_uppercase_text",
+      "input_values": [
+        0,
+        72,
+        69,
+        76,
+        76,
+        79,
+        32,
+        87,
+        79,
+        82,
+        76,
+        68,
+        33
+      ],
+      "expected_result": 24,
+      "expected_output": "48454C4C4F20574F524C4421"
+    },
+    {
+      "id": "encode_binary_bytes",
+      "input_values": [
+        0,
+        0,
+        1,
+        127,
+        128,
+        255
+      ],
+      "expected_result": 10,
+      "expected_output": "00017F80FF"
+    },
+    {
+      "id": "decode_empty",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "decode_hello_world",
+      "input_values": [
+        1,
+        52,
+        56,
+        54,
+        53,
+        54,
+        67,
+        54,
+        67,
+        54,
+        70,
+        50,
+        48,
+        53,
+        55,
+        54,
+        70,
+        55,
+        50,
+        54,
+        67,
+        54,
+        52,
+        50,
+        49
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "48656c6c6f20576f726c6421"
+    },
+    {
+      "id": "decode_binary_bytes",
+      "input_values": [
+        1,
+        48,
+        48,
+        48,
+        49,
+        55,
+        70,
+        56,
+        48,
+        70,
+        70
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "00017f80ff"
+    },
+    {
+      "id": "decode_odd_length",
+      "input_values": [
+        1,
+        52,
+        56,
+        54
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "decode_lowercase",
+      "input_values": [
+        1,
+        52,
+        56,
+        54,
+        53,
+        54,
+        99,
+        54,
+        99
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "decode_invalid_ascii",
+      "input_values": [
+        1,
+        71,
+        71
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "encode_out_of_range",
+      "input_values": [
+        0,
+        256
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "too_many_bytes",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

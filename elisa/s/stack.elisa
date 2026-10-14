@@ -1,0 +1,43 @@
+# Bounded array-backed integer stack with deterministic operation-trace checksum.
+def stack_benchmark_impl(values: i64&, length: usize) -> i64:
+    if length > 1024 or length % 2 != 0:
+        return -1
+    operation_count: usize = length / 2
+    checksum: i64 =
+        while operation < operation_count |operation: mutable usize = 0, data_stack: mutable i64[256] = zeroed, top: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
+            opcode: i64 = values[2 * operation]
+            payload: i64 = values[2 * operation + 1]
+            observed: mutable i64 = 0
+            returns_value: mutable bool = true
+            if opcode == 0:
+                if payload < -1000000 or payload > 1000000 or top == 256:
+                    break -1
+                data_stack[top] <- payload
+                top <- top + 1
+                returns_value <- false
+            elif opcode == 1:
+                if payload != 0 or top == 0:
+                    break -1
+                top <- top - 1
+                observed <- data_stack[top]
+            elif opcode == 2:
+                if payload != 0 or top == 0:
+                    break -1
+                observed <- data_stack[top - 1]
+            elif opcode == 3:
+                if payload != 0:
+                    break -1
+                if top == 0:
+                    observed <- 1
+            else:
+                break -1
+            if returns_value:
+                checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+            operation <- operation + 1
+            if operation == operation_count:
+                checksum <- while index < top |index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + index + 1).i64() * (data_stack[index] + 1000000)
+                    index <- index + 1
+    checksum
+
+export fn stack_benchmark(values: i64&, length: usize) -> i64 = stack_benchmark_impl

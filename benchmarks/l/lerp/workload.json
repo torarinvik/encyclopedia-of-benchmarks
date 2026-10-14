@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "lerp-binary64-v1",
+  "algorithm": "lerp",
+  "input": {
+    "kind": "finite_binary64_start_end_t",
+    "start_end_range": [
+      -1000000000000.0,
+      1000000000000.0
+    ],
+    "t_range": [
+      0.0,
+      1.0
+    ],
+    "formula": "start + t * (end - start)",
+    "input_scaled_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_start",
+      "input_values": [
+        0.0,
+        10.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "end_start",
+      "input_values": [
+        0.0,
+        10.0,
+        1.0
+      ],
+      "expected_result": 10.0
+    },
+    {
+      "id": "midpoint",
+      "input_values": [
+        0.0,
+        10.0,
+        0.5
+      ],
+      "expected_result": 5.0
+    },
+    {
+      "id": "negative_to_positive_quarter",
+      "input_values": [
+        -10.0,
+        10.0,
+        0.25
+      ],
+      "expected_result": -5.0
+    },
+    {
+      "id": "negative_to_positive_midpoint",
+      "input_values": [
+        -10.0,
+        10.0,
+        0.5
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative_to_positive_three_quarters",
+      "input_values": [
+        -10.0,
+        10.0,
+        0.75
+      ],
+      "expected_result": 5.0
+    },
+    {
+      "id": "identical_endpoints",
+      "input_values": [
+        3.0,
+        3.0,
+        0.3
+      ],
+      "expected_result": 3.0
+    },
+    {
+      "id": "fractional_midpoint",
+      "input_values": [
+        0.1,
+        0.9,
+        0.5
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "fractional_quarter",
+      "input_values": [
+        0.1,
+        0.9,
+        0.25
+      ],
+      "expected_result": 0.3
+    },
+    {
+      "id": "negative_fractional",
+      "input_values": [
+        -1.5,
+        2.5,
+        0.4
+      ],
+      "expected_result": 0.10000000000000009
+    },
+    {
+      "id": "descending",
+      "input_values": [
+        8.0,
+        -4.0,
+        0.25
+      ],
+      "expected_result": 5.0
+    },
+    {
+      "id": "large_symmetric",
+      "input_values": [
+        1000000000000.0,
+        -1000000000000.0,
+        0.5
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "large_lower_half",
+      "input_values": [
+        -1000000000000.0,
+        1000000000000.0,
+        0.25
+      ],
+      "expected_result": -500000000000.0
+    },
+    {
+      "id": "large_upper_half",
+      "input_values": [
+        -1000000000000.0,
+        1000000000000.0,
+        0.75
+      ],
+      "expected_result": 500000000000.0
+    },
+    {
+      "id": "large_near_equal",
+      "input_values": [
+        999999999999.0,
+        1000000000000.0,
+        0.5
+      ],
+      "expected_result": 999999999999.5
+    },
+    {
+      "id": "negative_identical",
+      "input_values": [
+        -12345.5,
+        -12345.5,
+        0.9
+      ],
+      "expected_result": -12345.5
+    },
+    {
+      "id": "t_zero_negative",
+      "input_values": [
+        -37.25,
+        99.5,
+        0.0
+      ],
+      "expected_result": -37.25
+    },
+    {
+      "id": "t_one_negative",
+      "input_values": [
+        -37.25,
+        99.5,
+        1.0
+      ],
+      "expected_result": 99.5
+    },
+    {
+      "id": "tiny_span",
+      "input_values": [
+        -1e-06,
+        3e-06,
+        0.25
+      ],
+      "expected_result": 5.293955920339377e-23
+    },
+    {
+      "id": "decimal_span",
+      "input_values": [
+        -12.75,
+        18.5,
+        0.64
+      ],
+      "expected_result": 7.25
+    },
+    {
+      "id": "midpoint_odd_integers",
+      "input_values": [
+        -7.0,
+        12.0,
+        0.5
+      ],
+      "expected_result": 2.5
+    },
+    {
+      "id": "near_zero_result",
+      "input_values": [
+        -1000000.0,
+        1000000.0,
+        0.5000000000000001
+      ],
+      "expected_result": 2.220446049250313e-10
+    }
+  ],
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

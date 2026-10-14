@@ -1,0 +1,31 @@
+# Stable bidirectional bubble sort for signed 64-bit values.
+def cocktail_sort_impl(values: mutable i64&, length: usize) -> void:
+    start: mutable usize = 0
+    end: mutable usize = length
+    while start < end:
+        swapped: mutable bool = false
+        index: mutable usize = start
+        while index + 1 < end:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+                swapped <- true
+            index <- index + 1
+        if not swapped:
+            break
+        end <- end - 1
+        swapped <- false
+        index <- end
+        while index > start:
+            if values[index - 1] > values[index]:
+                temporary: i64 = values[index - 1]
+                values[index - 1] <- values[index]
+                values[index] <- temporary
+                swapped <- true
+            index <- index - 1
+        start <- start + 1
+        if not swapped:
+            break
+
+export fn cocktail_sort(values: mutable i64&, length: usize) -> void = cocktail_sort_impl

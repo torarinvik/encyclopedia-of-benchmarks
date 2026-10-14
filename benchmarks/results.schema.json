@@ -14,9 +14,17 @@
     "measurement"
   ],
   "properties": {
-    "schema_version": {"const": "1.0.0"},
-    "run_id": {"type": "string", "format": "date-time"},
-    "algorithm": {"type": "string", "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"},
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "algorithm": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+    },
     "implementation": {
       "type": "object",
       "additionalProperties": false,
@@ -32,42 +40,184 @@
         "build_command"
       ],
       "properties": {
-        "language": {"type": "string"},
-        "source_path": {"type": "string"},
-        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "runner_source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "binary_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "compiler": {"type": "string"},
-        "compiler_version": {"type": "string"},
-        "build_flags": {"type": "string"},
-        "build_command": {"type": "string"}
+        "language": {
+          "type": "string"
+        },
+        "source_path": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "runner_source_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "binary_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "compiler": {
+          "type": "string"
+        },
+        "compiler_version": {
+          "type": "string"
+        },
+        "build_flags": {
+          "type": "string"
+        },
+        "build_command": {
+          "type": "string"
+        }
       }
     },
     "environment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["os", "os_release", "architecture", "cpu_model", "logical_cpu_count", "python_version"],
+      "required": [
+        "os",
+        "os_release",
+        "architecture",
+        "cpu_model",
+        "logical_cpu_count",
+        "python_version"
+      ],
       "properties": {
-        "os": {"type": "string"},
-        "os_release": {"type": "string"},
-        "architecture": {"type": "string"},
-        "cpu_model": {"type": ["string", "null"]},
-        "logical_cpu_count": {"type": ["integer", "null"], "minimum": 1},
-        "python_version": {"type": "string"}
+        "os": {
+          "type": "string"
+        },
+        "os_release": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "cpu_model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "logical_cpu_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "python_version": {
+          "type": "string"
+        }
       }
     },
     "workload": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "spec_sha256", "input_length", "case", "target", "expected_result"],
+      "required": [
+        "id",
+        "spec_sha256",
+        "input_length",
+        "case",
+        "target",
+        "expected_result"
+      ],
       "properties": {
-        "id": {"type": "string"},
-        "spec_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "input_length": {"type": "integer", "minimum": 0},
-        "case": {"type": "string"},
-        "target": {"type": "integer"},
-        "expected_result": {"type": "integer"}
-      }
+        "id": {
+          "type": "string"
+        },
+        "spec_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "input_length": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Sequence length, graph vertex count, or indexed tree node count; null for scalar inputs."
+        },
+        "input_value": {
+          "type": "integer",
+          "description": "Single scalar input value when the benchmark has no sequence length."
+        },
+        "edge_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_vertex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "expected_distances": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "description": "Per-vertex graph distances; null entries mean unreachable. The vector is null on failure."
+        },
+        "case": {
+          "type": "string"
+        },
+        "target": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Search key, or null for sorting, scalar, and graph algorithms."
+        },
+        "expected_result": {
+          "type": "number"
+        },
+        "input_values": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Input values for a multi-input or array-based algorithm."
+        },
+        "root_index": {
+          "type": "integer",
+          "description": "Root node index in an indexed binary-tree workload, or -1 for an empty tree."
+        },
+        "expected_output_values": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "description": "Expected node values in breadth-first order."
+        },
+        "expected_level_offsets": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Cumulative positions delimiting the breadth-first values at each tree level."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "edge_count"
+            ]
+          },
+          "then": {
+            "required": [
+              "source_vertex",
+              "expected_distances"
+            ]
+          }
+        }
+      ]
     },
     "measurement": {
       "type": "object",
@@ -84,20 +234,369 @@
         "result_checksum"
       ],
       "properties": {
-        "timer": {"const": "C clock() process CPU time"},
-        "timer_resolution_ns": {"type": "number", "exclusiveMinimum": 0},
-        "comparison_model": {"type": "string"},
-        "target_comparisons_per_sample": {"type": "integer", "minimum": 1},
-        "warmup_rounds": {"type": "integer", "minimum": 0},
-        "repetitions_per_sample": {"type": "integer", "minimum": 1},
+        "timer": {
+          "const": "C clock() process CPU time"
+        },
+        "timer_resolution_ns": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "comparison_model": {
+          "type": "string"
+        },
+        "target_comparisons_per_sample": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "Null when the workload records whole algorithm calls rather than normalized search comparisons."
+        },
+        "warmup_rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "repetitions_per_sample": {
+          "type": "integer",
+          "minimum": 1
+        },
         "samples_ns": {
           "type": "array",
           "minItems": 1,
-          "items": {"type": "integer", "minimum": 0}
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
         },
-        "observed_result": {"type": "integer"},
-        "result_checksum": {"type": "integer", "minimum": 0}
+        "observed_result": {
+          "type": "number"
+        },
+        "result_input_scaled_tolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "observed_distances": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "description": "Per-vertex graph distances, with null entries for unreachable vertices; null on failure."
+        },
+        "result_checksum": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "scalar_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_value"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "binary_scalar_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "null"
+              },
+              "input_values": {
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 18446744073709551615
+                }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "i64_array_scalar_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 100000,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "i64_array_bytes_output_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 6,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "tree_level_order_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values",
+              "root_index",
+              "expected_output_values",
+              "expected_level_offsets"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4096
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 12288,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                },
+                "description": "Flattened [value, left-index, right-index] triplets for every node."
+              },
+              "root_index": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 4095
+              },
+              "expected_output_values": {
+                "minItems": 0,
+                "maxItems": 4096,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                }
+              },
+              "expected_level_offsets": {
+                "minItems": 1,
+                "maxItems": 4097,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4096
+                }
+              },
+              "expected_result": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4096
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "float64_triple_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "null"
+              },
+              "input_values": {
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }

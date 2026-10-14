@@ -1,0 +1,63 @@
+# Unit-cost Levenshtein distance over two ASCII byte sequences.
+def levenshtein_distance_impl(values: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    left_length_value: i64 = values[0]
+    right_length_value: i64 = values[1]
+    if left_length_value < 0 or left_length_value > 255 or right_length_value < 0 or right_length_value > 255:
+        return -1
+    left_length: usize = left_length_value.usize()
+    right_length: usize = right_length_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1
+    index: mutable usize = 0
+    while index < left_length:
+        byte: i64 = values[2 + index]
+        if byte < 0 or byte > 127:
+            return -1
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        byte: i64 = values[2 + left_length + index]
+        if byte < 0 or byte > 127:
+            return -1
+        index <- index + 1
+
+    if left_length == 0:
+        return right_length.i64()
+    if right_length == 0:
+        return left_length.i64()
+
+    result: i64 =
+        while row_index <= left_length |row_index: usize = 1, column: usize = 1, diagonal: i64 = 0, work_row: mutable i64[256] = zeroed| -> work_row[right_length]:
+            if column > right_length:
+                diagonal <- work_row[0]
+                row_index <- row_index + 1
+                column <- 1
+                work_row[0] <- row_index.i64()
+            else:
+                above: mutable i64 = work_row[column]
+                if row_index == 1:
+                    above <- column.i64()
+                diagonal_value: mutable i64 = diagonal
+                if row_index == 1:
+                    diagonal_value <- (column - 1).i64()
+                    if column == 1:
+                        work_row[0] <- row_index.i64()
+                deletion: i64 = above + 1
+                insertion: i64 = work_row[column - 1] + 1
+                edit_cost: mutable i64 = 0
+                if values[2 + row_index - 1] != values[2 + left_length + column - 1]:
+                    edit_cost <- 1
+                substitution: i64 = diagonal_value + edit_cost
+                best: mutable i64 = deletion
+                if insertion < best:
+                    best <- insertion
+                if substitution < best:
+                    best <- substitution
+                work_row[column] <- best
+                diagonal <- above
+                column <- column + 1
+    result
+
+export fn levenshtein_distance(values: i64&, length: usize) -> i64 = levenshtein_distance_impl

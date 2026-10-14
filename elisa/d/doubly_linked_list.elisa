@@ -1,0 +1,101 @@
+# Bounded doubly linked list with a portable index-based node pool.
+def doubly_linked_list_impl(values: i64&, length: usize) -> i64:
+    if length > 1024 or length % 2 != 0:
+        return -1
+    operation_count: usize = length / 2
+    initialized_next: usize[256] =
+        for index in 0..<256 |links: mutable usize[256] = zeroed| -> links:
+            links[index] <- index + 1
+    checksum: i64 =
+        while operation < operation_count |operation: mutable usize = 0, node_value: mutable i64[256] = zeroed, next_node: mutable usize[256] = initialized_next, prev_node: mutable usize[256] = zeroed, free_head: mutable usize = 0, head: mutable usize = 256, last_node: mutable usize = 256, count: mutable usize = 0, checksum: mutable i64 = 0| -> checksum:
+            opcode: i64 = values[2 * operation]
+            payload: i64 = values[2 * operation + 1]
+            observed: mutable i64 = 0
+            returns_value: mutable bool = true
+            if opcode == 0 or opcode == 1:
+                if payload < -1000000 or payload > 1000000 or count == 256 or free_head == 256:
+                    break -1
+                node: usize = free_head
+                free_head <- next_node[node]
+                node_value[node] <- payload
+                next_node[node] <- 256
+                prev_node[node] <- 256
+                if opcode == 0:
+                    if last_node == 256:
+                        head <- node
+                    else:
+                        prev_node[node] <- last_node
+                        next_node[last_node] <- node
+                    last_node <- node
+                else:
+                    if head == 256:
+                        last_node <- node
+                    else:
+                        next_node[node] <- head
+                        prev_node[head] <- node
+                    head <- node
+                count <- count + 1
+                returns_value <- false
+            elif opcode == 2 or opcode == 3:
+                if payload != 0 or count == 0:
+                    break -1
+                node: mutable usize = head
+                if opcode == 3:
+                    node <- last_node
+                observed <- node_value[node]
+                before: usize = prev_node[node]
+                after: usize = next_node[node]
+                if before == 256:
+                    head <- after
+                else:
+                    next_node[before] <- after
+                if after == 256:
+                    last_node <- before
+                else:
+                    prev_node[after] <- before
+                next_node[node] <- free_head
+                free_head <- node
+                count <- count - 1
+            elif opcode == 4 or opcode == 5:
+                if payload < -1000000 or payload > 1000000:
+                    break -1
+                node: usize =
+                    while current != 256 and node_value[current] != payload |current: mutable usize = head| -> current:
+                        current <- next_node[current]
+                if node != 256:
+                    observed <- 1
+                if opcode == 4 and node != 256:
+                    before: usize = prev_node[node]
+                    after: usize = next_node[node]
+                    if before == 256:
+                        head <- after
+                    else:
+                        next_node[before] <- after
+                    if after == 256:
+                        last_node <- before
+                    else:
+                        prev_node[after] <- before
+                    next_node[node] <- free_head
+                    free_head <- node
+                    count <- count - 1
+            elif opcode == 6:
+                if payload != 0:
+                    break -1
+                observed <- count.i64()
+            else:
+                break -1
+            if returns_value:
+                checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+            operation <- operation + 1
+            if operation == operation_count:
+                checksum <- while current != 256 |current: mutable usize = head, index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + index + 1).i64() * (node_value[current] + 1000000)
+                    current <- next_node[current]
+                    index <- index + 1
+                checksum <- while current != 256 |current: mutable usize = last_node, index: mutable usize = 0, total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + count + index + 1).i64() * (node_value[current] + 1000000)
+                    current <- prev_node[current]
+                    index <- index + 1
+    checksum
+
+export fn doubly_linked_list_benchmark(values: i64&, length: usize) -> i64 = doubly_linked_list_impl

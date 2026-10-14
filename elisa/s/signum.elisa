@@ -1,0 +1,9 @@
+# Sign of a signed 64-bit integer.
+def signum_impl(value: i64) -> i64:
+    if value > 0:
+        return 1
+    if value < 0:
+        return -1
+    0
+
+export fn signum(value: i64) -> i64 = signum_impl

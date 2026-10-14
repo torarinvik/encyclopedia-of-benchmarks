@@ -1,0 +1,22 @@
+# Test whether a signed value is an exact integer cube.
+def perfect_cube_impl(value: i64) -> i64:
+    if value < -1000000000000 or value > 1000000000000:
+        return -1
+    target: mutable i64 = value
+    if target < 0:
+        target <- -target
+    result: bool =
+        while low <= high |low: mutable i64 = 0, high: mutable i64 = 10000, found: bool = false| -> found:
+            middle: i64 = low + (high - low) / 2
+            cube: i64 = middle * middle * middle
+            if cube == target:
+                break true
+            if cube < target:
+                low <- middle + 1
+            else:
+                high <- middle - 1
+    if result:
+        return 1
+    0
+
+export fn perfect_cube(value: i64) -> i64 = perfect_cube_impl

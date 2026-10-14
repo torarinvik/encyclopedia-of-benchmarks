@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "aliquot_sum-v1",
+  "algorithm": "aliquot_sum",
+  "input": {
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "negative_input_result": -1,
+    "result_overflow_result": -1
+  },
+  "cases": [
+    {
+      "id": "negative_9223372036854775808",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_1",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "n_0",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "n_1",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "n_2",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "n_6",
+      "input_value": 6,
+      "expected_result": 6
+    },
+    {
+      "id": "n_9",
+      "input_value": 9,
+      "expected_result": 4
+    },
+    {
+      "id": "n_10",
+      "input_value": 10,
+      "expected_result": 8
+    },
+    {
+      "id": "n_12",
+      "input_value": 12,
+      "expected_result": 16
+    },
+    {
+      "id": "n_28",
+      "input_value": 28,
+      "expected_result": 28
+    },
+    {
+      "id": "n_97",
+      "input_value": 97,
+      "expected_result": 1
+    },
+    {
+      "id": "n_100",
+      "input_value": 100,
+      "expected_result": 117
+    },
+    {
+      "id": "n_220",
+      "input_value": 220,
+      "expected_result": 284
+    },
+    {
+      "id": "n_284",
+      "input_value": 284,
+      "expected_result": 220
+    },
+    {
+      "id": "n_343",
+      "input_value": 343,
+      "expected_result": 57
+    },
+    {
+      "id": "n_344",
+      "input_value": 344,
+      "expected_result": 316
+    },
+    {
+      "id": "n_500",
+      "input_value": 500,
+      "expected_result": 592
+    },
+    {
+      "id": "n_501",
+      "input_value": 501,
+      "expected_result": 171
+    },
+    {
+      "id": "n_65536",
+      "input_value": 65536,
+      "expected_result": 65535
+    },
+    {
+      "id": "n_99991",
+      "input_value": 99991,
+      "expected_result": 1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 32,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,66 @@
+# Traverse the directed graph from start with fixed-size adjacency bitsets.
+def depth_first_search_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 2 or length > 66 or (length - 2) % 2 != 0:
+        return -2
+    vertices_value: i64 = values[0]
+    start_value: i64 = values[1]
+    if vertices_value < 0 or vertices_value > 64:
+        return -2
+    vertices: usize = vertices_value.usize()
+    if vertices == 0:
+        if start_value == -1 and length == 2:
+            return 0
+        return -2
+    if start_value < 0 or start_value.u64() >= vertices.u64():
+        return -2
+    adjacency: mutable u64[64] = zeroed
+    visited: mutable bool[64] = zeroed
+    order: mutable usize[64] = zeroed
+    edge_count: usize = (length - 2) / 2
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[2 + 2 * edge]
+        destination_value: i64 = values[3 + 2 * edge]
+        if origin_value < 0 or destination_value < 0:
+            return -2
+        if origin_value.u64() >= vertices.u64() or destination_value.u64() >= vertices.u64():
+            return -2
+        origin: usize = origin_value.usize()
+        destination: usize = destination_value.usize()
+        adjacency[origin] <- adjacency[origin] | (1.u64() << destination)
+        edge <- edge + 1
+    start: usize = start_value.usize()
+    count: mutable usize = 0
+    visited[start] <- true
+    stack_vertex: mutable usize[64] = zeroed
+    stack_next: mutable usize[64] = zeroed
+    depth: mutable usize = 1
+    stack_vertex[0] <- start
+    order[count] <- start
+    count <- count + 1
+    while depth != 0:
+        frame: usize = depth - 1
+        origin: usize = stack_vertex[frame]
+        if stack_next[frame] == vertices:
+            depth <- depth - 1
+        else:
+            destination: usize = stack_next[frame]
+            stack_next[frame] <- stack_next[frame] + 1
+            if (adjacency[origin] & (1.u64() << destination)) != 0 and not visited[destination]:
+                visited[destination] <- true
+                order[count] <- destination
+                count <- count + 1
+                stack_vertex[depth] <- destination
+                stack_next[depth] <- 0
+                depth <- depth + 1
+    if output_capacity < count:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        output[index] <- order[index].u8()
+        index <- index + 1
+    count.i64()
+
+export fn depth_first_search(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = depth_first_search_impl

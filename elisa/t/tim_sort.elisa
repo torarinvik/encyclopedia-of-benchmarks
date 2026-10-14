@@ -1,0 +1,58 @@
+# Stable bottom-up TimSort-style sort using caller-provided scratch storage.
+def insertion_sort_run(values: mutable i64&, low: usize, high: usize) -> void:
+    index: mutable usize = low + 1
+    while index < high:
+        key: i64 = values[index]
+        cursor: mutable usize = index
+        while cursor > low and values[cursor - 1] > key:
+            values[cursor] <- values[cursor - 1]
+            cursor <- cursor - 1
+        values[cursor] <- key
+        index <- index + 1
+
+def merge_runs(values: mutable i64&, scratch: mutable i64&, left: usize, middle: usize, right: usize) -> void:
+    index: mutable usize = left
+    while index < right:
+        scratch[index] <- values[index]
+        index <- index + 1
+    first: mutable usize = left
+    second: mutable usize = middle
+    output: mutable usize = left
+    while output < right:
+        if first == middle:
+            values[output] <- scratch[second]
+            second <- second + 1
+        elif second == right or scratch[first] <= scratch[second]:
+            values[output] <- scratch[first]
+            first <- first + 1
+        else:
+            values[output] <- scratch[second]
+            second <- second + 1
+        output <- output + 1
+
+def tim_sort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    start: mutable usize = 0
+    while start < length:
+        remaining: usize = length - start
+        end: usize = length if remaining < 32 else start + 32
+        insertion_sort_run(values, start, end)
+        start <- end
+
+    width: mutable usize = 32
+    while width < length:
+        left: mutable usize = 0
+        while left < length:
+            left_remaining: usize = length - left
+            middle: usize = left + (width if width < left_remaining else left_remaining)
+            right_remaining: usize = length - middle
+            right: usize = middle + (width if width < right_remaining else right_remaining)
+            if middle < right:
+                merge_runs(values, scratch, left, middle, right)
+            left <- right
+        if width >= length - width:
+            break
+        width <- width * 2
+
+export fn tim_sort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = tim_sort_impl

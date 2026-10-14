@@ -1,0 +1,20 @@
+# Return the length of a strictly increasing subsequence.
+def longest_increasing_subsequence_impl(values: i64&, length: usize) -> i64:
+    if length > 512:
+        return -1
+    longest: i64 =
+        while index < length |index: usize = 0, best: i64 = 0, dp: mutable i64[512] = zeroed| -> best:
+            ending: i64 =
+                while previous < index |previous: usize = 0, current: mutable i64 = 1| -> current:
+                    if values[index] > values[previous]:
+                        candidate: i64 = dp[previous] + 1
+                        if candidate > current:
+                            current <- candidate
+                    previous <- previous + 1
+            dp[index] <- ending
+            if ending > best:
+                best <- ending
+            index <- index + 1
+    longest
+
+export fn longest_increasing_subsequence(values: i64&, length: usize) -> i64 = longest_increasing_subsequence_impl

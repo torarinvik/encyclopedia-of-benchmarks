@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "binary-to-octal-v1",
+  "algorithm": "binary_to_octal",
+  "input": {
+    "kind": "most_significant_first_binary_digit_array",
+    "encoding": "one signed 64-bit value per binary digit",
+    "digit_values": [0, 1],
+    "minimum_length": 1,
+    "maximum_length": 63,
+    "output_encoding": "prefix-free ASCII octal digits",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"zero","input_values":[0],"expected_result":1,"expected_output":"0"},
+    {"id":"one","input_values":[1],"expected_result":1,"expected_output":"1"},
+    {"id":"binary_101011","input_values":[1,0,1,0,1,1],"expected_result":2,"expected_output":"53"},
+    {"id":"leading_zeroes","input_values":[0,0,0,1,0,1],"expected_result":1,"expected_output":"5"},
+    {"id":"highest_signed_bit","input_values":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"expected_result":21,"expected_output":"400000000000000000000"},
+    {"id":"maximum_signed_value","input_values":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"expected_result":21,"expected_output":"777777777777777777777"},
+    {"id":"invalid_digit","input_values":[1,2,1],"expected_result":-1,"expected_output":""},
+    {"id":"negative_digit","input_values":[1,-1],"expected_result":-1,"expected_output":""},
+    {"id":"empty_input","input_values":[],"expected_result":-1,"expected_output":""},
+    {"id":"overlength_input","input_values":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"expected_result":-1,"expected_output":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

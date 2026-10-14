@@ -1,0 +1,46 @@
+# Convert radix digits through checked decimal accumulation.
+def any_base_to_any_base_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    return -1 if length < 3 or length > 65
+    source_base: i64 = input[0]
+    target_base: i64 = input[1]
+    return -1 if source_base < 2 or source_base > 36 or target_base < 2 or target_base > 36
+        
+    value: i64 =
+        while index < length |index: mutable usize = 2, result: mutable i64 = 0| -> result:
+            digit: i64 = input[index]
+            if digit < 0 or digit >= source_base:
+                return -1
+            if result > (9223372036854775807 - digit) / source_base:
+                return -1
+            result <- result * source_base + digit
+            index <- index + 1
+    width: usize =
+        while remaining >= target_base |remaining: mutable i64 = value, count: mutable usize = 1| -> count:
+            remaining <- remaining / target_base
+            count <- count + 1
+    return -2 if output_capacity < width
+        
+    top: mutable usize = 0
+    remaining: mutable i64 = value
+    if remaining == 0:
+        output[0] <- 48
+        top <- 1
+    else:
+        top <- while remaining > 0 |remaining: mutable i64 = value, position: mutable usize = 0, output| -> position:
+            digit: i64 = remaining % target_base
+            output[position] <-
+                if digit < 10:
+                    (48 + digit).u8()
+                else:
+                    (55 + digit).u8()
+            position <- position + 1
+            remaining <- remaining / target_base
+    while left < right |left: mutable usize = 0, right: mutable usize = top - 1, output| -> output:
+        temporary: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    top.i64()
+
+export fn any_base_to_any_base(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = any_base_to_any_base_impl

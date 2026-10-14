@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "happy-number-i64-v1",
+  "algorithm": "happy_number",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      1,
+      9223372036854775807
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "happy": 1,
+      "unhappy": 0
+    },
+    "definition": "Repeatedly replace the number with the sum of the squares of its decimal digits; happy iff the sequence reaches 1."
+  },
+  "cases": [
+    {
+      "id": "minimum_positive",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -19,
+      "expected_result": -1
+    },
+    {
+      "id": "smallest_happy_derived",
+      "input_value": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_happy_19",
+      "input_value": 19,
+      "expected_result": 1
+    },
+    {
+      "id": "happy_23",
+      "input_value": 23,
+      "expected_result": 1
+    },
+    {
+      "id": "happy_7",
+      "input_value": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "happy_100",
+      "input_value": 100,
+      "expected_result": 1
+    },
+    {
+      "id": "happy_1000",
+      "input_value": 1000,
+      "expected_result": 1
+    },
+    {
+      "id": "unhappy_2",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "unhappy_3",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "unhappy_4",
+      "input_value": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "unhappy_20",
+      "input_value": 20,
+      "expected_result": 0
+    },
+    {
+      "id": "unhappy_99",
+      "input_value": 99,
+      "expected_result": 0
+    },
+    {
+      "id": "near_happy_18",
+      "input_value": 18,
+      "expected_result": 0
+    },
+    {
+      "id": "large_happy",
+      "input_value": 1000000000000000000,
+      "expected_result": 1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": 0
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}
