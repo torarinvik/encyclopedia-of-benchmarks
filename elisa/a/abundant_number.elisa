@@ -1,0 +1,21 @@
+# Classify using positive proper divisor pairs.
+def abundant_number_impl(n: i64) -> i64:
+    if n < 1 or n > 1000000000:
+        return -1
+    if n == 1:
+        return 0
+    result: i64 =
+        while divisor <= n / divisor |divisor: mutable i64 = 2, total: mutable i64 = 1| -> total:
+            if n % divisor == 0:
+                total <- total + divisor
+                partner: i64 = n / divisor
+                if partner != divisor:
+                    total <- total + partner
+                if total > n:
+                    break total
+            divisor <- divisor + 1
+    if result > n:
+        return 1
+    0
+
+export fn abundant_number(n: i64) -> i64 = abundant_number_impl(n)

@@ -1,0 +1,64 @@
+def area_of_polygon_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 1057:
+        return -1
+    polygon_count_value: i64 = values[0]
+    if polygon_count_value < 0 or polygon_count_value > 32:
+        return -1
+    polygon_count: usize = polygon_count_value.usize()
+    if polygon_count == 0 and length != 1:
+        return -1
+
+    valid_input: bool =
+        while polygon < polygon_count |polygon: mutable usize = 0, cursor: mutable usize = 1, total_vertices: mutable usize = 0, valid: mutable bool = true| -> valid:
+            if cursor >= length:
+                break false
+            vertex_count_value: i64 = values[cursor]
+            if vertex_count_value < 3 or vertex_count_value > 128:
+                break false
+            vertex_count: usize = vertex_count_value.usize()
+            if total_vertices + vertex_count > 512 or 2 * vertex_count > length - cursor - 1:
+                break false
+            coordinates_valid: bool =
+                for vertex in 0..<vertex_count |ok: mutable bool = true| -> ok:
+                    x: i64 = values[cursor + 1 + 2 * vertex]
+                    y: i64 = values[cursor + 2 + 2 * vertex]
+                    if x < -1000000 or x > 1000000 or y < -1000000 or y > 1000000:
+                        break false
+            if not coordinates_valid:
+                break false
+            cursor <- cursor + 1 + 2 * vertex_count
+            total_vertices <- total_vertices + vertex_count
+            polygon <- polygon + 1
+    if not valid_input:
+        return -1
+
+    cursor_after_validation: usize =
+        while polygon < polygon_count |polygon: mutable usize = 0, cursor: mutable usize = 1| -> cursor:
+            vertex_count: usize = values[cursor].usize()
+            cursor <- cursor + 1 + 2 * vertex_count
+            polygon <- polygon + 1
+    if cursor_after_validation != length:
+        return -1
+
+    checksum: i64 =
+        while polygon < polygon_count |polygon: mutable usize = 0, cursor: mutable usize = 1, total: mutable i64 = 0| -> total:
+            vertex_count: usize = values[cursor].usize()
+            points: usize = cursor + 1
+            previous_x: i64 = values[points + 2 * (vertex_count - 1)]
+            previous_y: i64 = values[points + 2 * (vertex_count - 1) + 1]
+            cross_sum: i64 =
+                for vertex in 0..<vertex_count |sum: mutable i64 = 0, previous_x: mutable i64 = previous_x, previous_y: mutable i64 = previous_y| -> sum:
+                    current_x: i64 = values[points + 2 * vertex]
+                    current_y: i64 = values[points + 2 * vertex + 1]
+                    sum <- sum + previous_x * current_y - current_x * previous_y
+                    previous_x <- current_x
+                    previous_y <- current_y
+            doubled_area: mutable i64 = cross_sum
+            if doubled_area < 0:
+                doubled_area <- -doubled_area
+            total <- total + (polygon + 1).i64() * (doubled_area + 1000000007)
+            cursor <- points + 2 * vertex_count
+            polygon <- polygon + 1
+    checksum
+
+export fn area_of_polygon_benchmark(values: i64&, length: usize) -> i64 = area_of_polygon_impl

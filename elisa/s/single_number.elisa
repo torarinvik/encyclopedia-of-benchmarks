@@ -1,0 +1,21 @@
+# XOR reduction for the signed 32-bit single-number contract.
+def single_number_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 257:
+        return -2147483649
+    bits: i64 =
+        while index < length |index: mutable usize = 0, accumulated: mutable i64 = 0| -> accumulated:
+            value: i64 = values[index]
+            if value < -2147483648 or value > 2147483647:
+                break -2147483649
+            word: mutable i64 = value
+            if word < 0:
+                word <- word + 4294967296
+            accumulated <- accumulated ^ word
+            index <- index + 1
+    if bits == -2147483649:
+        return bits
+    if bits > 2147483647:
+        return bits - 4294967296
+    bits
+
+export fn single_number(values: i64&, length: usize) -> i64 = single_number_impl(values, length)

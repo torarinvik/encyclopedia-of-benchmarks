@@ -12,11 +12,14 @@ def base16_impl(input: i64&, length: usize, output: mutable u8&, output_capacity
     mode: i64 = input[0]
     if mode == 0:
         count: usize = length - 1
+        valid_input: bool =
+            while index < length |index: mutable usize = 1, valid: mutable bool = true| -> valid:
+                if input[index] < 0 or input[index] > 255:
+                    break false
+                index <- index + 1
+        if not valid_input:
+            return -1
         output_length: usize = count * 2
-        while index < length |index: mutable usize = 1|:
-            if input[index] < 0 or input[index] > 255:
-                return -1
-            index <- index + 1
         if output_capacity < output_length:
             return -2
         while index < count |index: mutable usize = 0, output| -> output:
@@ -32,6 +35,7 @@ def base16_impl(input: i64&, length: usize, output: mutable u8&, output_capacity
             else:
                 output[2 * index + 1] <- (55 + low).u8()
             index <- index + 1
+            output
         output_length.i64()
     else:
         if mode != 1:
@@ -39,10 +43,13 @@ def base16_impl(input: i64&, length: usize, output: mutable u8&, output_capacity
         encoded_length: usize = length - 1
         if encoded_length % 2 != 0:
             return -1
-        while index < length |index: mutable usize = 1|:
-            if base16_nibble(input[index]) < 0:
-                return -1
-            index <- index + 1
+        valid_input: bool =
+            while index < encoded_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+                if base16_nibble(input[index + 1]) < 0:
+                    break false
+                index <- index + 1
+        if not valid_input:
+            return -1
         output_length: usize = encoded_length / 2
         if output_capacity < output_length:
             return -2
@@ -51,6 +58,7 @@ def base16_impl(input: i64&, length: usize, output: mutable u8&, output_capacity
             low: i64 = base16_nibble(input[2 + 2 * index])
             output[index] <- (high * 16 + low).u8()
             index <- index + 1
+            output
         output_length.i64()
 
 export fn base16(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = base16_impl

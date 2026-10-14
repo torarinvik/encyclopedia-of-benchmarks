@@ -1,7 +1,6 @@
 # Convert a signed 64-bit integer to canonical negabinary digits.
 def base_neg2_conversion_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length != 1:
-        return -1
+    return -1 if length != 1
     width: mutable usize =
         while remaining != 0 |remaining: mutable i64 = input[0], count: mutable usize = 0| -> count:
             quotient: mutable i64 = remaining / -2
@@ -11,10 +10,10 @@ def base_neg2_conversion_impl(input: i64&, length: usize, output: mutable u8&, o
                 quotient <- quotient + 1
             remaining <- quotient
             count <- count + 1
-    if input[0] == 0:
-        width <- 1
-    if output_capacity < width:
-        return -2
+
+    width <- 1 if input[0] == 0
+    return -2 if output_capacity < width
+
     top: mutable usize =
         while remaining != 0 |remaining: mutable i64 = input[0], position: mutable usize = 0, output| -> position:
             quotient: mutable i64 = remaining / -2

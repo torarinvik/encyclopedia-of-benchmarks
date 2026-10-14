@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "fibonacci", "aliquot_sum", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "happy_number", "automorphic_number")
+ALGORITHMS = ("factorial", "fibonacci", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "happy_number", "automorphic_number")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -140,6 +140,23 @@ def oracle(algorithm: str, n: int) -> int:
             sigma *= remaining + 1
         result = sigma - n
         return result if result <= I64_MAX else -1
+    if algorithm == "abundant_number":
+        if not 1 <= n <= 1_000_000_000:
+            return -1
+        # Multiplicative sigma oracle; ports instead scan factor pairs.
+        remaining, sigma, factor = n, 1, 2
+        while factor <= remaining // factor:
+            if remaining % factor == 0:
+                prime_power, term = 1, 1
+                while remaining % factor == 0:
+                    remaining //= factor
+                    prime_power *= factor
+                    term += prime_power
+                sigma *= term
+            factor = 3 if factor == 2 else factor + 2
+        if remaining > 1:
+            sigma *= remaining + 1
+        return int(sigma > 2 * n)
     raise ValueError(f"no independent oracle for {algorithm}")
 
 
@@ -159,6 +176,12 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update(rng.randrange(1, 10001) for _ in range(128))
         # Positive extremes are intentionally not sent through an O(n) implementation.
         inputs.update([I64_MIN, -1000, -2])
+    elif algorithm == "abundant_number":
+        inputs.update(range(-16, 10000))
+        inputs.update(rng.randrange(1, 10_000_001) for _ in range(128))
+        inputs.update([I64_MIN, -1, 0, 1, 2, 6, 12, 20, 28, 945,
+                       999_999_936, 999_999_937, 1_000_000_000,
+                       1_000_000_001, I64_MAX])
     elif algorithm == "armstrong_number":
         inputs.update(range(10000))
         inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(256))

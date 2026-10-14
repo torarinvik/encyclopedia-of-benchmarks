@@ -6,7 +6,7 @@ This benchmark computes the area of one or more ordered polygon boundaries with 
 
 - Input is `[polygon_count, vertex_count_0, x_0, y_0, ...]`, followed by each polygon's vertex count and ordered coordinate pairs.
 - There are 0 through 32 polygons. Every polygon has 3 through 128 vertices, and the complete input has at most 512 vertices.
-- Coordinates are in `[-1,000,000, 1,000,000]`. Vertices may describe clockwise or counterclockwise simple polygons, including concave polygons. A repeated closing vertex is allowed.
+- Coordinates are in `[-1,000,000, 1,000,000]`. Vertex order may be clockwise or counterclockwise and may describe concave or self-intersecting boundaries; self-intersections use the absolute algebraic shoelace result. A repeated closing vertex is allowed.
 - For polygon `i`, let `cross = sum(x_j*y_(j+1) - x_(j+1)*y_j)` with indices wrapping around. Its returned doubled area is `abs(cross)`. The scalar result is the weighted sum `(i+1) * (doubled_area + 1,000,000,007)`.
 - An empty polygon list returns zero. Malformed counts, coordinates, lengths, or trailing values return `-1`.
 

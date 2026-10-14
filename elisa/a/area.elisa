@@ -1,0 +1,185 @@
+def area_integer_sqrt(value: i64) -> i64:
+    if value <= 0:
+        return 0
+    while low <= high |low: mutable i64 = 0, high: mutable i64 = 3037000499, answer: mutable i64 = 0| -> answer:
+        middle: i64 = low + (high - low) / 2
+        if middle == 0 or middle <= value / middle:
+            answer <- middle
+            low <- middle + 1
+        else:
+            high <- middle - 1
+
+def area_scale_pi(value: i64) -> i64:
+    value * 3 + value * 141592654 / 1000000000
+
+def area_scale_pi_squared(value: i64) -> i64:
+    value * 9 + value * 869604401 / 1000000000
+
+def area_regular_polygon_coefficient(sides: i64) -> i64:
+    if sides == 3:
+        return 433012701
+    if sides == 4:
+        return 1000000000
+    if sides == 5:
+        return 1720477400
+    if sides == 6:
+        return 2598076211
+    if sides == 7:
+        return 3633912444
+    if sides == 8:
+        return 4828427124
+    if sides == 9:
+        return 6181824193
+    if sides == 10:
+        return 7694208842
+    if sides == 11:
+        return 9365639906
+    if sides == 12:
+        return 11196152422
+    if sides == 13:
+        return 13185768328
+    if sides == 14:
+        return 15334501936
+    if sides == 15:
+        return 17642362910
+    if sides == 16:
+        return 20109357968
+    if sides == 17:
+        return 22735491898
+    if sides == 18:
+        return 25520768188
+    if sides == 19:
+        return 28465189427
+    if sides == 20:
+        return 31568757573
+    if sides == 21:
+        return 34831474123
+    if sides == 22:
+        return 38253340244
+    if sides == 23:
+        return 41834356852
+    if sides == 24:
+        return 45574524676
+    if sides == 25:
+        return 49473844301
+    if sides == 26:
+        return 53532316204
+    if sides == 27:
+        return 57749940771
+    if sides == 28:
+        return 62126718324
+    if sides == 29:
+        return 66662649129
+    if sides == 30:
+        return 71357733406
+    if sides == 31:
+        return 76211971344
+    if sides == 32:
+        return 81225363100
+    -1
+
+def area_milli(operation: i64, a: i64, b: i64, c: i64) -> i64:
+    if operation == 0:
+        return a * a * 1000
+    if operation == 1:
+        return a * b * 1000
+    if operation == 2:
+        return a * b * 500
+    if operation == 3:
+        return area_scale_pi(a * a * 1000)
+    if operation == 4:
+        return a * b * 1000
+    if operation == 5:
+        return (a + b) * c * 500
+    if operation == 6:
+        perimeter: i64 = a + b + c
+        if a + b < c or a + c < b or b + c < a:
+            return -1
+        radicand: i64 = perimeter * (perimeter - 2 * a) * (perimeter - 2 * b) * (perimeter - 2 * c)
+        return area_integer_sqrt(radicand * 1000000) / 4
+    if operation == 7:
+        return area_scale_pi(a * b * 1000)
+    if operation == 8:
+        return a * b * 500
+    if operation == 9:
+        return 6 * a * a * 1000
+    if operation == 10:
+        return 2 * (a * b + a * c + b * c) * 1000
+    if operation == 11:
+        return area_scale_pi(4 * a * a * 1000)
+    if operation == 12:
+        return area_scale_pi(3 * a * a * 1000)
+    if operation == 13:
+        return area_scale_pi(2 * a * (b + a) * 1000)
+    if operation == 14:
+        return area_scale_pi(2 * a * b * 1000)
+    if operation == 15:
+        slant_milli: i64 = area_integer_sqrt((a * a + b * b) * 1000000)
+        return area_scale_pi(a * a * 1000 + a * slant_milli)
+    if operation == 16:
+        slant_milli: i64 = area_integer_sqrt((a * a + b * b) * 1000000)
+        return area_scale_pi(a * slant_milli)
+    if operation == 17:
+        return (a * a + 2 * a * b) * 1000
+    if operation == 18:
+        difference: mutable i64 = a - b
+        if difference < 0:
+            difference <- -difference
+        slant_milli: i64 = area_integer_sqrt((c * c + difference * difference) * 1000000)
+        return area_scale_pi((a * a + b * b) * 1000 + (a + b) * slant_milli)
+    if operation == 19:
+        return area_scale_pi_squared(4 * a * b * 1000)
+    if operation == 20:
+        coefficient: i64 = area_regular_polygon_coefficient(a)
+        if coefficient < 0:
+            return -1
+        return coefficient * b * b / 1000000
+    if operation == 21:
+        coefficient: i64 = area_regular_polygon_coefficient(a)
+        if coefficient < 0:
+            return -1
+        base_area: i64 = coefficient * b * b / 1000000
+        return 2 * base_area + a * b * c * 1000
+    -1
+
+def area_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 1025:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 256:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 4 * count:
+        return -1
+
+    valid: bool =
+        for index in 0..<count |ok: mutable bool = true| -> ok:
+            position: usize = 1 + 4 * index
+            operation: i64 = values[position]
+            a: i64 = values[position + 1]
+            b: i64 = values[position + 2]
+            c: i64 = values[position + 3]
+            if operation < 0 or operation > 21 or a < 0 or a > 1000 or b < 0 or b > 1000 or c < 0 or c > 1000:
+                break false
+            if (operation == 0 or operation == 3 or operation == 9 or operation == 11 or operation == 12) and (b != 0 or c != 0):
+                break false
+            if ((operation >= 1 and operation <= 2) or operation == 4 or (operation >= 7 and operation <= 8) or (operation >= 13 and operation <= 17) or operation == 19 or operation == 20) and c != 0:
+                break false
+    if not valid:
+        return -1
+
+    checksum: i64 =
+        while index < count |index: mutable usize = 0, total: mutable i64 = 0| -> total:
+            position: usize = 1 + 4 * index
+            operation: i64 = values[position]
+            a: i64 = values[position + 1]
+            b: i64 = values[position + 2]
+            c: i64 = values[position + 3]
+            result: i64 = area_milli(operation, a, b, c)
+            if result < 0:
+                break -1
+            total <- total + (index + 1).i64() * (result + 1000000007)
+            index <- index + 1
+    checksum
+
+export fn area_benchmark(values: i64&, length: usize) -> i64 = area_impl

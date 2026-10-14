@@ -365,8 +365,18 @@
       "source_repositories": [
         "Dart"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -375,7 +385,9 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/dynamic_programming/01knapsack_recursive.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Dart source uses the direct recursive include-or-exclude recurrence without memoization. It is kept distinct from the bottom-up tabulation benchmark so their runtime and call-stack behavior can be compared. The shared contract bounds the item count to 16 to keep the exponential recurrence practical and defines malformed inputs explicitly.",
+      "benchmark_contract": "benchmarks/0-9/01knapsack_recursive/README.md"
     },
     {
       "candidate_id": "02_imdb_binary_classification",
@@ -435,7 +447,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -444,7 +456,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "review_notes": "The pinned C LeetCode source solves the Two Sum problem with nested scans under the source problem's single-solution assumption. It overwrites the result for each matching pair, so multiple matches select the last pair in scan order, and a no-solution input returns a zero-filled pair. The shared benchmark defines an explicit no-pair sentinel and a deterministic earliest-pair rule; this numeric filename is reviewed as an alias of that standardized Two Sum contract.",
+      "benchmark_contract": "benchmarks/t/two_sum/README.md",
+      "alias_of": "two_sum"
     },
     {
       "candidate_id": "10",
@@ -455,7 +470,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -464,7 +479,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/10.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "review_notes": "The pinned C LeetCode source performs recursive full-string matching with '.' for one character and '*' for zero or more repetitions of its preceding atom. It has the same matching semantics as the Python recursive_match implementation and aliases that contract.",
+      "benchmark_contract": "benchmarks/r/regex_match/README.md",
+      "alias_of": "regex_match"
     },
     {
       "candidate_id": "1008",
@@ -3912,15 +3930,16 @@
     },
     {
       "candidate_id": "abs_max",
-      "source_repository_count": 4,
+      "source_repository_count": 5,
       "source_repositories": [
         "Dart",
         "F-Sharp",
+        "Python",
         "Ruby",
         "Scala"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -3935,6 +3954,13 @@
           "path": "Algorithms/Math/AbsMax.fs",
           "url": "https://github.com/TheAlgorithms/F-Sharp/blob/e5441e8bfd2cda87541634b75f39f0868447ae5f/Algorithms/Math/AbsMax.fs",
           "local_folder_source": null
+        },
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "maths/abs.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/abs.py",
+          "local_source_folder": null
         },
         {
           "repository": "Ruby",
@@ -3954,15 +3980,16 @@
     },
     {
       "candidate_id": "abs_min",
-      "source_repository_count": 4,
+      "source_repository_count": 5,
       "source_repositories": [
         "Dart",
         "F-Sharp",
+        "Python",
         "Ruby",
         "Scala"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -3977,6 +4004,13 @@
           "path": "Algorithms/Math/AbsMin.fs",
           "url": "https://github.com/TheAlgorithms/F-Sharp/blob/e5441e8bfd2cda87541634b75f39f0868447ae5f/Algorithms/Math/AbsMin.fs",
           "local_folder_source": null
+        },
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "maths/abs.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/abs.py",
+          "local_source_folder": null
         },
         {
           "repository": "Ruby",
@@ -4001,8 +4035,20 @@
         "Java",
         "PHP"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned Java implementation selects by absolute magnitude and resolves equal magnitudes in favor of the greater signed value. The PHP function performs ordinary numeric maximum and is recorded as a semantic mismatch.",
+      "benchmark_contract": "benchmarks/a/absolute_max/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -4027,8 +4073,20 @@
         "Java",
         "PHP"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned Java implementation selects by absolute magnitude and resolves equal magnitudes in favor of the smaller signed value. The PHP function performs ordinary numeric minimum and is recorded as a semantic mismatch.",
+      "benchmark_contract": "benchmarks/a/absolute_min/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -4081,8 +4139,20 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned Java method compares the sum of all divisors with twice the input, which is equivalent to checking whether the positive proper-divisor sum exceeds the number. The Python abundant_numbers implementation checks the same predicate by divisor pairs. The shared contract bounds positive inputs to 1,000,000,000 and defines an out-of-range sentinel.",
+      "benchmark_contract": "benchmarks/a/abundant_number/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -4100,7 +4170,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -4109,7 +4179,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/abundant_numbers.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "abundant_number",
+      "review_notes": "The pinned Python plural-name file implements the same abundant-number predicate as the canonical Java candidate and shares its benchmark contract.",
+      "benchmark_contract": "benchmarks/a/abundant_number/README.md"
     },
     {
       "candidate_id": "accepter",
@@ -5966,9 +6039,19 @@
         "Solidity"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The eight pinned files collect overlapping formulas for plane areas and solid surface areas. The shared benchmark covers 22 shape formulas under a bounded, deterministic fixed-point contract. Generic polygon shoelace area is tracked separately as area_of_polygon; callback-based trapezoidal integration is excluded from this shape-formula set.",
+      "benchmark_contract": "benchmarks/a/area/README.md",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -6055,7 +6138,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -72239,7 +72322,18 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -72248,7 +72342,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/regex_match.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source exposes both direct recursive and dynamic-programming implementations of full-string matching for '.' and '*' applied to the preceding atom. The benchmark selects the direct recursive method, also present in the C LeetCode candidate 10, and bounds lengths to keep exponential backtracking practical. The Java candidate named regex_matching uses a different wildcard grammar and is not part of this contract.",
+      "benchmark_contract": "benchmarks/r/regex_match/README.md"
     },
     {
       "candidate_id": "regex_matching",

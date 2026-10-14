@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "absolute-minimum-signed-tie-v1",
+  "algorithm": "absolute_min",
+  "function_symbol": "absolute_min_benchmark",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[value_count, value_0, ..., value_n]",
+    "value_count_range": [1, 256],
+    "value_range": [-1000000000, 1000000000],
+    "maximum_input_values": 257,
+    "invalid_result": -1,
+    "result": "signed value with least absolute magnitude; negative value wins equal-magnitude ties"
+  },
+  "cases": [
+    {"id": "negative_wins_positive_first", "input_values": [2, 5, -5], "input_length": 3, "expected_result": -5},
+    {"id": "negative_wins_positive_last", "input_values": [2, -5, 5], "input_length": 3, "expected_result": -5},
+    {"id": "smallest_magnitude", "input_values": [4, -20, 4, -2, 8], "input_length": 5, "expected_result": -2},
+    {"id": "zero_is_minimum", "input_values": [3, -1, 0, 2], "input_length": 4, "expected_result": 0},
+    {"id": "singleton", "input_values": [1, -7], "input_length": 2, "expected_result": -7},
+    {"id": "signed_bound_tie", "input_values": [2, 1000000000, -1000000000], "input_length": 3, "expected_result": -1000000000},
+    {"id": "invalid_empty_sequence", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "invalid_truncated_sequence", "input_values": [2, 1], "input_length": 2, "expected_result": -1},
+    {"id": "invalid_out_of_range", "input_values": [1, -1000000001], "input_length": 2, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call"}
+}

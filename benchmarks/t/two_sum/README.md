@@ -40,8 +40,9 @@ python3 benchmarks/verify_two_sum.py --elisa-compiler /absolute/path/to/elisac
 
 ## TheAlgorithms references
 
-The inspected implementations use a hash table to find a complement while scanning the input. Their pair ordering differs: the Rust implementation returns the current index first, while Python and JavaScript return the earlier index first. This contract returns indices in ascending order and explicitly fixes the tie rule.
+Most inspected implementations use a hash table to find a complement while scanning the input. The C LeetCode source instead uses nested scans, overwrites the result whenever it finds another pair, and returns a zero-filled pair when there is no solution; it assumes the source problem's single-solution input constraints. Pair ordering also differs: the Rust implementation returns the current index first, while Python and JavaScript return the earlier index first. This contract returns indices in ascending order, defines a no-pair result, and explicitly fixes the tie rule.
 
 - [Rust `two_sum.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/two_sum.rs)
+- [C LeetCode `1.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1.c)
 - [Python `two_sum.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/two_sum.py)
 - [JavaScript `TwoSum.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/TwoSum.js)

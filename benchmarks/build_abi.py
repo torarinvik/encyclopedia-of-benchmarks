@@ -91,8 +91,12 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
+        compile_source = source
+        if not algorithm[0].isalpha():
+            compile_source = directory / f"module_{algorithm}.nim"
+            compile_source.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
         run([compiler, "c", *flags,
-             f"--nimcache:{directory / 'nimcache'}", f"--out:{artifact}", str(source)])
+             f"--nimcache:{directory / 'nimcache'}", f"--out:{artifact}", str(compile_source)])
     elif language == "odin":
         flags = ["-file", "-build-mode:obj", "-no-entry-point", "-o:speed", "-microarch:generic"]
         run([compiler, "build", str(source), *flags, f"-out:{artifact}"])

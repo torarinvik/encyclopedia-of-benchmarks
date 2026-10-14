@@ -83,18 +83,15 @@ def corpus(workload: dict) -> tuple[str, int]:
         polygon_count = rng.randrange(MAX_POLYGONS + 1)
         packed = [polygon_count]
         remaining = MAX_TOTAL_VERTICES
-        for _polygon in range(polygon_count):
-            if remaining < 3:
-                break
-            vertex_count = rng.randrange(3, min(MAX_VERTICES_PER_POLYGON, remaining) + 1)
+        for polygon in range(polygon_count):
+            largest_count = min(MAX_VERTICES_PER_POLYGON,
+                                remaining - 3 * (polygon_count - polygon - 1))
+            vertex_count = rng.randrange(3, largest_count + 1)
             packed.append(vertex_count)
             for _vertex in range(vertex_count):
                 packed.extend((rng.randrange(-COORDINATE_LIMIT, COORDINATE_LIMIT + 1),
                                rng.randrange(-COORDINATE_LIMIT, COORDINATE_LIMIT + 1)))
             remaining -= vertex_count
-        if len(packed) == 1 + sum(1 for _ in range(polygon_count)) + 2 * sum(
-                packed[index] for index in []):
-            pass
         include(packed)
 
     include((1, 128, *(coordinate for index in range(128)

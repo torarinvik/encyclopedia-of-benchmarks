@@ -1,0 +1,30 @@
+def abs_max_magnitude(value: i64) -> i64:
+    if value < 0:
+        return -value
+    value
+
+def abs_max_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 257:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256 or length != count_value.usize() + 1:
+        return -1
+
+    valid_values: bool =
+        for index in 1..<length |valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < -1000000000000 or value > 1000000000000:
+                break false
+    if not valid_values:
+        return -1
+
+    result: i64 =
+        for index in 2..<length |best: mutable i64 = values[1]| -> best:
+            candidate: i64 = values[index]
+            candidate_magnitude: i64 = abs_max_magnitude(candidate)
+            best_magnitude: i64 = abs_max_magnitude(best)
+            if candidate_magnitude > best_magnitude:
+                best <- candidate
+    result
+
+export fn abs_max_benchmark(values: i64&, length: usize) -> i64 = abs_max_impl(values, length)

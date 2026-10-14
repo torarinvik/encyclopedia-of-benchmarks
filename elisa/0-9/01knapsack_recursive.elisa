@@ -1,0 +1,32 @@
+# Direct include-or-exclude recursion for the shared 0/1 knapsack contract.
+def knapsack_01_recursive_solve(items_data: i64&, item_count: usize, capacity: i64) -> i64:
+    if item_count == 0 or capacity == 0:
+        return 0
+    offset: usize = 2 + 2 * (item_count - 1)
+    weight: i64 = items_data[offset]
+    value: i64 = items_data[offset + 1]
+    if weight <= capacity:
+        take: i64 = value + knapsack_01_recursive_solve(items_data, item_count - 1, capacity - weight)
+        skip: i64 = knapsack_01_recursive_solve(items_data, item_count - 1, capacity)
+        if take > skip:
+            return take
+        return skip
+    knapsack_01_recursive_solve(items_data, item_count - 1, capacity)
+
+def knapsack_01_recursive_impl(items_data: i64&, length: usize) -> i64:
+    if length < 2 or length > 34:
+        return -1
+    capacity: i64 = items_data[0]
+    item_count: i64 = items_data[1]
+    if capacity < 0 or capacity > 512 or item_count < 0 or item_count > 16 or length != 2 + 2 * item_count.usize():
+        return -1
+    valid_items: bool =
+        for item in 0..<item_count.usize() |valid: mutable bool = true| -> valid:
+            offset: usize = 2 + 2 * item
+            if items_data[offset] < 1 or items_data[offset] > 4096 or items_data[offset + 1] < 0 or items_data[offset + 1] > 1000000000:
+                break false
+    if not valid_items:
+        return -1
+    knapsack_01_recursive_solve(items_data, item_count.usize(), capacity)
+
+export fn knapsack_01_recursive_benchmark(items_data: i64&, length: usize) -> i64 = knapsack_01_recursive_impl(items_data, length)

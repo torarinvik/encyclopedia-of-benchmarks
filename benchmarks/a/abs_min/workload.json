@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "absolute-minimum-magnitude-array-v1",
+  "algorithm": "abs_min",
+  "function_symbol": "abs_min_benchmark",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[value_count, value_0, ..., value_n]",
+    "value_count_range": [1, 256],
+    "value_range": [-1000000000000, 1000000000000],
+    "maximum_input_values": 257,
+    "invalid_result": -1,
+    "result": "first original signed value with minimum absolute magnitude"
+  },
+  "cases": [
+    {"id": "smallest_magnitude_zero", "input_values": [4, 0, 5, 1, 11], "input_length": 5, "expected_result": 0},
+    {"id": "negative_smallest_magnitude", "input_values": [3, 3, -10, -2], "input_length": 4, "expected_result": -2},
+    {"id": "equal_magnitude_keeps_first", "input_values": [4, -7, 7, 2, -2], "input_length": 5, "expected_result": 2},
+    {"id": "singleton_negative", "input_values": [1, -17], "input_length": 2, "expected_result": -17},
+    {"id": "large_opposite_magnitudes", "input_values": [2, -1000000000000, 999999999999], "input_length": 3, "expected_result": 999999999999},
+    {"id": "invalid_empty_sequence", "input_values": [0], "input_length": 1, "expected_result": -1},
+    {"id": "invalid_truncated_sequence", "input_values": [2, 1], "input_length": 2, "expected_result": -1},
+    {"id": "invalid_out_of_range", "input_values": [1, 1000000000001], "input_length": 2, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call"}
+}
