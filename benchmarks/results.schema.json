@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Encyclopedia of Benchmarks result record",
+  "description": "One correctness-checked implementation result for one workload case.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "algorithm",
+    "implementation",
+    "environment",
+    "workload",
+    "measurement"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "run_id": {"type": "string", "format": "date-time"},
+    "algorithm": {"type": "string", "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"},
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "source_path",
+        "source_sha256",
+        "runner_source_sha256",
+        "binary_sha256",
+        "compiler",
+        "compiler_version",
+        "build_flags",
+        "build_command"
+      ],
+      "properties": {
+        "language": {"type": "string"},
+        "source_path": {"type": "string"},
+        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "runner_source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "binary_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "compiler": {"type": "string"},
+        "compiler_version": {"type": "string"},
+        "build_flags": {"type": "string"},
+        "build_command": {"type": "string"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "os_release", "architecture", "cpu_model", "logical_cpu_count", "python_version"],
+      "properties": {
+        "os": {"type": "string"},
+        "os_release": {"type": "string"},
+        "architecture": {"type": "string"},
+        "cpu_model": {"type": ["string", "null"]},
+        "logical_cpu_count": {"type": ["integer", "null"], "minimum": 1},
+        "python_version": {"type": "string"}
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "spec_sha256", "input_length", "case", "target", "expected_result"],
+      "properties": {
+        "id": {"type": "string"},
+        "spec_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "input_length": {"type": "integer", "minimum": 0},
+        "case": {"type": "string"},
+        "target": {"type": "integer"},
+        "expected_result": {"type": "integer"}
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timer",
+        "timer_resolution_ns",
+        "comparison_model",
+        "target_comparisons_per_sample",
+        "warmup_rounds",
+        "repetitions_per_sample",
+        "samples_ns",
+        "observed_result",
+        "result_checksum"
+      ],
+      "properties": {
+        "timer": {"const": "C clock() process CPU time"},
+        "timer_resolution_ns": {"type": "number", "exclusiveMinimum": 0},
+        "comparison_model": {"type": "string"},
+        "target_comparisons_per_sample": {"type": "integer", "minimum": 1},
+        "warmup_rounds": {"type": "integer", "minimum": 0},
+        "repetitions_per_sample": {"type": "integer", "minimum": 1},
+        "samples_ns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "integer", "minimum": 0}
+        },
+        "observed_result": {"type": "integer"},
+        "result_checksum": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

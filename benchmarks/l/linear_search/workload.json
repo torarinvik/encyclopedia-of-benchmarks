@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "linear_search-v1",
+  "algorithm": "linear_search",
+  "input": {
+    "lengths": [0, 16, 1024, 65536, 1048576],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "((index * multiplier) mod modulus) - offset"
+    }
+  },
+  "cases": [
+    {"id": "first_hit", "target_from": "first", "expected_from": "first_index"},
+    {"id": "middle_hit", "target_from": "middle", "expected_from": "middle_index"},
+    {"id": "last_hit", "target_from": "last", "expected_from": "last_index"},
+    {"id": "miss", "target_from": "fixed", "target": 1000002, "expected": -1, "expected_from": "not_found"}
+  ],
+  "empty_input_case_ids": ["miss"],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "linear_scan",
+    "target_comparisons_per_sample": 250000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

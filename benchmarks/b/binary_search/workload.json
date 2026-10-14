@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "binary_search-v1",
+  "algorithm": "binary_search",
+  "input": {
+    "lengths": [0, 16, 1024, 65536, 1048576],
+    "generation": {
+      "kind": "ascending",
+      "multiplier": 2,
+      "offset": "length",
+      "formula": "values[index] = 2 * index - length"
+    }
+  },
+  "cases": [
+    {"id": "first_hit", "target_from": "first", "expected_from": "first_index"},
+    {"id": "middle_hit", "target_from": "middle", "expected_from": "middle_index"},
+    {"id": "last_hit", "target_from": "last", "expected_from": "last_index"},
+    {"id": "miss", "target_from": "fixed", "target": 2000001, "expected": -1, "expected_from": "not_found"}
+  ],
+  "empty_input_case_ids": ["miss"],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "binary_search",
+    "target_comparisons_per_sample": 250000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}
