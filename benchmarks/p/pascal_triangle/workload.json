@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "pascal-triangle-first-rows-v1",
+  "algorithm": "pascal_triangle",
+  "function_symbol": "pascal_triangle_benchmark",
+  "input": {
+    "kind": "single_i64_array_value",
+    "encoding": "[row_count]",
+    "row_count_range": [
+      0,
+      30
+    ],
+    "invalid_result": -1,
+    "output": "Rolling base-31 hash modulo 1,000,000,007 over the coefficients in row-major order.",
+    "numeric_bound": "The 30-row limit keeps every coefficient and the Rust reference recurrence intermediate within signed 32-bit range."
+  },
+  "cases": [
+    {
+      "id": "empty_triangle",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "first_row",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two_rows",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 993
+    },
+    {
+      "id": "three_rows",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 29583487
+    },
+    {
+      "id": "five_rows",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "expected_result": 10010755
+    },
+    {
+      "id": "ten_rows",
+      "input_values": [
+        10
+      ],
+      "input_length": 1,
+      "expected_result": 130460592
+    },
+    {
+      "id": "sixteen_rows",
+      "input_values": [
+        16
+      ],
+      "input_length": 1,
+      "expected_result": 670249286
+    },
+    {
+      "id": "twenty_nine_rows",
+      "input_values": [
+        29
+      ],
+      "input_length": 1,
+      "expected_result": 805751624
+    },
+    {
+      "id": "maximum_rows",
+      "input_values": [
+        30
+      ],
+      "input_length": 1,
+      "expected_result": 906019428
+    },
+    {
+      "id": "missing_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        3,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_row_count",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "row_count_above_limit",
+      "input_values": [
+        31
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "large_row_count",
+      "input_values": [
+        1000000000
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

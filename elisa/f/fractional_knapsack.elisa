@@ -1,0 +1,64 @@
+# Greedy fractional knapsack with exact fixed-point output.
+def fractional_knapsack_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 258:
+        return -1
+
+    capacity: i64 = values[0]
+    item_count_value: i64 = values[1]
+    if capacity < 0 or capacity > 1000000 or item_count_value < 0 or item_count_value > 128:
+        return -1
+    item_count: usize = item_count_value.usize()
+    if length != 2 + 2 * item_count:
+        return -1
+
+    initial_items: i64[256] =
+        for item in 0..<item_count |items: mutable i64[256] = zeroed| -> items:
+            weight: i64 = values[2 + 2 * item]
+            profit: i64 = values[3 + 2 * item]
+            if weight < 1 or weight > 1000000 or profit < 0 or profit > 1000000:
+                break items
+            items[2 * item] <- weight
+            items[2 * item + 1] <- profit
+
+    valid_items: bool =
+        while item < item_count |item: mutable usize = 0, valid: mutable bool = true| -> valid:
+            weight: i64 = values[2 + 2 * item]
+            profit: i64 = values[3 + 2 * item]
+            if weight < 1 or weight > 1000000 or profit < 0 or profit > 1000000:
+                break false
+            item <- item + 1
+    if not valid_items:
+        return -1
+
+    sorted_items: i64[256] =
+        for index in 1..<item_count |items: mutable i64[256] = initial_items| -> items:
+            sorted: i64[256] =
+                while position > 0 |position: mutable usize = index, row: mutable i64[256] = items| -> row:
+                    current_weight: i64 = row[2 * position]
+                    current_profit: i64 = row[2 * position + 1]
+                    previous_weight: i64 = row[2 * (position - 1)]
+                    previous_profit: i64 = row[2 * (position - 1) + 1]
+                    if previous_profit * current_weight < current_profit * previous_weight:
+                        row[2 * position] <- previous_weight
+                        row[2 * position + 1] <- previous_profit
+                        row[2 * (position - 1)] <- current_weight
+                        row[2 * (position - 1) + 1] <- current_profit
+                        position <- position - 1
+                    else:
+                        break row
+            items <- sorted
+
+    result: i64 =
+        while index < item_count and remaining > 0 |index: mutable usize = 0, remaining: mutable i64 = capacity, scaled_value: mutable i64 = 0| -> scaled_value:
+            weight: i64 = sorted_items[2 * index]
+            profit: i64 = sorted_items[2 * index + 1]
+            if remaining >= weight:
+                scaled_value <- scaled_value + profit * 1000000
+                remaining <- remaining - weight
+            else:
+                scaled_value <- scaled_value + profit * remaining * 1000000 / weight
+                break scaled_value
+            index <- index + 1
+    result
+
+export fn fractional_knapsack_benchmark(values: i64&, length: usize) -> i64 = fractional_knapsack_impl

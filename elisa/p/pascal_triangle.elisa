@@ -1,0 +1,25 @@
+# Generate the first rows of Pascal's triangle using descending in-place sums.
+def pascal_triangle_impl(values: i64&, length: usize) -> i64:
+    if length != 1:
+        return -1
+    row_count_value: i64 = values[0]
+    if row_count_value < 0 or row_count_value > 30:
+        return -1
+    row_count: usize = row_count_value.usize()
+
+    initial_row: i64[30] =
+        for index in 0..<1 |row: mutable i64[30] = zeroed| -> row:
+            row[index] <- 1
+
+    result: i64 =
+        while row_index < row_count |row_index: mutable usize = 0, row: mutable i64[30] = initial_row, hash: mutable i64 = 0| -> hash:
+            if row_index > 0:
+                row <- while column > 0 |column: mutable usize = row_index, values_row: mutable i64[30] = row| -> values_row:
+                    values_row[column] <- values_row[column] + values_row[column - 1]
+                    column <- column - 1
+            hash <- for column in 0..<(row_index + 1) |current_hash: mutable i64 = hash| -> current_hash:
+                current_hash <- (current_hash * 31 + row[column] % 1000000007) % 1000000007
+            row_index <- row_index + 1
+    result
+
+export fn pascal_triangle_benchmark(values: i64&, length: usize) -> i64 = pascal_triangle_impl

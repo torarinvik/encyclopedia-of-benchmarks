@@ -1,0 +1,65 @@
+def fenwick_tree_lowbit(index: usize) -> usize:
+    index & (~index + 1)
+
+def fenwick_tree_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 1538:
+        return -1
+    item_count_value: i64 = values[0]
+    operation_count_value: i64 = values[1]
+    if item_count_value < 1 or item_count_value > 256 or operation_count_value < 0 or operation_count_value > 512:
+        return -1
+    item_count: usize = item_count_value.usize()
+    operation_count: usize = operation_count_value.usize()
+    if length != 2 + 3 * operation_count:
+        return -1
+
+    valid_operations: bool =
+        for operation in 0..<operation_count |valid: mutable bool = true| -> valid:
+            position: usize = 2 + 3 * operation
+            opcode: i64 = values[position]
+            first: i64 = values[position + 1]
+            second: i64 = values[position + 2]
+            if opcode == 0:
+                if first < 0 or first >= item_count_value or second < -1000000 or second > 1000000:
+                    break false
+            elif opcode == 1:
+                if first < 0 or second < first or second >= item_count_value:
+                    break false
+            else:
+                break false
+    if not valid_operations:
+        return -1
+
+    result: i64 =
+        while operation <= operation_count |operation: mutable usize = 0, tree: mutable i64[257] = zeroed, data: mutable i64[256] = zeroed, checksum: mutable i64 = 0| -> checksum:
+            if operation == operation_count:
+                final_checksum: i64 =
+                    for index in 0..<item_count |total: mutable i64 = 0| -> total:
+                        total <- total + (operation_count + index + 1).i64() * (data[index] + 512000001)
+                checksum <- checksum + final_checksum
+                break checksum
+            position: usize = 2 + 3 * operation
+            opcode: i64 = values[position]
+            first: usize = values[position + 1].usize()
+            second: i64 = values[position + 2]
+            if opcode == 0:
+                data[first] <- data[first] + second
+                tree <- while index <= item_count |index: mutable usize = first + 1, updated_tree: mutable i64[257] = tree| -> updated_tree:
+                    updated_tree[index] <- updated_tree[index] + second
+                    index <- index + fenwick_tree_lowbit(index)
+            else:
+                right: usize = second.usize()
+                right_prefix: i64 =
+                    while index > 0 |index: mutable usize = right + 1, total: mutable i64 = 0| -> total:
+                        total <- total + tree[index]
+                        index <- index - fenwick_tree_lowbit(index)
+                left_prefix: i64 =
+                    while index > 0 |index: mutable usize = first, total: mutable i64 = 0| -> total:
+                        total <- total + tree[index]
+                        index <- index - fenwick_tree_lowbit(index)
+                range_sum: i64 = right_prefix - left_prefix
+                checksum <- checksum + (operation + 1).i64() * (range_sum + 131072000001)
+            operation <- operation + 1
+    result
+
+export fn fenwick_tree_benchmark(values: i64&, length: usize) -> i64 = fenwick_tree_impl

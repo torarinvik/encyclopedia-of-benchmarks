@@ -1,0 +1,124 @@
+# Point assignment and inclusive range queries over sum, minimum, or maximum.
+def segment_tree_identity(mode: i64) -> i64:
+    if mode == 1:
+        return 1000001
+    elif mode == 2:
+        return -1000001
+    0
+
+def segment_tree_combine(mode: i64, left: i64, right: i64) -> i64:
+    if mode == 1:
+        if left < right:
+            return left
+        else:
+            return right
+    elif mode == 2:
+        if left > right:
+            return left
+        else:
+            return right
+    left + right
+
+def segment_tree_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or length > 1795:
+        return -1
+    mode: i64 = values[0]
+    item_count_value: i64 = values[1]
+    if mode < 0 or mode > 2 or item_count_value < 1 or item_count_value > 256:
+        return -1
+    item_count: usize = item_count_value.usize()
+    if length < item_count + 3:
+        return -1
+    operation_count_value: i64 = values[item_count + 2]
+    if operation_count_value < 0 or operation_count_value > 512:
+        return -1
+    operation_count: usize = operation_count_value.usize()
+    if length != item_count + 3 + 3 * operation_count:
+        return -1
+
+    valid_data: bool =
+        while index < item_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index + 2]
+            if value < -1000000 or value > 1000000:
+                break false
+            index <- index + 1
+    if not valid_data:
+        return -1
+
+    valid_operations: bool =
+        while operation < operation_count |operation: mutable usize = 0, valid: mutable bool = true| -> valid:
+            position: usize = item_count + 3 + 3 * operation
+            opcode: i64 = values[position]
+            first: i64 = values[position + 1]
+            second: i64 = values[position + 2]
+            if opcode == 0:
+                if first < 0 or first >= item_count_value or second < -1000000 or second > 1000000:
+                    break false
+            elif opcode == 1:
+                if first < 0 or second < first or second >= item_count_value:
+                    break false
+            else:
+                break false
+            operation <- operation + 1
+    if not valid_operations:
+        return -1
+
+    initial_data: i64[256] =
+        for index in 0..<item_count |data: mutable i64[256] = zeroed| -> data:
+            data[index] <- values[index + 2]
+
+    tree_base: usize =
+        while base < item_count |base: mutable usize = 1| -> base:
+            base <- base * 2
+    empty: i64 = segment_tree_identity(mode)
+
+    leaves: i64[512] =
+        for index in 0..<(2 * tree_base) |tree: mutable i64[512] = zeroed| -> tree:
+            if index >= tree_base:
+                if index < tree_base + item_count:
+                    tree[index] <- values[index - tree_base + 2]
+                else:
+                    tree[index] <- empty
+            else:
+                tree[index] <- empty
+
+    built_tree: i64[512] =
+        while build_step < tree_base - 1 |build_step: mutable usize = 0, tree: mutable i64[512] = leaves| -> tree:
+            node: usize = tree_base - build_step - 1
+            tree[node] <- segment_tree_combine(mode, tree[2 * node], tree[2 * node + 1])
+            build_step <- build_step + 1
+
+    result: i64 =
+        while operation <= operation_count |operation: mutable usize = 0, tree: mutable i64[512] = built_tree, data: mutable i64[256] = initial_data, checksum: mutable i64 = 0| -> checksum:
+            if operation == operation_count:
+                checksum <- for index in 0..<item_count |total: mutable i64 = checksum| -> total:
+                    total <- total + (operation_count + index + 1).i64() * (data[index] + 1000001)
+                break checksum
+
+            position: usize = item_count + 3 + 3 * operation
+            opcode: i64 = values[position]
+            first: usize = values[position + 1].usize()
+            if opcode == 0:
+                value: i64 = values[position + 2]
+                data[first] <- value
+                node: usize = tree_base + first
+                tree[node] <- value
+                tree <- while current_node > 1 |current_node: mutable usize = node, updated: mutable i64[512] = tree| -> updated:
+                    current_node <- current_node / 2
+                    updated[current_node] <- segment_tree_combine(mode, updated[2 * current_node], updated[2 * current_node + 1])
+            else:
+                query_result: i64 =
+                    while left < right |left: mutable usize = tree_base + first, right: mutable usize = tree_base + values[position + 2].usize() + 1, aggregate: mutable i64 = empty| -> aggregate:
+                        if left % 2 == 1:
+                            aggregate <- segment_tree_combine(mode, aggregate, tree[left])
+                            left <- left + 1
+                        if right % 2 == 1:
+                            right <- right - 1
+                            aggregate <- segment_tree_combine(mode, aggregate, tree[right])
+                        left <- left / 2
+                        right <- right / 2
+                checksum <- checksum + (operation + 1).i64() * (query_result + 256000001)
+            operation <- operation + 1
+    result
+
+export fn segment_tree_benchmark(values: i64&, length: usize) -> i64 = segment_tree_impl

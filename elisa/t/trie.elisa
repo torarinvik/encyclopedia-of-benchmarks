@@ -1,0 +1,98 @@
+# Fixed-capacity lowercase trie with set semantics and subtree word counts.
+def trie_impl(values: i64&, length: usize) -> i64:
+    if length > 1024:
+        return -1
+    if length == 0:
+        return 1000000
+
+    checksum: i64 =
+        while position < length |position: mutable usize = 0, operation: mutable usize = 0, children: mutable usize[26625] = zeroed, terminal: mutable bool[1024] = zeroed, subtree_words: mutable usize[1024] = zeroed, checksum: mutable i64 = 0, active_hash_sum: mutable i64 = 0| -> checksum:
+            if position + 1 >= length:
+                break -1
+            opcode: i64 = values[position]
+            word_length_value: i64 = values[position + 1]
+            if opcode < 0 or opcode > 5 or word_length_value < 0 or word_length_value > 128:
+                break -1
+            word_length: usize = word_length_value.usize()
+            if opcode == 5 and word_length != 0:
+                break -1
+            if word_length > length - position - 2:
+                break -1
+
+            word_hash: i64 =
+                while index < word_length |index: mutable usize = 0, hash: mutable i64 = (word_length + 1).i64()| -> hash:
+                    character: i64 = values[position + 2 + index]
+                    if character < 97 or character > 122:
+                        break -1
+                    hash <- (hash * 31 + character - 96) % 1000000007
+                    index <- index + 1
+            if word_hash < 0:
+                break -1
+            if operation == 0:
+                children[0] <- 1
+
+            observed: mutable i64 = 0
+            if opcode == 0:
+                children <- while index < word_length |index: mutable usize = 0, node: mutable usize = 1, table: mutable usize[26625] = children| -> table:
+                    letter: usize = (values[position + 2 + index] - 97).usize()
+                    edge: usize = (node - 1) * 26 + letter + 1
+                    child: mutable usize = table[edge]
+                    if child == 0:
+                        used: usize = table[0]
+                        table[0] <- used + 1
+                        child <- used + 1
+                        table[edge] <- child
+                    node <- child
+                    index <- index + 1
+                node: usize =
+                    while index < word_length |index: mutable usize = 0, current: mutable usize = 1| -> current:
+                        letter: usize = (values[position + 2 + index] - 97).usize()
+                        current <- children[(current - 1) * 26 + letter + 1]
+                        index <- index + 1
+                if not terminal[node - 1]:
+                    terminal[node - 1] <- true
+                    subtree_words <- while step <= word_length |step: mutable usize = 0, current: mutable usize = 1, counts: mutable usize[1024] = subtree_words| -> counts:
+                        counts[current - 1] <- counts[current - 1] + 1
+                        if step < word_length:
+                            letter: usize = (values[position + 2 + step] - 97).usize()
+                            current <- children[(current - 1) * 26 + letter + 1]
+                        step <- step + 1
+                    active_hash_sum <- active_hash_sum + word_hash
+                    observed <- 1
+            else:
+                node: usize =
+                    while traversed < word_length and current != 0 |traversed: mutable usize = 0, current: mutable usize = 1| -> current:
+                        letter: usize = (values[position + 2 + traversed] - 97).usize()
+                        current <- children[(current - 1) * 26 + letter + 1]
+                        traversed <- traversed + 1
+                if opcode == 1:
+                    if node != 0 and terminal[node - 1]:
+                        terminal[node - 1] <- false
+                        subtree_words <- while step <= word_length |step: mutable usize = 0, current: mutable usize = 1, counts: mutable usize[1024] = subtree_words| -> counts:
+                            counts[current - 1] <- counts[current - 1] - 1
+                            if step < word_length:
+                                letter: usize = (values[position + 2 + step] - 97).usize()
+                                current <- children[(current - 1) * 26 + letter + 1]
+                            step <- step + 1
+                        active_hash_sum <- active_hash_sum - word_hash
+                        observed <- 1
+                elif opcode == 2:
+                    if node != 0 and terminal[node - 1]:
+                        observed <- 1
+                elif opcode == 3:
+                    if node != 0 and subtree_words[node - 1] != 0:
+                        observed <- 1
+                elif opcode == 4:
+                    if node != 0:
+                        observed <- subtree_words[node - 1].i64()
+                else:
+                    observed <- subtree_words[0].i64()
+
+            checksum <- checksum + (operation + 1).i64() * (observed + 1000000)
+            operation <- operation + 1
+            position <- position + 2 + word_length
+            if position == length:
+                checksum <- checksum + (operation + 1).i64() * (active_hash_sum + 1000000)
+    checksum
+
+export fn trie_benchmark(values: i64&, length: usize) -> i64 = trie_impl

@@ -1,0 +1,75 @@
+def union_find_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 1538:
+        return -1
+    item_count_value: i64 = values[0]
+    operation_count_value: i64 = values[1]
+    if item_count_value < 1 or item_count_value > 256 or operation_count_value < 0 or operation_count_value > 512:
+        return -1
+    item_count: usize = item_count_value.usize()
+    operation_count: usize = operation_count_value.usize()
+    if length != 2 + 3 * operation_count:
+        return -1
+
+    valid_operations: bool =
+        for operation in 0..<operation_count |valid: mutable bool = true| -> valid:
+            position: usize = 2 + 3 * operation
+            opcode: i64 = values[position]
+            first: i64 = values[position + 1]
+            second: i64 = values[position + 2]
+            if opcode == 0 or opcode == 1:
+                if first < 0 or first >= item_count_value or second < 0 or second >= item_count_value:
+                    break false
+            elif opcode == 2:
+                if first != 0 or second != 0:
+                    break false
+            else:
+                break false
+    if not valid_operations:
+        return -1
+
+    initial_parent: i64[256] =
+        for index in 0..<item_count |parent: mutable i64[256] = zeroed| -> parent:
+            parent[index] <- index.i64()
+    initial_sizes: i64[256] =
+        for index in 0..<item_count |sizes: mutable i64[256] = zeroed| -> sizes:
+            sizes[index] <- 1
+
+    result: i64 =
+        while operation <= operation_count |operation: mutable usize = 0, parent: mutable i64[256] = initial_parent, sizes: mutable i64[256] = initial_sizes, components: mutable usize = item_count, connected_pairs: mutable i64 = 0, checksum: mutable i64 = 0| -> checksum:
+            if operation == operation_count:
+                checksum <- checksum + connected_pairs
+                break checksum
+            position: usize = 2 + 3 * operation
+            opcode: i64 = values[position]
+            first: usize = values[position + 1].usize()
+            second: usize = values[position + 2].usize()
+            observed: mutable i64 = 0
+            if opcode == 0:
+                first_root: usize = while parent[first_node] != first_node.i64() |first_node: mutable usize = first| -> first_node:
+                    first_node <- parent[first_node].usize()
+                second_root: usize = while parent[second_node] != second_node.i64() |second_node: mutable usize = second| -> second_node:
+                    second_node <- parent[second_node].usize()
+                if first_root != second_root:
+                    connected_pairs <- connected_pairs + sizes[first_root] * sizes[second_root]
+                    if sizes[first_root] < sizes[second_root]:
+                        parent[first_root] <- second_root.i64()
+                        sizes[second_root] <- sizes[second_root] + sizes[first_root]
+                    else:
+                        parent[second_root] <- first_root.i64()
+                        sizes[first_root] <- sizes[first_root] + sizes[second_root]
+                    components <- components - 1
+                    observed <- 1
+            elif opcode == 1:
+                first_root: usize = while parent[first_node] != first_node.i64() |first_node: mutable usize = first| -> first_node:
+                    first_node <- parent[first_node].usize()
+                second_root: usize = while parent[second_node] != second_node.i64() |second_node: mutable usize = second| -> second_node:
+                    second_node <- parent[second_node].usize()
+                if first_root == second_root:
+                    observed <- 1
+            else:
+                observed <- components.i64()
+            checksum <- checksum + (operation + 1).i64() * (observed + 1000003)
+            operation <- operation + 1
+    result
+
+export fn union_find_benchmark(values: i64&, length: usize) -> i64 = union_find_impl

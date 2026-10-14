@@ -1,0 +1,37 @@
+def ceil_division(numerator: i64, denominator: i64) -> i64:
+    if numerator >= 0:
+        quotient: mutable i64 = numerator / denominator
+        if numerator % denominator != 0:
+            quotient <- quotient + 1
+        quotient
+    else:
+        -((-numerator) / denominator)
+
+def ceil_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 513:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 256:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    valid_values: bool =
+        for index in 0..<count |valid: mutable bool = true| -> valid:
+            numerator: i64 = values[1 + 2 * index]
+            denominator: i64 = values[2 + 2 * index]
+            if numerator < -1000000000000 or numerator > 1000000000000 or denominator < 1 or denominator > 1000000:
+                break false
+    if not valid_values:
+        return -1
+
+    checksum: i64 =
+        for index in 0..<count |total: mutable i64 = 0| -> total:
+            numerator: i64 = values[1 + 2 * index]
+            denominator: i64 = values[2 + 2 * index]
+            result: i64 = ceil_division(numerator, denominator)
+            total <- total + (index + 1).i64() * (result + 1000000000001)
+    checksum
+
+export fn ceil_benchmark(values: i64&, length: usize) -> i64 = ceil_impl

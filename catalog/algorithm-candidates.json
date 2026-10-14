@@ -14667,7 +14667,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -14725,7 +14725,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/ceil.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "Reviewed the eight pinned sources in C-Sharp, Java, Julia, Mojo, Python, Ruby, Rust, and Zig. They aim to compute mathematical ceiling but vary in numeric bounds; Java preserves nonfinite or out-of-int-range values, Rust narrows through i32, and the current Zig implementation returns positive fractional inputs unchanged. The shared benchmark uses exact rational inputs with a positive denominator and checks mathematical ceiling using integer arithmetic.",
+      "benchmark_contract": "benchmarks/c/ceil/README.md"
     },
     {
       "candidate_id": "ceil_in_binary_search_tree",
@@ -15614,7 +15616,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned C++ copies and PHP source named check_prime all implement scalar primality by trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
+      "review_notes": "The pinned C++ copies and PHP source named check_prime all implement scalar primality by trial division. They share prime_check’s explicit signed 32-bit positive input range and result contract.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -22852,7 +22854,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -22903,7 +22905,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/data_structures/disjoint_set/disjoint_set.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Reviewed all seven pinned disjoint_set sources in C++ (two repositories), C-Sharp, Julia, PHP, Python, and TypeScript. They implement the same partition and set-union behavior as union_find, with path compression plus rank or size heuristics in most versions; C++ uses a one-based universe, while object-based versions carry values in nodes. This candidate aliases the shared zero-based union_find contract.",
+      "benchmark_contract": "benchmarks/u/union_find/README.md",
+      "alias_of": "union_find"
     },
     {
       "candidate_id": "disjoint_set_node",
@@ -22933,7 +22938,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -22949,7 +22954,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/disjoint_set_union.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Reviewed the pinned Java and Rust disjoint_set_union sources. Both implement the same partition and merge behavior as union_find, using node objects and rank in Java and indexed nodes with union by size in Rust. This candidate aliases the shared zero-based union_find contract.",
+      "benchmark_contract": "benchmarks/u/union_find/README.md",
+      "alias_of": "union_find"
     },
     {
       "candidate_id": "disjoint_set_union_by_size",
@@ -27492,7 +27500,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -27543,7 +27551,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/fenwick_tree.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Reviewed all seven pinned Fenwick-tree sources in C++ (two repositories), Java, JavaScript, Julia, Python, and Rust. They share point-add updates and prefix or range sums but differ in public indexing and whether ranges are inclusive or half-open. The shared contract standardizes zero-based point additions and inclusive range sums, with a bounded signed-64-bit workload.",
+      "benchmark_contract": "benchmarks/f/fenwick_tree/README.md"
     },
     {
       "candidate_id": "fenwicktree",
@@ -30124,18 +30134,35 @@
     },
     {
       "candidate_id": "fractional_knapsack",
-      "source_repository_count": 4,
+      "source_repository_count": 6,
       "source_repositories": [
+        "C-Plus-Plus",
+        "C-Plus-Plus-1",
         "Java",
         "Lua",
         "Python",
         "Rust"
       ],
       "local_source_folders": [
+        "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
+        {
+          "repository": "C-Plus-Plus",
+          "language": "C++",
+          "path": "greedy_algorithms/knapsack.cpp",
+          "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/greedy_algorithms/knapsack.cpp",
+          "local_folder_source": "cpp"
+        },
+        {
+          "repository": "C-Plus-Plus-1",
+          "language": "C++ (additional repository)",
+          "path": "greedy_algorithms/knapsack.cpp",
+          "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/greedy_algorithms/knapsack.cpp",
+          "local_folder_source": "cpp"
+        },
         {
           "repository": "Java",
           "language": "Java",
@@ -30163,8 +30190,17 @@
           "path": "src/dynamic_programming/fractional_knapsack.rs",
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/fractional_knapsack.rs",
           "local_folder_source": "rust"
+        },
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "greedy_methods/fractional_knapsack_2.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/greedy_methods/fractional_knapsack_2.py",
+          "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The seven pinned implementations solve fractional knapsack by ordering items by value-to-weight ratio and taking a fraction of the final item when needed. The two C++ files were discovered under the generic knapsack filename and are cross-listed here because they implement the fractional problem. The second Python filename is another implementation of the same greedy algorithm. The benchmark standardizes positive integer weights, nonnegative integer values, exact ratio comparisons, and a six-decimal fixed-point result.",
+      "benchmark_contract": "benchmarks/f/fractional_knapsack/README.md"
     },
     {
       "candidate_id": "fractional_knapsack_2",
@@ -30173,7 +30209,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -30182,7 +30218,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/greedy_methods/fractional_knapsack_2.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "fractional_knapsack",
+      "review_notes": "This second Python source uses the fractional knapsack greedy strategy: it orders by value-to-weight ratio, takes whole items while they fit, and takes a fraction of the next item. Its fractional selection semantics match the shared fractional_knapsack contract on the benchmark’s bounded positive-weight integer input domain.",
+      "benchmark_contract": "benchmarks/f/fractional_knapsack/README.md"
     },
     {
       "candidate_id": "fractionated_morse_cipher",
@@ -39178,7 +39217,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned Kotlin and Lua sources named is_prime test the same mathematical primality predicate. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract, including negative inputs returning false.",
+      "review_notes": "The pinned Kotlin and Lua sources named is_prime test the same mathematical primality predicate. They share prime_check’s explicit signed 32-bit positive input range and result contract, including negative inputs returning false.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -41997,7 +42036,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -42076,7 +42115,10 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dynamicProgramming/knapsack.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "alias_of": "knapsack_zero_one_tabulation",
+      "review_notes": "The ten-repository filename group mixes knapsack variants. Its Go, Java, Python, Ruby, Rust, Solidity, TypeScript, and Zig sources implement 0/1 knapsack; the two C++ files implement fractional knapsack and are cross-listed with that candidate. Python recursive knapsack defaults to 0/1 and also offers an optional unbounded mode. This candidate aliases the shared 0/1 tabulation contract; fractional_knapsack has a separate benchmark.",
+      "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md"
     },
     {
       "candidate_id": "knapsack_memoization",
@@ -42151,7 +42193,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "Inspected the pinned Java tabulation source. Its two-dimensional table uses the standard 0/1 recurrence over items and capacities. The pinned C++ 0_1_knapsack and Kotlin zero_one_knapsack_problem sources use the same bottom-up recurrence; their source filenames are recorded as aliases. The shared implementation stores one row and scans capacities downward so each item is still used at most once.",
+      "review_notes": "Inspected the pinned Java tabulation source. Its two-dimensional table uses the standard 0/1 recurrence over items and capacities. The pinned C++ 0_1_knapsack and Kotlin zero_one_knapsack_problem sources use the same bottom-up recurrence; their source filenames are recorded as aliases. The shared implementation stores one row and scans capacities downward so each item is still used at most once. The mixed generic knapsack filename candidate is also an alias for its 0/1 variants; its two C++ fractional-knapsack files are tracked under fractional_knapsack.",
       "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md"
     },
     {
@@ -55543,7 +55585,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k\u00b11 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload.",
+      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k±1 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload.",
       "benchmark_contract": "benchmarks/n/next_prime_number/README.md"
     },
     {
@@ -58816,7 +58858,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -58867,7 +58909,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/pascal_triangle.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The seven pinned implementations generate the first N rows of Pascal’s triangle; the C++ copies render a centered triangle, while Java, JavaScript, Python, R, and Rust return or construct row values. The shared benchmark hashes coefficients in row-major order and limits input to 0 through 30 rows so coefficients and the Rust reference’s 32-bit recurrence intermediates remain representable.",
+      "benchmark_contract": "benchmarks/p/pascal_triangle/README.md"
     },
     {
       "candidate_id": "pascal_triangle_ii",
@@ -59395,7 +59439,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned implementations test whether a signed integer is a perfect cube, and Rust explicitly accepts negative perfect cubes. The Python source includes both a floating cube-root method and an exact binary-search method; the Rust search negates signed values and multiplies midpoint cubes directly, which can overflow on wider inputs. The local contract bounds inputs to \u00b11,000,000,000,000 and uses exact integer binary search over root magnitudes 0..10000, returning 1 for a cube, 0 otherwise, and -1 outside the supported range.",
+      "review_notes": "The pinned implementations test whether a signed integer is a perfect cube, and Rust explicitly accepts negative perfect cubes. The Python source includes both a floating cube-root method and an exact binary-search method; the Rust search negates signed values and multiplies midpoint cubes directly, which can overflow on wider inputs. The local contract bounds inputs to ±1,000,000,000,000 and uses exact integer binary search over root magnitudes 0..10000, returning 1 for a cube, 0 otherwise, and -1 outside the supported range.",
       "benchmark_contract": "benchmarks/p/perfect_cube/README.md"
     },
     {
@@ -62167,7 +62211,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned C, F-Sharp, and R sources named prime each expose a scalar primality predicate using trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
+      "review_notes": "The pinned C, F-Sharp, and R sources named prime each expose a scalar primality predicate using trial division. They share prime_check’s explicit signed 32-bit positive input range and result contract.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -75337,7 +75381,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -75402,7 +75446,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/segment_tree.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The nine pinned sources implement segment trees for associative range aggregation. The C, Lua, PHP, and Rust sources are generic or demonstrate min/max/sum variants; C++, C#, and JavaScript focus on sums; Java supports point assignment and sum queries; Python demonstrates range assignment and maximum queries. The shared benchmark standardizes point assignment and inclusive queries for sum, minimum, or maximum, selected once per trace.",
+      "benchmark_contract": "benchmarks/s/segment_tree/README.md"
     },
     {
       "candidate_id": "segment_tree2_d",
@@ -84291,7 +84337,7 @@
         {
           "repository": "Jupyter",
           "language": "Jupyter Notebook",
-          "path": "numerical_methods/the_Simpson\u2019s_method.ipynb",
+          "path": "numerical_methods/the_Simpson’s_method.ipynb",
           "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/numerical_methods/the_Simpson%E2%80%99s_method.ipynb",
           "local_folder_source": null
         }
@@ -86304,7 +86350,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -86383,7 +86429,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/trie.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The 11 pinned sources implement prefix-tree storage and exact-word lookup, but vary in alphabet handling, duplicate insertion, deletion, prefix operations, and multiplicity. C uses a fixed lowercase alphabet; C-Sharp uses an end marker; F-Sharp uses immutable maps; Go supports lazy removal and size; Java and Python include deletion; JavaScript tracks occurrence counts; PHP uses end-of-word flags and deletion; Ruby uses character nodes; Rust is generic over key sequences; and Zig uses allocator-backed child maps and iterators. The benchmark standardizes lowercase ASCII words, unique-word set semantics, deletion, prefix presence/count, empty words, and a bounded portable node pool.",
+      "benchmark_contract": "benchmarks/t/trie/README.md"
     },
     {
       "candidate_id": "trie_autocomplete",
@@ -87347,7 +87395,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -87391,7 +87439,9 @@
           "url": "https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/data_structures/union_find/union_find.swift",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Reviewed all six pinned union_find sources in C, Java, JavaScript, Lua, Rust, and Swift. They all maintain a partition and support merging sets plus finding or comparing representatives; the C example uses path compression and root linking, while other sources use rank, size, or explicit member lists. The shared bounded integer contract checks merge status, pair connectivity, component count, and the resulting partition without comparing representative IDs.",
+      "benchmark_contract": "benchmarks/u/union_find/README.md"
     },
     {
       "candidate_id": "union_of_two_arrays",
