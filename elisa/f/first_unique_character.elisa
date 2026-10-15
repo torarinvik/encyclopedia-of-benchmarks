@@ -1,0 +1,22 @@
+# Return the first lowercase ASCII letter whose frequency is one.
+def first_unique_character_impl(values: i64&, length: usize) -> i64:
+    if length > 1024:
+        return -2
+    counts: mutable usize[26] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 97 or value > 122:
+            return -2
+        slot: usize = (value - 97).usize()
+        counts[slot] <- counts[slot] + 1
+        index <- index + 1
+    index <- 0
+    while index < length:
+        slot: usize = (values[index] - 97).usize()
+        if counts[slot] == 1:
+            return index.i64()
+        index <- index + 1
+    -1
+
+export fn first_unique_character(values: i64&, length: usize) -> i64 = first_unique_character_impl

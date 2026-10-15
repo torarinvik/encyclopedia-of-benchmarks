@@ -30,7 +30,8 @@ fn long contains_duplicate(long* input, usz length) @export("contains_duplicate"
         values[end - 1] = temporary;
         sift_down(&values[0], 0, end - 1);
     }
-    for (usz i = 1; i < length; i++)
+    for (usz i = 1; i < length; i++) {
         if (values[i - 1] == values[i]) return 1;
+    }
     return 0;
 }

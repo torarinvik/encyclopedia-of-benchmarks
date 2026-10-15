@@ -1137,3 +1137,53 @@ The pinned C LeetCode 141 source uses Floyd’s tortoise and hare pointers to de
 ## Linked List Cycle Entry
 
 The pinned C LeetCode 142 source uses Floyd’s two-pass method to return the node where a reachable cycle begins. The portable contract uses successor indices with `-1` for null and node `0` as the head, returning the zero-based entry index, `-1` for an acyclic path, and `-2` for malformed input. All nine language ports passed 8,967 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/l/linked_list_cycle_entry/README.md) and [verifier](benchmarks/verify_linked_list_cycles.py). Upstream reference: [C LeetCode 142](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/142.c).
+
+
+## Contains Duplicate
+
+The pinned C LeetCode 217 source sorts the integer array and scans neighboring values. The shared contract accepts up to 1,024 signed 32-bit integers, returning 1 when a value repeats, 0 otherwise, and -1 for invalid values or lengths. All nine language ports sort a private copy with portable heapsort; they passed 20,168 oracle arrays each and recorded 11 workload cases. See the [benchmark guide](benchmarks/c/contains_duplicate/README.md) and [verifier](benchmarks/verify_contains_duplicate.py). Upstream reference: [C LeetCode 217](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/217.c).
+
+
+## Max Consecutive Answers
+
+The pinned C LeetCode 2024 source uses a sliding window for both T and F targets, allowing at most k changes. The portable contract encodes answers as 0/1 values after k and returns the longest run for either target. All nine ports passed 9,740 oracle arrays each and recorded 12 workload cases. See the [benchmark guide](benchmarks/m/max_consecutive_answers/README.md) and [verifier](benchmarks/verify_max_consecutive_answers.py). Upstream reference: [C LeetCode 2024](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2024.c).
+
+
+## Additional C LeetCode aliases
+
+C LeetCode 461 counts differing bits for nonnegative 32-bit inputs and aliases the fixed-width [hamming_distance benchmark](benchmarks/h/hamming_distance/README.md). C LeetCode 485 counts runs of ones in a binary array and aliases [max_consecutive_ones](benchmarks/m/max_consecutive_ones/README.md). Both candidates use the existing nine-language implementations and workload contracts.
+
+
+## Missing Number
+
+The pinned C LeetCode 268 source subtracts the observed sum from the sum of 0 through n. The shared contract validates distinct values in [0,n], including the empty-array case. All nine ports passed 8,990 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/m/missing_number/README.md) and [verifier](benchmarks/verify_missing_number.py). Upstream reference: [C LeetCode 268](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/268.c).
+
+
+## Missing Number in Consecutive Range
+
+The pinned Python and Rust sources use XOR cancellation over a consecutive signed range inferred from observed endpoints. This is separate from LeetCode 268, whose domain permits a missing endpoint. The shared contract requires both endpoints to occur and a single missing interior value. All nine ports passed 39,619 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/m/missing_number_in_range/README.md) and [verifier](benchmarks/verify_missing_number_in_range.py). Upstream references: [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/missing_number.py) and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/find_missing_number.rs).
+
+
+## Single Non-Duplicate
+
+The pinned C LeetCode 540 source uses pair-index parity to binary-search a sorted array containing one single value and otherwise duplicated pairs. The benchmark keeps sortedness and pair multiplicities as input preconditions, preserving O(log n) search cost. All nine ports passed 972 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/s/single_non_duplicate/README.md) and [verifier](benchmarks/verify_single_non_duplicate.py). Upstream reference: [C LeetCode 540](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/540.c).
+
+
+## First Unique Character
+
+The pinned C LeetCode 387 and JavaScript FirstUniqueCharacter sources both count character frequencies and return the first unique index; the JavaScript candidate is an alias under the lowercase ASCII contract. All nine ports passed 10,356 oracle arrays each and recorded 12 workload cases. See the [benchmark guide](benchmarks/f/first_unique_character/README.md) and [verifier](benchmarks/verify_first_unique_character.py). Upstream references: [C LeetCode 387](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/387.c) and [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/FirstUniqueCharacter.js).
+
+
+## Longest Substring Without Repeating Characters
+
+The C LeetCode 3 implementation tracks last-seen byte positions in an O(n) sliding window; its source file also contains a separate brute-force duplicate definition. The Java and JavaScript candidates use a shrinking unique-character window. The portable contract represents printable ASCII as values 32 through 126 and bounds the input to 1,024 values. All nine language ports are checked against an independent sliding-window oracle. The numeric LeetCode source stem `3` is an alias of this alphabetic benchmark name. The pinned C++ source candidate returned 404 during review and is excluded from the evidence. See the [benchmark guide](benchmarks/l/longest_substring_without_repeating_characters/README.md) and [verifier](benchmarks/verify_longest_substring_without_repeating_characters.py). Upstream references: [C LeetCode 3](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/3.c), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/slidingwindow/LongestSubstringWithoutRepeatingCharacters.java), and [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/LongestSubstringWithoutRepeatingCharacters.js).
+
+
+## Three Sum Closest
+
+The pinned C LeetCode 16 source sorts the values and uses a two-pointer search for the closest three-value sum. Its qsort mutates the input and its `int` distance expression can overflow outside the problem’s original narrow bounds. The shared contract copies and heapsorts signed 32-bit values, widens arithmetic to signed 64-bit, and resolves equal-distance results to the lower sum. All nine ports passed 16,740 independent pair-plus-binary-search oracle inputs each and recorded 13 workload cases. See the [benchmark guide](benchmarks/t/three_sum_closest/README.md) and [verifier](benchmarks/verify_three_sum_closest.py). Upstream reference: [C LeetCode 16](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/16.c).
+
+
+## Valid Anagram
+
+The pinned C LeetCode 242 source counts lowercase ASCII letters separately in each input string and compares the resulting 26-entry frequency tables. The shared packed-array contract validates both string lengths and the lowercase ASCII domain. All nine ports passed 15,170 independent frequency-oracle inputs each and recorded 14 workload cases. See the [benchmark guide](benchmarks/v/valid_anagram/README.md) and [verifier](benchmarks/verify_valid_anagram.py). Upstream reference: [C LeetCode 242](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/242.c).

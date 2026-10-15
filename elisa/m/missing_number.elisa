@@ -1,0 +1,20 @@
+# Return the absent value from 0 through the number of supplied values.
+def missing_number_impl(values: i64&, length: usize) -> i64:
+    if length > 1024:
+        return -1
+    seen: mutable bool[1025] = zeroed
+    actual_sum: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > length.i64():
+            return -1
+        if seen[value.usize()]:
+            return -1
+        seen[value.usize()] <- true
+        actual_sum <- actual_sum + value
+        index <- index + 1
+    n: i64 = length.i64()
+    n * (n + 1) / 2 - actual_sum
+
+export fn missing_number(values: i64&, length: usize) -> i64 = missing_number_impl

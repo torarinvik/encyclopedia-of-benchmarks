@@ -1,0 +1,304 @@
+{
+  "id": "three-sum-closest-v1",
+  "algorithm": "three_sum_closest",
+  "contract": {
+    "input": "A packed array [target, count, values...]. Target and values are signed 32-bit integers; count is from 3 through 512; the packed length must be count + 2.",
+    "output": "The sum of three distinct positions whose sum is closest to target. Equal-distance sums resolve to the lower sum.",
+    "invalid_input_result": -9000000000000000000,
+    "input_mutated": false
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "classic-example",
+      "input_values": [
+        1,
+        4,
+        -1,
+        2,
+        1,
+        -4
+      ],
+      "input_length": 6,
+      "expected_result": 2
+    },
+    {
+      "id": "exact-target",
+      "input_values": [
+        6,
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 6
+    },
+    {
+      "id": "equal-distance-chooses-lower-sum",
+      "input_values": [
+        0,
+        4,
+        -2,
+        -1,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "all-negative-values",
+      "input_values": [
+        1,
+        4,
+        -1,
+        -2,
+        -3,
+        -4
+      ],
+      "input_length": 6,
+      "expected_result": -6
+    },
+    {
+      "id": "duplicate-values",
+      "input_values": [
+        1,
+        4,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 2
+    },
+    {
+      "id": "unsorted-input",
+      "input_values": [
+        1,
+        4,
+        2,
+        -4,
+        1,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 2
+    },
+    {
+      "id": "three-values-only",
+      "input_values": [
+        4,
+        3,
+        1,
+        2,
+        8
+      ],
+      "input_length": 5,
+      "expected_result": 11
+    },
+    {
+      "id": "sum-exceeds-signed-32-bit",
+      "input_values": [
+        -2147483648,
+        3,
+        2147483647,
+        2147483647,
+        2147483647
+      ],
+      "input_length": 5,
+      "expected_result": 6442450941
+    },
+    {
+      "id": "sum-below-signed-32-bit",
+      "input_values": [
+        2147483647,
+        3,
+        -2147483648,
+        -2147483648,
+        -2147483648
+      ],
+      "input_length": 5,
+      "expected_result": -6442450944
+    },
+    {
+      "id": "medium-input",
+      "input_values": [
+        0,
+        128,
+        -100,
+        -63,
+        -26,
+        11,
+        48,
+        85,
+        -79,
+        -42,
+        -5,
+        32,
+        69,
+        -95,
+        -58,
+        -21,
+        16,
+        53,
+        90,
+        -74,
+        -37,
+        0,
+        37,
+        74,
+        -90,
+        -53,
+        -16,
+        21,
+        58,
+        95,
+        -69,
+        -32,
+        5,
+        42,
+        79,
+        -85,
+        -48,
+        -11,
+        26,
+        63,
+        100,
+        -64,
+        -27,
+        10,
+        47,
+        84,
+        -80,
+        -43,
+        -6,
+        31,
+        68,
+        -96,
+        -59,
+        -22,
+        15,
+        52,
+        89,
+        -75,
+        -38,
+        -1,
+        36,
+        73,
+        -91,
+        -54,
+        -17,
+        20,
+        57,
+        94,
+        -70,
+        -33,
+        4,
+        41,
+        78,
+        -86,
+        -49,
+        -12,
+        25,
+        62,
+        99,
+        -65,
+        -28,
+        9,
+        46,
+        83,
+        -81,
+        -44,
+        -7,
+        30,
+        67,
+        -97,
+        -60,
+        -23,
+        14,
+        51,
+        88,
+        -76,
+        -39,
+        -2,
+        35,
+        72,
+        -92,
+        -55,
+        -18,
+        19,
+        56,
+        93,
+        -71,
+        -34,
+        3,
+        40,
+        77,
+        -87,
+        -50,
+        -13,
+        24,
+        61,
+        98,
+        -66,
+        -29,
+        8,
+        45,
+        82,
+        -82,
+        -45,
+        -8,
+        29,
+        66,
+        -98,
+        -61,
+        -24
+      ],
+      "input_length": 130,
+      "expected_result": 0
+    },
+    {
+      "id": "too-few-values",
+      "input_values": [
+        0,
+        2,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -9000000000000000000
+    },
+    {
+      "id": "declared-count-mismatch",
+      "input_values": [
+        0,
+        3,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": -9000000000000000000
+    },
+    {
+      "id": "value-outside-signed-32-bit",
+      "input_values": [
+        0,
+        3,
+        0,
+        1,
+        2147483648
+      ],
+      "input_length": 5,
+      "expected_result": -9000000000000000000
+    }
+  ]
+}

@@ -21,7 +21,7 @@ def contains_duplicate_impl(input: i64&, length: usize) -> i64:
                 child <- child + 1
             if values[root] >= values[child]:
                 break
-            temporary: i64 = values[root]
+            temporary: mutable i64 = values[root]
             values[root] <- values[child]
             values[child] <- temporary
             root <- child

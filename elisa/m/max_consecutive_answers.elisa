@@ -1,0 +1,41 @@
+# Maximize one repeated binary answer while changing at most k entries.
+def longest_for_target(input: i64&, offset: usize, count: usize, allowed: usize, target: i64) -> usize:
+    left: mutable usize = 0
+    opposite: mutable usize = 0
+    best: mutable usize = 0
+    right: mutable usize = 0
+    while right < count:
+        if input[offset + right] != target:
+            opposite <- opposite + 1
+        while opposite > allowed:
+            if input[offset + left] != target:
+                opposite <- opposite - 1
+            left <- left + 1
+        window: usize = right - left + 1
+        if window > best:
+            best <- window
+        right <- right + 1
+    best
+
+def max_consecutive_answers_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > 1025:
+        return -1
+    count: usize = length - 1
+    allowed_value: i64 = input[0]
+    if allowed_value < 0 or allowed_value > count.i64():
+        return -1
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value != 0 and value != 1:
+            return -1
+        index <- index + 1
+    allowed: usize = allowed_value.usize()
+    true_run: usize = longest_for_target(input, 1, count, allowed, 1)
+    false_run: usize = longest_for_target(input, 1, count, allowed, 0)
+    if true_run > false_run:
+        true_run.i64()
+    else:
+        false_run.i64()
+
+export fn max_consecutive_answers(input: i64&, length: usize) -> i64 = max_consecutive_answers_impl

@@ -1,0 +1,31 @@
+# Return the longest printable-ASCII substring with no repeated byte.
+def longest_substring_without_repeating_characters_impl(values: i64&, length: usize) -> i64:
+    if length > 1024:
+        return -2
+    initial_last_seen: i64[95] =
+        while slot < 95 |slot: mutable usize = 0, table: mutable i64[95] = zeroed| -> table:
+            table[slot] <- -1
+            slot <- slot + 1
+    final_state: i64[3] =
+        while state[0].usize() < length |state: mutable i64[3] = zeroed, last_seen: mutable i64[95] = initial_last_seen| -> state:
+            index: usize = state[0].usize()
+            value: i64 = values[index]
+            if value < 32 or value > 126:
+                return -2
+            slot: usize = (value - 32).usize()
+            previous: i64 = last_seen[slot]
+            window_start: mutable usize = state[1].usize()
+            if previous >= 0:
+                previous_index: usize = previous.usize()
+                if previous_index >= window_start:
+                    window_start <- previous_index + 1
+            last_seen[slot] <- index.i64()
+            current: usize = index - window_start + 1
+            best: usize = state[2].usize()
+            if current > best:
+                state[2] <- current.i64()
+            state[0] <- index + 1
+            state[1] <- window_start.i64()
+    final_state[2]
+
+export fn longest_substring_without_repeating_characters(values: i64&, length: usize) -> i64 = longest_substring_without_repeating_characters_impl

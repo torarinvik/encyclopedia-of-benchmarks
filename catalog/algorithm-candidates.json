@@ -1326,7 +1326,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1335,7 +1335,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/16.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "three_sum_closest",
+      "review_notes": "The pinned C LeetCode 16 source sorts the values and uses a two-pointer scan for the closest three-value sum. Its qsort mutates the input and its int difference calculation can overflow outside the original narrow problem bounds. The shared contract copies and heapsorts signed 32-bit values, widens sums and distance calculations to signed 64-bit, defines lower-sum tie resolution, and bounds the item count to 512.",
+      "benchmark_contract": "benchmarks/t/three_sum_closest/README.md"
     },
     {
       "candidate_id": "160",
@@ -1787,9 +1790,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1798,7 +1809,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2024.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "max_consecutive_answers",
+      "review_notes": "The pinned C LeetCode 2024 source runs a sliding window for each answer character, T and F, allowing at most k changes to the other character. The shared contract packs k followed by 0/1 answer values, limits sequences to 1,024 entries, and returns the longest run for either target.",
+      "benchmark_contract": "benchmarks/m/max_consecutive_answers/README.md"
     },
     {
       "candidate_id": "203",
@@ -1966,9 +1980,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1977,7 +1999,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/217.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "contains_duplicate",
+      "review_notes": "The pinned C LeetCode 217 source sorts the integer array and scans adjacent values. The shared contract accepts up to 1,024 signed 32-bit integers and returns 1 for a repeated value, 0 otherwise, or -1 for invalid values or lengths. Each port sorts a private copy with portable heapsort.",
+      "benchmark_contract": "benchmarks/c/contains_duplicate/README.md"
     },
     {
       "candidate_id": "2222",
@@ -2231,7 +2256,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2240,7 +2265,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/242.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "valid_anagram",
+      "review_notes": "The pinned C LeetCode 242 source counts lowercase ASCII letters in each input string and compares the two 26-entry frequency tables. The shared packed-array contract validates lowercase ASCII values, string lengths through 1,024, and an exact packed length; it returns 1 for matching frequencies, 0 otherwise, and -1 for malformed input.",
+      "benchmark_contract": "benchmarks/v/valid_anagram/README.md"
     },
     {
       "candidate_id": "2482",
@@ -2311,7 +2339,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2320,7 +2348,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/268.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "missing_number",
+      "review_notes": "The pinned C LeetCode 268 source subtracts the observed array sum from the arithmetic-series sum for 0 through n. The shared contract validates distinct inputs in [0,n], permits the empty array, and returns its unique missing value.",
+      "benchmark_contract": "benchmarks/m/missing_number/README.md"
     },
     {
       "candidate_id": "27",
@@ -2471,7 +2502,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2480,7 +2511,11 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/3.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "longest_substring_without_repeating_characters",
+      "alias_of": "longest_substring_without_repeating_characters",
+      "review_notes": "The pinned C LeetCode 3 source contains an O(n) last-seen-index implementation and a separate brute-force duplicate definition; the O(n) implementation returns the longest substring length. It is reviewed as a LeetCode-number alias of the alphabetically named benchmark.",
+      "benchmark_contract": "benchmarks/l/longest_substring_without_repeating_characters/README.md"
     },
     {
       "candidate_id": "32",
@@ -2617,7 +2652,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2626,7 +2661,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/387.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "first_unique_character",
+      "review_notes": "The pinned C LeetCode 387 source counts byte frequencies and returns the first unique character index. The shared contract uses the problem domain of lowercase ASCII letters, represented as integer byte values.",
+      "benchmark_contract": "benchmarks/f/first_unique_character/README.md"
     },
     {
       "candidate_id": "389",
@@ -2824,7 +2862,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2833,7 +2871,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/461.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "hamming_distance",
+      "review_notes": "The pinned C LeetCode 461 source counts differing bits of two nonnegative signed 32-bit values. On this domain, zero-extending each value to the shared unsigned 64-bit hamming_distance contract preserves the result.",
+      "benchmark_contract": "benchmarks/h/hamming_distance/README.md"
     },
     {
       "candidate_id": "476",
@@ -2867,7 +2908,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2876,7 +2917,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/485.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "max_consecutive_ones",
+      "review_notes": "The pinned C LeetCode 485 source counts contiguous ones in a binary array. Its shared binary-input contract is the same as max_consecutive_ones, so this candidate is an alias.",
+      "benchmark_contract": "benchmarks/m/max_consecutive_ones/README.md"
     },
     {
       "candidate_id": "5",
@@ -2993,7 +3037,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3002,7 +3046,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/540.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "single_non_duplicate",
+      "review_notes": "The pinned C LeetCode 540 source uses binary search on pair alignment in a sorted array where one value occurs once and all others occur twice. The shared contract preserves this precondition and returns the unique value.",
+      "benchmark_contract": "benchmarks/s/single_non_duplicate/README.md"
     },
     {
       "candidate_id": "561",
@@ -29697,7 +29744,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -29706,7 +29753,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/find_missing_number.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "missing_number_in_range",
+      "review_notes": "The pinned Rust source XORs the consecutive integer interval inferred from the observed minimum and maximum with the array values. Its shared contract requires both endpoints in the input and one missing interior value; signed 32-bit bit patterns are normalized portably.",
+      "benchmark_contract": "benchmarks/m/missing_number_in_range/README.md"
     },
     {
       "candidate_id": "find_month_calendar",
@@ -30043,7 +30093,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -30052,7 +30102,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/FirstUniqueCharacter.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "387",
+      "review_notes": "The pinned JavaScript FirstUniqueCharacter source counts character frequencies and returns the first unique-character index. On the shared lowercase ASCII contract, it matches the canonical C LeetCode 387 benchmark.",
+      "benchmark_contract": "benchmarks/f/first_unique_character/README.md"
     },
     {
       "candidate_id": "fischer_yates_shuffle",
@@ -47611,7 +47664,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -47634,7 +47687,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/LongestSubstringWithoutRepeatingCharacters.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "longest_substring_without_repeating_characters",
+      "review_notes": "The pinned C implementation includes an O(n) last-seen-index sliding window and a separate brute-force definition with the same function name; the benchmark follows the O(n) version. The Java and JavaScript sources shrink a unique-character window from the left. The shared contract normalizes all sources to printable ASCII values (32..126), bounds length to 1,024, and returns the longest distinct contiguous substring length. The pinned C++ source URL was unavailable (404) at review time and is not used as evidence.",
+      "benchmark_contract": "benchmarks/l/longest_substring_without_repeating_characters/README.md"
     },
     {
       "candidate_id": "longest_valid_parentheses",
@@ -53649,7 +53705,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -53658,7 +53714,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/missing_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "find_missing_number",
+      "review_notes": "The pinned Python source uses the same min/max XOR cancellation algorithm as the Rust find_missing_number source. On the shared contract requiring observed endpoints and one missing interior value, it is an alias.",
+      "benchmark_contract": "benchmarks/m/missing_number_in_range/README.md"
     },
     {
       "candidate_id": "mix",

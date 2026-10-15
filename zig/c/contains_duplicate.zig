@@ -36,7 +36,8 @@ export fn contains_duplicate(input: [*]const i64, length: usize) i64 {
         values[end] = temporary;
         siftDown(&values, 0, end);
     }
-    for (1..length) |index| {
+    var index: usize = 1;
+    while (index < length) : (index += 1) {
         if (values[index - 1] == values[index]) return 1;
     }
     return 0;

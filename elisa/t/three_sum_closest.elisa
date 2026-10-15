@@ -1,0 +1,81 @@
+# Return the three-value sum nearest to the target, choosing the lower sum on a tie.
+const INVALID_RESULT: i64 = -9000000000000000000
+
+def abs_difference(left: i64, right: i64) -> i64:
+    difference: i64 = left - right
+    if difference < 0:
+        -difference
+    else:
+        difference
+
+def three_sum_closest_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 514:
+        return INVALID_RESULT
+    target: i64 = input[0]
+    count_value: i64 = input[1]
+    if target < -2147483648 or target > 2147483647 or count_value < 3 or count_value > 512:
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return INVALID_RESULT
+    values: mutable i64[512] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if value < -2147483648 or value > 2147483647:
+            return INVALID_RESULT
+        values[index] <- value
+        index <- index + 1
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        root: mutable usize = start
+        while root < count / 2:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < count and values[child] < values[child + 1]:
+                child <- child + 1
+            if values[root] >= values[child]:
+                break
+            temporary: i64 = values[root]
+            values[root] <- values[child]
+            values[child] <- temporary
+            root <- child
+    ending: mutable usize = count
+    while ending > 1:
+        ending <- ending - 1
+        temporary: i64 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        root: mutable usize = 0
+        while root < ending / 2:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < ending and values[child] < values[child + 1]:
+                child <- child + 1
+            if values[root] >= values[child]:
+                break
+            inner_temporary: i64 = values[root]
+            values[root] <- values[child]
+            values[child] <- inner_temporary
+            root <- child
+    best: mutable i64 = values[0] + values[1] + values[2]
+    best_difference: mutable i64 = abs_difference(target, best)
+    first: mutable usize = 0
+    while first + 2 < count:
+        left: mutable usize = first + 1
+        right: mutable usize = count - 1
+        while left < right:
+            sum: i64 = values[first] + values[left] + values[right]
+            difference: i64 = abs_difference(target, sum)
+            if difference < best_difference or (difference == best_difference and sum < best):
+                best <- sum
+                best_difference <- difference
+            if sum < target:
+                left <- left + 1
+            elif sum > target:
+                right <- right - 1
+            else:
+                return sum
+        first <- first + 1
+    best
+
+export fn three_sum_closest(input: i64&, length: usize) -> i64 = three_sum_closest_impl

@@ -1,0 +1,45 @@
+# XOR a consecutive signed 32-bit range using portable 32-bit bit patterns.
+def encode_i32(value: i64) -> i64:
+    if value < 0:
+        return value + 4294967296
+    value
+
+def missing_number_in_range_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 1024:
+        return -2147483649
+    low: mutable i64 = values[0]
+    high: mutable i64 = values[0]
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -2147483648 or value > 2147483647:
+            return -2147483649
+        if value < low:
+            low <- value
+        if value > high:
+            high <- value
+        index <- index + 1
+    if high - low != length.i64():
+        return -2147483649
+    seen: mutable bool[1025] = zeroed
+    actual: mutable i64 = 0
+    index <- 0
+    while index < length:
+        value: i64 = values[index]
+        slot: usize = (value - low).usize()
+        if seen[slot]:
+            return -2147483649
+        seen[slot] <- true
+        actual <- actual ^ encode_i32(value)
+        index <- index + 1
+    expected: mutable i64 = 0
+    value: mutable i64 = low
+    while value <= high:
+        expected <- expected ^ encode_i32(value)
+        value <- value + 1
+    result: mutable i64 = expected ^ actual
+    if result > 2147483647:
+        result <- result - 4294967296
+    result
+
+export fn missing_number_in_range(values: i64&, length: usize) -> i64 = missing_number_in_range_impl

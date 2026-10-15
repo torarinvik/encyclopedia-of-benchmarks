@@ -1,0 +1,38 @@
+# Compare lowercase ASCII strings by their letter frequencies.
+def valid_anagram_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 2050:
+        return -1
+    first_length_value: i64 = input[0]
+    second_length_value: i64 = input[1]
+    if first_length_value < 0 or first_length_value > 1024 or second_length_value < 0 or second_length_value > 1024:
+        return -1
+    first_length: usize = first_length_value.usize()
+    second_length: usize = second_length_value.usize()
+    if length != 2 + first_length + second_length:
+        return -1
+    first_counts: mutable usize[26] = zeroed
+    second_counts: mutable usize[26] = zeroed
+    index: mutable usize = 0
+    while index < first_length:
+        value: i64 = input[2 + index]
+        if value < 97 or value > 122:
+            return -1
+        letter: usize = (value - 97).usize()
+        first_counts[letter] <- first_counts[letter] + 1
+        index <- index + 1
+    index <- 0
+    while index < second_length:
+        value: i64 = input[2 + first_length + index]
+        if value < 97 or value > 122:
+            return -1
+        letter: usize = (value - 97).usize()
+        second_counts[letter] <- second_counts[letter] + 1
+        index <- index + 1
+    letter_index: mutable usize = 0
+    while letter_index < 26:
+        if first_counts[letter_index] != second_counts[letter_index]:
+            return 0
+        letter_index <- letter_index + 1
+    1
+
+export fn valid_anagram(input: i64&, length: usize) -> i64 = valid_anagram_impl

@@ -1,0 +1,21 @@
+# Binary search the pair alignment around the unique value.
+def single_non_duplicate_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 1025 or length % 2 == 0:
+        return -2147483649
+    left: mutable usize = 0
+    right: mutable usize = length - 1
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if middle % 2 == 0:
+            if values[middle] == values[middle + 1]:
+                left <- middle + 2
+            else:
+                right <- middle
+        else:
+            if values[middle] == values[middle - 1]:
+                left <- middle + 1
+            else:
+                right <- middle - 1
+    values[left]
+
+export fn single_non_duplicate(values: i64&, length: usize) -> i64 = single_non_duplicate_impl
