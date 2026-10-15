@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "binary-step-scalar-binary64-v1",
+  "algorithm": "binary_step",
+  "function_symbol": "binary_step",
+  "input": {
+    "kind": "binary64_scalar",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "1 if x >= 0, otherwise 0",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"negative","input_values":[-2.0],"expected_result":0.0},
+    {"id":"negative-fraction","input_values":[-0.01],"expected_result":0.0},
+    {"id":"zero","input_values":[0.0],"expected_result":1.0},
+    {"id":"positive-fraction","input_values":[0.01],"expected_result":1.0},
+    {"id":"positive","input_values":[2.0],"expected_result":1.0},
+    {"id":"lower-bound","input_values":[-1000000.0],"expected_result":0.0},
+    {"id":"upper-bound","input_values":[1000000.0],"expected_result":1.0},
+    {"id":"below-bound","input_values":[-1000001.0],"expected_result":-1e300},
+    {"id":"above-bound","input_values":[1000001.0],"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,60 @@
+# Find case-insensitive ASCII palindrome words after removing punctuation.
+def findpalindrome_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 4096:
+        return -1
+    valid: bool =
+        while index < length |index: mutable usize = 0, ok: mutable bool = true| -> ok:
+            value: i64 = input[index]
+            if value < 32 or value > 126:
+                break false
+            index <- index + 1
+            ok
+    if not valid:
+        return -1
+    written, found, segment = while end <= length |end: mutable usize = 0, written: usize = 0, found: bool = false, segment: usize = 0, output| -> (written, found, segment):
+        if end == length or input[end] == 32:
+            token_length: mutable usize = 0
+            while scan < end |scan: mutable usize = segment, token_length|:
+                value: i64 = input[scan]
+                if not ((value >= 33 and value <= 47) or (value >= 58 and value <= 64) or (value >= 91 and value <= 96) or (value >= 123 and value <= 126)):
+                    token_length <- token_length + 1
+                scan <- scan + 1
+                token_length
+            left: mutable usize = segment
+            right: mutable usize = end
+            matched: mutable bool = true
+            while left < right |left, right, matched|:
+                while left < right and ((input[left] >= 33 and input[left] <= 47) or (input[left] >= 58 and input[left] <= 64) or (input[left] >= 91 and input[left] <= 96) or (input[left] >= 123 and input[left] <= 126)):
+                    left <- left + 1
+                while left < right and ((input[right - 1] >= 33 and input[right - 1] <= 47) or (input[right - 1] >= 58 and input[right - 1] <= 64) or (input[right - 1] >= 91 and input[right - 1] <= 96) or (input[right - 1] >= 123 and input[right - 1] <= 126)):
+                    right <- right - 1
+                if left < right:
+                    first: mutable i64 = input[left]
+                    last: mutable i64 = input[right - 1]
+                    if first >= 65 and first <= 90: first <- first + 32
+                    if last >= 65 and last <= 90: last <- last + 32
+                    if first != last:
+                        matched <- false
+                        break
+                    left <- left + 1
+                    right <- right - 1
+                matched
+            if token_length > 1 and matched:
+                needed: mutable usize = token_length
+                if found: needed <- needed + 1
+                if written + needed > output_capacity: return -2
+                if found:
+                    output[written] <- 0u8
+                    written <- written + 1
+                while emit < end |emit: mutable usize = segment, written|:
+                    value: i64 = input[emit]
+                    if not ((value >= 33 and value <= 47) or (value >= 58 and value <= 64) or (value >= 91 and value <= 96) or (value >= 123 and value <= 126)):
+                        output[written] <- value.u8()
+                        written <- written + 1
+                    emit <- emit + 1
+                    written
+                found <- true
+            segment <- end + 1
+        end <- end + 1
+    written.i64()
+export fn findpalindrome(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = findpalindrome_impl

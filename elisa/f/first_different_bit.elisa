@@ -1,0 +1,15 @@
+const INT32_MIN_VALUE: i64 = -2147483648
+const INT32_MAX_VALUE: i64 = 2147483647
+
+# Return the trailing-zero count of the signed 32-bit XOR.
+def first_different_bit_impl(x: i64, y: i64) -> i64:
+    if x < INT32_MIN_VALUE or x > INT32_MAX_VALUE or y < INT32_MIN_VALUE or y > INT32_MAX_VALUE:
+        return -1
+    difference: mutable u32 = x.i32().u32() ^ y.i32().u32()
+    index: mutable i64 = 0
+    while index < 32 and (difference & 1) == 0:
+        index <- index + 1
+        difference <- difference >> 1
+    index
+
+export fn first_different_bit(x: i64, y: i64) -> i64 = first_different_bit_impl

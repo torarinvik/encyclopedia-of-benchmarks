@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "average-mode-i64-array-scalar-v1",
+  "algorithm": "average_mode",
+  "function_symbol": "average_mode",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "length_range": [1, 64],
+    "value_range": [0, 1000],
+    "exactly_one_mode_required": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"python-example-unique-mode", "input_values":[2,3,4,5,3,4,2,5,2,2,4,2,2,2], "input_length":14, "expected_result":2},
+    {"id":"python-example-mode", "input_values":[3,4,5,3,4,2,5,2,2,4,2,2,2], "input_length":13, "expected_result":2},
+    {"id":"single-value", "input_values":[7], "input_length":1, "expected_result":7},
+    {"id":"all-values-equal", "input_values":[9,9,9,9], "input_length":4, "expected_result":9},
+    {"id":"unique-mode-with-zero-value", "input_values":[0,1,1,2,2,2], "input_length":6, "expected_result":2},
+    {"id":"maximum-value-mode", "input_values":[1000,4,1000,4,1000], "input_length":5, "expected_result":1000},
+    {"id":"unique-mode-among-many", "input_values":[15,14,13,15,12,11,15,10,9,8,15], "input_length":11, "expected_result":15},
+    {"id":"invalid-tied-modes", "input_values":[1,1,2,2], "input_length":4, "expected_result":-1},
+    {"id":"invalid-all-distinct", "input_values":[3,4,5], "input_length":3, "expected_result":-1},
+    {"id":"invalid-empty", "input_values":[], "input_length":0, "expected_result":-1},
+    {"id":"invalid-negative-value", "input_values":[0,-1,0], "input_length":3, "expected_result":-1},
+    {"id":"invalid-value-above-bound", "input_values":[1001,1001,2], "input_length":3, "expected_result":-1},
+    {"id":"invalid-overlong", "input_values":[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5], "input_length":65, "expected_result":-1}
+  ]
+}

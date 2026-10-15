@@ -20,7 +20,7 @@ This differs from `euclid_numbers_sequence`, which retains the empty product and
 
 | Language | Source |
 | --- | --- |
-| C | [`c/k/kummer_numbers_sequence.c`](../../../c/kummer_numbers_sequence.c) |
+| C | [`c/k/kummer_numbers_sequence.c`](../../../c/k/kummer_numbers_sequence.c) |
 | C3 | [`c3/k/kummer_numbers_sequence.c3`](../../../c3/k/kummer_numbers_sequence.c3) |
 | C++ | [`cpp/k/kummer_numbers_sequence.cpp`](../../../cpp/k/kummer_numbers_sequence.cpp) |
 | Elisa | [`elisa/k/kummer_numbers_sequence.elisa`](../../../elisa/k/kummer_numbers_sequence.elisa) |

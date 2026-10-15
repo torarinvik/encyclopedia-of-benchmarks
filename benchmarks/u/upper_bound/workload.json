@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "upper_bound-java-v1",
+  "algorithm": "upper_bound",
+  "input": {
+    "lengths": [2, 16, 128, 512],
+    "generation": {
+      "kind": "ascending",
+      "multiplier": 0,
+      "offset": "length",
+      "formula": "values[index] = -length for every index"
+    }
+  },
+  "cases": [
+    {"id": "equal_first_value", "target_from": "first", "expected_from": "last_index"},
+    {"id": "equal_middle_value", "target_from": "middle", "expected_from": "last_index"},
+    {"id": "equal_last_value", "target_from": "last", "expected_from": "last_index"},
+    {"id": "below_all_values", "target_from": "fixed", "target": -2147483648, "expected": 0},
+    {"id": "above_all_values", "target_from": "fixed", "target": 2147483647, "expected_from": "last_index"}
+  ],
+  "empty_input_case_ids": [],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "binary_search",
+    "target_comparisons_per_sample": 250000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

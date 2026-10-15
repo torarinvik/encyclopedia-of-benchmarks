@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "int-to-string-c-i64-scalar-bytes-v1",
+  "algorithm": "int_to_string",
+  "function_symbol": "int_to_string",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "int_to_string_packed",
+    "packed_encoding": "value * 15 + (base - 2)",
+    "value_range": [
+      0,
+      65535
+    ],
+    "base_range": [
+      2,
+      16
+    ]
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "lowercase digits followed by one NUL byte",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero_binary",
+      "input_value": 0,
+      "expected_result": 2,
+      "expected_output_hex": "3000"
+    },
+    {
+      "id": "decimal_example",
+      "input_value": 638,
+      "expected_result": 3,
+      "expected_output_hex": "343200"
+    },
+    {
+      "id": "octal_example",
+      "input_value": 636,
+      "expected_result": 3,
+      "expected_output_hex": "353200"
+    },
+    {
+      "id": "hex_example",
+      "input_value": 644,
+      "expected_result": 3,
+      "expected_output_hex": "326100"
+    },
+    {
+      "id": "binary_example",
+      "input_value": 630,
+      "expected_result": 7,
+      "expected_output_hex": "31303130313000"
+    },
+    {
+      "id": "max_uint16_hex",
+      "input_value": 983039,
+      "expected_result": 5,
+      "expected_output_hex": "6666666600"
+    },
+    {
+      "id": "max_uint16_binary",
+      "input_value": 983025,
+      "expected_result": 17,
+      "expected_output_hex": "3131313131313131313131313131313100"
+    },
+    {
+      "id": "negative_packed_input",
+      "input_value": -7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value_above_uint16",
+      "input_value": 983040,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

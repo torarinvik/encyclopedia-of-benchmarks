@@ -50,6 +50,23 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != expected_from_source:
             raise ValueError("prime_check_naive expected_result must match bounded plain trial division")
         return
+    if algorithm == "reverse_number":
+        if not 0 <= input_value <= 1_000_000_000:
+            expected_from_source = -1
+        else:
+            source_input = input_value
+            expected_from_source = 0
+            while source_input:
+                expected_from_source = expected_from_source * 10 + source_input % 10
+                source_input //= 10
+        if expected_result != expected_from_source:
+            raise ValueError("reverse_number expected_result must match repeated decimal digit reversal")
+        return
+    if algorithm == "fast_factorial":
+        expected_from_source = math.factorial(input_value) if 0 <= input_value <= 20 else -1
+        if expected_result != expected_from_source:
+            raise ValueError("fast_factorial expected_result must match the exact factorial on 0..20")
+        return
     if algorithm != "fibonacci_number_golden_ration":
         return
     if not 0 <= input_value <= 70:

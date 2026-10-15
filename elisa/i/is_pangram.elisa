@@ -1,0 +1,26 @@
+# ASCII pangram predicate: ignore nonletters and ASCII letter case.
+def is_pangram_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    result: i64 =
+        while index < length |index: mutable usize = 0, seen: mutable bool[26] = zeroed, found: mutable i64 = 0| -> found:
+            value: i64 = values[index]
+            if value < 0 or value > 127:
+                break -1
+            letter_index: mutable usize = 26
+            if value >= 65 and value <= 90:
+                letter_index <- (value - 65).usize()
+            elif value >= 97 and value <= 122:
+                letter_index <- (value - 97).usize()
+            if letter_index < 26 and not seen[letter_index]:
+                seen[letter_index] <- true
+                found <- found + 1
+            index <- index + 1
+            found
+    if result < 0:
+        return -1
+    if result == 26:
+        return 1
+    0
+
+export fn is_pangram(values: i64&, length: usize) -> i64 = is_pangram_impl

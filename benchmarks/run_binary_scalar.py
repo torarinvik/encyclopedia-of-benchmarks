@@ -37,6 +37,17 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
         expected_from_source = first + second if valid else -1
         if expected != expected_from_source:
             raise ValueError("bitwise_addition_recursive expected_result must equal the bounded nonnegative sum")
+    elif algorithm == "first_different_bit":
+        first, second = values
+        valid = (-(2**31) <= first <= 2**31 - 1
+                 and -(2**31) <= second <= 2**31 - 1)
+        if not valid:
+            expected_from_source = -1
+        else:
+            difference = (first & 0xFFFFFFFF) ^ (second & 0xFFFFFFFF)
+            expected_from_source = 32 if difference == 0 else (difference & -difference).bit_length() - 1
+        if expected != expected_from_source:
+            raise ValueError("first_different_bit expected_result must be the trailing-zero count of the 32-bit XOR")
     elif algorithm == "recursive_digit_sum":
         number, repetitions = values
         valid = 0 <= number <= 2**63 - 1 and 0 <= repetitions <= 1_000_000

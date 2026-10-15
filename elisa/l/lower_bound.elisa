@@ -1,0 +1,28 @@
+def lower_bound_range(values: i64&, target: i64, left: i64, right: i64) -> i64:
+    if right <= left:
+        left
+    else:
+        middle: i64 = (left + right) / 2
+        if target == values[middle.usize()]:
+            middle
+        elif target < values[middle.usize()]:
+            lower_bound_range(values, target, left, middle)
+        else:
+            lower_bound_range(values, target, middle + 1, right)
+
+def lower_bound_impl(values: i64&, length: usize, target: i64) -> i64:
+    if length > 512 or target < -2147483648 or target > 2147483647:
+        -1
+    elif length > 0 and values == null:
+        -1
+    else:
+        invalid: mutable bool = false
+        for i in 0..<length:
+            if values[i] < -2147483648 or values[i] > 2147483647 or (i > 0 and values[i - 1] > values[i]):
+                invalid <- true
+        if invalid:
+            -1
+        else:
+            lower_bound_range(values, target, 0, length.i64() - 1)
+
+export fn lower_bound(values: i64&, length: usize, target: i64) -> i64 = lower_bound_impl

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "reverse-number-java-javascript-common-int32-domain-v1",
+  "algorithm": "reverse_number",
+  "function_symbol": "reverse_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "range": [0, 1000000000],
+    "invalid_input_result": -1,
+    "definition": "Reverse the base-10 digits with integer remainder and division."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The reversed decimal digits interpreted as a nonnegative integer; leading zeroes are discarded.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"single_digit","input_value":9,"expected_result":9},
+    {"id":"trailing_zero","input_value":10,"expected_result":1},
+    {"id":"trailing_zeroes","input_value":1200,"expected_result":21},
+    {"id":"five_digits","input_value":12345,"expected_result":54321},
+    {"id":"mixed_digits","input_value":1002003,"expected_result":3002001},
+    {"id":"maximum_common_domain","input_value":1000000000,"expected_result":1},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"above_bound","input_value":1000000001,"expected_result":-1}
+  ]
+}

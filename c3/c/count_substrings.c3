@@ -15,7 +15,8 @@ fn long find_next(long* values, usz text_length, usz pattern_length, usz pattern
 
 fn long count_substrings(long* values, usz length) @export("count_substrings") {
     if (values == null || length < 2 || values[0] < 0 || values[0] > 4096 || values[1] < 0 || values[1] > 4096) return -1;
-    usz text_length = (usz)values[0], pattern_length = (usz)values[1];
+    usz text_length = (usz)values[0];
+    usz pattern_length = (usz)values[1];
     if (length != 2 + text_length + pattern_length) return -1;
     for (usz i = 2; i < length; i++) if (values[i] < 0 || values[i] > 127) return -1;
     if (pattern_length == 0) return (long)text_length + 1;

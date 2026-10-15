@@ -16,13 +16,51 @@ import subprocess
 from build_abi import ROOT, sha256_file
 
 
-def encode_case(case: dict) -> tuple[float, float]:
+def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
+                relative_tolerance: float) -> tuple[float, float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) != 1
             or type(values[0]) not in (int, float) or not math.isfinite(float(values[0]))
             or type(expected) not in (int, float) or not math.isfinite(float(expected))):
         raise ValueError("float64 unary cases require one finite input and one finite expected result")
-    return float(values[0]), float(expected)
+    value, expected_value = float(values[0]), float(expected)
+    if algorithm == "radians":
+        valid = -1_000_000.0 <= value <= 1_000_000.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid radians inputs must use the -1e300 result sentinel")
+        else:
+            source_result = value / (180.0 / math.pi)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("radians expected result must preserve degree / (180 / pi)")
+    elif algorithm == "relu":
+        valid = (value.is_integer() and -16_777_216.0 <= value <= 16_777_216.0)
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid relu inputs must use the -1e300 result sentinel")
+        elif expected_value != max(0.0, value):
+            raise ValueError("relu expected result must match max(0, x)")
+    elif algorithm == "binary_step":
+        valid = -1_000_000.0 <= value <= 1_000_000.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid binary_step inputs must use the -1e300 result sentinel")
+        elif expected_value != float(value >= 0.0):
+            raise ValueError("binary_step expected result must be 1 when x >= 0 and 0 otherwise")
+    elif algorithm == "square_root_with_newton_raphson_method":
+        valid = value.is_integer() and 1.0 <= value <= 2_147_483_647.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid square_root_with_newton_raphson_method inputs must use -1e300")
+        else:
+            guess = value
+            root = 0.5 * (guess + value / guess)
+            while abs(root - guess) > 1e-7:
+                guess = root
+                root = 0.5 * (guess + value / guess)
+            if abs(expected_value - root) > absolute_tolerance + relative_tolerance * abs(root):
+                raise ValueError("square_root_with_newton_raphson_method expected result must match the Newton iteration")
+    return value, expected_value
 
 
 def main() -> int:
@@ -78,7 +116,7 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        value, expected = encode_case(case)
+        value, expected = encode_case(case, algorithm, absolute_tolerance, tolerance)
         command = [str(executable), *(format(number, ".17g") for number in
                    (value, expected, tolerance, absolute_tolerance)),
                    str(samples), str(warmups), str(repetitions)]

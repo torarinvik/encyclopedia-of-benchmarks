@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "binary-to-hex-javascript-ascii-v1",
+  "algorithm": "binary_to_hex",
+  "function_symbol": "binary_to_hex",
+  "input": {
+    "kind": "ascii_binary_digit_array",
+    "encoding": "one signed 64-bit ASCII digit value per bit",
+    "minimum_length": 0,
+    "maximum_length": 4096,
+    "allowed_values": [48, 49],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "uppercase hexadecimal nibbles, no prefix or NUL terminator",
+    "length": "ceil(input_length / 4)",
+    "empty_input_length": 0,
+    "leading_zero_groups_preserved": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"published_example","input_values":[49,48,48,49,49,48,49],"expected_result":2,"expected_output_hex":"3444"},
+    {"id":"single_one","input_values":[49],"expected_result":1,"expected_output_hex":"31"},
+    {"id":"single_zero","input_values":[48],"expected_result":1,"expected_output_hex":"30"},
+    {"id":"complete_nibble_a","input_values":[49,48,49,48],"expected_result":1,"expected_output_hex":"41"},
+    {"id":"partial_most_significant_nibble","input_values":[48,48,49],"expected_result":1,"expected_output_hex":"31"},
+    {"id":"preserve_leading_zero_group","input_values":[48,48,48,48,48,48,48,49],"expected_result":2,"expected_output_hex":"3031"},
+    {"id":"all_zero_groups","input_values":[48,48,48,48,48,48],"expected_result":2,"expected_output_hex":"3030"},
+    {"id":"multiple_nibbles","input_values":[49,48,49,48,49,48,49,49,49,49,48,48],"expected_result":3,"expected_output_hex":"414243"},
+    {"id":"empty_input","input_values":[],"expected_result":0,"expected_output_hex":""},
+    {"id":"invalid_nonbinary_value","input_values":[49,50],"expected_result":-1,"expected_output_hex":""}
+  ]
+}

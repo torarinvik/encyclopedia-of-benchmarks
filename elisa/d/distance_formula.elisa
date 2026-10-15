@@ -1,0 +1,16 @@
+# Compute the Euclidean distance with the pinned Java coordinate expression.
+extern sqrt(value: f64) -> f64
+
+def distance_formula_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    index: mutable usize = 0
+    while index < 4:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1.0e300
+        index <- index + 1
+    dx: f64 = (values[2] - values[0]).f64()
+    dy: f64 = (values[3] - values[0]).f64()
+    sqrt(dx * dx + dy * dy)
+
+export fn distance_formula(values: i64&, length: usize) -> f64 = distance_formula_impl

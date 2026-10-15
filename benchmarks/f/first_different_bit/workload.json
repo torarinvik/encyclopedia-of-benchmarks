@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "first-different-bit-java-int32-binary-scalar-v1",
+  "algorithm": "first_different_bit",
+  "function_symbol": "first_different_bit",
+  "input": {
+    "kind": "pair_of_signed_32_bit_integers",
+    "range": [[-2147483648, 2147483647], [-2147483648, 2147483647]],
+    "operation": "count trailing zeros in the 32-bit two's-complement XOR",
+    "result_range": [0, 32],
+    "equal_input_result": 32,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "differ-at-bit-zero", "input_values": [1, 0], "expected_result": 0},
+    {"id": "differ-at-bit-one", "input_values": [10, 12], "expected_result": 1},
+    {"id": "differ-at-bit-four", "input_values": [16, 0], "expected_result": 4},
+    {"id": "negative-versus-zero", "input_values": [-1, 0], "expected_result": 0},
+    {"id": "sign-bit-only-difference", "input_values": [-2147483648, 0], "expected_result": 31},
+    {"id": "signed-boundary-difference", "input_values": [-2147483648, 2147483647], "expected_result": 0},
+    {"id": "equal-positive", "input_values": [123456789, 123456789], "expected_result": 32},
+    {"id": "equal-negative", "input_values": [-2147483648, -2147483648], "expected_result": 32},
+    {"id": "left-outside-range", "input_values": [2147483648, 0], "expected_result": -1},
+    {"id": "right-outside-range", "input_values": [0, -2147483649], "expected_result": -1}
+  ]
+}

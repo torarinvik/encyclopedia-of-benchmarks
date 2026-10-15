@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "anagram-dictionary-search-python-i64-array-bytes-v1",
+  "algorithm": "anagram_dictionary_search",
+  "function_symbol": "anagram_dictionary_search",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[dictionary_count, query_length, query_bytes..., word_length, word_bytes..., ...]",
+    "maximum_dictionary_words": 16,
+    "maximum_word_length": 16,
+    "query_length_range": [
+      0,
+      16
+    ],
+    "character_domain": "lowercase ASCII a-z",
+    "dictionary_order": "strictly sorted and unique"
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "matching dictionary words in input order, one per line, then NUL",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_length": 273
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        7,
+        4,
+        116,
+        101,
+        115,
+        116,
+        2,
+        97,
+        98,
+        3,
+        97,
+        99,
+        116,
+        3,
+        99,
+        97,
+        116,
+        3,
+        100,
+        111,
+        103,
+        4,
+        115,
+        101,
+        116,
+        116,
+        4,
+        115,
+        116,
+        101,
+        116,
+        4,
+        116,
+        101,
+        115,
+        116
+      ],
+      "input_length": 36,
+      "expected_result": 16,
+      "expected_output_hex": "736574740a737465740a746573740a00"
+    },
+    {
+      "id": "simple_rearrangements",
+      "input_values": [
+        3,
+        3,
+        97,
+        99,
+        116,
+        3,
+        97,
+        99,
+        116,
+        3,
+        99,
+        97,
+        116,
+        3,
+        100,
+        111,
+        103
+      ],
+      "input_length": 17,
+      "expected_result": 9,
+      "expected_output_hex": "6163740a6361740a00"
+    },
+    {
+      "id": "repeated_letters",
+      "input_values": [
+        4,
+        4,
+        97,
+        97,
+        98,
+        98,
+        4,
+        97,
+        98,
+        97,
+        98,
+        4,
+        97,
+        98,
+        98,
+        97,
+        3,
+        97,
+        98,
+        99,
+        4,
+        98,
+        97,
+        98,
+        97
+      ],
+      "input_length": 25,
+      "expected_result": 16,
+      "expected_output_hex": "616261620a616262610a626162610a00"
+    },
+    {
+      "id": "no_matches",
+      "input_values": [
+        3,
+        3,
+        120,
+        121,
+        122,
+        2,
+        97,
+        98,
+        3,
+        99,
+        97,
+        116,
+        3,
+        100,
+        111,
+        103
+      ],
+      "input_length": 16,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "empty_query",
+      "input_values": [
+        2,
+        0,
+        1,
+        97,
+        1,
+        98
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "empty_dictionary",
+      "input_values": [
+        0,
+        4,
+        116,
+        101,
+        115,
+        116
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    }
+  ]
+}

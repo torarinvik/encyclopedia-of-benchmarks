@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "infix-to-postfix2-c-i64-array-bytes-v1",
+  "algorithm": "infix_to_postfix2",
+  "function_symbol": "infix_to_postfix2",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "one ASCII expression byte per array item",
+    "maximum_length": 24,
+    "accepted_bytes": "ASCII alphanumeric characters, parentheses, and + - * / %",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "postfix expression followed by NUL",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_letter_example",
+      "input_values": [
+        40,
+        65,
+        47,
+        40,
+        66,
+        45,
+        67,
+        41,
+        42,
+        68,
+        43,
+        69,
+        41
+      ],
+      "input_length": 13,
+      "expected_result": 10,
+      "expected_output_hex": "4142432d2f442a452b00"
+    },
+    {
+      "id": "source_numeric_example",
+      "input_values": [
+        55,
+        45,
+        40,
+        50,
+        42,
+        51,
+        43,
+        53,
+        41,
+        42,
+        40,
+        56,
+        45,
+        52,
+        47,
+        50,
+        41
+      ],
+      "input_length": 17,
+      "expected_result": 14,
+      "expected_output_hex": "3732332a352b3834322f2d2a2d00"
+    },
+    {
+      "id": "operator_precedence",
+      "input_values": [
+        97,
+        43,
+        98,
+        42,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "6162632a2b00"
+    },
+    {
+      "id": "parenthesized_sum",
+      "input_values": [
+        40,
+        97,
+        43,
+        98,
+        41,
+        42,
+        99
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "61622b632a00"
+    },
+    {
+      "id": "modulo_operator",
+      "input_values": [
+        97,
+        37,
+        98,
+        43,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "616225632b00"
+    },
+    {
+      "id": "left_associative_subtraction",
+      "input_values": [
+        97,
+        45,
+        98,
+        45,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "61622d632d00"
+    },
+    {
+      "id": "nested_modulo",
+      "input_values": [
+        97,
+        47,
+        40,
+        98,
+        37,
+        99,
+        41
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "616263252f00"
+    },
+    {
+      "id": "invalid_character",
+      "input_values": [
+        97,
+        43,
+        35
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unmatched_parenthesis",
+      "input_values": [
+        97,
+        43,
+        40,
+        98,
+        42,
+        99
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_operator",
+      "input_values": [
+        97,
+        43
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

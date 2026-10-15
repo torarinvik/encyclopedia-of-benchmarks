@@ -1,0 +1,40 @@
+# Count four-connected land components using row-major scan and recursive flood fill.
+def flood(values: i64&, visited: mutable u8&, rows: usize, cols: usize, row: i64, col: i64) -> void:
+    if row < 0 or col < 0 or row >= i64(rows) or col >= i64(cols):
+        return
+    index: usize = usize(row) * cols + usize(col)
+    if values[2 + index] != 1 or visited[index] != 0:
+        return
+    visited[index] <- 1.u8()
+    flood(values, visited, rows, cols, row + 1, col)
+    flood(values, visited, rows, cols, row - 1, col)
+    flood(values, visited, rows, cols, row, col + 1)
+    flood(values, visited, rows, cols, row, col - 1)
+
+def number_of_islands_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or values[0] < 1 or values[0] > 16 or values[1] < 1 or values[1] > 16:
+        return -1
+    rows: usize = usize(values[0])
+    cols: usize = usize(values[1])
+    if length != 2 + rows * cols:
+        return -1
+    i: mutable usize = 2
+    while i < length:
+        if values[i] != 0 and values[i] != 1:
+            return -1
+        i <- i + 1
+    visited: mutable u8[256] = zeroed
+    count: mutable i64 = 0
+    row: mutable usize = 0
+    while row < rows:
+        col: mutable usize = 0
+        while col < cols:
+            index: usize = row * cols + col
+            if values[2 + index] == 1 and visited[index] == 0:
+                count <- count + 1
+                flood(values, &visited[0], rows, cols, i64(row), i64(col))
+            col <- col + 1
+        row <- row + 1
+    count
+
+export fn number_of_islands(values: i64&, length: usize) -> i64 = number_of_islands_impl

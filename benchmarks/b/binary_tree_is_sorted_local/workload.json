@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "binary-tree-local-ordering-i32-heap-array-v1",
+  "algorithm": "binary_tree_is_sorted_local",
+  "function_symbol": "binary_tree_is_sorted_local",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "heap-indexed node slots",
+    "root_index": 0,
+    "left_child_index": "2*i+1",
+    "right_child_index": "2*i+2",
+    "slot_count_range": [1, 255],
+    "node_value_range": [-2147483648, 2147483647],
+    "missing_child_marker": -2147483649,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "1 if all present direct left/right child relations are locally ordered, otherwise 0",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "single_node", "input_values": [5], "input_length": 1, "expected_result": 1},
+    {"id": "duplicate_children", "input_values": [5, 5, 5], "input_length": 3, "expected_result": 1},
+    {"id": "left_child_only", "input_values": [5, 3], "input_length": 2, "expected_result": 1},
+    {"id": "right_child_only", "input_values": [5, -2147483649, 7], "input_length": 3, "expected_result": 1},
+    {"id": "left_child_violation", "input_values": [5, 6, 7], "input_length": 3, "expected_result": 0},
+    {"id": "right_child_violation", "input_values": [5, 4, 4], "input_length": 3, "expected_result": 0},
+    {"id": "recursive_local_violation", "input_values": [5, 3, 7, 4, -2147483649], "input_length": 5, "expected_result": 0},
+    {"id": "local_order_allows_ancestor_bound_violation", "input_values": [5, 3, 7, -2147483649, 6], "input_length": 5, "expected_result": 1},
+    {"id": "orphan_node", "input_values": [5, -2147483649, 7, 8], "input_length": 4, "expected_result": -1},
+    {"id": "out_of_i32_node", "input_values": [5, 2147483648], "input_length": 2, "expected_result": -1},
+    {"id": "missing_root", "input_values": [-2147483649], "input_length": 1, "expected_result": -1},
+    {"id": "empty_encoding", "input_values": [], "input_length": 0, "expected_result": -1}
+  ]
+}

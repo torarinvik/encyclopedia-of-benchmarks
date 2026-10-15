@@ -1,0 +1,30 @@
+# Find the unique parity outlier in a packed array using the source's one-pass counts.
+def parity_outlier_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or values[0] < 3 or values[0] > 65 or (values[0] & 1) == 0:
+        return -1
+    count: usize = usize(values[0])
+    if length != count + 1:
+        return -1
+    evens: mutable usize = 0
+    odds: mutable usize = 0
+    even_value: mutable i64 = 0
+    odd_value: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = values[i + 1]
+        if value < 0 or value > 2147483647:
+            return -1
+        if (value & 1) == 0:
+            evens <- evens + 1
+            even_value <- value
+        else:
+            odds <- odds + 1
+            odd_value <- value
+        i <- i + 1
+    if evens == 1 and odds >= 2:
+        return even_value
+    if odds == 1 and evens >= 2:
+        return odd_value
+    -1
+
+export fn parity_outlier(values: i64&, length: usize) -> i64 = parity_outlier_impl

@@ -1,0 +1,107 @@
+const MAX_LEVEL: i64 = 6
+const SCALE: i64 = 1000000
+
+def cantor_put_byte(output: mutable u8&, capacity: usize, length: mutable usize&, value: u8) -> bool:
+    if length >= capacity:
+        return false
+    output[length] <- value
+    length <- length + 1
+    true
+
+def cantor_put_uint(output: mutable u8&, capacity: usize, length: mutable usize&, value: i64) -> bool:
+    digits: mutable u8[20]
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    while true:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    while count > 0:
+        count <- count - 1
+        if not cantor_put_byte(output, capacity, length, digits[count]):
+            return false
+    true
+
+def cantor_put_fixed(output: mutable u8&, capacity: usize, length: mutable usize&, ticks: i64) -> bool:
+    fraction: i64 = ticks % SCALE
+    if not cantor_put_uint(output, capacity, length, ticks / SCALE):
+        return false
+    if not cantor_put_byte(output, capacity, length, 46.u8()):
+        return false
+    divisor: mutable i64 = 100000
+    while divisor > 0:
+        digit: i64 = (fraction / divisor) % 10
+        if not cantor_put_byte(output, capacity, length, (48 + digit).u8()):
+            return false
+        divisor <- divisor / 10
+    true
+
+def cantor_set_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 3:
+        return -1
+    start: i64 = input[0]
+    ending: i64 = input[1]
+    max_level: i64 = input[2]
+    if start < 0 or start > ending or ending > 100000 or max_level < 0 or max_level > MAX_LEVEL:
+        return -1
+
+    positions: mutable i64[64] = zeroed
+    next_positions: mutable i64[64] = zeroed
+    interval_count: mutable usize = 1
+    output_length: mutable usize = 0
+    denominator: mutable i64 = 1
+    span: i64 = ending - start
+    level: mutable i64 = 0
+    while level <= max_level:
+        if not cantor_put_byte(output, output_capacity, output_length, 76.u8()): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 101.u8()): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 118.u8()): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 101.u8()): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 108.u8()): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
+        if not cantor_put_uint(output, output_capacity, output_length, level): return -2
+        if not cantor_put_byte(output, output_capacity, output_length, 9.u8()): return -2
+        index: mutable usize = 0
+        while index < interval_count:
+            left_num: i64 = start * denominator + span * positions[index]
+            right_num: i64 = start * denominator + span * (positions[index] + 1)
+            left: i64 = (left_num * SCALE + denominator / 2) / denominator
+            right: i64 = (right_num * SCALE + denominator / 2) / denominator
+            if not cantor_put_byte(output, output_capacity, output_length, 9.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 91.u8()): return -2
+            if not cantor_put_fixed(output, output_capacity, output_length, left): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 93.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 45.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 45.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 32.u8()): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 91.u8()): return -2
+            if not cantor_put_fixed(output, output_capacity, output_length, right): return -2
+            if not cantor_put_byte(output, output_capacity, output_length, 93.u8()): return -2
+            index <- index + 1
+        if not cantor_put_byte(output, output_capacity, output_length, 10.u8()):
+            return -2
+        if level < max_level:
+            if not cantor_put_byte(output, output_capacity, output_length, 10.u8()):
+                return -2
+            index <- 0
+            while index < interval_count:
+                next_positions[index * 2] <- positions[index] * 3
+                next_positions[index * 2 + 1] <- positions[index] * 3 + 2
+                index <- index + 1
+            interval_count <- interval_count * 2
+            index <- 0
+            while index < interval_count:
+                positions[index] <- next_positions[index]
+                index <- index + 1
+            denominator <- denominator * 3
+        level <- level + 1
+    if output_length >= output_capacity:
+        return -2
+    output[output_length] <- 0.u8()
+    output_length <- output_length + 1
+    output_length.i64()
+
+export fn cantor_set(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = cantor_set_impl

@@ -8,7 +8,7 @@ Return Euler’s totient `φ(n)`, the number of integers `k` in `1..=n` coprime 
 - Return `φ(n)`; inputs outside the range return `-1`.
 - The result is an exact signed 64-bit integer.
 
-This is the scalar operation. [`compute_totient`](../compute_totient/README.md), [`euler_totient_sequence`](../euler_totient_sequence/README.md), and [`totients_linear_sieve`](../totients_linear_sieve/README.md) return sequences instead. The source algorithms use factorization or count coprimes directly; the bounded contract gives each port the same integer domain.
+This is the scalar operation. [`compute_totient`](../../c/compute_totient/README.md), [`euler_totient_sequence`](../euler_totient_sequence/README.md), and [`totients_linear_sieve`](../../t/totients_linear_sieve/README.md) return sequences instead. The source algorithms use factorization or count coprimes directly; the bounded contract gives each port the same integer domain.
 
 ## Sources and workload
 

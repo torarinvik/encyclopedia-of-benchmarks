@@ -1,0 +1,13 @@
+const MAX_INPUT: i64 = 1000000000
+
+def reverse_number_impl(number: i64) -> i64:
+    if number < 0 or number > MAX_INPUT:
+        return -1
+    reversed: mutable i64 = 0
+    current: mutable i64 = number
+    while current > 0:
+        reversed <- reversed * 10 + current % 10
+        current <- current / 10
+    reversed
+
+export fn reverse_number(number: i64) -> i64 = reverse_number_impl

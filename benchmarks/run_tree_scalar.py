@@ -440,6 +440,8 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return max_depth_oracle(nodes, root_index)
     if algorithm == "balanced_binary_tree":
         return balanced_binary_tree_oracle(nodes, root_index)
+    if algorithm == "check_if_binary_tree_balanced":
+        return balanced_binary_tree_oracle(nodes, root_index)
     if algorithm == "sum_of_left_leaves":
         return sum_of_left_leaves_oracle(nodes, root_index)
     if algorithm == "univalued_binary_tree":

@@ -6,7 +6,7 @@ fn find_next(values &i64, text_length int, pattern_length int, pattern_start int
 	if start > text_length || pattern_length > text_length - start { return -1 }
 	last := text_length - pattern_length
 	for position := start; position <= last; position++ {
-		offset := 0
+		mut offset := 0
 		for offset < pattern_length {
 			text_value := unsafe { values[2 + position + offset] }
 			pattern_value := unsafe { values[pattern_start + offset] }

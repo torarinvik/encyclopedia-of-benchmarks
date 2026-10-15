@@ -1,0 +1,24 @@
+# Ohm's law over a bounded integer-valued input domain.
+def ohms_law_impl(voltage: f64, current: f64, resistance: f64) -> f64:
+    if voltage != voltage or current != current or resistance != resistance:
+        return -1e300
+    if voltage < -1000.0 or voltage > 1000.0 or current < -1000.0 or current > 1000.0 or resistance < 0.0 or resistance > 1000.0:
+        return -1e300
+    if voltage != f64(i64(voltage)) or current != f64(i64(current)) or resistance != f64(i64(resistance)):
+        return -1e300
+    zeros: mutable i64 = 0
+    if voltage == 0.0:
+        zeros <- zeros + 1
+    if current == 0.0:
+        zeros <- zeros + 1
+    if resistance == 0.0:
+        zeros <- zeros + 1
+    if zeros != 1:
+        return -1e300
+    if voltage == 0.0:
+        return current * resistance
+    if current == 0.0:
+        return voltage / resistance
+    return voltage / current
+
+export fn ohms_law(voltage: f64, current: f64, resistance: f64) -> f64 = ohms_law_impl

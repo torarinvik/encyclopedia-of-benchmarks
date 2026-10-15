@@ -1,0 +1,80 @@
+# Prime-exponent factorial using binary buckets and balanced powers.
+const MAX_N: i64 = 20
+const MAX_BUCKETS: usize = 8
+
+def exponent_in_factorial(prime: i64, n: i64) -> i64:
+    exponent: mutable i64 = 0
+    quotient: mutable i64 = n / prime
+    while quotient > 0:
+        exponent <- exponent + quotient
+        quotient <- quotient / prime
+    exponent
+
+def power_by_squaring(base: i64, exponent: u32) -> i64:
+    result: mutable i64 = 1
+    factor: mutable i64 = base
+    remaining: mutable u32 = exponent
+    while remaining > 0:
+        if (remaining & 1u32) != 0:
+            result <- result * factor
+        remaining <- remaining >> 1
+        if remaining > 0:
+            factor <- factor * factor
+    result
+
+def fast_factorial_impl(n: i64) -> i64:
+    if n < 0 or n > MAX_N:
+        return -1
+    if n < 2:
+        return 1
+
+    is_prime: mutable i64[21] = zeroed
+    candidate: mutable i64 = 2
+    while candidate <= n:
+        is_prime[candidate.usize()] <- 1
+        candidate <- candidate + 1
+    prime: mutable i64 = 2
+    while prime * prime <= n:
+        if is_prime[prime.usize()] != 0:
+            multiple: mutable i64 = prime * prime
+            while multiple <= n:
+                is_prime[multiple.usize()] <- 0
+                multiple <- multiple + prime
+        prime <- prime + 1
+
+    exponent_of_two: i64 = exponent_in_factorial(2, n)
+    next_power_of_two: mutable i64 = 1
+    power_log2: mutable u32 = 0
+    while next_power_of_two < exponent_of_two:
+        next_power_of_two <- next_power_of_two * 2
+        power_log2 <- power_log2 + 1
+    bucket_count: usize = (power_log2 + 1).usize()
+    buckets: mutable i64[MAX_BUCKETS] = zeroed
+    bit: mutable usize = 0
+    while bit < MAX_BUCKETS:
+        buckets[bit] <- 1
+        bit <- bit + 1
+
+    prime <- 2
+    while prime <= n:
+        if is_prime[prime.usize()] != 0:
+            exponent_bits: u32 = exponent_in_factorial(prime, n).u32()
+            mask: mutable u32 = 1
+            bit <- 0
+            while bit < bucket_count:
+                if (exponent_bits & mask) != 0:
+                    buckets[bit] <- buckets[bit] * prime
+                mask <- mask << 1
+                bit <- bit + 1
+        prime <- prime + 1
+
+    result: mutable i64 = 1
+    power_exponent: mutable u32 = 1
+    bit <- 0
+    while bit < bucket_count:
+        result <- result * power_by_squaring(buckets[bit], power_exponent)
+        power_exponent <- power_exponent << 1
+        bit <- bit + 1
+    result
+
+export fn fast_factorial(n: i64) -> i64 = fast_factorial_impl

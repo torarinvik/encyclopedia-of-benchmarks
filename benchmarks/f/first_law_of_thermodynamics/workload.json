@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "first-law-of-thermodynamics-python-binary64-v1",
+  "algorithm": "first_law_of_thermodynamics",
+  "function_symbol": "first_law_of_thermodynamics",
+  "input": {
+    "kind": "selector_and_bounded_integer_valued_binary64_pair",
+    "argument_order": ["operation", "a", "b"],
+    "operation_codes": {
+      "0": "work = Q - delta_U, with [a,b]=[Q,delta_U]",
+      "1": "heat = delta_U + W, with [a,b]=[delta_U,W]",
+      "2": "delta_U = Q - W, with [a,b]=[Q,W]"
+    },
+    "operation_range": [0, 2],
+    "value_range": [-1000000, 1000000],
+    "integer_valued_required": true,
+    "invalid_result": -1e300,
+    "source_rounding": "round the formula result to one decimal place; on this integer input subset the result is integer-valued, so the rounding does not change it"
+  },
+  "output": {
+    "kind": "binary64",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"work-positive","input_values":[0.0,50.0,-20.0],"expected_result":70.0},
+    {"id":"heat-positive","input_values":[1.0,-20.0,30.0],"expected_result":10.0},
+    {"id":"internal-energy-positive","input_values":[2.0,50.0,30.0],"expected_result":20.0},
+    {"id":"work-negative","input_values":[0.0,-50.0,20.0],"expected_result":-70.0},
+    {"id":"heat-zero","input_values":[1.0,0.0,0.0],"expected_result":0.0},
+    {"id":"invalid-operation","input_values":[3.0,50.0,20.0],"expected_result":-1e300},
+    {"id":"fractional-value","input_values":[0.0,50.5,20.0],"expected_result":-1e300},
+    {"id":"out-of-range-value","input_values":[2.0,1000001.0,20.0],"expected_result":-1e300}
+  ]
+}

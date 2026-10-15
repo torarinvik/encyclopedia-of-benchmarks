@@ -1,0 +1,44 @@
+const MAX_ARRAY_LENGTH: usize = 1024
+const MAX_INPUT_LENGTH: usize = 1025
+
+def write_i32_le(output: mutable u8&, index: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[index * 4] <- (bits & 255).u8()
+    output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+    output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+    output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+
+# Return a fresh left rotation; nonpositive shifts keep order and positive shifts wrap.
+def array_left_rotation_modulo_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    rotations: i64 = input[0]
+    if rotations < -2147483648 or rotations > 2147483647:
+        return -1
+    count: usize = length - 1
+    values: mutable i64[1024] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    if count == 0:
+        return 0
+    shift: usize = if rotations > 0: (rotations % count.i64()).usize() else: 0
+    output_bytes: usize = count * 4
+    if output_capacity < output_bytes:
+        return -2
+    index <- shift
+    while index < count:
+        write_i32_le(output, index - shift, values[index])
+        index <- index + 1
+    index <- 0
+    while index < shift:
+        write_i32_le(output, count - shift + index, values[index])
+        index <- index + 1
+    count.i64()
+
+export fn array_left_rotation_modulo(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = array_left_rotation_modulo_impl
+

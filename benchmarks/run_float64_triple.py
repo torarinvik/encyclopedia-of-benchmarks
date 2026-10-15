@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -193,6 +193,36 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                                   else math.atan2(end, start))
             if abs(expected - expected_component) > tolerance * max(1.0, abs(start), abs(end)):
                 raise ValueError("cartesian_to_polar expected result must match its selected component")
+    elif algorithm == "ohms_law":
+        valid = (start.is_integer() and end.is_integer() and t.is_integer()
+                 and -1000.0 <= start <= 1000.0 and -1000.0 <= end <= 1000.0
+                 and 0.0 <= t <= 1000.0
+                 and sum(value == 0.0 for value in (start, end, t)) == 1)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid ohms_law inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (end * t if start == 0.0 else
+                              start / t if end == 0.0 else
+                              start / end)
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end), abs(t)):
+                raise ValueError("ohms_law expected result must match the selected V/I/R source formula")
+    elif algorithm == "first_law_of_thermodynamics":
+        valid = (start.is_integer() and end.is_integer() and t.is_integer()
+                 and -1_000_000.0 <= start <= 1_000_000.0
+                 and -1_000_000.0 <= end <= 1_000_000.0
+                 and t in (0.0, 1.0, 2.0))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid first_law_of_thermodynamics inputs must use -1e300")
+        else:
+            expected_value = (start - end if t == 0.0 else
+                              start + end if t == 1.0 else
+                              start - end)
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("first_law_of_thermodynamics expected result must match its selected source formula")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

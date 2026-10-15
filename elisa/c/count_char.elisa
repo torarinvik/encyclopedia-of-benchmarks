@@ -1,0 +1,18 @@
+def count_char_impl(values: i64&, length: usize) -> i64:
+    if length > 4096 or (length > 0 and values == null):
+        -1
+    else:
+        count: mutable i64 = 0
+        invalid: mutable bool = false
+        for i in 0..<length:
+            code: i64 = values[i]
+            if code < 0 or code > 127:
+                invalid <- true
+            elif code != 9 and code != 10 and code != 11 and code != 12 and code != 13 and code != 32:
+                count <- count + 1
+        if invalid:
+            -1
+        else:
+            count
+
+export fn count_char(values: i64&, length: usize) -> i64 = count_char_impl

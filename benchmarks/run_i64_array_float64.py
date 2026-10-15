@@ -49,6 +49,89 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif (not valid or not math.isclose(expected, expected_from_source,
                                             rel_tol=1e-12, abs_tol=1e-12)):
             raise ValueError("electrical_impedance expected_result must match its selected impedance formula")
+    elif algorithm in {"average_absolute_deviation", "average_absolute_deviation_rounded"}:
+        valid = (1 <= len(values) <= 256
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError(f"invalid {algorithm} inputs must use the -1e300 result sentinel")
+        else:
+            mean = sum(values) / len(values)
+            source_result = sum(abs(value - mean) for value in values) / len(values)
+            if algorithm == "average_absolute_deviation_rounded":
+                source_result = round(source_result, 2)
+            if not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError(f"{algorithm} expected_result must match the source mean-deviation formula")
+    elif algorithm == "manhattan_distance":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 16
+                 and len(values) == 1 + 2 * values[0]
+                 and all(-1_000_000 <= value <= 1_000_000 for value in values[1:]))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid manhattan_distance inputs must use the -1e300 result sentinel")
+        else:
+            dimension = values[0]
+            source_result = sum(abs(values[1 + index] - values[1 + dimension + index])
+                                for index in range(dimension))
+            if not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("manhattan_distance expected_result must match the n-dimensional L1 sum")
+    elif algorithm == "wheatstone_bridge":
+        valid = len(values) == 3 and all(1 <= value <= 1_000_000 for value in values)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid wheatstone_bridge inputs must use the -1e300 result sentinel")
+        else:
+            resistance_1, resistance_2, resistance_3 = values
+            source_result = (resistance_2 / resistance_1) * resistance_3
+            if not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("wheatstone_bridge expected_result must match (R2 / R1) * R3")
+    elif algorithm == "dodecahedron":
+        valid = (len(values) == 2 and 1 <= values[0] <= 1_000_000
+                 and values[1] in (0, 1))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid dodecahedron inputs must use the -1e300 result sentinel")
+        else:
+            edge, quantity = values
+            if quantity == 0:
+                source_result = (3 * ((25 + 10 * (5 ** (1 / 2))) ** (1 / 2))
+                                 * (edge ** 2))
+            else:
+                source_result = ((15 + (7 * (5 ** (1 / 2)))) / 4) * (edge ** 3)
+            if expected == -1e300 or not math.isclose(
+                    expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("dodecahedron expected_result must match the selected source formula")
+    elif algorithm == "jaccard_similarity":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 64 and 0 <= values[1] <= 64
+                 and values[0] + values[1] > 0
+                 and len(values) == 2 + values[0] + values[1])
+        if valid:
+            left = values[2:2 + values[0]]
+            right = values[2 + values[0]:]
+            valid = (all(32 <= value <= 126 for value in left + right)
+                     and len(set(left)) == len(left) and len(set(right)) == len(right))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid jaccard_similarity inputs must use the -1e300 result sentinel")
+        else:
+            intersection = len(set(left) & set(right))
+            source_result = intersection / (len(left) + len(right) - intersection)
+            if expected == -1e300 or not math.isclose(
+                    expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("jaccard_similarity expected_result must match intersection over union")
+    elif algorithm == "distance_formula":
+        valid = (len(values) == 4 and all(-1_000_000 <= value <= 1_000_000 for value in values))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid distance_formula inputs must use the -1e300 result sentinel")
+        else:
+            x1, _y1, x2, y2 = values
+            dx = x2 - x1
+            dy = y2 - x1
+            source_result = math.sqrt(dx ** 2 + dy ** 2)
+            if expected == -1e300 or not math.isclose(
+                    expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("distance_formula expected_result must match the pinned Java expression")
     return values, float(expected)
 
 

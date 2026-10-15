@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "id": "majority-elements-floor-half-java-i64-array-bytes-v1",
+  "algorithm": "majority_elements_floor_half",
+  "function_symbol": "majority_elements_floor_half",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 0,
+    "maximum_length": 256,
+    "element_range": [
+      -2147483648,
+      2147483647
+    ],
+    "threshold": "floor(input_length / 2)"
+  },
+  "output": {
+    "kind": "bytes",
+    "encoding": "ascending distinct qualifying values as little-endian signed i32; no terminator",
+    "return_value": "number of values",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_length": 1024
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_value_zero_threshold",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output_hex": "05000000"
+    },
+    {
+      "id": "two_distinct_both_qualify",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0100000002000000"
+    },
+    {
+      "id": "two_equal",
+      "input_values": [
+        7,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "07000000"
+    },
+    {
+      "id": "even_half_threshold",
+      "input_values": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output_hex": "0100000002000000"
+    },
+    {
+      "id": "odd_floor_threshold",
+      "input_values": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "0100000002000000"
+    },
+    {
+      "id": "no_qualifier",
+      "input_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_boundary",
+      "input_values": [
+        -1,
+        -1,
+        -2147483648,
+        2147483647
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "ffffffff"
+    }
+  ]
+}

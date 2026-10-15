@@ -1,0 +1,41 @@
+# Convert ASCII binary digits to uppercase hexadecimal nibbles.
+const MAX_LENGTH: usize = 4096
+
+def binary_to_hex_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] != 48 and values[index] != 49:
+            return -1
+        index <- index + 1
+
+    output_length: usize = (length + 3) / 4
+    if output_length == 0:
+        return 0
+    if output_capacity < output_length:
+        return -2
+
+    first_width: mutable usize = length % 4
+    if first_width == 0:
+        first_width <- 4
+    start: mutable usize = 0
+    group: mutable usize = 0
+    while group < output_length:
+        width: mutable usize = 4
+        if group == 0:
+            width <- first_width
+        nibble: mutable i64 = 0
+        offset: mutable usize = 0
+        while offset < width:
+            nibble <- nibble * 2 + values[start + offset] - 48
+            offset <- offset + 1
+        if nibble < 10:
+            output[group] <- (48 + nibble).u8()
+        else:
+            output[group] <- (55 + nibble).u8()
+        start <- start + width
+        group <- group + 1
+    output_length.i64()
+
+export fn binary_to_hex(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_to_hex_impl

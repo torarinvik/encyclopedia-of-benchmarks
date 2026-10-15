@@ -1,0 +1,20 @@
+const MAX_LENGTH: usize = 4096
+
+def is_contains_unique_chars_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for index in 0..<length:
+        if values[index] < 0 or values[index] > 127:
+            return -1
+
+    seen: mutable u64[2] = zeroed
+    for index in 0..<length:
+        value: u64 = values[index].u64()
+        word: usize = (value / 64).usize()
+        mask: u64 = 1.u64() << (value % 64)
+        if (seen[word] & mask) != 0:
+            return 0
+        seen[word] <- seen[word] | mask
+    1
+
+export fn is_contains_unique_chars(values: i64&, length: usize) -> i64 = is_contains_unique_chars_impl

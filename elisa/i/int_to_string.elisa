@@ -1,0 +1,32 @@
+# Convert a uint16 value to lowercase digits in a base from 2 through 16.
+const MAX_VALUE: i64 = 65535
+const MAX_DIGITS: usize = 16
+
+def int_to_string_impl(packed_value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if packed_value < 0:
+        return -1
+    value: i64 = packed_value / 15
+    base: i64 = packed_value % 15 + 2
+    if value > MAX_VALUE:
+        return -1
+    symbols: u8[16] = [48,49,50,51,52,53,54,55,56,57,97,98,99,100,101,102]
+    digits: mutable u8[MAX_DIGITS] = zeroed
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    while true:
+        digits[count] <- symbols[(remaining % base).usize()]
+        count <- count + 1
+        remaining <- remaining / base
+        if remaining == 0:
+            break
+    required: usize = count + 1
+    if output_capacity < required:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        output[index] <- digits[count - index - 1]
+        index <- index + 1
+    output[count] <- 0u8
+    required.i64()
+
+export fn int_to_string(packed_value: i64, output: mutable u8&, output_capacity: usize) -> i64 = int_to_string_impl

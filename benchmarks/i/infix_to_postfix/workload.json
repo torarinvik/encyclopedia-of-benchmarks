@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "infix-to-postfix-rust-i64-array-bytes-v1",
+  "algorithm": "infix_to_postfix",
+  "function_symbol": "infix_to_postfix",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "one ASCII expression byte per array item",
+    "maximum_length": 24,
+    "maximum_pending_operators_or_parentheses": 10,
+    "accepted_bytes": "ASCII alphanumeric characters, parentheses, and + - * / ^",
+    "source_unmatched_closing_parenthesis_behavior": "flush pending operators and ignore a closing parenthesis when no opening parenthesis remains",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "postfix expression followed by NUL",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        65,
+        43,
+        66,
+        45,
+        67,
+        42,
+        68,
+        47,
+        69
+      ],
+      "input_length": 9,
+      "expected_result": 10,
+      "expected_output_hex": "41422b43442a452f2d00"
+    },
+    {
+      "id": "operator_precedence",
+      "input_values": [
+        97,
+        43,
+        98,
+        42,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "6162632a2b00"
+    },
+    {
+      "id": "grouped_sum",
+      "input_values": [
+        40,
+        97,
+        43,
+        98,
+        41,
+        42,
+        99
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "61622b632a00"
+    },
+    {
+      "id": "power_above_product",
+      "input_values": [
+        97,
+        42,
+        98,
+        94,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "6162635e2a00"
+    },
+    {
+      "id": "power_before_product",
+      "input_values": [
+        97,
+        94,
+        98,
+        42,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "61625e632a00"
+    },
+    {
+      "id": "left_associative_power",
+      "input_values": [
+        97,
+        94,
+        98,
+        94,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output_hex": "61625e635e00"
+    },
+    {
+      "id": "nested_groups",
+      "input_values": [
+        40,
+        97,
+        45,
+        98,
+        43,
+        99,
+        41,
+        42,
+        40,
+        100,
+        43,
+        101,
+        42,
+        102,
+        41
+      ],
+      "input_length": 15,
+      "expected_result": 12,
+      "expected_output_hex": "61622d632b6465662a2b2a00"
+    },
+    {
+      "id": "unmatched_closing_is_ignored",
+      "input_values": [
+        97,
+        43,
+        98,
+        41
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "61622b00"
+    },
+    {
+      "id": "unmatched_opening_error",
+      "input_values": [
+        40,
+        97,
+        43,
+        98
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "unsupported_character_error",
+      "input_values": [
+        97,
+        43,
+        35
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ]
+}

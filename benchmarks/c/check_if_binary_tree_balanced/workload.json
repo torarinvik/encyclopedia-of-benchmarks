@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "check-if-binary-tree-balanced-v1",
+  "algorithm": "check_if_binary_tree_balanced",
+  "function_symbol": "check_if_binary_tree_balanced",
+  "input": {
+    "kind": "indexed_binary_tree",
+    "encoding": "Each node is [ignored signed value, left child index, right child index]; -1 means no child.",
+    "maximum_node_count": 1023,
+    "root_index": "The root can have any table index; an empty tree uses -1.",
+    "tree_requirement": "A valid rooted binary tree with every node reachable exactly once, or the empty tree.",
+    "result": "1 when every node's left and right subtree heights differ by at most one; otherwise 0. An empty tree returns 1.",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty","nodes":[],"root_index":-1,"expected_result":1},
+    {"id":"single_node","nodes":[[5,-1,-1]],"root_index":0,"expected_result":1},
+    {"id":"balanced_tree","nodes":[[0,1,2],[0,3,-1],[0,-1,-1],[0,-1,-1]],"root_index":0,"expected_result":1},
+    {"id":"unbalanced_chain","nodes":[[0,1,-1],[0,2,-1],[0,-1,-1]],"root_index":0,"expected_result":0},
+    {"id":"unbalanced_below_root","nodes":[[0,1,4],[0,2,-1],[0,3,-1],[0,-1,-1],[0,-1,-1]],"root_index":0,"expected_result":0},
+    {"id":"nonzero_root","nodes":[[0,-1,-1],[0,-1,-1],[0,0,1]],"root_index":2,"expected_result":1},
+    {"id":"invalid_root","nodes":[[0,-1,-1]],"root_index":1,"expected_result":-1},
+    {"id":"invalid_child","nodes":[[0,1,-1]],"root_index":0,"expected_result":-1}
+  ],
+  "measurement": {"comparison_model":"tree_scalar_call","sample_count":5,"warmup_rounds":0,"repetitions_per_sample":1}
+}

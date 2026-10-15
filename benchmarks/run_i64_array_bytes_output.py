@@ -641,6 +641,301 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "cantor_set":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        start, end, levels = values
+        if not 0 <= start <= end <= 100_000 or not 0 <= levels <= 6:
+            return -1, b""
+        output = bytearray()
+
+        def append_uint(value: int) -> None:
+            output.extend(str(value).encode("ascii"))
+
+        def append_fixed(ticks: int) -> None:
+            whole, fraction = divmod(ticks, 1_000_000)
+            append_uint(whole)
+            output.append(ord("."))
+            for divisor in (100_000, 10_000, 1_000, 100, 10, 1):
+                output.append(ord("0") + fraction // divisor % 10)
+
+        positions = [0]
+        denominator = 1
+        span = end - start
+        for level in range(levels + 1):
+            output.extend(b"Level ")
+            append_uint(level)
+            output.append(9)
+            for position in positions:
+                left_numerator = (start * denominator + span * position) * 1_000_000
+                right_numerator = (start * denominator + span * (position + 1)) * 1_000_000
+                left_ticks = (left_numerator + denominator // 2) // denominator
+                right_ticks = (right_numerator + denominator // 2) // denominator
+                output.extend(b"\t[")
+                append_fixed(left_ticks)
+                output.extend(b"] -- [")
+                append_fixed(right_ticks)
+                output.append(ord("]"))
+            output.append(10)
+            if level < levels:
+                output.append(10)
+                positions = [part for position in positions for part in (position * 3, position * 3 + 2)]
+                denominator *= 3
+        output.append(0)
+        return len(output), bytes(output)
+
+    if algorithm == "array_left_rotation_modulo":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        shift, array = values[0], values[1:]
+        if (not -(2**31) <= shift <= 2**31 - 1 or len(array) > 1024
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in array)):
+            return -1, b""
+        if not array or shift <= 0:
+            output = array
+        else:
+            offset = shift % len(array)
+            output = array[offset:] + array[:offset]
+        return len(output), b"".join(struct.pack("<i", value) for value in output)
+
+    if algorithm == "array_left_rotation":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        shift, array = values[0], values[1:]
+        if (not 0 <= shift <= 1024 or len(array) > 1024
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in array)):
+            return -1, b""
+        if shift >= len(array):
+            return 0, b""
+        output = array[shift:] + array[:shift]
+        return len(output), b"".join(struct.pack("<i", value) for value in output)
+
+    if algorithm == "array_right_rotation":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        shift, array = values[0], values[1:]
+        if (not 0 <= shift <= 1024 or len(array) > 1024
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in array)):
+            return -1, b""
+        if shift >= len(array):
+            return 0, b""
+        output = array if shift == 0 else array[-shift:] + array[:-shift]
+        return len(output), b"".join(struct.pack("<i", value) for value in output)
+
+    if algorithm == "array_right_rotation_modulo":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        shift, array = values[0], values[1:]
+        if (not 0 <= shift <= 2**31 - 1 or len(array) > 1024
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in array)):
+            return -1, b""
+        offset = shift % len(array)
+        output = array if offset == 0 else array[-offset:] + array[:-offset]
+        return len(output), b"".join(struct.pack("<i", value) for value in output)
+
+    if algorithm == "three_sum_problem":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 259
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        target, count = values[:2]
+        array = values[2:]
+        if (not -(2**31) <= target <= 2**31 - 1 or not 0 <= count <= 257
+                or len(array) != count
+                or any(not -100_000 <= value <= 100_000 for value in array)):
+            return -1, b""
+        if count < 3:
+            return 0, b""
+        ordered = sorted(array)
+        triplets: list[tuple[int, int, int]] = []
+        for first in range(count - 2):
+            if first and ordered[first] == ordered[first - 1]:
+                continue
+            left, right = first + 1, count - 1
+            while left < right:
+                total = ordered[first] + ordered[left] + ordered[right]
+                if total == target:
+                    triplets.append((ordered[first], ordered[left], ordered[right]))
+                    left_value, right_value = ordered[left], ordered[right]
+                    while left < right and ordered[left] == left_value:
+                        left += 1
+                    while left < right and ordered[right] == right_value:
+                        right -= 1
+                elif total < target:
+                    left += 1
+                else:
+                    right -= 1
+        output = b"".join(struct.pack("<iii", *triplet) for triplet in triplets)
+        return len(triplets), output
+
+    if algorithm == "anagram_dictionary_search":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 290
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        dictionary_count, query_length = values[:2]
+        if (not 0 <= dictionary_count <= 16 or not 0 <= query_length <= 16
+                or len(values) < 2 + query_length):
+            return -1, b""
+        query_values = values[2:2 + query_length]
+        if any(not 97 <= value <= 122 for value in query_values):
+            return -1, b""
+        position = 2 + query_length
+        dictionary: list[bytes] = []
+        for _ in range(dictionary_count):
+            if position >= len(values) or not 1 <= values[position] <= 16:
+                return -1, b""
+            word_length = values[position]
+            position += 1
+            if word_length > len(values) - position:
+                return -1, b""
+            word_values = values[position:position + word_length]
+            if any(not 97 <= value <= 122 for value in word_values):
+                return -1, b""
+            dictionary.append(bytes(word_values))
+            position += word_length
+        if position != len(values) or dictionary != sorted(set(dictionary)):
+            return -1, b""
+        query_signature = sorted(query_values)
+        matches = [word for word in dictionary if sorted(word) == query_signature]
+        output = b"\n".join(matches) + b"\0"
+        return len(output), output
+
+    if algorithm == "find_all_duplicates_hash_order":
+        if (not isinstance(values, list) or len(values) > 1024
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        frequencies: dict[int, int] = {}
+        for value in values:
+            frequencies[value] = frequencies.get(value, 0) + 1
+        duplicates = [value for value, count in frequencies.items() if count > 1]
+        output = b"".join(struct.pack("<q", value) for value in duplicates)
+        return len(duplicates), output
+
+    if algorithm == "infix_to_postfix":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 24
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        stack: list[int] = []
+        output = bytearray()
+        expect_operand = True
+
+        def precedence(byte: int) -> int:
+            if byte in b"+-":
+                return 1
+            if byte in b"*/":
+                return 2
+            return 3
+
+        for byte in values:
+            if 48 <= byte <= 57 or 65 <= byte <= 90 or 97 <= byte <= 122:
+                if not expect_operand:
+                    return -1, b""
+                output.append(byte)
+                expect_operand = False
+            elif byte == ord("("):
+                if not expect_operand or len(stack) >= 10:
+                    return -1, b""
+                stack.append(byte)
+            elif byte == ord(")"):
+                while stack and stack[-1] != ord("("):
+                    output.append(stack.pop())
+                if stack:
+                    stack.pop()
+                expect_operand = False
+            elif byte in b"+-*/^":
+                if expect_operand:
+                    return -1, b""
+                while stack and stack[-1] != ord("(") and precedence(byte) <= precedence(stack[-1]):
+                    output.append(stack.pop())
+                if len(stack) >= 10:
+                    return -1, b""
+                stack.append(byte)
+                expect_operand = True
+            else:
+                return -1, b""
+        if expect_operand:
+            return -1, b""
+        while stack:
+            operator = stack.pop()
+            if operator == ord("("):
+                return -1, b""
+            output.append(operator)
+        output.append(0)
+        return len(output), bytes(output)
+
+    if algorithm == "infix_to_postfix2":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 24
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        stack: list[int] = []
+        output = bytearray()
+        expect_operand = True
+
+        def precedence(byte: int) -> int:
+            return 1 if byte in b"*/%" else 0
+
+        for byte in values:
+            if 48 <= byte <= 57 or 65 <= byte <= 90 or 97 <= byte <= 122:
+                if not expect_operand:
+                    return -1, b""
+                output.append(byte)
+                expect_operand = False
+            elif byte == ord("("):
+                if not expect_operand or len(stack) >= 10:
+                    return -1, b""
+                stack.append(byte)
+            elif byte == ord(")"):
+                if expect_operand or ord("(") not in stack:
+                    return -1, b""
+                while stack[-1] != ord("("):
+                    output.append(stack.pop())
+                stack.pop()
+                expect_operand = False
+            elif byte in b"+-*/%":
+                if expect_operand or len(stack) >= 10 and (not stack or stack[-1] == ord("(")):
+                    return -1, b""
+                while stack and stack[-1] != ord("(") and precedence(byte) <= precedence(stack[-1]):
+                    output.append(stack.pop())
+                if len(stack) >= 10:
+                    return -1, b""
+                stack.append(byte)
+                expect_operand = True
+            else:
+                return -1, b""
+        if expect_operand:
+            return -1, b""
+        while stack:
+            operator = stack.pop()
+            if operator == ord("("):
+                return -1, b""
+            output.append(operator)
+        output.append(0)
+        return len(output), bytes(output)
+
+    if algorithm == "format_phone_number":
+        if (not isinstance(values, list) or len(values) != 10
+                or any(type(value) is not int or not 48 <= value <= 57 for value in values)):
+            return -1, b""
+        digits = bytes(values)
+        output = b"(" + digits[:3] + b") " + digits[3:6] + b"-" + digits[6:]
+        return len(output), output
+
+    if algorithm == "check_palindrome2":
+        if (not isinstance(values, list) or len(values) > 1024
+                or any(type(value) is not int or not 32 <= value <= 126 for value in values)):
+            return -1, b""
+        normalized = bytes(values).strip(b" ").lower()
+        if not normalized or normalized == b"0":
+            return -1, b""
+        suffix = (b" - a palindrome string.\n" if normalized == normalized[::-1]
+                  else b" - not a palindrome string.\n")
+        output = normalized + suffix
+        return len(output), output
+
     if algorithm == "first_n_fibonacci":
         if (not isinstance(values, list) or len(values) != 1
                 or type(values[0]) is not int or not -(2**63) <= values[0] < 2**63
@@ -648,12 +943,10 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         previous, current = 0, 1
         output = bytearray()
-        for index in range(values[0]):
-            value = previous if index == 0 else current if index == 1 else previous + current
-            if index >= 2:
-                previous, current = current, value
-            output.extend(str(value).encode("ascii"))
+        for _ in range(values[0]):
+            output.extend(str(previous).encode("ascii"))
             output.append(0)
+            previous, current = current, previous + current
         return len(output), bytes(output)
 
     if algorithm == "kaprekar_numbers_in_range":
@@ -3601,6 +3894,19 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         encoded = format(number, "b" if algorithm == "hexadecimal_to_binary" else "o").encode("ascii")
         return len(encoded), encoded
+
+    if algorithm == "findpalindrome":
+        if (not isinstance(values, list) or len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int or not 32 <= value <= 126 for value in values)):
+            return -1, b""
+        punctuation = set(b'!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~')
+        words = []
+        for raw in bytes(values).split(b" "):
+            word = bytes(value for value in raw if value not in punctuation)
+            if len(word) > 1 and word.lower() == word[::-1].lower():
+                words.append(word)
+        output = b"\0".join(words)
+        return len(output), output
 
     raise ValueError(f"no byte-output oracle for {algorithm}")
 

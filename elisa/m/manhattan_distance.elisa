@@ -1,0 +1,23 @@
+# Return the n-dimensional Manhattan distance between two integer points.
+def manhattan_distance_impl(values: i64&, length: usize) -> f64:
+    if length < 3:
+        return -1.0e300
+    dimensions: i64 = values[0]
+    if dimensions < 1 or dimensions > 16 or length != 1 + 2 * dimensions.usize():
+        return -1.0e300
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < dimensions.usize():
+        first: i64 = values[1 + index]
+        second: i64 = values[1 + dimensions.usize() + index]
+        if first < -1000000 or first > 1000000 or second < -1000000 or second > 1000000:
+            return -1.0e300
+        difference: i64 = first - second
+        if difference < 0:
+            total <- total - difference
+        else:
+            total <- total + difference
+        index <- index + 1
+    total.f64()
+
+export fn manhattan_distance(values: i64&, length: usize) -> f64 = manhattan_distance_impl

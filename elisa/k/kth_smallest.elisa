@@ -1,0 +1,59 @@
+const MAX_LENGTH: usize = 256
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def kth_smallest_partition(values: mutable i64&, low_value: usize, high_value: usize) -> usize:
+    pivot: usize = high_value
+    i: mutable usize = low_value
+    j: mutable usize = high_value - 1
+    done: mutable bool = false
+    while not done:
+        while values[i] < values[pivot]:
+            i <- i + 1
+        while j > 0 and values[j] > values[pivot]:
+            j <- j - 1
+        if j == 0 or i >= j:
+            done <- true
+        elif values[i] == values[j]:
+            i <- i + 1
+            j <- j - 1
+        else:
+            temporary: i64 = values[i]
+            values[i] <- values[j]
+            values[j] <- temporary
+    temporary: i64 = values[i]
+    values[i] <- values[pivot]
+    values[pivot] <- temporary
+    i
+
+# Select the one-based k-th value using a private mutable copy.
+def kth_smallest_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > MAX_LENGTH + 2:
+        return INVALID_RESULT
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    if n_value < 1 or n_value > i64(MAX_LENGTH) or k_value < 1 or k_value > n_value or length != usize(n_value) + 2:
+        return INVALID_RESULT
+    values: mutable i64[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < usize(n_value):
+        value: i64 = input[index + 2]
+        if value < -2147483648 or value > 2147483647:
+            return INVALID_RESULT
+        values[index] <- value
+        index <- index + 1
+    low: mutable usize = 0
+    high: mutable usize = usize(n_value) - 1
+    k: mutable usize = usize(k_value)
+    while low < high:
+        pivot: usize = kth_smallest_partition(&values[0], low, high)
+        pivot_rank: usize = pivot - low + 1
+        if k == pivot_rank:
+            return values[pivot]
+        elif k < pivot_rank:
+            high <- pivot - 1
+        else:
+            low <- pivot + 1
+            k <- k - pivot_rank
+    values[low]
+
+export fn kth_smallest(input: i64&, length: usize) -> i64 = kth_smallest_impl

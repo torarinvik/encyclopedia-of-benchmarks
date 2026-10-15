@@ -1,0 +1,28 @@
+# Check direct parent-child ordering in a heap-indexed binary tree.
+const MISSING_NODE: i64 = -2147483649
+
+def binary_tree_is_sorted_local_impl(nodes: i64&, length: usize) -> i64:
+    if length == 0 or length > 255 or nodes[0] == MISSING_NODE:
+        return -1
+    invalid: mutable bool = false
+    unordered: mutable bool = false
+    i: mutable usize = 0
+    while i < length:
+        value: i64 = nodes[i]
+        if value != MISSING_NODE:
+            if value < -2147483648 or value > 2147483647:
+                invalid <- true
+            if i > 0:
+                parent: usize = (i - 1) / 2
+                if nodes[parent] == MISSING_NODE:
+                    invalid <- true
+                elif (i % 2 == 1 and value > nodes[parent]) or (i % 2 == 0 and value < nodes[parent]):
+                    unordered <- true
+        i <- i + 1
+    if invalid:
+        return -1
+    if unordered:
+        return 0
+    1
+
+export fn binary_tree_is_sorted_local(nodes: i64&, length: usize) -> i64 = binary_tree_is_sorted_local_impl

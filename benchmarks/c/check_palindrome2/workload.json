@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "check-palindrome2-php-ascii-message-v1",
+  "algorithm": "check_palindrome2",
+  "function_symbol": "check_palindrome2",
+  "input": {
+    "kind": "ascii_string_byte_array",
+    "encoding": "printable ASCII byte values 32..126",
+    "minimum_length": 0,
+    "maximum_length": 1024,
+    "normalization": "trim ASCII spaces, then lowercase ASCII letters; caseInsensitive defaults to true",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "normalized string plus PHP palindrome message, with LF newline",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "spaces-only",
+      "input_values": [
+        32,
+        32,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-after-trim",
+      "input_values": [
+        32,
+        48,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trimmed-mixed-case-palindrome",
+      "input_values": [
+        32,
+        32,
+        82,
+        97,
+        99,
+        101,
+        67,
+        97,
+        114,
+        32,
+        32
+      ],
+      "input_length": 11,
+      "expected_result": 31,
+      "expected_output_hex": "72616365636172202d20612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "mixed-case-not-palindrome",
+      "input_values": [
+        72,
+        101,
+        108,
+        108,
+        111
+      ],
+      "input_length": 5,
+      "expected_result": 33,
+      "expected_output_hex": "68656c6c6f202d206e6f7420612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "digit-palindrome",
+      "input_values": [
+        49,
+        50,
+        51,
+        50,
+        49
+      ],
+      "input_length": 5,
+      "expected_result": 29,
+      "expected_output_hex": "3132333231202d20612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "punctuation-remains-significant",
+      "input_values": [
+        65,
+        32,
+        109,
+        97,
+        110,
+        44,
+        32,
+        97,
+        32,
+        112,
+        108,
+        97,
+        110
+      ],
+      "input_length": 13,
+      "expected_result": 41,
+      "expected_output_hex": "61206d616e2c206120706c616e202d206e6f7420612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "internal-spaces-remain-significant",
+      "input_values": [
+        32,
+        97,
+        32,
+        98,
+        32,
+        97,
+        32
+      ],
+      "input_length": 7,
+      "expected_result": 29,
+      "expected_output_hex": "6120622061202d20612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "zero-with-another-character",
+      "input_values": [
+        48,
+        97
+      ],
+      "input_length": 2,
+      "expected_result": 30,
+      "expected_output_hex": "3061202d206e6f7420612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "uppercase-palindrome",
+      "input_values": [
+        65,
+        97,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": 27,
+      "expected_output_hex": "616161202d20612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "two-character-not-palindrome",
+      "input_values": [
+        97,
+        98
+      ],
+      "input_length": 2,
+      "expected_result": 30,
+      "expected_output_hex": "6162202d206e6f7420612070616c696e64726f6d6520737472696e672e0a"
+    },
+    {
+      "id": "invalid-control-byte",
+      "input_values": [
+        97,
+        9
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-non-ascii-byte",
+      "input_values": [
+        99,
+        97,
+        102,
+        233
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+# One-pass postorder height computation from the pinned recursive method.
+def balanced_height(nodes: i64&, node_count: usize, node: i64, balanced: bool&) -> i64:
+    if node == -1 or not balanced:
+        return 0
+    if node < 0 or node.u64() >= node_count.u64():
+        return -1
+    index: usize = node.usize()
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    invalid_left: bool = left < -1 or (left >= 0 and left.u64() >= node_count.u64())
+    invalid_right: bool = right < -1 or (right >= 0 and right.u64() >= node_count.u64())
+    if invalid_left or invalid_right:
+        return -1
+    left_height: i64 = balanced_height(nodes, node_count, left, balanced)
+    if left_height < 0:
+        return -1
+    right_height: i64 = balanced_height(nodes, node_count, right, balanced)
+    if right_height < 0:
+        return -1
+    difference: i64 = left_height - right_height if left_height >= right_height else right_height - left_height
+    if difference > 1:
+        balanced = false
+    1 + (left_height if left_height > right_height else right_height)
+
+def check_if_binary_tree_balanced_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
+    if node_count > 1023:
+        return -1
+    if node_count == 0:
+        return 1 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    balanced: bool = true
+    height: i64 = balanced_height(nodes, node_count, root_index, balanced)
+    if height < 0:
+        return -1
+    1 if balanced else 0
+
+export fn check_if_binary_tree_balanced(nodes: i64&, node_count: usize, root_index: i64) -> i64 = check_if_binary_tree_balanced_impl

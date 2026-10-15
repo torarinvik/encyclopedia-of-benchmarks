@@ -1,0 +1,60 @@
+# Bottom-up DFS heights over an undirected adjacency-list tree.
+const MAX_NODES: usize = 1023
+const MAX_ARCS: usize = 2 * (MAX_NODES - 1)
+
+def tree_height_visit(node: usize, head: i64&, arc_to: i64&, arc_next: i64&,
+        visited: mutable i64&, dp: mutable i64&, reached: mutable usize&) -> i64:
+    visited[node] <- 1
+    reached <- reached + 1
+    child_height: mutable i64 = 1
+    arc: mutable i64 = head[node]
+    while arc >= 0 |arc, child_height, head, arc_to, arc_next, visited, dp, reached|:
+        child: usize = arc_to[arc.usize()].usize()
+        if visited[child] == 0:
+            child_result: i64 = tree_height_visit(child, head, arc_to, arc_next,
+                visited, dp, reached)
+            if child_result < 0:
+                return -1
+            candidate: i64 = dp[child] + 1
+            if candidate > child_height:
+                child_height <- candidate
+        arc <- arc_next[arc.usize()]
+    dp[node] <- child_height
+    child_height
+
+def tree_height_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or values[0] < 1 or values[0] > i64(MAX_NODES):
+        return -1
+    count: usize = values[0].usize()
+    if length != 1 + 2 * (count - 1):
+        return -1
+    head: mutable i64[MAX_NODES + 1] = zeroed
+    arc_to: mutable i64[MAX_ARCS] = zeroed
+    arc_next: mutable i64[MAX_ARCS] = zeroed
+    visited: mutable i64[MAX_NODES + 1] = zeroed
+    dp: mutable i64[MAX_NODES + 1] = zeroed
+    for node in 0..<(count + 1) |head|:
+        head[node] <- -1
+    arcs: mutable usize = 0
+    for edge in 0..<(count - 1) |values, head, arc_to, arc_next, arcs|:
+        a_value: i64 = values[1 + 2 * edge]
+        b_value: i64 = values[2 + 2 * edge]
+        if a_value < 1 or b_value < 1 or a_value > i64(count) or b_value > i64(count) or a_value == b_value:
+            return -1
+        a: usize = a_value.usize()
+        b: usize = b_value.usize()
+        arc_to[arcs] <- b.i64()
+        arc_next[arcs] <- head[a]
+        head[a] <- arcs.i64()
+        arcs <- arcs + 1
+        arc_to[arcs] <- a.i64()
+        arc_next[arcs] <- head[b]
+        head[b] <- arcs.i64()
+        arcs <- arcs + 1
+    reached: mutable usize = 0
+    result: i64 = tree_height_visit(1, head, arc_to, arc_next, visited, dp, reached)
+    if result < 0 or reached != count:
+        return -1
+    result
+
+export fn tree_height(values: i64&, length: usize) -> i64 = tree_height_impl

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "fast-factorial-rust-prime-exponent-balanced-product-v1",
+  "algorithm": "fast_factorial",
+  "input": {
+    "minimum": 0,
+    "maximum": 20,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 1},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "three", "input_value": 3, "expected_result": 6},
+    {"id": "four", "input_value": 4, "expected_result": 24},
+    {"id": "five", "input_value": 5, "expected_result": 120},
+    {"id": "six", "input_value": 6, "expected_result": 720},
+    {"id": "seven", "input_value": 7, "expected_result": 5040},
+    {"id": "eight", "input_value": 8, "expected_result": 40320},
+    {"id": "ten", "input_value": 10, "expected_result": 3628800},
+    {"id": "eleven", "input_value": 11, "expected_result": 39916800},
+    {"id": "sixteen", "input_value": 16, "expected_result": 20922789888000},
+    {"id": "maximum", "input_value": 20, "expected_result": 2432902008176640000},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 21, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

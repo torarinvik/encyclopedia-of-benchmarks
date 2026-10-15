@@ -41,7 +41,12 @@ pub fn twos_complement(value i64, output &u8, output_capacity usize) i64 {
 		output[position] = 98; position++
 		output[position] = 49; position++
 		zero_count := bit_length - bit_count
-		for mut zero := usize(0); zero < zero_count; zero++ { output[position] = 48; position++ }
+		mut zero := usize(0)
+		for zero < zero_count {
+			output[position] = 48
+			position++
+			zero++
+		}
 		for bit_count > 0 {
 			bit_count--
 			output[position] = bits[bit_count]

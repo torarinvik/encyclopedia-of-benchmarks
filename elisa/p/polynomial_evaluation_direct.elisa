@@ -1,0 +1,34 @@
+# Bounded integer port of the pinned direct-power polynomial routine.
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def integer_power(base: i64, exponent: usize) -> i64:
+    result: mutable i64 = 1
+    index: mutable usize = 0
+    while index < exponent:
+        result <- result * base
+        index <- index + 1
+    result
+
+def polynomial_evaluation_direct_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 10:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    x: i64 = values[1]
+    if count < 0 or count > 8 or length != (count + 2).usize():
+        return INVALID_RESULT
+    if x < -10 or x > 10:
+        return INVALID_RESULT
+    index: mutable usize = 0
+    while index < count.usize():
+        coefficient: i64 = values[index + 2]
+        if coefficient < -1000 or coefficient > 1000:
+            return INVALID_RESULT
+        index <- index + 1
+    result: mutable i64 = 0
+    index <- 0
+    while index < count.usize():
+        result <- result + values[index + 2] * integer_power(x, index)
+        index <- index + 1
+    result
+
+export fn polynomial_evaluation_direct(values: i64&, length: usize) -> i64 = polynomial_evaluation_direct_impl

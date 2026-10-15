@@ -13,7 +13,7 @@ This benchmark ports the pinned [TheAlgorithms/JavaScript implementation](https:
 
 The pinned [QuickSelect helper](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Search/QuickSelectSearch.js) can leave its search interval unchanged when the requested rank is at the upper boundary (for example, a two-element ascending array). The ports use a progress-safe partition while preserving the median-selection and alternating-placement approach. This makes the benchmark terminate on the documented domain.
 
-This contract differs from [wiggle_sort](../wiggle_sort/README.md), which makes local adjacent swaps in one pass and can return a different permutation.
+This contract differs from [wiggle_sort](../../w/wiggle_sort/README.md), which makes local adjacent swaps in one pass and can return a different permutation.
 
 ## Workload and build
 

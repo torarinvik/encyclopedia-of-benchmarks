@@ -1,0 +1,9 @@
+# Binary step over a bounded finite binary64 domain.
+def binary_step_impl(x: f64) -> f64:
+    if x != x or x < -1000000.0 or x > 1000000.0:
+        return -1.0e300
+    if x >= 0.0:
+        return 1.0
+    0.0
+
+export fn binary_step(x: f64) -> f64 = binary_step_impl

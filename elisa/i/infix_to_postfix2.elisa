@@ -1,0 +1,82 @@
+# Convert a bounded ASCII infix expression with the source's operator stack.
+const MAX_EXPRESSION: usize = 24
+const MAX_STACK: usize = 10
+
+def infix_to_postfix2_is_operand(ch: i64) -> bool:
+    (ch >= 48 and ch <= 57) or (ch >= 65 and ch <= 90) or (ch >= 97 and ch <= 122)
+
+def infix_to_postfix2_is_operator(ch: i64) -> bool:
+    ch == 43 or ch == 45 or ch == 42 or ch == 47 or ch == 37
+
+def infix_to_postfix2_precedence(ch: i64) -> i64:
+    if ch == 42 or ch == 47 or ch == 37:
+        return 1
+    0
+
+def infix_to_postfix2_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > MAX_EXPRESSION:
+        return -1
+    stack: mutable u8[MAX_STACK] = zeroed
+    result: mutable u8[MAX_EXPRESSION + 1] = zeroed
+    top: mutable usize = 0
+    count: mutable usize = 0
+    expect_operand: mutable bool = true
+    index: mutable usize = 0
+    while index < length:
+        ch: i64 = input[index]
+        if infix_to_postfix2_is_operand(ch):
+            if not expect_operand:
+                return -1
+            result[count] <- ch.u8()
+            count <- count + 1
+            expect_operand <- false
+        elif ch == 40:
+            if not expect_operand or top == MAX_STACK:
+                return -1
+            stack[top] <- 40u8
+            top <- top + 1
+        elif ch == 41:
+            if expect_operand:
+                return -1
+            while top > 0 and stack[top - 1] != 40u8:
+                top <- top - 1
+                result[count] <- stack[top]
+                count <- count + 1
+            if top == 0:
+                return -1
+            top <- top - 1
+            expect_operand <- false
+        elif infix_to_postfix2_is_operator(ch):
+            if expect_operand:
+                return -1
+            while top > 0 and stack[top - 1] != 40u8 and infix_to_postfix2_precedence(ch) <= infix_to_postfix2_precedence(stack[top - 1].i64()):
+                top <- top - 1
+                result[count] <- stack[top]
+                count <- count + 1
+            if top == MAX_STACK:
+                return -1
+            stack[top] <- ch.u8()
+            top <- top + 1
+            expect_operand <- true
+        else:
+            return -1
+        index <- index + 1
+    if expect_operand:
+        return -1
+    while top > 0:
+        top <- top - 1
+        if stack[top] == 40u8:
+            return -1
+        result[count] <- stack[top]
+        count <- count + 1
+    result[count] <- 0u8
+    count <- count + 1
+    if output_capacity < count:
+        return -2
+    index <- 0
+    while index < count:
+        output[index] <- result[index]
+        index <- index + 1
+    count.i64()
+
+export fn infix_to_postfix2(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = infix_to_postfix2_impl

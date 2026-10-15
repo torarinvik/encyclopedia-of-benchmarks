@@ -1,0 +1,73 @@
+const MAX_WORDS: i64 = 16
+const MAX_WORD_LENGTH: i64 = 16
+
+def anagram_dictionary_search_is_match(input: i64&, query_length: usize, word_offset: usize, word_length: usize) -> bool:
+    if query_length != word_length:
+        return false
+    counts: mutable i64[26] = zeroed
+    index: mutable usize = 0
+    while index < query_length:
+        counts[(input[2 + index] - 97).usize()] <- counts[(input[2 + index] - 97).usize()] + 1
+        counts[(input[word_offset + index] - 97).usize()] <- counts[(input[word_offset + index] - 97).usize()] - 1
+        index <- index + 1
+    index <- 0
+    while index < 26:
+        if counts[index] != 0:
+            return false
+        index <- index + 1
+    true
+
+def anagram_dictionary_search_put_byte(output: mutable u8&, capacity: usize, length: mutable usize&, value: u8) -> bool:
+    if length >= capacity:
+        return false
+    output[length] <- value
+    length <- length + 1
+    true
+
+def anagram_dictionary_search_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    word_count: i64 = input[0]
+    query_length_value: i64 = input[1]
+    if word_count < 0 or word_count > MAX_WORDS or query_length_value < 0 or query_length_value > MAX_WORD_LENGTH:
+        return -1
+    query_length: usize = query_length_value.usize()
+    if 2 + query_length > length:
+        return -1
+    index: mutable usize = 0
+    while index < query_length:
+        if input[2 + index] < 97 or input[2 + index] > 122:
+            return -1
+        index <- index + 1
+    offset: mutable usize = 2 + query_length
+    output_length: mutable usize = 0
+    item: mutable i64 = 0
+    while item < word_count:
+        if offset >= length or input[offset] < 1 or input[offset] > MAX_WORD_LENGTH:
+            return -1
+        word_length: usize = input[offset].usize()
+        offset <- offset + 1
+        if offset + word_length > length:
+            return -1
+        index <- 0
+        while index < word_length:
+            if input[offset + index] < 97 or input[offset + index] > 122:
+                return -1
+            index <- index + 1
+        if anagram_dictionary_search_is_match(input, query_length, offset, word_length):
+            index <- 0
+            while index < word_length:
+                if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, input[offset + index].u8()):
+                    return -2
+                index <- index + 1
+            if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, 10.u8()):
+                return -2
+        offset <- offset + word_length
+        item <- item + 1
+    if offset != length:
+        return -1
+    if not anagram_dictionary_search_put_byte(output, output_capacity, output_length, 0.u8()):
+        return -2
+    output_length.i64()
+
+export fn anagram_dictionary_search(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = anagram_dictionary_search_impl

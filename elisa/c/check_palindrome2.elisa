@@ -1,0 +1,83 @@
+const MAX_LENGTH: usize = 1024
+
+def lower_ascii(value: i64) -> i64:
+    if value >= 65 and value <= 90:
+        return value + 32
+    value
+
+def suffix_tail_byte(index: usize) -> u8:
+    if index == 0: return 97.u8()
+    if index == 1: return 32.u8()
+    if index == 2: return 112.u8()
+    if index == 3: return 97.u8()
+    if index == 4: return 108.u8()
+    if index == 5: return 105.u8()
+    if index == 6: return 110.u8()
+    if index == 7: return 100.u8()
+    if index == 8: return 114.u8()
+    if index == 9: return 111.u8()
+    if index == 10: return 109.u8()
+    if index == 11: return 101.u8()
+    if index == 12: return 32.u8()
+    if index == 13: return 115.u8()
+    if index == 14: return 116.u8()
+    if index == 15: return 114.u8()
+    if index == 16: return 105.u8()
+    if index == 17: return 110.u8()
+    if index == 18: return 103.u8()
+    if index == 19: return 46.u8()
+    10.u8()
+
+def check_palindrome2_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for index in 0..<length:
+        if values[index] < 32 or values[index] > 126:
+            return -1
+    start: mutable usize = 0
+    end: mutable usize = length
+    while start < end and values[start] == 32:
+        start <- start + 1
+    while end > start and values[end - 1] == 32:
+        end <- end - 1
+    normalized_length: usize = end - start
+    if normalized_length == 0 or (normalized_length == 1 and values[start] == 48):
+        return -1
+
+    palindrome: mutable bool = true
+    left: mutable usize = 0
+    while left < normalized_length / 2:
+        right: usize = normalized_length - left - 1
+        if lower_ascii(values[start + left]) != lower_ascii(values[start + right]):
+            palindrome <- false
+        left <- left + 1
+
+    suffix_length: mutable usize = 24
+    if not palindrome:
+        suffix_length <- 28
+    required: usize = normalized_length + suffix_length
+    if output_capacity < required:
+        return -2
+    index: mutable usize = 0
+    while index < normalized_length:
+        output[index] <- lower_ascii(values[start + index]).u8()
+        index <- index + 1
+    position: mutable usize = normalized_length
+    output[position] <- 32.u8()
+    output[position + 1] <- 45.u8()
+    output[position + 2] <- 32.u8()
+    position <- position + 3
+    if not palindrome:
+        output[position] <- 110.u8()
+        output[position + 1] <- 111.u8()
+        output[position + 2] <- 116.u8()
+        output[position + 3] <- 32.u8()
+        position <- position + 4
+    index <- 0
+    while index < 21:
+        output[position] <- suffix_tail_byte(index)
+        position <- position + 1
+        index <- index + 1
+    required.i64()
+
+export fn check_palindrome2(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = check_palindrome2_impl

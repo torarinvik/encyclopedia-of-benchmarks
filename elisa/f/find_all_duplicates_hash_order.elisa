@@ -1,0 +1,58 @@
+const MAX_INPUT_LENGTH: usize = 1024
+const TABLE_SIZE: usize = 2048
+
+def find_all_duplicates_hash_order_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or (length > 0 and values == null):
+        return -1
+
+    keys: mutable i64[TABLE_SIZE] = zeroed
+    counts: mutable usize[TABLE_SIZE] = zeroed
+    used: mutable bool[TABLE_SIZE] = zeroed
+    insertion_order: mutable usize[MAX_INPUT_LENGTH] = zeroed
+    unique_count: mutable usize = 0
+
+    index: mutable usize = 0
+    while index < length:
+        remainder: mutable i64 = values[index] % 2048
+        if remainder < 0:
+            remainder <- remainder + 2048
+        slot: mutable usize = remainder.usize()
+        while used[slot] and keys[slot] != values[index]:
+            slot <- (slot + 1) % TABLE_SIZE
+        if not used[slot]:
+            used[slot] <- true
+            keys[slot] <- values[index]
+            counts[slot] <- 1
+            insertion_order[unique_count] <- slot
+            unique_count <- unique_count + 1
+        else:
+            counts[slot] <- counts[slot] + 1
+        index <- index + 1
+
+    duplicate_count: mutable usize = 0
+    index <- 0
+    while index < unique_count:
+        if counts[insertion_order[index]] > 1:
+            duplicate_count <- duplicate_count + 1
+        index <- index + 1
+    required: usize = duplicate_count * 8
+    if output_capacity < required or (required > 0 and output == null):
+        return -2
+
+    written: mutable usize = 0
+    index <- 0
+    while index < unique_count:
+        slot: usize = insertion_order[index]
+        if counts[slot] > 1:
+            bits: u64 = keys[slot].u64()
+            byte: mutable usize = 0
+            while byte < 8:
+                output[written] <- ((bits >> (byte * 8)) & 255).u8()
+                written <- written + 1
+                byte <- byte + 1
+        index <- index + 1
+    duplicate_count.i64()
+
+export fn find_all_duplicates_hash_order(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = find_all_duplicates_hash_order_impl

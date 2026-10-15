@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "manhattan-distance-i64-array-float64-v1",
+  "algorithm": "manhattan_distance",
+  "function_symbol": "manhattan_distance",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[dimension, point_a_coordinates..., point_b_coordinates...]",
+    "dimension_range": [1, 16],
+    "coordinate_range": [-1000000, 1000000],
+    "invalid_input_result": -1e300,
+    "distance_formula": "sum(abs(point_a[i] - point_b[i]))"
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "coordinate units",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"source-two-dimensional", "input_values":[2,1,1,2,2], "input_length":5, "expected_result":2.0},
+    {"id":"source-three-dimensional", "input_values":[3,-3,-3,-3,0,0,0], "input_length":7, "expected_result":9.0},
+    {"id":"one-dimensional", "input_values":[1,-5,7], "input_length":3, "expected_result":12.0},
+    {"id":"same-points", "input_values":[2,6,-10,6,-10], "input_length":5, "expected_result":0.0},
+    {"id":"opposite-coordinate-bounds", "input_values":[2,-1000000,-1000000,1000000,1000000], "input_length":5, "expected_result":4000000.0},
+    {"id":"zero-dimension", "input_values":[0], "input_length":1, "expected_result":-1e300},
+    {"id":"negative-dimension", "input_values":[-1], "input_length":1, "expected_result":-1e300},
+    {"id":"dimension-above-bound", "input_values":[17], "input_length":1, "expected_result":-1e300},
+    {"id":"short-array", "input_values":[2,1,2], "input_length":3, "expected_result":-1e300},
+    {"id":"coordinate-below-bound", "input_values":[1,-1000001,0], "input_length":3, "expected_result":-1e300},
+    {"id":"coordinate-above-bound", "input_values":[1,0,1000001], "input_length":3, "expected_result":-1e300},
+    {"id":"empty-array", "input_values":[], "input_length":0, "expected_result":-1e300}
+  ]
+}

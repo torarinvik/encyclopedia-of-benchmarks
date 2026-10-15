@@ -9,9 +9,10 @@ def factorial_large_number_impl(n: i64, output: mutable u8&, output_capacity: us
     digits[0] <- 1
     digit_count: mutable usize = 1
     factor: mutable i64 = 2
+    index: mutable usize = 0
     while factor <= n:
         carry: mutable i64 = 0
-        index: mutable usize = 0
+        index <- 0
         while index < digit_count:
             product: i64 = digits[index] * factor + carry
             digits[index] <- product % 10

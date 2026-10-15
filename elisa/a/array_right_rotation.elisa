@@ -1,0 +1,44 @@
+const MAX_ARRAY_LENGTH: usize = 1024
+const MAX_INPUT_LENGTH: usize = 1025
+const MAX_SHIFT: i64 = 1024
+
+def write_i32_le(output: mutable u8&, index: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[index * 4] <- (bits & 255).u8()
+    output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+    output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+    output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+
+# Return a fresh right rotation; a shift at least as large as the input size yields empty output.
+def array_right_rotation_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    shift_value: i64 = input[0]
+    if shift_value < 0 or shift_value > MAX_SHIFT:
+        return -1
+    count: usize = length - 1
+    values: mutable i64[1024] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    shift: usize = shift_value.usize()
+    if shift >= count:
+        return 0
+    output_bytes: usize = count * 4
+    if output_capacity < output_bytes:
+        return -2
+    index <- 0
+    while index < shift:
+        write_i32_le(output, index, values[count - shift + index])
+        index <- index + 1
+    index <- shift
+    while index < count:
+        write_i32_le(output, index, values[index - shift])
+        index <- index + 1
+    count.i64()
+
+export fn array_right_rotation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = array_right_rotation_impl

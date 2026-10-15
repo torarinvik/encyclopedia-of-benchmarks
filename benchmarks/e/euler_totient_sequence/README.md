@@ -8,7 +8,7 @@ Compute `φ(1)` through `φ(n)` by factoring each value independently and applyi
 - Return `φ(1), φ(2), ..., φ(n)` as comma-separated ASCII decimal bytes, in order. The return value is the number of bytes written.
 - Insufficient output capacity returns `-2`.
 
-This is a repeated-factorization sequence. [`compute_totient`](../compute_totient/README.md) uses a sieve, and [`totients_linear_sieve`](../totients_linear_sieve/README.md) uses the linear sieve recurrence.
+This is a repeated-factorization sequence. [`compute_totient`](../../c/compute_totient/README.md) uses a sieve, and [`totients_linear_sieve`](../../t/totients_linear_sieve/README.md) uses the linear sieve recurrence.
 
 ## Workload
 

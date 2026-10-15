@@ -1,0 +1,58 @@
+# Middle-column elimination, then binary search of one row slice.
+def search_row(values: i64&, row_base: i64, low: i64, high: i64, target: i64) -> i64:
+    lo: mutable i64 = low
+    hi: mutable i64 = high
+    while lo <= hi:
+        middle: i64 = lo + (hi - lo) / 2
+        value: i64 = values[3 + row_base + middle]
+        if value == target:
+            return middle
+        if value < target:
+            lo <- middle + 1
+        else:
+            hi <- middle - 1
+    -1
+
+def binary_search2d_array_impl(values: i64&, length: usize) -> i64:
+    if length < 3:
+        return -1
+    rows: i64 = values[0]
+    cols: i64 = values[1]
+    target: i64 = values[2]
+    if rows < 2 or rows > 32 or cols < 3 or cols > 32:
+        return -1
+    if length != 3 + usize(rows * cols):
+        return -1
+    middle_col: i64 = cols / 2
+    start_row: mutable i64 = 0
+    end_row: mutable i64 = rows - 1
+    while start_row < end_row - 1:
+        middle_row: i64 = start_row + (end_row - start_row) / 2
+        value: i64 = values[3 + middle_row * cols + middle_col]
+        if value == target:
+            return middle_row * cols + middle_col
+        if value < target:
+            start_row <- middle_row
+        else:
+            end_row <- middle_row
+    if values[3 + start_row * cols + middle_col] == target:
+        return start_row * cols + middle_col
+    if values[3 + end_row * cols + middle_col] == target:
+        return end_row * cols + middle_col
+    if target <= values[3 + start_row * cols + middle_col - 1]:
+        col: i64 = search_row(values, start_row * cols, 0, middle_col - 1, target)
+        if col < 0: return -1
+        return start_row * cols + col
+    if target >= values[3 + start_row * cols + middle_col + 1] and target <= values[3 + start_row * cols + cols - 1]:
+        col: i64 = search_row(values, start_row * cols, middle_col + 1, cols - 1, target)
+        if col < 0: return -1
+        return start_row * cols + col
+    if target <= values[3 + end_row * cols + middle_col - 1]:
+        col: i64 = search_row(values, end_row * cols, 0, middle_col - 1, target)
+        if col < 0: return -1
+        return end_row * cols + col
+    col: i64 = search_row(values, end_row * cols, middle_col + 1, cols - 1, target)
+    if col < 0: return -1
+    end_row * cols + col
+
+export fn binary_search2d_array(values: i64&, length: usize) -> i64 = binary_search2d_array_impl

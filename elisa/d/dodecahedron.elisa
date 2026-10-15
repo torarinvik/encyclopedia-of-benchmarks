@@ -1,0 +1,19 @@
+# Compute a regular dodecahedron's area or volume from its edge length.
+extern sqrt(value: f64) -> f64
+
+def dodecahedron_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    edge: i64 = values[0]
+    quantity: i64 = values[1]
+    if edge < 1 or edge > 1000000 or (quantity != 0 and quantity != 1):
+        return -1.0e300
+
+    root_five: f64 = sqrt(5.0)
+    if quantity == 0:
+        area_factor: f64 = 3.0 * sqrt(25.0 + 10.0 * root_five)
+        return area_factor * (edge * edge).f64()
+    volume_factor: f64 = (15.0 + 7.0 * root_five) / 4.0
+    volume_factor * (edge * edge * edge).f64()
+
+export fn dodecahedron(values: i64&, length: usize) -> f64 = dodecahedron_impl

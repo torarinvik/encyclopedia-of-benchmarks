@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "dodecahedron-i64-array-float64-v1",
+  "algorithm": "dodecahedron",
+  "function_symbol": "dodecahedron",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 2,
+    "argument_order": ["edge", "quantity_selector"],
+    "quantity_selector": {"0": "surface_area", "1": "volume"},
+    "edge_range": [1, 1000000],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "quantity_units": {"0": "edge_length_squared", "1": "edge_length_cubed"},
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"surface-area-edge-5", "input_values":[5,0], "input_length":2, "expected_result":516.1432201766901},
+    {"id":"surface-area-edge-10", "input_values":[10,0], "input_length":2, "expected_result":2064.5728807067603},
+    {"id":"volume-edge-5", "input_values":[5,1], "input_length":2, "expected_result":957.8898700780791},
+    {"id":"volume-edge-10", "input_values":[10,1], "input_length":2, "expected_result":7663.118960624633},
+    {"id":"surface-area-edge-1", "input_values":[1,0], "input_length":2, "expected_result":20.6457288070676},
+    {"id":"volume-edge-1", "input_values":[1,1], "input_length":2, "expected_result":7.663118960624632},
+    {"id":"surface-area-maximum-edge", "input_values":[1000000,0], "input_length":2, "expected_result":20645728807067.6},
+    {"id":"volume-maximum-edge", "input_values":[1000000,1], "input_length":2, "expected_result":7.663118960624632e+18},
+    {"id":"invalid-zero-edge", "input_values":[0,0], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-negative-edge", "input_values":[-1,1], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-edge-above-bound", "input_values":[1000001,0], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-quantity-selector", "input_values":[5,2], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-short-array", "input_values":[5], "input_length":1, "expected_result":-1e300},
+    {"id":"invalid-long-array", "input_values":[5,0,1], "input_length":3, "expected_result":-1e300}
+  ]
+}

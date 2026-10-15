@@ -1,0 +1,21 @@
+# Check that every adjacent numeric pair is nondecreasing.
+def is_sorted_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    invalid: mutable bool = false
+    descending: mutable bool = false
+    i: mutable usize = 0
+    while i < length:
+        value: i64 = values[i]
+        if value < -2147483648 or value > 2147483647:
+            invalid <- true
+        if i > 0 and values[i] < values[i - 1]:
+            descending <- true
+        i <- i + 1
+    if invalid:
+        return -1
+    if descending:
+        return 0
+    1
+
+export fn is_sorted(values: i64&, length: usize) -> i64 = is_sorted_impl

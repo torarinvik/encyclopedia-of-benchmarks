@@ -1,0 +1,14 @@
+# Newton-Raphson square root under the pinned integer input contract.
+extern trunc(value: f64) -> f64
+
+def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
+    if input != input or input < 1.0 or input > 2147483647.0 or trunc(input) != input:
+        return -1.0e300
+    guess: mutable f64 = input
+    root: mutable f64 = 0.5 * (guess + input / guess)
+    while root - guess > 1e-7 or guess - root > 1e-7:
+        guess <- root
+        root <- 0.5 * (guess + input / guess)
+    root
+
+export fn square_root_with_newton_raphson_method(input: f64) -> f64 = square_root_with_newton_raphson_method_impl

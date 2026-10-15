@@ -1,0 +1,50 @@
+# Return intersection-over-union similarity for two unique ASCII sets.
+def jaccard_similarity_impl(values: i64&, length: usize) -> f64:
+    if length < 2:
+        return -1.0e300
+    left_value: i64 = values[0]
+    right_value: i64 = values[1]
+    if left_value < 0 or left_value > 64 or right_value < 0 or right_value > 64 or (left_value == 0 and right_value == 0):
+        return -1.0e300
+    left_length: usize = left_value.usize()
+    right_length: usize = right_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1.0e300
+
+    i: mutable usize = 0
+    while i < left_length:
+        value: i64 = values[2 + i]
+        if value < 32 or value > 126:
+            return -1.0e300
+        before: mutable usize = 0
+        while before < i:
+            if values[2 + before] == value:
+                return -1.0e300
+            before <- before + 1
+        i <- i + 1
+    i <- 0
+    while i < right_length:
+        value: i64 = values[2 + left_length + i]
+        if value < 32 or value > 126:
+            return -1.0e300
+        before: mutable usize = 0
+        while before < i:
+            if values[2 + left_length + before] == value:
+                return -1.0e300
+            before <- before + 1
+        i <- i + 1
+
+    intersection: mutable usize = 0
+    i <- 0
+    while i < left_length:
+        j: mutable usize = 0
+        while j < right_length:
+            if values[2 + i] == values[2 + left_length + j]:
+                intersection <- intersection + 1
+                break
+            j <- j + 1
+        i <- i + 1
+    union_length: usize = left_length + right_length - intersection
+    intersection.f64() / union_length.f64()
+
+export fn jaccard_similarity(values: i64&, length: usize) -> f64 = jaccard_similarity_impl
