@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #ifndef BENCHMARK_FUNCTION
@@ -54,8 +55,14 @@ static int64_t run_batch(const int64_t *values, size_t length, size_t repetition
 int main(int argc, char **argv)
 {
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
-    if (argc < 6 || !parse_u64(argv[1], &length_arg) || length_arg > 100000 ||
-        (uint64_t)argc != length_arg + 6) {
+    const int stdin_mode = argc > 1 && strcmp(argv[1], "--stdin") == 0;
+    if (stdin_mode) {
+        if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > 100001) {
+            fprintf(stderr, "usage: i64_array_scalar_runner --stdin LENGTH EXPECTED SAMPLES WARMUPS REPETITIONS\n");
+            return 2;
+        }
+    } else if (argc < 6 || !parse_u64(argv[1], &length_arg) || length_arg > 100001 ||
+               (uint64_t)argc != length_arg + 6) {
         fprintf(stderr, "usage: i64_array_scalar_runner LENGTH VALUES... EXPECTED SAMPLES WARMUPS REPETITIONS\n");
         return 2;
     }
@@ -66,15 +73,27 @@ int main(int argc, char **argv)
         return 2;
     }
     for (size_t index = 0; index < length; ++index) {
-        if (!parse_i64(argv[index + 2], &values[index])) {
+        const int parsed = stdin_mode
+            ? scanf("%" SCNd64, &values[index]) == 1
+            : parse_i64(argv[index + 2], &values[index]);
+        if (!parsed) {
             fprintf(stderr, "invalid signed 64-bit array value\n");
             free(values);
             return 2;
         }
     }
+    if (stdin_mode) {
+        char extra[2];
+        if (scanf("%1s", extra) == 1 || ferror(stdin)) {
+            fprintf(stderr, "unexpected trailing streamed input\n");
+            free(values);
+            return 2;
+        }
+    }
+    const size_t expected_index = stdin_mode ? 3 : length + 2;
     int64_t expected;
-    if (!parse_i64(argv[length + 2], &expected) || !parse_u64(argv[length + 3], &samples_arg) ||
-        !parse_u64(argv[length + 4], &warmups_arg) || !parse_u64(argv[length + 5], &repetitions_arg) ||
+    if (!parse_i64(argv[expected_index], &expected) || !parse_u64(argv[expected_index + 1], &samples_arg) ||
+        !parse_u64(argv[expected_index + 2], &warmups_arg) || !parse_u64(argv[expected_index + 3], &repetitions_arg) ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000) {
         fprintf(stderr, "invalid expected value or timing settings\n");

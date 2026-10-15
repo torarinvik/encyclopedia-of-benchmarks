@@ -20,10 +20,10 @@ I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 def encode_case(case: dict) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    if (not isinstance(values, list) or len(values) > 100000
+    if (not isinstance(values, list) or len(values) > 100001
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
-        raise ValueError("array scalar cases require up to 100000 signed 64-bit values")
+        raise ValueError("array scalar cases require up to 100001 signed 64-bit values")
     return values
 
 
@@ -77,9 +77,15 @@ def main() -> int:
         values = encode_case(case)
         if case.get("input_length") not in (None, len(values)):
             raise ValueError(f"declared input length differs for {case['id']}")
-        command = [str(executable), str(len(values)), *map(str, values), str(case["expected_result"]),
-                   str(samples), str(warmups), str(repetitions)]
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
+        if len(values) > 1024:
+            command = [str(executable), "--stdin", str(len(values)), str(case["expected_result"]),
+                       str(samples), str(warmups), str(repetitions)]
+            streamed_values = " ".join(map(str, values)) + "\n"
+        else:
+            command = [str(executable), str(len(values)), *map(str, values), str(case["expected_result"]),
+                       str(samples), str(warmups), str(repetitions)]
+            streamed_values = None
+        completed = subprocess.run(command, input=streamed_values, capture_output=True, text=True, check=False)
         if completed.returncode:
             raise SystemExit(f"array scalar runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)

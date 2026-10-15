@@ -2483,7 +2483,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2492,7 +2492,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/278.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "first_bad_version",
+      "benchmark_contract": "benchmarks/f/first_bad_version/README.md",
+      "review_notes": "The pinned C LeetCode 278 source performs lower-bound binary search using an external isBadVersion API. The benchmark represents that monotone predicate with a first_bad input and tests middle >= first_bad, preserving the O(log n) algorithm and avoiding an external dependency. The shared contract supports version counts through 2^31-1, validates the predicate boundary, and uses an overflow-safe midpoint. All nine portable ports passed 9,105 oracle pairs and 15 workload cases."
     },
     {
       "candidate_id": "28",
@@ -2555,7 +2558,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2564,7 +2567,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/287.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "find_duplicate_number",
+      "benchmark_contract": "benchmarks/f/find_duplicate_number/README.md",
+      "review_notes": "The pinned C LeetCode 287 source sorts the input and scans adjacent values, which mutates the array and misses the problem's linear-time, constant-space follow-up. The benchmark follows the official contract with Floyd's cycle-entry algorithm, accepts up to 100,000 values plus the repeated entry, and leaves input unchanged. All nine ports passed 17,733 exhaustive/randomized/frequency-oracle arrays and 12 workload cases, including the maximum 100,001-value input."
     },
     {
       "candidate_id": "29",

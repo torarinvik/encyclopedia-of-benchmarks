@@ -10,8 +10,8 @@ fn long first_bad_version(ulong version_count, ulong first_bad) @export("first_b
     ulong high = version_count;
     while (low < high) {
         ulong middle = low + (high - low) / 2;
-        if (middle >= first_bad) high = middle;
-        else low = middle + 1;
+        if (middle >= first_bad) { high = middle; }
+        else { low = middle + 1; }
     }
     return (long)low;
 }

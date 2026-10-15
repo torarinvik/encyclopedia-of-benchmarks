@@ -20,7 +20,7 @@ int main(void)
     while (checked < case_count) {
         uint64_t length;
         int64_t expected;
-        if (scanf("%" SCNu64 " %" SCNd64, &length, &expected) != 2 || length > 100000) {
+        if (scanf("%" SCNu64 " %" SCNd64, &length, &expected) != 2 || length > 100001) {
             fprintf(stderr, "invalid array case header\n");
             return 2;
         }
