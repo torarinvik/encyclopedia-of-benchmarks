@@ -9,8 +9,8 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_INPUT_LENGTH 4096
-#define MAX_OUTPUT_BYTES 24576
+#define MAX_INPUT_LENGTH 100002
+#define MAX_OUTPUT_BYTES 400000
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
                                  uint8_t *output, size_t output_capacity);
 
@@ -35,7 +35,7 @@ int main(void)
         if (scanf("%" SCNu64 " %" SCNd64 " %" SCNu64,
                   &length, &expected_count, &output_bytes) != 3 ||
             length > MAX_INPUT_LENGTH || output_bytes > MAX_OUTPUT_BYTES ||
-            expected_count < -2 || expected_count > 4096) {
+            expected_count < -2 || expected_count > 100000) {
             fprintf(stderr, "invalid output-array case header\n");
             return 2;
         }
@@ -54,33 +54,42 @@ int main(void)
                 return 2;
             }
         }
-        char encoded[MAX_OUTPUT_BYTES * 2 + 2];
-        if (scanf("%49152s", encoded) != 1) {
+        int character;
+        do { character = getchar(); } while (character != EOF &&
+            (character == ' ' || character == '\t' || character == '\n' || character == '\r'));
+        if (character == EOF) {
             free(values); free(expected); free(observed);
-            fprintf(stderr, "missing expected output encoding\n");
-            return 2;
+            fprintf(stderr, "missing expected output encoding\n"); return 2;
         }
         if (output_bytes == 0) {
-            if (strcmp(encoded, "-") != 0) {
+            if (character != '-') {
                 free(values); free(expected); free(observed);
                 fprintf(stderr, "empty output must use the '-' marker\n");
                 return 2;
             }
-        } else {
-            if (strlen(encoded) != output_bytes * 2) {
+            character = getchar();
+            if (character != EOF && character != ' ' && character != '\t' &&
+                character != '\n' && character != '\r') {
                 free(values); free(expected); free(observed);
-                fprintf(stderr, "expected output encoding has the wrong length\n");
-                return 2;
+                fprintf(stderr, "empty output marker has trailing characters\n"); return 2;
             }
+        } else {
             for (size_t index = 0; index < (size_t)output_bytes; ++index) {
-                const int high = hex_value(encoded[2 * index]);
-                const int low = hex_value(encoded[2 * index + 1]);
+                const int high = hex_value((char)character);
+                const int low_char = getchar();
+                const int low = hex_value((char)low_char);
                 if (high < 0 || low < 0) {
                     free(values); free(expected); free(observed);
                     fprintf(stderr, "expected output encoding is not hexadecimal\n");
                     return 2;
                 }
                 expected[index] = (uint8_t)((high << 4) | low);
+                character = index + 1 == (size_t)output_bytes ? getchar() : getchar();
+            }
+            if (character != EOF && character != ' ' && character != '\t' &&
+                character != '\n' && character != '\r') {
+                free(values); free(expected); free(observed);
+                fprintf(stderr, "expected output encoding has trailing characters\n"); return 2;
             }
         }
         observed[0] = UINT8_C(0xA5);

@@ -46,7 +46,8 @@ export fn invert_binary_tree(values: [*c]const i64, length: usize,
     const root = values[0];
     if (node_count == 0) return if (root == -1) 0 else -1;
     if (root < 0 or @as(u64, @intCast(root)) >= node_count) return -1;
-    var visited = [_]bool{false} ** MAX_NODE_COUNT;
+    var visited: [MAX_NODE_COUNT]bool = undefined;
+    for (0..node_count) |index| visited[index] = false;
     if (!validate_subtree(values, node_count, root, 1, visited[0..node_count])) return -1;
     for (visited[0..node_count]) |seen| if (!seen) return -1;
     const required = 24 * node_count;

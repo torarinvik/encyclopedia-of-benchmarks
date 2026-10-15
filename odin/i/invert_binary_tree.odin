@@ -15,7 +15,9 @@ validate_subtree :: proc "c" (values: [^]i64, node_count: int, index: i64, depth
 	offset := 1 + 3 * node
 	value, left, right := values[offset], values[offset + 1], values[offset + 2]
 	if value < -2_147_483_648 || value > 2_147_483_647 || left < -1 || right < -1 ||
-		(left >= 0 && left >= i64(node_count)) || (right >= 0 && right >= i64(node_count)) do return false
+		(left >= 0 && left >= i64(node_count)) || (right >= 0 && right >= i64(node_count)) {
+		return false
+	}
 	return validate_subtree(values, node_count, left, depth + 1, visited) &&
 		validate_subtree(values, node_count, right, depth + 1, visited)
 }
@@ -46,9 +48,12 @@ invert_binary_tree :: proc "c" (values: [^]i64, length: c.size_t,
 	if length < 1 || (length - 1) % 3 != 0 || length > 1 + 3 * MAX_NODE_COUNT do return -1
 	node_count := int((length - 1) / 3)
 	root := values[0]
-	if node_count == 0 do return if root == -1 { 0 } else { -1 }
+	if node_count == 0 {
+		if root == -1 do return 0
+		return -1
+	}
 	if root < 0 || root >= i64(node_count) do return -1
-	mut visited := [MAX_NODE_COUNT]bool{}
+	visited := [MAX_NODE_COUNT]bool{}
 	if !validate_subtree(values, node_count, root, 1, &visited[0]) do return -1
 	for index := 0; index < node_count; index += 1 {
 		if !visited[index] do return -1

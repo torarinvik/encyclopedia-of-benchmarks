@@ -1,0 +1,30 @@
+const MAX_LENGTH: usize = 100000
+const MAX_VALUE: i64 = 100000
+
+def ways_to_split_array_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_LENGTH:
+        return -1
+    valid_values: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < -MAX_VALUE or value > MAX_VALUE:
+                break false
+            index <- index + 1
+            valid
+    if not valid_values:
+        return -1
+    total_sum: i64 =
+        while index < length |index: mutable usize = 0, total: mutable i64 = 0| -> total:
+            total <- total + values[index]
+            index <- index + 1
+            total
+    ways: i64 =
+        while index + 1 < length |index: mutable usize = 0, prefix_sum: mutable i64 = 0, ways: mutable i64 = 0| -> ways:
+            prefix_sum <- prefix_sum + values[index]
+            if prefix_sum >= total_sum - prefix_sum:
+                ways <- ways + 1
+            index <- index + 1
+            ways
+    ways
+
+export fn ways_to_split_array(values: i64&, length: usize) -> i64 = ways_to_split_array_impl

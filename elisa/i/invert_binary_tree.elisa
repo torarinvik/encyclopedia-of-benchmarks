@@ -57,7 +57,7 @@ def invert_binary_tree_impl(values: i64&, length: usize, output: mutable u8&, ou
     visited: mutable bool[MAX_NODE_COUNT] = zeroed
     if not invert_tree_validate(values, node_count, root, 1, &visited[0]):
         return -1
-    index: usize = 0
+    index: mutable usize = 0
     while index < node_count:
         if not visited[index]:
             return -1

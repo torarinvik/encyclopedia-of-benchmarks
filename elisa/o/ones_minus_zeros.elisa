@@ -1,0 +1,77 @@
+const MAX_DIMENSION: usize = 100000
+const MAX_CELLS: usize = 100000
+
+def ones_minus_zeros_read_count(output: u8&, cell: usize) -> i64:
+    position: usize = 4 * cell
+    value: mutable i64 = output[position].i64()
+    value <- value + output[position + 1].i64() * 256
+    value <- value + output[position + 2].i64() * 65536
+    value <- value + output[position + 3].i64() * 16777216
+    value
+
+def ones_minus_zeros_write_i32(output: mutable u8&, cell: usize, value: i64) -> void:
+    encoded: mutable i64 = value
+    if encoded < 0:
+        encoded <- encoded + 4294967296
+    position: usize = 4 * cell
+    output[position] <- (encoded & 255).u8()
+    output[position + 1] <- ((encoded / 256) & 255).u8()
+    output[position + 2] <- ((encoded / 65536) & 255).u8()
+    output[position + 3] <- ((encoded / 16777216) & 255).u8()
+
+def ones_minus_zeros_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or values[0] < 1 or values[0] > i64(MAX_DIMENSION) or
+            values[1] < 1 or values[1] > i64(MAX_DIMENSION):
+        return -1
+    rows: usize = usize(values[0])
+    columns: usize = usize(values[1])
+    if rows > MAX_CELLS / columns:
+        return -1
+    cells: usize = rows * columns
+    if length != 2 + cells:
+        return -1
+    for cell in 0..<cells |values|:
+        if values[2 + cell] != 0 and values[2 + cell] != 1:
+            return -1
+    required: usize = 4 * cells
+    if output_capacity < required:
+        return -2
+    for byte in 0..<required |output|:
+        output[byte] <- 0
+
+    row_zero_ones: mutable i64 = 0
+    column_zero_ones: mutable i64 = 0
+    for row in 0..<rows |values, output, row_zero_ones, column_zero_ones|:
+        for column in 0..<columns |values, output, row_zero_ones, column_zero_ones|:
+            if values[2 + row * columns + column] == 0:
+                continue
+            if row == 0:
+                row_zero_ones <- row_zero_ones + 1
+            else:
+                slot: usize = row * columns
+                ones_minus_zeros_write_i32(output, slot, ones_minus_zeros_read_count(output, slot) + 1)
+            if column == 0:
+                column_zero_ones <- column_zero_ones + 1
+            else:
+                ones_minus_zeros_write_i32(output, column,
+                    ones_minus_zeros_read_count(output, column) + 1)
+    row: mutable usize = rows
+    while row > 1 |row, columns, output, column_zero_ones|:
+        row <- row - 1
+        row_slot: usize = row * columns
+        row_ones: i64 = ones_minus_zeros_read_count(output, row_slot)
+        for column in 0..<columns |row, row_slot, row_ones, output, column_zero_ones|:
+            column_ones: mutable i64 = column_zero_ones
+            if column != 0:
+                column_ones <- ones_minus_zeros_read_count(output, column)
+            difference: i64 = 2 * row_ones + 2 * column_ones - i64(rows) - i64(columns)
+            ones_minus_zeros_write_i32(output, row_slot + column, difference)
+    for column in 0..<columns |column, output, row_zero_ones, column_zero_ones, rows, columns|:
+        column_ones: mutable i64 = column_zero_ones
+        if column != 0:
+            column_ones <- ones_minus_zeros_read_count(output, column)
+        difference: i64 = 2 * row_zero_ones + 2 * column_ones - i64(rows) - i64(columns)
+        ones_minus_zeros_write_i32(output, column, difference)
+    cells.i64()
+
+export fn ones_minus_zeros(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = ones_minus_zeros_impl

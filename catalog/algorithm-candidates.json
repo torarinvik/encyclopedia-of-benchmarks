@@ -2124,7 +2124,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2133,7 +2133,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/226.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "invert_binary_tree",
+      "benchmark_contract": "benchmarks/i/invert_binary_tree/README.md",
+      "review_notes": "The pinned C LeetCode 226 source recursively swaps each node\u2019s left and right links. The shared indexed-tree contract serializes the mirrored node table in little-endian signed 64-bit triplets so all nine portable implementations can be compared exactly."
     },
     {
       "candidate_id": "2270",
@@ -2144,7 +2147,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2153,7 +2156,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2270.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "ways_to_split_array",
+      "benchmark_contract": "benchmarks/w/ways_to_split_array/README.md",
+      "review_notes": "The pinned C LeetCode 2270 source sums the array, then scans each valid prefix split and counts positions where the left sum is at least the remaining right sum. The shared contract bounds signed values to -100000..100000 and length to 2..100000; all nine portable ports use 64-bit sums and two linear scans with constant auxiliary space."
     },
     {
       "candidate_id": "2279",
@@ -2164,7 +2170,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2173,7 +2179,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2279.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "maximum_bags_with_full_capacity",
+      "benchmark_contract": "benchmarks/m/maximum_bags_with_full_capacity/README.md",
+      "review_notes": "The pinned C LeetCode 2279 source computes each bag\u2019s remaining capacity from its capacity and current rocks, sorts those deficits, then greedily spends additional rocks on the smallest deficits first. The shared packed contract preserves the budget, bag count, capacities, and rocks; it bounds the bag count to 8191 so the identical fixed work array fits below C3\u2019s 64 KiB stack-object limit. All nine ports compute deficits, heap-sort them, and scan the affordable prefix."
     },
     {
       "candidate_id": "230",
@@ -2204,7 +2213,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2213,7 +2222,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2304.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "minimum_path_cost_in_grid",
+      "benchmark_contract": "benchmarks/m/minimum_path_cost_in_grid/README.md",
+      "review_notes": "The pinned C LeetCode 2304 source uses row-by-row dynamic programming: for each next column it minimizes the prior path cost plus the current grid value and the value-indexed move cost, then adds the final-row cell value. The shared packed contract uses rectangular grids and a complete move-cost table, with each dimension bounded to 32. All nine ports keep two column-sized DP rows and run in O(rows * columns^2) time."
     },
     {
       "candidate_id": "231",
@@ -2333,7 +2345,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+    "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2342,7 +2354,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2482.c",
           "local_folder_source": "c"
         }
-      ]
+    ],
+    "benchmark_name": "ones_minus_zeros",
+    "benchmark_contract": "benchmarks/o/ones_minus_zeros/README.md",
+    "review_notes": "The pinned C LeetCode 2482 source counts ones in each row and column, but uses the opposite dimension when deriving zero counts on rectangular matrices. The benchmark follows the stated formula onesRow[r] + onesColumn[c] - zerosRow[r] - zerosColumn[c], accepts matrices up to 100,000 cells, and serializes signed 32-bit little-endian results. All nine portable ports run in O(rows * columns) time and reuse the output buffer for row/column counts instead of using architecture-specific optimizations."
     },
     {
       "candidate_id": "2501",
@@ -39447,7 +39462,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -39456,7 +39471,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/DataStructures/InvertBinaryTree/InvertBinaryTree.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "226",
+      "benchmark_contract": "benchmarks/i/invert_binary_tree/README.md",
+      "review_notes": "The pinned PHP implementation recursively exchanges each node\u2019s left and right children and recurses through both resulting links. It is semantically equivalent to C LeetCode 226 and aliases the shared invert_binary_tree benchmark."
     },
     {
       "candidate_id": "inverted_index",
@@ -53774,7 +53792,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -53783,7 +53801,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/mirror_binary_tree.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "226",
+      "benchmark_contract": "benchmarks/i/invert_binary_tree/README.md",
+      "review_notes": "The pinned Python Node.mirror method recursively exchanges each node\u2019s left and right children, mutates the tree, and returns its root. It is semantically equivalent to C LeetCode 226 and aliases the shared invert_binary_tree benchmark."
     },
     {
       "candidate_id": "mirror_formulae",

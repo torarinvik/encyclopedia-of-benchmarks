@@ -1,0 +1,54 @@
+const MAX_INPUT_LENGTH: usize = 16384
+const MAX_BAGS: usize = 8191
+
+def sift_down(values: mutable i64&, root: usize, end: usize) -> void:
+    current: mutable usize = root
+    while current < end / 2 |current, values|:
+        child: mutable usize = current * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[current] >= values[child]:
+            break
+        temporary: i64 = values[current]
+        values[current] <- values[child]
+        values[child] <- temporary
+        current <- child
+
+def maximum_bags_with_full_capacity_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    remaining: mutable i64 = input[0]
+    if remaining < 0 or remaining > 1000000000:
+        return -1
+    if input[1] < 0 or input[1] > i64(MAX_BAGS):
+        return -1
+    count: usize = usize(input[1])
+    if length != 2 + 2 * count:
+        return -1
+    deficits: mutable i64[MAX_BAGS] = zeroed
+    for index in 0..<count |input, deficits|:
+        capacity: i64 = input[2 + index]
+        rocks: i64 = input[2 + count + index]
+        if capacity < 1 or capacity > 100000 or rocks < 0 or rocks > capacity:
+            return -1
+        deficits[index] <- capacity - rocks
+    start: mutable usize = count / 2
+    while start > 0 |start, deficits|:
+        start <- start - 1
+        sift_down(&deficits[0], start, count)
+    end: mutable usize = count
+    while end > 1 |end, deficits|:
+        end <- end - 1
+        temporary: i64 = deficits[0]
+        deficits[0] <- deficits[end]
+        deficits[end] <- temporary
+        sift_down(&deficits[0], 0, end)
+    full_bags: mutable i64 = 0
+    for index in 0..<count |remaining, full_bags, deficits|:
+        if deficits[index] > remaining:
+            break
+        remaining <- remaining - deficits[index]
+        full_bags <- full_bags + 1
+    full_bags
+
+export fn maximum_bags_with_full_capacity(input: i64&, length: usize) -> i64 = maximum_bags_with_full_capacity_impl

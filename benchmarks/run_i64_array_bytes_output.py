@@ -18,6 +18,7 @@ import sys
 from build_abi import ROOT, sha256_file
 
 MAX_INPUT_LENGTH = 4096
+MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SMALL_INPUT_LENGTH = 66
 KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
           7: b"pqrs", 8: b"tuv", 9: b"wxyz"}
@@ -103,6 +104,31 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         invert(root)
         flattened = [value for node in nodes for value in node]
         return node_count, struct.pack("<" + "q" * len(flattened), *flattened)
+
+    if algorithm == "ones_minus_zeros":
+        import struct
+
+        if (len(values) < 2 or len(values) > MAX_MATRIX_INPUT_LENGTH
+                or any(type(value) is not int for value in values)
+                or not 1 <= values[0] <= 100000 or not 1 <= values[1] <= 100000):
+            return -1, b""
+        rows, columns = values[:2]
+        if rows > 100000 // columns:
+            return -1, b""
+        cells = rows * columns
+        if cells > 100000 or len(values) != 2 + cells:
+            return -1, b""
+        grid = values[2:]
+        if any(value not in (0, 1) for value in grid):
+            return -1, b""
+        row_ones = [sum(grid[row * columns:(row + 1) * columns]) for row in range(rows)]
+        column_ones = [sum(grid[row * columns + column] for row in range(rows))
+                       for column in range(columns)]
+        output = b"".join(
+            struct.pack("<i", 2 * row_ones[row] + 2 * column_ones[column] - rows - columns)
+            for row in range(rows) for column in range(columns)
+        )
+        return cells, output
 
     if algorithm == "amicable_pairs_below":
         if (len(values) != 1 or type(values[0]) is not int
@@ -1064,7 +1090,8 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = case.get("input_values")
-        if (not isinstance(values, list) or len(values) > MAX_INPUT_LENGTH
+        max_input_length = MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else MAX_INPUT_LENGTH
+        if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
             raise ValueError(f"invalid signed 64-bit digit array in {case['id']}")
         if case.get("input_length") not in (None, len(values)):
@@ -1073,9 +1100,11 @@ def main() -> int:
         if case.get("expected_result") != expected_count:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
         output_hex = expected.hex() if expected else "-"
-        command = [str(executable), str(len(values)), *map(str, values), str(expected_count),
-                   output_hex, str(samples), str(warmups), str(repetitions)]
-        completed = subprocess.run(command, capture_output=True, text=True, check=False)
+        command = [str(executable), "--stdin", str(samples), str(warmups), str(repetitions)]
+        runner_input = (f"{len(values)} {expected_count} {len(expected)} "
+                        + " ".join(map(str, values)) + " " + output_hex + "\n")
+        completed = subprocess.run(command, input=runner_input, capture_output=True,
+                                   text=True, check=False)
         if completed.returncode:
             raise SystemExit(f"byte-output runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)

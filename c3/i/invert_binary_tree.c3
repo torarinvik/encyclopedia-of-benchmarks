@@ -56,7 +56,8 @@ fn long invert_binary_tree(long* values, usz length, char* output, usz output_ca
     usz output_length = 24 * node_count;
     if (output == null || output_capacity < output_length) return -2;
     invert_subtree(&nodes[0], root);
-    for (usz index = 0; index < 3 * node_count; index++)
+    for (usz index = 0; index < 3 * node_count; index++) {
         store_i64_little_endian(nodes[index], output, 8 * index);
+    }
     return (long)node_count;
 }
