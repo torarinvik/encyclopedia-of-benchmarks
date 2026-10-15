@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "number-of-primes-by-powers-of10-sequence-v1",
+  "algorithm": "number_of_primes_by_powers_of10_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 3],
+    "indexing": "zero_based",
+    "sequence_definition": "0 at index 0, then the cumulative number of primes less than 10^index",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"source_initial_term","input_value":0,"expected_result":0},
+    {"id":"primes_below_ten","input_value":1,"expected_result":4},
+    {"id":"primes_below_one_hundred","input_value":2,"expected_result":25},
+    {"id":"primes_below_one_thousand","input_value":3,"expected_result":168},
+    {"id":"first_unsupported_index","input_value":4,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

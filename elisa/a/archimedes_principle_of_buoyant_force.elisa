@@ -1,0 +1,11 @@
+# Buoyant force: fluid density * gravity * displaced volume.
+def archimedes_principle_of_buoyant_force_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    fluid_density: i64 = values[0]
+    volume: i64 = values[1]
+    if fluid_density < 1 or fluid_density > 1000 or volume < 1 or volume > 1000:
+        return -1.0e300
+    (fluid_density.f64() * 9.80665) * volume.f64()
+
+export fn archimedes_principle_of_buoyant_force(values: i64&, length: usize) -> f64 = archimedes_principle_of_buoyant_force_impl

@@ -1,0 +1,85 @@
+# Absolute difference between two validated Gregorian dates.
+const INVALID_ORDINAL: i64 = -1000000000
+
+def floor_div(value: i64, divisor: i64) -> i64:
+    quotient: mutable i64 = value / divisor
+    if value % divisor != 0 and value < 0:
+        quotient <- quotient - 1
+    quotient
+
+def leap_year(year: i64) -> bool:
+    year % 400 == 0 or (year % 100 != 0 and year % 4 == 0)
+
+def month_length(month: i64, year: i64) -> i64:
+    if month == 2:
+        if leap_year(year):
+            return 29
+        return 28
+    if month == 4 or month == 6 or month == 9 or month == 11:
+        return 30
+    31
+
+def date_ordinal(day: i64, month: i64, year: i64) -> i64:
+    prior: i64 = year - 1
+    adjustment: mutable i64 = 0
+    if month > 2:
+        if leap_year(year):
+            adjustment <- -1
+        else:
+            adjustment <- -2
+    365 * prior + floor_div(prior, 4) - floor_div(prior, 100) + floor_div(prior, 400) + day + floor_div(367 * month - 362, 12) + adjustment
+
+def parse_date(values: i64&, start: usize, end: usize) -> i64:
+    pos: mutable usize = start
+    day: mutable i64 = 0
+    month: mutable i64 = 0
+    year: mutable i64 = 0
+    digits: mutable usize = 0
+    while pos < end and values[pos] >= 48 and values[pos] <= 57 and digits < 3:
+        day <- day * 10 + values[pos] - 48
+        digits <- digits + 1
+        pos <- pos + 1
+    if digits < 1 or digits > 2 or pos >= end or values[pos] != 47:
+        return INVALID_ORDINAL
+    pos <- pos + 1
+    digits <- 0
+    while pos < end and values[pos] >= 48 and values[pos] <= 57 and digits < 3:
+        month <- month * 10 + values[pos] - 48
+        digits <- digits + 1
+        pos <- pos + 1
+    if digits < 1 or digits > 2 or pos >= end or values[pos] != 47:
+        return INVALID_ORDINAL
+    pos <- pos + 1
+    if end - pos != 4:
+        return INVALID_ORDINAL
+    while pos < end:
+        if values[pos] < 48 or values[pos] > 57:
+            return INVALID_ORDINAL
+        year <- year * 10 + values[pos] - 48
+        pos <- pos + 1
+    if month < 1 or month > 12 or day < 1 or day > month_length(month, year):
+        return INVALID_ORDINAL
+    date_ordinal(day, month, year)
+
+def date_day_difference_impl(values: i64&, length: usize) -> i64:
+    if length < 17 or length > 21:
+        return -1
+    separator: mutable usize = length
+    index: mutable usize = 0
+    while index < length:
+        if values[index] == 124:
+            if separator != length:
+                return -1
+            separator <- index
+        index <- index + 1
+    if separator == length:
+        return -1
+    first: i64 = parse_date(values, 0, separator)
+    second: i64 = parse_date(values, separator + 1, length)
+    if first == INVALID_ORDINAL or second == INVALID_ORDINAL:
+        return -1
+    if first > second:
+        return first - second
+    second - first
+
+export fn date_day_difference(values: i64&, length: usize) -> i64 = date_day_difference_impl

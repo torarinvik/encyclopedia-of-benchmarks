@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "count-set-bits-java-prefix-total-scalar-v1",
+  "algorithm": "count_set_bits",
+  "function_symbol": "count_set_bits",
+  "input": {
+    "kind": "bounded_nonnegative_integer",
+    "minimum": 0,
+    "maximum": 67108863,
+    "meaning": "sum of popcount(i) for i in 1..=n",
+    "maximum_result": 872415232,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "three", "input_value": 3, "expected_result": 4},
+    {"id": "seven", "input_value": 7, "expected_result": 12},
+    {"id": "power-of-two", "input_value": 16, "expected_result": 33},
+    {"id": "end-of-eight-bit-block", "input_value": 255, "expected_result": 1024},
+    {"id": "upper-bound", "input_value": 67108863, "expected_result": 872415232},
+    {"id": "negative-source-error-mapped", "input_value": -1, "expected_result": -1},
+    {"id": "above-bound", "input_value": 67108864, "expected_result": -1}
+  ]
+}

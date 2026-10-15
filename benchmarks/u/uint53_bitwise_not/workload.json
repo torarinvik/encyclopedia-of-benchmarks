@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "uint53-bitwise-not-v1",
+  "algorithm": "uint53_bitwise_not",
+  "function_symbol": "uint53_bitwise_not",
+  "input": {
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "out_of_range_result": -1,
+    "operation": "Complement all 53 bits: output is (2^53 - 1) - input."
+  },
+  "output": {
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "definition": "53-bit unsigned bitwise NOT",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":9007199254740991},
+    {"id":"one","input_value":1,"expected_result":9007199254740990},
+    {"id":"two","input_value":2,"expected_result":9007199254740989},
+    {"id":"byte_max","input_value":255,"expected_result":9007199254740736},
+    {"id":"first_full_byte","input_value":256,"expected_result":9007199254740735},
+    {"id":"two_full_bytes_minus_one","input_value":65535,"expected_result":9007199254675456},
+    {"id":"first_bit_above_low_52","input_value":4503599627370496,"expected_result":4503599627370495},
+    {"id":"maximum_minus_one","input_value":9007199254740990,"expected_result":1},
+    {"id":"maximum_uint53","input_value":9007199254740991,"expected_result":0},
+    {"id":"negative_one","input_value":-1,"expected_result":-1},
+    {"id":"first_above_uint53","input_value":9007199254740992,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,15 @@
+def uint53_bitwise_and_impl(n: i64, m: i64) -> i64:
+    if n < 0 or m < 0 or n > 9007199254740991 or m > 9007199254740991:
+        return -1
+    result: mutable i64 = 0
+    bit: mutable i64 = 1
+    while n != 0 and m != 0:
+        n_bit: i64 = n % 2
+        m_bit: i64 = m % 2
+        result <- result + n_bit * m_bit * bit
+        n <- (n - n_bit) / 2
+        m <- (m - m_bit) / 2
+        bit <- bit * 2
+    result
+
+export fn uint53_bitwise_and(n: i64, m: i64) -> i64 = uint53_bitwise_and_impl

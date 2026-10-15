@@ -1,6 +1,6 @@
 # Wave Sort
 
-This benchmark captures the C++ and Rust wave-sort variant: sort values in ascending order, then swap adjacent pairs beginning at index zero. The result follows `a[0] <= a[1] >= a[2] <= a[3] ...`.
+This benchmark captures the C++ and Rust wave-sort variant (also present in C-Plus-Plus-1): sort values in ascending order, then swap adjacent pairs beginning at index zero. The result follows `a[0] >= a[1] <= a[2] >= a[3] ...`.
 
 ## Contract
 
@@ -20,6 +20,7 @@ All nine language implementations use the `i64_array_bytes_output` ABI family.
 ## Upstream sources
 
 - [C++ `wave_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/wave_sort.cpp)
+- [C++-1 `wave_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/wave_sort.cpp)
 - [Rust `wave_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/wave_sort.rs)
 - [Java `WaveSort.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/WaveSort.java) (greedy variant above)
 

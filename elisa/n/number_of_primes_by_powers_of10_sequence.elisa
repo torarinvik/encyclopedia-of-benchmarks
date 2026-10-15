@@ -1,0 +1,27 @@
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    composite: bool =
+        while factor <= value / factor |factor: mutable i64 = 2, found: bool = false| -> found:
+            if value % factor == 0:
+                break true
+            factor <- factor + 1
+    not composite
+
+def number_of_primes_by_powers_of10_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 3:
+        return -1
+    if index == 0:
+        return 0
+    upper: i64 =
+        while exponent < index |exponent: mutable i64 = 1, limit: mutable i64 = 10| -> limit:
+            limit <- limit * 10
+            exponent <- exponent + 1
+    count: i64 =
+        while value < upper |value: mutable i64 = 2, count: mutable i64 = 0| -> count:
+            if is_prime(value):
+                count <- count + 1
+            value <- value + 1
+    count
+
+export fn number_of_primes_by_powers_of10_sequence(index: i64) -> i64 = number_of_primes_by_powers_of10_sequence_impl

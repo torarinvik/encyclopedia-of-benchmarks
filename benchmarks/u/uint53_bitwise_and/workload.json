@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "uint53-bitwise-and-v1",
+  "algorithm": "uint53_bitwise_and",
+  "function_symbol": "uint53_bitwise_and",
+  "input": {
+    "kind": "two_signed_64_bit_integers",
+    "valid_range_each": [0, 9007199254740991],
+    "result": "The bitwise AND of the two uint53 inputs, computed by scanning corresponding low bits arithmetically.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero_pair","input_values":[0,0],"expected_result":0},
+    {"id":"zero_with_maximum","input_values":[0,9007199254740991],"expected_result":0},
+    {"id":"identical_single_bit","input_values":[1,1],"expected_result":1},
+    {"id":"disjoint_bits","input_values":[5,10],"expected_result":0},
+    {"id":"overlapping_bits","input_values":[45,51],"expected_result":33},
+    {"id":"highest_bit_only","input_values":[4503599627370496,4503599627370496],"expected_result":4503599627370496},
+    {"id":"maximum_with_highest_bit","input_values":[9007199254740991,4503599627370496],"expected_result":4503599627370496},
+    {"id":"maximum_with_low_bits","input_values":[9007199254740991,4503599627370495],"expected_result":4503599627370495},
+    {"id":"maximum_adjacent","input_values":[9007199254740990,9007199254740991],"expected_result":9007199254740990},
+    {"id":"maximum_pair","input_values":[9007199254740991,9007199254740991],"expected_result":9007199254740991},
+    {"id":"negative_first","input_values":[-1,1],"expected_result":-1},
+    {"id":"first_above_uint53","input_values":[9007199254740992,1],"expected_result":-1},
+    {"id":"signed_i64_maximum","input_values":[9223372036854775807,1],"expected_result":-1}
+  ]
+}

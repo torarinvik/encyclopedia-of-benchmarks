@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "uint53-bitwise-xor-v1",
+  "algorithm": "uint53_bitwise_xor",
+  "function_symbol": "uint53_bitwise_xor",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": ["n", "m"],
+    "n_minimum": 0,
+    "n_maximum": 9007199254740991,
+    "m_minimum": 0,
+    "m_maximum": 9007199254740991,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "n XOR m over the low 53 bits",
+    "minimum_valid_result": 0,
+    "maximum_valid_result": 9007199254740991,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"zero_zero","input_values":[0,0],"expected_result":0},
+    {"id":"zero_maximum","input_values":[0,9007199254740991],"expected_result":9007199254740991},
+    {"id":"one_one","input_values":[1,1],"expected_result":0},
+    {"id":"one_two","input_values":[1,2],"expected_result":3},
+    {"id":"five_three","input_values":[5,3],"expected_result":6},
+    {"id":"byte_max_equal","input_values":[255,255],"expected_result":0},
+    {"id":"byte_boundary","input_values":[256,255],"expected_result":511},
+    {"id":"high_bit_with_one","input_values":[4503599627370496,1],"expected_result":4503599627370497},
+    {"id":"maximum_equal","input_values":[9007199254740991,9007199254740991],"expected_result":0},
+    {"id":"maximum_and_zero","input_values":[9007199254740991,0],"expected_result":9007199254740991},
+    {"id":"maximum_and_two","input_values":[9007199254740991,2],"expected_result":9007199254740989},
+    {"id":"first_above_left","input_values":[9007199254740992,0],"expected_result":-1},
+    {"id":"first_above_right","input_values":[0,9007199254740992],"expected_result":-1},
+    {"id":"uint64_max_left","input_values":[18446744073709551615,1],"expected_result":-1},
+    {"id":"uint64_max_right","input_values":[1,18446744073709551615],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

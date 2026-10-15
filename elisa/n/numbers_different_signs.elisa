@@ -1,0 +1,13 @@
+const INT32_MIN_VALUE: i64 = -2147483648
+const INT32_MAX_VALUE: i64 = 2147483647
+
+# Return whether the signed 32-bit XOR has its sign bit set.
+def numbers_different_signs_impl(left: i64, right: i64) -> i64:
+    if left < INT32_MIN_VALUE or left > INT32_MAX_VALUE or right < INT32_MIN_VALUE or right > INT32_MAX_VALUE:
+        return -1
+    left_value: i32 = left.i32()
+    right_value: i32 = right.i32()
+    if (left_value ^ right_value) < 0: return 1
+    0
+
+export fn numbers_different_signs(left: i64, right: i64) -> i64 = numbers_different_signs_impl

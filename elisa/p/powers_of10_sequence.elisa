@@ -1,0 +1,10 @@
+def powers_of10_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 18:
+        return -1
+    value: i64 =
+        while step < index |step: mutable i64 = 0, value: mutable i64 = 1| -> value:
+            value <- value * 10
+            step <- step + 1
+    value
+
+export fn powers_of10_sequence(index: i64) -> i64 = powers_of10_sequence_impl

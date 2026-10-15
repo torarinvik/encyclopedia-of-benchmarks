@@ -1,0 +1,25 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_VALUE: f64 = 1e100
+
+def unit_exponent(code: f64) -> i32:
+    if code == 0.0: return 0
+    if code == 1.0: return 3
+    if code == 2.0: return 6
+    if code == 3.0: return 9
+    if code == 4.0: return 12
+    if code == 5.0: return 15
+    if code == 6.0: return 18
+    if code == 7.0: return 21
+    if code == 8.0: return 24
+    return -1
+
+# Preserve source order: value multiplied by 10^(from exponent - to exponent).
+def order_of_magnitude_conversion_impl(value: f64, from_unit_code: f64, to_unit_code: f64) -> f64:
+    if value != value or value < -MAX_VALUE or value > MAX_VALUE: return -1.0
+    from_exp: i32 = unit_exponent(from_unit_code)
+    to_exp: i32 = unit_exponent(to_unit_code)
+    if from_exp < 0 or to_exp < 0: return -1.0
+    return value * pow(10.0, (from_exp - to_exp).f64())
+
+export fn order_of_magnitude_conversion(value: f64, from_unit_code: f64, to_unit_code: f64) -> f64 = order_of_magnitude_conversion_impl

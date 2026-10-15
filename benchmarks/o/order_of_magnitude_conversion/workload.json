@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "order-of-magnitude-conversion-rust-binary64-v1",
+  "algorithm": "order_of_magnitude_conversion",
+  "function_symbol": "order_of_magnitude_conversion",
+  "input": {
+    "kind": "finite_binary64_metric_length_conversion",
+    "value_range": [
+      -1e+100,
+      1e+100
+    ],
+    "unit_codes": {
+      "0": {
+        "name": "meter",
+        "exponent": 0
+      },
+      "1": {
+        "name": "kilometer",
+        "exponent": 3
+      },
+      "2": {
+        "name": "megameter",
+        "exponent": 6
+      },
+      "3": {
+        "name": "gigameter",
+        "exponent": 9
+      },
+      "4": {
+        "name": "terameter",
+        "exponent": 12
+      },
+      "5": {
+        "name": "petameter",
+        "exponent": 15
+      },
+      "6": {
+        "name": "exameter",
+        "exponent": 18
+      },
+      "7": {
+        "name": "zettameter",
+        "exponent": 21
+      },
+      "8": {
+        "name": "yottameter",
+        "exponent": 24
+      }
+    },
+    "formula": "value * 10^(from_exponent - to_exponent)",
+    "operation_order": "compute the power-of-ten factor, then multiply value by the factor",
+    "invalid_result": -1.0,
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "kilometer-to-meter",
+      "input_values": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "meter-to-kilometer",
+      "input_values": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "meter-to-yottameter",
+      "input_values": [
+        1.0,
+        0.0,
+        8.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "yottameter-to-meter",
+      "input_values": [
+        1.0,
+        8.0,
+        0.0
+      ],
+      "expected_result": 1e+24
+    },
+    {
+      "id": "negative-zettameter-to-gigameter",
+      "input_values": [
+        -2.0,
+        7.0,
+        3.0
+      ],
+      "expected_result": -2000000000000.0
+    },
+    {
+      "id": "same-unit",
+      "input_values": [
+        42.5,
+        4.0,
+        4.0
+      ],
+      "expected_result": 42.5
+    },
+    {
+      "id": "zero-value",
+      "input_values": [
+        0.0,
+        8.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-input-to-yottameter",
+      "input_values": [
+        1e+100,
+        0.0,
+        8.0
+      ],
+      "expected_result": 1e+76
+    },
+    {
+      "id": "minimum-input-yottameter-to-meter",
+      "input_values": [
+        -1e+100,
+        8.0,
+        0.0
+      ],
+      "expected_result": -1e+124
+    },
+    {
+      "id": "invalid-unit-code",
+      "input_values": [
+        1.0,
+        9.0,
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "fractional-unit-code",
+      "input_values": [
+        1.0,
+        1.5,
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "valid_result_equals_invalid_sentinel",
+      "input_values": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# Bitwise inclusive OR over the Lua uint53 domain.
+def uint53_bitwise_or_impl(left: u64, right: u64) -> i64:
+    max_uint53: u64 = 9007199254740991
+    if left > max_uint53 or right > max_uint53:
+        return -1
+    result: mutable u64 = 0
+    bit: mutable u64 = 1
+    while left != 0 and right != 0:
+        left_bit: u64 = left % 2
+        right_bit: u64 = right % 2
+        result <- result + (1 - (1 - left_bit) * (1 - right_bit)) * bit
+        left <- (left - left_bit) / 2
+        right <- (right - right_bit) / 2
+        bit <- bit * 2
+    (result + (left + right) * bit)
+
+export fn uint53_bitwise_or(left: u64, right: u64) -> i64 = uint53_bitwise_or_impl

@@ -1,0 +1,12 @@
+# Return a term from the bounded powers-of-two sequence.
+def powers_of2_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 62:
+        return -1
+    value: mutable i64 = 1
+    step: mutable i64 = 0
+    while step < index:
+        value <- value * 2
+        step <- step + 1
+    value
+
+export fn powers_of2_sequence(index: i64) -> i64 = powers_of2_sequence_impl

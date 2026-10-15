@@ -1,14 +1,14 @@
 extern floor(value: f64) -> f64
 extern log10(value: f64) -> f64
 
-def finding_number_of_digits_in_a_number_using_log_impl(value: i64) -> i64:
-    if value < -1000000 or value > 1000000:
-        return -1
-    if value == 0:
-        return 0
-    magnitude: f64 = value.f64()
+def finding_number_of_digits_in_a_number_using_log_impl(value: f64) -> f64:
+    if not (value >= -1000000.0 and value <= 1000000.0):
+        return -1.0e300
+    if value == 0.0:
+        return 0.0
+    magnitude: mutable f64 = value
     if magnitude < 0.0:
         magnitude <- -magnitude
-    floor(log10(magnitude) + 1.0).i64()
+    floor(log10(magnitude) + 1.0)
 
-export fn finding_number_of_digits_in_a_number_using_log(value: i64) -> i64 = finding_number_of_digits_in_a_number_using_log_impl
+export fn finding_number_of_digits_in_a_number_using_log(value: f64) -> f64 = finding_number_of_digits_in_a_number_using_log_impl

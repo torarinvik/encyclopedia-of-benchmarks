@@ -1,0 +1,22 @@
+# Complement every bit in the fixed-width unsigned 53-bit domain.
+def uint53_bitwise_not_impl(n: i64) -> i64:
+    if n < 0 or n > 9007199254740991:
+        return -1
+
+    current: mutable i64 = n
+    result: mutable i64 = 0
+    bit: mutable i64 = 1
+    while current >= 255:
+        byte: i64 = current % 256
+        result <- result + (255 - byte) * bit
+        current <- (current - byte) / 256
+        bit <- bit * 256
+    while current != 0:
+        n_bit: i64 = current % 2
+        result <- result + (1 - n_bit) * bit
+        current <- (current - n_bit) / 2
+        bit <- bit * 2
+
+    9007199254740992 - bit + result
+
+export fn uint53_bitwise_not(n: i64) -> i64 = uint53_bitwise_not_impl

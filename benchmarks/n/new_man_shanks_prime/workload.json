@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "new-man-shanks-prime-java-recurrence-equality-binary-scalar-v1",
+  "algorithm": "new_man_shanks_prime",
+  "function_symbol": "new_man_shanks_prime",
+  "input": {
+    "kind": "bounded_index_and_signed_int32_expected_value",
+    "index_minimum": 1,
+    "index_maximum": 25,
+    "expected_minimum": -2147483648,
+    "expected_maximum": 2147483647,
+    "initial_values": [1, 1],
+    "recurrence": "a(n) = 2*a(n-1) + a(n-2)",
+    "true_result": 1,
+    "false_result": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "first-term-match", "input_values": [1, 1], "expected_result": 1},
+    {"id": "first-term-mismatch", "input_values": [1, 2], "expected_result": 0},
+    {"id": "second-term-match", "input_values": [2, 3], "expected_result": 1},
+    {"id": "third-term-match", "input_values": [3, 7], "expected_result": 1},
+    {"id": "recurrence-term-match", "input_values": [10, 3363], "expected_result": 1},
+    {"id": "recurrence-term-mismatch", "input_values": [10, 3364], "expected_result": 0},
+    {"id": "maximum-supported-index", "input_values": [25, 1855077841], "expected_result": 1},
+    {"id": "zero-index-source-array-error", "input_values": [0, 1], "expected_result": -1},
+    {"id": "negative-index", "input_values": [-1, 1], "expected_result": -1},
+    {"id": "index-overflow-bound", "input_values": [26, 183586787], "expected_result": -1},
+    {"id": "expected-outside-java-int", "input_values": [2, 2147483648], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "terminal-velocity-v1",
+  "algorithm": "terminal_velocity",
+  "function_symbol": "terminal_velocity",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 4,
+    "layout": ["mass", "density", "area", "drag_coefficient"],
+    "minimum": 1,
+    "maximum": 1000,
+    "fixed_gravity_meters_per_second_squared": 9.80665,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sqrt((2 * mass * 9.80665) / (density * area * drag_coefficient))",
+    "unit": "metre_per_second",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"unit-inputs","input_values":[1,1,1,1],"input_length":4,"expected_result":4.428690551393267},
+    {"id":"nontrivial-inputs","input_values":[2,3,4,5],"input_length":4,"expected_result":0.8085645717360281},
+    {"id":"larger-object","input_values":[5,50,2,1],"input_length":4,"expected_result":0.9902853124226371},
+    {"id":"maximum-bounds","input_values":[1000,1000,1000,1000],"input_length":4,"expected_result":0.004428690551393267},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[1,1,1],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-zero-mass","input_values":[0,1,1,1],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-zero-density","input_values":[1,0,1,1],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-drag-bound","input_values":[1,1,1,1001],"input_length":4,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

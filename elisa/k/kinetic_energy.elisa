@@ -1,0 +1,14 @@
+# Classical kinetic energy: 0.5 * mass * abs(velocity)^2.
+def kinetic_energy_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    mass: i64 = values[0]
+    velocity: i64 = values[1]
+    if mass < 0 or mass > 1000 or velocity < -1000 or velocity > 1000:
+        return -1.0e300
+    speed: mutable i64 = velocity
+    if velocity < 0:
+        speed <- -velocity
+    ((0.5 * mass.f64()) * speed.f64()) * speed.f64()
+
+export fn kinetic_energy(values: i64&, length: usize) -> f64 = kinetic_energy_impl

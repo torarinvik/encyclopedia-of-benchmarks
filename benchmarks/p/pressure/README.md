@@ -8,6 +8,7 @@ Converts a pressure value between units using the pinned Rust conversion factors
 - The value is finite and in `[-1,000,000, 1,000,000]`.
 - Unit codes are exact integral binary64 values: `0` Pascal, `1` kilopascal, `2` megapascal, `3` bar, `4` atmosphere, and `5` psi.
 - Returns `value * from_factor / to_factor`, with the multiplication performed before division. Invalid values or codes return `-1.0`.
+- Since negative pressure values are accepted, `-1.0` can also be a valid conversion result (for example, `-1000` pascals to kilopascals). The inputs determine whether the sentinel denotes invalidity.
 - Results use input-scaled tolerance `1e-12`.
 
 The chosen factors are copied from Rust's `PressureUnit::to_pascal_factor`: `1`, `1000`, `1,000,000`, `100,000`, `101,325`, and `6894.757293168`. The bounded value and unit set keep every output finite and within `1e12` in magnitude.
@@ -20,5 +21,5 @@ The Python `pressure_conversions` candidate supports the same broad conversion t
 
 ## Workload and runner integration
 
-[`workload.json`](workload.json) covers common conversions, same-unit conversion, negative values, the input bound, and invalid unit codes. Build with `float64_triple` and record with `benchmarks/run_float64_triple.py` after its `pressure` allowlist support is integrated.
+[`workload.json`](workload.json) covers common conversions, same-unit conversion, negative values including a valid result equal to the invalid sentinel, the input bound, and invalid unit codes. Build with `float64_triple` and record with `benchmarks/run_float64_triple.py`.
 

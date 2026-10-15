@@ -1,0 +1,68 @@
+{
+  "id": "date-day-difference-v1",
+  "algorithm": "date_day_difference",
+  "contract": {
+    "input": "ASCII code values for d/m/yyyy|d/m/yyyy; day and month have 1 or 2 digits, year has exactly 4 digits (0000..9999), and the dates must be valid Gregorian dates.",
+    "output": "The absolute difference between the two source serial-day values.",
+    "invalid_input_result": -1,
+    "minimum_input_length": 17,
+    "maximum_input_length": 21,
+    "input_mutated": false
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "same-date",
+      "input_values": [49, 47, 49, 47, 50, 48, 50, 48, 124, 49, 47, 49, 47, 50, 48, 50, 48],
+      "input_length": 17,
+      "expected_result": 0
+    },
+    {
+      "id": "leap-day-crossing",
+      "input_values": [50, 56, 47, 48, 50, 47, 50, 48, 48, 48, 124, 48, 49, 47, 48, 51, 47, 50, 48, 48, 48],
+      "input_length": 21,
+      "expected_result": 2
+    },
+    {
+      "id": "leap-year-span",
+      "input_values": [49, 47, 49, 47, 50, 48, 48, 48, 124, 49, 47, 49, 47, 50, 48, 48, 49],
+      "input_length": 17,
+      "expected_result": 366
+    },
+    {
+      "id": "pinned-example",
+      "input_values": [49, 55, 47, 48, 56, 47, 50, 48, 48, 50, 124, 49, 48, 47, 49, 48, 47, 50, 48, 50, 48],
+      "input_length": 21,
+      "expected_result": 6630
+    },
+    {
+      "id": "year-zero-is-leap",
+      "input_values": [49, 47, 49, 47, 48, 48, 48, 48, 124, 49, 47, 49, 47, 48, 48, 48, 49],
+      "input_length": 17,
+      "expected_result": 366
+    },
+    {
+      "id": "invalid-nonleap-february-day",
+      "input_values": [50, 57, 47, 48, 50, 47, 49, 57, 48, 48, 124, 49, 47, 51, 47, 49, 57, 48, 48],
+      "input_length": 19,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-month",
+      "input_values": [49, 47, 49, 51, 47, 50, 48, 48, 48, 124, 49, 47, 49, 47, 50, 48, 48, 49],
+      "input_length": 18,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-date-separator",
+      "input_values": [48, 49, 45, 48, 49, 45, 50, 48, 48, 48, 124, 49, 47, 49, 47, 50, 48, 48, 49],
+      "input_length": 19,
+      "expected_result": -1
+    }
+  ]
+}

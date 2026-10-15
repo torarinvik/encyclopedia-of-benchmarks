@@ -1,4 +1,4 @@
-/* Timing runner for a three-input binary64 interpolation function. */
+/* Timing runner for a three-input binary64 algorithm. */
 #include <errno.h>
 #include <inttypes.h>
 #include <math.h>
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     uint64_t samples_arg, warmups_arg, repetitions_arg;
     if (argc != 9 || !parse_f64(argv[1], &start) || !parse_f64(argv[2], &end) ||
         !parse_f64(argv[3], &t) || !parse_f64(argv[4], &expected) ||
-        !parse_f64(argv[5], &input_scaled_tolerance) || t < 0.0 || t > 1.0 ||
+        !parse_f64(argv[5], &input_scaled_tolerance) ||
         input_scaled_tolerance <= 0.0 || !parse_u64(argv[6], &samples_arg) ||
         !parse_u64(argv[7], &warmups_arg) || !parse_u64(argv[8], &repetitions_arg) ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
         return 2;
     }
     if (!matches(run_algorithm(start, end, t), expected, input_scaled_tolerance, start, end)) {
-        fprintf(stderr, "correctness mismatch for interpolation inputs\n");
+        fprintf(stderr, "correctness mismatch for float64 triple inputs\n");
         free(sample_ns);
         return 3;
     }

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "numbers-different-signs-java-python-int32-binary-scalar-v1",
+  "algorithm": "numbers_different_signs",
+  "function_symbol": "numbers_different_signs",
+  "input": {
+    "kind": "pair_of_signed_32_bit_integers",
+    "range": [[-2147483648, 2147483647], [-2147483648, 2147483647]],
+    "predicate": "(left XOR right) < 0",
+    "true_result": 1,
+    "false_result": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "positive-positive", "input_values": [1, 2], "expected_result": 0},
+    {"id": "negative-negative", "input_values": [-1, -2], "expected_result": 0},
+    {"id": "positive-negative", "input_values": [1, -1], "expected_result": 1},
+    {"id": "negative-positive", "input_values": [-100, 50], "expected_result": 1},
+    {"id": "zero-positive", "input_values": [0, 2], "expected_result": 0},
+    {"id": "zero-negative-source-bit-rule", "input_values": [0, -2], "expected_result": 1},
+    {"id": "zero-zero", "input_values": [0, 0], "expected_result": 0},
+    {"id": "int32-min-and-max", "input_values": [-2147483648, 2147483647], "expected_result": 1},
+    {"id": "int32-min-and-negative", "input_values": [-2147483648, -1], "expected_result": 0},
+    {"id": "left-outside-range", "input_values": [2147483648, 0], "expected_result": -1},
+    {"id": "right-outside-range", "input_values": [0, -2147483649], "expected_result": -1}
+  ]
+}

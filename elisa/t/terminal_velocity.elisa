@@ -1,0 +1,17 @@
+# Terminal velocity with standard gravity and bounded positive inputs.
+extern sqrt(value: f64) -> f64
+
+def terminal_velocity_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    mass: i64 = values[0]
+    density: i64 = values[1]
+    area: i64 = values[2]
+    drag_coefficient: i64 = values[3]
+    if mass < 1 or mass > 1000 or density < 1 or density > 1000 or area < 1 or area > 1000 or drag_coefficient < 1 or drag_coefficient > 1000:
+        return -1.0e300
+    numerator: f64 = (2.0 * mass.f64()) * 9.80665
+    denominator: f64 = (density.f64() * area.f64()) * drag_coefficient.f64()
+    sqrt(numerator / denominator)
+
+export fn terminal_velocity(values: i64&, length: usize) -> f64 = terminal_velocity_impl

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "archimedes-buoyant-force-v1",
+  "algorithm": "archimedes_principle_of_buoyant_force",
+  "function_symbol": "archimedes_principle_of_buoyant_force",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["fluid_density", "volume"],
+    "fluid_density_minimum": 1,
+    "fluid_density_maximum": 1000,
+    "volume_minimum": 1,
+    "volume_maximum": 1000,
+    "fixed_gravity_meters_per_second_squared": 9.80665,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "fluid_density * 9.80665 * volume",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"small-density-and-volume","input_values":[1,1],"input_length":2,"expected_result":9.80665},
+    {"id":"source-density-value","input_values":[997,1],"input_length":2,"expected_result":9777.23005},
+    {"id":"multiplied-volume","input_values":[500,4],"input_length":2,"expected_result":19613.3},
+    {"id":"maximum-bounds","input_values":[1000,1000],"input_length":2,"expected_result":9806650.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[997],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-zero-density","input_values":[0,7],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-zero-volume","input_values":[997,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-negative-density","input_values":[-1,7],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[997,1001],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

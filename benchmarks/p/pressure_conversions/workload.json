@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "pressure-conversions-python-binary64-v1",
+  "algorithm": "pressure_conversions",
+  "function_symbol": "pressure_conversions",
+  "input": {
+    "kind": "finite_binary64_pressure_conversion",
+    "value_range": [-1000000.0, 1000000.0],
+    "unit_codes": {
+      "0": "atm",
+      "1": "pascal",
+      "2": "bar",
+      "3": "kilopascal",
+      "4": "megapascal",
+      "5": "psi",
+      "6": "inHg",
+      "7": "torr"
+    },
+    "factor_pairs": {
+      "atm": [1.0, 1.0],
+      "pascal": [0.0000098, 101325.0],
+      "bar": [0.986923, 1.01325],
+      "kilopascal": [0.00986923, 101.325],
+      "megapascal": [9.86923, 0.101325],
+      "psi": [0.068046, 14.6959],
+      "inHg": [0.0334211, 29.9213],
+      "torr": [0.00131579, 760.0]
+    },
+    "formula": "(value * from_factor) * to_factor",
+    "operation_order": "multiply value by source from_factor, then multiply by target to_factor",
+    "invalid_result": -1.0,
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"atm-to-pascal","input_values":[4.0,0.0,1.0],"expected_result":405300.0},
+    {"id":"pascal-to-psi","input_values":[1.0,1.0,5.0],"expected_result":0.00014401982},
+    {"id":"bar-to-atm","input_values":[1.0,2.0,0.0],"expected_result":0.986923},
+    {"id":"kilopascal-to-bar","input_values":[3.0,3.0,2.0],"expected_result":0.0299999918925},
+    {"id":"megapascal-to-psi","input_values":[2.0,4.0,5.0],"expected_result":290.074434314},
+    {"id":"psi-to-torr","input_values":[4.0,5.0,7.0],"expected_result":206.85984},
+    {"id":"inhg-to-atm","input_values":[1.0,6.0,0.0],"expected_result":0.0334211},
+    {"id":"torr-to-psi","input_values":[1.0,7.0,5.0],"expected_result":0.019336718261},
+    {"id":"same-unit-atmosphere","input_values":[12.0,0.0,0.0],"expected_result":12.0},
+    {"id":"negative-pressure","input_values":[-5.0,3.0,2.0],"expected_result":-0.0499999864875},
+    {"id":"valid-result-equals-sentinel","input_values":[-1.0,0.0,0.0],"expected_result":-1.0},
+    {"id":"lower-value-bound","input_values":[-1000000.0,0.0,0.0],"expected_result":-1000000.0},
+    {"id":"upper-value-bound","input_values":[1000000.0,4.0,1.0],"expected_result":999999729750.0},
+    {"id":"unknown-source-unit","input_values":[1.0,8.0,0.0],"expected_result":-1.0},
+    {"id":"fractional-unit-code","input_values":[1.0,1.5,0.0],"expected_result":-1.0},
+    {"id":"value-above-bound","input_values":[1000000.5,0.0,0.0],"expected_result":-1.0}
+  ]
+}

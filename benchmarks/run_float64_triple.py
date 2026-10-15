@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "equated_monthly_installments"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -102,6 +102,52 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
             expected_payment = (start * monthly_rate * factor) / (factor - 1.0)
             if abs(expected - expected_payment) > tolerance * max(1.0, abs(start), abs(end)):
                 raise ValueError("equated_monthly_installments expected result must match the bounded EMI formula")
+    elif algorithm == "pressure":
+        factors = (1.0, 1000.0, 1_000_000.0, 100_000.0, 101_325.0, 6894.757293168)
+        valid = (abs(start) <= 1_000_000.0 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(factors) and 0.0 <= t < len(factors))
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid pressure inputs must use the -1.0 result sentinel")
+        else:
+            expected_pressure = start * factors[int(end)] / factors[int(t)]
+            if abs(expected - expected_pressure) > tolerance * max(1.0, abs(start)):
+                raise ValueError("pressure expected result must match the source-factor multiplication and division")
+    elif algorithm == "order_of_magnitude_conversion":
+        exponents = (0, 3, 6, 9, 12, 15, 18, 21, 24)
+        valid = (abs(start) <= 1e100 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(exponents) and 0.0 <= t < len(exponents))
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid order_of_magnitude_conversion inputs must use the -1.0 result sentinel")
+        else:
+            factor = math.pow(10.0, exponents[int(end)] - exponents[int(t)])
+            expected_value = start * factor
+            if abs(expected - expected_value) > tolerance * max(1.0, abs(start)):
+                raise ValueError("order_of_magnitude_conversion expected result must match the bounded power-of-ten formula")
+    elif algorithm == "pressure_conversions":
+        factors = ((1.0, 1.0), (0.0000098, 101325.0), (0.986923, 1.01325),
+                   (0.00986923, 101.325), (9.86923, 0.101325),
+                   (0.068046, 14.6959), (0.0334211, 29.9213),
+                   (0.00131579, 760.0))
+        valid = (abs(start) <= 1_000_000.0 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(factors) and 0.0 <= t < len(factors))
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid pressure_conversions inputs must use the -1.0 result sentinel")
+        else:
+            source_factor = factors[int(end)][0]
+            target_factor = factors[int(t)][1]
+            expected_pressure = (start * source_factor) * target_factor
+            if abs(expected - expected_pressure) > tolerance * max(1.0, abs(start)):
+                raise ValueError("pressure_conversions expected result must match the source's ordered factor products")
+    elif algorithm == "addition_rule":
+        valid = all(0.0 <= value <= 1.0 for value in (start, end, t))
+        if not valid:
+            raise ValueError("addition_rule inputs must be finite probabilities in [0, 1]")
+        expected_probability = (start + end) - (start * t)
+        if abs(expected - expected_probability) > tolerance:
+            raise ValueError("addition_rule expected result must match P(A) + P(B) - P(A) * P(B|A)")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

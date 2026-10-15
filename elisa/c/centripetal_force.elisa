@@ -1,0 +1,13 @@
+# Centripetal force: (mass * velocity^2) / radius.
+def centripetal_force_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    mass: i64 = values[0]
+    velocity: i64 = values[1]
+    radius: i64 = values[2]
+    if mass < 0 or mass > 1000 or velocity < -1000 or velocity > 1000 or radius < 1 or radius > 1000:
+        return -1.0e300
+    velocity_squared: f64 = velocity.f64() * velocity.f64()
+    (mass.f64() * velocity_squared) / radius.f64()
+
+export fn centripetal_force(values: i64&, length: usize) -> f64 = centripetal_force_impl

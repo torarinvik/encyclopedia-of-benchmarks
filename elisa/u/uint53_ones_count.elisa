@@ -1,0 +1,22 @@
+def uint53_ones_count_byte(value: i64) -> i64:
+    ones: mutable i64 = 0
+    current: mutable i64 = value
+    while current > 0:
+        bit: i64 = current % 2
+        ones <- ones + bit
+        current <- (current - bit) / 2
+    ones
+
+def uint53_ones_count_impl(n: i64) -> i64:
+    if n < 0 or n > 9007199254740991:
+        return -1
+
+    current: mutable i64 = n
+    ones: mutable i64 = 0
+    while current != 0:
+        byte: i64 = current % 256
+        ones <- ones + uint53_ones_count_byte(byte)
+        current <- (current - byte) / 256
+    ones
+
+export fn uint53_ones_count(n: i64) -> i64 = uint53_ones_count_impl

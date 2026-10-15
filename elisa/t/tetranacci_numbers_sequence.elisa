@@ -1,0 +1,20 @@
+def tetranacci_numbers_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 68:
+        return -1
+    a: mutable i64 = 1
+    b: mutable i64 = 1
+    c: mutable i64 = 1
+    d: mutable i64 = 1
+    if index <= 3:
+        return 1
+    step: mutable i64 = 4
+    while step <= index:
+        next: i64 = a + b + c + d
+        a <- b
+        b <- c
+        c <- d
+        d <- next
+        step <- step + 1
+    d
+
+export fn tetranacci_numbers_sequence(index: i64) -> i64 = tetranacci_numbers_sequence_impl

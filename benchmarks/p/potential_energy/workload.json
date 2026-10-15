@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "potential-energy-v1",
+  "algorithm": "potential_energy",
+  "function_symbol": "potential_energy",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["mass", "height"],
+    "mass_minimum": 0,
+    "mass_maximum": 1000,
+    "height_minimum": 0,
+    "height_maximum": 1000,
+    "fixed_gravity_meters_per_second_squared": 9.80665,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "mass * 9.80665 * height",
+    "unit": "joule",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-example","input_values":[10,10],"input_length":2,"expected_result":980.665},
+    {"id":"small-product","input_values":[2,8],"input_length":2,"expected_result":156.9064},
+    {"id":"zero-mass","input_values":[0,5],"input_length":2,"expected_result":0.0},
+    {"id":"zero-height","input_values":[8,0],"input_length":2,"expected_result":0.0},
+    {"id":"maximum-bounds","input_values":[1000,1000],"input_length":2,"expected_result":9806650.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[10],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-negative-mass","input_values":[-1,5],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-negative-height","input_values":[10,-1],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[1001,5],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

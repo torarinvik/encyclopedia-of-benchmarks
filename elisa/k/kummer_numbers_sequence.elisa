@@ -1,0 +1,22 @@
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    composite: bool =
+        while factor <= value / factor |factor: mutable i64 = 2, found: bool = false| -> found:
+            if value % factor == 0:
+                break true
+            factor <- factor + 1
+    not composite
+
+def kummer_numbers_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 14:
+        return -1
+    product: i64 =
+        while prime_count < index + 1 |candidate: mutable i64 = 2, prime_count: mutable i64 = 0, product: mutable i64 = 1| -> product:
+            if is_prime(candidate):
+                product <- product * candidate
+                prime_count <- prime_count + 1
+            candidate <- candidate + 1
+    product - 1
+
+export fn kummer_numbers_sequence(index: i64) -> i64 = kummer_numbers_sequence_impl

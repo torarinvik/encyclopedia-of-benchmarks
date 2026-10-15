@@ -1,0 +1,11 @@
+# Gravitational potential energy: mass * standard gravity * height.
+def potential_energy_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    mass: i64 = values[0]
+    height: i64 = values[1]
+    if mass < 0 or mass > 1000 or height < 0 or height > 1000:
+        return -1.0e300
+    (mass.f64() * 9.80665) * height.f64()
+
+export fn potential_energy(values: i64&, length: usize) -> f64 = potential_energy_impl

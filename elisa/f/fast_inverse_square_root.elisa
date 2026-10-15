@@ -1,0 +1,40 @@
+const MIN_VALUE: f64 = 1e-6
+const MAX_VALUE: f64 = 1e6
+const FRACTION_SCALE: f64 = 8388608.0
+const FRACTION_MASK: u32 = 8388607
+
+# Elisa has no bit reinterpret cast. Decode the rounded binary32 fields arithmetically.
+def positive_f32_bits(value: f64) -> u32:
+    rounded: f32 = value.f32()
+    normalized: mutable f64 = rounded.f64()
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u32 = ((normalized - 1.0) * FRACTION_SCALE).u32()
+    ((exponent + 127).u32() << 23) | fraction
+
+def positive_f32_from_bits(bits: u32) -> f32:
+    exponent_bits: i32 = ((bits >> 23) & 255).i32()
+    fraction_bits: u32 = bits & FRACTION_MASK
+    value: mutable f64 = 1.0 + fraction_bits.f64() / FRACTION_SCALE
+    exponent: mutable i32 = exponent_bits - 127
+    while exponent > 0:
+        value <- value * 2.0
+        exponent <- exponent - 1
+    while exponent < 0:
+        value <- value / 2.0
+        exponent <- exponent + 1
+    value.f32()
+
+def fast_inverse_square_root_impl(value: f64) -> f64:
+    if value != value or value < MIN_VALUE or value > MAX_VALUE: return -1.0
+    bits: u32 = positive_f32_bits(value)
+    seed_bits: u32 = 0x5f3759df - (bits >> 1)
+    y: f64 = positive_f32_from_bits(seed_bits).f64()
+    y * (1.5 - 0.5 * value * y * y)
+
+export fn fast_inverse_square_root(value: f64) -> f64 = fast_inverse_square_root_impl

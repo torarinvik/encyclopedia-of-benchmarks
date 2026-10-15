@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "uint53-bitwise-or-binary-scalar-v1",
+  "algorithm": "uint53_bitwise_or",
+  "function_symbol": "uint53_bitwise_or",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": ["left", "right"],
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "left bitwise-OR right",
+    "minimum_valid_result": 0,
+    "maximum_valid_result": 9007199254740991,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"zero_zero","input_values":[0,0],"expected_result":0},
+    {"id":"zero_identity","input_values":[0,42],"expected_result":42},
+    {"id":"same_operand","input_values":[341,341],"expected_result":341},
+    {"id":"disjoint_low_bits","input_values":[5,10],"expected_result":15},
+    {"id":"overlapping_bits","input_values":[12,10],"expected_result":14},
+    {"id":"single_high_bit","input_values":[4503599627370496,0],"expected_result":4503599627370496},
+    {"id":"combine_high_and_low_bits","input_values":[4503599627370496,7],"expected_result":4503599627370503},
+    {"id":"maximum_with_zero","input_values":[9007199254740991,0],"expected_result":9007199254740991},
+    {"id":"maximum_with_one","input_values":[9007199254740990,1],"expected_result":9007199254740991},
+    {"id":"left_above_uint53","input_values":[9007199254740992,0],"expected_result":-1},
+    {"id":"right_above_uint53","input_values":[0,9007199254740992],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

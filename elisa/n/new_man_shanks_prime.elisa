@@ -1,0 +1,23 @@
+const MAX_INDEX: i64 = 25
+const INT32_MIN_VALUE: i64 = -2147483648
+const INT32_MAX_VALUE: i64 = 2147483647
+
+# Compare the source recurrence term a[n] with expected; this is not primality testing.
+def new_man_shanks_prime_impl(n: i64, expected: i64) -> i64:
+    if n < 1 or n > MAX_INDEX or expected < INT32_MIN_VALUE or expected > INT32_MAX_VALUE:
+        return -1
+    previous_previous: mutable i32 = 1
+    previous: mutable i32 = 1
+    if n == 1:
+        if expected == previous.i64(): return 1
+        return 0
+    index: mutable i64 = 2
+    while index <= n:
+        current: i32 = 2 * previous + previous_previous
+        previous_previous <- previous
+        previous <- current
+        index <- index + 1
+    if expected == previous.i64(): return 1
+    0
+
+export fn new_man_shanks_prime(n: i64, expected: i64) -> i64 = new_man_shanks_prime_impl

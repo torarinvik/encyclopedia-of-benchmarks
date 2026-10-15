@@ -1,0 +1,12 @@
+# Pressure from the ideal gas law: n * T * R / V.
+def ideal_gas_law_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    moles: i64 = values[0]
+    kelvin: i64 = values[1]
+    volume: i64 = values[2]
+    if moles < 0 or moles > 1000 or kelvin < 0 or kelvin > 1000 or volume < 1 or volume > 1000:
+        return -1.0e300
+    (moles.f64() * kelvin.f64() * 8.314462) / volume.f64()
+
+export fn ideal_gas_law(values: i64&, length: usize) -> f64 = ideal_gas_law_impl

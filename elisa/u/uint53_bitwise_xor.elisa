@@ -1,0 +1,19 @@
+def uint53_bitwise_xor_impl(n: u64, m: u64) -> i64:
+    if n > 9007199254740991 or m > 9007199254740991:
+        return -1
+
+    current_n: mutable u64 = n
+    current_m: mutable u64 = m
+    result: mutable u64 = 0
+    bit: mutable u64 = 1
+    while current_n != 0 and current_m != 0:
+        n_bit: u64 = current_n % 2.u64()
+        m_bit: u64 = current_m % 2.u64()
+        result <- result + ((n_bit + m_bit) % 2.u64()) * bit
+        current_n <- (current_n - n_bit) / 2.u64()
+        current_m <- (current_m - m_bit) / 2.u64()
+        bit <- bit * 2.u64()
+
+    (result + (current_n + current_m) * bit).i64()
+
+export fn uint53_bitwise_xor(n: u64, m: u64) -> i64 = uint53_bitwise_xor_impl

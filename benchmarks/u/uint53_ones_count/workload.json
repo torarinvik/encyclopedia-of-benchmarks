@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "uint53-ones-count-v1",
+  "algorithm": "uint53_ones_count",
+  "function_symbol": "uint53_ones_count",
+  "input": {
+    "minimum": 0,
+    "maximum": 9007199254740991,
+    "out_of_range_result": -1,
+    "operation": "Count the set bits in the unsigned 53-bit representation."
+  },
+  "output": {
+    "minimum": 0,
+    "maximum": 53,
+    "definition": "Population count of the input",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"byte_max","input_value":255,"expected_result":8},
+    {"id":"first_full_byte","input_value":256,"expected_result":1},
+    {"id":"two_full_bytes","input_value":65535,"expected_result":16},
+    {"id":"all_ones_32_bit","input_value":4294967295,"expected_result":32},
+    {"id":"first_bit_above_32_bit","input_value":4294967296,"expected_result":1},
+    {"id":"low_52_ones","input_value":4503599627370495,"expected_result":52},
+    {"id":"highest_uint53_bit","input_value":4503599627370496,"expected_result":1},
+    {"id":"maximum_minus_one","input_value":9007199254740990,"expected_result":52},
+    {"id":"maximum_uint53","input_value":9007199254740991,"expected_result":53},
+    {"id":"negative_one","input_value":-1,"expected_result":-1},
+    {"id":"first_above_uint53","input_value":9007199254740992,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,28 @@
+const MAX_INPUT: i64 = 67108863
+
+def highest_power_position(value: i64) -> i32:
+    position: mutable i32 = 0
+    power: mutable i64 = 1
+    while power <= value / 2:
+        power <- power * 2
+        position <- position + 1
+    position
+
+def count_set_bits_recursive(value: i64) -> i64:
+    if value == 0:
+        return 0
+    position: i32 = highest_power_position(value)
+    power: i64 = 1 << position
+    bits_at_position: mutable i64 = 0
+    if position > 0:
+        bits_at_position <- position.i64() * (power >> 1)
+    remaining_numbers: i64 = value - power + 1
+    bits_at_position + remaining_numbers + count_set_bits_recursive(value - power)
+
+# Count set bits across every integer from 1 through value, inclusive.
+def count_set_bits_impl(value: i64) -> i64:
+    if value < 0 or value > MAX_INPUT:
+        return -1
+    count_set_bits_recursive(value)
+
+export fn count_set_bits(value: i64) -> i64 = count_set_bits_impl
