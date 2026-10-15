@@ -1,4 +1,4 @@
-# Return the shortest common supersequence length of two packed ASCII sequences.
+# Return shortest common supersequence length for two packed ASCII sequences.
 def shortest_common_supersequence_length_impl(input_values: i64&, length: usize) -> i64:
     if length < 2 or length > 512:
         return -1

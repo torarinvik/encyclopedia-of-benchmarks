@@ -30,7 +30,8 @@ extern "C" std::int64_t alternate_harmonic_series(const std::int64_t *values,
         const auto magnitude = numerator < 0 ? -numerator : numerator;
 
         if (index > 0) {
-            if ((numerator < 0) == (values[1 + 2 * (index - 1)] < 0)) return 0;
+            if (index > 1 &&
+                (numerator < 0) == (values[1 + 2 * (index - 1)] < 0)) return 0;
             const auto difference_numerator =
                 denominator * previous_magnitude - previous_denominator * magnitude;
             const auto difference_denominator = magnitude * previous_magnitude;

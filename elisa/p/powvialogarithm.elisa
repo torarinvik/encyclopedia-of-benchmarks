@@ -1,0 +1,26 @@
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern fabs(value: f64) -> f64
+extern trunc(value: f64) -> f64
+extern round(value: f64) -> f64
+
+def powvialogarithm_impl(base: f64, exponent: f64) -> f64:
+    if not (base >= -4.0 and base <= 4.0 and exponent >= -8.0 and exponent <= 8.0):
+        return -1.0e300
+    if trunc(base) != base or trunc(exponent) != exponent:
+        return -1.0e300
+    if base == 0.0 and exponent <= 0.0:
+        return -1.0e300
+    if (base == 2.0 or base == -2.0) and exponent == -1.0:
+        return -1.0e300
+
+    power: i64 = exponent.i64()
+    sign: mutable f64 = 1.0
+    if base < 0.0 and (power % 2) != 0:
+        sign <- -1.0
+    logarithm = log(fabs(base))
+    exponential = exp(exponent * logarithm)
+    result = exponential * sign
+    round(result)
+
+export fn powvialogarithm(base: f64, exponent: f64) -> f64 = powvialogarithm_impl

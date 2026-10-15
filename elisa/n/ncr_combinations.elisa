@@ -1,0 +1,23 @@
+# Generalized combinations for a real total and integer choose.
+extern floor(value: f64) -> f64
+const INVALID_RESULT: f64 = -1.0e300
+
+def ncr_combinations_impl(total: f64, choose: f64) -> f64:
+    if total != total or choose != choose or total < 0.0 or total > 20.0 or
+        choose < 0.0 or choose > 12.0 or choose != floor(choose):
+        return INVALID_RESULT
+
+    count: i64 = choose.i64()
+    numerator: mutable f64 = 1.0
+    index: mutable i64 = 0
+    while index < count:
+        numerator <- numerator * (total - index.f64())
+        index <- index + 1
+    denominator: mutable f64 = 1.0
+    factor: mutable i64 = 2
+    while factor <= count:
+        denominator <- denominator * factor.f64()
+        factor <- factor + 1
+    numerator / denominator
+
+export fn ncr_combinations(total: f64, choose: f64) -> f64 = ncr_combinations_impl

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "herons-formula-java-bounded-f64-triple-v1",
+  "algorithm": "herons_formula",
+  "function_symbol": "herons_formula",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": ["a", "b", "c"],
+    "side_values": "integer-valued doubles in [1, 1000000]",
+    "positive_sides_required": true,
+    "strict_triangle_inequality_required": true,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "formula": "sqrt(s * (s - a) * (s - b) * (s - c))",
+    "semiperimeter": "(a + b + c) / 2",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"source_example_3_4_5","input_values":[3.0,4.0,5.0],"expected_result":6.0},
+    {"id":"isosceles_5_5_6","input_values":[5.0,5.0,6.0],"expected_result":12.0},
+    {"id":"area_5_12_13","input_values":[5.0,12.0,13.0],"expected_result":30.0},
+    {"id":"equilateral_3","input_values":[3.0,3.0,3.0],"expected_result":3.897114317029974},
+    {"id":"fractional_area_2_3_4","input_values":[2.0,3.0,4.0],"expected_result":2.9047375096555625},
+    {"id":"near_degenerate_but_strict","input_values":[1000000.0,1000000.0,1.0],"expected_result":499999.9999999375},
+    {"id":"maximum_integer_sides","input_values":[1000000.0,1000000.0,1000000.0],"expected_result":433012701892.2193},
+    {"id":"negative_side","input_values":[-1.0,2.0,2.0],"expected_result":-1.0},
+    {"id":"zero_side","input_values":[0.0,2.0,2.0],"expected_result":-1.0},
+    {"id":"degenerate_triangle","input_values":[1.0,2.0,3.0],"expected_result":-1.0},
+    {"id":"triangle_inequality_violation","input_values":[1.0,2.0,4.0],"expected_result":-1.0},
+    {"id":"fractional_side_outside_domain","input_values":[1.5,2.0,2.0],"expected_result":-1.0},
+    {"id":"side_above_bound","input_values":[1000001.0,1000001.0,1000001.0],"expected_result":-1.0}
+  ]
+}
+

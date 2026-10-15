@@ -31,7 +31,7 @@ pub fn alternate_harmonic_series(input &i64, length usize) i64 {
 		reciprocal_numerator := denominator
 		reciprocal_denominator := magnitude
 		if index > 0 {
-			if sign == previous_sign { return 0 }
+			if index > 1 && sign == previous_sign { return 0 }
 			current_delta_numerator := reciprocal_numerator * previous_reciprocal_denominator - previous_reciprocal_numerator * reciprocal_denominator
 			current_delta_denominator := reciprocal_denominator * previous_reciprocal_denominator
 			if index == 1 {

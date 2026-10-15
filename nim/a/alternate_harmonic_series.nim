@@ -14,7 +14,7 @@ proc alternate_harmonic_series*(values: ptr UncheckedArray[int64], length: csize
     let denominator = values[2 + 2 * index]
     if numerator == 0 or numerator < -1000 or numerator > 1000 or denominator < 1 or denominator > 1000:
       return -1
-  for index in 1 ..< count:
+  for index in 2 ..< count:
     if (values[1 + 2 * index] < 0) == (values[1 + 2 * (index - 1)] < 0): return 0
   if count < 3: return 1
 

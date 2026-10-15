@@ -1,0 +1,34 @@
+# Solve one missing quantity in the ideal-plate Casimir force equation.
+extern pow(base: f64, exponent: f64) -> f64
+
+const hbar: f64 = 1.054571817e-34
+const speed_of_light: f64 = 3.0e8
+const pi_value: f64 = 3.14159265358979323846
+
+def casimir_effect_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    force_units: i64 = values[0]
+    area_units: i64 = values[1]
+    distance_units: i64 = values[2]
+    if force_units < 0 or force_units > 1000000 or area_units < 0 or area_units > 1000000 or distance_units < 0 or distance_units > 1000000:
+        return -1.0e300
+    zero_count: mutable i64 = 0
+    if force_units == 0:
+        zero_count <- zero_count + 1
+    if area_units == 0:
+        zero_count <- zero_count + 1
+    if distance_units == 0:
+        zero_count <- zero_count + 1
+    if zero_count != 1:
+        return -1.0e300
+    force: f64 = force_units.f64() * 1.0e-12
+    area: f64 = area_units.f64() * 1.0e-6
+    distance: f64 = distance_units.f64() * 1.0e-6
+    if force_units == 0:
+        return (hbar * speed_of_light * pow(pi_value, 2.0) * area) / (240.0 * pow(distance, 4.0))
+    if area_units == 0:
+        return (240.0 * force * pow(distance, 4.0)) / (hbar * speed_of_light * pow(pi_value, 2.0))
+    pow((hbar * speed_of_light * pow(pi_value, 2.0) * area) / (240.0 * force), 0.25)
+
+export fn casimir_effect(values: i64&, length: usize) -> f64 = casimir_effect_impl

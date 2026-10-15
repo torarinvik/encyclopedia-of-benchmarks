@@ -21,6 +21,28 @@ MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "decimal_to_hex":
+        if not 0 <= value <= 9_007_199_254_740_991:
+            return -1, b""
+        output = format(value, "X").encode("ascii")
+        return len(output), output
+
+    if encoding == "fizz_buzz":
+        if not 1 <= value <= 512:
+            return -1, b""
+        tokens = []
+        for number in range(1, value + 1):
+            if number % 15 == 0:
+                tokens.append("FizzBuzz")
+            elif number % 3 == 0:
+                tokens.append("Fizz")
+            elif number % 5 == 0:
+                tokens.append("Buzz")
+            else:
+                tokens.append(str(number))
+        output = (" ".join(tokens) + " ").encode("ascii")
+        return len(output), output
+
     if encoding == "goldbach_pair_i32le":
         if not 4 <= value <= 4096 or value % 2 != 0:
             return -1, b""
@@ -305,7 +327,8 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"):
         parser.error("workload does not match the built scalar byte-output algorithm")
-    encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based"}
+    encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
+                                          "decimal_to_hex", "fizz_buzz"}
                 else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
@@ -331,7 +354,8 @@ def main() -> int:
         if type(value) is not int or not -(2**63) <= value < 2**63:
             raise ValueError(f"invalid signed 64-bit scalar in {case['id']}")
         required_result, required_output = expected_output(value, encoding)
-        output_capacity = case.get("output_capacity", len(required_output) or MAX_OUTPUT_BYTES)
+        output_capacity = case.get("output_capacity", case.get("workspace_bytes",
+                                                                  len(required_output) or MAX_OUTPUT_BYTES))
         if type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_BYTES:
             raise ValueError(f"invalid output capacity in {case['id']}")
         if output_capacity < len(required_output):

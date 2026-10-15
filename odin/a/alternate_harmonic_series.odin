@@ -34,7 +34,7 @@ alternate_harmonic_series :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
 		reciprocal_numerator := denominator
 		reciprocal_denominator := magnitude
 		if index > 0 {
-			if sign == previous_sign do return 0
+            if index > 1 && sign == previous_sign do return 0
 			// Compare reciprocal deltas exactly by cross multiplication.
 			current_delta_numerator := reciprocal_numerator*previous_reciprocal_denominator - previous_reciprocal_numerator*reciprocal_denominator
 			current_delta_denominator := reciprocal_denominator*previous_reciprocal_denominator

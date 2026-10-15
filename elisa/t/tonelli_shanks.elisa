@@ -1,0 +1,67 @@
+def tonelli_shanks_mod_pow(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value % modulus
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    return result
+
+def tonelli_shanks_legendre(residue: i64, prime: i64) -> i64:
+    symbol: i64 = tonelli_shanks_mod_pow(residue % prime, (prime - 1) / 2, prime)
+    if symbol == prime - 1:
+        return -1
+    return symbol
+
+def tonelli_shanks_impl(input_values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    residue: mutable i64 = input_values[0]
+    prime: i64 = input_values[1]
+    if prime <= 2 or (prime & 1) == 0 or prime > 1000003 or residue < 0 or residue >= prime:
+        return -1
+    if residue == 0:
+        return 0
+    if tonelli_shanks_legendre(residue, prime) != 1:
+        return -1
+    if prime % 4 == 3:
+        root: i64 = tonelli_shanks_mod_pow(residue, (prime + 1) / 4, prime)
+        if root < prime - root:
+            return root
+        return prime - root
+    q: mutable i64 = prime - 1
+    s: mutable i64 = 0
+    while (q & 1) == 0:
+        q <- q / 2
+        s <- s + 1
+    non_residue: mutable i64 = 2
+    while tonelli_shanks_legendre(non_residue, prime) != -1:
+        non_residue <- non_residue + 1
+    c: mutable i64 = tonelli_shanks_mod_pow(non_residue, q, prime)
+    r: mutable i64 = tonelli_shanks_mod_pow(residue, (q + 1) / 2, prime)
+    t: mutable i64 = tonelli_shanks_mod_pow(residue, q, prime)
+    remaining_s: mutable i64 = s
+    while t != 1:
+        test_power: mutable i64 = t
+        least_i: mutable i64 = 0
+        candidate_i: mutable i64 = 1
+        while candidate_i < remaining_s:
+            test_power <- tonelli_shanks_mod_pow(test_power, 2, prime)
+            if test_power == 1:
+                least_i <- candidate_i
+                break
+            candidate_i <- candidate_i + 1
+        if least_i == 0:
+            return -1
+        b: i64 = tonelli_shanks_mod_pow(c, (1 << (remaining_s - least_i - 1)), prime)
+        r <- (r * b) % prime
+        c <- (b * b) % prime
+        t <- (t * c) % prime
+        remaining_s <- least_i
+    if r < prime - r:
+        return r
+    return prime - r
+
+export fn tonelli_shanks(input_values: i64&, length: usize) -> i64 = tonelli_shanks_impl

@@ -6,6 +6,8 @@ The `i64_scalar_bytes_output` ABI accepts JavaScript safe integers `0..900719925
 
 [`workload.json`](workload.json) covers digit boundaries, uppercase letters, large safe integers, and invalid/capacity cases.
 
+The shared scalar-bytes runner derives uppercase hexadecimal output with the JavaScript safe-integer bounds and validates capacity-failure records.
+
 ## Implementations
 
 | Language | Source |

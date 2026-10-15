@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+from fractions import Fraction
 import json
 import math
 import os
@@ -412,6 +413,192 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
             raise ValueError("linear_regression_ols expected_result must match the bounded OLS slope")
+    elif algorithm == "linear_regression_gradient_descent":
+        valid = (len(values) >= 3 and 2 <= values[0] <= 64
+                 and 1 <= values[1] <= 1000 and 1 <= values[2] <= 10_000
+                 and len(values) == 3 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            observation_count, rate_microunits, epochs = values[:3]
+            observations = list(zip(values[3::2], values[4::2]))
+            valid = (all(-10 <= x_value <= 10 for x_value, _ in observations)
+                     and all(-100 <= y_value <= 100 for _, y_value in observations))
+            if valid:
+                alpha = rate_microunits / 1_000_000.0
+                learning_rate = alpha / 2.0
+                gradient_factor = 2.0 / observation_count
+                slope = 0.0
+                intercept = 0.0
+                for _ in range(epochs):
+                    slope_gradient = 0.0
+                    intercept_gradient = 0.0
+                    for x_value, y_value in observations:
+                        residual = slope * x_value + intercept - y_value
+                        slope_gradient += residual * x_value
+                        intercept_gradient += residual
+                    slope -= gradient_factor * slope_gradient * learning_rate
+                    intercept -= gradient_factor * intercept_gradient * learning_rate
+                source_result = slope
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid linear_regression_gradient_descent inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("linear_regression_gradient_descent expected_result must match the source-ordered batch updates")
+    elif algorithm == "correlation":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 128
+                 and len(values) == 1 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            sample_count = values[0]
+            x_values = values[1:1 + sample_count]
+            y_values = values[1 + sample_count:]
+            valid = all(-1000 <= value <= 1000 for value in x_values + y_values)
+            if valid:
+                expected_xy = expected_x = expected_xx = expected_y = expected_yy = 0.0
+                for x_value, y_value in zip(x_values, y_values):
+                    expected_xy += x_value * y_value
+                    expected_x += x_value
+                    expected_xx += x_value * x_value
+                    expected_y += y_value
+                    expected_yy += y_value * y_value
+                expected_xy /= sample_count
+                expected_x /= sample_count
+                expected_xx /= sample_count
+                expected_y /= sample_count
+                expected_yy /= sample_count
+                covariance = expected_xy - expected_x * expected_y
+                variance_x = math.sqrt(expected_xx - expected_x * expected_x)
+                variance_y = math.sqrt(expected_yy - expected_y * expected_y)
+                variance_product = variance_x * variance_y
+                source_result = (0.0 if variance_product < 1e-9
+                                 else covariance / math.sqrt(variance_product))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid correlation inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("correlation expected_result must match the ordered pinned Java formula")
+    elif algorithm == "spearman_rank_correlation_coefficient":
+        valid = (len(values) >= 1 and 2 <= values[0] <= 3
+                 and len(values) == 1 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            sample_count = values[0]
+            x_values = values[1:1 + sample_count]
+            y_values = values[1 + sample_count:]
+            valid = all(-1000 <= value <= 1000 for value in x_values + y_values)
+            if valid:
+                def average_ranks(samples: list[int]) -> list[Fraction]:
+                    order = sorted(range(len(samples)), key=samples.__getitem__)
+                    ranks = [Fraction(0)] * len(samples)
+                    start = 0
+                    while start < len(order):
+                        end = start + 1
+                        while end < len(order) and samples[order[end]] == samples[order[start]]:
+                            end += 1
+                        average_rank = Fraction(start + 1 + end, 2)
+                        for position in range(start, end):
+                            ranks[order[position]] = average_rank
+                        start = end
+                    return ranks
+
+                x_ranks = average_ranks(x_values)
+                y_ranks = average_ranks(y_values)
+                squared_rank_difference = sum(
+                    (x_rank - y_rank) ** 2 for x_rank, y_rank in zip(x_ranks, y_ranks)
+                )
+                rho = 1 - 6 * squared_rank_difference / (sample_count * (sample_count**2 - 1))
+                source_result = round(float(rho), 1)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid spearman_rank_correlation_coefficient inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("spearman_rank_correlation_coefficient expected_result must match average ranks and Python one-decimal rounding")
+    elif algorithm == "npv":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 64
+                 and 0 <= values[1] <= 1000 and len(values) == values[0] + 2)
+        source_result = -1e300
+        if valid:
+            cash_flows = values[2:]
+            valid = all(-1_000_000 <= cash_flow <= 1_000_000 for cash_flow in cash_flows)
+            if valid:
+                rate = values[1] / 10_000.0
+                source_result = 0.0
+                for period, cash_flow in enumerate(cash_flows):
+                    source_result += cash_flow / math.pow(1.0 + rate, period)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid npv inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("npv expected_result must match the zero-based source-ordered discounted sum")
+    elif algorithm == "real_and_reactive_power":
+        valid = (len(values) == 3 and values[0] in (0, 1)
+                 and -1_000_000_000 <= values[1] <= 1_000_000_000
+                 and -10_000 <= values[2] <= 10_000)
+        source_result = -1e300
+        if valid:
+            operation, apparent_power, factor_basis_points = values
+            power_factor = factor_basis_points / 10_000.0
+            if operation == 0:
+                source_result = apparent_power * power_factor
+            else:
+                source_result = apparent_power * math.sqrt(1.0 - power_factor**2)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid real_and_reactive_power inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("real_and_reactive_power expected_result must match the selected source expression")
+    elif algorithm == "carrier_concentration":
+        valid = (len(values) == 3 and all(0 <= concentration <= 1_000_000 for concentration in values)
+                 and values.count(0) == 1)
+        source_result = -1e300
+        if valid:
+            electron_concentration, hole_concentration, intrinsic_concentration = values
+            if electron_concentration == 0:
+                source_result = intrinsic_concentration**2 / hole_concentration
+            elif hole_concentration == 0:
+                source_result = intrinsic_concentration**2 / electron_concentration
+            else:
+                source_result = (electron_concentration * hole_concentration) ** 0.5
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid carrier_concentration inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("carrier_concentration expected_result must match the source-selected missing field")
+    elif algorithm == "casimir_effect":
+        valid = (len(values) == 3 and all(0 <= value <= 1_000_000 for value in values)
+                 and values.count(0) == 1)
+        source_result = -1e300
+        if valid:
+            force = values[0] * 1e-12
+            area = values[1] * 1e-6
+            distance = values[2] * 1e-6
+            reduced_planck_constant = 1.054571817e-34
+            speed_of_light = 3e8
+            pi = math.pi
+            if force == 0:
+                source_result = (reduced_planck_constant * speed_of_light * pi**2 * area) / (
+                    240 * distance**4
+                )
+            elif area == 0:
+                source_result = (240 * force * distance**4) / (
+                    reduced_planck_constant * speed_of_light * pi**2
+                )
+            else:
+                source_result = (
+                    (reduced_planck_constant * speed_of_light * pi**2 * area) / (240 * force)
+                ) ** (1 / 4)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid casimir_effect inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-30):
+            raise ValueError("casimir_effect expected_result must match the source-ordered SI branch")
     elif algorithm == "circular_arc":
         valid = (len(values) == 3 and values[0] in (0, 1)
                  and -1_000_000 <= values[1] <= 1_000_000
@@ -428,6 +615,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("circular_arc expected_result must match the selected source formula")
+    elif algorithm == "sphere":
+        valid = (len(values) == 2 and values[0] in (0, 1)
+                 and 0 <= values[1] <= 1_000_000)
+        source_result = -1e300
+        if valid:
+            mode, radius = values
+            if mode == 0:
+                source_result = math.pow(radius, 3) * math.pi * 4.0 / 3.0
+            else:
+                source_result = math.pow(radius, 2) * math.pi * 4.0
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid sphere inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("sphere expected_result must match the source-ordered volume or surface-area formula")
     elif algorithm == "relativistic_kinetic_energy":
         speed_of_light = 299_792_458.0
         valid = (len(values) == 2 and 0 <= values[0] <= 1_000_000
@@ -443,6 +646,90 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("relativistic_kinetic_energy expected_result must match the source-ordered Lorentz formula")
+    elif algorithm == "relativistic_velocity_summation":
+        speed_of_light = 299_792_458
+        valid = (len(values) == 2
+                 and -speed_of_light <= values[0] <= speed_of_light
+                 and -(speed_of_light - 1) <= values[1] <= speed_of_light - 1)
+        source_result = -1e300
+        if valid:
+            object_velocity, frame_velocity = values
+            numerator = object_velocity + frame_velocity
+            denominator = 1 + object_velocity * frame_velocity / speed_of_light**2
+            source_result = numerator / denominator
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid relativistic_velocity_summation inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("relativistic_velocity_summation expected_result must match the source-ordered velocity formula")
+    elif algorithm == "linear_regression_sequential_gradient_descent":
+        valid = (len(values) >= 3 and 2 <= values[0] <= 64
+                 and 1 <= values[1] <= 1000 and 1 <= values[2] <= 10_000
+                 and len(values) == 3 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            observation_count, rate_microunits, epochs = values[:3]
+            observations = list(zip(values[3::2], values[4::2]))
+            valid = (all(-10 <= x_value <= 10 for x_value, _ in observations)
+                     and all(-100 <= y_value <= 100 for _, y_value in observations))
+            if valid:
+                alpha = rate_microunits / 1_000_000.0
+                scale = alpha / observation_count
+                slope = 0.0
+                intercept = 0.0
+                for _ in range(epochs):
+                    slope_gradient = 0.0
+                    for x_value, y_value in observations:
+                        slope_gradient += (slope * x_value + intercept - y_value) * x_value
+                    slope -= scale * slope_gradient
+                    intercept_gradient = 0.0
+                    for x_value, y_value in observations:
+                        intercept_gradient += slope * x_value + intercept - y_value
+                    intercept -= scale * intercept_gradient
+                    squared_error = 0.0
+                    for x_value, y_value in observations:
+                        residual = slope * x_value + intercept - y_value
+                        squared_error += residual * residual
+                    source_result = squared_error / (2.0 * observation_count)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid linear_regression_sequential_gradient_descent inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("linear_regression_sequential_gradient_descent expected_result must match the source-ordered final training cost")
+    elif algorithm == "linear_regression_stochastic_gradient_descent":
+        valid = (len(values) >= 5 and 2 <= values[0] <= 64
+                 and 1 <= values[1] <= 200 and 1 <= values[2] <= 10_000
+                 and len(values) == 5 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            observation_count, epochs, rate_microunits = values[:3]
+            initial_slope, initial_intercept = values[3:5]
+            observations_raw = list(zip(values[5::2], values[6::2]))
+            valid = (-10_000_000 <= initial_slope <= 10_000_000
+                     and -10_000_000 <= initial_intercept <= 10_000_000
+                     and all(-10_000_000 <= x_value <= 10_000_000 for x_value, _ in observations_raw)
+                     and all(-100_000_000 <= y_value <= 100_000_000 for _, y_value in observations_raw))
+            if valid:
+                scale = 1_000_000.0
+                learning_rate = rate_microunits / scale
+                slope = initial_slope / scale
+                intercept = initial_intercept / scale
+                observations = [(x_value / scale, y_value / scale)
+                                for x_value, y_value in observations_raw]
+                for _ in range(epochs):
+                    for x_value, y_value in observations:
+                        error = slope * x_value + intercept - y_value
+                        slope -= learning_rate * error * x_value / observation_count
+                        intercept -= learning_rate * error / observation_count
+                source_result = slope
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid linear_regression_stochastic_gradient_descent inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("linear_regression_stochastic_gradient_descent expected_result must match ordered per-row updates")
     return values, float(expected)
 
 

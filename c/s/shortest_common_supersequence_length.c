@@ -1,32 +1,28 @@
-/* Return the shortest common supersequence length of two packed ASCII sequences. */
+/* Return shortest common supersequence length for two packed ASCII sequences. */
 #include <stddef.h>
 #include <stdint.h>
 
 int64_t shortest_common_supersequence_length(const int64_t *packed, size_t length)
 {
     if (packed == NULL || length < 2 || length > 512) return -1;
-    const int64_t left_length = packed[0];
-    const int64_t right_length = packed[1];
-    if (left_length < 0 || left_length > 255 || right_length < 0 || right_length > 255 ||
-        length != (size_t)(2 + left_length + right_length)) return -1;
-    for (size_t index = 0; index < (size_t)(left_length + right_length); ++index) {
-        if (packed[2 + index] < 0 || packed[2 + index] > 127) return -1;
-    }
+    const int64_t m = packed[0], n = packed[1];
+    if (m < 0 || m > 255 || n < 0 || n > 255 || length != (size_t)(2 + m + n)) return -1;
+    for (size_t k = 0; k < (size_t)(m + n); ++k)
+        if (packed[2 + k] < 0 || packed[2 + k] > 127) return -1;
 
-    const size_t rows = (size_t)left_length + 1;
-    const size_t columns = (size_t)right_length + 1;
-    int64_t table[256 * 256] = {0};
-    for (size_t i = 1; i < rows; ++i) {
-        for (size_t j = 1; j < columns; ++j) {
+    const size_t columns = (size_t)n + 1;
+    int64_t dp[256 * 256] = {0};
+    for (size_t i = 1; i <= (size_t)m; ++i) {
+        for (size_t j = 1; j <= (size_t)n; ++j) {
             const size_t cell = i * columns + j;
-            if (packed[1 + i] == packed[1 + (size_t)left_length + j]) {
-                table[cell] = table[(i - 1) * columns + j - 1] + 1;
-            } else {
-                const int64_t above = table[(i - 1) * columns + j];
-                const int64_t left = table[i * columns + j - 1];
-                table[cell] = above > left ? above : left;
+            if (packed[1 + i] == packed[1 + (size_t)m + j])
+                dp[cell] = dp[(i - 1) * columns + j - 1] + 1;
+            else {
+                const int64_t above = dp[(i - 1) * columns + j];
+                const int64_t left = dp[i * columns + j - 1];
+                dp[cell] = above > left ? above : left;
             }
         }
     }
-    return left_length + right_length - table[(rows - 1) * columns + columns - 1];
+    return m + n - dp[(size_t)m * columns + (size_t)n];
 }

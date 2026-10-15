@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "npv-sensitivity-rates-vector-v1",
+  "algorithm": "npv_sensitivity",
+  "function_symbol": "npv_sensitivity",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, rate_count, cashflows..., rate_basis_points...]",
+    "cash_flow_count_range": [
+      0,
+      64
+    ],
+    "rate_count_range": [
+      0,
+      32
+    ],
+    "cash_flow_range": [
+      -1000000,
+      1000000
+    ],
+    "rate_basis_point_range": [
+      0,
+      1000
+    ],
+    "rate_normalization": "rate_basis_points / 10000.0",
+    "required_length": "2 + n + rate_count",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "output": {
+    "kind": "float64_vector",
+    "definition": "For each rate in input order, sequential sum of cash_flow[t] / pow(1.0 + rate, t).",
+    "encoding": "Each NPV is one little-endian IEEE-754 binary64 value.",
+    "empty_rates_result_byte_length": 0,
+    "empty_cash_flows_result": "one 0.0 result per supplied rate",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "max_length": 32,
+    "maximum_output_bytes": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example_multiple_rates",
+      "input_values": [
+        4,
+        3,
+        -1000,
+        400,
+        400,
+        400,
+        0,
+        500,
+        1000
+      ],
+      "input_length": 9,
+      "expected_result": 24,
+      "expected_output": [
+        200.0,
+        89.29921174819128,
+        -5.259203606311189
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "empty_rate_list",
+      "input_values": [
+        2,
+        0,
+        25,
+        -15
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "empty_cash_flows",
+      "input_values": [
+        0,
+        3,
+        0,
+        500,
+        1000
+      ],
+      "input_length": 5,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "mixed_sign_cash_flows",
+      "input_values": [
+        4,
+        3,
+        -100,
+        30,
+        -20,
+        50,
+        0,
+        250,
+        1000
+      ],
+      "input_length": 9,
+      "expected_result": 24,
+      "expected_output": [
+        -40.0,
+        -43.33802469494058,
+        -51.69045830202857
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "rate_order_preserved",
+      "input_values": [
+        3,
+        3,
+        10,
+        20,
+        30,
+        1000,
+        0,
+        500
+      ],
+      "input_length": 8,
+      "expected_result": 24,
+      "expected_output": [
+        52.97520661157024,
+        60.0,
+        56.25850340136054
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "single_rate_zero",
+      "input_values": [
+        1,
+        1,
+        -250,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output": [
+        -250.0
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "zero_flows",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        100,
+        1000
+      ],
+      "input_length": 7,
+      "expected_result": 16,
+      "expected_output": [
+        0.0,
+        0.0
+      ],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [
+        2,
+        1,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "invalid_flow_bound",
+      "input_values": [
+        1,
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "invalid_rate_bound",
+      "input_values": [
+        0,
+        1,
+        1001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "invalid_flow_count",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "invalid_rate_count",
+      "input_values": [
+        0,
+        33
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 256
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        2,
+        2,
+        100,
+        -50,
+        0,
+        1000
+      ],
+      "input_length": 6,
+      "workspace_bytes": 8,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

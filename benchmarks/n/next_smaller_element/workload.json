@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "next-smaller-element-v1",
+  "algorithm": "next_smaller_element",
+  "function_symbol": "next_smaller_element",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, values...]",
+    "n_range": [
+      0,
+      1024
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "operation": "for each value, emit the nearest strictly smaller earlier value or -1; equal earlier values are popped",
+    "output_encoding": "one little-endian signed 64-bit integer per input value",
+    "empty_output_byte_length": 0,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "java_example",
+      "input_values": [
+        7,
+        2,
+        7,
+        3,
+        5,
+        4,
+        6,
+        8
+      ],
+      "input_length": 8,
+      "expected_result": 56,
+      "expected_output_hex": "ffffffffffffffff020000000000000002000000000000000300000000000000030000000000000004000000000000000600000000000000"
+    },
+    {
+      "id": "duplicate_values_are_skipped",
+      "input_values": [
+        5,
+        4,
+        4,
+        3,
+        3,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        5,
+        -5,
+        -2,
+        -7,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "fffffffffffffffffbfffffffffffffffffffffffffffffff9fffffffffffffff9ffffffffffffff"
+    },
+    {
+      "id": "strictly_increasing",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "ffffffffffffffff010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "strictly_decreasing",
+      "input_values": [
+        4,
+        4,
+        3,
+        2,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "valid_predecessor_value_minus_one",
+      "input_values": [
+        3,
+        0,
+        -1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 24,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [
+        2,
+        8
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_value_outside_int32",
+      "input_values": [
+        1,
+        2147483648
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

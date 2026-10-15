@@ -8,7 +8,7 @@ Train a one-feature linear model from zero slope and intercept, then return the 
 - `n` is 2 through 64; `rate_microunits` is 1 through 1,000 and represents `alpha = rate_microunits / 1,000,000`; epochs are 1 through 10,000.
 - Each x feature is from -10 through 10, and each y target is from -100 through 100. The packed array length must equal `3 + 2*n`.
 - Initialize slope and intercept to zero. On each batch epoch, compute residual `slope*x + intercept - y` for every observation, then update both parameters by `alpha/n` times their summed gradients. Return the final slope as binary64.
-- The Java source multiplies its gradients by `2*learningRate/n`; its learning rate is set to `alpha/2` to match the Python helper's `alpha/n` update. Python's outer driver fixes its rate and iteration count and passes `n-1` as the helper denominator; this package uses the reusable helper with the actual count `n`.
+- The Java source updates each parameter with `2.0 / n * gradient * learningRate`; its learning rate is set to `alpha/2` to match the Python helper's `alpha/n` update. Python's outer driver fixes its rate and iteration count and passes `n-1` as the helper denominator; this package uses the reusable helper with the actual count `n`.
 - Return `-1e300` for malformed arrays or values outside the bounds. The output tolerance is absolute `1e-10` and relative `1e-12`.
 - Training takes `O(n*epochs)` time and constant auxiliary storage.
 
@@ -22,6 +22,8 @@ The pinned [Jupyter notebook](https://github.com/TheAlgorithms/Jupyter/blob/ebf4
 ## Workload
 
 [`workload.json`](workload.json) covers positive and negative one-epoch updates, multiple epochs, symmetric inputs, bounds, and invalid packed shapes and parameters.
+
+The shared float64 runner validates each expected slope by replaying the ordered residual sums and batch parameter updates.
 
 ## Implementations
 

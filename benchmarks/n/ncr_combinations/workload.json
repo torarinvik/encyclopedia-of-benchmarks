@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0.0",
+  "id": "ncr-combinations-python-bounded-f64-pair-v1",
+  "algorithm": "ncr_combinations",
+  "function_symbol": "ncr_combinations",
+  "description": "Generalized combinations for finite real totals and integer choose values.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": [
+      "total",
+      "choose"
+    ],
+    "total_range": [
+      0.0,
+      20.0
+    ],
+    "choose_range": [
+      0.0,
+      12.0
+    ],
+    "choose_integral": true,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "total*(total-1)*...*(total-choose+1)/choose!; returns 1.0 when choose is zero",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "integer_total",
+      "input_values": [
+        10.0,
+        5.0
+      ],
+      "expected_result": 252.0
+    },
+    {
+      "id": "fractional_total",
+      "input_values": [
+        5.5,
+        2.0
+      ],
+      "expected_result": 12.375
+    },
+    {
+      "id": "fractional_total_choose_three",
+      "input_values": [
+        5.5,
+        3.0
+      ],
+      "expected_result": 14.4375
+    },
+    {
+      "id": "choose_zero",
+      "input_values": [
+        7.25,
+        0.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "fractional_total_choose_above_total",
+      "input_values": [
+        2.5,
+        4.0
+      ],
+      "expected_result": -0.0390625
+    },
+    {
+      "id": "integer_total_choose_above_total_zero_product",
+      "input_values": [
+        4.0,
+        5.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_total_choose_one",
+      "input_values": [
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "fractional_choose_invalid",
+      "input_values": [
+        5.0,
+        2.5
+      ],
+      "expected_result": -1e300
+    },
+    {
+      "id": "choose_above_bound_invalid",
+      "input_values": [
+        10.0,
+        13.0
+      ],
+      "expected_result": -1e300
+    },
+    {
+      "id": "total_above_bound_invalid",
+      "input_values": [
+        21.0,
+        2.0
+      ],
+      "expected_result": -1e300
+    },
+    {
+      "id": "negative_total_invalid",
+      "input_values": [
+        -1.0,
+        1.0
+      ],
+      "expected_result": -1e300
+    }
+  ]
+}

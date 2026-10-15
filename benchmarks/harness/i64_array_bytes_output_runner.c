@@ -1,5 +1,6 @@
 /* Timing runner for byte-output algorithms over a signed 64-bit input array. */
 #include <errno.h>
+#include <float.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -96,22 +97,66 @@ static uint64_t hash_output(const uint8_t *output, size_t length)
     return hash;
 }
 
+static double decode_little_endian_f64(const uint8_t *bytes)
+{
+    uint64_t bits = 0;
+    double value;
+    for (size_t index = 0; index < 8; ++index)
+        bits |= (uint64_t)bytes[index] << (8 * index);
+    memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+
+static int finite_f64(double value)
+{
+    return value == value && value <= DBL_MAX && value >= -DBL_MAX;
+}
+
+static int buffer_matches(int64_t observed_count, uint8_t *output,
+                          int64_t expected_count, const uint8_t *expected, size_t expected_length,
+                          int float64_vector, double absolute_tolerance, double relative_tolerance)
+{
+    if (observed_count != expected_count) return 0;
+    if (!float64_vector)
+        return expected_length == 0 || memcmp(output, expected, expected_length) == 0;
+    if (expected_length % 8 != 0 ||
+        (expected_count >= 0 && expected_count != (int64_t)(expected_length / 8) &&
+         expected_count != (int64_t)expected_length)) return 0;
+    for (size_t offset = 0; offset < expected_length; offset += 8) {
+        const double actual = decode_little_endian_f64(output + offset);
+        const double reference = decode_little_endian_f64(expected + offset);
+        const double difference = actual >= reference ? actual - reference : reference - actual;
+        const double allowed = absolute_tolerance + relative_tolerance *
+                               (reference >= 0.0 ? reference : -reference);
+        if (!finite_f64(actual) || !finite_f64(reference) || !finite_f64(difference) ||
+            !finite_f64(allowed) || difference > allowed) return 0;
+    }
+    return 1;
+}
+
 static int output_matches(const int64_t *values, size_t length, uint8_t *output, size_t capacity,
-                          int64_t expected_count, const uint8_t *expected, size_t expected_length)
+                          int64_t expected_count, const uint8_t *expected, size_t expected_length,
+                          int float64_vector, double absolute_tolerance, double relative_tolerance)
 {
     const int64_t observed_count = run_algorithm(values, length, output, capacity);
-    return observed_count == expected_count &&
-           (expected_length == 0 || memcmp(output, expected, expected_length) == 0);
+    return buffer_matches(observed_count, output, expected_count, expected, expected_length,
+                          float64_vector, absolute_tolerance, relative_tolerance);
 }
 
 static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
                          const uint8_t *expected, size_t expected_length, size_t output_capacity,
-                         uint64_t samples_arg, uint64_t warmups_arg, uint64_t repetitions_arg)
+                         uint64_t samples_arg, uint64_t warmups_arg, uint64_t repetitions_arg,
+                         int float64_vector, double absolute_tolerance, double relative_tolerance)
 {
     if (expected_count < -2 || expected_count > 100000 ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000 ||
-        expected_length > output_capacity || output_capacity > MAX_OUTPUT_BYTES) {
+        expected_length > output_capacity || output_capacity > MAX_OUTPUT_BYTES ||
+        (float64_vector && (expected_length % 8 != 0 ||
+         (expected_count >= 0 && expected_count != (int64_t)(expected_length / 8) &&
+          expected_count != (int64_t)expected_length) ||
+         !finite_f64(absolute_tolerance) || absolute_tolerance < 0.0 ||
+         !finite_f64(relative_tolerance) || relative_tolerance < 0.0))) {
         fprintf(stderr, "invalid expected result, output, or timing settings\n"); free(values); return 2;
     }
     uint8_t *output = malloc(output_capacity == 0 ? 1 : output_capacity);
@@ -126,7 +171,8 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         fprintf(stderr, "unable to allocate sample data\n");
         free(values); free(output); return 2;
     }
-    if (!output_matches(values, length, output, output_capacity, expected_count, expected, expected_length)) {
+    if (!output_matches(values, length, output, output_capacity, expected_count, expected,
+                        expected_length, float64_vector, absolute_tolerance, relative_tolerance)) {
         fprintf(stderr, "correctness mismatch for input array\n");
         free(values); free(output); free(sample_ns); return 3;
     }
@@ -135,8 +181,8 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         int64_t observed_count = 0;
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
             observed_count = run_algorithm(values, length, output, output_capacity);
-        if (observed_count != expected_count ||
-            (expected_length != 0 && memcmp(output, expected, expected_length) != 0)) {
+        if (!buffer_matches(observed_count, output, expected_count, expected, expected_length,
+                            float64_vector, absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "output changed during warmup\n");
             free(values); free(output); free(sample_ns); return 3;
         }
@@ -153,8 +199,9 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
             observed_count = run_algorithm(values, length, output, output_capacity);
         const clock_t after = clock();
-        if (after == (clock_t)-1 || after < before || observed_count != expected_count ||
-            (expected_length != 0 && memcmp(output, expected, expected_length) != 0)) {
+        if (after == (clock_t)-1 || after < before ||
+            !buffer_matches(observed_count, output, expected_count, expected, expected_length,
+                            float64_vector, absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "clock() or output check failed during a sample\n");
             free(values); free(output); free(sample_ns); return 4;
         }
@@ -202,9 +249,26 @@ int main(int argc, char **argv)
         if (!read_expected_from_stdin(expected, expected_length)) {
             fprintf(stderr, "invalid streaming expected output encoding\n"); free(values); free(expected); return 2;
         }
+        int float64_vector = 0;
+        double absolute_tolerance = 0.0, relative_tolerance = 0.0;
+        char comparison_mode[32], extra[2];
+        const int mode_result = scanf("%31s", comparison_mode);
+        if (mode_result == 1) {
+            if (strcmp(comparison_mode, "float64_vector") != 0 ||
+                scanf("%lf %lf", &absolute_tolerance, &relative_tolerance) != 2 ||
+                scanf("%1s", extra) == 1) {
+                fprintf(stderr, "invalid streaming comparison mode\n");
+                free(values); free(expected); return 2;
+            }
+            float64_vector = 1;
+        } else if (mode_result != EOF) {
+            fprintf(stderr, "invalid streaming comparison mode\n");
+            free(values); free(expected); return 2;
+        }
         const int status = run_benchmark(values, length, expected_count, expected,
                                          expected_length, output_capacity,
-                                         samples_arg, warmups_arg, repetitions_arg);
+                                         samples_arg, warmups_arg, repetitions_arg,
+                                         float64_vector, absolute_tolerance, relative_tolerance);
         free(expected);
         return status;
     }
@@ -243,7 +307,7 @@ int main(int argc, char **argv)
     }
     const int status = run_benchmark(values, length, expected_count, expected,
                                      output_length, output_length,
-                                     samples_arg, warmups_arg, repetitions_arg);
+                                     samples_arg, warmups_arg, repetitions_arg, 0, 0.0, 0.0);
     free(expected);
     return status;
 }

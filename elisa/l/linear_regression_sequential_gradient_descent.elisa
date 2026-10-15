@@ -1,0 +1,58 @@
+# Julia-style one-feature gradient descent with sequential slope/intercept updates.
+const MAX_EPOCHS: i64 = 10000
+const INVALID_RESULT: f64 = -1.0e300
+
+def linear_regression_sequential_gradient_descent_impl(values: i64&, length: usize) -> f64:
+    if length < 7 or length > 131 or length % 2 == 0:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    rate_microunits: i64 = values[1]
+    epochs: i64 = values[2]
+    if count < 2 or count > 64 or length != 3 + 2 * count.usize() or rate_microunits < 1 or rate_microunits > 1000 or epochs < 1 or epochs > MAX_EPOCHS:
+        return INVALID_RESULT
+    index: mutable usize = 0
+    while index < count.usize():
+        x: i64 = values[3 + 2 * index]
+        y: i64 = values[4 + 2 * index]
+        if x < -10 or x > 10 or y < -100 or y > 100:
+            return INVALID_RESULT
+        index <- index + 1
+
+    alpha: f64 = rate_microunits.f64() / 1000000.0
+    scale: f64 = alpha / count.f64()
+    slope: mutable f64 = 0.0
+    intercept: mutable f64 = 0.0
+    cost: mutable f64 = 0.0
+    epoch: mutable i64 = 0
+    while epoch < epochs:
+        slope_gradient: mutable f64 = 0.0
+        index <- 0
+        while index < count.usize():
+            x: f64 = values[3 + 2 * index].f64()
+            y: f64 = values[4 + 2 * index].f64()
+            slope_gradient <- slope_gradient + (slope * x + intercept - y) * x
+            index <- index + 1
+        slope <- slope - scale * slope_gradient
+
+        intercept_gradient: mutable f64 = 0.0
+        index <- 0
+        while index < count.usize():
+            x: f64 = values[3 + 2 * index].f64()
+            y: f64 = values[4 + 2 * index].f64()
+            intercept_gradient <- intercept_gradient + slope * x + intercept - y
+            index <- index + 1
+        intercept <- intercept - scale * intercept_gradient
+
+        cost <- 0.0
+        index <- 0
+        while index < count.usize():
+            x: f64 = values[3 + 2 * index].f64()
+            y: f64 = values[4 + 2 * index].f64()
+            error: f64 = slope * x + intercept - y
+            cost <- cost + error * error
+            index <- index + 1
+        cost <- cost / (2.0 * count.f64())
+        epoch <- epoch + 1
+    cost
+
+export fn linear_regression_sequential_gradient_descent(values: i64&, length: usize) -> f64 = linear_regression_sequential_gradient_descent_impl

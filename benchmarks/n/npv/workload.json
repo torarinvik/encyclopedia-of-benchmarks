@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "npv-single-rate-i64-packed-binary64-v1",
+  "algorithm": "npv",
+  "function_symbol": "npv",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, rate_basis_points, cash_flow_0, ..., cash_flow_(n-1)]",
+    "n_range": [
+      0,
+      64
+    ],
+    "rate_basis_point_range": [
+      0,
+      1000
+    ],
+    "cash_flow_range": [
+      -1000000,
+      1000000
+    ],
+    "normalization": "rate = rate_basis_points / 10000.0; period zero is undiscounted",
+    "invalid_input_result": -1e+300,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "output": {
+    "kind": "binary64",
+    "formula": "sequential sum over t of cash_flow[t] / pow(1.0 + rate, t)",
+    "empty_sequence_result": 0.0,
+    "invalid_input_result": -1e+300,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        4,
+        1000,
+        -1000,
+        300,
+        400,
+        -50
+      ],
+      "input_length": 6,
+      "expected_result": -434.25995492111196
+    },
+    {
+      "id": "zero_rate",
+      "input_values": [
+        3,
+        0,
+        100,
+        200,
+        -50
+      ],
+      "input_length": 5,
+      "expected_result": 250.0
+    },
+    {
+      "id": "five_percent",
+      "input_values": [
+        4,
+        500,
+        -1000,
+        400,
+        400,
+        400
+      ],
+      "input_length": 6,
+      "expected_result": 89.29921174819128
+    },
+    {
+      "id": "negative_cash_flows",
+      "input_values": [
+        4,
+        250,
+        -40,
+        -10,
+        5,
+        20
+      ],
+      "input_length": 6,
+      "expected_result": -26.42503736161692
+    },
+    {
+      "id": "single_period",
+      "input_values": [
+        1,
+        1000,
+        -250
+      ],
+      "input_length": 3,
+      "expected_result": -250.0
+    },
+    {
+      "id": "empty_cash_flow_sequence",
+      "input_values": [
+        0,
+        500
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "all_zero_flows",
+      "input_values": [
+        3,
+        100,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "rate_upper_bound",
+      "input_values": [
+        4,
+        1000,
+        1000,
+        -1000,
+        1000,
+        -1000
+      ],
+      "input_length": 6,
+      "expected_result": 166.04057099924887
+    },
+    {
+      "id": "invalid_packing",
+      "input_values": [
+        2,
+        100,
+        50
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_rate_above_bound",
+      "input_values": [
+        1,
+        1001,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_cash_flow",
+      "input_values": [
+        1,
+        0,
+        1000001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_term_count",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

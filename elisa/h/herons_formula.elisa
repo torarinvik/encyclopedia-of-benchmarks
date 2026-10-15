@@ -1,0 +1,15 @@
+extern floor(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def herons_formula_impl(a: f64, b: f64, c: f64) -> f64:
+    if a < 1.0 or a > 1000000.0 or floor(a) != a or
+            b < 1.0 or b > 1000000.0 or floor(b) != b or
+            c < 1.0 or c > 1000000.0 or floor(c) != c or
+            a + b <= c or b + c <= a or c + a <= b:
+        return -1.0
+
+    s: f64 = (a + b + c) / 2.0
+    sqrt((s) * (s - a) * (s - b) * (s - c))
+
+export fn herons_formula(a: f64, b: f64, c: f64) -> f64 = herons_formula_impl
+

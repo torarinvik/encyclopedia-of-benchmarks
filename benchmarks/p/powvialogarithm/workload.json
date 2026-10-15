@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "id": "powvialogarithm-f64-pair-v1",
+  "algorithm": "powvialogarithm",
+  "function_symbol": "powvialogarithm",
+  "description": "Evaluate a bounded integral power through source-order logarithm and exponential operations, then round.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["base", "exponent"],
+    "base_minimum": -4,
+    "base_maximum": 4,
+    "exponent_minimum": -8,
+    "exponent_maximum": 8,
+    "integral_values_only": true,
+    "zero_base_requires_positive_exponent": true,
+    "excluded_pairs": [[2, -1], [-2, -1]],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "round(exp(exponent * log(abs(base))) * sign), where sign is -1 only for a negative base and odd exponent",
+    "rounding": "nearest integer, halfway cases away from zero",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"positive_power","input_values":[2.0,3.0],"expected_result":8.0},
+    {"id":"negative_base_odd_exponent","input_values":[-3.0,3.0],"expected_result":-27.0},
+    {"id":"negative_base_even_exponent","input_values":[-4.0,2.0],"expected_result":16.0},
+    {"id":"negative_exponent_rounds_to_zero","input_values":[2.0,-2.0],"expected_result":0.0},
+    {"id":"negative_result_rounds_to_negative_zero","input_values":[-3.0,-1.0],"expected_result":-0.0},
+    {"id":"negative_fraction_rounds_to_negative_zero","input_values":[-4.0,-1.0],"expected_result":-0.0},
+    {"id":"zero_positive_even_power","input_values":[0.0,2.0],"expected_result":0.0},
+    {"id":"zero_odd_power","input_values":[0.0,3.0],"expected_result":0.0},
+    {"id":"unit_base_negative_exponent","input_values":[-1.0,-7.0],"expected_result":-1.0},
+    {"id":"maximum_magnitude","input_values":[4.0,8.0],"expected_result":65536.0},
+    {"id":"excluded_positive_halfway","input_values":[2.0,-1.0],"expected_result":-1e300},
+    {"id":"excluded_negative_halfway","input_values":[-2.0,-1.0],"expected_result":-1e300},
+    {"id":"zero_zero_outside_domain","input_values":[0.0,0.0],"expected_result":-1e300},
+    {"id":"zero_negative_exponent_outside_domain","input_values":[0.0,-1.0],"expected_result":-1e300},
+    {"id":"fractional_exponent_outside_domain","input_values":[2.0,1.5],"expected_result":-1e300},
+    {"id":"base_outside_domain","input_values":[5.0,2.0],"expected_result":-1e300},
+    {"id":"exponent_outside_domain","input_values":[2.0,9.0],"expected_result":-1e300}
+  ]
+}

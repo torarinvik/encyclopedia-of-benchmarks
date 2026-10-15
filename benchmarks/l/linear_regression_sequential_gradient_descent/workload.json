@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "linear-regression-sequential-gradient-descent-cost-v1",
+  "algorithm": "linear_regression_sequential_gradient_descent",
+  "function_symbol": "linear_regression_sequential_gradient_descent",
+  "input": {
+    "kind": "packed_signed_64_bit_training_pairs_with_rate_and_epochs",
+    "layout": "[n, rate_microunits, epochs, x0, y0, x1, y1, ..., x(n-1), y(n-1)]",
+    "length_range": [7, 131],
+    "observation_count_range": [2, 64],
+    "rate_microunits_range": [1, 1000],
+    "epochs_range": [1, 10000],
+    "x_range": [-10, 10],
+    "y_range": [-100, 100],
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "final half-mean-squared-error value recorded in the Julia source cost history",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10
+  },
+  "cases": [
+    {"id": "one_epoch_order_sensitive", "input_values": [2, 1000, 1, 0, 0, 1, 1], "input_length": 7, "expected_result": 0.24950043731253127},
+    {"id": "two_epochs", "input_values": [2, 1000, 2, 0, 0, 1, 1], "input_length": 7, "expected_result": 0.24900212231456154},
+    {"id": "negative_targets", "input_values": [2, 1000, 3, -1, 3, 1, -1], "input_length": 7, "expected_result": 2.4850374500374848},
+    {"id": "symmetric_three_points", "input_values": [3, 1000, 4, -1, -2, 0, 0, 1, 2], "input_length": 9, "expected_result": 1.3262387927097843},
+    {"id": "nonzero_initial_gradient", "input_values": [3, 750, 8, -2, 5, 1, -3, 4, 7], "input_length": 9, "expected_result": 13.636445442969654},
+    {"id": "constant_feature", "input_values": [3, 1000, 5, 2, 4, 2, -2, 2, 7], "input_length": 9, "expected_result": 11.280167650332757},
+    {"id": "smallest_rate", "input_values": [2, 1, 1, -10, -100, 10, 100], "input_length": 7, "expected_result": 4999.00005},
+    {"id": "empty_input", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "declared_count_mismatch", "input_values": [2, 1000, 1, 0, 0], "input_length": 5, "expected_result": -1e300},
+    {"id": "rate_below_bound", "input_values": [2, 0, 1, 0, 0, 1, 1], "input_length": 7, "expected_result": -1e300},
+    {"id": "epochs_above_bound", "input_values": [2, 1000, 10001, 0, 0, 1, 1], "input_length": 7, "expected_result": -1e300},
+    {"id": "x_above_bound", "input_values": [2, 1000, 1, 0, 0, 11, 1], "input_length": 7, "expected_result": -1e300}
+  ]
+}

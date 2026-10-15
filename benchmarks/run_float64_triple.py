@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "binomial_dist"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "binomial_dist"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -63,6 +63,41 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                 raise ValueError("invalid Brent inputs must use the -1 result sentinel")
         elif abs(expected - target) > tolerance * max(1.0, abs(start), abs(end)):
             raise ValueError("valid Brent inputs must expect the bracketed extremum location")
+    elif algorithm == "golden_search_extrema":
+        phi = 1.61803400516510009765625
+        epsilon = 1e-7
+        minimum_width = 2e-7
+        pi = math.pi
+        valid_objective = start in (0.0, 1.0)
+        target = 2.0 if start == 0.0 else pi
+        endpoint_range = ((0.0 <= end <= 4.0 and 0.0 <= t <= 4.0) if start == 0.0
+                          else (2.0 <= end <= 4.0 and 2.0 <= t <= 4.0))
+        low, high = sorted((end, t))
+        valid = (valid_objective and endpoint_range and high - low >= minimum_width
+                 and low < target < high)
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid golden_search_extrema inputs must use the -1.0 result sentinel")
+        else:
+            a, b = low, high
+            mean = math.inf
+            previous_mean = math.inf
+            for _ in range(128):
+                if abs(b - a) <= epsilon:
+                    break
+                previous_mean = mean
+                ratio = (b - a) / phi
+                c, d = b - ratio, a + ratio
+                fc = ((c - 2.0) * (c - 2.0) if start == 0.0 else math.cos(c))
+                fd = ((d - 2.0) * (d - 2.0) if start == 0.0 else math.cos(d))
+                if fc < fd:
+                    b = d
+                else:
+                    a = c
+                mean = (a + b) / 2.0
+            if expected == -1.0 or abs(expected - previous_mean) > tolerance * max(
+                    1.0, abs(end), abs(t)):
+                raise ValueError("golden_search_extrema expected result must match the source's previous-midpoint recurrence")
     elif algorithm == "annuity_due_future_value":
         valid = (0.0 <= start <= 10000.0 and end.is_integer()
                  and 1.0 <= end <= 20.0 and 0.0 < t <= 0.5)

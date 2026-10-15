@@ -7,6 +7,7 @@ import argparse
 from collections import deque
 import datetime as dt
 from functools import lru_cache
+from fractions import Fraction
 import heapq
 import hashlib
 from itertools import permutations
@@ -644,6 +645,147 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "ddaline":
+        if (not isinstance(values, list) or len(values) != 4
+                or any(type(value) is not int or not -128 <= value <= 128 for value in values)):
+            return -1, b""
+        x0, y0, x1, y1 = values
+        dx, dy = x1 - x0, y1 - y0
+        steps = max(abs(dx), abs(dy))
+        if steps == 0:
+            return 16, struct.pack("<qq", x0, y0)
+        x_increment, y_increment = dx / steps, dy / steps
+        x, y = float(x0), float(y0)
+        output = bytearray()
+        for _ in range(steps + 1):
+            output.extend(struct.pack("<qq", math.floor(x + 0.5), math.floor(y + 0.5)))
+            x += x_increment
+            y += y_increment
+        return len(output), bytes(output)
+
+    if algorithm == "count_distinct_elements_in_window":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        window_count, window_size = values[:2]
+        window_values = values[2:]
+        if (not 1 <= window_count <= 256 or not 1 <= window_size <= window_count
+                or len(window_values) != window_count
+                or any(not -(2**31) <= value < 2**31 for value in window_values)):
+            return -1, b""
+        counts = [len(set(window_values[start:start + window_size]))
+                  for start in range(window_count - window_size + 1)]
+        encoded = b"".join(struct.pack("<q", count) for count in counts)
+        return len(encoded), encoded
+
+    if algorithm == "association":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        transaction_count, item_count = values[:2]
+        transactions = values[2:]
+        if (not 1 <= transaction_count <= 64 or not 1 <= item_count <= 11
+                or len(transactions) != transaction_count
+                or any(not 0 <= mask < (1 << item_count) for mask in transactions)):
+            return -1, b""
+        frequent_itemsets = []
+        for cardinality in range(1, item_count + 1):
+            for itemset_mask in range(1, 1 << item_count):
+                if itemset_mask.bit_count() != cardinality:
+                    continue
+                support_count = sum((transaction & itemset_mask) == itemset_mask
+                                    for transaction in transactions)
+                if support_count >= 1:
+                    frequent_itemsets.append((itemset_mask, support_count))
+        encoded = b"".join(struct.pack("<qq", itemset_mask, support_count)
+                           for itemset_mask, support_count in frequent_itemsets)
+        return len(encoded), encoded
+
+    if algorithm == "quadratic_roots":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -1_000_000 <= value <= 1_000_000
+                       for value in values)):
+            return -1, b""
+        a, b, c = values
+        if a == 0:
+            return -1, b""
+        discriminant = b * b - 4 * a * c
+        if discriminant < 0:
+            roots = ()
+        elif discriminant == 0:
+            roots = (-b / (2.0 * a),)
+        else:
+            root = math.sqrt(discriminant)
+            denominator = 2.0 * a
+            roots = ((-b + root) / denominator, (-b - root) / denominator)
+        return len(roots), b"".join(struct.pack("<d", value) for value in roots)
+
+    if algorithm == "npv_sensitivity":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        cash_flow_count, rate_count = values[:2]
+        if (not 0 <= cash_flow_count <= 64 or not 0 <= rate_count <= 32
+                or len(values) != 2 + cash_flow_count + rate_count):
+            return -1, b""
+        cash_flows = values[2:2 + cash_flow_count]
+        rate_basis_points = values[2 + cash_flow_count:]
+        if (any(not -1_000_000 <= cash_flow <= 1_000_000 for cash_flow in cash_flows)
+                or any(not 0 <= basis_points <= 1_000 for basis_points in rate_basis_points)):
+            return -1, b""
+        results = []
+        for basis_points in rate_basis_points:
+            rate = basis_points / 10_000.0
+            result = 0.0
+            for period, cash_flow in enumerate(cash_flows):
+                result += cash_flow / math.pow(1.0 + rate, period)
+            results.append(result)
+        encoded = b"".join(struct.pack("<d", value) for value in results)
+        return len(encoded), encoded
+
+    if algorithm == "arithmetic_decoding":
+        if (not isinstance(values, list) or len(values) < 5 or len(values) > 27
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count, alphabet_size, code = values[:3]
+        if (not 1 <= count <= 12 or not 1 <= alphabet_size <= count
+                or len(values) != 3 + 2 * alphabet_size):
+            return -1, b""
+        model = []
+        total = 0
+        previous_symbol = -1
+        cumulative = 0
+        for index in range(alphabet_size):
+            symbol, frequency = values[3 + 2 * index:5 + 2 * index]
+            if (not 0 <= symbol <= 255 or symbol <= previous_symbol
+                    or not 1 <= frequency <= count):
+                return -1, b""
+            model.append((symbol, cumulative, cumulative + frequency))
+            previous_symbol = symbol
+            cumulative += frequency
+            total += frequency
+        denominator = count ** count
+        if total != count or not 0 <= code < denominator:
+            return -1, b""
+        encoded_value = Fraction(code, denominator)
+        low, high = Fraction(0), Fraction(1)
+        decoded = bytearray()
+        for _ in range(count):
+            old_low = low
+            interval = high - old_low
+            found = False
+            for symbol, cumulative_low, cumulative_high in model:
+                symbol_low = old_low + interval * Fraction(cumulative_low, count)
+                symbol_high = old_low + interval * Fraction(cumulative_high, count)
+                if symbol_low <= encoded_value < symbol_high:
+                    decoded.append(symbol)
+                    low, high = symbol_low, symbol_high
+                    found = True
+                    break
+            if not found:
+                return -1, b""
+        return len(decoded), bytes(decoded)
+
     if algorithm == "aho_corasick":
         maximum_length = 2 + 16 + 16 * 32 + 256
         if (not isinstance(values, list) or len(values) < 3 or len(values) > maximum_length
@@ -2982,6 +3124,61 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             if doubled_error < dx:
                 error += dx
                 y += sy
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "bresenhams_line":
+        if (len(values) != 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        x0, y0, x1, y1 = values
+        if any(not -1_000_000 <= coordinate <= 1_000_000
+               for coordinate in values):
+            return -1, b""
+        dx = abs(x1 - x0)
+        abs_dy = abs(y1 - y0)
+        if max(dx, abs_dy) > 4_096:
+            return -1, b""
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        dy = -abs_dy
+        error = dx + dy
+        x, y = x0, y0
+        output = bytearray()
+        while True:
+            output.extend(struct.pack("<ii", x, y))
+            if x == x1 and y == y1:
+                break
+            doubled_error = 2 * error
+            if doubled_error >= dy:
+                error += dy
+                x += sx
+            if doubled_error <= dx:
+                error += dx
+                y += sy
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "counting_sort_string":
+        if (not isinstance(values, list) or not 1 <= len(values) <= MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        count = values[0]
+        if count < 0 or count > 4095 or len(values) != count + 1:
+            return -1, b""
+        if any(not 33 <= value <= 126 for value in values[1:]):
+            return -1, b""
+        frequencies = [0] * 256
+        for value in values[1:]:
+            frequencies[value] += 1
+        for value in range(1, 256):
+            frequencies[value] += frequencies[value - 1]
+        output = bytearray(count)
+        for value in reversed(values[1:]):
+            frequencies[value] -= 1
+            output[frequencies[value]] = value
         encoded = bytes(output)
         return len(encoded), encoded
 
@@ -5631,6 +5828,14 @@ def main() -> int:
         if case.get("input_length") not in (None, len(values)):
             raise ValueError(f"declared input length differs for {case['id']}")
         required_count, required_output = expected_output(values, algorithm)
+        float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
+        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity"}:
+            raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
+        absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
+        relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0
+        if (float64_vector and (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0
+                                or not math.isfinite(relative_tolerance) or relative_tolerance < 0)):
+            raise ValueError("float64 vector tolerances must be finite and nonnegative")
         output_capacity = case.get("workspace_bytes", len(required_output))
         if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
             raise ValueError(f"invalid output capacity in {case['id']}")
@@ -5641,15 +5846,35 @@ def main() -> int:
             expected_count, expected = required_count, required_output
         if case.get("expected_result") != expected_count:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
-        if ("expected_output_hex" in case and case["expected_output_hex"].lower() != expected.hex()):
+        if float64_vector:
+            declared_vector = case.get("expected_output")
+            if (not isinstance(declared_vector, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(value)
+                           for value in declared_vector)):
+                raise ValueError(f"invalid float64 expected output vector for {case['id']}")
+            if output_capacity < len(required_output) or expected_count < 0:
+                oracle_vector = []
+            else:
+                oracle_vector = [struct.unpack_from("<d", required_output, offset)[0]
+                                 for offset in range(0, len(required_output), 8)]
+            if len(declared_vector) != len(oracle_vector) or any(
+                    abs(actual - reference) > absolute_tolerance + relative_tolerance * abs(reference)
+                    for actual, reference in zip(declared_vector, oracle_vector)):
+                raise ValueError(f"workload float64 vector disagrees with the oracle for {case['id']}")
+            expected = b"".join(struct.pack("<d", float(value)) for value in declared_vector)
+        if (not float64_vector and "expected_output_hex" in case
+                and case["expected_output_hex"].lower() != expected.hex()):
             raise ValueError(f"workload output bytes disagree with the oracle for {case['id']}")
-        if ("expected_output" in case
+        if (not float64_vector and "expected_output" in case
                 and case["expected_output"].encode("utf-8") != expected):
             raise ValueError(f"workload output text disagrees with the oracle for {case['id']}")
         output_hex = expected.hex() if expected else "-"
         command = [str(executable), "--stdin", str(samples), str(warmups), str(repetitions)]
         runner_input = (f"{len(values)} {expected_count} {len(expected)} {output_capacity} "
-                        + " ".join(map(str, values)) + " " + output_hex + "\n")
+                        + " ".join(map(str, values)) + " " + output_hex)
+        if float64_vector:
+            runner_input += f" float64_vector {absolute_tolerance:.17g} {relative_tolerance:.17g}"
+        runner_input += "\n"
         completed = subprocess.run(command, input=runner_input, capture_output=True,
                                    text=True, check=False)
         if completed.returncode:
@@ -5657,7 +5882,7 @@ def main() -> int:
         raw = json.loads(completed.stdout)
         expected_checksum = (fnv1a(expected) * repetitions * samples) & ((1 << 64) - 1)
         if (raw["observed_result"] != expected_count or len(raw["samples_ns"]) != samples
-                or raw["result_checksum"] != expected_checksum):
+                or (not float64_vector and raw["result_checksum"] != expected_checksum)):
             raise ValueError(f"byte-output runner returned an invalid result for {case['id']}")
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,

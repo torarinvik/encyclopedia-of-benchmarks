@@ -98,7 +98,7 @@
         1,
         2
       ],
-      "expected_result": 0
+      "expected_result": 1
     },
     {
       "id": "non_arithmetic_reciprocal_magnitudes",

@@ -1,0 +1,72 @@
+# Bounded linked-node pool for an ascending priority queue.
+def ascending_priority_queue_impl(input: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    operation_count: i64 = input[0]
+    if operation_count < 0 or operation_count > 512 or length != 1 + 2 * operation_count.usize():
+        return -1
+
+    node_values: mutable i64[64] = zeroed
+    node_next: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < 63:
+        node_next[index] <- (index + 1).i64()
+        index <- index + 1
+    node_next[63] <- -1
+    free_head: mutable i64 = 0
+    front: mutable i64 = -1
+    rear: mutable i64 = -1
+    checksum: mutable i64 = 0
+
+    operation: mutable usize = 0
+    while operation < operation_count.usize():
+        opcode: i64 = input[1 + 2 * operation]
+        payload: i64 = input[2 + 2 * operation]
+        if opcode == 0:
+            if payload < -1000000 or payload > 1000000 or free_head < 0:
+                return -1
+            node: usize = free_head.usize()
+            free_head <- node_next[node]
+            node_values[node] <- payload
+            node_next[node] <- -1
+            if front < 0:
+                front <- node.i64()
+                rear <- node.i64()
+            else:
+                node_next[rear.usize()] <- node.i64()
+                rear <- node.i64()
+        elif opcode == 1:
+            if payload != 0 or front < 0:
+                return -1
+            previous: mutable i64 = -1
+            current: mutable i64 = front
+            minimum: mutable i64 = front
+            minimum_previous: mutable i64 = -1
+            while current >= 0:
+                if node_values[current.usize()] < node_values[minimum.usize()]:
+                    minimum <- current
+                    minimum_previous <- previous
+                previous <- current
+                current <- node_next[current.usize()]
+            checksum <- checksum + (operation.i64() + 1) * (node_values[minimum.usize()] + 1000001)
+            if minimum_previous < 0:
+                front <- node_next[minimum.usize()]
+            else:
+                node_next[minimum_previous.usize()] <- node_next[minimum.usize()]
+            if rear == minimum:
+                rear <- minimum_previous
+            node_next[minimum.usize()] <- free_head
+            free_head <- minimum
+        else:
+            return -1
+        operation <- operation + 1
+
+    position: mutable i64 = 1
+    current: mutable i64 = front
+    while current >= 0:
+        checksum <- checksum + position * (node_values[current.usize()] + 1000001)
+        current <- node_next[current.usize()]
+        position <- position + 1
+    checksum
+
+export fn ascending_priority_queue(input: i64&, length: usize) -> i64 = ascending_priority_queue_impl

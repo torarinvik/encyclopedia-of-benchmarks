@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "correlation-java-discrete-i64-array-f64-v1",
+  "algorithm": "correlation",
+  "function_symbol": "correlation",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": ["n", "x_values[n]", "y_values[n]"],
+    "n_range": [1, 128],
+    "sample_range": [-1000, 1000],
+    "required_length": "1 + 2*n",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "pinned Java discrete correlation calculation",
+    "formula_order": "accumulate exy, ex, exx, ey, eyy; divide by n; cov=exy-ex*ey; varx=sqrt(exx-ex*ex); vary=sqrt(eyy-ey*ey); return 0 if varx*vary<1e-9 else cov/sqrt(varx*vary)",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one-sample-zero","input_values":[1,5,-3],"input_length":3,"expected_result":0.0},
+    {"id":"constant-x","input_values":[3,4,4,4,2,5,8],"input_length":7,"expected_result":0.0},
+    {"id":"constant-y","input_values":[3,1,2,3,7,7,7],"input_length":7,"expected_result":0.0},
+    {"id":"same-trend-source-formula","input_values":[3,1,2,3,2,4,6],"input_length":7,"expected_result":1.1547005383792517},
+    {"id":"opposite-trend","input_values":[2,0,1,1,0],"input_length":5,"expected_result":-0.5},
+    {"id":"zero-covariance","input_values":[4,-2,-1,1,2,1,-1,-1,1],"input_length":9,"expected_result":0.0},
+    {"id":"invalid-empty-n","input_values":[0],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[2,1,2,3],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-sample","input_values":[1,1001,0],"input_length":3,"expected_result":-1e300}
+  ]
+}

@@ -1,0 +1,64 @@
+extern floor(value: f64) -> f64
+
+def assign_ranks(values: i64&, offset: usize, n: usize, ranks: mutable f64&) -> void:
+    order: mutable usize[3] = zeroed
+    i: usize = 0
+    while i < n:
+        order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < n:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and values[offset + order[j - 1]] > values[offset + key]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = i
+        while j < n - 1 and values[offset + order[j + 1]] == values[offset + order[i]]:
+            j <- j + 1
+        rank: f64 = (i.f64() + j.f64()) / 2.0 + 1.0
+        k: usize = i
+        while k <= j:
+            ranks[order[k]] <- rank
+            k <- k + 1
+        i <- j + 1
+
+def round_tenth_ties_even(value: f64) -> f64:
+    scaled: f64 = value * 10.0
+    lower: f64 = floor(scaled)
+    fraction: f64 = scaled - lower
+    rounded: mutable f64 = lower
+    if fraction > 0.5 or (fraction == 0.5 and (lower.i64() % 2) != 0):
+        rounded <- lower + 1.0
+    rounded / 10.0
+
+def spearman_rank_correlation_coefficient_impl(values: i64&, length: usize) -> f64:
+    if length < 5:
+        return -1.0e300
+    n_value: i64 = values[0]
+    if n_value < 2 or n_value > 3 or length != 1 + 2 * n_value.usize():
+        return -1.0e300
+    n: usize = n_value.usize()
+    rank_x: mutable f64[3] = zeroed
+    rank_y: mutable f64[3] = zeroed
+    i: usize = 0
+    while i < n:
+        if values[1 + i] < -1000 or values[1 + i] > 1000 or values[1 + n + i] < -1000 or values[1 + n + i] > 1000:
+            return -1.0e300
+        i <- i + 1
+    assign_ranks(values, 1, n, rank_x)
+    assign_ranks(values, 1 + n, n, rank_y)
+    d_squared: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        difference: f64 = rank_x[i] - rank_y[i]
+        d_squared <- d_squared + difference * difference
+        i <- i + 1
+    rho: f64 = 1.0 - (6.0 * d_squared) / (n.f64() * (n.f64() * n.f64() - 1.0))
+    round_tenth_ties_even(rho)
+
+export fn spearman_rank_correlation_coefficient(values: i64&, length: usize) f64 = spearman_rank_correlation_coefficient_impl

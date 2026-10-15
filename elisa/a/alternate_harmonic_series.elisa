@@ -17,7 +17,7 @@ def alternate_harmonic_series_impl(values: i64&, length: usize) -> i64:
         if numerator == 0 or numerator < -1000 or numerator > 1000 or denominator < 1 or denominator > 1000:
             return -1
         index <- index + 1
-    index <- 1
+    index <- 2
     while index < count:
         if (values[1 + 2 * index] < 0) == (values[1 + 2 * (index - 1)] < 0):
             return 0

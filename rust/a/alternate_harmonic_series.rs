@@ -29,7 +29,7 @@ pub extern "C" fn alternate_harmonic_series(values: *const i64, length: usize) -
         let magnitude = if negative { -numerator } else { numerator };
 
         if index > 0 {
-            if negative == previous_sign { return 0; }
+            if index > 1 && negative == previous_sign { return 0; }
             let difference_numerator = denominator * previous_magnitude - previous_denominator * magnitude;
             let difference_denominator = magnitude * previous_magnitude;
             if index > 1 &&

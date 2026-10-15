@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "casimir-effect-v1",
+  "algorithm": "casimir_effect",
+  "function_symbol": "casimir_effect",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 3,
+    "layout": ["force_pN", "area_mm2", "distance_um"],
+    "force_scale_to_newtons": 1e-12,
+    "area_scale_to_square_meters": 1e-6,
+    "distance_scale_to_meters": 1e-6,
+    "minimum_value": 0,
+    "maximum_value": 1000000,
+    "zero_count": 1,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "solve the Casimir force equation for the zero-valued field",
+    "units_by_zero_position": ["newtons", "square_meters", "meters"],
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"solve-force","input_values":[0,1000000,1000],"input_length":3,"expected_result":1.3010258307909998e-15},
+    {"id":"solve-area","input_values":[1000,0,1000],"input_length":3,"expected_result":768624.2473694918},
+    {"id":"solve-distance","input_values":[1000,1000000,0],"input_length":3,"expected_result":3.377314307181763e-05},
+    {"id":"force-small-fields","input_values":[0,1,1000000],"input_length":3,"expected_result":1.301025830791e-33},
+    {"id":"distance-upper-bound-fields","input_values":[1,1000000,1000000],"input_length":3,"expected_result":0.00018992034030849183},
+    {"id":"invalid-no-zero","input_values":[1,2,3],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-multiple-zeros","input_values":[0,0,3],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-all-zero","input_values":[0,0,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-negative","input_values":[-1,2,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[0,1000001,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[0,1],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-30,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,41 @@
+extern sqrt(value: f64) -> f64
+
+def correlation_impl(values: i64&, length: usize) -> f64:
+    if length < 3:
+        return -1.0e300
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 128 or length != 1 + 2 * n_value.usize():
+        return -1.0e300
+    n: usize = n_value.usize()
+    exy: f64 = 0.0
+    ex: f64 = 0.0
+    exx: f64 = 0.0
+    ey: f64 = 0.0
+    eyy: f64 = 0.0
+    i: usize = 0
+    while i < n:
+        xi: i64 = values[1 + i]
+        yi: i64 = values[1 + n + i]
+        if xi < -1000 or xi > 1000 or yi < -1000 or yi > 1000:
+            return -1.0e300
+        x: f64 = xi.f64()
+        y: f64 = yi.f64()
+        exy = exy + x * y
+        ex = ex + x
+        exx = exx + x * x
+        ey = ey + y
+        eyy = eyy + y * y
+        i = i + 1
+    exy = exy / n.f64()
+    ex = ex / n.f64()
+    exx = exx / n.f64()
+    ey = ey / n.f64()
+    eyy = eyy / n.f64()
+    cov: f64 = exy - ex * ey
+    varx: f64 = sqrt(exx - ex * ex)
+    vary: f64 = sqrt(eyy - ey * ey)
+    if varx * vary < 1.0e-9:
+        return 0.0
+    cov / sqrt(varx * vary)
+
+export fn correlation(values: i64&, length: usize) f64 = correlation_impl

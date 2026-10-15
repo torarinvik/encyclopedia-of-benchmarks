@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "id": "linear-regression-sgd-fixed-input-i64-array-float64-v1",
+  "algorithm": "linear_regression_stochastic_gradient_descent",
+  "function_symbol": "linear_regression_stochastic_gradient_descent",
+  "input": {
+    "kind": "i64_array_float64",
+    "encoding": "[n, epochs, rate_microunits, slope0_microunits, intercept0_microunits, (x_microunits, y_microunits)*n]",
+    "n_range": [
+      2,
+      64
+    ],
+    "epochs_range": [
+      1,
+      200
+    ],
+    "rate_microunits_range": [
+      1,
+      10000
+    ],
+    "fixed_point_scale": 1000000,
+    "initial_parameter_range": [
+      -10,
+      10
+    ],
+    "x_range": [
+      -10,
+      10
+    ],
+    "y_range": [
+      -100,
+      100
+    ],
+    "packed_length": "5+2*n",
+    "row_order": "input order each epoch",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "final slope after ordered per-observation updates",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "exact_fit_preserves_initial_slope",
+      "input_values": [
+        3,
+        5,
+        10000,
+        2000000,
+        3000000,
+        0,
+        3000000,
+        1000000,
+        5000000,
+        2000000,
+        7000000
+      ],
+      "expected_result": 2.0,
+      "input_length": 11
+    },
+    {
+      "id": "ordered_stochastic_updates",
+      "input_values": [
+        2,
+        1,
+        10000,
+        0,
+        0,
+        1000000,
+        2000000,
+        1000000,
+        0
+      ],
+      "expected_result": 0.0099,
+      "input_length": 9
+    },
+    {
+      "id": "reversed_row_order",
+      "input_values": [
+        2,
+        1,
+        10000,
+        0,
+        0,
+        1000000,
+        0,
+        1000000,
+        2000000
+      ],
+      "expected_result": 0.01,
+      "input_length": 9
+    },
+    {
+      "id": "zero_features_keep_slope",
+      "input_values": [
+        2,
+        1,
+        10000,
+        1000000,
+        0,
+        0,
+        2000000,
+        0,
+        4000000
+      ],
+      "expected_result": 1.0,
+      "input_length": 9
+    },
+    {
+      "id": "multiple_epochs_exact_fit",
+      "input_values": [
+        2,
+        20,
+        10000,
+        3000000,
+        2000000,
+        0,
+        2000000,
+        1000000,
+        5000000
+      ],
+      "expected_result": 3.0,
+      "input_length": 9
+    },
+    {
+      "id": "too_few_observations",
+      "input_values": [
+        1,
+        1,
+        10000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300,
+      "input_length": 7
+    },
+    {
+      "id": "wrong_packed_length",
+      "input_values": [
+        2,
+        1,
+        10000,
+        0,
+        0,
+        1000000,
+        2000000
+      ],
+      "expected_result": -1e+300,
+      "input_length": 7
+    },
+    {
+      "id": "feature_out_of_range",
+      "input_values": [
+        2,
+        1,
+        10000,
+        0,
+        0,
+        11000000,
+        2000000,
+        0,
+        0
+      ],
+      "expected_result": -1e+300,
+      "input_length": 9
+    },
+    {
+      "id": "learning_rate_out_of_range",
+      "input_values": [
+        2,
+        1,
+        10001,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300,
+      "input_length": 9
+    },
+    {
+      "id": "initial_slope_out_of_range",
+      "input_values": [
+        2,
+        1,
+        10000,
+        10000001,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300,
+      "input_length": 9
+    }
+  ]
+}

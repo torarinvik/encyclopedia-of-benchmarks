@@ -1,0 +1,17 @@
+# Luhn validation for a bounded even-length decimal digit array.
+def luhn_validate_impl(input: i64&, length: usize) -> i64:
+    if length < 1: return -1
+    n: i64 = input[0]
+    if n < 2 or n > 64 or n % 2 != 0 or length != (n + 1).usize(): return -1
+    sum: mutable i64 = 0
+    for i in 0..<n.usize():
+        digit: mutable i64 = input[i + 1]
+        if digit < 0 or digit > 9: return -1
+        if i % 2 == 0:
+            digit <- digit * 2
+            if digit > 9: digit <- digit - 9
+        sum <- sum + digit
+    if sum % 10 == 0: return 1
+    0
+
+export fn luhn_validate(input: i64&, length: usize) -> i64 = luhn_validate_impl

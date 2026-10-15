@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "cycle-check-directed-graph-dfs-v1",
+  "algorithm": "cycle_check_directed_graph",
+  "function_symbol": "cycle_check_directed_graph",
+  "input": {
+    "kind": "directed_graph_edge_pairs",
+    "encoding": "[vertex_count, source_0, destination_0, ...]",
+    "maximum_vertices": 64,
+    "maximum_edges": 32,
+    "duplicate_edges": "coalesced",
+    "invalid_result": -1,
+    "result": "1 if cyclic, otherwise 0"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "empty_graph", "input_values": [0], "expected_result": 0},
+    {"id": "isolated_vertices", "input_values": [5], "expected_result": 0},
+    {"id": "single_directed_edge", "input_values": [2, 0, 1], "expected_result": 0},
+    {"id": "linear_chain", "input_values": [5, 0, 1, 1, 2, 2, 3, 3, 4], "expected_result": 0},
+    {"id": "disconnected_acyclic_components", "input_values": [6, 0, 1, 1, 2, 3, 4], "expected_result": 0},
+    {"id": "self_loop", "input_values": [1, 0, 0], "expected_result": 1},
+    {"id": "two_vertex_cycle", "input_values": [2, 0, 1, 1, 0], "expected_result": 1},
+    {"id": "cycle_with_outgoing_tail", "input_values": [5, 0, 1, 1, 2, 2, 0, 2, 3, 3, 4], "expected_result": 1},
+    {"id": "cycle_in_disconnected_component", "input_values": [6, 0, 1, 2, 3, 3, 4, 4, 2], "expected_result": 1},
+    {"id": "duplicate_acyclic_edges", "input_values": [3, 0, 1, 0, 1, 1, 2], "expected_result": 0},
+    {"id": "maximum_vertex_count", "input_values": [64, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5], "expected_result": 0},
+    {"id": "malformed_even_length", "input_values": [3, 0, 1, 2], "expected_result": -1},
+    {"id": "invalid_vertex_count", "input_values": [65], "expected_result": -1},
+    {"id": "negative_endpoint", "input_values": [2, -1, 1], "expected_result": -1},
+    {"id": "endpoint_equal_to_vertex_count", "input_values": [2, 0, 2], "expected_result": -1}
+  ]
+}

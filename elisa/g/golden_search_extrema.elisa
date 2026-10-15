@@ -1,0 +1,38 @@
+extern fabs(value: f64) -> f64
+extern cos(value: f64) -> f64
+const EPSILON: f64 = 1.0e-7
+const MIN_WIDTH: f64 = 2.0e-7
+
+def golden_search_extrema_objective(id: usize, x: f64) -> f64:
+    if id == 0: return (x - 2.0) * (x - 2.0)
+    cos(x)
+
+def golden_search_extrema_impl(objective_id: f64, input_left: f64, input_right: f64) -> f64:
+    if objective_id != 0.0 and objective_id != 1.0: return -1.0
+    if objective_id == 0.0 and (input_left < 0.0 or input_left > 4.0 or input_right < 0.0 or input_right > 4.0): return -1.0
+    if objective_id == 1.0 and (input_left < 2.0 or input_left > 4.0 or input_right < 2.0 or input_right > 4.0): return -1.0
+    left: mutable f64 = input_left
+    right: mutable f64 = input_right
+    if left > right:
+        temporary: f64 = left
+        left <- right
+        right <- temporary
+    extremum: f64 = 2.0
+    if objective_id == 1.0: extremum <- 3.14159265358979323846
+    if right - left < MIN_WIDTH or not (left < extremum and extremum < right): return -1.0
+    id: usize = objective_id.usize()
+    mean: mutable f64 = 1.0 / 0.0
+    previous_mean: mutable f64 = 1.0 / 0.0
+    phi: f64 = 1.61803400516510009765625
+    iteration: mutable usize = 0
+    while iteration < 128 and fabs(right - left) > EPSILON:
+        previous_mean <- mean
+        ratio: f64 = (right - left) / phi
+        c: f64 = right - ratio
+        d: f64 = left + ratio
+        if golden_search_extrema_objective(id, c) < golden_search_extrema_objective(id, d): right <- d else: left <- c
+        mean <- (left + right) / 2.0
+        iteration <- iteration + 1
+    previous_mean
+
+export fn golden_search_extrema(objective_id: f64, left: f64, right: f64) -> f64 = golden_search_extrema_impl

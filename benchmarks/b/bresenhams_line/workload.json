@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "bresenhams-line-nim-inclusive-ties-i64-array-bytes-output-v1",
+  "algorithm": "bresenhams_line",
+  "function_symbol": "bresenhams_line",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[x_start,y_start,x_end,y_end]",
+    "length": 4,
+    "coordinate_range": [
+      -1000000,
+      1000000
+    ],
+    "maximum_absolute_axis_delta": 4096,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_byte_count_and_byte_buffer",
+    "encoding": "each point as little-endian signed i32 x followed by little-endian signed i32 y",
+    "definition": "inclusive Bresenham raster path from start through endpoint using the Nim source inclusive tie comparisons",
+    "zero_length_segment": "one point containing the endpoint"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "horizontal",
+      "input_values": [
+        0,
+        0,
+        3,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000300000000000000"
+    },
+    {
+      "id": "vertical",
+      "input_values": [
+        0,
+        -1,
+        0,
+        1
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "00000000ffffffff00000000000000000000000001000000"
+    },
+    {
+      "id": "zero_length",
+      "input_values": [
+        4,
+        -2,
+        4,
+        -2
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "04000000feffffff"
+    },
+    {
+      "id": "shallow_exact_tie_uses_inclusive_steps",
+      "input_values": [
+        0,
+        0,
+        4,
+        2
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000100000001000000020000000100000003000000020000000400000002000000"
+    },
+    {
+      "id": "steep_exact_tie_uses_inclusive_steps",
+      "input_values": [
+        0,
+        0,
+        2,
+        4
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000100000001000000010000000200000002000000030000000200000004000000"
+    },
+    {
+      "id": "reverse_shallow_exact_tie",
+      "input_values": [
+        4,
+        2,
+        0,
+        0
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "04000000020000000300000001000000020000000100000001000000000000000000000000000000"
+    },
+    {
+      "id": "negative_diagonal",
+      "input_values": [
+        3,
+        3,
+        0,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0300000003000000020000000200000001000000010000000000000000000000"
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        1000001,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "step_out_of_range",
+      "input_values": [
+        0,
+        0,
+        4097,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

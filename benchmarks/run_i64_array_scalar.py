@@ -187,7 +187,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         if expected != expected_from_source:
             raise ValueError("apriori expected_result must match the frequent association-rule count")
     elif algorithm == "assignment_using_bitmask":
-        valid = (len(values) >= 2 and 0 <= values[0] <= 12 and 0 <= values[1] <= 16
+        valid = (len(values) >= 2 and 0 <= values[0] <= 10 and 0 <= values[1] <= 10
                  and len(values) == 2 + values[0])
         expected_from_source = -1
         if valid:
@@ -238,6 +238,35 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = scaled.numerator
         if expected != expected_from_source:
             raise ValueError("arithmetic_coding expected_result must be the exact scaled lower interval bound")
+    elif algorithm == "ascending_priority_queue":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 512 and len(values) == 1 + 2 * values[0])
+        expected_from_source = -1
+        if valid:
+            queue: list[int] = []
+            removed_total = 0
+            for operation_index in range(values[0]):
+                opcode, payload = values[1 + 2 * operation_index:3 + 2 * operation_index]
+                if opcode == 0:
+                    if payload < -1_000_000 or payload > 1_000_000 or len(queue) >= 64:
+                        valid = False
+                        break
+                    queue.append(payload)
+                elif opcode == 1:
+                    if payload != 0 or not queue:
+                        valid = False
+                        break
+                    smallest = min(queue)
+                    queue.remove(smallest)
+                    removed_total += (operation_index + 1) * (smallest + 1_000_001)
+                else:
+                    valid = False
+                    break
+            if valid:
+                expected_from_source = removed_total + sum(
+                    position * (value + 1_000_001) for position, value in enumerate(queue, start=1)
+                )
+        if expected != expected_from_source:
+            raise ValueError("ascending_priority_queue expected_result must match stable remove-min behavior")
     elif algorithm == "rod_cutting":
         valid = (1 <= len(values) - 1 <= 30 and values[0] == len(values) - 1
                  and all(1 <= value <= 1000 for value in values[1:]))
@@ -2030,34 +2059,306 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                     expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("boruvkas_minimum_spanning_tree expected_result must match the bounded MST total")
-    elif algorithm == "assignment_using_bitmask":
-        if (len(values) < 2 or not 0 <= values[0] <= 12 or not 0 <= values[1] <= 16
-                or len(values) != values[0] + 2
-                or any(mask < 0 or mask >= (1 << values[1]) for mask in values[2:])):
-            expected_from_source = -1
-        else:
-            people, task_count = values[:2]
-            full_mask = (1 << people) - 1
-            ways = [0] * (1 << people)
-            ways[0] = 1
-            for task in range(task_count):
-                next_ways = ways.copy()  # Skip this task.
-                for assigned_mask, count in enumerate(ways):
-                    if count == 0:
-                        continue
-                    available_people = 0
-                    for person, eligible_tasks in enumerate(values[2:]):
-                        if eligible_tasks & (1 << task):
-                            available_people |= 1 << person
-                    available_people &= ~assigned_mask
-                    while available_people:
-                        person_bit = available_people & -available_people
-                        next_ways[assigned_mask | person_bit] += count
-                        available_people ^= person_bit
-                ways = next_ways
-            expected_from_source = ways[full_mask]
+    elif algorithm == "alternate_harmonic_series":
+        valid = (len(values) >= 3 and 1 <= values[0] <= 1000
+                 and len(values) == 1 + 2 * values[0])
+        terms: list[tuple[int, int]] = []
+        if valid:
+            for index in range(1, len(values), 2):
+                numerator, denominator = values[index:index + 2]
+                if not -1000 <= numerator <= 1000 or numerator == 0 or not 1 <= denominator <= 1000:
+                    valid = False
+                    break
+                terms.append((numerator, denominator))
+        expected_from_source = -1
+        if valid:
+            expected_from_source = 1
+            if len(terms) >= 3:
+                reciprocal_magnitudes = [Fraction(denominator, abs(numerator))
+                                         for numerator, denominator in terms]
+                common_difference = reciprocal_magnitudes[1] - reciprocal_magnitudes[0]
+                for index in range(2, len(terms)):
+                    if ((terms[index - 1][0] < 0) == (terms[index][0] < 0)
+                            or reciprocal_magnitudes[index] - reciprocal_magnitudes[index - 1]
+                            != common_difference):
+                        expected_from_source = 0
+                        break
         if expected != expected_from_source:
-            raise ValueError("assignment_using_bitmask expected_result must match the bounded task-mask assignment count")
+            raise ValueError("alternate_harmonic_series expected_result must match the exact index-2 source predicate")
+    elif algorithm == "alternating_harmonic_series":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 1000
+                 and len(values) == 1 + 2 * values[0])
+        terms: list[tuple[int, int]] = []
+        if valid:
+            for index in range(1, len(values), 2):
+                numerator, denominator = values[index:index + 2]
+                if not -1000 <= numerator <= 1000 or not 1 <= denominator <= 1000:
+                    valid = False
+                    break
+                terms.append((numerator, denominator))
+        expected_from_source = -1
+        if valid:
+            expected_from_source = int(all(
+                abs(numerator * (index + 1) - (1 if index % 2 == 0 else -1) * denominator) * 1_000_000_000
+                <= denominator * (index + 1)
+                for index, (numerator, denominator) in enumerate(terms)
+            ))
+        if expected != expected_from_source:
+            raise ValueError("alternating_harmonic_series expected_result must match the exact inclusive 1e-9 term comparison")
+    elif algorithm == "brute_force_knapsack":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 512 and 0 <= values[1] <= 14
+                 and len(values) == 2 + 2 * values[1])
+        items: list[tuple[int, int]] = []
+        if valid:
+            for index in range(2, len(values), 2):
+                weight, value = values[index:index + 2]
+                if not 1 <= weight <= 4096 or not 0 <= value <= 100_000_000:
+                    valid = False
+                    break
+                items.append((weight, value))
+        expected_from_source = -1
+        if valid:
+            capacity = values[0]
+
+            def maximize_value(item_index: int, remaining_capacity: int) -> int:
+                if item_index == len(items) or remaining_capacity == 0:
+                    return 0
+                weight, value = items[item_index]
+                without_item = maximize_value(item_index + 1, remaining_capacity)
+                if weight > remaining_capacity:
+                    return without_item
+                with_item = value + maximize_value(item_index + 1, remaining_capacity - weight)
+                return max(without_item, with_item)
+
+            expected_from_source = maximize_value(0, capacity)
+        if expected != expected_from_source:
+            raise ValueError("brute_force_knapsack expected_result must match the bounded recursive include/exclude optimum")
+    elif algorithm == "shortest_common_supersequence_length":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 255 and 0 <= values[1] <= 255
+                 and len(values) == 2 + values[0] + values[1])
+        expected_from_source = -1
+        if valid:
+            left_length, right_length = values[:2]
+            left_sequence = values[2:2 + left_length]
+            right_sequence = values[2 + left_length:]
+            valid = all(0 <= value <= 127 for value in left_sequence + right_sequence)
+            if valid:
+                lcs = [[0] * (right_length + 1) for _ in range(left_length + 1)]
+                for left_index, left_value in enumerate(left_sequence):
+                    for right_index, right_value in enumerate(right_sequence):
+                        if left_value == right_value:
+                            lcs[left_index + 1][right_index + 1] = lcs[left_index][right_index] + 1
+                        else:
+                            lcs[left_index + 1][right_index + 1] = max(
+                                lcs[left_index][right_index + 1],
+                                lcs[left_index + 1][right_index],
+                            )
+                expected_from_source = left_length + right_length - lcs[left_length][right_length]
+        if expected != expected_from_source:
+            raise ValueError("shortest_common_supersequence_length expected_result must match the full-table LCS complement")
+    elif algorithm == "luhn":
+        valid = (len(values) >= 1 and 2 <= values[0] <= 64 and values[0] % 2 == 0
+                 and len(values) == values[0] + 1
+                 and all(0 <= digit <= 9 for digit in values[1:]))
+        expected_from_source = -1
+        if valid:
+            checksum = 0
+            for index, digit in enumerate(values[1:]):
+                adjusted = digit * 2 if index % 2 == 0 else digit
+                checksum += adjusted - 9 if adjusted > 9 else adjusted
+            expected_from_source = int(checksum % 10 == 0)
+        if expected != expected_from_source:
+            raise ValueError("luhn expected_result must match the bounded even-length digit checksum")
+    elif algorithm == "xs3_conversion":
+        valid = len(values) == 2 and values[0] in (0, 1)
+        expected_from_source = -1
+        if valid:
+            direction, value = values
+            if direction == 0:
+                valid = 0 <= value <= 2_147_483_647
+                if valid:
+                    remaining = value
+                    decimal_place = 1
+                    decoded = 0
+                    while remaining > 0:
+                        nibble = remaining & 0xF
+                        if not 3 <= nibble <= 12:
+                            valid = False
+                            break
+                        decoded += (nibble - 3) * decimal_place
+                        decimal_place *= 10
+                        remaining >>= 4
+                    if valid:
+                        expected_from_source = decoded
+            else:
+                valid = 0 <= value <= 9_999_999
+                if valid:
+                    remaining = value
+                    packed = 0
+                    hexadecimal_place = 1
+                    while remaining > 0:
+                        packed += (remaining % 10 + 3) * hexadecimal_place
+                        remaining //= 10
+                        hexadecimal_place *= 16
+                    expected_from_source = packed
+        if expected != expected_from_source:
+            raise ValueError("xs3_conversion expected_result must match the bounded source-order packed XS-3 conversion")
+    elif algorithm == "polygonal_numbers":
+        valid = (len(values) == 2 and 0 <= values[0] <= 100_000_000
+                 and 3 <= values[1] <= 64)
+        expected_from_source = -1
+        if valid:
+            number, sides = values
+            numerator = (sides - 2) * number * number - (sides - 4) * number
+            expected_from_source = numerator // 2
+        if expected != expected_from_source:
+            raise ValueError("polygonal_numbers expected_result must match the bounded source formula")
+    elif algorithm == "min_number_of_jumps":
+        valid = 1 <= len(values) <= 64 and all(0 <= jump <= 64 for jump in values)
+        expected_from_source = -1
+        if valid:
+            unreachable = 1_000_000_000_000
+            minimum_jumps = [unreachable] * len(values)
+            minimum_jumps[0] = 0
+            for destination in range(1, len(values)):
+                for source in range(destination):
+                    if source + values[source] >= destination:
+                        minimum_jumps[destination] = min(
+                            minimum_jumps[destination], minimum_jumps[source] + 1
+                        )
+            expected_from_source = minimum_jumps[-1]
+        if expected != expected_from_source:
+            raise ValueError("min_number_of_jumps expected_result must match the bounded quadratic DP and sentinel")
+    elif algorithm == "tonelli_shanks":
+        valid = (len(values) == 2 and 3 <= values[1] <= 1_000_003
+                 and values[1] % 2 == 1 and 0 <= values[0] < values[1])
+        expected_from_source = -1
+        if valid:
+            residue, prime = values
+            if residue == 0:
+                expected_from_source = 0
+            else:
+                legendre_exponent = (prime - 1) // 2
+
+                def legendre_symbol(value: int) -> int:
+                    symbol = pow(value % prime, legendre_exponent, prime)
+                    return -1 if symbol == prime - 1 else symbol
+
+                if legendre_symbol(residue) == 1:
+                    if prime % 4 == 3:
+                        root = pow(residue, (prime + 1) // 4, prime)
+                        expected_from_source = min(root, prime - root)
+                    else:
+                        exponent_q = prime - 1
+                        power_of_two_s = 0
+                        while exponent_q % 2 == 0:
+                            exponent_q //= 2
+                            power_of_two_s += 1
+                        non_residue = 2
+                        while non_residue < prime and legendre_symbol(non_residue) != -1:
+                            non_residue += 1
+                        if non_residue < prime:
+                            modular_c = pow(non_residue, exponent_q, prime)
+                            modular_r = pow(residue, (exponent_q + 1) // 2, prime)
+                            modular_t = pow(residue, exponent_q, prime)
+                            remaining_s = power_of_two_s
+                            for _ in range(power_of_two_s):
+                                if modular_t == 1:
+                                    break
+                                test_power = modular_t
+                                least_i = 0
+                                for candidate_i in range(1, remaining_s):
+                                    test_power = pow(test_power, 2, prime)
+                                    if test_power == 1:
+                                        least_i = candidate_i
+                                        break
+                                else:
+                                    break
+                                modular_b = pow(modular_c, 1 << (remaining_s - least_i - 1), prime)
+                                modular_r = modular_r * modular_b % prime
+                                modular_c = pow(modular_b, 2, prime)
+                                modular_t = modular_t * modular_c % prime
+                                remaining_s = least_i
+                            if modular_t == 1:
+                                expected_from_source = min(modular_r, prime - modular_r)
+        if expected != expected_from_source:
+            raise ValueError("tonelli_shanks expected_result must match the bounded modular-root source algorithm")
+    elif algorithm == "excel_title_to_column":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 12
+                 and len(values) == values[0] + 1
+                 and all(65 <= code <= 90 or 97 <= code <= 122 for code in values[1:]))
+        expected_from_source = -1
+        if valid:
+            answer = 0
+            power = 0
+            for code in reversed(values[1:]):
+                uppercase_code = code - 32 if code >= 97 else code
+                answer += (uppercase_code - 64) * (26 ** power)
+                power += 1
+            expected_from_source = answer
+        if expected != expected_from_source:
+            raise ValueError("excel_title_to_column expected_result must match the bounded ASCII base-26 conversion")
+    elif algorithm == "combinations":
+        valid = (len(values) == 2 and 0 <= values[0] <= 60
+                 and 0 <= values[1] <= values[0])
+        expected_from_source = -1
+        if valid:
+            n, k = values
+            expected_from_source = 1
+            for index in range(k):
+                expected_from_source = expected_from_source * (n - index) // (index + 1)
+        if expected != expected_from_source:
+            raise ValueError("combinations expected_result must match the bounded multiply-then-divide binomial recurrence")
+    elif algorithm in {"cycle_check_directed_graph", "cycle_check_directed_graph_kahn"}:
+        valid = (len(values) >= 1 and len(values) <= 65 and (len(values) - 1) % 2 == 0
+                 and 0 <= values[0] <= 64 and (len(values) - 1) // 2 <= 32)
+        expected_from_source = -1
+        if valid:
+            vertices = values[0]
+            adjacency = [0] * vertices
+            for index in range(1, len(values), 2):
+                source, destination = values[index:index + 2]
+                if not 0 <= source < vertices or not 0 <= destination < vertices:
+                    valid = False
+                    break
+                adjacency[source] |= 1 << destination
+            if valid and algorithm == "cycle_check_directed_graph":
+                state = [0] * vertices
+
+                def visit(node: int) -> bool:
+                    state[node] = 1
+                    for destination in range(vertices):
+                        if adjacency[node] & (1 << destination):
+                            if state[destination] == 1:
+                                return True
+                            if state[destination] == 0 and visit(destination):
+                                return True
+                    state[node] = 2
+                    return False
+
+                expected_from_source = int(any(
+                    state[root] == 0 and visit(root) for root in range(vertices)
+                ))
+            elif valid:
+                indegree = [0] * vertices
+                for source in range(vertices):
+                    for destination in range(vertices):
+                        if adjacency[source] & (1 << destination):
+                            indegree[destination] += 1
+                queue = [vertex for vertex in range(vertices) if indegree[vertex] == 0]
+                removed = 0
+                for source in queue:
+                    removed += 1
+                    for destination in range(vertices):
+                        if adjacency[source] & (1 << destination):
+                            indegree[destination] -= 1
+                            if indegree[destination] == 0:
+                                queue.append(destination)
+                expected_from_source = int(removed != vertices)
+        if not valid:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result must match the bounded directed-graph cycle check")
     return values
 
 

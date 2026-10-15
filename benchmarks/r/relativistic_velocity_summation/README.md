@@ -18,6 +18,7 @@ This uses the Lorentz velocity addition formula and is distinct from classical v
 ## Workload and build
 
 [`workload.json`](workload.json) covers the pinned examples, signed velocities, both object light-speed endpoints, and invalid bounds. Build with the `i64_array_float64` ABI and record with `benchmarks/run_i64_array_float64.py`.
+The source-backed expected-value check is in [`benchmarks/run_i64_array_float64.py`](../../run_i64_array_float64.py).
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm relativistic_velocity_summation --language rust

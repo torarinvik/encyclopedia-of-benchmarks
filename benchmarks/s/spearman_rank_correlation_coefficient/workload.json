@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "spearman-rank-correlation-python-i64-array-f64-v1",
+  "algorithm": "spearman_rank_correlation_coefficient",
+  "function_symbol": "spearman_rank_correlation_coefficient",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": ["n", "x_values[n]", "y_values[n]"],
+    "n_range": [2, 3],
+    "sample_range": [-1000, 1000],
+    "required_length": "1 + 2*n",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Spearman rank coefficient as calculated and rounded by the pinned Python source",
+    "formula_order": "assign average 1-based ranks; d_squared=sum((rank_x-rank_y)^2); rho=1-6*d_squared/(n*(n^2-1)); round rho to 1 decimal, ties-to-even",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"two-sample-concordant","input_values":[2,1,2,4,9],"input_length":5,"expected_result":1.0},
+    {"id":"two-sample-discordant","input_values":[2,1,2,9,4],"input_length":5,"expected_result":-1.0},
+    {"id":"two-sample-tie","input_values":[2,1,1,4,9],"input_length":5,"expected_result":0.5},
+    {"id":"three-sample-positive-rounding-with-ties","input_values":[3,0,0,1,0,2,1],"input_length":7,"expected_result":0.1},
+    {"id":"three-sample-negative-rounding-with-ties","input_values":[3,0,0,1,0,1,0],"input_length":7,"expected_result":-0.1},
+    {"id":"three-sample-constant-x-source-formula","input_values":[3,7,7,7,-3,0,8],"input_length":7,"expected_result":0.5},
+    {"id":"invalid-too-few","input_values":[1,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[2,1,2,3],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-sample","input_values":[2,1001,0,0,1],"input_length":5,"expected_result":-1e300}
+  ]
+}

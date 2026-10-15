@@ -15,7 +15,7 @@ fn long alternate_harmonic_series(long* values, usz length) @export("alternate_h
         long denominator = values[2 + 2 * index];
         if (numerator == 0 || numerator < -1000 || numerator > 1000 || denominator < 1 || denominator > 1000) { return -1; }
     }
-    for (usz index = 1; index < count; index++) {
+    for (usz index = 2; index < count; index++) {
         if ((values[1 + 2 * index] < 0) == (values[1 + 2 * (index - 1)] < 0)) { return 0; }
     }
     if (count < 3) { return 1; }

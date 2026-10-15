@@ -19,6 +19,7 @@ The pinned sources include Pascal-triangle and multiplicative variants. The Pyth
 - [Python — `maths/binomial_coefficient.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/binomial_coefficient.py)
 - [Rust — `src/math/binomial_coefficient.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/binomial_coefficient.rs)
 - [TypeScript — `maths/binomial_coefficient.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/binomial_coefficient.ts)
+- [Go — `dynamic/binomialcoefficient.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/binomialcoefficient.go), which builds Pascal's recurrence table
 
 ## Workload and verification
 

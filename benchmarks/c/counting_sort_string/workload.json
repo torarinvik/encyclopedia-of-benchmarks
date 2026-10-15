@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "counting-sort-string-ascii-i64-array-bytes-output-v1",
+  "algorithm": "counting_sort_string",
+  "function_symbol": "counting_sort_string",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, byte_0, ..., byte_(n-1)]",
+    "length_range": [0, 4095],
+    "byte_range": [33, 126],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_byte_count_and_byte_buffer",
+    "encoding": "the input bytes sorted in ascending ASCII order",
+    "empty_input": "return zero and write zero bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"empty-token","input_values":[0],"expected_result":0,"expected_output_hex":""},
+    {"id":"source-style-token","input_values":[6,98,97,110,97,110,97],"expected_result":6,"expected_output_hex":"616161626e6e"},
+    {"id":"mixed-case-and-punctuation","input_values":[3,65,33,122],"expected_result":3,"expected_output_hex":"21417a"},
+    {"id":"reverse-order","input_values":[3,122,121,120],"expected_result":3,"expected_output_hex":"78797a"},
+    {"id":"duplicate-characters","input_values":[5,65,65,33,33,33],"expected_result":5,"expected_output_hex":"2121214141"},
+    {"id":"single-character","input_values":[1,126],"expected_result":1,"expected_output_hex":"7e"},
+    {"id":"undersized-output-buffer","input_values":[3,99,97,98],"workspace_bytes":2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"space-not-in-token-domain","input_values":[1,32],"expected_result":-1,"expected_output_hex":""},
+    {"id":"nul-terminator-not-in-token-domain","input_values":[1,0],"expected_result":-1,"expected_output_hex":""},
+    {"id":"input-length-mismatch","input_values":[2,97],"expected_result":-1,"expected_output_hex":""},
+    {"id":"length-over-limit","input_values":[4096],"expected_result":-1,"expected_output_hex":""}
+  ]
+}

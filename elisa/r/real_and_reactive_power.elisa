@@ -1,0 +1,18 @@
+# Real/reactive power from apparent power and power factor.
+extern pow(base: f64, exponent: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def real_and_reactive_power_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    operation: i64 = values[0]
+    apparent_power: i64 = values[1]
+    factor_units: i64 = values[2]
+    if (operation != 0 and operation != 1) or apparent_power < -1000000000 or apparent_power > 1000000000 or factor_units < -10000 or factor_units > 10000:
+        return -1.0e300
+    power_factor: f64 = factor_units.f64() / 10000.0
+    if operation == 0:
+        return apparent_power.f64() * power_factor
+    apparent_power.f64() * sqrt(1.0 - pow(power_factor, 2.0))
+
+export fn real_and_reactive_power(values: i64&, length: usize) -> f64 = real_and_reactive_power_impl

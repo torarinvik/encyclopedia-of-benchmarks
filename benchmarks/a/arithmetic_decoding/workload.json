@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "arithmetic-decoding-java-byte-i64-array-bytes-output-v1",
+  "algorithm": "arithmetic_decoding",
+  "function_symbol": "arithmetic_decoding",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[symbol_count,alphabet_size,lower_bound_numerator,(symbol,frequency)...]",
+    "symbol_count_range": [1, 12],
+    "alphabet_size_range": [1, 12],
+    "symbol_range": [0, 255],
+    "frequency_sum": "symbol_count",
+    "lower_bound_numerator_range": "0 through symbol_count ** symbol_count - 1",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_byte_count_and_buffer",
+    "definition": "decoded byte string of length symbol_count",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_bytes": 12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"single-symbol","input_values":[1,1,0,90,1],"expected_result":1,"expected_output_hex":"5a"},
+    {"id":"two-symbols-ascending","input_values":[2,2,1,65,1,66,1],"expected_result":2,"expected_output_hex":"4142"},
+    {"id":"two-symbols-descending","input_values":[2,2,2,65,1,66,1],"expected_result":2,"expected_output_hex":"4241"},
+    {"id":"two-a-then-b","input_values":[3,2,8,65,2,66,1],"expected_result":3,"expected_output_hex":"414142"},
+    {"id":"alternating-two-symbols","input_values":[3,2,12,65,2,66,1],"expected_result":3,"expected_output_hex":"414241"},
+    {"id":"frequency-sum-mismatch","input_values":[2,2,1,65,2,66,1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"unsorted-model-symbols","input_values":[2,2,1,66,1,65,1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"code-outside-unit-interval","input_values":[2,2,4,65,1,66,1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"input-length-mismatch","input_values":[2,2,1,65,1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"output-capacity-too-small","input_values":[2,2,1,65,1,66,1],"workspace_bytes":1,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

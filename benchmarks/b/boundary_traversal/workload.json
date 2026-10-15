@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "id": "boundary-traversal-java-tree-value-output-v1",
+  "algorithm": "boundary_traversal",
+  "function_symbol": "boundary_traversal",
+  "input": {
+    "kind": "indexed_binary_tree_with_caller_output",
+    "encoding": "Each node is [signed value,left child index,right child index]; -1 means absent. Root index and output buffer/capacity are passed separately.",
+    "maximum_node_count": 100,
+    "root_index": "-1 for empty tree, otherwise a valid node-table index",
+    "tree_requirement": "One valid rooted binary tree; every node must be reachable exactly once.",
+    "node_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "result": "Count of boundary values written, or -1 for invalid structure or insufficient output capacity."
+  },
+  "measurement": {
+    "comparison_model": "tree_value_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "balanced_tree",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          3,
+          4
+        ],
+        [
+          3,
+          5,
+          6
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          6,
+          -1,
+          -1
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 7,
+      "expected_output_values": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        3
+      ]
+    },
+    {
+      "id": "java_single_leaf",
+      "nodes": [
+        [
+          42,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 1,
+      "expected_output_values": [
+        42
+      ]
+    },
+    {
+      "id": "left_skewed",
+      "nodes": [
+        [
+          1,
+          1,
+          -1
+        ],
+        [
+          2,
+          2,
+          -1
+        ],
+        [
+          3,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "right_skewed_source_left_fallback",
+      "nodes": [
+        [
+          1,
+          -1,
+          1
+        ],
+        [
+          2,
+          -1,
+          2
+        ],
+        [
+          3,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "right_boundary_falls_left",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          -1
+        ],
+        [
+          3,
+          3,
+          -1
+        ],
+        [
+          4,
+          4,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 5,
+      "expected_output_values": [
+        1,
+        2,
+        5,
+        4,
+        3
+      ]
+    },
+    {
+      "id": "empty_tree",
+      "nodes": [],
+      "root_index": -1,
+      "expected_result": 0,
+      "expected_output_values": []
+    },
+    {
+      "id": "int32_value_boundaries",
+      "nodes": [
+        [
+          -2147483648,
+          -1,
+          1
+        ],
+        [
+          2147483647,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 2,
+      "expected_output_values": [
+        -2147483648,
+        2147483647
+      ]
+    },
+    {
+      "id": "shared_child_invalid_tree",
+      "nodes": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1,
+      "expected_output_values": []
+    },
+    {
+      "id": "invalid_root",
+      "nodes": [
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "expected_result": -1,
+      "expected_output_values": []
+    },
+    {
+      "id": "insufficient_capacity",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          -1
+        ],
+        [
+          3,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_values": []
+    }
+  ]
+}

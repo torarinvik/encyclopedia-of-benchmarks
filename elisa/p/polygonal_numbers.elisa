@@ -1,0 +1,13 @@
+def polygonal_numbers_impl(input_values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    num: i64 = input_values[0]
+    sides: i64 = input_values[1]
+    if num < 0 or num > 100000000 or sides < 3 or sides > 64:
+        return -1
+    square: i64 = num * num
+    leading: i64 = (sides - 2) * square
+    trailing: i64 = (sides - 4) * num
+    return (leading - trailing) / 2
+
+export fn polygonal_numbers(input_values: i64&, length: usize) -> i64 = polygonal_numbers_impl

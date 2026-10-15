@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "golden-search-extrema-bounded-f64-triple-v1",
+  "algorithm": "golden_search_extrema",
+  "function_symbol": "golden_search_extrema",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": [
+      "objective_id",
+      "left",
+      "right"
+    ],
+    "objective_ids": {
+      "0": "(x - 2)^2",
+      "1": "cos(x)"
+    },
+    "objective_id_values": [
+      0.0,
+      1.0
+    ],
+    "objective_0_endpoint_range": [
+      0.0,
+      4.0
+    ],
+    "objective_1_endpoint_range": [
+      2.0,
+      4.0
+    ],
+    "endpoints_may_be_reversed": true,
+    "required_extremum_strictly_inside": true,
+    "minimum_interval_width": 2e-07,
+    "source_stop_width": 1e-07,
+    "maximum_iterations": 128,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "previous midpoint returned by the golden-section iteration",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "quadratic_minimum",
+      "input_values": [
+        0.0,
+        0.0,
+        4.0
+      ],
+      "expected_result": 2.000000007400791
+    },
+    {
+      "id": "cosine_minimum",
+      "input_values": [
+        1.0,
+        2.0,
+        4.0
+      ],
+      "expected_result": 3.14159262221409
+    },
+    {
+      "id": "reversed_quadratic_interval",
+      "input_values": [
+        0.0,
+        4.0,
+        0.0
+      ],
+      "expected_result": 2.000000007400791
+    },
+    {
+      "id": "narrow_valid_interval",
+      "input_values": [
+        0.0,
+        1.999999,
+        2.000001
+      ],
+      "expected_result": 1.9999999999999964
+    },
+    {
+      "id": "width_below_two_epsilon",
+      "input_values": [
+        0.0,
+        1.99999995,
+        2.00000005
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "objective_does_not_bracket_minimum",
+      "input_values": [
+        0.0,
+        2.5,
+        4.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "cosine_interval_misses_pi",
+      "input_values": [
+        1.0,
+        3.2,
+        4.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "invalid_objective_id",
+      "input_values": [
+        2.0,
+        1.0,
+        3.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "endpoint_out_of_range",
+      "input_values": [
+        0.0,
+        -0.1,
+        3.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "zero_width",
+      "input_values": [
+        0.0,
+        2.0,
+        2.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

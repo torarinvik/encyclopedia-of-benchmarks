@@ -1,0 +1,63 @@
+# Decode an exact arithmetic-coded lower-bound numerator.
+def arithmetic_decoding_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 5:
+        return -1
+    count: i64 = input[0]
+    alphabet_size: i64 = input[1]
+    if count < 1 or count > 12 or alphabet_size < 1 or alphabet_size > count or length != (3 + 2 * alphabet_size).usize():
+        return -1
+
+    denominator: mutable i64 = 1
+    step: mutable i64 = 0
+    while step < count:
+        denominator <- denominator * count
+        step <- step + 1
+    code: i64 = input[2]
+    if code < 0 or code >= denominator:
+        return -1
+
+    symbols: mutable i64[12] = zeroed
+    cumulative: mutable i64[13] = zeroed
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < alphabet_size.usize():
+        symbol: i64 = input[3 + 2 * index]
+        frequency: i64 = input[4 + 2 * index]
+        if symbol < 0 or symbol > 255 or frequency < 1 or frequency > count or (index > 0 and symbol <= symbols[index - 1]):
+            return -1
+        symbols[index] <- symbol
+        total <- total + frequency
+        cumulative[index + 1] <- total
+        index <- index + 1
+    if total != count:
+        return -1
+    if capacity < count.usize() or output == null:
+        return -2
+
+    low: mutable i64 = 0
+    high: mutable i64 = 1
+    scale: mutable i64 = denominator / count
+    step <- 0
+    while step < count:
+        range: i64 = high - low
+        base: i64 = low * count
+        found: mutable bool = false
+        index <- 0
+        while index < alphabet_size.usize():
+            symbol_low: i64 = base + range * cumulative[index]
+            symbol_high: i64 = base + range * cumulative[index + 1]
+            if code >= symbol_low * scale and code < symbol_high * scale:
+                output[step.usize()] <- symbols[index].u8()
+                low <- symbol_low
+                high <- symbol_high
+                found <- true
+                break
+            index <- index + 1
+        if not found:
+            return -1
+        if step + 1 < count:
+            scale <- scale / count
+        step <- step + 1
+    count
+
+export fn arithmetic_decoding(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = arithmetic_decoding_impl

@@ -1,36 +1,39 @@
+# Apply the pinned JavaScript title-case behavior to bounded ASCII words.
 def title_case_conversion_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 1 or input[0] < 0 or input[0] > 256:
+    if length == 0 or length > 257:
         return -1
-    byte_length: usize = input[0].usize()
-    if length != byte_length + 1:
+    declared: i64 = input[0]
+    if declared < 0 or declared > 256 or length != declared.usize() + 1:
         return -1
-    index: usize = 0
-    while index < byte_length:
-        value: i64 = input[index + 1]
-        if value < 65 or (value > 90 and value < 97) or value > 122:
-            if value != 32 or index == 0 or index + 1 == byte_length or input[index] == 32:
-                return -1
-        index <- index + 1
-    if output_capacity < byte_length + 1:
+    valid_input: bool =
+        while index < declared.usize() |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 1]
+            letter: bool = (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+            if not letter and value != 32:
+                break false
+            if value == 32 and (index == 0 or index + 1 == declared.usize() or input[index] == 32):
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if output_capacity < declared.usize() + 1:
         return -2
-    at_word_start: mutable bool = true
-    index <- 0
-    while index < byte_length:
-        value: mutable i64 = input[index + 1]
+    while index < declared.usize() |index: mutable usize = 0, at_word_start: mutable bool = true, output|:
+        value: i64 = input[index + 1]
+        mapped: mutable i64 = value
         if value == 32:
-            output[index] <- 32
             at_word_start <- true
-        else:
-            if at_word_start:
-                if value >= 97 and value <= 122:
-                    value <- value - 32
-                at_word_start <- false
-            else:
-                if value >= 65 and value <= 90:
-                    value <- value + 32
-            output[index] <- value.u8()
+        else if at_word_start:
+            if value >= 97 and value <= 122:
+                mapped <- value - 32
+            at_word_start <- false
+        else if value >= 65 and value <= 90:
+            mapped <- value + 32
+        output[index] <- mapped.u8()
         index <- index + 1
-    output[byte_length] <- 0
-    byte_length.i64()
+        output
+    output[declared.usize()] <- 0
+    declared
 
 export fn title_case_conversion(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = title_case_conversion_impl

@@ -1,0 +1,27 @@
+# Solve the missing semiconductor carrier concentration.
+extern pow(base: f64, exponent: f64) -> f64
+
+def carrier_concentration_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    electron_conc: i64 = values[0]
+    hole_conc: i64 = values[1]
+    intrinsic_conc: i64 = values[2]
+    if electron_conc < 0 or electron_conc > 1000000 or hole_conc < 0 or hole_conc > 1000000 or intrinsic_conc < 0 or intrinsic_conc > 1000000:
+        return -1.0e300
+    zero_count: mutable i64 = 0
+    if electron_conc == 0:
+        zero_count <- zero_count + 1
+    if hole_conc == 0:
+        zero_count <- zero_count + 1
+    if intrinsic_conc == 0:
+        zero_count <- zero_count + 1
+    if zero_count != 1:
+        return -1.0e300
+    if electron_conc == 0:
+        return (intrinsic_conc * intrinsic_conc).f64() / hole_conc.f64()
+    if hole_conc == 0:
+        return (intrinsic_conc * intrinsic_conc).f64() / electron_conc.f64()
+    pow((electron_conc * hole_conc).f64(), 0.5)
+
+export fn carrier_concentration(values: i64&, length: usize) -> f64 = carrier_concentration_impl

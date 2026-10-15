@@ -1,31 +1,30 @@
 module title_case_conversion;
 
-fn long title_case_conversion(long* input, usz length, char* output, usz output_capacity) @export("title_case_conversion") {
-    if (input == null || length < 1 || input[0] < 0 || input[0] > 256) return -1;
-    usz n = (usz)input[0];
-    if (length != n + 1) return -1;
-    for (usz i = 0; i < n; i += 1) {
-        long value = input[i + 1];
-        if ((value >= 'A' && value <= 'Z') || (value >= 'a' && value <= 'z')) continue;
-        if (value == ' ' && i > 0 && i + 1 < n && input[i] != ' ') continue;
-        return -1;
+const usz MAX_LENGTH = 256;
+
+// Apply the pinned JavaScript title-case behavior to bounded ASCII words.
+fn long title_case_conversion(long* input, usz length, char* output,
+                              usz output_capacity) @export("title_case_conversion") {
+    if (length == 0 || length > MAX_LENGTH + 1 || input == null) { return -1; }
+    long declared = input[0];
+    if (declared < 0 || declared > MAX_LENGTH || length != (usz)declared + 1) { return -1; }
+    for (usz index = 0; index < (usz)declared; index++) {
+        long value = input[index + 1];
+        bool letter = (value >= 65 && value <= 90) || (value >= 97 && value <= 122);
+        if (!letter && value != 32) { return -1; }
+        if (value == 32 && (index == 0 || index + 1 == (usz)declared || input[index] == 32)) { return -1; }
     }
-    if (output == null || output_capacity < n + 1) return -2;
+    if (output_capacity < (usz)declared + 1) { return -2; }
     bool at_word_start = true;
-    for (usz i = 0; i < n; i += 1) {
-        long value = input[i + 1];
-        if (value == ' ') {
-            output[i] = (char)value;
-            at_word_start = true;
-        } else if (at_word_start) {
-            if (value >= 'a' && value <= 'z') value -= 'a' - 'A';
-            output[i] = (char)value;
+    for (usz index = 0; index < (usz)declared; index++) {
+        long value = input[index + 1];
+        if (value == 32) { at_word_start = true; }
+        else if (at_word_start) {
+            if (value >= 97 && value <= 122) { value -= 32; }
             at_word_start = false;
-        } else {
-            if (value >= 'A' && value <= 'Z') value += 'a' - 'A';
-            output[i] = (char)value;
-        }
+        } else if (value >= 65 && value <= 90) { value += 32; }
+        output[index] = (char)value;
     }
-    output[n] = 0;
-    return (long)n;
+    output[declared] = 0;
+    return declared;
 }

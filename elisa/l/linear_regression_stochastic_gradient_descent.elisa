@@ -1,0 +1,28 @@
+# Ordered per-observation stochastic gradient descent for one-feature regression.
+const INVALID_RESULT: f64 = -1.0e300
+
+def linear_regression_stochastic_gradient_descent_impl(values: i64&, length: usize) -> f64:
+    if length < 9 or length > 133: return INVALID_RESULT
+    n: i64 = values[0]
+    epochs: i64 = values[1]
+    rate: i64 = values[2]
+    m0: i64 = values[3]
+    b0: i64 = values[4]
+    if n < 2 or n > 64 or length != (5 + 2 * n).usize() or epochs < 1 or epochs > 200 or rate < 1 or rate > 10000 or m0 < -10000000 or m0 > 10000000 or b0 < -10000000 or b0 > 10000000: return INVALID_RESULT
+    for i in 0..<n.usize():
+        x: i64 = values[5 + 2 * i]
+        y: i64 = values[6 + 2 * i]
+        if x < -10000000 or x > 10000000 or y < -100000000 or y > 100000000: return INVALID_RESULT
+    alpha: f64 = rate.f64() / 1000000.0
+    w: mutable f64 = m0.f64() / 1000000.0
+    b: mutable f64 = b0.f64() / 1000000.0
+    for epoch in 0..<epochs:
+        for i in 0..<n.usize():
+            x: f64 = values[5 + 2 * i].f64() / 1000000.0
+            y: f64 = values[6 + 2 * i].f64() / 1000000.0
+            error: f64 = w * x + b - y
+            w <- w - alpha * (error * x / n.f64())
+            b <- b - alpha * (error / n.f64())
+    w
+
+export fn linear_regression_stochastic_gradient_descent(values: i64&, length: usize) -> f64 = linear_regression_stochastic_gradient_descent_impl

@@ -20,7 +20,7 @@ export fn alternate_harmonic_series(input: [*c]const i64, length: usize) i64 {
         const reciprocal_numerator = denominator;
         const reciprocal_denominator = magnitude;
         if (index > 0) {
-            if (sign == previous_sign) return 0;
+            if (index > 1 and sign == previous_sign) return 0;
             const current_delta_numerator = reciprocal_numerator * previous_reciprocal_denominator - previous_reciprocal_numerator * reciprocal_denominator;
             const current_delta_denominator = reciprocal_denominator * previous_reciprocal_denominator;
             if (index == 1) {

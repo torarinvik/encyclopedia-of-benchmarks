@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "max-difference-pair-v1",
+  "algorithm": "max_difference_pair",
+  "function_symbol": "max_difference_pair",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, values...]",
+    "n_range": [
+      1,
+      128
+    ],
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "result": "the source-selected (small,big) values maximizing big-small under i<=j, encoded as two little-endian signed 64-bit integers",
+    "valid_result_byte_length": 16,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "classic_pair",
+      "input_values": [
+        8,
+        5,
+        11,
+        2,
+        1,
+        7,
+        9,
+        0,
+        7
+      ],
+      "input_length": 9,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000900000000000000"
+    },
+    {
+      "id": "decreasing_allows_equal_index",
+      "input_values": [
+        4,
+        9,
+        7,
+        4,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "09000000000000000900000000000000"
+    },
+    {
+      "id": "left_wins_tie_against_right",
+      "input_values": [
+        4,
+        1,
+        4,
+        0,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000400000000000000"
+    },
+    {
+      "id": "cross_pair_wins",
+      "input_values": [
+        4,
+        0,
+        3,
+        1,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000400000000000000"
+    },
+    {
+      "id": "all_equal",
+      "input_values": [
+        4,
+        5,
+        5,
+        5,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "05000000000000000500000000000000"
+    },
+    {
+      "id": "singleton_negative",
+      "input_values": [
+        1,
+        -7
+      ],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "f9fffffffffffffff9ffffffffffffff"
+    },
+    {
+      "id": "maximum_difference",
+      "input_values": [
+        2,
+        -1000000,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "c0bdf0ffffffffff40420f0000000000"
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_length_mismatch",
+      "input_values": [
+        2,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_value",
+      "input_values": [
+        1,
+        1000001
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

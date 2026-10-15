@@ -1,0 +1,63 @@
+const MAX_ITEMS: usize = 64
+const BYTES_PER_TRIPLET: usize = 12
+
+def write_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def enumerate(values: i64&, length: usize, output: mutable u8&, write_output: bool) -> usize:
+    count: mutable usize = 0
+    has_last: mutable bool = false
+    last_a: mutable i64 = 0
+    last_b: mutable i64 = 0
+    last_c: mutable i64 = 0
+    for i in 0..<length:
+        if i + 2 >= length:
+            break
+        for j in i + 1..<length:
+            if j + 1 >= length:
+                break
+            for k in j + 1..<length:
+                if values[i] + values[j] + values[k] != 0:
+                    continue
+                if has_last and values[i] == last_a and values[j] == last_b and values[k] == last_c:
+                    continue
+                if write_output:
+                    offset: usize = count * BYTES_PER_TRIPLET
+                    write_i32_le(values[i], output, offset)
+                    write_i32_le(values[j], output, offset + 4)
+                    write_i32_le(values[k], output, offset + 8)
+                last_a <- values[i]
+                last_b <- values[j]
+                last_c <- values[k]
+                has_last <- true
+                count <- count + 1
+    count
+
+def find_triplets_with_0_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ITEMS or (length > 0 and input == null):
+        return -1
+    values: mutable i64[MAX_ITEMS]
+    for i in 0..<length:
+        if input[i] < -100000 or input[i] > 100000:
+            return -1
+        values[i] <- input[i]
+    for i in 1..<length:
+        key: i64 = values[i]
+        j: mutable usize = i
+        while j > 0 and values[j - 1] > key:
+            values[j] <- values[j - 1]
+            j <- j - 1
+        values[j] <- key
+    count: usize = enumerate(values, length, output, false)
+    if count == 0:
+        return 0
+    needed: usize = count * BYTES_PER_TRIPLET
+    if output == null or output_capacity < needed:
+        return -2
+    enumerate(values, length, output, true).i64()
+
+export fn find_triplets_with_0_sum(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = find_triplets_with_0_sum_impl

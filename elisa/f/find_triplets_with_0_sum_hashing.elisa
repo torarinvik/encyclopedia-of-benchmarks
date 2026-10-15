@@ -1,0 +1,94 @@
+const MAX_ITEMS: usize = 64
+const MAX_TRIPLETS: usize = 2048
+const HASH_CAPACITY: usize = 128
+const BYTES_PER_TRIPLET: usize = 12
+
+def hash_slot(value: i64) -> usize:
+    ((value + 100000) * 37 % HASH_CAPACITY.i64()).usize()
+
+def seen_contains(keys: i64&, occupied: bool&, value: i64) -> bool:
+    slot: usize = hash_slot(value)
+    for probes in 0..<HASH_CAPACITY:
+        if not occupied[slot]:
+            return false
+        if keys[slot] == value:
+            return true
+        slot <- (slot + 1) % HASH_CAPACITY
+    false
+
+def seen_add(keys: mutable i64&, occupied: mutable bool&, value: i64) -> void:
+    slot: usize = hash_slot(value)
+    for probes in 0..<HASH_CAPACITY:
+        if not occupied[slot]:
+            keys[slot] <- value
+            occupied[slot] <- true
+            return
+        if keys[slot] == value:
+            return
+        slot <- (slot + 1) % HASH_CAPACITY
+
+def already_output(triples: i64&, count: usize, a: i64, b: i64, c: i64) -> bool:
+    for i in 0..<count:
+        if triples[i * 3] == a and triples[i * 3 + 1] == b and triples[i * 3 + 2] == c:
+            return true
+    false
+
+def write_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def find_triplets_with_0_sum_hashing_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ITEMS or (length > 0 and input == null):
+        return -1
+    for i in 0..<length:
+        if input[i] < -100000 or input[i] > 100000:
+            return -1
+    triples: mutable i64[MAX_TRIPLETS * 3]
+    count: mutable usize = 0
+    for i in 0..<length:
+        if i + 2 >= length:
+            break
+        keys: mutable i64[HASH_CAPACITY]
+        occupied: mutable bool[HASH_CAPACITY]
+        for h in 0..<HASH_CAPACITY:
+            keys[h] <- 0
+            occupied[h] <- false
+        for j in i + 1..<length:
+            other: i64 = input[j]
+            required: i64 = -input[i] - other
+            if required >= -100000 and required <= 100000 and seen_contains(keys, occupied, required):
+                a: mutable i64 = input[i]
+                b: mutable i64 = other
+                c: mutable i64 = required
+                t: mutable i64
+                if a > b:
+                    t <- a
+                    a <- b
+                    b <- t
+                if b > c:
+                    t <- b
+                    b <- c
+                    c <- t
+                if a > b:
+                    t <- a
+                    a <- b
+                    b <- t
+                if not already_output(triples, count, a, b, c) and count < MAX_TRIPLETS:
+                    triples[count * 3] <- a
+                    triples[count * 3 + 1] <- b
+                    triples[count * 3 + 2] <- c
+                    count <- count + 1
+            seen_add(keys, occupied, other)
+    if count == 0:
+        return 0
+    needed: usize = count * BYTES_PER_TRIPLET
+    if output == null or output_capacity < needed:
+        return -2
+    for i in 0..<count * 3:
+        write_i32_le(output, i * 4, triples[i])
+    count.i64()
+
+export fn find_triplets_with_0_sum_hashing(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = find_triplets_with_0_sum_hashing_impl

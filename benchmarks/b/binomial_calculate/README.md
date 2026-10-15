@@ -31,3 +31,9 @@ The shared scalar runner now checks this bounded multiplicative recurrence.
 
 - C++ [`binomial_calculate.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/binomial_calculate.cpp)
 - C++-1 [`binomial_calculate.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/binomial_calculate.cpp)
+- Java [`Combinations.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Combinations.java), using `combinationsOptimized`
+- Python [`combinations.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/combinations.py)
+- Rust [`combinations.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/combinations.rs)
+- Go [`math/binomialcoefficient.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/binomialcoefficient.go)
+
+The Java class also contains a factorial-quotient version, which can overflow at smaller `n`; the mapped method is its overflow-aware multiplicative recurrence. The Go multiplicative function does not reject `k > n`, so that case is outside this benchmark's required `k <= n` domain.

@@ -17,6 +17,8 @@ python3 benchmarks/build_abi.py --family i64_array_scalar --algorithm alternatin
 python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scalar/a/alternating_harmonic_series/rust/build.json
 ```
 
+The shared runner validates the workload with exact integer arithmetic for the inclusive `1e-9` comparison against each canonical term.
+
 ## Implementations
 
 | Language | Source |
