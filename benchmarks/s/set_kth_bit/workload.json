@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "set-kth-bit-signed-safe-v1",
+  "algorithm": "set_kth_bit",
+  "function_symbol": "set_kth_bit",
+  "input": {
+    "kind": "two_signed_64_bit_integers",
+    "layout": "[N,k]",
+    "value_range": [0, 2147483647],
+    "bit_position_range": [0, 30],
+    "result": "N OR (1 shifted left by k)",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"zero_bit_zero","input_values":[0,0],"expected_result":1},
+    {"id":"source_example_10_2","input_values":[10,2],"expected_result":14},
+    {"id":"source_example_25_1","input_values":[25,1],"expected_result":27},
+    {"id":"source_example_400001_5","input_values":[400001,5],"expected_result":400033},
+    {"id":"already_set_bit","input_values":[123,3],"expected_result":123},
+    {"id":"zero_highest_allowed_bit","input_values":[0,30],"expected_result":1073741824},
+    {"id":"maximum_number","input_values":[2147483647,30],"expected_result":2147483647},
+    {"id":"empty_input","input_values":[],"expected_result":-1},
+    {"id":"one_value","input_values":[5],"expected_result":-1},
+    {"id":"extra_value","input_values":[5,2,1],"expected_result":-1},
+    {"id":"negative_number","input_values":[-1,2],"expected_result":-1},
+    {"id":"number_above_bound","input_values":[2147483648,2],"expected_result":-1},
+    {"id":"negative_bit_position","input_values":[5,-1],"expected_result":-1},
+    {"id":"bit_position_overflow_boundary","input_values":[5,31],"expected_result":-1}
+  ]
+}

@@ -1,0 +1,35 @@
+def hex_to_binary_value(value: i64) -> i64:
+    if value >= 48 and value <= 57:
+        return value - 48
+    if value >= 65 and value <= 70:
+        return value - 65 + 10
+    if value >= 97 and value <= 102:
+        return value - 97 + 10
+    return -1
+
+def hex_to_binary_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > 256 or (length != 0 and values == null):
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if hex_to_binary_value(values[index]) < 0:
+            return -1
+        index <- index + 1
+
+    required: usize = length * 4
+    if output == null or capacity < required:
+        return -2
+    index <- 0
+    while index < length:
+        digit: i64 = hex_to_binary_value(values[index])
+        bit: mutable usize = 0
+        while bit < 4:
+            if ((digit / (1 << (3 - bit.i64()))) % 2) == 1:
+                output[index * 4 + bit] <- 49.u8()
+            else:
+                output[index * 4 + bit] <- 48.u8()
+            bit <- bit + 1
+        index <- index + 1
+    required.i64()
+
+export fn hex_to_binary(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hex_to_binary_impl

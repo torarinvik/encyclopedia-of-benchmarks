@@ -1,0 +1,46 @@
+# Gregorian weekday by the pinned Rust month-offset recurrence.
+def is_leap_year(year: i64) -> bool:
+    year % 400 == 0 or (year % 4 == 0 and year % 100 != 0)
+
+def month_offset(month: i64) -> i64:
+    if month == 1: return 0
+    if month == 2: return 3
+    if month == 3: return 2
+    if month == 4: return 5
+    if month == 5: return 0
+    if month == 6: return 3
+    if month == 7: return 5
+    if month == 8: return 1
+    if month == 9: return 4
+    if month == 10: return 6
+    if month == 11: return 2
+    if month == 12: return 4
+    -1
+
+def weekday_by_month_offsets_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    year: i64 = values[0]
+    month: i64 = values[1]
+    day: i64 = values[2]
+    if year < 100 or year > 9999 or month < 1 or month > 12:
+        return -1
+    leap: bool = is_leap_year(year)
+    days_in_month: mutable i64 = 31
+    if month == 2:
+        days_in_month <- 28
+        if leap:
+            days_in_month <- 29
+    else if month == 4 or month == 6 or month == 9 or month == 11:
+        days_in_month <- 30
+    if day < 1 or day > days_in_month:
+        return -1
+
+    adjusted_year: i64 = year
+    if month < 3:
+        adjusted_year <- adjusted_year - 1
+    (adjusted_year + adjusted_year / 4 - adjusted_year / 100
+        + adjusted_year / 400 + month_offset(month) + day) % 7
+
+export fn weekday_by_month_offsets(values: i64&, length: usize) -> i64 =
+    weekday_by_month_offsets_impl

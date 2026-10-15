@@ -1,0 +1,84 @@
+extern fabs(value: f64) -> f64
+
+const TOLERANCE: f64 = 1.0e-8
+
+def brent_method_function_value(function_id: i64, x: f64) -> f64:
+    if function_id == 0:
+        return x * x * x - x - 2.0
+    if function_id == 1:
+        return x * x + 1.0
+    x * x - 4.0 * x + 3.0
+
+def brent_method_impl(function_id_value: f64, input_left: f64, input_right: f64) -> f64:
+    if function_id_value != 0.0 and function_id_value != 1.0 and function_id_value != 2.0 or
+        input_left != input_left or input_right != input_right or
+        input_left < -4.0 or input_left > 4.0 or input_right < -4.0 or input_right > 4.0 or input_left >= input_right:
+        return -1.0e300
+    function_id: i64 = function_id_value.i64()
+    left: mutable f64 = input_left
+    right: mutable f64 = input_right
+    f_left: mutable f64 = brent_method_function_value(function_id, left)
+    f_right: mutable f64 = brent_method_function_value(function_id, right)
+    if f_left * f_right >= 0.0:
+        return -1.0e300
+    if fabs(f_left) < fabs(f_right):
+        temporary: f64 = left
+        left <- right
+        right <- temporary
+        temporary <- f_left
+        f_left <- f_right
+        f_right <- temporary
+
+    c: mutable f64 = left
+    f_c: mutable f64 = f_left
+    d: mutable f64 = right - left
+    iteration: mutable usize = 0
+    while iteration < 100:
+        if f_right == 0.0:
+            return right
+        candidate: mutable f64 = 0.0
+        if f_c != f_left and f_c != f_right:
+            candidate <- left * f_right * f_c / ((f_left - f_right) * (f_left - f_c)) +
+                right * f_left * f_c / ((f_right - f_left) * (f_right - f_c)) +
+                c * f_left * f_right / ((f_c - f_left) * (f_c - f_right))
+        else:
+            candidate <- right - f_right * (right - left) / (f_right - f_left)
+
+        quarter: f64 = (3.0 * left + right) / 4.0
+        outside: mutable bool = false
+        if right > left:
+            outside <- not (quarter < candidate and candidate < right)
+        else:
+            outside <- not (right < candidate and candidate < quarter)
+        use_bisection: bool = outside or
+            (iteration > 1 and fabs(candidate - right) >= fabs(right - c) / 2.0) or
+            (iteration <= 1 and fabs(candidate - right) >= fabs(c - d) / 2.0) or
+            (iteration > 1 and fabs(right - c) < TOLERANCE) or
+            (iteration <= 1 and fabs(c - d) < TOLERANCE)
+        if use_bisection:
+            candidate <- (left + right) / 2.0
+            d <- right - left
+
+        f_candidate: f64 = brent_method_function_value(function_id, candidate)
+        d <- c
+        c <- right
+        f_c <- f_right
+        if f_left * f_candidate < 0.0:
+            right <- candidate
+            f_right <- f_candidate
+        else:
+            left <- candidate
+            f_left <- f_candidate
+        if fabs(f_left) < fabs(f_right):
+            temporary <- left
+            left <- right
+            right <- temporary
+            temporary <- f_left
+            f_left <- f_right
+            f_right <- temporary
+        if fabs(right - left) < TOLERANCE:
+            return right
+        iteration <- iteration + 1
+    right
+
+export fn brent_method(function_id: f64, left: f64, right: f64) -> f64 = brent_method_impl

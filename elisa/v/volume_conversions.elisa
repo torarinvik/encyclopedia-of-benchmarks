@@ -1,0 +1,28 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def volume_conversions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 3:
+        return -1
+    value: i64 = input[0]
+    from_unit: i64 = input[1]
+    to_unit: i64 = input[2]
+    if value < 0 or value > 1000 or from_unit < 0 or from_unit > 2 or to_unit < 0 or to_unit > 2 or from_unit == to_unit:
+        return -1
+    if capacity < 8 or output.is_null():
+        return -2
+    from_factor: mutable f64 = 1.0
+    to_factor: mutable f64 = 1.0
+    if from_unit == 1:
+        from_factor <- 0.001
+    if to_unit == 1:
+        to_factor <- 0.001
+    converted: f64 = (value.f64() * from_factor) / to_factor
+    bits: mutable u64 = 0
+    memcpy(&bits, &converted, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+    8
+
+export fn volume_conversions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = volume_conversions_impl

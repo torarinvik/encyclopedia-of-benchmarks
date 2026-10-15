@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "id": "squareplus-singleton-f64-pair-v1",
+  "algorithm": "squareplus",
+  "function_symbol": "squareplus",
+  "description": "Apply the source's elementwise Squareplus activation to a one-element vector.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["x", "beta"],
+    "x_range": [-10000.0, 10000.0],
+    "beta_range": [0.25, 10000.0],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(x + sqrt(x**2 + beta)) / 2",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"source_positive_example","input_values":[2.3,2.0],"expected_result":2.5},
+    {"id":"source_positive_fraction","input_values":[0.6,2.0],"expected_result":1.0681145747868608},
+    {"id":"source_negative_example","input_values":[-2.0,2.0],"expected_result":0.22474487139158894},
+    {"id":"source_negative_curve","input_values":[-3.8,2.0],"expected_result":0.12731349327132913},
+    {"id":"larger_beta","input_values":[-9.2,3.0],"expected_result":0.08081189538737998},
+    {"id":"near_zero_negative","input_values":[-0.3,3.0],"expected_result":0.7289197915623472},
+    {"id":"zero_input","input_values":[0.0,4.0],"expected_result":1.0},
+    {"id":"lower_x_bound","input_values":[-10000.0,10000.0],"expected_result":0.24999375031256932},
+    {"id":"upper_x_bound","input_values":[10000.0,0.25],"expected_result":10000.00000625},
+    {"id":"lower_beta_bound","input_values":[-4.0,0.25],"expected_result":0.015564437074637283}
+  ]
+}

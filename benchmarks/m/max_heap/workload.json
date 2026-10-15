@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "max-heap-operations-v1",
+  "algorithm": "max_heap",
+  "function_symbol": "max_heap",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[operation_count, op, value, ...]; each operation is an op/value pair; 0=insert, 1=peek, 2=extract; query value must be zero",
+    "max_operations": 512,
+    "max_insertions": 256,
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_encoding": "concatenated little-endian signed i64 words for peek and extract operations; empty result is INT64_MIN",
+    "generated_drain": {
+      "insert_values": "((index * 48271) mod 2000003) - 1000001 for index 0..255",
+      "then": "extract until empty"
+    }
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_access",
+      "input_values": [
+        2,
+        1,
+        0,
+        2,
+        0
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000800000000000000080"
+    },
+    {
+      "id": "duplicate_keys",
+      "input_values": [
+        7,
+        0,
+        5,
+        1,
+        0,
+        0,
+        5,
+        2,
+        0,
+        1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "05000000000000000500000000000000050000000000000005000000000000000000000000000080"
+    },
+    {
+      "id": "negative_keys",
+      "input_values": [
+        8,
+        0,
+        -9,
+        0,
+        -1,
+        0,
+        -30,
+        1,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "fffffffffffffffffffffffffffffffff7ffffffffffffffe2ffffffffffffff0000000000000080"
+    },
+    {
+      "id": "interleaved",
+      "input_values": [
+        9,
+        0,
+        8,
+        0,
+        3,
+        1,
+        0,
+        0,
+        10,
+        2,
+        0,
+        0,
+        -4,
+        1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "08000000000000000a00000000000000080000000000000008000000000000000300000000000000"
+    },
+    {
+      "id": "operation_limit",
+      "input_values": [
+        513
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

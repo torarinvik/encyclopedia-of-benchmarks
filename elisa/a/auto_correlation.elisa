@@ -1,0 +1,46 @@
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def auto_correlation_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 65:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 1 or raw_count > 64:
+        return -1
+    count: usize = raw_count.usize()
+    if length != count + 1:
+        return -1
+    input_index: usize = 0
+    while input_index < count:
+        sample: i64 = values[input_index + 1]
+        if sample < -1000000 or sample > 1000000:
+            return -1
+        input_index <- input_index + 1
+    result_count: usize = 2 * count - 1
+    byte_count: usize = 8 * result_count
+    if output_capacity < byte_count:
+        return -2
+
+    y_start: mutable usize = count
+    result_index: usize = 0
+    while result_index < result_count:
+        if result_index < count:
+            y_start <- y_start - 1
+        k_min: usize = if result_index >= count - 1: result_index - (count - 1) else: 0
+        k_max: usize = if result_index < count: result_index else: count - 1
+        offset: usize = 0
+        sum: mutable i64 = 0
+        k: usize = k_min
+        while k <= k_max:
+            sum <- sum + values[k + 1] * values[y_start + offset + 1]
+            offset <- offset + 1
+            k <- k + 1
+        store_i64_le(sum, output, result_index * 8)
+        result_index <- result_index + 1
+    byte_count.i64()
+
+export fn auto_correlation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = auto_correlation_impl

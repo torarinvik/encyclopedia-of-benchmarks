@@ -1,0 +1,66 @@
+# Return the prefix shared by the lexicographically first and last strings.
+def longest_common_prefix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or length > 1041 or input[0] < 0 or input[0] > 16:
+        return -1
+    count: usize = input[0].usize()
+    starts: mutable usize[16] = zeroed
+    sizes: mutable usize[16] = zeroed
+    position: mutable usize = 1
+    i: mutable usize = 0
+    while i < count:
+        if position >= length or input[position] < 0 or input[position] > 64:
+            return -1
+        sizes[i] <- input[position].usize()
+        position <- position + 1
+        if sizes[i] > length - position:
+            return -1
+        starts[i] <- position
+        j: mutable usize = 0
+        while j < sizes[i]:
+            if input[position + j] < 0 or input[position + j] > 127:
+                return -1
+            j <- j + 1
+        position <- position + sizes[i]
+        i <- i + 1
+    if position != length:
+        return -1
+    if count == 0:
+        return 0
+    order: mutable usize[16] = zeroed
+    i <- 0
+    while i < count:
+        order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < count:
+        value: usize = order[i]
+        j: mutable usize = i
+        while j > 0:
+            left: usize = order[j - 1]
+            limit: usize = if sizes[left] < sizes[value] then sizes[left] else sizes[value]
+            k: mutable usize = 0
+            while k < limit and input[starts[left] + k] == input[starts[value] + k]:
+                k <- k + 1
+            left_before: bool = k < limit and input[starts[left] + k] < input[starts[value] + k]
+            left_shorter: bool = k == limit and sizes[left] < sizes[value]
+            if left_before or left_shorter:
+                break
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- value
+        i <- i + 1
+    first: usize = order[0]
+    last: usize = order[count - 1]
+    limit: usize = if sizes[first] < sizes[last] then sizes[first] else sizes[last]
+    prefix: mutable usize = 0
+    while prefix < limit and input[starts[first] + prefix] == input[starts[last] + prefix]:
+        prefix <- prefix + 1
+    if capacity < prefix or (prefix != 0 and output == null):
+        return -2
+    i <- 0
+    while i < prefix:
+        output[i] <- input[starts[first] + i].u8()
+        i <- i + 1
+    prefix.i64()
+
+export fn longest_common_prefix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = longest_common_prefix_impl

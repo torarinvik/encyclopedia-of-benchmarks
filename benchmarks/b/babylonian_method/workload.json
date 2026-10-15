@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "babylonian-method-cpp-bounded-nonsquare-f64-v1",
+  "algorithm": "babylonian_method",
+  "function_symbol": "babylonian_method",
+  "input": {
+    "kind": "finite_integral_binary64",
+    "minimum": 2,
+    "maximum": 999999,
+    "validity": "integer radicands only; perfect squares are excluded because the pinned C++ loop does not terminate for them",
+    "invalid_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_approximation",
+    "definition": "(n / floor_sqrt(n) + floor_sqrt(n)) / 2, preserving the source order",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "two",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 1.5
+    },
+    {
+      "id": "three",
+      "input_values": [
+        3.0
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "five",
+      "input_values": [
+        5.0
+      ],
+      "expected_result": 2.25
+    },
+    {
+      "id": "ten",
+      "input_values": [
+        10.0
+      ],
+      "expected_result": 3.166666666666667
+    },
+    {
+      "id": "pinned_case_one",
+      "input_values": [
+        125348.0
+      ],
+      "expected_result": 354.045197740113
+    },
+    {
+      "id": "pinned_case_two",
+      "input_values": [
+        752080.0
+      ],
+      "expected_result": 867.2254901960785
+    },
+    {
+      "id": "maximum_nonsquare",
+      "input_values": [
+        999999.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "perfect_square_four",
+      "input_values": [
+        4.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "perfect_square_one_thousand",
+      "input_values": [
+        1000.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "fractional_radicand",
+      "input_values": [
+        2.5
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "minimum_outside_domain",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_radicand",
+      "input_values": [
+        -2.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "maximum_bound_is_square",
+      "input_values": [
+        1000000.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_bound",
+      "input_values": [
+        1000001.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+const MAX_TRANSACTIONS: usize = 64
+const MAX_ITEMS: usize = 12
+const MAX_ITEMSETS: usize = 4096
+const SUPPORT_SCALE: i64 = 1000000
+
+def item_count(value: usize) -> usize:
+    mask: mutable usize = value
+    count: mutable usize = 0
+    while mask != 0:
+        count <- count + (mask & 1)
+        mask <- mask >> 1
+    count
+
+def support_is_frequent(support: i64, transaction_count: i64, threshold_ppm: i64) -> bool:
+    support * SUPPORT_SCALE >= threshold_ppm * transaction_count
+
+def apriori_impl(input: i64&, length: usize) -> i64:
+    if length < 5:
+        return -1
+    transaction_count: i64 = input[0]
+    items: i64 = input[1]
+    min_support_ppm: i64 = input[2]
+    min_confidence_ppm: i64 = input[3]
+    if transaction_count < 1 or transaction_count > 64 or items < 1 or items > 12 or min_support_ppm < 1 or min_support_ppm > SUPPORT_SCALE or min_confidence_ppm < 0 or min_confidence_ppm > SUPPORT_SCALE or length != 4 + transaction_count.usize():
+        return -1
+
+    mask_limit: usize = 1 << items.usize()
+    transactions: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < transaction_count.usize():
+        if input[index + 4] < 0 or input[index + 4] >= mask_limit.i64():
+            return -1
+        transactions[index] <- input[index + 4]
+        index <- index + 1
+
+    supports: mutable i64[4096] = zeroed
+    previous: mutable u8[4096] = zeroed
+    all_frequent: mutable u8[4096] = zeroed
+    current: mutable u8[4096] = zeroed
+    mask: mutable usize = 1
+    mask_value: mutable i64 = 0
+    while mask < mask_limit:
+        support: mutable i64 = 0
+        transaction: mutable usize = 0
+        while transaction < transaction_count.usize():
+            mask_value <- mask.i64()
+            if (transactions[transaction] & mask_value) == mask_value:
+                support <- support + 1
+            transaction <- transaction + 1
+        if support_is_frequent(support, transaction_count, min_support_ppm):
+            supports[mask] <- support
+            previous[mask] <- 1
+            all_frequent[mask] <- 1
+        mask <- mask << 1
+
+    size: mutable usize = 2
+    while size <= items.usize():
+        index <- 0
+        while index < MAX_ITEMSETS:
+            current[index] <- 0
+            index <- index + 1
+        found: mutable bool = false
+        mask <- 1
+        while mask < mask_limit:
+            if item_count(mask) == size:
+                all_subsets_frequent: mutable bool = true
+                item: mutable usize = 0
+                while item < items.usize():
+                    bit: usize = 1 << item
+                    if (mask & bit) != 0 and previous[mask ^ bit] == 0:
+                        all_subsets_frequent <- false
+                        break
+                    item <- item + 1
+                if all_subsets_frequent:
+                    candidate_support: mutable i64 = 0
+                    candidate_transaction: mutable usize = 0
+                    while candidate_transaction < transaction_count.usize():
+                        mask_value <- mask.i64()
+                        if (transactions[candidate_transaction] & mask_value) == mask_value:
+                            candidate_support <- candidate_support + 1
+                        candidate_transaction <- candidate_transaction + 1
+                    if support_is_frequent(candidate_support, transaction_count, min_support_ppm):
+                        supports[mask] <- candidate_support
+                        current[mask] <- 1
+                        all_frequent[mask] <- 1
+                        found <- true
+            mask <- mask + 1
+        index <- 0
+        while index < MAX_ITEMSETS:
+            previous[index] <- current[index]
+            index <- index + 1
+        if not found:
+            break
+        size <- size + 1
+
+    rule_count: mutable i64 = 0
+    mask <- 1
+    while mask < mask_limit:
+        if all_frequent[mask] != 0 and item_count(mask) >= 2:
+            antecedent: mutable usize = (mask - 1) & mask
+            while antecedent != 0:
+                joint_support: i64 = supports[mask]
+                antecedent_support: i64 = supports[antecedent]
+                if joint_support * SUPPORT_SCALE >= min_confidence_ppm * antecedent_support:
+                    rule_count <- rule_count + 1
+                antecedent <- (antecedent - 1) & mask
+        mask <- mask + 1
+    rule_count
+
+export fn apriori(input: i64&, length: usize) -> i64 = apriori_impl

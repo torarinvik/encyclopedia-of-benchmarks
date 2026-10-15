@@ -1,0 +1,19 @@
+def max_non_adjacent_sum_impl(values: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775807 - 1
+    if length < 1 or length > 100000:
+        return invalid
+    two_back: mutable i64 = 0
+    one_back: mutable i64 = 0
+    i: mutable usize = 0
+    while i < length:
+        value: i64 = values[i]
+        if value < 0 or value > 10000:
+            return invalid
+        take: i64 = two_back + value
+        current: i64 = if take > one_back: take else: one_back
+        two_back <- one_back
+        one_back <- current
+        i <- i + 1
+    one_back
+
+export fn max_non_adjacent_sum(values: i64&, length: usize) -> i64 = max_non_adjacent_sum_impl

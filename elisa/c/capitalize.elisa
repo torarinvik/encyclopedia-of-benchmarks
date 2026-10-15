@@ -1,0 +1,19 @@
+def capitalize_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > 256:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 127:
+            return -1
+        index <- index + 1
+    if capacity < length:
+        return -2
+    index <- 0
+    while index < length:
+        output[index] <- input[index].u8()
+        index <- index + 1
+    if length > 0 and output[0] >= 97 and output[0] <= 122:
+        output[0] <- output[0] - 32
+    length as i64
+
+export fn capitalize(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = capitalize_impl

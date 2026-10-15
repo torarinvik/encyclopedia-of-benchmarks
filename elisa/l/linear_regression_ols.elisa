@@ -1,0 +1,40 @@
+# Univariate ordinary least-squares slope for packed integer observations.
+const MAX_OBSERVATIONS: usize = 128
+const INVALID_RESULT: f64 = -1.0e300
+
+def linear_regression_ols_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 257 or length % 2 == 0:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 2 or count > 128 or length != 1 + 2 * count.usize():
+        return INVALID_RESULT
+
+    sum_x: mutable f64 = 0.0
+    sum_y: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count.usize():
+        x: i64 = values[1 + 2 * index]
+        y: i64 = values[2 + 2 * index]
+        if x < -1000000 or x > 1000000 or y < -1000000 or y > 1000000:
+            return INVALID_RESULT
+        sum_x <- sum_x + x.f64()
+        sum_y <- sum_y + y.f64()
+        index <- index + 1
+    mean_x: f64 = sum_x / count.f64()
+    mean_y: f64 = sum_y / count.f64()
+    covariance: mutable f64 = 0.0
+    variance_x: mutable f64 = 0.0
+    variance_y: mutable f64 = 0.0
+    index <- 0
+    while index < count.usize():
+        dx: f64 = values[1 + 2 * index].f64() - mean_x
+        dy: f64 = values[2 + 2 * index].f64() - mean_y
+        covariance <- covariance + dx * dy
+        variance_x <- variance_x + dx * dx
+        variance_y <- variance_y + dy * dy
+        index <- index + 1
+    if variance_x <= 1.0e-12 or variance_y <= 1.0e-12:
+        return INVALID_RESULT
+    covariance / variance_x
+
+export fn linear_regression_ols(values: i64&, length: usize) -> f64 = linear_regression_ols_impl

@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "convert-number-to-words-numbering-systems-v1",
+  "algorithm": "convert_number_to_words",
+  "function_symbol": "convert_number_to_words",
+  "input": {
+    "kind": "signed_i64_number_and_system_code",
+    "layout": "[number, system]",
+    "system_codes": {
+      "0": "short",
+      "1": "long",
+      "2": "indian"
+    },
+    "magnitude_maxima": {
+      "short": 999999999999999999,
+      "long": 9000000000000000000,
+      "indian": 9000000000000000000
+    },
+    "output": "lowercase ASCII words matching the pinned Python converter",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "zero_short",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "7a65726f"
+    },
+    {
+      "id": "one_short",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "6f6e65"
+    },
+    {
+      "id": "hundred_short",
+      "input_values": [
+        100,
+        0
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "6f6e652068756e64726564"
+    },
+    {
+      "id": "negative_hundred",
+      "input_values": [
+        -100,
+        0
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "6e65676174697665206f6e652068756e64726564"
+    },
+    {
+      "id": "hyphenated",
+      "input_values": [
+        25,
+        0
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "7477656e74792d66697665"
+    },
+    {
+      "id": "source_short",
+      "input_values": [
+        123456789012345,
+        0
+      ],
+      "expected_result": 139,
+      "expected_output_hex": "6f6e652068756e64726564207477656e74792d7468726565207472696c6c696f6e20666f75722068756e647265642066696674792d7369782062696c6c696f6e20736576656e2068756e64726564206569676874792d6e696e65206d696c6c696f6e207477656c76652074686f7573616e642074687265652068756e6472656420666f7274792d66697665"
+    },
+    {
+      "id": "source_long",
+      "input_values": [
+        123456789012345,
+        1
+      ],
+      "expected_result": 140,
+      "expected_output_hex": "6f6e652068756e64726564207477656e74792d74687265652074686f7573616e6420666f75722068756e647265642066696674792d736978206d696c6c6961726420736576656e2068756e64726564206569676874792d6e696e65206d696c6c696f6e207477656c76652074686f7573616e642074687265652068756e6472656420666f7274792d66697665"
+    },
+    {
+      "id": "source_indian",
+      "input_values": [
+        123456789012345,
+        2
+      ],
+      "expected_result": 144,
+      "expected_output_hex": "6f6e652063726f72652063726f7265207477656e74792d7468726565206c616b682063726f726520666f7274792d666976652074686f7573616e64207369782068756e6472656420736576656e74792d65696768742063726f7265206e696e657479206c616b68207477656c76652074686f7573616e642074687265652068756e6472656420666f7274792d66697665"
+    },
+    {
+      "id": "short_max",
+      "input_values": [
+        999999999999999999,
+        0
+      ],
+      "expected_result": 195,
+      "expected_output_hex": "6e696e652068756e64726564206e696e6574792d6e696e65207175616472696c6c696f6e206e696e652068756e64726564206e696e6574792d6e696e65207472696c6c696f6e206e696e652068756e64726564206e696e6574792d6e696e652062696c6c696f6e206e696e652068756e64726564206e696e6574792d6e696e65206d696c6c696f6e206e696e652068756e64726564206e696e6574792d6e696e652074686f7573616e64206e696e652068756e64726564206e696e6574792d6e696e65"
+    },
+    {
+      "id": "long_signed_limit",
+      "input_values": [
+        9000000000000000000,
+        1
+      ],
+      "expected_result": 22,
+      "expected_output_hex": "6e696e652074686f7573616e642062696c6c69617264"
+    },
+    {
+      "id": "indian_signed_limit",
+      "input_values": [
+        9000000000000000000,
+        2
+      ],
+      "expected_result": 27,
+      "expected_output_hex": "6e696e6574792074686f7573616e642063726f72652063726f7265"
+    },
+    {
+      "id": "short_too_large",
+      "input_values": [
+        1000000000000000000,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_system",
+      "input_values": [
+        1,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        10,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 200
+  }
+}

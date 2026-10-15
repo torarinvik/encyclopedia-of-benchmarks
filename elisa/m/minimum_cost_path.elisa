@@ -1,0 +1,45 @@
+def minimum_cost_path_impl(values: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775807 - 1
+    if length < 3:
+        return invalid
+    rv: i64 = values[0]
+    cv: i64 = values[1]
+    if rv < 1 or rv > 16 or cv < 1 or cv > 16:
+        return invalid
+    rows: usize = rv as usize
+    cols: usize = cv as usize
+    if length != 2 + rows * cols:
+        return invalid
+    dp: mutable i64[256] = zeroed
+    r: mutable usize = 0
+    while r < rows:
+        c: mutable usize = 0
+        while c < cols:
+            x: i64 = values[2 + r * cols + c]
+            if x < -2147483648 or x > 2147483647:
+                return invalid
+            dp[r * cols + c] = x
+            c <- c + 1
+        r <- r + 1
+    c: mutable usize = 1
+    while c < cols:
+        dp[c] <- dp[c] + dp[c - 1]
+        c <- c + 1
+    r <- 1
+    while r < rows:
+        dp[r * cols] <- dp[r * cols] + dp[(r - 1) * cols]
+        r <- r + 1
+    r <- 1
+    while r < rows:
+        c <- 1
+        while c < cols:
+            index: usize = r * cols + c
+            above: i64 = dp[index - cols]
+            left: i64 = dp[index - 1]
+            prev: i64 = if above < left: above else: left
+            dp[index] <- dp[index] + prev
+            c <- c + 1
+        r <- r + 1
+    dp[rows * cols - 1]
+
+export fn minimum_cost_path(values: i64&, length: usize) -> i64 = minimum_cost_path_impl

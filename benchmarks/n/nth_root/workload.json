@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "nth-root-newton-python-f64-triple-v1",
+  "algorithm": "nth_root",
+  "function_symbol": "nth_root",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": ["radicand", "index", "tolerance"],
+    "radicand_range": [0.5, 1000.0],
+    "integer_index_range": [3, 8],
+    "tolerance_range": [1e-12, 1e-3],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Newton-method nth-root approximation using the pinned source's initialization, ordered recurrence terms, and stopping rule",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"cube_root_8","input_values":[8.0,3.0,0.0001],"expected_result":2.0},
+    {"id":"fourth_root_256","input_values":[256.0,4.0,0.000001],"expected_result":4.0},
+    {"id":"nonperfect_cube_root","input_values":[2.0,3.0,0.0000001],"expected_result":1.2599210498948732},
+    {"id":"eighth_root_half","input_values":[0.5,8.0,0.00001],"expected_result":0.9170040432046712},
+    {"id":"largest_radicand","input_values":[1000.0,3.0,0.000001],"expected_result":10.0},
+    {"id":"lowest_radicand","input_values":[0.5,3.0,0.0001],"expected_result":0.7937005259840998},
+    {"id":"largest_index","input_values":[999.0,8.0,0.001],"expected_result":2.371441032756405},
+    {"id":"invalid_nonintegral_index","input_values":[8.0,3.5,0.0001],"expected_result":-1e300},
+    {"id":"invalid_tolerance","input_values":[8.0,3.0,0.0],"expected_result":-1e300}
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "exponential-function-taylor-f64-pair-v1",
+  "algorithm": "exponential_function",
+  "function_symbol": "exponential_function",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["power", "term_count"],
+    "power_range": [-10.0, 10.0],
+    "term_count_range": [0.0, 32.0],
+    "term_count_must_be_integer": true,
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sum(power^i / i!) for i=0..term_count-1, with the source's n=0 special result of 1",
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    { "id": "pinned_power_two_twenty_terms", "input_values": [2.0, 20.0], "expected_result": 7.3890560989301735 },
+    { "id": "zero_terms_source_special_case", "input_values": [2.0, 0.0], "expected_result": 1.0 },
+    { "id": "one_term", "input_values": [3.0, 1.0], "expected_result": 1.0 },
+    { "id": "three_positive_terms", "input_values": [2.0, 3.0], "expected_result": 5.0 },
+    { "id": "negative_power_cancellation", "input_values": [-1.0, 5.0], "expected_result": 0.375 },
+    { "id": "negative_two_power_three_terms", "input_values": [-2.0, 3.0], "expected_result": 1.0 },
+    { "id": "zero_power_at_maximum_term_count", "input_values": [0.0, 32.0], "expected_result": 1.0 },
+    { "id": "one_power_at_maximum_term_count", "input_values": [1.0, 32.0], "expected_result": 2.718281828459045 },
+    { "id": "lower_power_bound", "input_values": [-10.0, 1.0], "expected_result": 1.0 },
+    { "id": "upper_power_bound", "input_values": [10.0, 1.0], "expected_result": 1.0 },
+    { "id": "fractional_term_count", "input_values": [1.0, 2.5], "expected_result": -1e300 },
+    { "id": "negative_term_count", "input_values": [1.0, -1.0], "expected_result": -1e300 },
+    { "id": "term_count_above_bound", "input_values": [1.0, 33.0], "expected_result": -1e300 },
+    { "id": "power_above_bound", "input_values": [10.5, 1.0], "expected_result": -1e300 }
+  ]
+}

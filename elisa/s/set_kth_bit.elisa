@@ -1,0 +1,10 @@
+def set_kth_bit_impl(input: i64&, length: usize) -> i64:
+    if length != 2 or input.is_null():
+        return -1
+    number: i64 = input[0]
+    bit: i64 = input[1]
+    if number < 0 or number > 2147483647 or bit < 0 or bit > 30:
+        return -1
+    (number | (1.i64() << bit.usize()))
+
+export fn set_kth_bit(input: i64&, length: usize) -> i64 = set_kth_bit_impl

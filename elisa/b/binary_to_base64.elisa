@@ -1,0 +1,46 @@
+def binary_to_base64_edge_space(value: i64) -> bool:
+    (value >= 9 and value <= 13) or value == 32
+
+def binary_to_base64_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or input[0] < 1 or input[0] > 256: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[1 + index] < 0 or input[1 + index] > 127: return -1
+        index <- index + 1
+    begin: mutable usize = 0
+    end: mutable usize = n
+    while begin < end and binary_to_base64_edge_space(input[1 + begin]): begin <- begin + 1
+    while end > begin and binary_to_base64_edge_space(input[end]): end <- end - 1
+    if begin == end: return -1
+    negative: bool = input[1 + begin] == 45
+    if negative: begin <- begin + 1
+    index <- begin
+    while index < end:
+        if input[1 + index] != 48 and input[1 + index] != 49: return -1
+        index <- index + 1
+    bit_count: usize = end - begin
+    padding: usize = 6 - bit_count % 6
+    groups: usize = (bit_count + padding) / 6
+    output_length: usize = groups
+    if negative: output_length <- output_length + 1
+    if capacity < output_length or output.is_null(): return -2
+    alphabet: u8[64] = [65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,43,47]
+    offset: mutable usize = 0
+    if negative: output[offset] <- 45; offset <- offset + 1
+    group: mutable usize = 0
+    while group < groups:
+        value: mutable usize = 0
+        bit: mutable usize = 0
+        while bit < 6:
+            value <- value * 2
+            position: usize = group * 6 + bit
+            if position >= padding and input[1 + begin + position - padding] == 49: value <- value + 1
+            bit <- bit + 1
+        output[offset] <- alphabet[value]
+        offset <- offset + 1
+        group <- group + 1
+    output_length.i64()
+
+export fn binary_to_base64(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_to_base64_impl

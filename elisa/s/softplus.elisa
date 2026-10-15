@@ -1,0 +1,9 @@
+extern exp(value: f64) -> f64
+extern log(value: f64) -> f64
+
+def softplus_impl(x: f64) -> f64:
+    if x != x or x < -100.0 or x > 100.0:
+        return -1.0e300
+    log(1.0 + exp(x))
+
+export fn softplus(x: f64) -> f64 = softplus_impl

@@ -1,0 +1,31 @@
+const INVALID_RESULT: i64 = -1
+const MAX_DIMENSION: i64 = 1000
+
+def volume_impl(input: i64&, length: usize) -> i64:
+    if length != 4:
+        return INVALID_RESULT
+    operation: i64 = input[0]
+    a: i64 = input[1]
+    b: i64 = input[2]
+    c: i64 = input[3]
+    if a < 0 or a > MAX_DIMENSION or b < 0 or b > MAX_DIMENSION or c < 0 or c > MAX_DIMENSION:
+        return INVALID_RESULT
+    if operation == 0:
+        if b != 0 or c != 0:
+            return INVALID_RESULT
+        return a * a * a
+    if operation == 1:
+        return a * b * c
+    if operation == 2:
+        product: i64 = a * b * c
+        if product % 2 != 0:
+            return INVALID_RESULT
+        return product / 2
+    if operation == 3:
+        product: i64 = a * b * c
+        if product % 3 != 0:
+            return INVALID_RESULT
+        return product / 3
+    return INVALID_RESULT
+
+export fn volume(input: i64&, length: usize) -> i64 = volume_impl

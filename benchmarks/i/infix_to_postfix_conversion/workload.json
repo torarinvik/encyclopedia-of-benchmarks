@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "infix-to-postfix-python-conversion-v1",
+  "algorithm": "infix_to_postfix_conversion",
+  "function_symbol": "infix_to_postfix_conversion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[length, ASCII byte values...]",
+    "minimum_expression_length": 0,
+    "maximum_expression_length": 256,
+    "accepted_grammar": "single ASCII alphanumeric operands, binary + - * / ^, balanced parentheses, no whitespace or implicit multiplication",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "space-separated postfix tokens followed by NUL; returned length includes NUL",
+    "precedence": {"addition_subtraction": 1, "multiplication_division": 2, "exponentiation": 3},
+    "associativity": {"addition_subtraction_multiplication_division": "left", "exponentiation": "right"},
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty-string","input_values":[0],"input_length":1,"expected_result":1,"expected_output_hex":"00"},
+    {"id":"single-operand","input_values":[1,120],"input_length":2,"expected_result":2,"expected_output_hex":"7800"},
+    {"id":"precedence","input_values":[5,97,43,98,42,99],"input_length":6,"expected_result":10,"expected_output_hex":"6120622063202a202b00"},
+    {"id":"right-associative-exponent","input_values":[5,50,94,51,94,50],"input_length":6,"expected_result":12,"expected_output_hex":"3220332032205e205e00"},
+    {"id":"grouped-expression","input_values":[9,40,51,43,52,41,42,53,45,54],"input_length":10,"expected_result":14,"expected_output_hex":"332034202b2035202a2036202d00"},
+    {"id":"mixed-exponent-and-parentheses","input_values":[11,120,94,121,47,40,53,42,122,41,43,50],"input_length":12,"expected_result":18,"expected_output_hex":"782079205e2035207a202a202f2032202b00"},
+    {"id":"invalid-unmatched-open","input_values":[4,40,97,43,98],"input_length":5,"expected_result":-1},
+    {"id":"invalid-unmatched-close","input_values":[4,97,43,98,41],"input_length":5,"expected_result":-1},
+    {"id":"invalid-whitespace","input_values":[3,97,32,98],"input_length":4,"expected_result":-1},
+    {"id":"invalid-unary-operator","input_values":[2,45,97],"input_length":3,"expected_result":-1},
+    {"id":"invalid-implicit-multiplication","input_values":[3,50,40,51,41],"input_length":6,"expected_result":-1},
+    {"id":"invalid-truncated-packing","input_values":[3,97,43],"input_length":3,"expected_result":-1}
+  ]
+}

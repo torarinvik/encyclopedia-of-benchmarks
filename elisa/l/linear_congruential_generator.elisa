@@ -1,0 +1,30 @@
+# Emit each post-step state as one little-endian u64 value.
+def put_u64_le(output: mutable u8&, offset: usize, value: u64) -> void:
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (value >> (byte * 8)).u8()
+        byte <- byte + 1
+
+def linear_congruential_generator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 5:
+        return -1
+    seed: i64 = input[0]
+    multiplier: i64 = input[1]
+    increment: i64 = input[2]
+    modulo: i64 = input[3]
+    count: i64 = input[4]
+    if modulo < 2 or modulo > 4294967296 or seed < 0 or seed >= modulo or multiplier < 0 or multiplier > 65535 or increment < 0 or increment > 4294967295 or count < 0 or count > 512:
+        return -1
+    n: usize = count.usize()
+    required: usize = 8 * n
+    if capacity < required or (required != 0 and output == null):
+        return -2
+    state: mutable u64 = seed.u64()
+    i: mutable usize = 0
+    while i < n:
+        state <- ((multiplier.u64() * state + increment.u64()) % modulo.u64())
+        put_u64_le(output, i * 8, state)
+        i <- i + 1
+    required.i64()
+
+export fn linear_congruential_generator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = linear_congruential_generator_impl

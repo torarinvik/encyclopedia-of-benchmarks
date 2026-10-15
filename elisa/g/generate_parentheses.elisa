@@ -1,0 +1,27 @@
+def generate_parentheses_walk(pairs: usize, opened: usize, closed: usize, buffer: mutable u8&, output: mutable u8&, cursor_value: usize) -> usize:
+    position: usize = opened + closed
+    if position == 2 * pairs:
+        cursor: mutable usize = cursor_value
+        for index in 0..<position:
+            output[cursor] <- buffer[index]
+            cursor <- cursor + 1
+        return cursor
+    cursor: mutable usize = cursor_value
+    if opened < pairs:
+        buffer[position] <- 40.u8()
+        cursor <- generate_parentheses_walk(pairs, opened + 1, closed, buffer, output, cursor)
+    if closed < opened:
+        buffer[position] <- 41.u8()
+        cursor <- generate_parentheses_walk(pairs, opened, closed + 1, buffer, output, cursor)
+    cursor
+
+def generate_parentheses_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 1 or input[0] < 1 or input[0] > 6: return -1
+    pairs: usize = input[0].usize()
+    required: usize = if pairs == 1: 2 else if pairs == 2: 8 else if pairs == 3: 30 else if pairs == 4: 112 else if pairs == 5: 420 else: 1584
+    if capacity < required or output.is_null(): return -2
+    buffer: mutable u8[12] = zeroed
+    cursor: usize = generate_parentheses_walk(pairs, 0, 0, &buffer[0], output, 0)
+    cursor.i64()
+
+export fn generate_parentheses(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = generate_parentheses_impl

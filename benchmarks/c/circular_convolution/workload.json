@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "circular-convolution-signed-byte-vector-v1",
+  "algorithm": "circular_convolution",
+  "function_symbol": "circular_convolution",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[a_length, b_length, a[0..], b[0..]]",
+    "signal_length_range": [1, 8],
+    "sample_range": [-2, 2],
+    "maximum_input_values": 18,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_byte_vector",
+    "encoding": "n signed two's-complement bytes in circular output order, where n=max(a_length,b_length)",
+    "successful_result": "number of output bytes",
+    "sample_range": [-32, 32]
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "Maximum circular output length"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "unequal_length_zero_padding",
+      "input_values": [3, 2, 1, 2, 0, 3, -1],
+      "expected_result": 3,
+      "expected_output_hex": "0305fe"
+    },
+    {
+      "id": "wraparound_from_high_indices_to_zero",
+      "input_values": [4, 4, 0, 0, 0, 1, 0, 1, 0, 0],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "equal_length_mixed_signed_samples",
+      "input_values": [3, 3, 1, -2, 1, 1, -2, 1],
+      "expected_result": 3,
+      "expected_output_hex": "fdfd06"
+    },
+    {
+      "id": "singleton_negative_result",
+      "input_values": [1, 1, -2, 2],
+      "expected_result": 1,
+      "expected_output_hex": "fc"
+    },
+    {
+      "id": "two_sample_negative_and_positive",
+      "input_values": [2, 2, -1, 2, 2, -2],
+      "expected_result": 2,
+      "expected_output_hex": "fa06"
+    },
+    {
+      "id": "maximum_positive_sum",
+      "input_values": [8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      "expected_result": 8,
+      "expected_output_hex": "2020202020202020"
+    },
+    {
+      "id": "maximum_negative_sum",
+      "input_values": [8, 8, 2, 2, 2, 2, 2, 2, 2, 2, -2, -2, -2, -2, -2, -2, -2, -2],
+      "expected_result": 8,
+      "expected_output_hex": "e0e0e0e0e0e0e0e0"
+    },
+    {
+      "id": "zero_length_signal",
+      "input_values": [0, 2, 1, 2],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_contract",
+      "input_values": [9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_outside_contract",
+      "input_values": [1, 1, 3, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_sample",
+      "input_values": [2, 2, 1, 1, -1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_sample",
+      "input_values": [1, 1, 1, 1, 2],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_short_packed_input",
+      "input_values": [1, 1, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

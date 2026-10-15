@@ -1,0 +1,44 @@
+# One-feature batch gradient descent with a zero-initialized model.
+const MAX_OBSERVATIONS: usize = 64
+const MAX_EPOCHS: i64 = 10000
+const INVALID_RESULT: f64 = -1.0e300
+
+def linear_regression_gradient_descent_impl(values: i64&, length: usize) -> f64:
+    if length < 7 or length > 131 or length % 2 == 0:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    rate_microunits: i64 = values[1]
+    epochs: i64 = values[2]
+    if count < 2 or count > 64 or length != 3 + 2 * count.usize() or rate_microunits < 1 or rate_microunits > 1000 or epochs < 1 or epochs > MAX_EPOCHS:
+        return INVALID_RESULT
+
+    index: mutable usize = 0
+    while index < count.usize():
+        x: i64 = values[3 + 2 * index]
+        y: i64 = values[4 + 2 * index]
+        if x < -10 or x > 10 or y < -100 or y > 100:
+            return INVALID_RESULT
+        index <- index + 1
+
+    alpha: f64 = rate_microunits.f64() / 1000000.0
+    scale: f64 = alpha / count.f64()
+    slope: mutable f64 = 0.0
+    intercept: mutable f64 = 0.0
+    epoch: mutable i64 = 0
+    while epoch < epochs:
+        slope_gradient: mutable f64 = 0.0
+        intercept_gradient: mutable f64 = 0.0
+        index <- 0
+        while index < count.usize():
+            x: f64 = values[3 + 2 * index].f64()
+            y: f64 = values[4 + 2 * index].f64()
+            error: f64 = slope * x + intercept - y
+            slope_gradient <- slope_gradient + error * x
+            intercept_gradient <- intercept_gradient + error
+            index <- index + 1
+        slope <- slope - scale * slope_gradient
+        intercept <- intercept - scale * intercept_gradient
+        epoch <- epoch + 1
+    slope
+
+export fn linear_regression_gradient_descent(values: i64&, length: usize) -> f64 = linear_regression_gradient_descent_impl

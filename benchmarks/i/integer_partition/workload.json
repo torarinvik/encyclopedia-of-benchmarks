@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "integer-partition-i64-scalar-v1",
+  "algorithm": "integer_partition",
+  "function_symbol": "integer_partition",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "n",
+    "n_range": [1, 300]
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of unordered partitions of n into positive summands",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    { "id": "smallest_positive", "input_value": 1, "expected_result": 1 },
+    { "id": "five", "input_value": 5, "expected_result": 7 },
+    { "id": "seven", "input_value": 7, "expected_result": 15 },
+    { "id": "twenty", "input_value": 20, "expected_result": 627 },
+    { "id": "fifty", "input_value": 50, "expected_result": 204226 },
+    { "id": "one_hundred", "input_value": 100, "expected_result": 190569292 },
+    { "id": "maximum_supported", "input_value": 300, "expected_result": 9253082936723602 },
+    { "id": "zero_source_failure_normalized", "input_value": 0, "expected_result": -9223372036854775808 },
+    { "id": "negative_source_failure_normalized", "input_value": -1, "expected_result": -9223372036854775808 },
+    { "id": "above_bound", "input_value": 301, "expected_result": -9223372036854775808 }
+  ]
+}

@@ -1,0 +1,56 @@
+def decimal_expansion_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    byte_index: mutable usize = 0
+    if value == -1:
+        while byte_index < 8:
+            output[offset + byte_index] <- 255.u8()
+            byte_index <- byte_index + 1
+    else:
+        bits: mutable u64 = value.u64()
+        while byte_index < 8:
+            output[offset + byte_index] <- (bits % 256.u64()).u8()
+            bits <- bits / 256.u64()
+            byte_index <- byte_index + 1
+
+def decimal_expansion_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length != 3:
+        return -1
+    numerator: i64 = values[0]
+    denominator: i64 = values[1]
+    base: i64 = values[2]
+    if numerator < 0 or denominator < 1 or denominator > 256 or numerator > denominator or base < 2 or base > 10:
+        return -1
+
+    digits: mutable u8[255] = zeroed
+    first_seen: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < 256:
+        first_seen[index] <- -1
+        index <- index + 1
+    digit_count: mutable usize = 0
+    cycle_start: mutable i64 = -1
+    remainder: mutable i64 = numerator
+    while remainder != 0 and numerator != denominator:
+        remainder_index: usize = remainder.usize()
+        if first_seen[remainder_index] >= 0:
+            cycle_start <- first_seen[remainder_index]
+            break
+        first_seen[remainder_index] <- digit_count.i64()
+        scaled: i64 = remainder * base
+        digits[digit_count] <- (scaled / denominator).u8()
+        digit_count <- digit_count + 1
+        remainder <- scaled % denominator
+
+    required: usize = 24 + digit_count
+    if output == null or capacity < required:
+        return -2
+    integer_part: i64 = if numerator == denominator: 1 else 0
+    decimal_expansion_write_i64_le(output, 0, integer_part)
+    decimal_expansion_write_i64_le(output, 8, digit_count.i64())
+    decimal_expansion_write_i64_le(output, 16, cycle_start)
+    index <- 0
+    while index < digit_count:
+        output[24 + index] <- digits[index]
+        index <- index + 1
+    required.i64()
+
+export fn decimal_expansion(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = decimal_expansion_impl

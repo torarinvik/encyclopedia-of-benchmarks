@@ -1,0 +1,62 @@
+# Unrestricted Damerau-Levenshtein distance over ASCII byte strings.
+def damerau_levenshtein_distance_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 66:
+        return -1
+    left_n_value: i64 = values[0]
+    right_n_value: i64 = values[1]
+    if left_n_value < 0 or left_n_value > 32 or right_n_value < 0 or right_n_value > 32:
+        return -1
+    n: usize = left_n_value.usize()
+    m: usize = right_n_value.usize()
+    if length != 2 + n + m:
+        return -1
+    k: mutable usize = 0
+    while k < n + m:
+        if values[2 + k] < 0 or values[2 + k] > 127:
+            return -1
+        k <- k + 1
+
+    dp: mutable i64[34][34] = zeroed
+    last: mutable usize[128] = zeroed
+    max_distance: i64 = (n + m).i64()
+    dp[0][0] <- max_distance
+    i: mutable usize = 0
+    while i <= n:
+        dp[i + 1][0] <- max_distance
+        dp[i + 1][1] <- i.i64()
+        i <- i + 1
+    j: mutable usize = 0
+    while j <= m:
+        dp[0][j + 1] <- max_distance
+        dp[1][j + 1] <- j.i64()
+        j <- j + 1
+
+    result: i64 =
+        while i <= n |i: mutable usize = 1, j: mutable usize = 1, last_match_column: mutable usize = 0| -> dp[n + 1][m + 1]:
+            if j > m:
+                last[values[2 + i - 1].usize()] <- i
+                i <- i + 1
+                j <- 1
+                last_match_column <- 0
+            else:
+                last_match_row: usize = last[values[2 + n + j - 1].usize()]
+                prior_match_column: usize = last_match_column
+                cost: mutable i64 = 1
+                if values[2 + i - 1] == values[2 + n + j - 1]:
+                    cost <- 0
+                    last_match_column <- j
+                best: mutable i64 = dp[i][j] + cost
+                insertion: i64 = dp[i + 1][j] + 1
+                deletion: i64 = dp[i][j + 1] + 1
+                transposition: i64 = dp[last_match_row][prior_match_column] + (i - last_match_row - 1).i64() + 1 + (j - prior_match_column - 1).i64()
+                if insertion < best:
+                    best <- insertion
+                if deletion < best:
+                    best <- deletion
+                if transposition < best:
+                    best <- transposition
+                dp[i + 1][j + 1] <- best
+                j <- j + 1
+    result
+
+export fn damerau_levenshtein_distance(values: i64&, length: usize) -> i64 = damerau_levenshtein_distance_impl

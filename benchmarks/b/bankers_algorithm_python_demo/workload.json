@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "bankers-algorithm-python-demo-v1",
+  "algorithm": "bankers_algorithm_python_demo",
+  "function_symbol": "bankers_algorithm_python_demo",
+  "input": {
+    "kind": "i64_array_scalar",
+    "encoding": "[process_count, resource_count, total_claim[m], allocation[n*m row-major], maximum[n*m row-major]]",
+    "process_count_range": [1, 16],
+    "resource_count_range": [1, 8],
+    "resource_value_range": [0, 100],
+    "allocation_must_not_exceed_maximum": true,
+    "total_allocation_must_not_exceed_claim": true,
+    "invalid_result": -1,
+    "unsafe_result": 0,
+    "safe_result": 1
+  },
+  "cases": [
+    {"id":"unique_needs_safe","input_values":[2,1,3,0,1,1,3],"expected_result":1,"input_length":7},
+    {"id":"duplicate_need_rows_reuse_first_allocation","input_values":[3,1,2,0,1,0,1,2,2],"expected_result":0,"input_length":9},
+    {"id":"unsafe_after_first_release","input_values":[2,1,1,1,0,1,2],"expected_result":0,"input_length":7},
+    {"id":"all_need_rows_zero","input_values":[2,2,1,1,0,0,1,1,0,0,1,1],"expected_result":1,"input_length":12},
+    {"id":"wrong_packed_length","input_values":[1,1,0,0],"expected_result":-1,"input_length":4},
+    {"id":"allocation_exceeds_maximum","input_values":[1,1,0,1,0],"expected_result":-1,"input_length":5},
+    {"id":"total_allocation_exceeds_claim","input_values":[2,1,0,1,1,1,1],"expected_result":-1,"input_length":7},
+    {"id":"claim_out_of_range","input_values":[1,1,101,0,1],"expected_result":-1,"input_length":5}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-uppercase-hex-safe-integer-v1",
+  "algorithm": "decimal_to_hex",
+  "function_symbol": "decimal_to_hex",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "range": [0, 9007199254740991],
+    "range_reason": "JavaScript safe integer domain",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "uppercase_hexadecimal_ascii",
+    "digit_order": "most-significant-first",
+    "prefix": "none",
+    "zero_representation": "0",
+    "valid_result": "number of output bytes",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1,"expected_output":"0"},
+    {"id":"nine_returns_numeric_source_value","input_value":9,"expected_result":1,"expected_output":"9"},
+    {"id":"ten_uppercase_a","input_value":10,"expected_result":1,"expected_output":"A"},
+    {"id":"fifteen_uppercase_f","input_value":15,"expected_result":1,"expected_output":"F"},
+    {"id":"sixteen","input_value":16,"expected_result":2,"expected_output":"10"},
+    {"id":"two_fifty_five","input_value":255,"expected_result":2,"expected_output":"FF"},
+    {"id":"source_example","input_value":999098,"expected_result":5,"expected_output":"F3EBA"},
+    {"id":"safe_integer_max","input_value":9007199254740991,"expected_result":13,"expected_output":"1FFFFFFFFFFFF"},
+    {"id":"negative_one","input_value":-1,"expected_result":-1,"expected_output":""},
+    {"id":"above_safe_integer","input_value":9007199254740992,"expected_result":-1,"expected_output":""},
+    {"id":"insufficient_capacity","input_value":255,"workspace_bytes":1,"capacity_error_result":-2,"expected_result":-2,"expected_output":""}
+  ]
+}

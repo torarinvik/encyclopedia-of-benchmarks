@@ -1,0 +1,47 @@
+# Emit each fixed-width window maximum using a monotone deque of indices.
+def sliding_window_maximum_store(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value as u64
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255) as u8
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sliding_window_maximum_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 1026:
+        return -1
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    if n_value < 0 or n_value > 1024 or k_value < 1 or k_value > 1024:
+        return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    if length != n + 2:
+        return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[2 + index] < -2147483648 or input[2 + index] > 2147483647:
+            return -1
+        index <- index + 1
+    windows: usize = if n >= k: n - k + 1 else: 0
+    if capacity < windows * 8:
+        return -2
+    deque: mutable usize[1024] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    written: mutable usize = 0
+    index <- 0
+    while index < n:
+        while head < tail and deque[head] + k <= index:
+            head <- head + 1
+        while head < tail and input[2 + deque[tail - 1]] < input[2 + index]:
+            tail <- tail - 1
+        deque[tail] <- index
+        tail <- tail + 1
+        if index + 1 >= k:
+            sliding_window_maximum_store(output, written * 8, input[2 + deque[head]])
+            written <- written + 1
+        index <- index + 1
+    windows as i64
+
+export fn sliding_window_maximum(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sliding_window_maximum_impl

@@ -1,0 +1,19 @@
+# Return the highest cumulative altitude, including the initial zero.
+def find_the_highest_altitude_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 1024 or length != input[0].usize() + 1:
+        return -1
+    n: usize = input[0].usize()
+    altitude: mutable i64 = 0
+    maximum: mutable i64 = 0
+    i: mutable usize = 0
+    while i < n:
+        gain: i64 = input[i + 1]
+        if gain < -2147483648 or gain > 2147483647:
+            return -1
+        altitude <- altitude + gain
+        if altitude > maximum:
+            maximum <- altitude
+        i <- i + 1
+    maximum
+
+export fn find_the_highest_altitude(input: i64&, length: usize) -> i64 = find_the_highest_altitude_impl

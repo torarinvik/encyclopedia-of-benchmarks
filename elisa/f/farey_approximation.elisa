@@ -1,0 +1,40 @@
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def farey_approximation_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    decimal_millionths: i64 = values[0]
+    repeat: i64 = values[1]
+    if decimal_millionths < 1 or decimal_millionths > 999999 or repeat < 1 or repeat > 20:
+        return -1
+    if output_capacity < 16:
+        return -2
+
+    decimal: f64 = decimal_millionths.f64() / 1000000.0
+    a: mutable i64 = 0
+    b: mutable i64 = 1
+    c: mutable i64 = 1
+    d: mutable i64 = 1
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 0
+    iteration: mutable i64 = 0
+    while iteration < repeat:
+        numerator <- a + c
+        denominator <- b + d
+        if decimal > numerator.f64() / denominator.f64():
+            a <- numerator
+            b <- denominator
+        else:
+            c <- numerator
+            d <- denominator
+        iteration <- iteration + 1
+    store_i64_le(numerator, output, 0)
+    store_i64_le(denominator, output, 8)
+    16
+
+export fn farey_approximation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = farey_approximation_impl

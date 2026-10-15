@@ -1,0 +1,58 @@
+def segmented_sieve_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def segmented_sieve_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 1 or input[0] < 2 or input[0] > 10000: return -1
+    n: usize = input[0].usize()
+    end: mutable usize = 0
+    while (end + 1) * (end + 1) <= n: end <- end + 1
+    base_marks: mutable bool[101] = zeroed
+    base: mutable i64[25] = zeroed
+    base_count: mutable usize = 0
+    index: mutable usize = 2
+    while index <= end: base_marks[index] <- true; index <- index + 1
+    prime: mutable usize = 2
+    while prime <= end:
+        if base_marks[prime]:
+            base[base_count] <- prime.i64()
+            base_count <- base_count + 1
+            multiple: mutable usize = prime * prime
+            while multiple <= end: base_marks[multiple] <- false; multiple <- multiple + prime
+        prime <- prime + 1
+    primes: mutable i64[1229] = zeroed
+    prime_count: mutable usize = 0
+    index <- 0
+    while index < base_count: primes[prime_count] <- base[index]; prime_count <- prime_count + 1; index <- index + 1
+    low: mutable usize = end + 1
+    high: mutable usize = if 2 * end < n: 2 * end else: n
+    while low <= n:
+        segment: mutable bool[201] = zeroed
+        segment_length: usize = high - low + 1
+        index <- 0
+        while index < segment_length: segment[index] <- true; index <- index + 1
+        index <- 0
+        while index < base_count:
+            p: usize = base[index].usize()
+            first: mutable usize = (low / p) * p
+            if first < low: first <- first + p
+            while first <= high: segment[first - low] <- false; first <- first + p
+            index <- index + 1
+        index <- 0
+        while index < segment_length:
+            if segment[index]: primes[prime_count] <- (low + index).i64(); prime_count <- prime_count + 1
+            index <- index + 1
+        low <- high + 1
+        high <- if high + end < n: high + end else: n
+    output_length: usize = prime_count * 8
+    if capacity < output_length or (output_length > 0 and output.is_null()): return -2
+    index <- 0
+    while index < prime_count:
+        segmented_sieve_put_i64(output, index * 8, primes[index])
+        index <- index + 1
+    output_length.i64()
+
+export fn segmented_sieve(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = segmented_sieve_impl

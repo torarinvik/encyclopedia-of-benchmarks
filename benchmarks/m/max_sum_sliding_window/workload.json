@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "id": "max-sum-sliding-window-i64-array-v1",
+  "algorithm": "max_sum_sliding_window",
+  "function_symbol": "max_sum_sliding_window",
+  "description": "Maximum sum among contiguous windows of a fixed length.",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": "[n, k, value_0, ...]",
+    "minimum_n": 1,
+    "maximum_n": 100000,
+    "minimum_k": 1,
+    "maximum_k": "n",
+    "minimum_value": -1000000000,
+    "maximum_value": 1000000000,
+    "exact_packed_length": "n + 2",
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "maximum sum of any k consecutive values",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"python_example_one","input_values":[9,4,1,4,2,10,2,3,1,0,20],"input_length":11,"expected_result":24},
+    {"id":"python_example_two","input_values":[9,4,1,4,2,10,2,13,1,0,2],"input_length":11,"expected_result":27},
+    {"id":"all_negative","input_values":[4,2,-8,-3,-5,-2],"input_length":6,"expected_result":-5},
+    {"id":"window_one","input_values":[4,1,5,-8,12,0],"input_length":6,"expected_result":12},
+    {"id":"window_covers_array","input_values":[3,3,3,-1,7],"input_length":5,"expected_result":9},
+    {"id":"singleton","input_values":[1,1,-17],"input_length":3,"expected_result":-17},
+    {"id":"zero_sum_windows","input_values":[5,3,0,0,0,0,0],"input_length":7,"expected_result":0},
+    {"id":"maximum_values","input_values":[3,2,1000000000,1000000000,-1000000000],"input_length":5,"expected_result":2000000000},
+    {"id":"window_zero_invalid","input_values":[3,0,1,2,3],"input_length":5,"expected_result":-9223372036854775808},
+    {"id":"window_larger_than_array_invalid","input_values":[2,3,1,2],"input_length":4,"expected_result":-9223372036854775808},
+    {"id":"packed_length_mismatch","input_values":[3,2,1,2],"input_length":4,"expected_result":-9223372036854775808},
+    {"id":"value_out_of_range","input_values":[1,1,1000000001],"input_length":3,"expected_result":-9223372036854775808},
+    {"id":"empty_array_invalid","input_values":[0,0],"input_length":2,"expected_result":-9223372036854775808}
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "regular-polygon-perimeter-i64-v1",
+  "algorithm": "perimeter",
+  "function_symbol": "perimeter",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[side_count, side_length]",
+    "array_length": 2,
+    "side_count_range": [
+      3,
+      256
+    ],
+    "side_length_range": [
+      1,
+      255
+    ],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "triangle",
+      "input_values": [
+        3,
+        1
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "square",
+      "input_values": [
+        4,
+        5
+      ],
+      "expected_result": 20
+    },
+    {
+      "id": "pentagon",
+      "input_values": [
+        5,
+        7
+      ],
+      "expected_result": 35
+    },
+    {
+      "id": "twelve_sides",
+      "input_values": [
+        12,
+        25
+      ],
+      "expected_result": 300
+    },
+    {
+      "id": "maximum_sides_and_length",
+      "input_values": [
+        256,
+        255
+      ],
+      "expected_result": 65280
+    },
+    {
+      "id": "long_side_triangle",
+      "input_values": [
+        3,
+        255
+      ],
+      "expected_result": 765
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        4,
+        5,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "too_few_sides",
+      "input_values": [
+        2,
+        10
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "too_many_sides",
+      "input_values": [
+        257,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "zero_length",
+      "input_values": [
+        4,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "length_above_bound",
+      "input_values": [
+        4,
+        256
+      ],
+      "expected_result": -1
+    }
+  ]
+}

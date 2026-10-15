@@ -1,0 +1,43 @@
+# Minimum time to cross two assembly lines using station-by-station dynamic programming.
+def assembly_line_scheduling_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 7 or values[0] < 1 or values[0] > 64:
+        return -1
+    n: usize = values[0].usize()
+    if length != 4 * n + 3:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > 1000:
+            return -1
+        index <- index + 1
+
+    a0: usize = 1
+    a1: usize = a0 + n
+    t0: usize = a1 + n
+    t1: usize = t0 + n - 1
+    entry: usize = t1 + n - 1
+    line0: mutable i64 = values[entry] + values[a0]
+    line1: mutable i64 = values[entry + 1] + values[a1]
+    station: mutable usize = 1
+    while station < n:
+        stay0: i64 = line0 + values[a0 + station]
+        switch0: i64 = line1 + values[t1 + station - 1] + values[a0 + station]
+        stay1: i64 = line1 + values[a1 + station]
+        switch1: i64 = line0 + values[t0 + station - 1] + values[a1 + station]
+        line0 <- if stay0 < switch0: stay0 else: switch0
+        line1 <- if stay1 < switch1: stay1 else: switch1
+        station <- station + 1
+    total0: i64 = line0 + values[entry + 2]
+    total1: i64 = line1 + values[entry + 3]
+    answer: i64 = if total0 < total1: total0 else: total1
+    if output_capacity < 4:
+        return -2
+    index <- 0
+    while index < 4:
+        output[index] <- ((answer >> (8 * index) & 255).u8())
+        index <- index + 1
+    4
+
+export fn assembly_line_scheduling(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = assembly_line_scheduling_impl

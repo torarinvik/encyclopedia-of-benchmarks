@@ -1,0 +1,113 @@
+const MAX_OPERATIONS: usize = 128
+const MAX_ELEMENTS: usize = 64
+const MAX_INPUT_LENGTH: usize = 385
+
+def dynamic_array_write_i64(output: mutable u8&, word_index: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word_index * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def dynamic_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > 128:
+        return -1
+
+    first: mutable i64[64] = zeroed
+    second: mutable i64[64] = zeroed
+    query_results: mutable i64[128] = zeroed
+    active_first: mutable bool = true
+    size: mutable usize = 0
+    capacity: mutable usize = 16
+    cursor: mutable usize = 1
+    query_count: mutable usize = 0
+    operation_index: mutable usize = 0
+    operation_count: usize = operation_count_value.usize()
+
+    while operation_index < operation_count:
+        if cursor >= length:
+            return -1
+        operation: i64 = input[cursor]
+        cursor <- cursor + 1
+        if operation == 0:
+            if cursor >= length or size >= MAX_ELEMENTS:
+                return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if size == capacity:
+                index: mutable usize = 0
+                if active_first:
+                    while index < size:
+                        second[index] <- first[index]
+                        index <- index + 1
+                    active_first <- false
+                else:
+                    while index < size:
+                        first[index] <- second[index]
+                        index <- index + 1
+                    active_first <- true
+                capacity <- capacity * 2
+            if active_first:
+                first[size] <- value
+            else:
+                second[size] <- value
+            size <- size + 1
+        else if operation == 1:
+            if cursor + 1 >= length:
+                return -1
+            index_value: i64 = input[cursor]
+            value: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if index_value < 0 or index_value >= size.i64():
+                return -1
+            index: usize = index_value.usize()
+            if active_first:
+                first[index] <- value
+            else:
+                second[index] <- value
+        else if operation == 2:
+            if cursor >= length or query_count >= MAX_OPERATIONS:
+                return -1
+            index_value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if index_value < 0 or index_value >= size.i64():
+                return -1
+            index: usize = index_value.usize()
+            if active_first:
+                query_results[query_count] <- first[index]
+            else:
+                query_results[query_count] <- second[index]
+            query_count <- query_count + 1
+        else if operation == 3:
+            if query_count >= MAX_OPERATIONS:
+                return -1
+            query_results[query_count] <- size.i64()
+            query_count <- query_count + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+
+    if cursor != length:
+        return -1
+    output_words: usize = 2 + query_count + size
+    output_bytes: usize = output_words * 8
+    if output_capacity < output_bytes:
+        return -2
+    dynamic_array_write_i64(output, 0, query_count.i64())
+    index: mutable usize = 0
+    while index < query_count:
+        dynamic_array_write_i64(output, index + 1, query_results[index])
+        index <- index + 1
+    dynamic_array_write_i64(output, query_count + 1, size.i64())
+    index <- 0
+    while index < size:
+        value: i64 = if active_first: first[index] else: second[index]
+        dynamic_array_write_i64(output, query_count + 2 + index, value)
+        index <- index + 1
+    output_words.i64()
+
+export fn dynamic_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dynamic_array_impl

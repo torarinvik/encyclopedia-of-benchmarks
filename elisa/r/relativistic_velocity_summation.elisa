@@ -1,0 +1,12 @@
+def relativistic_velocity_summation_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    object_velocity: i64 = values[0]
+    frame_velocity: i64 = values[1]
+    if object_velocity < -299792458 or object_velocity > 299792458 or frame_velocity < -299792457 or frame_velocity > 299792457:
+        return -1.0e300
+    numerator: i64 = object_velocity + frame_velocity
+    denominator: f64 = 1.0 + (object_velocity * frame_velocity).f64() / (299792458 * 299792458).f64()
+    numerator.f64() / denominator
+
+export fn relativistic_velocity_summation(values: i64&, length: usize) f64 = relativistic_velocity_summation_impl

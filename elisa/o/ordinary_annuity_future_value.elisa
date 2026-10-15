@@ -1,0 +1,8 @@
+# Ordinary annuity future value using the pinned source formula.
+extern pow(base: f64, exponent: f64) -> f64
+
+def ordinary_annuity_future_value_impl(term_payment: f64, number_of_payments: f64, term_interest_rate: f64) -> f64:
+    annuity_factor: f64 = (pow(1.0 + term_interest_rate, number_of_payments) - 1.0) / term_interest_rate
+    return term_payment * annuity_factor
+
+export fn ordinary_annuity_future_value(term_payment: f64, number_of_payments: f64, term_interest_rate: f64) -> f64 = ordinary_annuity_future_value_impl

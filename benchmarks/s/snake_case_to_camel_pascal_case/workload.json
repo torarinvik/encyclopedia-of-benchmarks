@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "snake-case-to-camel-pascal-ascii-v1",
+  "algorithm": "snake_case_to_camel_pascal_case",
+  "function_symbol": "snake_case_to_camel_pascal_case",
+  "input": {
+    "kind": "mode_prefixed_ascii_snake_case",
+    "encoding": "[mode, ASCII_codepoints...] (mode 0 = camelCase; mode 1 = PascalCase)",
+    "mode_range": [0, 1],
+    "string_length_range": [1, 256],
+    "valid_codepoints": "ASCII lowercase letters, digits, and single interior underscores",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {"id":"camel_source_example","input_values":[0,115,111,109,101,95,114,97,110,100,111,109,95,115,116,114,105,110,103],"input_length":19,"expected_result":16,"expected_output":"someRandomString","expected_output_hex":"736f6d6552616e646f6d537472696e67"},
+    {"id":"pascal_source_example","input_values":[1,115,111,109,101,95,114,97,110,100,111,109,95,115,116,114,105,110,103],"input_length":19,"expected_result":16,"expected_output":"SomeRandomString","expected_output_hex":"536f6d6552616e646f6d537472696e67"},
+    {"id":"camel_numbers_example","input_values":[0,115,111,109,101,95,114,97,110,100,111,109,95,115,116,114,105,110,103,95,119,105,116,104,95,110,117,109,98,101,114,115,95,49,50,51],"input_length":36,"expected_result":30,"expected_output":"someRandomStringWithNumbers123","expected_output_hex":"736f6d6552616e646f6d537472696e67576974684e756d62657273313233"},
+    {"id":"pascal_numbers_example","input_values":[1,115,111,109,101,95,114,97,110,100,111,109,95,115,116,114,105,110,103,95,119,105,116,104,95,110,117,109,98,101,114,115,95,49,50,51],"input_length":36,"expected_result":30,"expected_output":"SomeRandomStringWithNumbers123","expected_output_hex":"536f6d6552616e646f6d537472696e67576974684e756d62657273313233"},
+    {"id":"already_single_word","input_values":[0,115,110,97,107,101],"input_length":6,"expected_result":5,"expected_output":"snake","expected_output_hex":"736e616b65"},
+    {"id":"pascal_single_word","input_values":[1,115,110,97,107,101],"input_length":6,"expected_result":5,"expected_output":"Snake","expected_output_hex":"536e616b65"},
+    {"id":"digit_word_starts","input_values":[0,97,112,105,95,118,50,95,97,112,105],"input_length":11,"expected_result":8,"expected_output":"apiV2Api","expected_output_hex":"6170695632417069"},
+    {"id":"all_digit_segments","input_values":[1,49,50,51,95,52,53,54],"input_length":8,"expected_result":6,"expected_output":"123456","expected_output_hex":"313233343536"},
+    {"id":"empty_payload","input_values":[0],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_mode","input_values":[2,97],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"uppercase_outside_contract","input_values":[0,97,66],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"leading_underscore","input_values":[0,95,97],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_underscore","input_values":[0,97,95],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"repeated_underscore","input_values":[0,97,95,95,98],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"punctuation_outside_contract","input_values":[0,97,45,98],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"non_ascii_codepoint","input_values":[0,97,233],"input_length":3,"expected_result":-1,"expected_output_hex":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "description": "Transform bounded ASCII snake_case text to camelCase or PascalCase."
+}

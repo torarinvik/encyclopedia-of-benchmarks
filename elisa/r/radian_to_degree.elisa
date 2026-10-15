@@ -1,0 +1,7 @@
+# Convert radians to degrees using the pinned expression order.
+def radian_to_degree_impl(radian: f64) -> f64:
+    if not (radian >= -1000000.0 and radian <= 1000000.0):
+        return -1.0e300
+    radian * (180.0 / 3.141592653589793)
+
+export fn radian_to_degree(radian: f64) -> f64 = radian_to_degree_impl

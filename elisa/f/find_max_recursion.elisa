@@ -1,0 +1,22 @@
+# Divide an inclusive range recursively and return the larger half maximum.
+def find_max_recursion_range(values: i64&, low: usize, high: usize) -> i64:
+    if low == high:
+        return values[low]
+    middle: usize = low + (high - low) / 2
+    left: i64 = find_max_recursion_range(values, low, middle)
+    right: i64 = find_max_recursion_range(values, middle + 1, high)
+    if left >= right:
+        return left
+    right
+
+def find_max_recursion_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 256:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        index <- index + 1
+    find_max_recursion_range(values, 0, length - 1)
+
+export fn find_max_recursion(values: i64&, length: usize) -> i64 = find_max_recursion_impl

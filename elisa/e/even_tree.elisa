@@ -1,0 +1,66 @@
+def even_tree_impl(values: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775807 - 1
+    if length < 2:
+        return invalid
+    n_value: i64 = values[0]
+    edge_value: i64 = values[1]
+    if n_value < 2 or n_value > 100 or n_value % 2 != 0 or edge_value != n_value - 1:
+        return invalid
+    n: usize = n_value as usize
+    edge_count: usize = edge_value as usize
+    if length != 2 + 2 * edge_count:
+        return invalid
+    adjacency: mutable bool[100][100] = zeroed
+    i: mutable usize = 0
+    while i < edge_count:
+        u_value: i64 = values[2 + 2 * i]
+        v_value: i64 = values[3 + 2 * i]
+        if u_value < 1 or u_value > n_value or v_value < 1 or v_value > n_value or u_value == v_value:
+            return invalid
+        u: usize = (u_value - 1) as usize
+        v: usize = (v_value - 1) as usize
+        if adjacency[u][v]:
+            return invalid
+        adjacency[u][v] <- true
+        adjacency[v][u] <- true
+        i <- i + 1
+    parents: mutable i32[100] = zeroed
+    stack: mutable i32[100] = zeroed
+    order: mutable i32[100] = zeroed
+    subtree: mutable i64[100] = zeroed
+    i <- 0
+    while i < n:
+        parents[i] <- -2
+        subtree[i] <- 1
+        i <- i + 1
+    parents[0] <- -1
+    top: mutable usize = 0
+    order_count: mutable usize = 0
+    stack[top] <- 0
+    top <- top + 1
+    while top > 0:
+        top <- top - 1
+        u: i32 = stack[top]
+        order[order_count] <- u
+        order_count <- order_count + 1
+        v: mutable usize = 0
+        while v < n:
+            if adjacency[u as usize][v] and parents[v] == -2:
+                parents[v] <- u
+                stack[top] <- v as i32
+                top <- top + 1
+            v <- v + 1
+    if order_count != n:
+        return invalid
+    cuts: mutable i64 = 0
+    i <- order_count
+    while i > 0:
+        i <- i - 1
+        u: i32 = order[i]
+        if parents[u as usize] >= 0:
+            subtree[parents[u as usize] as usize] <- subtree[parents[u as usize] as usize] + subtree[u as usize]
+        if subtree[u as usize] % 2 == 0:
+            cuts <- cuts + 1
+    cuts - 1
+
+export fn even_tree(values: i64&, length: usize) -> i64 = even_tree_impl

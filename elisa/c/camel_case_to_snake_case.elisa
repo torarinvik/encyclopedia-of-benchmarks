@@ -1,0 +1,32 @@
+def camel_case_to_snake_case_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length == 0 or length > 256:
+        return -1
+    output_length: mutable usize = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = input[index]
+        if value >= 65 and value <= 90:
+            if index > 0:
+                output_length <- output_length + 1
+        elif value < 97 or value > 122:
+            return -1
+        output_length <- output_length + 1
+        index <- index + 1
+    if capacity < output_length:
+        return -2
+    position: mutable usize = 0
+    index <- 0
+    while index < length:
+        value: i64 = input[index]
+        if value >= 65 and value <= 90:
+            if index > 0:
+                output[position] <- 95
+                position <- position + 1
+            output[position] <- (value + 32).u8()
+        else:
+            output[position] <- value.u8()
+        position <- position + 1
+        index <- index + 1
+    output_length as i64
+
+export fn camel_case_to_snake_case(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = camel_case_to_snake_case_impl

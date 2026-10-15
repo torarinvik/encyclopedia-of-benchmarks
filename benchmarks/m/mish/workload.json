@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "id": "mish-singleton-f64-unary-v1",
+  "algorithm": "mish",
+  "function_symbol": "mish",
+  "description": "Apply the source's Mish activation to one element of its vector input.",
+  "input": {
+    "kind": "finite_binary64_scalar",
+    "minimum": -20.0,
+    "maximum": 20.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "x * tanh(log(1 + exp(x)))",
+    "operation_order": "exp, add 1, log, tanh, multiply by x",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"source_positive_example","input_values":[2.3],"expected_result":2.2621189289480705},
+    {"id":"source_small_positive","input_values":[0.6],"expected_result":0.466136485694329},
+    {"id":"source_negative_example","input_values":[-2.0],"expected_result":-0.2525014826957091},
+    {"id":"source_negative_curve","input_values":[-3.8],"expected_result":-0.08405830799581247},
+    {"id":"far_negative","input_values":[-9.2],"expected_result":-0.0009295155356816156},
+    {"id":"near_zero_negative","input_values":[-0.3],"expected_result":-0.15113317713833455},
+    {"id":"zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"lower_domain_edge","input_values":[-20.0],"expected_result":-4.1223073800871456e-8},
+    {"id":"upper_domain_edge","input_values":[20.0],"expected_result":20.0}
+  ]
+}

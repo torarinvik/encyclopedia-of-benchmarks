@@ -1,0 +1,48 @@
+def base64_to_binary_edge_space(value: i64) -> bool:
+    (value >= 9 and value <= 13) or value == 32
+
+def base64_to_binary_digit(value: i64) -> i64:
+    if value >= 65 and value <= 90: return value - 65
+    if value >= 97 and value <= 122: return value - 97 + 26
+    if value >= 48 and value <= 57: return value - 48 + 52
+    if value == 43: return 62
+    if value == 47: return 63
+    -1
+
+def base64_to_binary_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 256: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[1 + index] < 0 or input[1 + index] > 127: return -1
+        index <- index + 1
+    begin: mutable usize = 0
+    end: mutable usize = n
+    while begin < end and base64_to_binary_edge_space(input[1 + begin]): begin <- begin + 1
+    while end > begin and base64_to_binary_edge_space(input[end]): end <- end - 1
+    if begin == end: return -1
+    negative: bool = input[1 + begin] == 45
+    if negative: begin <- begin + 1
+    index <- begin
+    while index < end:
+        if base64_to_binary_digit(input[1 + index]) < 0: return -1
+        index <- index + 1
+    output_length: usize = (end - begin) * 6
+    if negative: output_length <- output_length + 1
+    if capacity < output_length or output.is_null(): return -2
+    offset: mutable usize = 0
+    if negative: output[offset] <- 45; offset <- offset + 1
+    index <- begin
+    while index < end:
+        value: usize = base64_to_binary_digit(input[1 + index]).usize()
+        bit: mutable usize = 0
+        while bit < 6:
+            shift: usize = 5 - bit
+            output[offset] <- (48 + ((value >> shift) & 1)).u8()
+            offset <- offset + 1
+            bit <- bit + 1
+        index <- index + 1
+    output_length.i64()
+
+export fn base64_to_binary(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = base64_to_binary_impl

@@ -1,0 +1,55 @@
+# Static range minimum queries using a sparse table.
+def range_minimum_query_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def range_minimum_query_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 4 or input[0] < 1 or input[0] > 64: return -1
+    n: usize = input[0].usize()
+    query_position: usize = 1 + n
+    if length <= query_position or input[query_position] < 1 or input[query_position] > 64: return -1
+    q: usize = input[query_position].usize()
+    if length != query_position + 1 + 2 * q: return -1
+    values: i64[64] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        values[index] <- input[1 + index]
+        if values[index] < -1000 or values[index] > 1000: return -1
+        index <- index + 1
+    if capacity < q * 8 or (q > 0 and output.is_null()): return -2
+    table: mutable usize[7][64] = zeroed
+    index <- 0
+    while index < n: table[0][index] <- index; index <- index + 1
+    level: mutable usize = 1
+    while (1 << level) <= n:
+        width: usize = 1 << level
+        half: usize = width >> 1
+        index <- 0
+        while index + width <= n:
+            a: usize = table[level - 1][index]
+            b: usize = table[level - 1][index + half]
+            if values[a] < values[b]: table[level][index] <- a
+            else: table[level][index] <- b
+            index <- index + 1
+        level <- level + 1
+    query: mutable usize = 0
+    invalid: i64 = -9223372036854775807 - 1
+    while query < q:
+        left: i64 = input[query_position + 1 + 2 * query]
+        right: i64 = input[query_position + 2 + 2 * query]
+        answer: mutable i64 = invalid
+        if left >= 0 and right > left and right <= n.i64():
+            l: usize = left.usize(); r: usize = right.usize(); span: usize = r - l
+            level <- 0
+            while (1 << (level + 1)) <= span: level <- level + 1
+            width: usize = 1 << level
+            a: usize = table[level][l]; b: usize = table[level][r - width]
+            if values[a] < values[b]: answer <- values[a]
+            else: answer <- values[b]
+        range_minimum_query_put_i64(output, query * 8, answer)
+        query <- query + 1
+    (q * 8).i64()

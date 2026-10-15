@@ -1,0 +1,22 @@
+# Emit a bounded geometric term sequence as little-endian binary64 values.
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def geometric_series_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def geometric_series_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 3 or input[0] < 0 or input[0] > 16 or input[1] < 1 or input[1] > 8 or input[2] < 1 or input[2] > 4: return -1
+    n: usize = input[0].usize()
+    if capacity < n * 8 or (n > 0 and output.is_null()): return -2
+    term: mutable f64 = input[1].f64()
+    ratio: f64 = input[2].f64()
+    index: mutable usize = 0
+    while index < n:
+        geometric_series_put_f64(output, index * 8, term)
+        term <- term * ratio
+        index <- index + 1
+    (n * 8).i64()

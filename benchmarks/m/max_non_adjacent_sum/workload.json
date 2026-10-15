@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "id": "max-non-adjacent-sum-i64-array-v1",
+  "algorithm": "max_non_adjacent_sum",
+  "function_symbol": "max_non_adjacent_sum",
+  "description": "Maximum sum of a subset with no adjacent positions; empty selection is allowed.",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": "values directly",
+    "minimum_length": 1,
+    "maximum_length": 100000,
+    "minimum_value": 0,
+    "maximum_value": 10000,
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "maximum sum over subsets containing no adjacent indices, including the empty subset",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"python_example_one","input_values":[1,2,3],"input_length":3,"expected_result":4},
+    {"id":"python_example_two","input_values":[1,5,3,7,2,2,6],"input_length":7,"expected_result":18},
+    {"id":"classic_house_robber","input_values":[2,7,9,3,1],"input_length":5,"expected_result":12},
+    {"id":"singleton","input_values":[17],"input_length":1,"expected_result":17},
+    {"id":"all_zero","input_values":[0,0,0,0,0],"input_length":5,"expected_result":0},
+    {"id":"alternating_zero_and_value","input_values":[0,10000,0,10000,0,10000],"input_length":6,"expected_result":30000},
+    {"id":"maximum_length_value","input_values":[10000,10000,10000,10000,10000,10000],"input_length":6,"expected_result":30000},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-9223372036854775808},
+    {"id":"negative_value_invalid","input_values":[1,-1,2],"input_length":3,"expected_result":-9223372036854775808},
+    {"id":"value_above_bound_invalid","input_values":[10001],"input_length":1,"expected_result":-9223372036854775808}
+  ]
+}

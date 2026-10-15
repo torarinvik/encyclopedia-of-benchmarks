@@ -1,0 +1,26 @@
+def binary_xor_operator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    a: i64 = input[0]
+    b: i64 = input[1]
+    if a < 0 or a > 2147483647 or b < 0 or b > 2147483647:
+        return -1
+    largest: mutable i64 = if a > b: a else: b
+    width: mutable usize = 1
+    while largest > 1:
+        largest <- largest / 2
+        width <- width + 1
+    output_length: usize = width + 2
+    if capacity < output_length:
+        return -2
+    output[0] <- 48
+    output[1] <- 98
+    result: mutable i64 = a ^ b
+    position: mutable usize = width
+    while position > 0:
+        position <- position - 1
+        output[2 + position] <- if result % 2 == 0: 48 else: 49
+        result <- result / 2
+    output_length as i64
+
+export fn binary_xor_operator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_xor_operator_impl

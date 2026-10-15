@@ -1,0 +1,14 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def circular_arc_impl(input: i64&, length: usize) -> f64:
+    if length != 3 or input.is_null(): return INVALID_RESULT
+    mode: i64 = input[0]
+    radius: i64 = input[1]
+    degrees: i64 = input[2]
+    if (mode != 0 and mode != 1) or radius < -1000000 or radius > 1000000 or degrees < -360000 or degrees > 360000: return INVALID_RESULT
+    pi_over_180: f64 = 3.14159265358979323846 / 180.0
+    angle: f64 = degrees.f64() * pi_over_180
+    if mode == 0: return radius.f64() * angle
+    (radius * radius).f64() * angle / 2.0
+
+export fn circular_arc(input: i64&, length: usize) -> f64 = circular_arc_impl

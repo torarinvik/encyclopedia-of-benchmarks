@@ -1,0 +1,12 @@
+# Treynor ratio: (portfolio return - risk-free rate) / beta.
+def treynor_ratio_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    portfolio_return: i64 = values[0]
+    risk_free_rate: i64 = values[1]
+    beta: i64 = values[2]
+    if portfolio_return < -1000 or portfolio_return > 1000 or risk_free_rate < -1000 or risk_free_rate > 1000 or beta < -1000 or beta > 1000 or beta == 0:
+        return -1.0e300
+    (portfolio_return - risk_free_rate).f64() / beta.f64()
+
+export fn treynor_ratio(values: i64&, length: usize) -> f64 = treynor_ratio_impl

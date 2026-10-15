@@ -1,0 +1,39 @@
+def snake_case_to_camel_pascal_case_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 257:
+        return -1
+    mode: i64 = input[0]
+    if mode != 0 and mode != 1:
+        return -1
+    input_length: usize = length - 1
+    output_length: mutable usize = 0
+    index: mutable usize = 0
+    while index < input_length:
+        value: i64 = input[index + 1]
+        if value == 95:
+            if index == 0 or index + 1 == input_length or input[index] == 95:
+                return -1
+        elif not ((value >= 97 and value <= 122) or (value >= 48 and value <= 57)):
+            return -1
+        else:
+            output_length <- output_length + 1
+        index <- index + 1
+    if capacity < output_length:
+        return -2
+
+    capitalize: mutable bool = mode == 1
+    position: mutable usize = 0
+    index <- 0
+    while index < input_length:
+        value: i64 = input[index + 1]
+        if value == 95:
+            capitalize <- true
+        else:
+            if capitalize and value >= 97 and value <= 122:
+                value <- value - 32
+            output[position] <- value.u8()
+            position <- position + 1
+            capitalize <- false
+        index <- index + 1
+    output_length as i64
+
+export fn snake_case_to_camel_pascal_case(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = snake_case_to_camel_pascal_case_impl

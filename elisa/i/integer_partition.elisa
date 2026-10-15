@@ -1,0 +1,23 @@
+# Count unordered partitions of a positive integer using the pinned 2D DP.
+def integer_partition_impl(m: i64) -> i64:
+    if m < 1 or m > 300:
+        return -9223372036854775808
+    memo: mutable i64[90300] = zeroed
+    i: mutable i64 = 0
+    while i <= m:
+        memo[(i * 300).usize()] <- 1
+        i <- i + 1
+    n: mutable i64 = 0
+    while n <= m:
+        k: mutable i64 = 1
+        while k < m:
+            index: i64 = n * 300 + k
+            memo[index.usize()] <- memo[index.usize()] + memo[(index - 1).usize()]
+            if n - k > 0:
+                prior: i64 = (n - k - 1) * 300 + k
+                memo[index.usize()] <- memo[index.usize()] + memo[prior.usize()]
+            k <- k + 1
+        n <- n + 1
+    memo[(m * 300 + m - 1).usize()]
+
+export fn integer_partition(m: i64) -> i64 = integer_partition_impl

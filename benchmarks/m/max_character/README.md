@@ -10,7 +10,7 @@ Return the lowercase ASCII letter that occurs most often in the input, following
 
 The JavaScript source also accepts an optional regular expression that excludes characters; the benchmark uses the no-pattern form. PHP rejects the exact string `"0"`; that value is outside this lowercase-letter contract.
 
-[`workload.json`](workload.json) covers a singleton, repeated letters, a unique maximum, a tie, and invalid inputs. The current `run_i64_array_scalar.py` recorder needs a `max_character` oracle branch; runner files are outside this package.
+[`workload.json`](workload.json) covers a singleton, repeated letters, a unique maximum, a tie, and invalid inputs. The shared scalar runner validates the lowercase input and checks for a unique most-frequent character.
 
 ## Pinned sources
 

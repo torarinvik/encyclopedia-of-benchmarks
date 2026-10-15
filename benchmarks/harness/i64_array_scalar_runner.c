@@ -57,11 +57,11 @@ int main(int argc, char **argv)
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
     const int stdin_mode = argc > 1 && strcmp(argv[1], "--stdin") == 0;
     if (stdin_mode) {
-        if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > 100001) {
+        if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > 100002) {
             fprintf(stderr, "usage: i64_array_scalar_runner --stdin LENGTH EXPECTED SAMPLES WARMUPS REPETITIONS\n");
             return 2;
         }
-    } else if (argc < 6 || !parse_u64(argv[1], &length_arg) || length_arg > 100001 ||
+    } else if (argc < 6 || !parse_u64(argv[1], &length_arg) || length_arg > 100002 ||
                (uint64_t)argc != length_arg + 6) {
         fprintf(stderr, "usage: i64_array_scalar_runner LENGTH VALUES... EXPECTED SAMPLES WARMUPS REPETITIONS\n");
         return 2;

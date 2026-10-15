@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "haversine_rust_variant-microdegree-v1",
+  "algorithm": "haversine_rust_variant",
+  "function_symbol": "haversine_rust_variant",
+  "input": {
+    "kind": "haversine_microdegree_coordinate_quadruple",
+    "layout": "microdegree coordinates [lat1, lon1, lat2, lon2]",
+    "latitude_microdegree_bounds": [
+      -90000000,
+      90000000
+    ],
+    "longitude_microdegree_bounds": [
+      -180000000,
+      180000000
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "same_origin",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "one_degree_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        1000000
+      ],
+      "input_length": 4,
+      "expected_result": 111193.51537401672
+    },
+    {
+      "id": "one_degree_meridian",
+      "input_values": [
+        0,
+        0,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 111193.51537401672
+    },
+    {
+      "id": "quarter_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        90000000
+      ],
+      "input_length": 4,
+      "expected_result": 9220127.185581444
+    },
+    {
+      "id": "antimeridian_crossing",
+      "input_values": [
+        0,
+        179000000,
+        0,
+        -179000000
+      ],
+      "input_length": 4,
+      "expected_result": 222378.5645430972
+    },
+    {
+      "id": "high_latitude",
+      "input_values": [
+        80000000,
+        0,
+        80000000,
+        90000000
+      ],
+      "input_length": 4,
+      "expected_result": 1564591.837806183
+    },
+    {
+      "id": "san_francisco_yosemite",
+      "input_values": [
+        37774856,
+        -122424227,
+        37864742,
+        -119537521
+      ],
+      "input_length": 4,
+      "expected_result": 253731.53101241656
+    },
+    {
+      "id": "new_york_los_angeles",
+      "input_values": [
+        40712776,
+        -74005974,
+        34052235,
+        -118243683
+      ],
+      "input_length": 4,
+      "expected_result": 3876226.9129022686
+    },
+    {
+      "id": "antipodal",
+      "input_values": [
+        0,
+        0,
+        0,
+        180000000
+      ],
+      "input_length": 4,
+      "expected_result": 15969728.737674102
+    },
+    {
+      "id": "too_short",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "too_long",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "latitude_out_of_range",
+      "input_values": [
+        90000001,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "longitude_out_of_range",
+      "input_values": [
+        0,
+        -180000001,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

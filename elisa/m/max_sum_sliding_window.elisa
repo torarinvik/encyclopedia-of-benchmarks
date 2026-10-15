@@ -1,0 +1,31 @@
+def max_sum_sliding_window_impl(values: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775807 - 1
+    if length < 3 or length > 100002:
+        return invalid
+    n_value: i64 = values[0]
+    k_value: i64 = values[1]
+    if n_value < 1 or n_value > 100000 or k_value < 1 or k_value > n_value:
+        return invalid
+    n: usize = n_value as usize
+    k: usize = k_value as usize
+    if length != n + 2:
+        return invalid
+    i: mutable usize = 0
+    current_sum: mutable i64 = 0
+    while i < n:
+        value: i64 = values[i + 2]
+        if value < -1000000000 or value > 1000000000:
+            return invalid
+        if i < k:
+            current_sum <- current_sum + value
+        i <- i + 1
+    maximum_sum: mutable i64 = current_sum
+    i <- 0
+    while i < n - k:
+        current_sum <- current_sum - values[i + 2] + values[i + k + 2]
+        if current_sum > maximum_sum:
+            maximum_sum <- current_sum
+        i <- i + 1
+    maximum_sum
+
+export fn max_sum_sliding_window(values: i64&, length: usize) -> i64 = max_sum_sliding_window_impl

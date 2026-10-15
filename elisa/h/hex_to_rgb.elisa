@@ -1,0 +1,23 @@
+def hex_to_rgb_nibble(value: i64) -> i64:
+    if value >= 48 and value <= 57:
+        return value - 48
+    if value >= 65 and value <= 70:
+        return value - 65 + 10
+    if value >= 97 and value <= 102:
+        return value - 97 + 10
+    -1
+
+def hex_to_rgb_impl(input: i64&, length: usize) -> i64:
+    if length != 6:
+        return -1
+    packed_rgb: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        nibble: i64 = hex_to_rgb_nibble(input[index])
+        if nibble < 0:
+            return -1
+        packed_rgb <- (packed_rgb << 4) | nibble
+        index <- index + 1
+    packed_rgb
+
+export fn hex_to_rgb(input: i64&, length: usize) -> i64 = hex_to_rgb_impl

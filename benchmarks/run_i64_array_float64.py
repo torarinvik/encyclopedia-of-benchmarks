@@ -12,6 +12,7 @@ from pathlib import Path
 import platform
 import shlex
 import subprocess
+import struct
 import sys
 
 from build_abi import ROOT, sha256_file
@@ -26,6 +27,155 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
+    if algorithm == "treynor_ratio":
+        valid = (len(values) == 3 and all(-1000 <= value <= 1000 for value in values)
+                 and values[2] != 0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid treynor_ratio inputs must use the -1e300 result sentinel")
+        else:
+            portfolio_return, risk_free_rate, beta = values
+            source_result = (portfolio_return - risk_free_rate) / beta
+            if expected == -1e300 or not math.isclose(
+                    expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("treynor_ratio expected_result must match (portfolio_return - risk_free_rate) / beta")
+    elif algorithm == "cross_entropy_loss":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 64
+                 and len(values) == 1 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            n = values[0]
+            actual = values[1:1 + n]
+            predicted = values[1 + n:]
+            valid = (all(0 <= value <= 1_000_000 for value in actual)
+                     and all(1 <= value <= 1_000_000 for value in predicted))
+            if valid:
+                scale = 1_000_000.0
+                terms = [-(value / scale) * math.log(probability / scale)
+                         for value, probability in zip(actual, predicted)]
+                source_result = 0.0
+                for term in terms:
+                    source_result += term
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid cross_entropy_loss inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("cross_entropy_loss expected_result must match the pinned source-ordered term sum")
+    elif algorithm == "anova_oneway":
+        valid = len(values) >= 3
+        source_result = -1e300
+        if valid:
+            selector, observation_count, group_count = values[:3]
+            valid = (selector in range(8) and 3 <= observation_count <= 128
+                     and 2 <= group_count <= 8 and observation_count > group_count
+                     and len(values) == 3 + 2 * observation_count)
+            if valid:
+                observations = values[3:3 + observation_count]
+                labels = values[3 + observation_count:]
+                valid = (all(-1_000_000 <= value <= 1_000_000 for value in observations)
+                         and all(0 <= label < group_count for label in labels)
+                         and all(label in labels for label in range(group_count)))
+                if valid:
+                    sums = [0.0] * group_count
+                    sizes = [0] * group_count
+                    for observation, label in zip(observations, labels):
+                        sums[label] += observation
+                        sizes[label] += 1
+                    means = [sums[group] / sizes[group] for group in range(group_count)]
+                    grand_mean = sum(observations) / observation_count
+                    ss_between = sum(sizes[group] * (means[group] - grand_mean) ** 2
+                                     for group in range(group_count))
+                    ss_within = sum((observation - means[label]) ** 2
+                                    for observation, label in zip(observations, labels))
+                    valid = ss_within > 0.0
+                    if valid:
+                        df_between = float(group_count - 1)
+                        df_within = float(observation_count - group_count)
+                        ms_between = ss_between / df_between
+                        ms_within = ss_within / df_within
+                        f_statistic = ms_between / ms_within
+                        beta_x = df_within / (df_within + df_between * f_statistic)
+
+                        def beta_fraction(a: float, b: float, x: float) -> float:
+                            qab, qap, qam = a + b, a + 1.0, a - 1.0
+
+                            def safe_denominator(value: float) -> float:
+                                if abs(value) >= 1e-300:
+                                    return value
+                                return -1e-300 if value < 0.0 else 1e-300
+
+                            c = 1.0
+                            d = 1.0 / safe_denominator(1.0 - qab * x / qap)
+                            result = d
+                            for iteration in range(1, 201):
+                                m = float(iteration)
+                                m2 = 2.0 * m
+                                coefficient = m * (b - m) * x / ((qam + m2) * (a + m2))
+                                d = 1.0 + coefficient * d
+                                if abs(d) < 1e-300:
+                                    d = 1e-300
+                                c = 1.0 + coefficient / c
+                                if abs(c) < 1e-300:
+                                    c = 1e-300
+                                d = 1.0 / d
+                                result *= d * c
+                                coefficient = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+                                d = 1.0 + coefficient * d
+                                if abs(d) < 1e-300:
+                                    d = 1e-300
+                                c = 1.0 + coefficient / c
+                                if abs(c) < 1e-300:
+                                    c = 1e-300
+                                d = 1.0 / d
+                                change = d * c
+                                result *= change
+                                if abs(change - 1.0) <= 3e-14:
+                                    break
+                            return result
+
+                        def regularized_beta(x: float, a: float, b: float) -> float:
+                            if x <= 0.0:
+                                return 0.0
+                            if x >= 1.0:
+                                return 1.0
+                            front = math.exp(a * math.log(x) + b * math.log1p(-x)
+                                             + math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b))
+                            if x < (a + 1.0) / (a + b + 2.0):
+                                return front * beta_fraction(a, b, x) / a
+                            return 1.0 - front * beta_fraction(b, a, 1.0 - x) / b
+
+                        p_value = regularized_beta(beta_x, df_within / 2.0, df_between / 2.0)
+                        source_result = (df_between, df_within, ss_between, ss_within,
+                                         ms_between, ms_within, f_statistic, p_value)[selector]
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid anova_oneway inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("anova_oneway expected_result must match the selected one-way ANOVA statistic")
+    elif algorithm == "ant_colony_optimization":
+        valid = (len(values) == 8 and 1 <= values[0] <= 64 and 1 <= values[1] <= 64
+                 and all(-100_000 <= value <= 100_000 for value in values[2:]))
+        source_result = -1e300
+        if valid:
+            cities = [(values[index], values[index + 1]) for index in (2, 4, 6)]
+            valid = len(set(cities)) == 3
+            if valid:
+                def city_distance(first: tuple[int, int], second: tuple[int, int]) -> float:
+                    dx = first[0] - second[0]
+                    dy = first[1] - second[1]
+                    return math.sqrt(dx * dx + dy * dy)
+
+                source_result = (city_distance(cities[0], cities[1])
+                                 + city_distance(cities[1], cities[2])
+                                 + city_distance(cities[2], cities[0]))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid ant_colony_optimization inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("ant_colony_optimization expected_result must match the three-city closed tour length")
     if algorithm == "electrical_impedance":
         valid = (len(values) == 3 and all(0 <= value <= 1000 for value in values)
                  and sum(value == 0 for value in values) == 1)
@@ -155,6 +305,144 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("thin_lens expected_result must match the selected pinned Java operation")
+    elif algorithm == "geometric_dist":
+        def f32(value: float) -> float:
+            return struct.unpack("<f", struct.pack("<f", float(value)))[0]
+
+        valid = len(values) >= 2 and values[0] in range(7) and values[1] in range(3)
+        source_result = -1.0e300
+        if valid:
+            operation, p_code = values[:2]
+            probability = f32((0.25, 0.5, 0.75)[p_code])
+            complement = f32(1.0 - probability)
+            expected_length = 2 if operation in (0, 1, 2) else (4 if operation == 6 else 3)
+            valid = len(values) == expected_length
+            if valid and operation == 0:
+                source_result = f32(1.0 / probability)
+            elif valid and operation in (1, 2):
+                variance = f32(f32(1.0 - probability) / f32(probability * probability))
+                source_result = variance if operation == 1 else f32(math.sqrt(variance))
+            elif valid and operation in (3, 4):
+                k = values[2]
+                valid = (1 <= k <= 16) if operation == 3 else (0 <= k <= 16)
+                if valid and operation == 3:
+                    power = f32(math.pow(complement, f32(k - 1)))
+                    source_result = f32(power * probability)
+                elif valid:
+                    power = f32(math.pow(complement, f32(k)))
+                    source_result = f32(1.0 - power)
+            elif valid and operation == 5:
+                cdf_code = values[2]
+                valid = cdf_code in range(3)
+                if valid:
+                    cdf = f32((0.25, 0.5, 0.75)[cdf_code])
+                    numerator = f32(math.log(f32(1.0 - cdf)))
+                    denominator = f32(math.log(complement))
+                    source_result = f32(numerator / denominator)
+            elif valid and operation == 6:
+                minimum, maximum = values[2:]
+                valid = 1 <= minimum <= maximum <= 16
+                if valid:
+                    lower_power = f32(math.pow(complement, f32(minimum - 1)))
+                    upper_power = f32(math.pow(complement, f32(maximum)))
+                    lower = f32(1.0 - lower_power)
+                    upper = f32(1.0 - upper_power)
+                    source_result = f32(upper - lower)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid geometric_dist inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=3e-6, abs_tol=1e-12):
+            raise ValueError("geometric_dist expected_result must match the source-ordered float32 operation")
+    elif algorithm == "geometric":
+        valid = len(values) >= 2 and values[0] in (0, 1)
+        source_result = -1.0e300
+        if valid:
+            operation = values[0]
+            sequence = values[1:]
+            if operation == 0:
+                valid = (1 <= len(sequence) <= 16
+                         and all(-100 <= value <= 100 for value in sequence))
+                if valid and len(sequence) == 1:
+                    source_result = 1.0
+                elif valid:
+                    if sequence[0] == 0:
+                        source_result = 0.0
+                    else:
+                        common_ratio = sequence[1] / sequence[0]
+                        source_result = 1.0
+                        for index in range(len(sequence) - 1):
+                            if sequence[index] == 0 or sequence[index + 1] / sequence[index] != common_ratio:
+                                source_result = 0.0
+                                break
+            else:
+                valid = (1 <= len(sequence) <= 7
+                         and all(0 <= value <= 100 for value in sequence))
+                if valid:
+                    product = 1
+                    for value in sequence:
+                        product *= value
+                    source_result = math.pow(product, 1.0 / len(sequence))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid geometric inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("geometric expected_result must match the selected source operation")
+    elif algorithm == "linear_regression_ols":
+        valid = (len(values) >= 1 and 2 <= values[0] <= 128
+                 and len(values) == 1 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            observation_count = values[0]
+            x_values = values[1::2]
+            y_values = values[2::2]
+            valid = (all(-1_000_000 <= value <= 1_000_000 for value in x_values + y_values)
+                     and len(set(x_values)) > 1 and len(set(y_values)) > 1)
+            if valid:
+                mean_x = sum(x_values) / observation_count
+                mean_y = sum(y_values) / observation_count
+                covariance = sum((x - mean_x) * (y - mean_y)
+                                 for x, y in zip(x_values, y_values))
+                variance_x = sum((x - mean_x) ** 2 for x in x_values)
+                source_result = covariance / variance_x
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid linear_regression_ols inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("linear_regression_ols expected_result must match the bounded OLS slope")
+    elif algorithm == "circular_arc":
+        valid = (len(values) == 3 and values[0] in (0, 1)
+                 and -1_000_000 <= values[1] <= 1_000_000
+                 and -360_000 <= values[2] <= 360_000)
+        source_result = -1e300
+        if valid:
+            mode, radius, degrees = values
+            angle = degrees * (math.pi / 180.0)
+            source_result = (radius * angle if mode == 0
+                             else (radius * radius * angle) / 2.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid circular_arc inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("circular_arc expected_result must match the selected source formula")
+    elif algorithm == "relativistic_kinetic_energy":
+        speed_of_light = 299_792_458.0
+        valid = (len(values) == 2 and 0 <= values[0] <= 1_000_000
+                 and -299_792_457 <= values[1] <= 299_792_457)
+        source_result = -1e300
+        if valid:
+            mass, velocity = values
+            gamma = 1.0 / math.sqrt(1.0 - velocity**2 / speed_of_light**2)
+            source_result = (gamma - 1.0) * mass * speed_of_light**2
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid relativistic_kinetic_energy inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("relativistic_kinetic_energy expected_result must match the source-ordered Lorentz formula")
     return values, float(expected)
 
 

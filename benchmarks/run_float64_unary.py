@@ -94,6 +94,33 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 root = 0.5 * (guess + value / guess)
             if abs(expected_value - root) > absolute_tolerance + relative_tolerance * abs(root):
                 raise ValueError("square_root_with_newton_raphson_method expected result must match the Newton iteration")
+    elif algorithm == "babylonian_method":
+        valid = value.is_integer() and 2.0 <= value <= 999_999.0
+        floor_root = math.isqrt(int(value)) if valid else 0
+        if valid and floor_root * floor_root == int(value):
+            valid = False
+        if not valid:
+            if expected_value != -1.0:
+                raise ValueError("invalid babylonian_method inputs must use the -1.0 result sentinel")
+        else:
+            x0 = float(floor_root)
+            source_result = (value / x0 + x0) / 2.0
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("babylonian_method expected result must match the pinned first-update path")
+    elif algorithm == "decimal_isolate":
+        valid = 0.0 < value <= 999_999.0
+        scaled_value = value * 10_000.0 if valid else 0.0
+        scaled = int(scaled_value) if valid else 0
+        valid = (valid and float(scaled) == scaled_value
+                 and float(scaled) / 10_000.0 == value
+                 and scaled % 625 == 0 and scaled % 10_000 != 0)
+        if not valid:
+            if expected_value != -1.0:
+                raise ValueError("invalid decimal_isolate inputs must use the -1.0 result sentinel")
+        else:
+            source_result = (scaled % 10_000) / 10_000.0
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("decimal_isolate expected result must match the exact binary decimal fraction")
     return value, expected_value
 
 

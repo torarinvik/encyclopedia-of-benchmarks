@@ -1,0 +1,30 @@
+# Least cyclic shift index using Duval's linear-time scan.
+def duval_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    if length == 0:
+        return 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    i: mutable usize = 0
+    answer: mutable usize = 0
+    while i < length:
+        answer <- i
+        j: mutable usize = i + 1
+        k: mutable usize = i
+        while j < 2 * length and values[j % length] >= values[k % length]:
+            if values[k % length] < values[j % length]:
+                k <- i
+            else:
+                k <- k + 1
+            j <- j + 1
+        while i <= k:
+            i <- i + j - k
+    answer.i64()
+
+export fn duval(values: i64&, length: usize) -> i64 = duval_impl

@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "geometric-sequence-and-mean-v1",
+  "algorithm": "geometric",
+  "function_symbol": "geometric",
+  "input": {
+    "kind": "operation_selector_and_integer_sequence",
+    "layout": "[operation, value_0, ..., value_n]",
+    "operations": {
+      "0": "is_geometric_series",
+      "1": "geometric_mean"
+    },
+    "detection_value_range": [
+      -100,
+      100
+    ],
+    "detection_length_range": [
+      1,
+      16
+    ],
+    "mean_value_range": [
+      0,
+      100
+    ],
+    "mean_length_range": [
+      1,
+      7
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "geometric_positive_ratio",
+      "input_values": [
+        0,
+        2,
+        4,
+        8
+      ],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "geometric_negative_ratio",
+      "input_values": [
+        0,
+        3,
+        -6,
+        12,
+        -24
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "geometric_constant_ratio_one",
+      "input_values": [
+        0,
+        5,
+        5,
+        5,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "geometric_single_positive",
+      "input_values": [
+        0,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "geometric_single_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "not_geometric",
+      "input_values": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_first_divisor",
+      "input_values": [
+        0,
+        0,
+        0,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_later_divisor",
+      "input_values": [
+        0,
+        2,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "mean_power_of_eight",
+      "input_values": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "input_length": 4,
+      "expected_result": 3.9999999999999996
+    },
+    {
+      "id": "mean_irregular_values",
+      "input_values": [
+        1,
+        3,
+        6,
+        12
+      ],
+      "input_length": 4,
+      "expected_result": 5.999999999999999
+    },
+    {
+      "id": "mean_with_zero",
+      "input_values": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "mean_single_value",
+      "input_values": [
+        1,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": 49.0
+    },
+    {
+      "id": "empty_sequence",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unknown_operation",
+      "input_values": [
+        2,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mean_negative_value",
+      "input_values": [
+        1,
+        -1,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mean_value_above_bound",
+      "input_values": [
+        1,
+        2,
+        101
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "sequence_value_out_of_bound",
+      "input_values": [
+        0,
+        1,
+        3,
+        1000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

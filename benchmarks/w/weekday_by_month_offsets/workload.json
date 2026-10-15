@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "weekday-by-month-offsets-v1",
+  "algorithm": "weekday_by_month_offsets",
+  "input": {
+    "kind": "year_month_day_i64_array",
+    "encoding": "[year, month, day]",
+    "length": 3,
+    "calendar": "proleptic_gregorian",
+    "year_range": [
+      100,
+      9999
+    ],
+    "valid_date_required": true,
+    "weekday_encoding": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "month_offset_python_example_2020_10_24",
+      "input_values": [
+        2020,
+        10,
+        24
+      ],
+      "input_length": 3,
+      "expected_result": 6
+    },
+    {
+      "id": "month_offset_python_example_2017_10_24",
+      "input_values": [
+        2017,
+        10,
+        24
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "month_offset_python_example_2019_05_03",
+      "input_values": [
+        2019,
+        5,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "month_offset_python_example_1970_09_16",
+      "input_values": [
+        1970,
+        9,
+        16
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "month_offset_python_example_1870_08_13",
+      "input_values": [
+        1870,
+        8,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 6
+    },
+    {
+      "id": "month_offset_python_example_2040_03_14",
+      "input_values": [
+        2040,
+        3,
+        14
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "month_offset_leap_day_2000",
+      "input_values": [
+        2000,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "month_offset_century_nonleap_1900_feb28",
+      "input_values": [
+        1900,
+        2,
+        28
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "month_offset_century_leap_2400_feb29",
+      "input_values": [
+        2400,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "month_offset_minimum_year",
+      "input_values": [
+        100,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "month_offset_maximum_year",
+      "input_values": [
+        9999,
+        12,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "month_offset_invalid_nonleap_feb29",
+      "input_values": [
+        2019,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_invalid_century_feb29",
+      "input_values": [
+        1900,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_invalid_april_31",
+      "input_values": [
+        2023,
+        4,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_invalid_month",
+      "input_values": [
+        2024,
+        13,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_invalid_day_zero",
+      "input_values": [
+        2024,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_year_below_range",
+      "input_values": [
+        99,
+        12,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_year_above_range",
+      "input_values": [
+        10000,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_short_array",
+      "input_values": [
+        2024,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "month_offset_long_array",
+      "input_values": [
+        2024,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "description": "Compute a Sunday-zero Gregorian weekday using the pinned Rust month-offset recurrence."
+}

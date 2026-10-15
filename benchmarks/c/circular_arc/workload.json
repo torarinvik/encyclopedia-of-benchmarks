@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "circular-arc-length-sector-area-v1",
+  "algorithm": "circular_arc",
+  "function_symbol": "circular_arc",
+  "input": {
+    "kind": "signed_64_bit_mode_and_integer_parameters",
+    "layout": "[mode, radius, degrees]",
+    "mode": {"0":"arc length","1":"sector area"},
+    "radius_range": [-1000000, 1000000],
+    "degrees_range": [-360000, 360000],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "float64",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "formula": {
+      "0": "radius * (degrees * (pi / 180))",
+      "1": "(radius * radius * (degrees * (pi / 180))) / 2"
+    },
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"arc_3_45","input_values":[0,3,45],"expected_result":2.356194490192345},
+    {"id":"sector_3_45","input_values":[1,3,45],"expected_result":3.5342917352885173},
+    {"id":"arc_full_turn","input_values":[0,2,360],"expected_result":12.566370614359172},
+    {"id":"sector_full_turn","input_values":[1,2,360],"expected_result":12.566370614359172},
+    {"id":"zero_radius","input_values":[0,0,180],"expected_result":0.0},
+    {"id":"zero_degrees","input_values":[1,99,0],"expected_result":0.0},
+    {"id":"negative_radius_length","input_values":[0,-3,45],"expected_result":-2.356194490192345},
+    {"id":"negative_degrees_area","input_values":[1,3,-45],"expected_result":-3.5342917352885173},
+    {"id":"multiple_turns","input_values":[0,1,720],"expected_result":12.566370614359172},
+    {"id":"maximum_radius_and_degrees_length","input_values":[0,1000000,360000],"expected_result":6283185307.179586},
+    {"id":"maximum_radius_and_degrees_area","input_values":[1,1000000,360000],"expected_result":3141592653589793.0},
+    {"id":"invalid_mode","input_values":[2,3,45],"expected_result":-1e300},
+    {"id":"radius_out_of_range","input_values":[0,1000001,45],"expected_result":-1e300},
+    {"id":"degrees_out_of_range","input_values":[1,3,360001],"expected_result":-1e300},
+    {"id":"short_input","input_values":[0,3],"expected_result":-1e300},
+    {"id":"extra_input","input_values":[0,3,45,0],"expected_result":-1e300},
+    {"id":"empty_input","input_values":[],"expected_result":-1e300}
+  ]
+}

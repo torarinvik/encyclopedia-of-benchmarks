@@ -4,7 +4,7 @@ Checked 2026-10-14 against pinned default-branch commits from 34 non-archived Th
 
 ## How to read this inventory
 
-Each candidate is based on a normalized source filename, with camelCase converted to snake_case. The list is a discovery aid: matching filenames do not prove that implementations use the same algorithm, input contract, edge cases, or output. Unreviewed filename candidates remain marked `unreviewed_filename_match` in the JSON until their implementations are inspected. The latest coverage audit records 895 distinct benchmark names with all nine language files, README contracts, and matching workloads. It records 1,237 reviewed candidate records, of which 1,234 map to complete benchmark files; 3 non-benchmarkable sources are excluded. Of the 3,836 pinned catalog records, 2,599 still need review, mapping, or implementation work. This is a static presence audit and does not establish runtime correctness; see [`catalog/coverage.py`](catalog/coverage.py). The A5/1 cipher and key-stream-generator entries follow the pinned Java register-clock and frame-counter behavior, with separate plaintext-XOR and raw-stream contracts. See the [cipher guide](benchmarks/a/a5_cipher/README.md) and [key-stream guide](benchmarks/a/a5_key_stream_generator/README.md). The pinned C# AA tree is ported with its Skew/Split insertion and level-decreasing deletion operations; the portable contract uses signed 32-bit keys and natural ordering. See the [AA tree guide](benchmarks/a/aatree/README.md). The C LeetCode filename `231` aliases `power_of_two`; `atbash` aliases `atbash_cipher`; `xorcipher` aliases `xor_cipher`; `a1z26` aliases `a1z26_cipher`; `caesar` aliases `caesar_cipher`; `vigenere` and `vignere_cipher` alias `vigenere_cipher`; C filename `9` aliases `palindrome_number`; C LeetCode filename `190` aliases `reverse_bits`; C LeetCode candidate `119` uses benchmark name `pascal_triangle_row`; C candidate `215` uses benchmark name `kth_largest_by_sort`; Python `kth_largest_element` uses the quickselect benchmark. C LeetCode candidate `4` uses benchmark name `median_of_two_sorted_arrays`; candidate `2125` uses benchmark name `number_of_laser_beams`; candidates `2482` and `2501` use benchmark names `ones_minus_zeros` and `longest_square_streak`, respectively. C LeetCode candidate `274` uses benchmark name `h_index`. Candidate `278` uses benchmark name `first_bad_version`. Candidate `287` uses benchmark name `find_duplicate_number`. Candidate `234` uses benchmark name `palindrome_linked_list`. C LeetCode candidate `2130` uses benchmark name `maximum_twin_sum_of_linked_list`. The C LeetCode filename `121` and Java `stock_profit_calculator` alias `best_time_to_buy_and_sell_stock`. The C LeetCode filename `136` is reviewed as an alias of `single_number`. The C LeetCode filename `10` is reviewed as an alias of `regex_match`; candidate `11` uses benchmark name `container_with_most_water`; candidate `125` uses benchmark name `valid_palindrome`; C LeetCode candidate `101`, Java `check_tree_is_symmetric`, and Python `symmetric_tree` share the recursive mirror-check contract; C LeetCode candidate `1019` uses benchmark name `next_greater_nodes`; C LeetCode candidate `1026` uses benchmark name `max_ancestor_diff`; C LeetCode candidate `104` uses benchmark name `max_depth`; C LeetCode candidate `110` uses benchmark name `balanced_binary_tree`; C LeetCode candidate `404` uses benchmark name `sum_of_left_leaves`; C LeetCode candidate `965` uses benchmark name `univalued_binary_tree`; C LeetCode candidate `124` aliases `binary_tree_maximum_path_sum`; C LeetCode `12`, `decimal_to_roman`, `decimal_to_roman_numeral`, and `inttoroman` alias `integer_to_roman`; `roman_numeral_util` aliases `integer_to_roman`; `roman_numerals` aliases `roman_to_integer`; `roman_numerals_to_decimal`, `roman_to_decimal`, and `romantoint` alias `roman_to_integer`; C LeetCode candidate `13` aliases `roman_to_integer`; C LeetCode candidate `14` aliases `max_consecutive_ones`; `regex_matching` in Java implements wildcard matching and is tracked separately. The C LeetCode filename `1` is reviewed as an alias of `two_sum`; the `letter_combination` filename is recorded as an alias of `letter_combinations_of_phone_number`; `edit_distance`, `levenshtein`, and `levenshteindistance` alias `levenshtein_distance`; `coin_change_topdown` aliases `coin_change`; `lcs` aliases `longest_common_subsequence`; `decimal_to_any` aliases `decimal_to_any_base`; `int_to_base` and `base_x` alias `decimal_to_any_base`; `arbitrary_base` aliases `any_base_to_any_base`; `int_to_negative_binary_base` aliases `base_neg2_conversion`; and `prime_sieve`, `prime_sieve_eratosthenes`, `eratosthenes_sieve`, `sieve_er`, `sieve2`, and `odd_sieve` alias `sieve_of_eratosthenes`; `bogo_sorter` and `bogosort` alias `bogo_sort`; `greatest_common_divisor` aliases `gcd`; and `least_common_multiple` aliases `lcm`; `circular_queue` aliases `queue`; `singly_linked_list` aliases `linked_list`; `knapsack` and R candidate `1_knapsack_problem` alias `knapsack_zero_one_tabulation` for their 0/1 dynamic-programming variants; `fractional_knapsack_2` aliases `fractional_knapsack`; `abundant_numbers` aliases `abundant_number`; `add_digits` aliases `digital_root`; `iterative_merge_sort` and `non_recursive_merge_sort` alias `merge_sort_nr`; `merge_sort_recursive` and `recursive_mergesort_array` alias `merge_sorter`; `quick_sort_3_ways` aliases `quick_sort_3`; `circlesort` aliases `circle_sort`; `brick_sort`, `oddevensort`, and `odd_even_transposition_single_threaded` alias `odd_even_sort`; `shaker_sort` aliases `cocktail_sort`; `shellsort` and `shell_sorter` alias `shell_sort`; `select_sort` and `selectionsort` alias `selection_sort`; `recursive_insertion_sort` aliases `insertion_sort_recursive`; `recursive_quick_sort` and `quick_sort_recursive` alias `quick_sort`; `mergesort` aliases `merge_sorter`; `slowsort` aliases `slow_sort`; `timsort` aliases `tim_sort`; `random_quick_sort`, `randomized_quick_sort`, and `random_pivot_quick_sorter` alias `random_pivot_quick_sort`; `radixsort`, `radix_sort2`, and `radix_sort_2` alias `radix_sort`; `pigeon_sort` aliases `pigeonhole_sort`; The Go/Lua `bubblesort` filename aliases `bubble_sort`; Go `cocktailsort`, `cyclesort`, `heapsort`, `insertionsort`, `pancakesort`, `patiencesort`, `pigeonholesort`, and `exchangesort` alias their matching benchmark names; Go/Lua `countingsort` and Dart/PHP `count_sort` alias `counting_sort`; C `bubble_sort_2` and PHP `bubble_sort2` alias `bubble_sort`; C `bubble_sort_recursion` aliases `bubble_sort_recursive`; Go `bucketsort` aliases `bucket_sort`; C-Sharp `BucketSorter` aliases `radix_sort` because it sorts by repeated decimal-digit bucket passes; `binary_insertion_sorter` and `binaryinsertionsort` alias `binary_insertion_sort`; C-Sharp `counting_sorter` aliases `counting_sort`; C-Sharp `exchange_sorter` aliases `exchange_sort`; JavaScript `heap_sort_v2` aliases `heap_sort`; Dart `insert_sort` aliases `insertion_sort`; and JavaScript `pigeon_hole_sort` aliases `pigeonhole_sort`; candidate `subset_sum` includes existence, count, and enumeration benchmarks; `subset_sum_dynamic` is tracked separately for its top-down memoized recurrence, while `subset_sum_space_optimized` and `subsetsum` are aliases. C-Sharp `aliquot_sum_calculator` and Go `aliquotsum` are reviewed aliases of `aliquot_sum`. Java `AmicableNumber`, C# `AmicableNumbersChecker`, and the Dart/R predicates in `amicable_numbers` map to `amicable_number`; the Java range enumerator and Julia/Rust range algorithms in `amicable_numbers` map to `amicable_pairs_below`. C++ `count_of_trailing_ciphers_in_factorial_n` aliases `factorial_trailing_zeroes`; Ruby `binary_count_trailing_zeroes` aliases `binary_count_trailing_zeros`. Tests, examples, benchmarks, documentation, scripts, build output, and vendor directories are omitted. Project Euler `solN` files include their problem number in the candidate name.
+Each candidate is based on a normalized source filename, with camelCase converted to snake_case. The list is a discovery aid: matching filenames do not prove that implementations use the same algorithm, input contract, edge cases, or output. Unreviewed filename candidates remain marked `unreviewed_filename_match` in the JSON until their implementations are inspected. The latest coverage audit records 1,018 distinct benchmark names with all nine language files, README contracts, and matching workloads. It records 1,421 reviewed candidate records, of which 1,408 map to complete benchmark files; 4 invalid and 6 non-benchmarkable sources are excluded. Of the 3,836 pinned catalog records, 2,417 still need review, mapping, or implementation work. This is a static presence audit and does not establish runtime correctness; see [`catalog/coverage.py`](catalog/coverage.py). The A5/1 cipher and key-stream-generator entries follow the pinned Java register-clock and frame-counter behavior, with separate plaintext-XOR and raw-stream contracts. See the [cipher guide](benchmarks/a/a5_cipher/README.md) and [key-stream guide](benchmarks/a/a5_key_stream_generator/README.md). The pinned C# AA tree is ported with its Skew/Split insertion and level-decreasing deletion operations; the portable contract uses signed 32-bit keys and natural ordering. See the [AA tree guide](benchmarks/a/aatree/README.md). The pinned C and C++ ADALINE learner sources share a sequential sign-prediction update; the benchmark uses a deterministic fixed-point projection for exact cross-platform updates. See the [ADALINE guide](benchmarks/a/adaline_learning/README.md). The pinned Rust Adam implementation carries first and second moments with bias correction and decoupled weight decay; nine portable ports share a bounded multi-parameter trace contract. See the [Adam guide](benchmarks/a/adam/README.md) and [source](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/optimization/adam.rs). The Python `adam_optimizer` candidate uses the same update with state keyed by parameter-group ID and aliases this benchmark. The C LeetCode filename `231` aliases `power_of_two`; `atbash` aliases `atbash_cipher`; `xorcipher` aliases `xor_cipher`; `a1z26` aliases `a1z26_cipher`; `caesar` aliases `caesar_cipher`; `vigenere` and `vignere_cipher` alias `vigenere_cipher`; C filename `9` aliases `palindrome_number`; C LeetCode filename `190` aliases `reverse_bits`; C LeetCode candidate `119` uses benchmark name `pascal_triangle_row`; C candidate `215` uses benchmark name `kth_largest_by_sort`; Python `kth_largest_element` uses the quickselect benchmark. C LeetCode candidate `4` uses benchmark name `median_of_two_sorted_arrays`; candidate `2125` uses benchmark name `number_of_laser_beams`; candidates `2482` and `2501` use benchmark names `ones_minus_zeros` and `longest_square_streak`, respectively. C LeetCode candidate `274` uses benchmark name `h_index`. Candidate `278` uses benchmark name `first_bad_version`. Candidate `287` uses benchmark name `find_duplicate_number`. Candidate `234` uses benchmark name `palindrome_linked_list`. C LeetCode candidate `2130` uses benchmark name `maximum_twin_sum_of_linked_list`. The C LeetCode filename `121` and Java `stock_profit_calculator` alias `best_time_to_buy_and_sell_stock`. The C LeetCode filename `136` is reviewed as an alias of `single_number`. The C LeetCode filename `10` is reviewed as an alias of `regex_match`; candidate `11` uses benchmark name `container_with_most_water`; candidate `125` uses benchmark name `valid_palindrome`; C LeetCode candidate `101`, Java `check_tree_is_symmetric`, and Python `symmetric_tree` share the recursive mirror-check contract; C LeetCode candidate `1019` uses benchmark name `next_greater_nodes`; C LeetCode candidate `1026` uses benchmark name `max_ancestor_diff`; C LeetCode candidate `104` uses benchmark name `max_depth`; C LeetCode candidate `110` uses benchmark name `balanced_binary_tree`; C LeetCode candidate `404` uses benchmark name `sum_of_left_leaves`; C LeetCode candidate `965` uses benchmark name `univalued_binary_tree`; C LeetCode candidate `124` aliases `binary_tree_maximum_path_sum`; C LeetCode `12`, `decimal_to_roman`, `decimal_to_roman_numeral`, and `inttoroman` alias `integer_to_roman`; `roman_numeral_util` aliases `integer_to_roman`; `roman_numerals` aliases `roman_to_integer`; `roman_numerals_to_decimal`, `roman_to_decimal`, and `romantoint` alias `roman_to_integer`; C LeetCode candidate `13` aliases `roman_to_integer`; C LeetCode candidate `14` aliases `max_consecutive_ones`; `regex_matching` in Java implements wildcard matching and is tracked separately. The C LeetCode filename `1` is reviewed as an alias of `two_sum`; the `letter_combination` filename is recorded as an alias of `letter_combinations_of_phone_number`; `edit_distance`, `levenshtein`, and `levenshteindistance` alias `levenshtein_distance`; `coin_change_topdown` aliases `coin_change`; `lcs` aliases `longest_common_subsequence`; `decimal_to_any` aliases `decimal_to_any_base`; `int_to_base` and `base_x` alias `decimal_to_any_base`; `arbitrary_base` aliases `any_base_to_any_base`; `int_to_negative_binary_base` aliases `base_neg2_conversion`; and `prime_sieve`, `prime_sieve_eratosthenes`, `eratosthenes_sieve`, `sieve_er`, `sieve2`, and `odd_sieve` alias `sieve_of_eratosthenes`; `bogo_sorter` and `bogosort` alias `bogo_sort`; `greatest_common_divisor` aliases `gcd`; and `least_common_multiple` aliases `lcm`; `circular_queue` aliases `queue`; `singly_linked_list` aliases `linked_list`; `knapsack` and R candidate `1_knapsack_problem` alias `knapsack_zero_one_tabulation` for their 0/1 dynamic-programming variants; `fractional_knapsack_2` aliases `fractional_knapsack`; `abundant_numbers` aliases `abundant_number`; `add_digits` aliases `digital_root`; `iterative_merge_sort` and `non_recursive_merge_sort` alias `merge_sort_nr`; `merge_sort_recursive` and `recursive_mergesort_array` alias `merge_sorter`; `quick_sort_3_ways` aliases `quick_sort_3`; `circlesort` aliases `circle_sort`; `brick_sort`, `oddevensort`, and `odd_even_transposition_single_threaded` alias `odd_even_sort`; `shaker_sort` aliases `cocktail_sort`; `shellsort` and `shell_sorter` alias `shell_sort`; `select_sort` and `selectionsort` alias `selection_sort`; `recursive_insertion_sort` aliases `insertion_sort_recursive`; `recursive_quick_sort` and `quick_sort_recursive` alias `quick_sort`; `mergesort` aliases `merge_sorter`; `slowsort` aliases `slow_sort`; `timsort` aliases `tim_sort`; `random_quick_sort`, `randomized_quick_sort`, and `random_pivot_quick_sorter` alias `random_pivot_quick_sort`; `radixsort`, `radix_sort2`, and `radix_sort_2` alias `radix_sort`; `pigeon_sort` aliases `pigeonhole_sort`; The Go/Lua `bubblesort` filename aliases `bubble_sort`; Go `cocktailsort`, `cyclesort`, `heapsort`, `insertionsort`, `pancakesort`, `patiencesort`, `pigeonholesort`, and `exchangesort` alias their matching benchmark names; Go/Lua `countingsort` and Dart/PHP `count_sort` alias `counting_sort`; C `bubble_sort_2` and PHP `bubble_sort2` alias `bubble_sort`; C `bubble_sort_recursion` aliases `bubble_sort_recursive`; Go `bucketsort` aliases `bucket_sort`; C-Sharp `BucketSorter` aliases `radix_sort` because it sorts by repeated decimal-digit bucket passes; `binary_insertion_sorter` and `binaryinsertionsort` alias `binary_insertion_sort`; C-Sharp `counting_sorter` aliases `counting_sort`; C-Sharp `exchange_sorter` aliases `exchange_sort`; JavaScript `heap_sort_v2` aliases `heap_sort`; Dart `insert_sort` aliases `insertion_sort`; and JavaScript `pigeon_hole_sort` aliases `pigeonhole_sort`; candidate `subset_sum` includes existence, count, and enumeration benchmarks; `subset_sum_dynamic` is tracked separately for its top-down memoized recurrence, while `subset_sum_space_optimized` and `subsetsum` are aliases. C-Sharp `aliquot_sum_calculator` and Go `aliquotsum` are reviewed aliases of `aliquot_sum`. Java `AmicableNumber`, C# `AmicableNumbersChecker`, and the Dart/R predicates in `amicable_numbers` map to `amicable_number`; the Java range enumerator and Julia/Rust range algorithms in `amicable_numbers` map to `amicable_pairs_below`. C++ `count_of_trailing_ciphers_in_factorial_n` aliases `factorial_trailing_zeroes`; Ruby `binary_count_trailing_zeroes` aliases `binary_count_trailing_zeros`. Tests, examples, benchmarks, documentation, scripts, build output, and vendor directories are omitted. Project Euler `solN` files include their problem number in the candidate name.
 
 The pinned C# `JaccardDistance` source maps to the `jaccard_distance` benchmark, which preserves character-set deduplication and both-empty distance semantics on its portable ASCII contract. The pinned Solidity `AddArray` source maps candidate `add_array` to the `array_sum` benchmark, whose bounded signed-64-bit contract preserves its cumulative-sum loop. See the [Jaccard-distance guide](benchmarks/j/jaccard_distance/README.md) and [array-sum guide](benchmarks/a/array_sum/README.md). The pinned Java, JavaScript, and Python `AlternativeStringArrange` sources map to the `alternative_string_arrange` benchmark, and the AArch64 Assembly `append` routine maps to portable `string_append` implementations. Their contracts are linked in the benchmark guides. The JavaScript `alphaNumericalSort` comparator maps to `alpha_numerical_sort` on lowercase ASCII with canonical decimal runs, avoiding locale-dependent cases.
 
@@ -1602,6 +1602,10 @@ The pinned C++ sources count strict inversions during bottom-up merge sort. The 
 
 The Python grid, C++ state-space, and R weighted-graph filename matches all implement A* search. The shared contract normalizes them to directed unit-cost graphs with consistent nonnegative heuristics and deterministic shortest-path selection; the Python `a_star` candidate aliases this path benchmark and its action-map output is outside the shared result. Nine language ports are present. See the [benchmark guide](benchmarks/a/a_star_search/README.md).
 
+## Arithmetic Coding
+
+The pinned Java compressor builds a byte-frequency model, sorts symbols, and narrows an arithmetic interval for every input symbol. The nine portable ports use exact rational interval updates and return a bounded integer representation of the final lower bound. See the [benchmark guide](benchmarks/a/arithmetic_coding/README.md).
+
 ## Acronym
 
 The pinned C source builds an acronym from the first character of each space-delimited word. The explicit-length ASCII contract keeps the behavior safe and consistent across all nine language ports. See the [benchmark guide](benchmarks/a/acronym/README.md).
@@ -1713,3 +1717,276 @@ The pinned Java dynamic program alternates strict rising and falling transitions
 ## Newton force and sign-bit comparison
 
 The pinned Python Newton-law source multiplies signed mass and acceleration; the benchmark keeps bounded signed inputs. Java and Python `numbers_different_signs` both test whether the signed XOR is negative, and the shared contract limits Python values to Java int32. See the guides for [Newton force](benchmarks/n/newtons_second_law_of_motion/README.md) and [different signs](benchmarks/n/numbers_different_signs/README.md).
+
+## Geometric distribution
+
+Both pinned C++ snapshots expose the same geometric distribution calculations. The benchmark covers deterministic expectation, variance, standard deviation, PDF, CDF, inverse CDF, and inclusive range probability with binary32 source rounding; it excludes random sampling. See the [benchmark guide](benchmarks/g/geometric_dist/README.md).
+
+
+## Geometric sequence and mean
+
+The pinned Python `geometric.py` contains two operations: checking whether adjacent terms have a common ratio and calculating the geometric mean. They have a selector-based bounded contract and are distinct from the finite term generator in `geometric_series` and the probability calculations in `geometric_dist`. See the [benchmark guide](benchmarks/g/geometric/README.md).
+
+
+## Double linear search
+
+The pinned Python and Ruby sources probe the left endpoint before the right endpoint, then move inward. The benchmark preserves that order for duplicate matches and limits values to the exact-integer range shared with JavaScript. See the [benchmark guide](benchmarks/d/double_linear_search/README.md).
+
+
+## ASCII uppercase
+
+The pinned F#, Java, JavaScript, and Python implementations uppercase ASCII letters. The contract excludes ASCII whitespace so F# split-and-join follows the same separator behavior as the other sources. See the [benchmark guide](benchmarks/u/upper/README.md).
+
+
+## Maximum sum of distinct fixed-size windows
+
+The pinned Java source updates its maximum only for length-`k` windows containing distinct values, with an initial maximum of zero. That preserves zero when no qualifying window exists or all valid sums are negative. See the [benchmark guide](benchmarks/m/maximum_sum_of_distinct_subarrays_with_length_k/README.md).
+
+
+## Infix to postfix conversion
+
+The pinned Python stack conversion emits space-separated postfix tokens. Exponentiation is right-associative, while the supported arithmetic operators are left-associative. See the [benchmark guide](benchmarks/i/infix_to_postfix_conversion/README.md).
+
+
+## Kaprekar constant routine
+
+The pinned Python source pads each value to four digits, subtracts the ascending digit arrangement from the descending arrangement, and stops at 6174, zero, or the iteration limit. The benchmark reports the iteration count. See the [benchmark guide](benchmarks/k/kaprekar_constant/README.md).
+
+
+## Z-function
+
+The pinned C++ and Python implementations return the Z-array, with `z[0]=0`; this is distinct from pattern search in `z_algorithm`. See the [benchmark guide](benchmarks/z/z_function/README.md).
+
+
+## Recursive find minimum
+
+The pinned Dart and Java sources split an inclusive index range recursively, then combine the minimum from each half. The benchmark applies that recurrence to a bounded nonempty input. See the [benchmark guide](benchmarks/f/find_min_recursion/README.md).
+
+
+## Weekday formulas: Doomsday and month offsets
+
+The pinned Python `doomsday.py` uses Conway's Doomsday rule. The Rust source with the same filename uses a separate fixed month-offset formula, so the catalog maps it to the additional `weekday_by_month_offsets` benchmark. See the [Doomsday guide](benchmarks/d/doomsday/README.md) and the [month-offset guide](benchmarks/w/weekday_by_month_offsets/README.md).
+
+
+## Treynor ratio
+
+The pinned Rust implementation computes excess portfolio return divided by beta. The finite benchmark contract bounds its inputs and excludes zero beta, which produces NaN in the source. See the [benchmark guide](benchmarks/t/treynor_ratio/README.md).
+
+
+## Cross-entropy loss
+
+The pinned Rust source forms negative actual-times-log-predicted terms in order and then sums the terms in order. The bounded contract keeps results finite and excludes unequal vectors and invalid logarithm inputs. See the [benchmark guide](benchmarks/c/cross_entropy_loss/README.md).
+
+## Order-agnostic binary search
+
+The pinned Java source derives ascending or descending comparison order from the endpoints, then performs midpoint binary search. The benchmark preserves the source's returned midpoint for duplicate keys and requires monotone input. See the [benchmark guide](benchmarks/o/order_agnostic_binary_search/README.md).
+
+
+## Distance filename variants
+
+The Go `distance` source computes Euclidean distance and aliases `euclidean_distance`; the PHP source computes byte-string Levenshtein distance and maps to the additional `levenshtein_distance` benchmark. See the [Euclidean-distance guide](benchmarks/e/euclidean_distance/README.md) and the [Levenshtein guide](benchmarks/l/levenshtein_distance/README.md).
+
+## Multiplicative binomial coefficient
+
+The pinned C++ `binomial_calculate` sources evaluate `n choose k` with an iterative multiplicative recurrence. This is distinct from the Pascal-triangle strategy in `binomial_coefficient`. See the [benchmark guide](benchmarks/b/binomial_calculate/README.md).
+
+
+## Set the kth bit
+
+The pinned C++ sources return `N | (1 << k)` for zero-based bit position `k`. The benchmark stays inside the source's defined signed-shift domain. See the [benchmark guide](benchmarks/s/set_kth_bit/README.md).
+
+
+## Duval least cyclic shift
+
+The pinned C++ `duval.cpp` scan returns the source-selected start of a lexicographically least cyclic rotation. It is separate from Rust `duval_algorithm`, which performs Lyndon factorization. See the [benchmark guide](benchmarks/d/duval/README.md).
+
+
+## Minimum size subarray sum
+
+The pinned Python source grows a right edge, records qualifying lengths, and shrinks the left edge while the sum stays at least the target. Positive inputs preserve this sliding-window invariant. See the [benchmark guide](benchmarks/m/minimum_size_subarray_sum/README.md).
+
+
+## Duplicate brackets
+
+The pinned Java stack scan reports whether a closing parenthesis encloses no expression characters. It detects redundant grouping and is distinct from balanced-parenthesis checks. See the [benchmark guide](benchmarks/d/duplicate_brackets/README.md).
+
+## Binary OR and XOR formatting
+
+The pinned Python and Ruby sources calculate a binary OR or XOR result and emit it with a `0b` prefix and width derived from the operands. These byte-output packages preserve the source formatting contract for bounded nonnegative values. See the guides for [binary OR](benchmarks/b/binary_or_operator/README.md) and [binary XOR](benchmarks/b/binary_xor_operator/README.md).
+
+## Ordinary annuity future value
+
+The pinned Python formula is payment times `(((1+rate)^periods)-1)/rate`, without the final rate factor used for an annuity due. See the [benchmark guide](benchmarks/o/ordinary_annuity_future_value/README.md).
+
+
+## Even tree cuts
+
+The pinned Python source roots the tree at node 1, computes subtree sizes, and counts edges whose child subtree is even. The benchmark limits the domain to valid trees with an even node count. See the [benchmark guide](benchmarks/e/even_tree/README.md).
+
+## Simple moving average
+
+The pinned Python source emits unavailable values until a complete trailing window exists, then sums each window independently and divides by its length. The portable output uses canonical quiet-NaN bits for the unavailable prefix. See the [benchmark guide](benchmarks/s/simple_moving_average/README.md).
+
+## Generate parentheses
+
+The pinned C++, JavaScript, and Python sources generate the same well-formed parenthesis strings with different traversal orders. The benchmark sorts them lexicographically and concatenates the fixed-length results. See the [benchmark guide](benchmarks/g/generate_parentheses/README.md).
+
+## Streaming moving average
+
+The pinned Python class reports the average of its current trailing values after each update, including partial windows. This is distinct from the batch simple moving average, which marks the incomplete prefix unavailable. See the [benchmark guide](benchmarks/s/streaming_moving_average/README.md).
+
+## Time and a half pay
+
+The pinned Python source computes regular pay, then adds a half-rate premium for hours above the threshold. It preserves the source's operation order and explicit threshold parameter. See the [benchmark guide](benchmarks/t/time_and_half_pay/README.md).
+
+## Camel case to snake case
+
+The pinned Python source inserts underscores before uppercase ASCII letters and lowercases them. The letter-only contract keeps the transformation shared across the nine ports and distinguishes it from the inverse snake-to-camel conversion. See the [benchmark guide](benchmarks/c/camel_case_to_snake_case/README.md).
+
+
+## Integer partition count
+
+The pinned Python and Rust implementations use the same two-dimensional recurrence to count partitions of a positive integer. The benchmark bounds n so the exact result fits signed 64-bit. See the [benchmark guide](benchmarks/i/integer_partition/README.md).
+
+## Binary numeral to Base64 text
+
+The pinned Python source maps six-bit groups from a textual binary numeral through the Base64 alphabet. The contract preserves left-padding, the mandatory group at exact six-bit multiples, an optional leading sign, and edge-whitespace trimming; this is distinct from byte-to-Base64 encoding. See the [benchmark guide](benchmarks/b/binary_to_base64/README.md).
+
+
+## Squareplus activation
+
+The pinned Python function applies `(x + sqrt(x^2 + beta))/2` elementwise. The benchmark scalarizes one vector element while retaining configurable positive beta and the source expression order. See the [benchmark guide](benchmarks/s/squareplus/README.md).
+
+
+## Trapping rain water alias
+
+The pinned JavaScript source uses prefix and suffix maximum heights and sums trapped water per position, matching the C++ and Rust `trapped_rainwater` benchmark. The JavaScript filename is cataloged as an alias. See the [benchmark guide](benchmarks/t/trapped_rainwater/README.md).
+
+## Softplus activation
+
+The pinned Python source evaluates `log(1 + exp(x))` directly. The bounded unary contract preserves that operation order and its rounding at the lower endpoint, instead of substituting a stabilized identity. See the [benchmark guide](benchmarks/s/softplus/README.md).
+
+## First-match Horspool search
+
+The pinned Java `findFirst` routine searches right-to-left and shifts from the text byte aligned with the pattern's final position. It returns only the first match, unlike the all-match `boyer_moore_horspool` benchmark. See the [benchmark guide](benchmarks/h/horspool_search/README.md).
+
+## Temperature conversion
+
+The pinned JavaScript source defines 16 directed conversions among Celsius, Fahrenheit, Kelvin, Rankine, and Réaumur, rounding each result with `Math.round`. The package preserves its formula order and whole-degree rounding. See the [benchmark guide](benchmarks/t/temperature_conversion/README.md).
+
+
+## Softsign activation
+
+The pinned Python source evaluates `x/(1+abs(x))` directly for each value. The bounded unary contract preserves the expression and source operation order. See the [benchmark guide](benchmarks/s/softsign/README.md).
+
+## Segmented sieve
+
+The pinned Python source builds base primes through the square root, then marks each consecutive segment and emits primes in ascending order. This differs from sieving the entire range in `sieve_of_eratosthenes`. See the [benchmark guide](benchmarks/s/segmented_sieve/README.md).
+
+## Banker's algorithm source variants
+
+The pinned Java `checkSafeSystem` source returns whether an allocation state is safe. The Python demonstration prints a sequence and uses a different index map for duplicate need rows, which can release the first matching process allocation more than once; that behavior is preserved in a separate benchmark. See the [Java guide](benchmarks/b/bankers_algorithm/README.md) and the [Python-demo guide](benchmarks/b/bankers_algorithm_python_demo/README.md).
+
+## Mish activation
+
+The pinned Python source evaluates `x * tanh(log(1 + exp(x)))` in that order. The bounded unary package preserves the source's direct formula. See the [benchmark guide](benchmarks/m/mish/README.md).
+
+## Circular convolution
+
+The pinned Python source pads both inputs to the longer length, wraps products modulo that length, and rounds outputs to two decimals. On the bounded integer domain the result stays exact; this is distinct from linear convolution. See the [benchmark guide](benchmarks/c/circular_convolution/README.md).
+
+## Möbius function
+
+The pinned Java, JavaScript, and Python sources return zero when a prime square divides n; otherwise they return the parity of distinct prime factors, with μ(1)=1. Go `mobius` matches on the positive domain and is an alias. See the [benchmark guide](benchmarks/m/mobius_function/README.md).
+
+## Unique subsequences count
+
+The pinned Java source counts nonempty subsequence strings while deduplicating equal character sequences at each suffix. The ASCII contract bounds the count to the source's signed-int range. See the [benchmark guide](benchmarks/u/unique_subsequences_count/README.md).
+
+
+## Decimal expansion
+
+The pinned JavaScript source emits a fraction's radix digits by long division and detects repeating cycles by remainder. This is distinct from integer base conversion. See the [benchmark guide](benchmarks/d/decimal_expansion/README.md).
+
+## Misnamed Base58 source
+
+The pinned Python file named `base58.py` actually provides RFC 4648 Base64 byte encoding and decoding, so it aliases the `base64` benchmark. See the [Base64 guide](benchmarks/b/base64/README.md).
+
+
+## Hexadecimal text to decimal
+
+The pinned JavaScript source folds uppercase hexadecimal digits into a nonnegative integer. Its bounded values match the existing `hexadecimal_to_decimal` contract after input normalization, so the candidate is cataloged as an alias. See the [benchmark guide](benchmarks/h/hexadecimal_to_decimal/README.md).
+
+## Unbounded knapsack
+
+The pinned C++ file named `unbounded_0_1_knapsack.cpp` and Kotlin `UnboundedKnapsack.kt` use capacity-ascending recurrences that allow unlimited reuse. They map to the `unbounded_knapsack` benchmark; the Kotlin driver’s printed DP row is outside the normalized scalar result. See the [benchmark guide](benchmarks/u/unbounded_knapsack/README.md).
+
+## Base64 source aliases
+
+The Python `base58.py` filename actually implements Base64, and the C++ `base64_encoding.cpp` sources implement RFC 4648 encoding and decoding; both are cataloged as aliases of `base64`. The C++ signed-`char` limitation is documented in the alias review notes. See the [benchmark guide](benchmarks/b/base64/README.md).
+
+
+## Additional source mappings
+
+The Kotlin `UnboundedKnapsack.kt` source uses capacity-ascending dynamic programming and maps to `unbounded_knapsack`; its printed DP row is outside the scalar result. The JavaScript `DegreeToRadian.js` source aliases `radians` within the shared binary64 tolerance. The Java `SnellLaw.java` source is a radian-valued Snell refraction benchmark; the Python degree-valued, rounded sibling remains a separate source variant. See the [unbounded-knapsack guide](benchmarks/u/unbounded_knapsack/README.md), [radians guide](benchmarks/r/radians/README.md), and [Snell's-law guide](benchmarks/s/snell_law/README.md).
+
+The unrestricted Java Damerau–Levenshtein source and restricted Python/C# optimal-string-alignment sources are separate benchmarks. The JavaScript `hex_to_binary` preserves leading zeroes, while the Python `convert_number_to_words` package supports short, long, and Indian numbering systems. The Java `longest_common_prefix` package sorts internally without modifying input. See the [Damerau–Levenshtein guide](benchmarks/d/damerau_levenshtein_distance/README.md), [OSA guide](benchmarks/o/optimal_string_alignment_distance/README.md), [hex-to-binary guide](benchmarks/h/hex_to_binary/README.md), [number-to-words guide](benchmarks/c/convert_number_to_words/README.md), and [longest-common-prefix guide](benchmarks/l/longest_common_prefix/README.md).
+
+The standard Haversine sources return kilometers using the central-angle formula. The pinned Rust expression is materially different and returns meters, so it has its own benchmark; `haversine_formula` aliases the standard formula. See the [standard Haversine guide](benchmarks/h/haversine_distance/README.md) and [Rust-variant guide](benchmarks/h/haversine_rust_variant/README.md).
+
+
+The JavaScript `RadianToDegree.js` source uses the inverse unit conversion from `radians` and is benchmarked separately. The C++ `connected_components.cpp` source counts undirected-graph components with recursive DFS, distinct from the DSU benchmark. See the [radian-to-degree guide](benchmarks/r/radian_to_degree/README.md) and [DFS connected-components guide](benchmarks/c/connected_components/README.md).
+
+
+The Python `snake_case_to_camel_pascal_case` helper supports camelCase and PascalCase output modes. The bounded ASCII contract preserves its word-boundary and capitalization behavior across the ports. See the [snake-case conversion guide](benchmarks/s/snake_case_to_camel_pascal_case/README.md).
+
+
+The Python `base64_to_binary` source maps each Base64 alphabet symbol independently to six bits, trims edge ASCII whitespace, and preserves one leading minus sign. It is distinct from byte-oriented Base64 decoding and from `binary_to_base64`. See the [Base64-alphabet-to-binary guide](benchmarks/b/base64_to_binary/README.md).
+
+
+The Java, Python, R, and Rust `dinic` sources implement the same bounded maximum-flow scalar using Dinic's level graph and blocking-flow method; their residual representations and vertex indexing are adapted to one packed contract. The Rust `dinic_maxflow` name is canonical, while Java/Python `dinic` and R `dinic_max_flow` are aliases. See the [Dinic guide](benchmarks/d/dinic_maxflow/README.md).
+
+
+The pinned primary C++ digit-count file contains two methods: the repeated-division integer routine and a separate `floor(log10(abs(x)) + 1)` binary64 routine. Both have independent benchmark contracts, including the logarithmic method’s fractional-input behavior. See the [integer digit-count guide](benchmarks/f/finding_number_of_digits_in_a_number/README.md) and [logarithmic digit-count guide](benchmarks/f/finding_number_of_digits_in_a_number_using_log/README.md).
+
+
+The JavaScript `MaxProductOfThree.js` source compares the product of the three largest values with the product of the largest value and two smallest values. It chooses exactly three positions and is distinct from contiguous maximum-product-subarray algorithms. See the [maximum-product-of-three guide](benchmarks/m/max_product_of_three/README.md).
+
+
+The Java `AutoCorrelation` source returns the complete unnormalized linear signal through `CrossCorrelation`, distinct from a normalized coefficient at one lag. The mixed `linear_regression` candidate includes OLS in C#/Rust/R, batch gradient descent in Java/Python, and multivariate matrix gradient descent in Julia; the OLS subset has its own package and the gradient-descent variants require separate contracts. See the [auto-correlation guide](benchmarks/a/auto_correlation/README.md) and [OLS guide](benchmarks/l/linear_regression_ols/README.md).
+
+
+The Ruby `find_the_highest_altitude` source returns the greatest prefix sum including the initial altitude of zero; its second method definition is the effective implementation. JavaScript `array_buffer_to_base64` encodes ArrayBuffer bytes with the standard Base64 alphabet and aliases the existing Base64 byte-encoder package. See the [highest-altitude guide](benchmarks/f/find_the_highest_altitude/README.md) and [Base64 guide](benchmarks/b/base64/README.md).
+
+
+The Python `snells_law` source uses degree-valued angles, near-critical `math.isclose` checks, and two-decimal ties-to-even rounding. It is a separate benchmark from Java's unrounded radian-valued `snell_law`. See the [Python Snell's-law guide](benchmarks/s/snells_law/README.md).
+
+
+The pinned C++ `boruvkas_minimum_spanning_tree` sources repeatedly select each component's cheapest outgoing edge and merge components, preserving Borůvka's phases. This is distinct from Prim's and Kruskal's MST algorithms. See the [Borůvka MST guide](benchmarks/b/boruvkas_minimum_spanning_tree/README.md).
+
+
+The JavaScript `ExponentialFunction.js` source sums a finite Taylor expansion with source loop order and special-cases zero terms; it is not the exact `exp` operation. The Java `assignment_using_bitmask` source counts assignments with a bitmask DP while allowing tasks to remain unused. See the [Taylor exponential guide](benchmarks/e/exponential_function/README.md) and [bitmask assignment guide](benchmarks/a/assignment_using_bitmask/README.md).
+
+
+The pinned Python `nth_root` source uses Newton iteration with its exact initialization, update order, and stopping rule. The Go `binarytodecimal` string parser aliases the unsigned `binary_to_decimal` benchmark on strings of at most 32 bits. Python and MATLAB `bisection` candidates use interval bisection and map to the normalized `bisection_method` contract, while preserving their stopping-condition differences in review notes. The JavaScript `circular_arc` package preserves its arc-length and sector-area functions as separate modes; the arc-length mode also overlaps the degree mode of `arc_length`. See the [nth-root guide](benchmarks/n/nth_root/README.md), [binary-to-decimal guide](benchmarks/b/binary_to_decimal/README.md), [bisection guide](benchmarks/b/bisection_method/README.md), and [arc-length guide](benchmarks/a/arc_length/README.md).
+
+
+The pinned Java and Python `linear_congruential_generator` sources apply the same explicit seeded recurrence. Time-based default seeding is excluded; generated states are serialized as little-endian unsigned 64-bit values. See the [linear-congruential-generator guide](benchmarks/l/linear_congruential_generator/README.md).
+
+
+The JavaScript `circular_arc` source exposes both arc length and sector area; a mode-driven package preserves each formula and its degree conversion order. The mixed linear-regression candidate now maps OLS, batch gradient descent, multivariate gradient descent, and notebook stochastic gradient descent to separate benchmarks as their packages become ready. See the [circular-arc guide](benchmarks/c/circular_arc/README.md).
+
+
+The Python `brent_method` source combines inverse-quadratic interpolation, secant steps, and safeguarded bisection for bracketed roots. The Python `relativistic_kinetic_energy` source applies the Lorentz factor and is distinct from classical kinetic energy. JavaScript `base64_to_array_buffer` aliases the Base64 decoder on canonical RFC 4648 encodings. See the [Brent-method guide](benchmarks/b/brent_method/README.md), [relativistic kinetic-energy guide](benchmarks/r/relativistic_kinetic_energy/README.md), and [Base64 guide](benchmarks/b/base64/README.md).
+
+
+The JavaScript `farey_approximation` source repeatedly updates rational bounds with mediants and returns the final mediant after a fixed number of steps. The benchmark preserves its tie direction and encodes the target as integer millionths. See the [Farey-approximation guide](benchmarks/f/farey_approximation/README.md).
+
+
+The JavaScript `decimal_to_hex` source emits uppercase hexadecimal digits and is distinct in case from `decimal_to_hexadecimal`; its safe-integer domain normalizes JavaScript's numeric return for single digits to text. JavaScript `base64_to_array_buffer` aliases the strict Base64 decoder for canonical RFC 4648 inputs. See the [decimal-to-hex guide](benchmarks/d/decimal_to_hex/README.md) and [Base64 guide](benchmarks/b/base64/README.md).
+
+
+The Python `relativistic_velocity_summation` source applies the relativistic velocity-addition formula, with an object-speed boundary that permits ±c and a strictly subluminal frame-speed bound. It is distinct from classical velocity addition. See the [relativistic-velocity-summation guide](benchmarks/r/relativistic_velocity_summation/README.md).
+
+
+The Python `booths_algorithm` source finds a string's lexicographically smallest rotation with Booth's linear-time failure-table method. It is distinct from Booth multiplication. See the [minimal-rotation guide](benchmarks/b/booths_algorithm/README.md).

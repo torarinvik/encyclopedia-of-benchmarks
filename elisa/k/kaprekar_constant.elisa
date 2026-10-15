@@ -1,0 +1,54 @@
+def kaprekar_step(number: i64) -> i64:
+    d0: mutable i64 = number / 1000
+    d1: mutable i64 = (number / 100) % 10
+    d2: mutable i64 = (number / 10) % 10
+    d3: mutable i64 = number % 10
+    temp: mutable i64 = 0
+
+    if d0 > d1:
+        temp <- d0
+        d0 <- d1
+        d1 <- temp
+    if d2 > d3:
+        temp <- d2
+        d2 <- d3
+        d3 <- temp
+    if d0 > d2:
+        temp <- d0
+        d0 <- d2
+        d2 <- temp
+    if d1 > d3:
+        temp <- d1
+        d1 <- d3
+        d3 <- temp
+    if d1 > d2:
+        temp <- d1
+        d1 <- d2
+        d2 <- temp
+
+    ascending: i64 = d0 * 1000 + d1 * 100 + d2 * 10 + d3
+    descending: i64 = d3 * 1000 + d2 * 100 + d1 * 10 + d0
+    descending - ascending
+
+def kaprekar_constant_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    number: i64 = values[0]
+    max_iterations: i64 = values[1]
+    if number < 0 or number > 9999 or max_iterations < 1 or max_iterations > 16:
+        return -1
+    if number == 6174:
+        return 0
+
+    current: mutable i64 = number
+    iteration: mutable i64 = 1
+    while iteration <= max_iterations:
+        current <- kaprekar_step(current)
+        if current == 6174:
+            return iteration
+        if current == 0:
+            return -1
+        iteration <- iteration + 1
+    -1
+
+export fn kaprekar_constant(values: i64&, length: usize) -> i64 = kaprekar_constant_impl

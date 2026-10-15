@@ -1,0 +1,9 @@
+# Squareplus activation for one element of the source vector.
+extern sqrt(value: f64) -> f64
+
+def squareplus_impl(x: f64, beta: f64) -> f64:
+    if not (x >= -10000.0 and x <= 10000.0 and beta >= 0.25 and beta <= 10000.0):
+        return -1.0e300
+    return (x + sqrt(x * x + beta)) / 2.0
+
+export fn squareplus(x: f64, beta: f64) -> f64 = squareplus_impl

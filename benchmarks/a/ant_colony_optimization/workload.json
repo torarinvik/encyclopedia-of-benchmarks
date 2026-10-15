@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "ant-colony-optimization-i64-array-float64-v1",
+  "algorithm": "ant_colony_optimization",
+  "function_symbol": "ant_colony_optimization",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[num_ants,num_iterations,x0,y0,x1,y1,x2,y2]",
+    "ant_count_range": [1, 64],
+    "iteration_count_range": [1, 64],
+    "city_count": 3,
+    "coordinate_range": [-100000, 100000],
+    "city_coordinates_must_be_distinct": true,
+    "parameters": {
+      "evaporation_rate": 0.7,
+      "pheromone_influence": 1.0,
+      "distance_influence": 5.0,
+      "pheromone_constant": 10.0,
+      "random_generator": "Park-Miller, seeded with 1 per call"
+    },
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "best closed-tour length for the three cities",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"three_four_five_triangle","input_values":[10,20,0,0,3,0,0,4],"input_length":8,"expected_result":12.0},
+    {"id":"translated_triangle","input_values":[5,8,10,10,13,10,10,14],"input_length":8,"expected_result":12.0},
+    {"id":"scaled_triangle","input_values":[4,3,0,0,300,0,0,400],"input_length":8,"expected_result":1200.0},
+    {"id":"collinear_cities","input_values":[16,12,-5,0,0,0,12,0],"input_length":8,"expected_result":34.0},
+    {"id":"invalid-zero-ants","input_values":[0,5,0,0,3,0,0,4],"input_length":8,"expected_result":-1e300},
+    {"id":"invalid-zero-iterations","input_values":[5,0,0,0,3,0,0,4],"input_length":8,"expected_result":-1e300},
+    {"id":"invalid-duplicate-city","input_values":[5,5,0,0,3,0,0,0],"input_length":8,"expected_result":-1e300},
+    {"id":"invalid-coordinate-range","input_values":[5,5,100001,0,3,0,0,4],"input_length":8,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[5,5,0,0,3,0,0],"input_length":7,"expected_result":-1e300}
+  ]
+}

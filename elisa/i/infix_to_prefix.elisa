@@ -1,0 +1,73 @@
+# Convert fully parenthesized bounded ASCII infix expressions to prefix.
+const MAX_EXPRESSION: usize = 256
+
+def infix_to_prefix_operand(ch: i64) -> bool:
+    (ch >= 48 and ch <= 57) or (ch >= 65 and ch <= 90) or (ch >= 97 and ch <= 122)
+
+def infix_to_prefix_operator(ch: i64) -> bool:
+    ch == 43 or ch == 45 or ch == 42 or ch == 47 or ch == 94
+
+def infix_to_prefix_precedence(ch: i64) -> i64:
+    if ch == 43 or ch == 45: return 1
+    elif ch == 42 or ch == 47: return 2
+    3
+
+def infix_to_prefix_valid(input: i64&, length: usize) -> bool:
+    stage: mutable u8[MAX_EXPRESSION] = zeroed
+    depth: mutable usize = 0
+    done: mutable bool = false
+    index: mutable usize = 0
+    while index < length:
+        ch: i64 = input[index]
+        if depth == 0:
+            if done: return false
+            if infix_to_prefix_operand(ch): done <- true
+            elif ch == 40: stage[depth] <- 0; depth <- depth + 1
+            else: return false
+        elif stage[depth - 1] == 0 or stage[depth - 1] == 2:
+            if infix_to_prefix_operand(ch):
+                if stage[depth - 1] == 0: stage[depth - 1] <- 1
+                else: stage[depth - 1] <- 3
+            elif ch == 40 and depth < MAX_EXPRESSION: stage[depth] <- 0; depth <- depth + 1
+            else: return false
+        elif stage[depth - 1] == 1:
+            if not infix_to_prefix_operator(ch): return false
+            stage[depth - 1] <- 2
+        else:
+            if ch != 41: return false
+            depth <- depth - 1
+            if depth == 0: done <- true
+            elif stage[depth - 1] == 0: stage[depth - 1] <- 1
+            elif stage[depth - 1] == 2: stage[depth - 1] <- 3
+            else: return false
+        index <- index + 1
+    depth == 0 and done
+
+def infix_to_prefix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_EXPRESSION or (length > 0 and input.is_null()): return -1
+    if length == 0: return 0
+    if not infix_to_prefix_valid(input, length): return -1
+    stack: mutable u8[MAX_EXPRESSION] = zeroed
+    post: mutable u8[MAX_EXPRESSION] = zeroed
+    top: mutable usize = 0
+    count: mutable usize = 0
+    index: mutable usize = length
+    while index > 0:
+        index <- index - 1
+        ch: i64 = input[index]
+        if infix_to_prefix_operand(ch): post[count] <- ch.u8(); count <- count + 1
+        elif ch == 41: stack[top] <- 41u8; top <- top + 1
+        elif ch == 40:
+            while top > 0 and stack[top - 1] != 41u8:
+                top <- top - 1; post[count] <- stack[top]; count <- count + 1
+            if top > 0: top <- top - 1
+        else:
+            while top > 0 and stack[top - 1] != 41u8 and infix_to_prefix_precedence(ch) < infix_to_prefix_precedence(stack[top - 1].i64()):
+                top <- top - 1; post[count] <- stack[top]; count <- count + 1
+            stack[top] <- ch.u8(); top <- top + 1
+    while top > 0:
+        top <- top - 1; post[count] <- stack[top]; count <- count + 1
+    if capacity < count or (count > 0 and output.is_null()): return -2
+    index <- 0
+    while index < count: output[index] <- post[count - 1 - index]; index <- index + 1
+    count.i64()

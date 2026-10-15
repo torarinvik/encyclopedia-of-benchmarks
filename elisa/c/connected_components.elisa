@@ -1,0 +1,39 @@
+# Count undirected graph components by depth first search.
+def connected_components_visit(vertex: usize, n: usize, adjacency: bool&, seen: mutable bool&) -> void:
+    seen[vertex] <- true
+    next: mutable usize = 0
+    while next < n:
+        if adjacency[vertex * 256 + next] and not seen[next]:
+            connected_components_visit(next, n, adjacency, seen)
+        next <- next + 1
+
+def connected_components_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 1026 or input[0] < 0 or input[0] > 256 or input[1] < 0 or input[1] > 512:
+        return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m:
+        return -1
+    adjacency: mutable bool[65536] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[2 + 2 * edge]
+        v: i64 = input[3 + 2 * edge]
+        if u < 1 or u > n.i64() or v < 1 or v > n.i64():
+            return -1
+        a: usize = (u - 1).usize()
+        b: usize = (v - 1).usize()
+        adjacency[a * 256 + b] <- true
+        adjacency[b * 256 + a] <- true
+        edge <- edge + 1
+    seen: mutable bool[256] = zeroed
+    components: mutable i64 = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if not seen[vertex]:
+            connected_components_visit(vertex, n, adjacency, seen)
+            components <- components + 1
+        vertex <- vertex + 1
+    components
+
+export fn connected_components(input: i64&, length: usize) -> i64 = connected_components_impl

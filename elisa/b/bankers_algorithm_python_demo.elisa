@@ -1,0 +1,55 @@
+# Preserve duplicate-need bookkeeping in the pinned Python demonstration.
+def bankers_algorithm_python_demo_impl(values: i64&, length: usize) -> i64:
+    if length < 5 or length > 266: return -1
+    nv: i64 = values[0]
+    mv: i64 = values[1]
+    if nv < 1 or nv > 16 or mv < 1 or mv > 8: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    aoff: usize = 2 + m
+    moff: usize = aoff + n * m
+    if length != moff + n * m: return -1
+    work: mutable i64[8] = zeroed
+    for r in 0..<m:
+        x: i64 = values[2 + r]
+        if x < 0 or x > 100: return -1
+        work[r] <- x
+    for p in 0..<n:
+        for r in 0..<m:
+            i: usize = p * m + r
+            a: i64 = values[aoff + i]
+            x: i64 = values[moff + i]
+            if a < 0 or a > 100 or x < 0 or x > 100 or a > x: return -1
+            work[r] <- work[r] - a
+    for r in 0..<m:
+        if work[r] < 0: return -1
+    first: mutable usize[16] = zeroed
+    remaining: mutable usize[16] = zeroed
+    for p in 0..<n:
+        first[p] <- p
+        remaining[p] <- p
+        for q in 0..<p:
+            equal: mutable bool = true
+            for r in 0..<m:
+                pi: usize = p * m + r
+                qi: usize = q * m + r
+                if values[moff + pi] - values[aoff + pi] != values[moff + qi] - values[aoff + qi]: equal <- false; break
+            if equal: first[p] <- first[q]; break
+    count: mutable usize = n
+    while count > 0:
+        selected: mutable usize = count
+        for i in 0..<count:
+            p: usize = remaining[i]
+            feasible: mutable bool = true
+            for r in 0..<m:
+                j: usize = p * m + r
+                if values[moff + j] - values[aoff + j] > work[r]: feasible <- false; break
+            if feasible: selected <- i; break
+        if selected == count: return 0
+        mapped: usize = first[remaining[selected]]
+        for r in 0..<m: work[r] <- work[r] + values[aoff + mapped * m + r]
+        for i in selected + 1..<count: remaining[i - 1] <- remaining[i]
+        count <- count - 1
+    1
+
+export fn bankers_algorithm_python_demo(values: i64&, length: usize) -> i64 = bankers_algorithm_python_demo_impl

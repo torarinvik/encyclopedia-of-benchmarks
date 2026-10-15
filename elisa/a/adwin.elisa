@@ -1,0 +1,161 @@
+const MAX_SAMPLES: usize = 256
+const MAX_LEVELS: usize = 16
+const MAX_BUCKETS: usize = 5
+const BUCKET_CAPACITY: usize = MAX_BUCKETS + 1
+const MIN_SUBWINDOW: i64 = 5
+const INPUT_SCALE: f64 = 1000000000.0
+
+def adwin_sqrt(value: f64) -> f64:
+    if value <= 0.0:
+        return 0.0
+    root: mutable f64 =
+        if value > 1.0:
+            value
+        else:
+            1.0
+    iteration: mutable usize = 0
+    while iteration < 80 |root, iteration|:
+        root <- 0.5 * (root + value / root)
+        iteration <- iteration + 1
+    root
+
+def adwin_ln(input_value: f64) -> f64:
+    value: mutable f64 = input_value
+    exponent: mutable i64 = 0
+    while value >= 2.0 |value, exponent|:
+        value <- value * 0.5
+        exponent <- exponent + 1
+    ratio: f64 = (value - 1.0) / (value + 1.0)
+    square: f64 = ratio * ratio
+    term: mutable f64 = ratio
+    sum: mutable f64 = 0.0
+    iteration: mutable usize = 0
+    while iteration < 40 |term, sum, iteration|:
+        sum <- sum + term / f64(2 * iteration + 1)
+        term <- term * square
+        iteration <- iteration + 1
+    2.0 * sum + f64(exponent) * 0.693147180559945309417232121458176568
+
+def adwin_write_i64(output: mutable u8&, word_index: usize, value: i64) -> void:
+    for byte in 0..<8 |output|:
+        output[8 * word_index + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def adwin_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 258:
+        return -1
+    sample_count_value: i64 = input[0]
+    delta_value: i64 = input[1]
+    if (sample_count_value < 1 or sample_count_value > 256 or length != 2 + sample_count_value.usize() or
+        delta_value < 1 or delta_value > 100000000):
+        return -1
+    sample_count: usize = sample_count_value.usize()
+    for i in 0..<sample_count |input|:
+        if input[2 + i] < -1000000000 or input[2 + i] > 1000000000:
+            return -1
+    if output_capacity < 16 * sample_count:
+        return -2
+
+    sizes: mutable i64[MAX_LEVELS] = zeroed
+    totals: mutable f64[MAX_LEVELS * BUCKET_CAPACITY] = zeroed
+    variances: mutable f64[MAX_LEVELS * BUCKET_CAPACITY] = zeroed
+    width: mutable i64 = 0
+    total: mutable f64 = 0.0
+    variance: mutable f64 = 0.0
+    delta: f64 = f64(delta_value) / INPUT_SCALE
+    for sample in 0..<sample_count |input, sizes, totals, variances, width, total, variance, output|:
+        value: f64 = f64(input[2 + sample]) / INPUT_SCALE
+        width <- width + 1
+        slot: usize = sizes[0].usize()
+        totals[slot] <- value
+        variances[slot] <- 0.0
+        sizes[0] <- sizes[0] + 1
+        if width > 1:
+            deviation: f64 = value - total / f64(width - 1)
+            variance <- variance + f64(width - 1) * deviation * deviation / f64(width)
+        total <- total + value
+
+        for level in 0..<MAX_LEVELS - 1 |sizes, totals, variances|:
+            break if sizes[level] <= 5
+            size: f64 = f64(i64(1) << level)
+            base: usize = level * BUCKET_CAPACITY
+            first_mean: f64 = totals[base] / size
+            second_mean: f64 = totals[base + 1] / size
+            difference: f64 = first_mean - second_mean
+            merged_variance: f64 = variances[base] + variances[base + 1] + size * size * difference * difference / (size + size)
+            merged_total: f64 = totals[base] + totals[base + 1]
+            next_slot: usize = (level + 1) * BUCKET_CAPACITY + sizes[level + 1].usize()
+            totals[next_slot] <- merged_total
+            variances[next_slot] <- merged_variance
+            sizes[level + 1] <- sizes[level + 1] + 1
+            bucket_index: mutable usize = 2
+            while bucket_index < sizes[level].usize() |bucket_index, totals, variances|:
+                totals[base + bucket_index - 2] <- totals[base + bucket_index]
+                variances[base + bucket_index - 2] <- variances[base + bucket_index]
+                bucket_index <- bucket_index + 1
+            sizes[level] <- sizes[level] - 2
+
+        changed: mutable bool = false
+        searching: mutable bool = true
+        while searching and width >= 2 * MIN_SUBWINDOW |searching, changed, sizes, totals, variances, width, total, variance|:
+            searching <- false
+            stop: mutable bool = false
+            old_width: mutable i64 = 0
+            old_total: mutable f64 = 0.0
+            level: mutable i64 = i64(MAX_LEVELS) - 1
+            while level >= 0 and not stop |level, stop, sizes, totals, variances, width, total, variance, searching, changed|:
+                current_level: usize = level.usize()
+                bucket: mutable usize = 0
+                while bucket < sizes[current_level].usize() |bucket, stop, sizes, totals, variances, width, total, variance, searching, changed|:
+                    if level == 0 and bucket == sizes[current_level].usize() - 1:
+                        stop <- true
+                        break
+                    old_width <- old_width + (i64(1) << level)
+                    old_total <- old_total + totals[current_level * BUCKET_CAPACITY + bucket]
+                    recent_width: i64 = width - old_width
+                    recent_total: f64 = total - old_total
+                    if recent_width < MIN_SUBWINDOW:
+                        stop <- true
+                        break
+                    if old_width >= MIN_SUBWINDOW:
+                        harmonic: f64 = 1.0 / f64(old_width - MIN_SUBWINDOW + 1) + 1.0 / f64(recent_width - MIN_SUBWINDOW + 1)
+                        confidence: f64 = adwin_ln(2.0 * adwin_ln(f64(width)) / delta)
+                        window_variance: f64 = variance / f64(width)
+                        epsilon: f64 = adwin_sqrt(2.0 * harmonic * window_variance * confidence) + 2.0 / 3.0 * confidence * harmonic
+                        difference: f64 = old_total / f64(old_width) - recent_total / f64(recent_width)
+                        absolute_difference: mutable f64 = difference
+                        absolute_difference <- -difference if difference < 0.0
+                        if absolute_difference > epsilon:
+                            changed <- true
+                            searching <- true
+                            oldest_level: mutable i64 = i64(MAX_LEVELS) - 1
+                            while oldest_level > 0 and sizes[oldest_level.usize()] == 0:
+                                oldest_level <- oldest_level - 1
+                            oldest_base: usize = oldest_level.usize() * BUCKET_CAPACITY
+                            bucket_size: i64 = i64(1) << oldest_level
+                            bucket_total: f64 = totals[oldest_base]
+                            width <- width - bucket_size
+                            total <- total - bucket_total
+                            if width > 0:
+                                bucket_mean: f64 = bucket_total / f64(bucket_size)
+                                drop_difference: f64 = bucket_mean - total / f64(width)
+                                variance <- variance - variances[oldest_base] - f64(bucket_size) * f64(width) * drop_difference * drop_difference / f64(bucket_size + width)
+                            else:
+                                variance <- 0.0
+                            variance <- 0.0 if variance < 0.0
+                            drop_index: mutable usize = 1
+                            while drop_index < sizes[oldest_level.usize()].usize() |drop_index, sizes, totals, variances|:
+                                totals[oldest_base + drop_index - 1] <- totals[oldest_base + drop_index]
+                                variances[oldest_base + drop_index - 1] <- variances[oldest_base + drop_index]
+                                drop_index <- drop_index + 1
+                            sizes[oldest_level.usize()] <- sizes[oldest_level.usize()] - 1
+                            stop <- true
+                            break
+                    bucket <- bucket + 1
+                level <- level - 1
+        flag: mutable i64 = 0
+        flag <- 1 if changed
+        adwin_write_i64(output, 2 * sample, flag)
+        adwin_write_i64(output, 2 * sample + 1, width)
+    return (2 * sample_count).i64()
+
+export fn adwin(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adwin_impl

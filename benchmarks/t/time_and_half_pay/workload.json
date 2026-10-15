@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "time-and-a-half-pay-binary64-v1",
+  "algorithm": "time_and_half_pay",
+  "function_symbol": "time_and_half_pay",
+  "input": {
+    "kind": "hours_rate_threshold",
+    "hours_worked_range": [0.0, 1000.0],
+    "pay_rate_range": [0.0, 1000.0],
+    "threshold_hours_range": [0.0, 1000.0],
+    "all_inputs_finite": true,
+    "source_default_threshold_hours": 40.0,
+    "formula": "hours_worked * pay_rate + max(0, hours_worked - threshold_hours) * pay_rate / 2",
+    "operation_order": "normal pay product, excess hours, overtime product then division by 2, then sum",
+    "invalid_result": -1e300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "below_threshold_default", "input_values": [10.0, 1.0, 40.0], "expected_result": 10.0},
+    {"id": "at_threshold", "input_values": [40.0, 19.0, 40.0], "expected_result": 760.0},
+    {"id": "one_hour_overtime", "input_values": [41.0, 1.0, 40.0], "expected_result": 41.5},
+    {"id": "multiple_overtime_hours", "input_values": [65.0, 19.0, 40.0], "expected_result": 1472.5},
+    {"id": "custom_threshold", "input_values": [12.0, 20.0, 8.0], "expected_result": 280.0},
+    {"id": "fractional_inputs", "input_values": [40.5, 15.25, 40.0], "expected_result": 621.4375},
+    {"id": "zero_hours", "input_values": [0.0, 400.0, 40.0], "expected_result": 0.0},
+    {"id": "zero_rate", "input_values": [65.0, 0.0, 40.0], "expected_result": 0.0},
+    {"id": "maximum_domain", "input_values": [1000.0, 1000.0, 0.0], "expected_result": 1500000.0}
+  ]
+}

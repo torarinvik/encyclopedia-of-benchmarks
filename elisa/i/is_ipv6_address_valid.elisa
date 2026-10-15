@@ -1,0 +1,58 @@
+def ipv6_is_hex_digit(value: i64) -> bool:
+    (value >= 48 and value <= 57) or (value >= 97 and value <= 102) or (value >= 65 and value <= 70)
+
+def ipv6_valid_text(input: i64&, text_length: usize) -> bool:
+    if text_length == 0:
+        return false
+    groups: mutable usize = 0
+    group_length: mutable usize = 0
+    compression_count: mutable usize = 0
+    in_group: mutable bool = false
+    index: mutable usize = 0
+    while index < text_length:
+        value: i64 = input[index + 1]
+        if value == 58:
+            if index + 1 < text_length and input[index + 2] == 58:
+                if (index > 0 and input[index] == 58) or (index + 2 < text_length and input[index + 3] == 58) or compression_count != 0:
+                    return false
+                if in_group:
+                    groups <- groups + 1
+                    in_group <- false
+                    group_length <- 0
+                elif index != 0:
+                    return false
+                compression_count <- compression_count + 1
+                index <- index + 2
+            else:
+                if index == 0 or index + 1 == text_length or not in_group:
+                    return false
+                groups <- groups + 1
+                in_group <- false
+                group_length <- 0
+                index <- index + 1
+        else:
+            if not ipv6_is_hex_digit(value) or group_length == 4:
+                return false
+            group_length <- group_length + 1
+            in_group <- true
+            index <- index + 1
+    if in_group:
+        groups <- groups + 1
+    if compression_count == 0:
+        return groups == 8
+    groups < 8
+
+def is_ipv6_address_valid_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 256:
+        return -1
+    text_length: usize = input[0].usize()
+    if length != text_length + 1:
+        return -1
+    index: mutable usize = 0
+    while index < text_length:
+        if input[index + 1] < 0 or input[index + 1] > 127:
+            return -1
+        index <- index + 1
+    if ipv6_valid_text(input, text_length): 1 else: 0
+
+export fn is_ipv6_address_valid(input: i64&, length: usize) -> i64 = is_ipv6_address_valid_impl

@@ -1,0 +1,40 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern asin(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+
+def haversine_a(values: i64&) -> f64:
+    radians_per_microdegree: f64 = PI_VALUE / 180000000.0
+    latitude1: f64 = values[0].f64() * radians_per_microdegree
+    longitude1: f64 = values[1].f64() * radians_per_microdegree
+    latitude2: f64 = values[2].f64() * radians_per_microdegree
+    longitude2: f64 = values[3].f64() * radians_per_microdegree
+    delta_latitude: f64 = latitude2 - latitude1
+    delta_longitude: f64 = longitude2 - longitude1
+    sin_latitude: f64 = sin(delta_latitude / 2.0)
+    sin_longitude: f64 = sin(delta_longitude / 2.0)
+    a: mutable f64 = sin_latitude * sin_latitude + cos(latitude1) * cos(latitude2) * sin_longitude * sin_longitude
+    if a < 0.0:
+        a = 0.0
+    if a > 1.0:
+        a = 1.0
+    a
+
+def haversine_rust_variant(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    if values[0] < -90000000 or values[0] > 90000000:
+        return -1.0e300
+    if values[2] < -90000000 or values[2] > 90000000:
+        return -1.0e300
+    if values[1] < -180000000 or values[1] > 180000000:
+        return -1.0e300
+    if values[3] < -180000000 or values[3] > 180000000:
+        return -1.0e300
+    a: f64 = haversine_a(values)
+    return 2.0 * sqrt(asin(a)) * 6371000.0
+
+export fn haversine_rust_variant(values: i64&, length: usize) -> f64 = haversine_rust_variant

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -14,10 +15,13 @@ import struct
 import subprocess
 import sys
 from functools import lru_cache
+from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+MAX_SLIDING_WINDOW_INPUT_LENGTH = 100002
+MAX_DOUBLE_LINEAR_SEARCH_INPUT_LENGTH = 100002
 
 
 def same_trees_expected(values: list[int]) -> int:
@@ -92,11 +96,149 @@ def same_trees_expected(values: list[int]) -> int:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    if (not isinstance(values, list) or len(values) > 100001
+    max_input_length = (MAX_SLIDING_WINDOW_INPUT_LENGTH
+                        if algorithm in {"min_sum_ksize_subarray", "max_sum_sliding_window"}
+                        else MAX_DOUBLE_LINEAR_SEARCH_INPUT_LENGTH
+                        if algorithm == "double_linear_search" else 100001)
+    if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
-        raise ValueError("array scalar cases require up to 100001 signed 64-bit values")
-    if algorithm == "rod_cutting":
+        raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
+    if algorithm == "anyto_any":
+        expected_from_source = -1
+        if len(values) == 3:
+            encoded, source_base, destination_base = values
+            if (0 <= encoded <= 999_999_999 and 2 <= source_base <= 10
+                    and 2 <= destination_base <= 10):
+                decimal_value = 0
+                source_multiplier = 1
+                valid = True
+                while encoded > 0:
+                    digit = encoded % 10
+                    if digit >= source_base:
+                        valid = False
+                        break
+                    decimal_value += digit * source_multiplier
+                    source_multiplier *= source_base
+                    encoded //= 10
+                if valid:
+                    result = 0
+                    destination_multiplier = 1
+                    while decimal_value > 0:
+                        result += (decimal_value % destination_base) * destination_multiplier
+                        decimal_value //= destination_base
+                        if decimal_value > 0:
+                            if destination_multiplier > 999_999_999 // 10:
+                                valid = False
+                                break
+                            destination_multiplier *= 10
+                    if valid:
+                        expected_from_source = result
+        if expected != expected_from_source:
+            raise ValueError("anyto_any expected_result must match the bounded decimal-digit base conversion")
+    elif algorithm == "apriori":
+        valid = (len(values) >= 4 and 1 <= values[0] <= 64 and 1 <= values[1] <= 12
+                 and 1 <= values[2] <= 1_000_000 and 0 <= values[3] <= 1_000_000
+                 and len(values) == 4 + values[0])
+        expected_from_source = -1
+        if valid:
+            transaction_count, item_count_value, support_ppm, confidence_ppm = values[:4]
+            mask_limit = 1 << item_count_value
+            transactions = values[4:]
+            valid = all(0 <= transaction < mask_limit for transaction in transactions)
+            if valid:
+                supports: dict[int, int] = {}
+                previous: set[int] = set()
+                all_frequent: set[int] = set()
+                for item in range(item_count_value):
+                    candidate = 1 << item
+                    support = sum((transaction & candidate) == candidate for transaction in transactions)
+                    if support * 1_000_000 >= support_ppm * transaction_count:
+                        supports[candidate] = support
+                        previous.add(candidate)
+                        all_frequent.add(candidate)
+                for size in range(2, item_count_value + 1):
+                    current: set[int] = set()
+                    for candidate in range(1, mask_limit):
+                        if candidate.bit_count() != size:
+                            continue
+                        if not all((candidate ^ (1 << item)) in previous
+                                   for item in range(item_count_value) if candidate & (1 << item)):
+                            continue
+                        support = sum((transaction & candidate) == candidate for transaction in transactions)
+                        if support * 1_000_000 >= support_ppm * transaction_count:
+                            supports[candidate] = support
+                            current.add(candidate)
+                            all_frequent.add(candidate)
+                    previous = current
+                    if not current:
+                        break
+                expected_from_source = 0
+                for candidate in all_frequent:
+                    if candidate.bit_count() < 2:
+                        continue
+                    antecedent = (candidate - 1) & candidate
+                    while antecedent:
+                        if supports[candidate] * 1_000_000 >= confidence_ppm * supports[antecedent]:
+                            expected_from_source += 1
+                        antecedent = (antecedent - 1) & candidate
+        if not valid:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("apriori expected_result must match the frequent association-rule count")
+    elif algorithm == "assignment_using_bitmask":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 12 and 0 <= values[1] <= 16
+                 and len(values) == 2 + values[0])
+        expected_from_source = -1
+        if valid:
+            people, tasks = values[:2]
+            valid_task_mask = (1 << tasks) - 1
+            allowed = values[2:]
+            valid = all(0 <= mask <= valid_task_mask for mask in allowed)
+            if valid:
+                full_mask = (1 << people) - 1
+
+                @lru_cache(maxsize=None)
+                def count_assignments(mask: int, task: int) -> int:
+                    if mask == full_mask:
+                        return 1
+                    if task == tasks:
+                        return 0
+                    total = count_assignments(mask, task + 1)
+                    for person, task_mask in enumerate(allowed):
+                        bit = 1 << person
+                        if mask & bit == 0 and task_mask & (1 << task):
+                            total += count_assignments(mask | bit, task + 1)
+                    return total
+
+                expected_from_source = count_assignments(0, 0)
+        if expected != expected_from_source:
+            raise ValueError("assignment_using_bitmask expected_result must match distinct eligible task assignments")
+    elif algorithm == "arithmetic_coding":
+        valid = (len(values) >= 2 and 1 <= values[0] <= 12 and len(values) == values[0] + 1
+                 and all(0 <= symbol <= 255 for symbol in values[1:]))
+        expected_from_source = -1
+        if valid:
+            count = values[0]
+            frequency = [0] * 256
+            for symbol in values[1:]:
+                frequency[symbol] += 1
+            cumulative = [0] * 257
+            for symbol in range(256):
+                cumulative[symbol + 1] = cumulative[symbol] + frequency[symbol]
+            low, high = Fraction(0), Fraction(1)
+            for symbol in values[1:]:
+                old_low = low
+                interval = high - old_low
+                low = old_low + interval * Fraction(cumulative[symbol], count)
+                high = old_low + interval * Fraction(cumulative[symbol + 1], count)
+            scaled = low * (count ** count)
+            if scaled.denominator != 1:
+                raise ValueError("arithmetic_coding exact interval did not scale to an integer")
+            expected_from_source = scaled.numerator
+        if expected != expected_from_source:
+            raise ValueError("arithmetic_coding expected_result must be the exact scaled lower interval bound")
+    elif algorithm == "rod_cutting":
         valid = (1 <= len(values) - 1 <= 30 and values[0] == len(values) - 1
                  and all(1 <= value <= 1000 for value in values[1:]))
         if not valid:
@@ -126,6 +268,72 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = vowels * (2**32) + consonants
         if expected != expected_from_source:
             raise ValueError("count_vowels_consonants expected_result must match the packed ASCII counts")
+    elif algorithm == "count_letters":
+        valid = (len(values) >= 2 and 0 <= values[1] <= 256
+                 and len(values) == values[1] + 2
+                 and all(65 <= value <= 90 or 97 <= value <= 122
+                         for value in [values[0], *values[2:]]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            query = values[0] | 32
+            expected_from_source = sum((value | 32) == query for value in values[2:])
+        if expected != expected_from_source:
+            raise ValueError("count_letters expected_result must match the case-insensitive ASCII letter frequency")
+    elif algorithm == "duplicate_brackets":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 256
+                 and len(values) == values[0] + 1
+                 and all(32 <= value <= 126 for value in values[1:]))
+        if valid:
+            depth = 0
+            for byte in values[1:]:
+                if byte == ord("("):
+                    depth += 1
+                elif byte == ord(")"):
+                    depth -= 1
+                    if depth < 0:
+                        valid = False
+                        break
+            if depth != 0:
+                valid = False
+        if not valid:
+            expected_from_source = -1
+        else:
+            stack: list[int] = []
+            expected_from_source = 0
+            for byte in values[1:]:
+                if byte != ord(")"):
+                    stack.append(byte)
+                elif not stack or stack[-1] == ord("("):
+                    expected_from_source = 1
+                    break
+                else:
+                    while stack:
+                        if stack.pop() == ord("("):
+                            break
+        if expected != expected_from_source:
+            raise ValueError("duplicate_brackets expected_result must match the balanced printable-ASCII stack scan")
+    elif algorithm == "minimum_size_subarray_sum":
+        valid = (len(values) >= 2 and 1 <= values[0] <= 1_000_000
+                 and 0 <= values[1] <= 256 and len(values) == values[1] + 2
+                 and all(1 <= value <= 1_000_000 for value in values[2:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            target = values[0]
+            items = values[2:]
+            left = 0
+            window_sum = 0
+            shortest = len(items) + 1
+            for right, value in enumerate(items):
+                window_sum += value
+                while window_sum >= target:
+                    shortest = min(shortest, right - left + 1)
+                    window_sum -= items[left]
+                    left += 1
+            expected_from_source = 0 if shortest > len(items) else shortest
+        if expected != expected_from_source:
+            raise ValueError("minimum_size_subarray_sum expected_result must match the positive-value sliding-window minimum")
     elif algorithm == "count_islands_in_matrix":
         valid_shape = (
             len(values) >= 2
@@ -841,6 +1049,1015 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("adtfraction expected_result must match Java i32 arithmetic and binary32 value semantics")
+    elif algorithm == "perimeter":
+        if len(values) != 2 or not (3 <= values[0] <= 256 and 1 <= values[1] <= 255):
+            expected_from_source = -1
+        else:
+            expected_from_source = values[0] * values[1]
+        if expected != expected_from_source:
+            raise ValueError("perimeter expected_result must match the bounded regular-polygon product")
+    elif algorithm == "longest_common_substring":
+        if len(values) < 2 or not (0 <= values[0] <= 256):
+            expected_from_source = -1
+        else:
+            first_length = values[0]
+            second_length_index = first_length + 1
+            if second_length_index >= len(values):
+                expected_from_source = -1
+            else:
+                second_length = values[second_length_index]
+                valid = (0 <= second_length <= 256
+                         and len(values) == first_length + second_length + 2)
+                first = values[1:second_length_index]
+                second = values[second_length_index + 1:]
+                valid = valid and all(32 <= value <= 126 for value in first + second)
+                if not valid:
+                    expected_from_source = -1
+                else:
+                    suffix_lengths = [0] * (second_length + 1)
+                    expected_from_source = 0
+                    for first_byte in first:
+                        for index in range(second_length, 0, -1):
+                            if first_byte == second[index - 1]:
+                                suffix_lengths[index] = suffix_lengths[index - 1] + 1
+                                expected_from_source = max(expected_from_source, suffix_lengths[index])
+                            else:
+                                suffix_lengths[index] = 0
+        if expected != expected_from_source:
+            raise ValueError("longest_common_substring expected_result must match the bounded longest common contiguous substring length")
+    elif algorithm == "volume":
+        valid = (len(values) == 4
+                 and all(0 <= value <= 1000 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            operation, a, b, c = values
+            if operation == 0:
+                expected_from_source = a * a * a if b == 0 and c == 0 else -1
+            elif operation == 1:
+                expected_from_source = a * b * c
+            elif operation == 2:
+                product = a * b * c
+                expected_from_source = product // 2 if product % 2 == 0 else -1
+            elif operation == 3:
+                product = a * b * c
+                expected_from_source = product // 3 if product % 3 == 0 else -1
+            else:
+                expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("volume expected_result must match the bounded exact-integer geometry selector")
+    elif algorithm == "max_character":
+        valid = 1 <= len(values) <= 256 and all(97 <= value <= 122 for value in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            frequencies: dict[int, int] = {}
+            for value in values:
+                frequencies[value] = frequencies.get(value, 0) + 1
+            maximum = max(frequencies.values())
+            leaders = [value for value, count in frequencies.items() if count == maximum]
+            expected_from_source = leaders[0] if len(leaders) == 1 else -1
+        if expected != expected_from_source:
+            raise ValueError("max_character expected_result must match the unique lowercase-ASCII mode")
+    elif algorithm == "set_kth_bit":
+        valid = (len(values) == 2 and 0 <= values[0] <= 2_147_483_647
+                 and 0 <= values[1] <= 30)
+        expected_from_source = (values[0] | (1 << values[1])) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("set_kth_bit expected_result must match the source-safe bit-set operation")
+    elif algorithm == "binomial_calculate":
+        valid = (len(values) == 2 and 0 <= values[0] <= 62
+                 and 0 <= values[1] <= values[0])
+        if not valid:
+            expected_from_source = -1
+        else:
+            n, k = values
+            if k > n // 2:
+                k = n - k
+            result = 1
+            for i in range(1, k + 1):
+                result *= n - k + i
+                result //= i
+            expected_from_source = result
+        if expected != expected_from_source:
+            raise ValueError("binomial_calculate expected_result must match the bounded multiplicative recurrence")
+    elif algorithm == "is_spain_national_id":
+        check_letters = "TRWAGMYFPDXBNJZSQVHLCKE"
+        valid = (len(values) in (9, 10)
+                 and all(0 <= value <= 127 for value in values)
+                 and (len(values) != 10 or values[8] == ord("-")))
+        if valid:
+            valid = all(ord("0") <= value <= ord("9") for value in values[:8])
+        if not valid:
+            expected_from_source = -1
+        else:
+            number = 0
+            for value in values[:8]:
+                number = number * 10 + value - ord("0")
+            letter = values[-1]
+            if ord("a") <= letter <= ord("z"):
+                letter -= ord("a") - ord("A")
+            if not ord("A") <= letter <= ord("Z"):
+                expected_from_source = -1
+            else:
+                expected_from_source = int(letter == ord(check_letters[number % 23]))
+        if expected != expected_from_source:
+            raise ValueError("is_spain_national_id expected_result must match the bounded modulus-23 check letter")
+    elif algorithm == "is_polish_national_id":
+        valid = (len(values) == 11 and all(48 <= value <= 57 for value in values))
+        if not valid:
+            expected_from_source = -1
+        else:
+            digits = [value - 48 for value in values]
+            number = 0
+            for digit in digits:
+                number = number * 10 + digit
+            month_code = digits[2] * 10 + digits[3]
+            day = digits[4] * 10 + digits[5]
+            month_valid = any(start <= month_code <= end
+                              for start, end in ((1, 12), (21, 32), (41, 52), (61, 72), (81, 92)))
+            if not 10_100_000 <= number <= 99_923_199_999 or not month_valid or not 1 <= day <= 31:
+                expected_from_source = 0
+            else:
+                weights = (1, 3, 7, 9)
+                subtotal = sum((digit * weights[index % 4]) % 10
+                               for index, digit in enumerate(digits[:10]))
+                expected_from_source = int(10 - subtotal % 10 == digits[10])
+        if expected != expected_from_source:
+            raise ValueError("is_polish_national_id expected_result must match the bounded PESEL field and checksum checks")
+    elif algorithm == "hex_to_rgb":
+        valid = (len(values) == 6
+                 and all(48 <= value <= 57 or 65 <= value <= 70 or 97 <= value <= 102
+                         for value in values))
+        if not valid:
+            expected_from_source = -1
+        else:
+            packed_rgb = 0
+            for value in values:
+                if 48 <= value <= 57:
+                    nibble = value - 48
+                elif 65 <= value <= 70:
+                    nibble = value - 65 + 10
+                else:
+                    nibble = value - 97 + 10
+                packed_rgb = (packed_rgb << 4) | nibble
+            expected_from_source = packed_rgb
+        if expected != expected_from_source:
+            raise ValueError("hex_to_rgb expected_result must match the packed six-digit RGB value")
+    elif algorithm == "kaprekar_constant":
+        valid = (len(values) == 2 and 0 <= values[0] <= 9999 and 1 <= values[1] <= 16)
+        if not valid:
+            expected_from_source = -1
+        elif values[0] == 6174:
+            expected_from_source = 0
+        else:
+            current = values[0]
+            expected_from_source = -1
+            for iteration in range(1, values[1] + 1):
+                digits = sorted((current // 1000, (current // 100) % 10,
+                                 (current // 10) % 10, current % 10))
+                ascending = digits[0] * 1000 + digits[1] * 100 + digits[2] * 10 + digits[3]
+                descending = digits[3] * 1000 + digits[2] * 100 + digits[1] * 10 + digits[0]
+                current = descending - ascending
+                if current == 6174:
+                    expected_from_source = iteration
+                    break
+                if current == 0:
+                    break
+        if expected != expected_from_source:
+            raise ValueError("kaprekar_constant expected_result must match the bounded four-digit routine")
+    elif algorithm == "find_max_recursion":
+        valid = (1 <= len(values) <= 256
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        expected_from_source = max(values) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("find_max_recursion expected_result must match the signed-i32 maximum")
+    elif algorithm == "double_linear_search":
+        safe_integer_max = 9_007_199_254_740_991
+        valid = (len(values) >= 2 and 0 <= values[1] <= 100_000
+                 and len(values) == values[1] + 2
+                 and all(-safe_integer_max <= value <= safe_integer_max for value in values))
+        if not valid:
+            expected_from_source = -1
+        else:
+            target, items = values[0], values[2:]
+            left, right = 0, len(items) - 1
+            expected_from_source = -1
+            while left <= right:
+                if items[left] == target:
+                    expected_from_source = left
+                    break
+                if items[right] == target:
+                    expected_from_source = right
+                    break
+                left += 1
+                right -= 1
+        if expected != expected_from_source:
+            raise ValueError("double_linear_search expected_result must match the left-then-right endpoint probe order")
+    elif algorithm == "order_agnostic_binary_search":
+        valid = (len(values) >= 2 and 1 <= values[1] <= 99_999
+                 and len(values) == values[1] + 2
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        if valid:
+            target, items = values[0], values[2:]
+            ascending = items[0] < items[-1]
+            monotone = (all(left <= right for left, right in zip(items, items[1:])) if ascending
+                        else all(left >= right for left, right in zip(items, items[1:])))
+            valid = monotone
+        if not valid:
+            expected_from_source = -1
+        else:
+            left, right = 0, len(items) - 1
+            expected_from_source = -1
+            while left <= right:
+                middle = left + (right - left) // 2
+                if items[middle] == target:
+                    expected_from_source = middle
+                    break
+                if ascending:
+                    if items[middle] < target:
+                        left = middle + 1
+                    else:
+                        right = middle - 1
+                elif items[middle] < target:
+                    right = middle - 1
+                else:
+                    left = middle + 1
+        if expected != expected_from_source:
+            raise ValueError("order_agnostic_binary_search expected_result must match the source midpoint search")
+    elif algorithm == "minimum_cost_path":
+        invalid = I64_MIN
+        if (len(values) < 2 or not (1 <= values[0] <= 16 and 1 <= values[1] <= 16)
+                or len(values) != 2 + values[0] * values[1]):
+            expected_from_source = invalid
+        else:
+            rows, columns = values[:2]
+            cells = values[2:]
+            if any(not -(2**31) <= value <= 2**31 - 1 for value in cells):
+                expected_from_source = invalid
+            else:
+                costs = [0] * columns
+                for row in range(rows):
+                    for column in range(columns):
+                        value = cells[row * columns + column]
+                        if row == 0 and column == 0:
+                            costs[column] = value
+                        elif row == 0:
+                            costs[column] = costs[column - 1] + value
+                        elif column == 0:
+                            costs[column] += value
+                        else:
+                            costs[column] = min(costs[column], costs[column - 1]) + value
+                expected_from_source = costs[-1]
+        if expected != expected_from_source:
+            raise ValueError("minimum_cost_path expected_result must match the bounded right/down path recurrence")
+    elif algorithm == "is_ipv6_address_valid":
+        valid_input = (len(values) >= 1 and 0 <= values[0] <= 256
+                       and len(values) == values[0] + 1
+                       and all(0 <= value <= 127 for value in values[1:]))
+        if not valid_input:
+            expected_from_source = -1
+        else:
+            address = bytes(values[1:])
+
+            def valid_ipv6_group(group: bytes) -> bool:
+                return 1 <= len(group) <= 4 and all(
+                    48 <= byte <= 57 or 65 <= byte <= 70 or 97 <= byte <= 102
+                    for byte in group
+                )
+
+            if not address:
+                expected_from_source = 0
+            elif ((address.startswith(b":") and not address.startswith(b"::"))
+                  or (address.endswith(b":") and not address.endswith(b"::"))
+                  or b":::" in address or address.count(b"::") > 1):
+                expected_from_source = 0
+            elif b"::" not in address:
+                groups = address.split(b":")
+                expected_from_source = int(len(groups) == 8 and all(valid_ipv6_group(group) for group in groups))
+            else:
+                left, right = address.split(b"::", 1)
+                left_groups = [group for group in left.split(b":") if group] if left else []
+                right_groups = [group for group in right.split(b":") if group] if right else []
+                groups = left_groups + right_groups
+                expected_from_source = int(len(groups) < 8 and all(valid_ipv6_group(group) for group in groups))
+        if expected != expected_from_source:
+            raise ValueError("is_ipv6_address_valid expected_result must match the pinned ASCII IPv6 subset")
+    elif algorithm == "combination_sum_iv":
+        invalid = I64_MIN
+        if (len(values) < 2 or not (0 <= values[0] <= 16 and 0 <= values[1] <= 63)
+                or len(values) != values[0] + 2):
+            expected_from_source = invalid
+        else:
+            denominations = values[2:]
+            if (any(not 1 <= value <= 63 for value in denominations)
+                    or len(set(denominations)) != len(denominations)):
+                expected_from_source = invalid
+            else:
+                target = values[1]
+                ways = [0] * (target + 1)
+                ways[0] = 1
+                for total in range(1, target + 1):
+                    for denomination in denominations:
+                        if denomination <= total:
+                            ways[total] += ways[total - denomination]
+                expected_from_source = ways[target]
+        if expected != expected_from_source:
+            raise ValueError("combination_sum_iv expected_result must match the bounded ordered-sequence recurrence")
+    elif algorithm == "min_sum_ksize_subarray":
+        invalid = I64_MIN
+        if (len(values) < 2 or not 0 <= values[0] <= 100000
+                or not 0 <= values[1] <= 100000 or len(values) != values[0] + 2
+                or any(not -10000 <= value <= 10000 for value in values[2:])):
+            expected_from_source = invalid
+        else:
+            n, window_size = values[:2]
+            array = values[2:]
+            if window_size > n:
+                expected_from_source = -1
+            elif window_size == 0:
+                expected_from_source = 0
+            else:
+                current = sum(array[:window_size])
+                expected_from_source = current
+                for index in range(window_size, n):
+                    current += array[index] - array[index - window_size]
+                    expected_from_source = min(expected_from_source, current)
+        if expected != expected_from_source:
+            raise ValueError("min_sum_ksize_subarray expected_result must match the bounded fixed-window minimum")
+    elif algorithm == "maximum_sum_of_distinct_subarrays_with_length_k":
+        invalid = I64_MIN
+        valid = (len(values) >= 2 and 1 <= values[0] <= 8192
+                 and 1 <= values[1] <= values[0] and len(values) == values[0] + 2
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[2:]))
+        if not valid:
+            expected_from_source = invalid
+        else:
+            n, window_size = values[:2]
+            items = values[2:]
+            frequencies: dict[int, int] = {}
+            window_sum = 0
+            expected_from_source = 0
+            for index, value in enumerate(items):
+                frequencies[value] = frequencies.get(value, 0) + 1
+                window_sum += value
+                if index >= window_size:
+                    outgoing = items[index - window_size]
+                    frequencies[outgoing] -= 1
+                    if frequencies[outgoing] == 0:
+                        del frequencies[outgoing]
+                    window_sum -= outgoing
+                if index >= window_size - 1 and len(frequencies) == window_size:
+                    expected_from_source = max(expected_from_source, window_sum)
+        if expected != expected_from_source:
+            raise ValueError("maximum_sum_of_distinct_subarrays_with_length_k expected_result must match the distinct-window maximum")
+    elif algorithm == "max_sum_sliding_window":
+        invalid = I64_MIN
+        if (len(values) < 2 or not 1 <= values[0] <= 100000
+                or not 1 <= values[1] <= values[0] or len(values) != values[0] + 2
+                or any(not -1000000000 <= value <= 1000000000 for value in values[2:])):
+            expected_from_source = invalid
+        else:
+            n, window_size = values[:2]
+            array = values[2:]
+            current = sum(array[:window_size])
+            expected_from_source = current
+            for outgoing in range(n - window_size):
+                current = current - array[outgoing] + array[outgoing + window_size]
+                expected_from_source = max(expected_from_source, current)
+        if expected != expected_from_source:
+            raise ValueError("max_sum_sliding_window expected_result must match the bounded fixed-window maximum")
+    elif algorithm == "max_non_adjacent_sum":
+        valid = (1 <= len(values) <= 100000
+                 and all(0 <= value <= 10000 for value in values))
+        if not valid:
+            expected_from_source = I64_MIN
+        else:
+            previous_two = 0
+            previous_one = values[0]
+            for value in values[1:]:
+                current = max(previous_one, previous_two + value)
+                previous_two, previous_one = previous_one, current
+            expected_from_source = previous_one
+        if expected != expected_from_source:
+            raise ValueError("max_non_adjacent_sum expected_result must match the bounded non-adjacent recurrence")
+    elif algorithm == "power_sum":
+        if len(values) != 2 or not 1 <= values[0] <= 1000 or not 2 <= values[1] <= 10:
+            expected_from_source = -1
+        else:
+            target, power = values
+            ways = [0] * (target + 1)
+            ways[0] = 1
+            base = 1
+            while base**power <= target:
+                powered = base**power
+                for subtotal in range(target, powered - 1, -1):
+                    ways[subtotal] += ways[subtotal - powered]
+                base += 1
+            expected_from_source = ways[target]
+        if expected != expected_from_source:
+            raise ValueError("power_sum expected_result must match distinct-base power subset counting")
+    elif algorithm == "duval":
+        if len(values) > 4096 or any(not 0 <= value <= 127 for value in values):
+            expected_from_source = -1
+        elif not values:
+            expected_from_source = 0
+        else:
+            length = len(values)
+            index = 0
+            answer = 0
+            while index < length:
+                answer = index
+                j, k = index + 1, index
+                while j < 2 * length and values[j % length] >= values[k % length]:
+                    if values[k % length] < values[j % length]:
+                        k = index
+                    else:
+                        k += 1
+                    j += 1
+                while index <= k:
+                    index += j - k
+            expected_from_source = answer
+        if expected != expected_from_source:
+            raise ValueError("duval expected_result must match the pinned least-cyclic-shift scan")
+    elif algorithm == "find_min_recursion":
+        valid = (1 <= len(values) <= 256
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        expected_from_source = min(values) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("find_min_recursion expected_result must match the bounded recursive minimum")
+    elif algorithm == "even_tree":
+        invalid = I64_MIN
+        if (len(values) < 2 or not 2 <= values[0] <= 100 or values[0] % 2 != 0
+                or values[1] != values[0] - 1
+                or len(values) != 2 + 2 * values[1]):
+            expected_from_source = invalid
+        else:
+            vertex_count = values[0]
+            adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+            valid = True
+            for offset in range(2, len(values), 2):
+                left, right = values[offset] - 1, values[offset + 1] - 1
+                if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                        or left == right or right in adjacency[left]):
+                    valid = False
+                    break
+                adjacency[left].append(right)
+                adjacency[right].append(left)
+            if not valid:
+                expected_from_source = invalid
+            else:
+                parent = [-2] * vertex_count
+                parent[0] = -1
+                order: list[int] = []
+                pending = [0]
+                while pending and valid:
+                    vertex = pending.pop()
+                    order.append(vertex)
+                    for neighbor in adjacency[vertex]:
+                        if neighbor == parent[vertex]:
+                            continue
+                        if parent[neighbor] != -2:
+                            valid = False
+                            break
+                        parent[neighbor] = vertex
+                        pending.append(neighbor)
+                if not valid or len(order) != vertex_count:
+                    expected_from_source = invalid
+                else:
+                    subtree_sizes = [1] * vertex_count
+                    cuts = 0
+                    for vertex in reversed(order):
+                        if parent[vertex] >= 0:
+                            subtree_sizes[parent[vertex]] += subtree_sizes[vertex]
+                        if subtree_sizes[vertex] % 2 == 0:
+                            cuts += 1
+                    expected_from_source = cuts - 1
+        if expected != expected_from_source:
+            raise ValueError("even_tree expected_result must match the bounded root-at-one subtree parity count")
+    elif algorithm == "horspool_search":
+        invalid = -2
+        if len(values) < 2:
+            expected_from_source = invalid
+        else:
+            text_length, pattern_length = values[:2]
+            valid = (0 <= text_length <= 512 and 0 <= pattern_length <= 64
+                     and len(values) == 2 + text_length + pattern_length
+                     and all(0 <= value <= 127 for value in values[2:]))
+            if not valid:
+                expected_from_source = invalid
+            elif pattern_length == 0 or pattern_length > text_length:
+                expected_from_source = -1
+            else:
+                text = values[2:2 + text_length]
+                pattern = values[2 + text_length:]
+                shifts: dict[int, int] = {}
+                for index in range(pattern_length - 2, -1, -1):
+                    shifts.setdefault(pattern[index], pattern_length - 1 - index)
+                text_index = pattern_length - 1
+                expected_from_source = -1
+                while text_index < text_length:
+                    pattern_index = pattern_length - 1
+                    while pattern_index >= 0:
+                        text_value = text[text_index + pattern_index - (pattern_length - 1)]
+                        if pattern[pattern_index] != text_value:
+                            text_index += shifts.get(text[text_index], pattern_length)
+                            break
+                        pattern_index -= 1
+                    if pattern_index == -1:
+                        expected_from_source = text_index - pattern_length + 1
+                        break
+        if expected != expected_from_source:
+            raise ValueError("horspool_search expected_result must match the bounded case-sensitive Horspool scan")
+    elif algorithm == "temperature_conversion":
+        if (len(values) != 2 or not 0 <= values[0] <= 15
+                or not -1_000_000 <= values[1] <= 1_000_000):
+            expected_from_source = I64_MIN
+        else:
+            operation, temperature = values
+            if operation == 0:
+                converted = (temperature * 9) / 5 + 32
+            elif operation == 1:
+                converted = temperature + 273.15
+            elif operation == 2:
+                converted = (temperature * 9) / 5 + 491.67
+            elif operation == 3:
+                converted = ((temperature - 32) * 5) / 9
+            elif operation == 4:
+                converted = ((temperature - 32) * 5) / 9 + 273.15
+            elif operation == 5:
+                converted = temperature + 459.67
+            elif operation == 6:
+                converted = temperature - 273.15
+            elif operation == 7:
+                converted = ((temperature - 273.15) * 9) / 5 + 32
+            elif operation == 8:
+                converted = (temperature * 9) / 5
+            elif operation == 9:
+                converted = ((temperature - 491.67) * 5) / 9
+            elif operation == 10:
+                converted = temperature - 459.67
+            elif operation == 11:
+                converted = (temperature * 5) / 9
+            elif operation == 12:
+                converted = temperature * 1.25
+            elif operation == 13:
+                converted = temperature * 2.25 + 32
+            elif operation == 14:
+                converted = temperature * 1.25 + 273.15
+            else:
+                converted = temperature * 2.25 + 32 + 459.67
+            expected_from_source = math.floor(converted + 0.5)
+        if expected != expected_from_source:
+            raise ValueError("temperature_conversion expected_result must match the bounded JavaScript-rounded conversion")
+    elif algorithm in {"doomsday", "weekday_by_month_offsets"}:
+        if len(values) != 3 or not 100 <= values[0] <= 9999:
+            expected_from_source = -1
+        else:
+            try:
+                date = dt.date(values[0], values[1], values[2])
+            except ValueError:
+                expected_from_source = -1
+            else:
+                expected_from_source = (date.weekday() + 1) % 7
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result must match the bounded Gregorian weekday")
+    elif algorithm == "bankers_algorithm":
+        invalid = -1
+        if len(values) < 2:
+            expected_from_source = invalid
+        else:
+            process_count, resource_count = values[:2]
+            valid = (1 <= process_count <= 16 and 1 <= resource_count <= 8
+                     and len(values) == 2 + resource_count + 2 * process_count * resource_count)
+            if not valid:
+                expected_from_source = invalid
+            else:
+                available_start = 2
+                maximum_start = available_start + resource_count
+                allocation_start = maximum_start + process_count * resource_count
+                available = values[available_start:maximum_start]
+                maximum = values[maximum_start:allocation_start]
+                allocation = values[allocation_start:]
+                valid = (all(0 <= value <= 100 for value in available + maximum + allocation)
+                         and all(allocation[index] <= maximum[index]
+                                 for index in range(process_count * resource_count)))
+                if not valid:
+                    expected_from_source = invalid
+                else:
+                    finished = [False] * process_count
+                    completed = 0
+                    while True:
+                        progressed = False
+                        for process in range(process_count):
+                            if finished[process]:
+                                continue
+                            row_start = process * resource_count
+                            if all(maximum[row_start + resource] - allocation[row_start + resource]
+                                   <= available[resource] for resource in range(resource_count)):
+                                for resource in range(resource_count):
+                                    available[resource] += allocation[row_start + resource]
+                                finished[process] = True
+                                completed += 1
+                                progressed = True
+                        if completed == process_count:
+                            expected_from_source = 1
+                            break
+                        if not progressed:
+                            expected_from_source = 0
+                            break
+        if expected != expected_from_source:
+            raise ValueError("bankers_algorithm expected_result must match the bounded index-ordered safety scan")
+    elif algorithm == "bankers_algorithm_python_demo":
+        invalid = -1
+        if len(values) < 2:
+            expected_from_source = invalid
+        else:
+            process_count, resource_count = values[:2]
+            valid = (1 <= process_count <= 16 and 1 <= resource_count <= 8
+                     and len(values) == 2 + resource_count + 2 * process_count * resource_count)
+            if not valid:
+                expected_from_source = invalid
+            else:
+                claim_start = 2
+                allocation_start = claim_start + resource_count
+                maximum_start = allocation_start + process_count * resource_count
+                claims = values[claim_start:allocation_start]
+                allocations = values[allocation_start:maximum_start]
+                maximum = values[maximum_start:]
+                valid = (all(0 <= value <= 100 for value in claims + allocations + maximum)
+                         and all(allocations[index] <= maximum[index]
+                                 for index in range(process_count * resource_count)))
+                if valid:
+                    allocated_by_resource = [
+                        sum(allocations[process * resource_count + resource]
+                            for process in range(process_count))
+                        for resource in range(resource_count)
+                    ]
+                    valid = all(allocated_by_resource[resource] <= claims[resource]
+                                for resource in range(resource_count))
+                if not valid:
+                    expected_from_source = invalid
+                else:
+                    available = [claims[resource] - allocated_by_resource[resource]
+                                 for resource in range(resource_count)]
+                    needs = [tuple(maximum[process * resource_count + resource]
+                                   - allocations[process * resource_count + resource]
+                                   for resource in range(resource_count))
+                             for process in range(process_count)]
+                    first_process_for_need: dict[tuple[int, ...], int] = {}
+                    for process, need in enumerate(needs):
+                        first_process_for_need.setdefault(need, process)
+                    remaining = list(range(process_count))
+                    while remaining:
+                        selected_position = next(
+                            (position for position, process in enumerate(remaining)
+                             if all(needs[process][resource] <= available[resource]
+                                    for resource in range(resource_count))),
+                            None,
+                        )
+                        if selected_position is None:
+                            expected_from_source = 0
+                            break
+                        selected_process = remaining.pop(selected_position)
+                        release_process = first_process_for_need[needs[selected_process]]
+                        for resource in range(resource_count):
+                            available[resource] += allocations[release_process * resource_count + resource]
+                    else:
+                        expected_from_source = 1
+        if expected != expected_from_source:
+            raise ValueError("bankers_algorithm_python_demo expected_result must preserve first-index duplicate-need releases")
+    elif algorithm == "unique_subsequences_count":
+        if (not values or not 0 <= values[0] <= 30 or len(values) != values[0] + 1
+                or any(not 0 <= value <= 127 for value in values[1:])):
+            expected_from_source = -1
+        else:
+            codepoints = values[1:]
+            suffix_counts = [0] * (len(codepoints) + 1)
+            for start in range(len(codepoints) - 1, -1, -1):
+                seen: set[int] = set()
+                count = 0
+                for index in range(start, len(codepoints)):
+                    codepoint = codepoints[index]
+                    if codepoint not in seen:
+                        seen.add(codepoint)
+                        count += 1 + suffix_counts[index + 1]
+                suffix_counts[start] = count
+            expected_from_source = suffix_counts[0]
+        if expected != expected_from_source:
+            raise ValueError("unique_subsequences_count expected_result must count distinct nonempty ASCII subsequences")
+    elif algorithm == "unbounded_knapsack":
+        if len(values) < 2:
+            expected_from_source = -1
+        else:
+            item_count, capacity = values[:2]
+            valid = (0 <= item_count <= 16 and 0 <= capacity <= 100
+                     and len(values) == 2 + 2 * item_count)
+            if not valid:
+                expected_from_source = -1
+            else:
+                item_values = values[2:2 + item_count]
+                item_weights = values[2 + item_count:]
+                valid = (all(1 <= value <= 100 for value in item_values)
+                         and all(1 <= weight <= 100 for weight in item_weights))
+                if not valid:
+                    expected_from_source = -1
+                else:
+                    best = [0] * (capacity + 1)
+                    for value, weight in zip(item_values, item_weights):
+                        for current_capacity in range(weight, capacity + 1):
+                            best[current_capacity] = max(
+                                best[current_capacity],
+                                value + best[current_capacity - weight],
+                            )
+                    expected_from_source = best[capacity]
+        if expected != expected_from_source:
+            raise ValueError("unbounded_knapsack expected_result must match unlimited item reuse")
+    elif algorithm in {"damerau_levenshtein_distance", "optimal_string_alignment_distance"}:
+        if len(values) < 2:
+            expected_from_source = -1
+        else:
+            left_length, right_length = values[:2]
+            valid = (0 <= left_length <= 32 and 0 <= right_length <= 32
+                     and len(values) == 2 + left_length + right_length
+                     and all(0 <= value <= 127 for value in values[2:]))
+            if not valid:
+                expected_from_source = -1
+            else:
+                left = values[2:2 + left_length]
+                right = values[2 + left_length:]
+                if algorithm == "damerau_levenshtein_distance":
+                    # Lowrance-Wagner unrestricted Damerau-Levenshtein recurrence.
+                    rows, columns = left_length, right_length
+                    sentinel = rows + columns
+                    distances = [[0] * (columns + 2) for _ in range(rows + 2)]
+                    distances[0][0] = sentinel
+                    for row in range(rows + 1):
+                        distances[row + 1][0] = sentinel
+                        distances[row + 1][1] = row
+                    for column in range(columns + 1):
+                        distances[0][column + 1] = sentinel
+                        distances[1][column + 1] = column
+                    last_row = [0] * 128
+                    for row in range(1, rows + 1):
+                        last_match_column = 0
+                        for column in range(1, columns + 1):
+                            prior_row = last_row[right[column - 1]]
+                            prior_column = last_match_column
+                            substitution_cost = 1
+                            if left[row - 1] == right[column - 1]:
+                                substitution_cost = 0
+                                last_match_column = column
+                            distances[row + 1][column + 1] = min(
+                                distances[row][column] + substitution_cost,
+                                distances[row + 1][column] + 1,
+                                distances[row][column + 1] + 1,
+                                distances[prior_row][prior_column]
+                                + (row - prior_row - 1) + 1 + (column - prior_column - 1),
+                            )
+                        last_row[left[row - 1]] = row
+                    expected_from_source = distances[rows + 1][columns + 1]
+                else:
+                    # OSA permits a single local adjacent-transposition recurrence.
+                    distances = [[0] * (right_length + 1) for _ in range(left_length + 1)]
+                    for row in range(left_length + 1):
+                        distances[row][0] = row
+                    for column in range(right_length + 1):
+                        distances[0][column] = column
+                    for row in range(1, left_length + 1):
+                        for column in range(1, right_length + 1):
+                            substitution_cost = int(left[row - 1] != right[column - 1])
+                            distances[row][column] = min(
+                                distances[row - 1][column] + 1,
+                                distances[row][column - 1] + 1,
+                                distances[row - 1][column - 1] + substitution_cost,
+                            )
+                            if (row > 1 and column > 1
+                                    and left[row - 1] == right[column - 2]
+                                    and left[row - 2] == right[column - 1]):
+                                distances[row][column] = min(
+                                    distances[row][column], distances[row - 2][column - 2] + 1
+                                )
+                    expected_from_source = distances[left_length][right_length]
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result must match its bounded ASCII edit-distance recurrence")
+    elif algorithm == "connected_components":
+        if len(values) < 2:
+            expected_from_source = -1
+        else:
+            vertex_count, edge_count = values[:2]
+            valid = (0 <= vertex_count <= 256 and 0 <= edge_count <= 512
+                     and len(values) == 2 + 2 * edge_count)
+            if valid:
+                edges = values[2:]
+                valid = all(1 <= endpoint <= vertex_count for endpoint in edges)
+            if not valid:
+                expected_from_source = -1
+            else:
+                adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+                for offset in range(0, len(edges), 2):
+                    left, right = edges[offset] - 1, edges[offset + 1] - 1
+                    adjacency[left].append(right)
+                    adjacency[right].append(left)
+                visited: set[int] = set()
+                expected_from_source = 0
+                for start in range(vertex_count):
+                    if start in visited:
+                        continue
+                    expected_from_source += 1
+                    visited.add(start)
+                    pending = [start]
+                    while pending:
+                        vertex = pending.pop()
+                        for neighbor in adjacency[vertex]:
+                            if neighbor not in visited:
+                                visited.add(neighbor)
+                                pending.append(neighbor)
+        if expected != expected_from_source:
+            raise ValueError("connected_components expected_result must match the undirected DFS component count")
+    elif algorithm == "dinic_maxflow":
+        if len(values) < 4:
+            expected_from_source = -1
+        else:
+            vertex_count, edge_count, source, sink = values[:4]
+            valid = (2 <= vertex_count <= 16 and 0 <= edge_count <= 64
+                     and len(values) == 4 + 3 * edge_count
+                     and 1 <= source <= vertex_count and 1 <= sink <= vertex_count
+                     and source != sink)
+            if valid:
+                edge_values = values[4:]
+                valid = all(
+                    1 <= edge_values[index] <= vertex_count
+                    and 1 <= edge_values[index + 1] <= vertex_count
+                    and edge_values[index] != edge_values[index + 1]
+                    and 0 <= edge_values[index + 2] <= 100
+                    for index in range(0, len(edge_values), 3)
+                )
+            if not valid:
+                expected_from_source = -1
+            else:
+                adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+                residual = [[0] * vertex_count for _ in range(vertex_count)]
+                for index in range(0, len(edge_values), 3):
+                    left = edge_values[index] - 1
+                    right = edge_values[index + 1] - 1
+                    capacity = edge_values[index + 2]
+                    residual[left][right] += capacity
+                    if right not in adjacency[left]:
+                        adjacency[left].append(right)
+                    if left not in adjacency[right]:
+                        adjacency[right].append(left)
+                source -= 1
+                sink -= 1
+                total_flow = 0
+                while True:
+                    levels = [-1] * vertex_count
+                    levels[source] = 0
+                    pending = [source]
+                    for vertex in pending:
+                        for neighbor in adjacency[vertex]:
+                            if residual[vertex][neighbor] > 0 and levels[neighbor] < 0:
+                                levels[neighbor] = levels[vertex] + 1
+                                pending.append(neighbor)
+                    if levels[sink] < 0:
+                        break
+                    edge_cursor = [0] * vertex_count
+
+                    def send_flow(vertex: int, available: int) -> int:
+                        if vertex == sink:
+                            return available
+                        while edge_cursor[vertex] < len(adjacency[vertex]):
+                            neighbor = adjacency[vertex][edge_cursor[vertex]]
+                            if (levels[neighbor] == levels[vertex] + 1
+                                    and residual[vertex][neighbor] > 0):
+                                pushed = send_flow(
+                                    neighbor,
+                                    min(available, residual[vertex][neighbor]),
+                                )
+                                if pushed:
+                                    residual[vertex][neighbor] -= pushed
+                                    residual[neighbor][vertex] += pushed
+                                    return pushed
+                            edge_cursor[vertex] += 1
+                        return 0
+
+                    while True:
+                        pushed = send_flow(source, 6_400)
+                        if not pushed:
+                            break
+                        total_flow += pushed
+                expected_from_source = total_flow
+        if expected != expected_from_source:
+            raise ValueError("dinic_maxflow expected_result must match the bounded directed maximum flow")
+    elif algorithm == "max_product_of_three":
+        invalid = I64_MIN
+        if (len(values) < 1 or not 3 <= values[0] <= 128 or len(values) != values[0] + 1
+                or any(not -1000 <= value <= 1000 for value in values[1:])):
+            expected_from_source = invalid
+        else:
+            ordered = sorted(values[1:])
+            largest_three = ordered[-3:]
+            smallest_two = ordered[:2]
+            expected_from_source = max(
+                largest_three[0] * largest_three[1] * largest_three[2],
+                ordered[-1] * smallest_two[0] * smallest_two[1],
+            )
+        if expected != expected_from_source:
+            raise ValueError("max_product_of_three expected_result must match the bounded exact maximum triple product")
+    elif algorithm == "find_the_highest_altitude":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 1024
+                 and len(values) == values[0] + 1
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            altitude = 0
+            expected_from_source = 0
+            for gain in values[1:]:
+                altitude += gain
+                expected_from_source = max(expected_from_source, altitude)
+        if expected != expected_from_source:
+            raise ValueError("find_the_highest_altitude expected_result must match the bounded maximum prefix sum")
+    elif algorithm == "boruvkas_minimum_spanning_tree":
+        if len(values) < 2:
+            expected_from_source = -1
+        else:
+            vertex_count, edge_count = values[:2]
+            maximum_edges = vertex_count * (vertex_count - 1) // 2
+            valid = (2 <= vertex_count <= 16 and vertex_count - 1 <= edge_count
+                     and edge_count <= min(64, maximum_edges)
+                     and len(values) == 2 + 3 * edge_count)
+            edges: list[tuple[int, int, int]] = []
+            seen_pairs: set[tuple[int, int]] = set()
+            if valid:
+                for index in range(2, len(values), 3):
+                    left, right, weight = values[index:index + 3]
+                    pair = (min(left, right), max(left, right))
+                    if (not 1 <= left <= vertex_count or not 1 <= right <= vertex_count
+                            or left == right or pair in seen_pairs or not 1 <= weight <= 100):
+                        valid = False
+                        break
+                    seen_pairs.add(pair)
+                    edges.append((weight, left - 1, right - 1))
+            if not valid:
+                expected_from_source = -1
+            else:
+                parent = list(range(vertex_count))
+                rank = [0] * vertex_count
+
+                def find_root(vertex: int) -> int:
+                    while parent[vertex] != vertex:
+                        parent[vertex] = parent[parent[vertex]]
+                        vertex = parent[vertex]
+                    return vertex
+
+                expected_from_source = 0
+                selected_edges = 0
+                for weight, left, right in sorted(edges):
+                    root_left, root_right = find_root(left), find_root(right)
+                    if root_left == root_right:
+                        continue
+                    if rank[root_left] < rank[root_right]:
+                        root_left, root_right = root_right, root_left
+                    parent[root_right] = root_left
+                    if rank[root_left] == rank[root_right]:
+                        rank[root_left] += 1
+                    expected_from_source += weight
+                    selected_edges += 1
+                    if selected_edges == vertex_count - 1:
+                        break
+                if selected_edges != vertex_count - 1:
+                    expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("boruvkas_minimum_spanning_tree expected_result must match the bounded MST total")
+    elif algorithm == "assignment_using_bitmask":
+        if (len(values) < 2 or not 0 <= values[0] <= 12 or not 0 <= values[1] <= 16
+                or len(values) != values[0] + 2
+                or any(mask < 0 or mask >= (1 << values[1]) for mask in values[2:])):
+            expected_from_source = -1
+        else:
+            people, task_count = values[:2]
+            full_mask = (1 << people) - 1
+            ways = [0] * (1 << people)
+            ways[0] = 1
+            for task in range(task_count):
+                next_ways = ways.copy()  # Skip this task.
+                for assigned_mask, count in enumerate(ways):
+                    if count == 0:
+                        continue
+                    available_people = 0
+                    for person, eligible_tasks in enumerate(values[2:]):
+                        if eligible_tasks & (1 << task):
+                            available_people |= 1 << person
+                    available_people &= ~assigned_mask
+                    while available_people:
+                        person_bit = available_people & -available_people
+                        next_ways[assigned_mask | person_bit] += count
+                        available_people ^= person_bit
+                ways = next_ways
+            expected_from_source = ways[full_mask]
+        if expected != expected_from_source:
+            raise ValueError("assignment_using_bitmask expected_result must match the bounded task-mask assignment count")
     return values
 
 

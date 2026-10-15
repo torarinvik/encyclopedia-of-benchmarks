@@ -1,0 +1,46 @@
+extern floor(value: f64) -> f64
+
+def convert_temperature(operation: i64, value: f64) -> f64:
+    if operation == 0:
+        return (value * 9.0) / 5.0 + 32.0
+    if operation == 1:
+        return value + 273.15
+    if operation == 2:
+        return (value * 9.0) / 5.0 + 491.67
+    if operation == 3:
+        return ((value - 32.0) * 5.0) / 9.0
+    if operation == 4:
+        return ((value - 32.0) * 5.0) / 9.0 + 273.15
+    if operation == 5:
+        return value + 459.67
+    if operation == 6:
+        return value - 273.15
+    if operation == 7:
+        return ((value - 273.15) * 9.0) / 5.0 + 32.0
+    if operation == 8:
+        return (value * 9.0) / 5.0
+    if operation == 9:
+        return ((value - 491.67) * 5.0) / 9.0
+    if operation == 10:
+        return value - 459.67
+    if operation == 11:
+        return (value * 5.0) / 9.0
+    if operation == 12:
+        return value * 1.25
+    if operation == 13:
+        return value * 2.25 + 32.0
+    if operation == 14:
+        return value * 1.25 + 273.15
+    value * 2.25 + 32.0 + 459.67
+
+def temperature_conversion_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -9223372036854775807 - 1
+    operation: i64 = values[0]
+    temperature: i64 = values[1]
+    if operation < 0 or operation > 15 or temperature < -1000000 or temperature > 1000000:
+        return -9223372036854775807 - 1
+    converted: f64 = convert_temperature(operation, temperature.f64())
+    floor(converted + 0.5).i64()
+
+export fn temperature_conversion(values: i64&, length: usize) -> i64 = temperature_conversion_impl

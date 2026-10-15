@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "binomial-calculate-bounded-u64-v1",
+  "algorithm": "binomial_calculate",
+  "function_symbol": "binomial_calculate",
+  "input": {
+    "kind": "two_signed_64_bit_integers",
+    "layout": "[n,k]",
+    "n_range": [0, 62],
+    "k_range": [0, 62],
+    "requires_k_at_most_n": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "result": "exact binomial coefficient n choose k",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"zero_zero","input_values":[0,0],"expected_result":1},
+    {"id":"one_one","input_values":[1,1],"expected_result":1},
+    {"id":"zero_choose_zero","input_values":[0,0],"expected_result":1},
+    {"id":"k_zero","input_values":[42,0],"expected_result":1},
+    {"id":"k_equals_n","input_values":[57,57],"expected_result":1},
+    {"id":"six_choose_three","input_values":[6,3],"expected_result":20},
+    {"id":"ten_choose_five","input_values":[10,5],"expected_result":252},
+    {"id":"twenty_choose_ten","input_values":[20,10],"expected_result":184756},
+    {"id":"thirty_choose_fifteen","input_values":[30,15],"expected_result":155117520},
+    {"id":"forty_choose_twenty","input_values":[40,20],"expected_result":137846528820},
+    {"id":"fifty_choose_twenty_five","input_values":[50,25],"expected_result":126410606437752},
+    {"id":"sixty_choose_thirty","input_values":[60,30],"expected_result":118264581564861424},
+    {"id":"sixty_two_choose_thirty_one","input_values":[62,31],"expected_result":465428353255261088},
+    {"id":"symmetry","input_values":[50,3],"expected_result":19600},
+    {"id":"empty_input","input_values":[],"expected_result":-1},
+    {"id":"one_value","input_values":[5],"expected_result":-1},
+    {"id":"extra_value","input_values":[5,2,1],"expected_result":-1},
+    {"id":"negative_n","input_values":[-1,0],"expected_result":-1},
+    {"id":"negative_k","input_values":[5,-1],"expected_result":-1},
+    {"id":"k_greater_than_n","input_values":[5,6],"expected_result":-1},
+    {"id":"n_above_bound","input_values":[63,1],"expected_result":-1}
+  ]
+}

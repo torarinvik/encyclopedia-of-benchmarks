@@ -1,0 +1,43 @@
+# Count task assignments with one distinct eligible task per person.
+def assignment_using_bitmask_impl(input: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    people: i64 = input[0]
+    tasks: i64 = input[1]
+    if people < 0 or people > 10 or tasks < 0 or tasks > 10 or length != 2 + people.usize():
+        return -1
+
+    valid_tasks: i64 = (1.i64() << tasks.usize()) - 1
+    person: mutable usize = 0
+    while person < people.usize():
+        if input[person + 2] < 0 or input[person + 2] > valid_tasks:
+            return -1
+        person <- person + 1
+
+    states: usize = 1 << people.usize()
+    ways: mutable i64[4096] = zeroed
+    next: mutable i64[4096] = zeroed
+    ways[0] <- 1
+    task: mutable i64 = 0
+    while task < tasks:
+        mask: mutable usize = 0
+        while mask < states:
+            next[mask] <- 0
+            mask <- mask + 1
+        mask <- 0
+        while mask < states:
+            count: i64 = ways[mask]
+            if count != 0:
+                next[mask] <- next[mask] + count
+                person <- 0
+                while person < people.usize():
+                    bit: usize = 1 << person
+                    if mask & bit == 0 and input[person + 2] & (1.i64() << task.usize()) != 0:
+                        next[mask | bit] <- next[mask | bit] + count
+                    person <- person + 1
+            mask <- mask + 1
+        ways <- next
+        task <- task + 1
+    ways[(states - 1).usize()]
+
+export fn assignment_using_bitmask(input: i64&, length: usize) -> i64 = assignment_using_bitmask_impl

@@ -1,0 +1,80 @@
+def convert_number_to_words_append_word(output: mutable u8&, position_input: usize, id: usize, separate: bool, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+    position: mutable usize = position_input
+    if separate and position > 0: output[position] <- 32; position <- position + 1
+    byte_index: mutable usize = 0
+    while byte_index < word_lengths[id]:
+        output[position + byte_index] <- word_bytes[word_offsets[id] + byte_index]
+        byte_index <- byte_index + 1
+    position + word_lengths[id]
+
+def convert_number_to_words_append_small(n: i64, output: mutable u8&, position_input: usize, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+    if n < 10: return convert_number_to_words_append_word(output, position_input, n.usize(), true, word_bytes, word_offsets, word_lengths)
+    if n < 20: return convert_number_to_words_append_word(output, position_input, n.usize() + 10, true, word_bytes, word_offsets, word_lengths)
+    position: mutable usize = convert_number_to_words_append_word(output, position_input, (n / 10).usize() + 18, true, word_bytes, word_offsets, word_lengths)
+    if n % 10 != 0:
+        output[position] <- 45
+        position <- position + 1
+        position <- convert_number_to_words_append_word(output, position, (n % 10).usize(), false, word_bytes, word_offsets, word_lengths)
+    position
+
+def convert_number_to_words_scale_power(system: usize, index: usize) -> i64:
+    if system == 0:
+        values: i64[6] = [1000000000000000,1000000000000,1000000000,1000000,1000,100]
+        return values[index]
+    if system == 1:
+        values: i64[5] = [1000000000000000,1000000000,1000000,1000,100]
+        return values[index]
+    values: i64[6] = [100000000000000,1000000000000,10000000,100000,1000,100]
+    values[index]
+
+def convert_number_to_words_scale_count(system: usize) -> usize:
+    if system == 1: 5 else: 6
+
+def convert_number_to_words_scale_word(system: usize, index: usize) -> usize:
+    if system == 0:
+        ids: usize[6] = [28,29,30,31,32,33]
+        return ids[index]
+    if system == 1:
+        ids: usize[5] = [34,35,31,32,33]
+        return ids[index]
+    ids: usize[6] = [36,37,38,39,32,33]
+    ids[index]
+
+def convert_number_to_words_append_number(n_input: i64, system: usize, output: mutable u8&, position_input: usize, depth: usize, word_bytes: u8&, word_offsets: usize&, word_lengths: usize&) -> usize:
+    if depth > 8: return position_input
+    n: mutable i64 = n_input
+    position: mutable usize = position_input
+    initial_position: usize = position
+    index: mutable usize = 0
+    while index < convert_number_to_words_scale_count(system):
+        power: i64 = convert_number_to_words_scale_power(system, index)
+        group: i64 = n / power
+        n <- n % power
+        if group > 0:
+            if group >= 100:
+                position <- convert_number_to_words_append_number(group, system, output, position, depth + 1, word_bytes, word_offsets, word_lengths)
+            else:
+                position <- convert_number_to_words_append_small(group, output, position, word_bytes, word_offsets, word_lengths)
+            position <- convert_number_to_words_append_word(output, position, convert_number_to_words_scale_word(system, index), true, word_bytes, word_offsets, word_lengths)
+        index <- index + 1
+    if n > 0 or position == initial_position:
+        position <- convert_number_to_words_append_small(n, output, position, word_bytes, word_offsets, word_lengths)
+    position
+
+def convert_number_to_words_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 2 or input[1] < 0 or input[1] > 2: return -1
+    system: usize = input[1].usize()
+    number: i64 = input[0]
+    limit: i64 = if system == 0: 999999999999999999 else: 9000000000000000000
+    if number < -limit or number > limit: return -1
+    magnitude: i64 = if number < 0: -number else: number
+    word_bytes: u8[258] = [122, 101, 114, 111, 111, 110, 101, 116, 119, 111, 116, 104, 114, 101, 101, 102, 111, 117, 114, 102, 105, 118, 101, 115, 105, 120, 115, 101, 118, 101, 110, 101, 105, 103, 104, 116, 110, 105, 110, 101, 116, 101, 110, 101, 108, 101, 118, 101, 110, 116, 119, 101, 108, 118, 101, 116, 104, 105, 114, 116, 101, 101, 110, 102, 111, 117, 114, 116, 101, 101, 110, 102, 105, 102, 116, 101, 101, 110, 115, 105, 120, 116, 101, 101, 110, 115, 101, 118, 101, 110, 116, 101, 101, 110, 101, 105, 103, 104, 116, 101, 101, 110, 110, 105, 110, 101, 116, 101, 101, 110, 116, 119, 101, 110, 116, 121, 116, 104, 105, 114, 116, 121, 102, 111, 114, 116, 121, 102, 105, 102, 116, 121, 115, 105, 120, 116, 121, 115, 101, 118, 101, 110, 116, 121, 101, 105, 103, 104, 116, 121, 110, 105, 110, 101, 116, 121, 113, 117, 97, 100, 114, 105, 108, 108, 105, 111, 110, 116, 114, 105, 108, 108, 105, 111, 110, 98, 105, 108, 108, 105, 111, 110, 109, 105, 108, 108, 105, 111, 110, 116, 104, 111, 117, 115, 97, 110, 100, 104, 117, 110, 100, 114, 101, 100, 98, 105, 108, 108, 105, 97, 114, 100, 109, 105, 108, 108, 105, 97, 114, 100, 99, 114, 111, 114, 101, 32, 99, 114, 111, 114, 101, 108, 97, 107, 104, 32, 99, 114, 111, 114, 101, 99, 114, 111, 114, 101, 108, 97, 107, 104, 110, 101, 103, 97, 116, 105, 118, 101]
+    word_offsets: usize[41] = [0, 4, 7, 10, 15, 19, 23, 26, 31, 36, 40, 43, 49, 55, 63, 71, 78, 85, 94, 102, 110, 116, 122, 127, 132, 137, 144, 150, 156, 167, 175, 182, 189, 197, 204, 212, 220, 231, 241, 246, 250]
+    word_lengths: usize[41] = [4, 3, 3, 5, 4, 4, 3, 5, 5, 4, 3, 6, 6, 8, 8, 7, 7, 9, 8, 8, 6, 6, 5, 5, 5, 7, 6, 6, 11, 8, 7, 7, 8, 7, 8, 8, 11, 10, 5, 4, 8]
+    position: mutable usize = 0
+    if number < 0: position <- convert_number_to_words_append_word(output, position, 40, true, word_bytes, word_offsets, word_lengths)
+    position <- convert_number_to_words_append_number(magnitude, system, output, position, 0, word_bytes, word_offsets, word_lengths)
+    if capacity < position or output.is_null(): return -2
+    position.i64()
+
+export fn convert_number_to_words(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = convert_number_to_words_impl

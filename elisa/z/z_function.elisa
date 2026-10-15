@@ -1,0 +1,29 @@
+extern memcpy(destination: mutable u64&, source: i64&, length: usize) -> mutable u64&
+
+def z_function_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > 256 or (length > 0 and input.is_null()): return -1
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 127: return -1
+    required: usize = length * 8
+    if capacity < required or (required > 0 and output.is_null()): return -2
+    z: mutable i64[256] = zeroed
+    left: mutable usize = 0
+    right: mutable usize = 0
+    for index in 1..<length:
+        if index <= right:
+            prior: usize = z[index - left].usize()
+            window: usize = right - index + 1
+            z[index] <- (if window < prior: window else: prior).i64()
+        while index + z[index].usize() < length and input[z[index].usize()] == input[index + z[index].usize()]:
+            z[index] <- z[index] + 1
+        if index + z[index].usize() > right + 1:
+            left <- index
+            right <- index + z[index].usize() - 1
+    for index in 0..<length:
+        bits: mutable u64 = 0
+        memcpy(&bits, &z[index], 8)
+        for byte in 0..<8:
+            output[8 * index + byte] <- ((bits >> (byte * 8)) & 255).u8()
+    required.i64()
+
+export fn z_function(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = z_function_impl

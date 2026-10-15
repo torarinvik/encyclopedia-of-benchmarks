@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "brent-method-three-functions-f64-triple-v1",
+  "algorithm": "brent_method",
+  "function_symbol": "brent_method",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": ["function_id", "left", "right"],
+    "function_ids": {
+      "0": "x^3 - x - 2",
+      "1": "x^2 + 1",
+      "2": "x^2 - 4x + 3"
+    },
+    "function_id_values": [0.0, 1.0, 2.0],
+    "endpoint_range": [-4.0, 4.0],
+    "required_endpoint_order": "left < right",
+    "tolerance": 1e-8,
+    "maximum_iterations": 100,
+    "invalid_input_result": -1e300,
+    "unbracketed_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "final right endpoint of the source Brent iteration",
+    "invalid_input_result": -1e300,
+    "unbracketed_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"cubic_root","input_values":[0.0,1.0,2.0],"expected_result":1.5213797068045676},
+    {"id":"quadratic_root_lower","input_values":[2.0,0.0,2.0],"expected_result":0.9999999999999999},
+    {"id":"quadratic_root_upper","input_values":[2.0,2.0,4.0],"expected_result":3.0},
+    {"id":"unbracketed_positive_function","input_values":[1.0,0.0,1.0],"expected_result":-1e300},
+    {"id":"unbracketed_same_sign","input_values":[0.0,2.0,3.0],"expected_result":-1e300},
+    {"id":"invalid_function_id","input_values":[9.0,1.0,2.0],"expected_result":-1e300},
+    {"id":"invalid_endpoint_order","input_values":[2.0,4.0,2.0],"expected_result":-1e300},
+    {"id":"endpoint_out_of_range","input_values":[0.0,1.0,5.0],"expected_result":-1e300}
+  ]
+}

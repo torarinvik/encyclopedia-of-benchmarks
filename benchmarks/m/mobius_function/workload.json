@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "mobius-function-positive-i64-scalar-v1",
+  "algorithm": "mobius_function",
+  "function_symbol": "mobius_function",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "n",
+    "n_range": [1, 10000]
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Möbius function μ(n)",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one_empty_factorization","input_value":1,"expected_result":1},
+    {"id":"prime_two","input_value":2,"expected_result":-1},
+    {"id":"prime_square","input_value":4,"expected_result":0},
+    {"id":"two_distinct_primes","input_value":6,"expected_result":1},
+    {"id":"three_distinct_primes","input_value":30,"expected_result":-1},
+    {"id":"large_squareful","input_value":10000,"expected_result":0},
+    {"id":"large_prime","input_value":9973,"expected_result":-1},
+    {"id":"maximum_supported","input_value":10000,"expected_result":0},
+    {"id":"zero_source_exception_normalized","input_value":0,"expected_result":-9223372036854775808},
+    {"id":"negative_source_difference_excluded","input_value":-1,"expected_result":-9223372036854775808},
+    {"id":"above_bound","input_value":10001,"expected_result":-9223372036854775808}
+  ]
+}

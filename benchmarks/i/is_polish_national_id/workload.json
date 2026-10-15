@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "polish-national-id-pesel-source-check-v1",
+  "algorithm": "is_polish_national_id",
+  "function_symbol": "is_polish_national_id",
+  "input": {
+    "kind": "unprefixed_ascii_digit_code_array",
+    "encoding": "exactly 11 ASCII digit code points; leading zeroes are preserved",
+    "length": 11,
+    "character_code_range": [
+      48,
+      57
+    ],
+    "numeric_range": [
+      10100000,
+      99923199999
+    ],
+    "encoded_month_ranges": [
+      [
+        1,
+        12
+      ],
+      [
+        21,
+        32
+      ],
+      [
+        41,
+        52
+      ],
+      [
+        61,
+        72
+      ],
+      [
+        81,
+        92
+      ]
+    ],
+    "day_range": [
+      1,
+      31
+    ],
+    "checksum_weights": [
+      1,
+      3,
+      7,
+      9
+    ],
+    "malformed_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_result": 1,
+    "invalid_result": 0,
+    "malformed_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_valid_2007",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50,
+        56
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_valid_1999",
+      "input_values": [
+        57,
+        57,
+        48,
+        49,
+        50,
+        50,
+        49,
+        50,
+        51,
+        52,
+        55
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "valid_with_leading_zeroes",
+      "input_values": [
+        48,
+        48,
+        48,
+        49,
+        48,
+        49,
+        48,
+        48,
+        48,
+        48,
+        56
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "invalid_month_15",
+      "input_values": [
+        48,
+        50,
+        49,
+        53,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50,
+        57
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_month_00",
+      "input_values": [
+        48,
+        50,
+        48,
+        48,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50,
+        56
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_day_55",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        53,
+        53,
+        48,
+        51,
+        54,
+        50,
+        50
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_day_00",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        48,
+        48,
+        51,
+        54,
+        50,
+        56
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_day_32",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        51,
+        50,
+        48,
+        51,
+        54,
+        50,
+        56
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "wrong_checksum",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50,
+        49
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "below_source_numeric_range",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "above_source_numeric_range",
+      "input_values": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "wrong_length_short",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_length_long",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        50,
+        56,
+        48
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "nondigit_code",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        65,
+        50,
+        56
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "non_ascii_code",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        233,
+        56
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_code",
+      "input_values": [
+        48,
+        50,
+        48,
+        55,
+        48,
+        56,
+        48,
+        51,
+        54,
+        -1,
+        56
+      ],
+      "expected_result": -1
+    }
+  ]
+}

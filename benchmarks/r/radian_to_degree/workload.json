@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "radian-to-degree-float64-unary-v1",
+  "algorithm": "radian_to_degree",
+  "function_symbol": "radian_to_degree",
+  "input": {
+    "kind": "finite_binary64_radians",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "formula_order": "radian * (180 / pi)",
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64_degrees",
+    "unit": "degree",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    { "id": "zero-radians", "input_values": [0.0], "expected_result": 0.0 },
+    { "id": "half-pi-radians", "input_values": [1.5707963267948966], "expected_result": 90.0 },
+    { "id": "pi-radians", "input_values": [3.141592653589793], "expected_result": 180.0 },
+    { "id": "negative-half-pi", "input_values": [-1.5707963267948966], "expected_result": -90.0 },
+    { "id": "one-radian", "input_values": [1.0], "expected_result": 57.29577951308232 },
+    { "id": "negative-two-radians", "input_values": [-2.0], "expected_result": -114.59155902616465 },
+    { "id": "fractional-radian", "input_values": [0.1], "expected_result": 5.729577951308233 },
+    { "id": "full-turn", "input_values": [6.283185307179586], "expected_result": 360.0 },
+    { "id": "lower-bound", "input_values": [-1000000.0], "expected_result": -57295779.51308232 },
+    { "id": "upper-bound", "input_values": [1000000.0], "expected_result": 57295779.51308232 },
+    { "id": "above-bound", "input_values": [1000000.5], "expected_result": -1e300 },
+    { "id": "below-bound", "input_values": [-1000000.5], "expected_result": -1e300 }
+  ]
+}

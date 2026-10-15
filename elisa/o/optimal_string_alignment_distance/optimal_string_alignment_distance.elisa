@@ -1,0 +1,51 @@
+# Restricted Damerau-Levenshtein (optimal string alignment) distance.
+def optimal_string_alignment_distance_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 66:
+        return -1
+    left_n_value: i64 = values[0]
+    right_n_value: i64 = values[1]
+    if left_n_value < 0 or left_n_value > 32 or right_n_value < 0 or right_n_value > 32:
+        return -1
+    n: usize = left_n_value.usize()
+    m: usize = right_n_value.usize()
+    if length != 2 + n + m:
+        return -1
+    k: mutable usize = 0
+    while k < n + m:
+        if values[2 + k] < 0 or values[2 + k] > 127:
+            return -1
+        k <- k + 1
+    dp: mutable i64[34][34] = zeroed
+    i: mutable usize = 0
+    while i <= n:
+        dp[i][0] <- i.i64()
+        i <- i + 1
+    j: mutable usize = 0
+    while j <= m:
+        dp[0][j] <- j.i64()
+        j <- j + 1
+    result: i64 =
+        while i <= n |i: mutable usize = 1, j: mutable usize = 1| -> dp[n][m]:
+            if j > m:
+                i <- i + 1
+                j <- 1
+            else:
+                cost: mutable i64 = 1
+                if values[2 + i - 1] == values[2 + n + j - 1]:
+                    cost <- 0
+                best: mutable i64 = dp[i - 1][j - 1] + cost
+                insertion: i64 = dp[i][j - 1] + 1
+                deletion: i64 = dp[i - 1][j] + 1
+                if insertion < best:
+                    best <- insertion
+                if deletion < best:
+                    best <- deletion
+                if i > 1 and j > 1 and values[2 + i - 1] == values[2 + n + j - 2] and values[2 + i - 2] == values[2 + n + j - 1]:
+                    transposition: i64 = dp[i - 2][j - 2] + cost
+                    if transposition < best:
+                        best <- transposition
+                dp[i][j] <- best
+                j <- j + 1
+    result
+
+export fn optimal_string_alignment_distance(values: i64&, length: usize) -> i64 = optimal_string_alignment_distance_impl

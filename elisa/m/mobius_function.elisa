@@ -1,0 +1,21 @@
+# Return the Möbius function for a bounded positive integer.
+def mobius_function_impl(n: i64) -> i64:
+    if n < 1 or n > 10000:
+        return -9223372036854775808
+    remaining: mutable i64 = n
+    distinct_factor_count: mutable i64 = 0
+    factor: mutable i64 = 2
+    while factor * factor <= remaining:
+        if remaining % factor == 0:
+            remaining <- remaining / factor
+            if remaining % factor == 0:
+                return 0
+            distinct_factor_count <- distinct_factor_count + 1
+        factor <- factor + 1
+    if remaining > 1:
+        distinct_factor_count <- distinct_factor_count + 1
+    if distinct_factor_count % 2 == 0:
+        return 1
+    -1
+
+export fn mobius_function(n: i64) -> i64 = mobius_function_impl

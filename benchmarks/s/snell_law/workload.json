@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "snell-law-java-radians-f64-triple-v1",
+  "algorithm": "snell_law",
+  "function_symbol": "snell_law",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": ["n1", "n2", "theta1_radians"],
+    "index_range": [0.5, 2.5],
+    "angle_range_radians": [-1.5707963267948966, 1.5707963267948966],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "refracted angle in radians",
+    "formula_order": "asin((n1 / n2) * sin(theta1))",
+    "total_internal_reflection_result": -1e300,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"equal_indices","input_values":[1.0,1.0,-0.4],"expected_result":-0.4},
+    {"id":"air_to_water","input_values":[1.0,1.33,1.0471975511965976],"expected_result":0.7090946487987907},
+    {"id":"higher_to_lower_valid","input_values":[2.0,1.5,0.5],"expected_result":0.6935018367642434},
+    {"id":"lower_indices_and_large_angle","input_values":[0.5,2.5,1.2],"expected_result":0.18750460107474493},
+    {"id":"total_internal_reflection","input_values":[2.0,1.0,0.7853981633974483],"expected_result":-1e300},
+    {"id":"invalid_zero_index","input_values":[1.0,0.0,0.2],"expected_result":-1e300},
+    {"id":"angle_outside_contract","input_values":[1.0,1.5,2.0],"expected_result":-1e300}
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "power-sum-v1",
+  "algorithm": "power_sum",
+  "input": {
+    "kind": "target_and_power",
+    "encoding": "[target, power]",
+    "target_range": [1, 1000],
+    "power_range": [2, 10],
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"one_square","input_values":[1,2],"expected_result":1},
+    {"id":"no_distinct_square_subset","input_values":[2,2],"expected_result":0},
+    {"id":"two_square_sum","input_values":[5,2],"expected_result":1},
+    {"id":"source_square_example","input_values":[13,2],"expected_result":1},
+    {"id":"source_java_cube_example","input_values":[100,3],"expected_result":1},
+    {"id":"one_fourth_power","input_values":[16,4],"expected_result":1},
+    {"id":"largest_target_high_power_no_solution","input_values":[1000,10],"expected_result":0},
+    {"id":"target_zero_out_of_domain","input_values":[0,2],"expected_result":-1},
+    {"id":"target_above_bound","input_values":[1001,2],"expected_result":-1},
+    {"id":"power_below_bound","input_values":[20,1],"expected_result":-1},
+    {"id":"power_above_bound","input_values":[20,11],"expected_result":-1},
+    {"id":"wrong_packed_length","input_values":[13],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

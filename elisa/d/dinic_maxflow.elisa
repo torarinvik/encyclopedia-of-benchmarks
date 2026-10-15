@@ -1,0 +1,64 @@
+# Dinic maximum flow using BFS level graphs and blocking-flow DFS.
+def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: i64&, level: i64&, next: usize&, n: usize) -> i64:
+    if u == sink: return pushed
+    while next[u] < n:
+        v: usize = next[u]
+        index: usize = u * 16 + v
+        if level[v] == level[u] + 1 and residual[index] > 0:
+            bound: i64 = pushed
+            if residual[index] < bound: bound <- residual[index]
+            sent: i64 = dinic_maxflow_dfs(v, sink, bound, residual, level, next, n)
+            if sent > 0:
+                residual[index] <- residual[index] - sent
+                residual[v * 16 + u] <- residual[v * 16 + u] + sent
+                return sent
+        next[u] <- next[u] + 1
+    0
+
+def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
+    if length < 4: return -1
+    nv: i64 = input[0]
+    mv: i64 = input[1]
+    sv: i64 = input[2]
+    tv: i64 = input[3]
+    if nv < 2 or nv > 16 or mv < 0 or mv > 64 or sv < 1 or sv > nv or tv < 1 or tv > nv or sv == tv: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    s: usize = (sv - 1).usize()
+    t: usize = (tv - 1).usize()
+    if length != 4 + 3 * m: return -1
+    residual: mutable i64[256] = zeroed
+    for i in 0..<m:
+        u: i64 = input[4 + 3 * i]
+        v: i64 = input[5 + 3 * i]
+        c: i64 = input[6 + 3 * i]
+        if u < 1 or u > nv or v < 1 or v > nv or u == v or c < 0 or c > 100: return -1
+        index: usize = (u - 1).usize() * 16 + (v - 1).usize()
+        residual[index] <- residual[index] + c
+    flow: mutable i64 = 0
+    while true:
+        level: mutable i64[16] = zeroed
+        queue: mutable usize[16] = zeroed
+        for i in 0..<16: level[i] <- -1
+        head: mutable usize = 0
+        tail: mutable usize = 0
+        level[s] <- 0
+        queue[tail] <- s
+        tail <- tail + 1
+        while head < tail:
+            u: usize = queue[head]
+            head <- head + 1
+            for v in 0..<n:
+                if residual[u * 16 + v] > 0 and level[v] < 0:
+                    level[v] <- level[u] + 1
+                    queue[tail] <- v
+                    tail <- tail + 1
+        if level[t] < 0: break
+        next: mutable usize[16] = zeroed
+        while true:
+            pushed: i64 = dinic_maxflow_dfs(s, t, 6401, residual, level, next, n)
+            if pushed == 0: break
+            flow <- flow + pushed
+    flow
+
+export fn dinic_maxflow(input: i64&, length: usize) -> i64 = dinic_maxflow_impl

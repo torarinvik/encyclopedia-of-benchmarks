@@ -1,0 +1,18 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+def binomial_dist_impl(n: f64, p: f64, x: f64) -> f64:
+    n_integer: i64 = n as i64
+    x_integer: i64 = x as i64
+    numerator: mutable f64 = n
+    denominator: mutable f64 = x
+    i: mutable i64 = n_integer - 1
+    while i >= n_integer - x_integer + 1:
+        numerator <- numerator * (i as f64)
+        i <- i - 1
+    i <- 1
+    while i < x_integer:
+        denominator <- denominator * (i as f64)
+        i <- i + 1
+    (numerator / denominator) * pow(p, x) * pow(1.0 - p, n - x)
+
+export fn binomial_dist(n: f64, p: f64, x: f64) -> f64 = binomial_dist_impl

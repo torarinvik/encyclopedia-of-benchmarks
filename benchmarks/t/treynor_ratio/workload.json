@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "treynor-ratio-v1",
+  "algorithm": "treynor_ratio",
+  "function_symbol": "treynor_ratio",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 3,
+    "layout": ["portfolio_return", "risk_free_rate", "beta"],
+    "minimum_value": -1000,
+    "maximum_value": 1000,
+    "beta_must_be_nonzero": true,
+    "invalid_input_result": -1e300,
+    "zero_beta_source_result": "NaN, mapped to invalid_input_result by the finite-result ABI"
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(portfolio_return - risk_free_rate) / beta",
+    "unit": "excess portfolio return per unit of beta",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"positive-excess","input_values":[10,5,2],"input_length":3,"expected_result":2.5},
+    {"id":"negative-excess","input_values":[-7,5,4],"input_length":3,"expected_result":-3.0},
+    {"id":"negative-beta","input_values":[10,4,-2],"input_length":3,"expected_result":-3.0},
+    {"id":"equal-returns","input_values":[7,7,3],"input_length":3,"expected_result":0.0},
+    {"id":"negative-zero-beta","input_values":[10,5,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[10,5],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-out-of-range","input_values":[1001,5,2],"input_length":3,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

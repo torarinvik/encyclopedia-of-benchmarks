@@ -1,0 +1,12 @@
+# Mish activation for one element of the source vector.
+extern exp(value: f64) -> f64
+extern log(value: f64) -> f64
+extern tanh(value: f64) -> f64
+
+def mish_impl(x: f64) -> f64:
+    if not (x >= -20.0 and x <= 20.0):
+        return -1.0e300
+    softplus: f64 = log(1.0 + exp(x))
+    return x * tanh(softplus)
+
+export fn mish(x: f64) -> f64 = mish_impl

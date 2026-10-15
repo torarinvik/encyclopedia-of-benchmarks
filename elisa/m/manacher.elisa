@@ -1,0 +1,59 @@
+# Return the leftmost longest ASCII alphanumeric palindrome with Manacher's algorithm.
+def is_ascii_alphanumeric(value: i64) -> bool:
+    (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def transformed_equal(values: i64&, left: usize, right: usize) -> bool:
+    if left % 2 != right % 2:
+        return false
+    if left % 2 == 0:
+        return true
+    values[left / 2] == values[right / 2]
+
+def manacher_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 1000:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if not is_ascii_alphanumeric(values[index]):
+            return -1
+        index <- index + 1
+
+    radii: mutable usize[2001] = zeroed
+    transformed_length: usize = 2 * length + 1
+    center: mutable usize = 0
+    right: mutable usize = 0
+    best_center: mutable usize = 0
+    best_radius: mutable usize = 0
+    index <- 0
+    while index < transformed_length:
+        radius: mutable usize = 0
+        if index < right:
+            mirror: usize = 2 * center - index
+            remaining: usize = right - index
+            if radii[mirror] < remaining:
+                radius <- radii[mirror]
+            else:
+                radius <- remaining
+        while radius < index and radius < transformed_length - 1 - index and transformed_equal(values, index - radius - 1, index + radius + 1):
+            radius <- radius + 1
+        radii[index] <- radius
+        if index + radius > right:
+            center <- index
+            right <- index + radius
+        if radius > best_radius:
+            best_center <- index
+            best_radius <- radius
+        index <- index + 1
+
+    best_start: usize = (best_center - best_radius) / 2
+    if output_capacity < best_radius:
+        return -2
+    index <- 0
+    while index < best_radius:
+        output[index] <- values[best_start + index].u8()
+        index <- index + 1
+    best_radius.i64()
+
+export fn manacher(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = manacher_impl

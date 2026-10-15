@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "id": "ipv6-address-validity-ascii-v1",
+  "algorithm": "is_ipv6_address_valid",
+  "function_symbol": "is_ipv6_address_valid",
+  "input": {
+    "kind": "length_prefixed_ascii_code_array",
+    "encoding": "[length, ASCII code points...]",
+    "text_length_range": [
+      0,
+      256
+    ],
+    "character_code_range": [
+      0,
+      127
+    ],
+    "address_grammar": "eight 1-4 digit hex groups, or one double-colon compression of at least one group",
+    "invalid_address_result": 0,
+    "malformed_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_address_result": 1,
+    "invalid_address_result": 0,
+    "malformed_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_address",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "full_rfc_example",
+      "input_values": [
+        39,
+        50,
+        48,
+        48,
+        49,
+        58,
+        48,
+        100,
+        98,
+        56,
+        58,
+        56,
+        53,
+        97,
+        51,
+        58,
+        48,
+        48,
+        48,
+        48,
+        58,
+        48,
+        48,
+        48,
+        48,
+        58,
+        56,
+        97,
+        50,
+        101,
+        58,
+        48,
+        51,
+        55,
+        48,
+        58,
+        55,
+        51,
+        51,
+        52
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "full_short_groups",
+      "input_values": [
+        15,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        56
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_width_groups",
+      "input_values": [
+        39,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        102,
+        102,
+        102,
+        102
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "compressed_middle",
+      "input_values": [
+        29,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        56,
+        53,
+        97,
+        51,
+        58,
+        58,
+        56,
+        65,
+        50,
+        69,
+        58,
+        48,
+        51,
+        55,
+        48,
+        58,
+        55,
+        51,
+        51,
+        52
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "loopback",
+      "input_values": [
+        3,
+        58,
+        58,
+        49
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "all_groups_compressed",
+      "input_values": [
+        2,
+        58,
+        58
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "trailing_compression",
+      "input_values": [
+        10,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        58
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "compress_one_group",
+      "input_values": [
+        15,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        58
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "uncompressed_too_few_groups",
+      "input_values": [
+        13,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "uncompressed_too_many_groups",
+      "input_values": [
+        17,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        56,
+        58,
+        57
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "compression_of_zero_groups",
+      "input_values": [
+        17,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        56,
+        58,
+        58
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "repeated_compression",
+      "input_values": [
+        7,
+        49,
+        58,
+        58,
+        50,
+        58,
+        58,
+        51
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "triple_colon",
+      "input_values": [
+        29,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        56,
+        53,
+        97,
+        51,
+        58,
+        58,
+        58,
+        56,
+        97,
+        50,
+        101,
+        58,
+        51,
+        55,
+        48,
+        58,
+        55,
+        51,
+        51,
+        52
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "five_digit_group",
+      "input_values": [
+        19,
+        49,
+        50,
+        51,
+        52,
+        53,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        56
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "non_hex_group",
+      "input_values": [
+        32,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        56,
+        53,
+        97,
+        51,
+        58,
+        48,
+        58,
+        48,
+        58,
+        56,
+        97,
+        50,
+        101,
+        58,
+        48,
+        51,
+        55,
+        48,
+        58,
+        103,
+        51,
+        51,
+        52
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "leading_single_colon",
+      "input_values": [
+        12,
+        58,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        58,
+        49
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "trailing_single_colon",
+      "input_values": [
+        28,
+        50,
+        48,
+        48,
+        49,
+        58,
+        100,
+        98,
+        56,
+        58,
+        56,
+        53,
+        97,
+        51,
+        58,
+        48,
+        58,
+        48,
+        58,
+        56,
+        97,
+        50,
+        101,
+        58,
+        48,
+        51,
+        55,
+        48,
+        58
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "ipv4_mapped_ending_unsupported",
+      "input_values": [
+        18,
+        58,
+        58,
+        102,
+        102,
+        102,
+        102,
+        58,
+        49,
+        57,
+        50,
+        46,
+        48,
+        46,
+        50,
+        46,
+        49,
+        50,
+        56
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "non_hex_ascii_character",
+      "input_values": [
+        15,
+        49,
+        58,
+        50,
+        58,
+        51,
+        58,
+        52,
+        58,
+        53,
+        58,
+        54,
+        58,
+        55,
+        58,
+        64
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "missing_length_header",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        2,
+        49
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_packed_code",
+      "input_values": [
+        1,
+        49,
+        50
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "non_ascii_code_point",
+      "input_values": [
+        1,
+        233
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "length_over_bound",
+      "input_values": [
+        257
+      ],
+      "expected_result": -1
+    }
+  ]
+}

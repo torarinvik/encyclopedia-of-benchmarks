@@ -1,0 +1,52 @@
+# Gregorian weekday from Conway's Doomsday rule.
+def is_leap_year(year: i64) -> bool:
+    year % 400 == 0 or (year % 4 == 0 and year % 100 != 0)
+
+def month_anchor(month: i64, leap: bool) -> i64:
+    if month == 1:
+        if leap: return 4
+        return 3
+    if month == 2:
+        if leap: return 1
+        return 7
+    if month == 3: return 7
+    if month == 4: return 4
+    if month == 5: return 2
+    if month == 6: return 6
+    if month == 7: return 4
+    if month == 8: return 1
+    if month == 9: return 5
+    if month == 10: return 3
+    if month == 11: return 7
+    if month == 12: return 5
+    -1
+
+def doomsday_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    year: i64 = values[0]
+    month: i64 = values[1]
+    day: i64 = values[2]
+    if year < 100 or year > 9999 or month < 1 or month > 12:
+        return -1
+    leap: bool = is_leap_year(year)
+    days_in_month: mutable i64 = 31
+    if month == 2:
+        days_in_month <- 28
+        if leap:
+            days_in_month <- 29
+    else if month == 4 or month == 6 or month == 9 or month == 11:
+        days_in_month <- 30
+    if day < 1 or day > days_in_month:
+        return -1
+
+    within_century: i64 = year % 100
+    century_anchor: i64 = (5 * ((year / 100) % 4) + 2) % 7
+    doom: i64 = (within_century / 12 + within_century % 12
+        + (within_century % 12) / 4 + century_anchor) % 7
+    weekday: mutable i64 = (doom + day - month_anchor(month, leap)) % 7
+    if weekday < 0:
+        weekday <- weekday + 7
+    weekday
+
+export fn doomsday(values: i64&, length: usize) -> i64 = doomsday_impl

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "relativistic-kinetic-energy-python-i64-array-f64-v1",
+  "algorithm": "relativistic_kinetic_energy",
+  "function_symbol": "relativistic_kinetic_energy",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["mass_kg", "velocity_m_per_s"],
+    "mass_range": [0, 1000000],
+    "velocity_range": [-299792457, 299792457],
+    "speed_of_light_m_per_s": 299792458,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "relativistic kinetic energy in joules",
+    "formula_order": "gamma = 1 / sqrt(1 - (velocity^2 / c^2)); result = (gamma - 1) * mass * c^2",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"source-example-200000","input_values":[40,200000],"input_length":2,"expected_result":800000266962.5057},
+    {"id":"source-example-100000","input_values":[50,100000],"input_length":2,"expected_result":250000021062.11475},
+    {"id":"negative-velocity","input_values":[2,-1000],"input_length":2,"expected_result":1000013.8940591692},
+    {"id":"positive-velocity-symmetry","input_values":[2,1000],"input_length":2,"expected_result":1000013.8940591692},
+    {"id":"zero-velocity","input_values":[3,0],"input_length":2,"expected_result":0.0},
+    {"id":"zero-mass-near-c","input_values":[0,299792457],"input_length":2,"expected_result":0.0},
+    {"id":"near-light-speed","input_values":[100,299792457],"input_length":2,"expected_result":1.1002751063656331e23},
+    {"id":"invalid-negative-mass","input_values":[-1,100],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-at-light-speed","input_values":[1,299792458],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-superluminal","input_values":[1,-299792459],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-layout","input_values":[1],"input_length":1,"expected_result":-1e300}
+  ]
+}

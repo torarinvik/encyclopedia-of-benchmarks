@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "id": "optimal-string-alignment-distance-v1",
+  "algorithm": "optimal_string_alignment_distance",
+  "input": {
+    "kind": "two_packed_ascii_byte_strings",
+    "encoding": "[left_length, right_length, left_bytes..., right_bytes...]",
+    "maximum_string_length": 32,
+    "maximum_ascii_byte": 127,
+    "metric": "restricted_damerau_levenshtein_optimal_string_alignment",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "both_empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "empty_left",
+      "input_values": [
+        0,
+        3,
+        97,
+        98,
+        99
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "empty_right",
+      "input_values": [
+        3,
+        0,
+        97,
+        98,
+        99
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "identical",
+      "input_values": [
+        12,
+        12,
+        101,
+        110,
+        99,
+        121,
+        99,
+        108,
+        111,
+        112,
+        101,
+        100,
+        105,
+        97,
+        101,
+        110,
+        99,
+        121,
+        99,
+        108,
+        111,
+        112,
+        101,
+        100,
+        105,
+        97
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "substitution",
+      "input_values": [
+        3,
+        3,
+        99,
+        97,
+        116,
+        99,
+        117,
+        116
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "insertion",
+      "input_values": [
+        3,
+        4,
+        99,
+        97,
+        116,
+        99,
+        97,
+        114,
+        116
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "deletion",
+      "input_values": [
+        4,
+        3,
+        99,
+        97,
+        114,
+        116,
+        99,
+        97,
+        116
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "adjacent_transposition",
+      "input_values": [
+        2,
+        2,
+        97,
+        98,
+        98,
+        97
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "restricted_transposition_then_insert",
+      "input_values": [
+        2,
+        3,
+        67,
+        65,
+        65,
+        66,
+        67
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "repeated_character_transposition",
+      "input_values": [
+        4,
+        4,
+        97,
+        97,
+        98,
+        98,
+        97,
+        98,
+        97,
+        98
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "classic_word_pair",
+      "input_values": [
+        6,
+        7,
+        107,
+        105,
+        116,
+        116,
+        101,
+        110,
+        115,
+        105,
+        116,
+        116,
+        105,
+        110,
+        103
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "maximum_length_near_match",
+      "input_values": [
+        32,
+        32,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        98,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

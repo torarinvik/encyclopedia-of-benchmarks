@@ -1,0 +1,60 @@
+# Boruvka minimum spanning tree total for a bounded connected undirected graph.
+def boruvka_root(parent: usize&, x0: usize) -> usize:
+    x: usize = x0
+    while parent[x] != x:
+        parent[x] <- parent[parent[x]]
+        x <- parent[x]
+    x
+
+def boruvkas_minimum_spanning_tree_impl(input: i64&, length: usize) -> i64:
+    if length < 2: return -1
+    nv: i64 = input[0]
+    mv: i64 = input[1]
+    if nv < 2 or nv > 16 or mv < nv - 1 or mv > 64 or mv > nv * (nv - 1) / 2: return -1
+    n: usize = nv.usize()
+    m: usize = mv.usize()
+    if length != 2 + 3 * m: return -1
+    weight: mutable i64[256] = zeroed
+    for i in 0..<256: weight[i] <- 9223372036854775807
+    for k in 0..<m:
+        u: i64 = input[2 + 3 * k]
+        v: i64 = input[3 + 3 * k]
+        x: i64 = input[4 + 3 * k]
+        if u < 1 or u > nv or v < 1 or v > nv or u == v or x < 1 or x > 100: return -1
+        a: usize = (u - 1).usize() * 16 + (v - 1).usize()
+        b: usize = (v - 1).usize() * 16 + (u - 1).usize()
+        if weight[a] != 9223372036854775807: return -1
+        weight[a] <- x
+        weight[b] <- x
+    parent: mutable usize[16] = zeroed
+    for i in 0..<n: parent[i] <- i
+    components: mutable usize = n
+    total: mutable i64 = 0
+    while components > 1:
+        best_u: mutable usize[16] = zeroed
+        best_v: mutable usize[16] = zeroed
+        best_w: mutable i64[16] = zeroed
+        for i in 0..<16: best_u[i] <- 16; best_v[i] <- 16; best_w[i] <- 9223372036854775807
+        for u in 0..<n:
+            for v in (u + 1)..<n:
+                x: i64 = weight[u * 16 + v]
+                if x != 9223372036854775807:
+                    a: usize = boruvka_root(parent, u)
+                    b: usize = boruvka_root(parent, v)
+                    if a != b:
+                        if x < best_w[a]: best_w[a] <- x; best_u[a] <- u; best_v[a] <- v
+                        if x < best_w[b]: best_w[b] <- x; best_u[b] <- u; best_v[b] <- v
+        merged: mutable bool = false
+        for r in 0..<n:
+            if best_u[r] < 16:
+                a: usize = boruvka_root(parent, best_u[r])
+                b: usize = boruvka_root(parent, best_v[r])
+                if a != b:
+                    parent[a] <- b
+                    components <- components - 1
+                    total <- total + best_w[r]
+                    merged <- true
+        if not merged: return -1
+    total
+
+export fn boruvkas_minimum_spanning_tree(input: i64&, length: usize) -> i64 = boruvkas_minimum_spanning_tree_impl

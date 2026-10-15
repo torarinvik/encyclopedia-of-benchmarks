@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "snells-law-python-degrees-rounded-v1",
+  "algorithm": "snells_law",
+  "function_symbol": "snells_law",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "layout": ["n1", "n2", "incident_angle_degrees"],
+    "index_range": [0.5, 2.5],
+    "angle_range_degrees": [-90.0, 90.0],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "refracted angle in degrees, rounded to two decimal places",
+    "formula_order": "round_ties_even(degrees(asin((n1 / n2) * sin(radians(incident_angle_degrees)))), 2)",
+    "near_critical_behavior": "return exactly +/-90 when the computed sine is math.isclose to +/-1 with Python default relative tolerance",
+    "total_internal_reflection_result": -1e300,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"equal_indices","input_values":[1.0,1.0,30.0],"expected_result":30.0},
+    {"id":"air_to_water","input_values":[1.0,1.33,60.0],"expected_result":40.63},
+    {"id":"water_to_air_valid","input_values":[1.33,1.0,30.0],"expected_result":41.68},
+    {"id":"negative_incident_angle","input_values":[1.0,1.33,-60.0],"expected_result":-40.63},
+    {"id":"grazing_equal_indices","input_values":[1.0,1.0,90.0],"expected_result":90.0},
+    {"id":"grazing_into_higher_index","input_values":[1.0,1.5,90.0],"expected_result":41.81},
+    {"id":"near_critical_isclose","input_values":[1.0000000001,1.0,90.0],"expected_result":90.0},
+    {"id":"total_internal_reflection","input_values":[1.5,1.0,60.0],"expected_result":-1e300},
+    {"id":"invalid_index","input_values":[-1.33,1.0,60.0],"expected_result":-1e300},
+    {"id":"angle_outside_contract","input_values":[1.0,1.5,91.0],"expected_result":-1e300}
+  ]
+}

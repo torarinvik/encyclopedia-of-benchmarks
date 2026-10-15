@@ -1,0 +1,21 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+def exponential_function_impl(power: f64, term_count: f64) -> f64:
+    if not (power >= -10.0 and power <= 10.0 and term_count >= 0.0 and term_count <= 32.0):
+        return -1.0e300
+    n: i64 = term_count.i64()
+    if n.f64() != term_count:
+        return -1.0e300
+    if n == 0:
+        return 1.0
+
+    output: mutable f64 = 0.0
+    factorial: mutable f64 = 1.0
+    index: mutable i64 = 0
+    while index < n:
+        output <- output + pow(power, index.f64()) / factorial
+        factorial <- factorial * (index + 1).f64()
+        index <- index + 1
+    output
+
+export fn exponential_function(power: f64, term_count: f64) -> f64 = exponential_function_impl

@@ -1,0 +1,123 @@
+extern sqrt(value: f64) -> f64
+
+const ANT_LIMIT: usize = 64
+const ITERATION_LIMIT: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+def city_distance(cities: i64&, first: usize, second: usize) -> f64:
+    dx: f64 = cities[2 * first].f64() - cities[2 * second].f64()
+    dy: f64 = cities[2 * first + 1].f64() - cities[2 * second + 1].f64()
+    sqrt(dx * dx + dy * dy)
+
+def next_random_fraction(random_state: mutable i64&) -> f64:
+    random_state <- (random_state * 48271) % 2147483647
+    random_state.f64() / 2147483647.0
+
+def select_next_city(current: usize, candidate_a: i64, candidate_b: i64,
+                     cities: i64&, pheromones: f64&, random_state: mutable i64&) -> usize:
+    scores: mutable f64[3] = zeroed
+    total: mutable f64 = 0.0
+    first: usize = candidate_a.usize()
+    heuristic_a: f64 = 1.0 / city_distance(cities, current, first)
+    squared_a: f64 = heuristic_a * heuristic_a
+    score_a: f64 = pheromones[3 * current + first] * squared_a * squared_a * heuristic_a
+    scores[first] <- score_a
+    total <- total + score_a
+    second: mutable usize = 0
+    if candidate_b >= 0:
+        second <- candidate_b.usize()
+        heuristic_b: f64 = 1.0 / city_distance(cities, current, second)
+        squared_b: f64 = heuristic_b * heuristic_b
+        score_b: f64 = pheromones[3 * current + second] * squared_b * squared_b * heuristic_b
+        scores[second] <- score_b
+        total <- total + score_b
+    roll: f64 = next_random_fraction(random_state) * total
+    cumulative: mutable f64 = scores[first]
+    if cumulative >= roll:
+        return first
+    if candidate_b >= 0:
+        cumulative <- cumulative + scores[second]
+        if cumulative >= roll:
+            return second
+    first
+
+def ant_colony_optimization_impl(input: i64&, length: usize) -> f64:
+    if length != 8:
+        return INVALID_RESULT
+    ant_count: i64 = input[0]
+    iteration_count: i64 = input[1]
+    if ant_count < 1 or ant_count > 64 or iteration_count < 1 or iteration_count > 64:
+        return INVALID_RESULT
+    cities: mutable i64[6] = zeroed
+    index: mutable usize = 0
+    while index < 6:
+        cities[index] <- input[index + 2]
+        if cities[index] < -100000 or cities[index] > 100000:
+            return INVALID_RESULT
+        index <- index + 1
+    first: mutable usize = 0
+    while first < 3:
+        second: mutable usize = 0
+        while second < first:
+            if cities[2 * first] == cities[2 * second] and cities[2 * first + 1] == cities[2 * second + 1]:
+                return INVALID_RESULT
+            second <- second + 1
+        first <- first + 1
+
+    pheromones: mutable f64[9] = zeroed
+    index <- 0
+    while index < 9:
+        pheromones[index] <- 1.0
+        index <- index + 1
+    routes: mutable usize[256] = zeroed
+    random_state: mutable i64 = 1
+    best_distance: mutable f64 = 1.0e300
+    iteration: mutable usize = 0
+    while iteration < iteration_count.usize():
+        ant: mutable usize = 0
+        while ant < ant_count.usize():
+            route_start: usize = ant * 4
+            routes[route_start] <- 0
+            current: mutable usize = 0
+            first_city: usize = select_next_city(current, 1, 2, cities[0], pheromones[0], random_state)
+            routes[route_start + 1] <- first_city
+            current <- first_city
+            second_city: mutable usize = 1
+            if first_city == 1:
+                second_city <- 2
+            _ = select_next_city(current, second_city.i64(), -1, cities[0], pheromones[0], random_state)
+            routes[route_start + 2] <- second_city
+            routes[route_start + 3] <- 0
+            distance: mutable f64 = 0.0
+            edge: mutable usize = 0
+            while edge < 3:
+                distance <- distance + city_distance(cities[0], routes[route_start + edge], routes[route_start + edge + 1])
+                edge <- edge + 1
+            if distance < best_distance:
+                best_distance <- distance
+            ant <- ant + 1
+        index <- 0
+        while index < 9:
+            pheromones[index] <- pheromones[index] * 0.7
+            index <- index + 1
+        ant <- 0
+        while ant < ant_count.usize():
+            route_start: usize = ant * 4
+            distance: mutable f64 = 0.0
+            edge: mutable usize = 0
+            while edge < 3:
+                distance <- distance + city_distance(cities[0], routes[route_start + edge], routes[route_start + edge + 1])
+                edge <- edge + 1
+            deposit: f64 = 10.0 / distance
+            edge <- 0
+            while edge < 3:
+                origin_city: usize = routes[route_start + edge]
+                next_city: usize = routes[route_start + edge + 1]
+                pheromones[3 * origin_city + next_city] <- pheromones[3 * origin_city + next_city] + deposit
+                pheromones[3 * next_city + origin_city] <- pheromones[3 * next_city + origin_city] + deposit
+                edge <- edge + 1
+            ant <- ant + 1
+        iteration <- iteration + 1
+    best_distance
+
+export fn ant_colony_optimization(input: i64&, length: usize) -> f64 = ant_colony_optimization_impl

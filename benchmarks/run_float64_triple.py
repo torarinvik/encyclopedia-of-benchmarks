@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "binomial_dist"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -68,6 +68,19 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                  and 1.0 <= end <= 20.0 and 0.0 < t <= 0.5)
         if not valid:
             raise ValueError("annuity_due_future_value requires payment in [0, 10000], integral periods in [1, 20], and rate in (0, 0.5]")
+    elif algorithm == "ordinary_annuity_future_value":
+        valid = (0.0 <= start <= 10000.0 and end.is_integer()
+                 and 1.0 <= end <= 20.0 and 0.01 <= t <= 0.5)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid ordinary_annuity_future_value inputs must use the -1e300 result sentinel")
+        else:
+            if expected == -1e300:
+                raise ValueError("valid ordinary_annuity_future_value inputs cannot use the invalid-input sentinel")
+            annuity_factor = (((1.0 + t) ** int(end)) - 1.0) / t
+            expected_value = start * annuity_factor
+            if abs(expected - expected_value) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("ordinary_annuity_future_value expected result must match the pinned factor-then-payment formula")
     elif algorithm == "count_numbers_divisible":
         valid = (start.is_integer() and end.is_integer() and t.is_integer()
                  and 1.0 <= start <= end <= 2147483647.0
@@ -236,6 +249,23 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
             if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
                     1.0, abs(start), abs(end)):
                 raise ValueError("length_conversion expected result must match the selected metric-unit conversion")
+    elif algorithm == "binomial_dist":
+        valid = (start.is_integer() and t.is_integer()
+                 and 1.0 <= start <= 16.0 and 1.0 <= t <= start
+                 and end in (0.25, 0.5, 0.75))
+        if not valid:
+            raise ValueError("binomial_dist requires integral 1 <= x <= n <= 16 and p in {0.25, 0.5, 0.75}")
+        n, x = int(start), int(t)
+        numerator = float(n)
+        denominator = float(x)
+        for factor in range(n - 1, n - x, -1):
+            numerator *= factor
+        for factor in range(1, x):
+            denominator *= factor
+        expected_probability = ((numerator / denominator) * math.pow(end, x)
+                                * math.pow(1.0 - end, n - x))
+        if abs(expected - expected_probability) > tolerance:
+            raise ValueError("binomial_dist expected result must match the source nCr and exact-success formula")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:
@@ -278,7 +308,16 @@ def main() -> int:
             or workload.get("measurement", {}).get("comparison_model") != "float64_triple_call"):
         parser.error("workload does not match the built float64 triple algorithm")
     timing = workload["measurement"]
-    tolerance = float(timing["input_scaled_tolerance"])
+    if algorithm == "ordinary_annuity_future_value":
+        tolerance_metadata = workload.get("input", {})
+        absolute_tolerance = float(tolerance_metadata.get("absolute_tolerance", 1e-12))
+        relative_tolerance = float(tolerance_metadata.get("relative_tolerance", 1e-12))
+        if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
+                or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
+            parser.error("ordinary_annuity_future_value tolerances must be finite and nonnegative")
+        tolerance = None
+    else:
+        tolerance = float(timing["input_scaled_tolerance"])
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
     repetitions = args.repetitions if args.repetitions is not None else timing["repetitions_per_sample"]
@@ -297,7 +336,15 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        start, end, t, expected = encode_case(case, tolerance, algorithm)
+        case_tolerance = tolerance
+        if algorithm == "ordinary_annuity_future_value":
+            case_values = case["input_values"]
+            expected_value = float(case["expected_result"])
+            input_scale = max(1.0, abs(float(case_values[0])), abs(float(case_values[1])))
+            output_tolerance = (absolute_tolerance if expected_value == -1e300 else
+                                absolute_tolerance + relative_tolerance * abs(expected_value))
+            case_tolerance = output_tolerance / input_scale
+        start, end, t, expected = encode_case(case, case_tolerance, algorithm)
         command = [str(executable), *(format(value, ".17g") for value in (start, end, t, expected, tolerance)),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
@@ -319,7 +366,7 @@ def main() -> int:
                                         "warmup_rounds": warmups, "repetitions_per_sample": repetitions,
                                         "samples_ns": raw["samples_ns"], "observed_result": observed,
                                         "result_checksum": raw["result_checksum"],
-                                        "result_input_scaled_tolerance": tolerance}})
+                                        "result_input_scaled_tolerance": case_tolerance}})
     output = args.output or ROOT / "results" / letter / algorithm / f"{language}.jsonl"
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("a", encoding="utf-8", newline="\n") as destination:

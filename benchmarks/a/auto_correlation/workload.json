@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "auto-correlation-linear-integer-signal-i64-bytes-v1",
+  "algorithm": "auto_correlation",
+  "function_symbol": "auto_correlation",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[count, samples...]",
+    "sample_count_range": [1, 64],
+    "sample_range": [-1000000, 1000000],
+    "maximum_input_values": 65,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_integer_vector",
+    "encoding": "2*count-1 two's-complement i64 values in little-endian byte order",
+    "coefficient_magnitude_bound": 64000000000000,
+    "successful_result": "output byte length"
+  },
+  "workspace": {
+    "bytes": 1016,
+    "meaning": "Maximum output payload for 127 signed 64-bit coefficients"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "pinned_java_example",
+      "input_values": [4, 1, 2, 1, 1],
+      "expected_result": 56,
+      "expected_output_hex": "0100000000000000030000000000000005000000000000000700000000000000050000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "negative_and_positive_overlap",
+      "input_values": [3, 0, -2, 1],
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000feffffffffffffff0500000000000000feffffffffffffff0000000000000000"
+    },
+    {
+      "id": "signed_two_sample_signal",
+      "input_values": [2, 1, -1],
+      "expected_result": 24,
+      "expected_output_hex": "ffffffffffffffff0200000000000000ffffffffffffffff"
+    },
+    {
+      "id": "singleton_negative_sample",
+      "input_values": [1, -3],
+      "expected_result": 8,
+      "expected_output_hex": "0900000000000000"
+    },
+    {
+      "id": "zero_signal",
+      "input_values": [2, 0, 0],
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_sample_magnitude",
+      "input_values": [4, 1000000, 1000000, 1000000, 1000000],
+      "expected_result": 56,
+      "expected_output_hex": "0010a5d4e800000000204aa9d10100000030ef7dba02000000409452a30300000030ef7dba02000000204aa9d10100000010a5d4e8000000"
+    },
+    {
+      "id": "zero_sample_count",
+      "input_values": [0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_count_above_contract",
+      "input_values": [65, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_outside_contract",
+      "input_values": [1, 1000001],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_packed_input",
+      "input_values": [2, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_sample",
+      "input_values": [1, 0, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "decimal-isolate-positive-exact-binary-four-place-v1",
+  "algorithm": "decimal_isolate",
+  "function_symbol": "decimal_isolate",
+  "input": {
+    "kind": "finite_binary64",
+    "exclusive_minimum": 0.0,
+    "maximum": 999999.0,
+    "decimal_places": 4,
+    "validity": "value * 10000 is an exact integer divisible by 625, and its last four scaled digits are nonzero",
+    "invalid_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_fractional_part",
+    "definition": "(integer(value * 10000) mod 10000) / 10000",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "smallest_included_binary_fraction",
+      "input_values": [
+        0.0625
+      ],
+      "expected_result": 0.0625
+    },
+    {
+      "id": "eighth",
+      "input_values": [
+        0.125
+      ],
+      "expected_result": 0.125
+    },
+    {
+      "id": "half",
+      "input_values": [
+        0.5
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "positive_integer_plus_half",
+      "input_values": [
+        1.5
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "pinned_style_fraction",
+      "input_values": [
+        35.125
+      ],
+      "expected_result": 0.125
+    },
+    {
+      "id": "large_positive_fraction",
+      "input_values": [
+        123456.875
+      ],
+      "expected_result": 0.875
+    },
+    {
+      "id": "maximum_magnitude_fraction",
+      "input_values": [
+        999998.0625
+      ],
+      "expected_result": 0.0625
+    },
+    {
+      "id": "zero",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "integer",
+      "input_values": [
+        35.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "nonbinary_decimal",
+      "input_values": [
+        0.1
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_source_disagreement",
+      "input_values": [
+        -14.125
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "more_than_four_decimal_places",
+      "input_values": [
+        2.12345
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_bound",
+      "input_values": [
+        1000000.125
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

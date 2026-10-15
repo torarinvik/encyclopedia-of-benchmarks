@@ -1,0 +1,35 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def streaming_moving_average_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def streaming_moving_average_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or input[0] < 1 or input[0] > 256 or input[1] < 1 or input[1] > 256: return -1
+    window: usize = input[0].usize()
+    count: usize = input[1].usize()
+    if length != count + 2: return -1
+    index: mutable usize = 0
+    while index < count:
+        if input[2 + index] < -2147483648 or input[2 + index] > 2147483647: return -1
+        index <- index + 1
+    if capacity < count * 8 or output.is_null(): return -2
+    index <- 0
+    while index < count:
+        start: usize = 0
+        if index + 1 > window: start <- index + 1 - window
+        sum: mutable i64 = 0
+        cursor: mutable usize = start
+        while cursor <= index:
+            sum <- sum + input[2 + cursor]
+            cursor <- cursor + 1
+        average: f64 = sum.f64() / (index + 1 - start).f64()
+        streaming_moving_average_put_f64(output, index * 8, average)
+        index <- index + 1
+    (count * 8).i64()
+
+export fn streaming_moving_average(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = streaming_moving_average_impl

@@ -1,0 +1,35 @@
+def min_sum_ksize_subarray_impl(values: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775807 - 1
+    if length < 2 or length > 100002:
+        return invalid
+    n_value: i64 = values[0]
+    k_value: i64 = values[1]
+    if n_value < 0 or n_value > 100000 or k_value < 0 or k_value > 100000:
+        return invalid
+    n: usize = n_value as usize
+    k: usize = k_value as usize
+    if length != n + 2:
+        return invalid
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = values[i + 2]
+        if value < -10000 or value > 10000:
+            return invalid
+        i <- i + 1
+    if k > n:
+        return -1
+    window_sum: mutable i64 = 0
+    i <- 0
+    while i < k:
+        window_sum <- window_sum + values[i + 2]
+        i <- i + 1
+    minimum_sum: mutable i64 = window_sum
+    i <- k
+    while i < n:
+        window_sum <- window_sum + values[i + 2] - values[i - k + 2]
+        if window_sum < minimum_sum:
+            minimum_sum <- window_sum
+        i <- i + 1
+    minimum_sum
+
+export fn min_sum_ksize_subarray(values: i64&, length: usize) -> i64 = min_sum_ksize_subarray_impl

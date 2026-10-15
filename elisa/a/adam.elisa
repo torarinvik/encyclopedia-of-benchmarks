@@ -1,0 +1,78 @@
+const MAX_STEPS: usize = 256
+const MAX_PARAMETERS: usize = 16
+const INPUT_SCALE: f64 = 1000000000.0
+const OUTPUT_SCALE: f64 = 1000000.0
+
+def adam_sqrt(value: f64) -> f64:
+    if value <= 0.0:
+        return 0.0
+    root: mutable f64 =
+        if value > 1.0:
+            value
+        else:
+            1.0
+    iteration: mutable usize = 0
+    while iteration < 80 |root, iteration|:
+        root <- 0.5 * (root + value / root)
+        iteration <- iteration + 1
+    root
+
+def adam_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 9 or length > 7 + MAX_PARAMETERS + MAX_STEPS * MAX_PARAMETERS:
+        return -1
+    steps_value: i64 = input[0]
+    parameter_count_value: i64 = input[1]
+    learning_rate_value: i64 = input[2]
+    beta1_value: i64 = input[3]
+    beta2_value: i64 = input[4]
+    epsilon_value: i64 = input[5]
+    weight_decay_value: i64 = input[6]
+    if (steps_value < 1 or steps_value > 256 or parameter_count_value < 1 or parameter_count_value > 16 or
+        length != 7 + parameter_count_value.usize() + steps_value.usize() * parameter_count_value.usize() or
+        learning_rate_value < 1 or learning_rate_value > 1000000000 or beta1_value < 0 or beta1_value >= 1000000000 or
+        beta2_value < 0 or beta2_value >= 1000000000 or epsilon_value < 1 or epsilon_value > 10000000 or
+        weight_decay_value < 0 or weight_decay_value > 100000000):
+        return -1
+    steps: usize = steps_value.usize()
+    parameter_count: usize = parameter_count_value.usize()
+    for i in 0..<parameter_count |input|:
+        if input[7 + i] < -1000000000000000 or input[7 + i] > 1000000000000000:
+            return -1
+    gradient_start: usize = 7 + parameter_count
+    for i in 0..<steps * parameter_count |input|:
+        if input[gradient_start + i] < -1000000000000 or input[gradient_start + i] > 1000000000000:
+            return -1
+    output_count: usize = steps * parameter_count
+    if output_capacity < 8 * output_count:
+        return -2
+
+    learning_rate: f64 = f64(learning_rate_value) / INPUT_SCALE
+    beta1: f64 = f64(beta1_value) / INPUT_SCALE
+    beta2: f64 = f64(beta2_value) / INPUT_SCALE
+    epsilon: f64 = f64(epsilon_value) / INPUT_SCALE
+    weight_decay: f64 = f64(weight_decay_value) / INPUT_SCALE
+    parameters: mutable f64[MAX_PARAMETERS] = zeroed
+    first_moment: mutable f64[MAX_PARAMETERS] = zeroed
+    second_moment: mutable f64[MAX_PARAMETERS] = zeroed
+    for i in 0..<parameter_count |input, parameters|:
+        parameters[i] <- f64(input[7 + i]) / INPUT_SCALE
+    beta1_power: mutable f64 = 1.0
+    beta2_power: mutable f64 = 1.0
+    for step in 0..<steps |input, parameters, first_moment, second_moment, beta1_power, beta2_power, output|:
+        beta1_power <- beta1_power * beta1
+        beta2_power <- beta2_power * beta2
+        for i in 0..<parameter_count |parameters, first_moment, second_moment, output|:
+            gradient: f64 = f64(input[gradient_start + step * parameter_count + i]) / INPUT_SCALE
+            first_moment[i] <- beta1 * first_moment[i] + (1.0 - beta1) * gradient
+            second_moment[i] <- beta2 * second_moment[i] + (1.0 - beta2) * (gradient * gradient)
+            corrected_first: f64 = first_moment[i] / (1.0 - beta1_power)
+            corrected_second: f64 = second_moment[i] / (1.0 - beta2_power)
+            updated: f64 = parameters[i] - learning_rate * corrected_first / (adam_sqrt(corrected_second) + epsilon) - learning_rate * weight_decay * parameters[i]
+            parameters[i] <- updated
+            encoded: i64 = i64(updated * OUTPUT_SCALE)
+            output_index: usize = step * parameter_count + i
+            for byte in 0..<8 |output|:
+                output[8 * output_index + byte] <- ((encoded >> (8 * byte)) & 255).u8()
+    output_count.i64()
+
+export fn adam(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adam_impl

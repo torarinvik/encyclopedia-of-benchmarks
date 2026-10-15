@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0.0",
+  "id": "min-sum-ksize-subarray-java-i64-array-v1",
+  "algorithm": "min_sum_ksize_subarray",
+  "function_symbol": "min_sum_ksize_subarray",
+  "description": "Minimum sum among contiguous windows of a fixed length, preserving the Java source's zero-size and oversized-window behavior.",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": "[n, k, value_0, ...]",
+    "minimum_n": 0,
+    "maximum_n": 100000,
+    "minimum_k": 0,
+    "maximum_k": 100000,
+    "minimum_value": -10000,
+    "maximum_value": 10000,
+    "exact_packed_length": "n + 2",
+    "invalid_input_result": -9223372036854775808,
+    "oversized_window_result": -1,
+    "zero_size_window_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "minimum sum of any k consecutive values; zero when k is zero",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"mixed_windows","input_values":[5,3,2,3,4,1,5],"input_length":7,"expected_result":8},
+    {"id":"all_negative","input_values":[4,2,-8,-3,-5,-2],"input_length":6,"expected_result":-11},
+    {"id":"window_one","input_values":[4,1,5,-8,12,0],"input_length":6,"expected_result":-8},
+    {"id":"window_covers_array","input_values":[3,3,3,-1,7],"input_length":5,"expected_result":9},
+    {"id":"singleton","input_values":[1,1,-17],"input_length":3,"expected_result":-17},
+    {"id":"zero_size_window","input_values":[4,0,4,-2,7,1],"input_length":6,"expected_result":0},
+    {"id":"empty_zero_size_window","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"window_larger_than_array","input_values":[2,3,1,2],"input_length":4,"expected_result":-1},
+    {"id":"positive_window_empty_array","input_values":[0,1],"input_length":2,"expected_result":-1},
+    {"id":"minimum_int32_safe_values","input_values":[3,2,-10000,-10000,10000],"input_length":5,"expected_result":-20000},
+    {"id":"packed_length_mismatch","input_values":[3,2,1,2],"input_length":4,"expected_result":-9223372036854775808},
+    {"id":"value_out_of_range","input_values":[1,1,10001],"input_length":3,"expected_result":-9223372036854775808},
+    {"id":"negative_k_invalid","input_values":[2,-1,4,5],"input_length":4,"expected_result":-9223372036854775808}
+  ]
+}

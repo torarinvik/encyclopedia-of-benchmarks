@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "ordinary-annuity-future-value-binary64-v1",
+  "algorithm": "ordinary_annuity_future_value",
+  "function_symbol": "ordinary_annuity_future_value",
+  "input": {
+    "kind": "payment_periods_rate",
+    "payment_range": [0.0, 10000.0],
+    "periods_range": [1, 20],
+    "periods_integral": true,
+    "rate_range_inclusive": [0.01, 0.5],
+    "formula": "term_payment * ((((1 + term_interest_rate) ** number_of_payments) - 1) / term_interest_rate)",
+    "operation_order": "compute annuity factor, then multiply by term payment",
+    "invalid_result": -1e300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "moderate_payment_low_rate", "input_values": [500.0, 10.0, 0.05], "expected_result": 6288.946267774416},
+    {"id": "larger_payment_low_rate", "input_values": [1000.0, 10.0, 0.05], "expected_result": 12577.892535548832},
+    {"id": "moderate_rate", "input_values": [1000.0, 10.0, 0.1], "expected_result": 15937.42460100001},
+    {"id": "maximum_periods", "input_values": [1000.0, 20.0, 0.1], "expected_result": 57274.9994932561},
+    {"id": "zero_payment", "input_values": [0.0, 10.0, 0.05], "expected_result": 0.0},
+    {"id": "one_payment", "input_values": [100.0, 1.0, 0.05], "expected_result": 100.0},
+    {"id": "two_payments", "input_values": [500.0, 2.0, 0.05], "expected_result": 1025.0},
+    {"id": "upper_domain_edges", "input_values": [10000.0, 20.0, 0.5], "expected_result": 66485134.60159302},
+    {"id": "minimum_rate", "input_values": [1000.0, 5.0, 0.01], "expected_result": 5101.00501}
+  ]
+}

@@ -1,0 +1,22 @@
+def upper_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > 256:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 127 or input[index] == 9 or input[index] == 10 or input[index] == 11 or input[index] == 12 or input[index] == 13 or input[index] == 32:
+            return -1
+        index <- index + 1
+    if capacity < length:
+        return -2
+    index <- 0
+    while index < length:
+        output[index] <- input[index].u8()
+        index <- index + 1
+    index <- 0
+    while index < length:
+        if output[index] >= 97 and output[index] <= 122:
+            output[index] <- output[index] - 32
+        index <- index + 1
+    length as i64
+
+export fn upper(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = upper_impl

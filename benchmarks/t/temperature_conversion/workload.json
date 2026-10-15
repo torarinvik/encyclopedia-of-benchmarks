@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "temperature-conversion-rounded-i64-v1",
+  "algorithm": "temperature_conversion",
+  "function_symbol": "temperature_conversion",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[operation, temperature]",
+    "array_length": 2,
+    "operation_range": [0, 15],
+    "temperature_range": [-1000000, 1000000],
+    "malformed_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "temperature conversion rounded to a whole degree using JavaScript Math.round semantics",
+    "malformed_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    { "id": "celsius_to_fahrenheit_zero", "input_values": [0, 0], "expected_result": 32 },
+    { "id": "celsius_to_kelvin_twenty", "input_values": [1, 20], "expected_result": 293 },
+    { "id": "celsius_to_rankine_zero", "input_values": [2, 0], "expected_result": 492 },
+    { "id": "fahrenheit_to_celsius_freezing", "input_values": [3, 32], "expected_result": 0 },
+    { "id": "fahrenheit_to_kelvin_zero", "input_values": [4, 0], "expected_result": 255 },
+    { "id": "fahrenheit_to_rankine_zero", "input_values": [5, 0], "expected_result": 460 },
+    { "id": "kelvin_to_celsius_273", "input_values": [6, 273], "expected_result": 0 },
+    { "id": "kelvin_to_fahrenheit_273", "input_values": [7, 273], "expected_result": 32 },
+    { "id": "kelvin_to_rankine_twenty", "input_values": [8, 20], "expected_result": 36 },
+    { "id": "rankine_to_celsius_491", "input_values": [9, 491], "expected_result": 0 },
+    { "id": "rankine_to_fahrenheit_zero", "input_values": [10, 0], "expected_result": -460 },
+    { "id": "rankine_to_kelvin_twenty", "input_values": [11, 20], "expected_result": 11 },
+    { "id": "reaumur_to_celsius_twenty", "input_values": [12, 20], "expected_result": 25 },
+    { "id": "reaumur_to_fahrenheit_twenty", "input_values": [13, 20], "expected_result": 77 },
+    { "id": "reaumur_to_kelvin_zero", "input_values": [14, 0], "expected_result": 273 },
+    { "id": "reaumur_to_rankine_zero", "input_values": [15, 0], "expected_result": 492 },
+    { "id": "negative_half_rounds_toward_positive_infinity", "input_values": [12, -2], "expected_result": -2 },
+    { "id": "positive_half_rounds_up", "input_values": [12, 2], "expected_result": 3 },
+    { "id": "negative_temperature", "input_values": [0, -40], "expected_result": -40 },
+    { "id": "invalid_operation", "input_values": [16, 0], "expected_result": -9223372036854775808 },
+    { "id": "invalid_temperature", "input_values": [0, 1000001], "expected_result": -9223372036854775808 },
+    { "id": "short_input", "input_values": [0], "expected_result": -9223372036854775808 },
+    { "id": "extra_input", "input_values": [0, 0, 1], "expected_result": -9223372036854775808 }
+  ]
+}

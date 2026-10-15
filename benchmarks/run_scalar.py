@@ -10,6 +10,7 @@ import json
 import math
 import os
 import platform
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+I64_MIN = -(2**63)
 
 
 def sha256_file(path: Path) -> str:
@@ -28,6 +30,46 @@ def sha256_file(path: Path) -> str:
 
 
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "integer_partition":
+        if not 1 <= input_value <= 300:
+            expected_from_source = I64_MIN
+        else:
+            partitions = [0] * (input_value + 1)
+            partitions[0] = 1
+            for part in range(1, input_value + 1):
+                for total in range(part, input_value + 1):
+                    partitions[total] += partitions[total - part]
+            expected_from_source = partitions[input_value]
+        if expected_result != expected_from_source:
+            raise ValueError("integer_partition expected_result must match the bounded unordered partition count")
+        return
+    if algorithm == "mobius_function":
+        if not 1 <= input_value <= 10_000:
+            expected_from_source = I64_MIN
+        else:
+            remaining = input_value
+            distinct_prime_factors = 0
+            factor = 2
+            square_factor = False
+            while factor * factor <= remaining:
+                if remaining % factor == 0:
+                    remaining //= factor
+                    if remaining % factor == 0:
+                        square_factor = True
+                        break
+                    distinct_prime_factors += 1
+                    while remaining % factor == 0:
+                        remaining //= factor
+                factor = 3 if factor == 2 else factor + 2
+            if square_factor:
+                expected_from_source = 0
+            else:
+                if remaining > 1:
+                    distinct_prime_factors += 1
+                expected_from_source = 1 if distinct_prime_factors % 2 == 0 else -1
+        if expected_result != expected_from_source:
+            raise ValueError("mobius_function expected_result must match the bounded distinct-prime Möbius value")
+        return
     if algorithm == "fibonacci_recursive":
         if 0 <= input_value <= 30:
             previous, current = 0, 1
@@ -143,14 +185,15 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--algorithm", required=True)
-    parser.add_argument("--language", required=True)
-    parser.add_argument("--source", required=True, type=Path)
-    parser.add_argument("--executable", required=True, type=Path)
-    parser.add_argument("--compiler", required=True)
-    parser.add_argument("--compiler-version", required=True)
-    parser.add_argument("--build-flags", default="")
-    parser.add_argument("--build-command", required=True)
+    parser.add_argument("--build-manifest", type=Path)
+    parser.add_argument("--algorithm")
+    parser.add_argument("--language")
+    parser.add_argument("--source", type=Path)
+    parser.add_argument("--executable", type=Path)
+    parser.add_argument("--compiler")
+    parser.add_argument("--compiler-version")
+    parser.add_argument("--build-flags")
+    parser.add_argument("--build-command")
     parser.add_argument("--workload", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--samples", type=int)
@@ -158,12 +201,45 @@ def main() -> int:
     parser.add_argument("--repetitions", type=int)
     args = parser.parse_args()
 
-    letter = args.algorithm[0].lower() if args.algorithm and args.algorithm[0].isalpha() else "0-9"
-    workload_path = (args.workload or ROOT / "benchmarks" / letter / args.algorithm / "workload.json").resolve()
-    source_path = args.source.resolve()
-    executable_path = args.executable.resolve()
+    metadata_options = (args.algorithm, args.language, args.source, args.executable,
+                        args.compiler, args.compiler_version, args.build_flags, args.build_command)
+    manifest = None
+    if args.build_manifest is not None:
+        if any(option is not None for option in metadata_options):
+            parser.error("--build-manifest cannot be combined with individual build metadata options")
+        manifest_path = args.build_manifest.resolve()
+        if not manifest_path.is_file():
+            parser.error(f"build manifest file does not exist: {manifest_path}")
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if manifest.get("family") != "scalar":
+                parser.error("build manifest must declare the scalar ABI family")
+            algorithm = manifest["algorithm"]
+            language = manifest["language"]
+            source_path = (ROOT / manifest["source_path"]).resolve()
+            binary = manifest["binaries"]["scalar_runner"]
+            executable_path = Path(binary["path"]).resolve()
+            compiler = manifest["compiler"]
+            compiler_version = manifest["compiler_version"]
+            build_flags = manifest["build_flags"]
+            commands = manifest["commands"]
+            build_command = " && ".join(shlex.join(command) for command in commands)
+        except (AttributeError, KeyError, TypeError, ValueError) as error:
+            parser.error(f"invalid scalar build manifest: {error}")
+    else:
+        required_options = (args.algorithm, args.language, args.source, args.executable,
+                            args.compiler, args.compiler_version, args.build_command)
+        if any(option is None for option in required_options):
+            parser.error("supply --build-manifest or all individual build metadata options")
+        algorithm, language = args.algorithm, args.language
+        source_path, executable_path = args.source.resolve(), args.executable.resolve()
+        compiler, compiler_version = args.compiler, args.compiler_version
+        build_flags, build_command = args.build_flags or "", args.build_command
+
+    letter = algorithm[0].lower() if algorithm and algorithm[0].isalpha() else "0-9"
+    workload_path = (args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json").resolve()
     runner_source = ROOT / "benchmarks" / "harness" / "scalar_runner.c"
-    output_path = (args.output or ROOT / "results" / letter / args.algorithm / f"{args.language}.jsonl").resolve()
+    output_path = (args.output or ROOT / "results" / letter / algorithm / f"{language}.jsonl").resolve()
 
     for path, label in (
         (workload_path, "workload"),
@@ -177,10 +253,16 @@ def main() -> int:
         source_relative = source_path.relative_to(ROOT).as_posix()
     except ValueError:
         parser.error("--source must be inside the encyclopedia repository")
+    if manifest is not None:
+        binary = manifest["binaries"]["scalar_runner"]
+        if (sha256_file(source_path) != manifest.get("source_sha256")
+                or sha256_file(executable_path) != binary.get("sha256")
+                or sha256_file(runner_source) != binary.get("harness_sha256")):
+            parser.error("build manifest no longer matches its source, binary, or scalar harness")
 
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
-    if workload["algorithm"] != args.algorithm:
-        parser.error(f"workload algorithm is {workload['algorithm']!r}, not {args.algorithm!r}")
+    if workload["algorithm"] != algorithm:
+        parser.error(f"workload algorithm is {workload['algorithm']!r}, not {algorithm!r}")
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])
@@ -202,15 +284,15 @@ def main() -> int:
         "python_version": platform.python_version(),
     }
     implementation = {
-        "language": args.language,
+        "language": language,
         "source_path": source_relative,
         "source_sha256": sha256_file(source_path),
         "runner_source_sha256": sha256_file(runner_source),
         "binary_sha256": sha256_file(executable_path),
-        "compiler": args.compiler,
-        "compiler_version": args.compiler_version,
-        "build_flags": args.build_flags,
-        "build_command": args.build_command,
+        "compiler": compiler,
+        "compiler_version": compiler_version,
+        "build_flags": build_flags,
+        "build_command": build_command,
     }
 
     spec_sha256 = sha256_file(workload_path)
@@ -218,7 +300,7 @@ def main() -> int:
     for case in workload["cases"]:
         input_value = int(case["input_value"])
         expected_result = int(case["expected_result"])
-        validate_expected_result(args.algorithm, input_value, expected_result)
+        validate_expected_result(algorithm, input_value, expected_result)
         command = [
             str(executable_path),
             str(input_value),
@@ -244,7 +326,7 @@ def main() -> int:
             {
                 "schema_version": "1.0.0",
                 "run_id": run_id,
-                "algorithm": args.algorithm,
+                "algorithm": algorithm,
                 "implementation": implementation,
                 "environment": environment,
                 "workload": {

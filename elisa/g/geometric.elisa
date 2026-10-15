@@ -1,0 +1,43 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+# Operation 0 tests a geometric sequence; operation 1 computes its mean.
+def geometric_impl(values: i64&, length: usize) -> f64:
+    if length < 2:
+        return -1.0e300
+    operation: i64 = values[0]
+    count: usize = length - 1
+    if operation == 0:
+        if count > 16:
+            return -1.0e300
+        index: mutable usize = 1
+        while index < length:
+            if values[index] < -100 or values[index] > 100:
+                return -1.0e300
+            index <- index + 1
+        if count == 1:
+            return 1.0
+        if values[1] == 0:
+            return 0.0
+        common_ratio: f64 = values[2].f64() / values[1].f64()
+        index <- 0
+        while index + 1 < count:
+            if values[index + 1] == 0:
+                return 0.0
+            if values[index + 2].f64() / values[index + 1].f64() != common_ratio:
+                return 0.0
+            index <- index + 1
+        return 1.0
+    if operation == 1:
+        if count > 7:
+            return -1.0e300
+        product: mutable i64 = 1
+        index <- 1
+        while index < length:
+            if values[index] < 0 or values[index] > 100:
+                return -1.0e300
+            product <- product * values[index]
+            index <- index + 1
+        pow(product.f64(), 1.0 / count.f64())
+    -1.0e300
+
+export fn geometric(values: i64&, length: usize) -> f64 = geometric_impl

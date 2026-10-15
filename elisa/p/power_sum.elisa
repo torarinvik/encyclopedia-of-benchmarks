@@ -1,0 +1,24 @@
+# Count distinct positive bases whose powers sum to the target.
+def power_sum_search(target: i64, power: i64, base: i64, current_sum: i64) -> i64:
+    term: mutable i64 = 1
+    exponent: mutable i64 = 0
+    while exponent < power:
+        term <- term * base
+        exponent <- exponent + 1
+    new_sum: i64 = current_sum + term
+    if new_sum == target:
+        return 1
+    if new_sum > target:
+        return 0
+    power_sum_search(target, power, base + 1, new_sum) + power_sum_search(target, power, base + 1, current_sum)
+
+def power_sum_impl(input_values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    target: i64 = input_values[0]
+    power: i64 = input_values[1]
+    if target < 1 or target > 1000 or power < 2 or power > 10:
+        return -1
+    power_sum_search(target, power, 1, 0)
+
+export fn power_sum(input_values: i64&, length: usize) -> i64 = power_sum_impl

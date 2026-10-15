@@ -1,0 +1,14 @@
+extern sqrt(value: f64) -> f64
+
+def relativistic_kinetic_energy_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    mass: i64 = values[0]
+    velocity: i64 = values[1]
+    if mass < 0 or mass > 1000000 or velocity < -299792457 or velocity > 299792457:
+        return -1.0e300
+    c_squared: i64 = 299792458 * 299792458
+    gamma: f64 = 1.0 / sqrt(1.0 - (velocity * velocity).f64() / c_squared.f64())
+    (gamma - 1.0) * mass.f64() * c_squared.f64()
+
+export fn relativistic_kinetic_energy(values: i64&, length: usize) f64 = relativistic_kinetic_energy_impl

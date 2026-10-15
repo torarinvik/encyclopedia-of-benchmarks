@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "id": "simple-moving-average-packed-f64-v1",
+  "algorithm": "simple_moving_average",
+  "function_symbol": "simple_moving_average",
+  "input": {
+    "kind": "window_count_then_signed_i32_values",
+    "layout": "[window_size, n, data[0..n]]",
+    "window_size_range": [
+      1,
+      256
+    ],
+    "count_range": [
+      1,
+      256
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "output": "n little-endian binary64 values; unavailable leading entries use canonical quiet NaN bits 0x7ff8000000000000",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "upstream_example",
+      "input_values": [
+        3,
+        10,
+        10,
+        12,
+        15,
+        13,
+        14,
+        16,
+        18,
+        17,
+        19,
+        21
+      ],
+      "expected_result": 80,
+      "expected_output_hex": "000000000000f87f000000000000f87fabaaaaaaaaaa2840abaaaaaaaaaa2a400000000000002c40abaaaaaaaaaa2c400000000000003040000000000000314000000000000032400000000000003340"
+    },
+    {
+      "id": "window_larger_than_data",
+      "input_values": [
+        5,
+        3,
+        10,
+        12,
+        15
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "000000000000f87f000000000000f87f000000000000f87f"
+    },
+    {
+      "id": "single_value_window",
+      "input_values": [
+        1,
+        3,
+        7,
+        -2,
+        0
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "0000000000001c4000000000000000c00000000000000000"
+    },
+    {
+      "id": "negative_and_positive",
+      "input_values": [
+        2,
+        4,
+        -5,
+        0,
+        7,
+        -2
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "000000000000f87f00000000000004c00000000000000c400000000000000440"
+    },
+    {
+      "id": "fractional_averages",
+      "input_values": [
+        3,
+        4,
+        1,
+        2,
+        2,
+        3
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "000000000000f87f000000000000f87fabaaaaaaaaaafa3fabaaaaaaaaaa0240"
+    },
+    {
+      "id": "int32_extremes",
+      "input_values": [
+        2,
+        3,
+        -2147483648,
+        2147483647,
+        2147483647
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "000000000000f87f000000000000e0bf0000c0ffffffdf41"
+    },
+    {
+      "id": "zero_window",
+      "input_values": [
+        0,
+        3,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        2,
+        3,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_range_value",
+      "input_values": [
+        1,
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "window_out_of_range",
+      "input_values": [
+        257,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

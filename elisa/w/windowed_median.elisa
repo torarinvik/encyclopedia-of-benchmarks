@@ -1,0 +1,45 @@
+# Emit exact source float medians widened to little-endian binary64 bytes.
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def windowed_median_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def windowed_median_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or input[0] < 1 or input[0] > 64 or input[1] < 1 or input[1] > 128: return -1
+    window: usize = input[0].usize()
+    n: usize = input[1].usize()
+    if length != n + 2: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[2 + index] < -1000000 or input[2 + index] > 1000000: return -1
+        index <- index + 1
+    if capacity < n * 8 or output.is_null(): return -2
+    sorted: mutable i64[64] = zeroed
+    active: mutable usize = 0
+    index <- 0
+    while index < n:
+        if index >= window:
+            old: i64 = input[2 + index - window]
+            position: mutable usize = 0
+            while position < active and sorted[position] != old: position <- position + 1
+            if position == active: return -1
+            cursor: mutable usize = position + 1
+            while cursor < active: sorted[cursor - 1] <- sorted[cursor]; cursor <- cursor + 1
+            active <- active - 1
+        value: i64 = input[2 + index]
+        position: mutable usize = 0
+        while position < active and sorted[position] < value: position <- position + 1
+        cursor: mutable usize = active
+        while cursor > position: sorted[cursor] <- sorted[cursor - 1]; cursor <- cursor - 1
+        sorted[position] <- value
+        active <- active + 1
+        median: f32
+        if active % 2 == 1: median <- sorted[active / 2].f32()
+        else: median <- 0.5.f32() * sorted[active / 2 - 1].f32() + 0.5.f32() * sorted[active / 2].f32()
+        windowed_median_put_f64(output, index * 8, median.f64())
+        index <- index + 1
+    (n * 8).i64()

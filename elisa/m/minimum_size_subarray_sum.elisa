@@ -1,0 +1,31 @@
+def minimum_size_subarray_sum_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    target: i64 = input_values[0]
+    count: i64 = input_values[1]
+    if target < 1 or target > 1000000 or count < 0 or count > 256 or length != count + 2:
+        return -1
+    index: i64 = 0
+    while index < count:
+        value: i64 = input_values[index + 2]
+        if value < 1 or value > 1000000:
+            return -1
+        index <- index + 1
+    left: i64 = 0
+    current_sum: i64 = 0
+    best: i64 = count + 1
+    right: i64 = 0
+    while right < count:
+        current_sum <- current_sum + input_values[right + 2]
+        while current_sum >= target:
+            width: i64 = right - left + 1
+            if width < best:
+                best <- width
+            current_sum <- current_sum - input_values[left + 2]
+            left <- left + 1
+        right <- right + 1
+    if best <= count:
+        return best
+    return 0
+
+export fn minimum_size_subarray_sum(input_values: i64&, length: usize) -> i64 = minimum_size_subarray_sum_impl

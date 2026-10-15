@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "linear-regression-univariate-ols-slope-v1",
+  "algorithm": "linear_regression_ols",
+  "function_symbol": "linear_regression_ols",
+  "input": {
+    "kind": "packed_signed_64_bit_training_pairs",
+    "layout": "[n, x0, y0, x1, y1, ..., x(n-1), y(n-1)]",
+    "length_range": [5, 257],
+    "value_range": [-1000000, 1000000],
+    "observation_count_range": [2, 128],
+    "coordinate_range": [-1000000, 1000000],
+    "requires_nonconstant_x": true,
+    "requires_nonconstant_y": true,
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "slope of the univariate ordinary least-squares fit",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10
+  },
+  "cases": [
+    {"id": "positive_exact_line", "input_values": [3, 0, 1, 1, 3, 2, 5], "input_length": 7, "expected_result": 2.0},
+    {"id": "negative_exact_line", "input_values": [4, -2, 7, -1, 5, 1, 1, 3, -3], "input_length": 9, "expected_result": -2.0},
+    {"id": "fractional_slope", "input_values": [3, 0, 1, 2, 2, 4, 4], "input_length": 7, "expected_result": 0.75},
+    {"id": "nonperfect_fit", "input_values": [4, 0, 0, 1, 1, 2, 2, 3, 10], "input_length": 9, "expected_result": 3.1},
+    {"id": "negative_coordinates", "input_values": [3, -3, -2, -2, 0, 1, 6], "input_length": 7, "expected_result": 2.0},
+    {"id": "coordinate_bounds", "input_values": [3, -1000000, -1000000, 0, 0, 1000000, 1000000], "input_length": 7, "expected_result": 1.0},
+    {"id": "empty_input", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "one_observation", "input_values": [1, 4, 6], "input_length": 3, "expected_result": -1e300},
+    {"id": "declared_count_mismatch", "input_values": [3, 0, 1, 1, 3], "input_length": 5, "expected_result": -1e300},
+    {"id": "constant_x", "input_values": [3, 1, 1, 1, 2, 1, 3], "input_length": 7, "expected_result": -1e300},
+    {"id": "constant_y", "input_values": [3, 0, 4, 1, 4, 2, 4], "input_length": 7, "expected_result": -1e300},
+    {"id": "coordinate_below_bound", "input_values": [2, 0, 0, 1000001, 1], "input_length": 5, "expected_result": -1e300}
+  ]
+}

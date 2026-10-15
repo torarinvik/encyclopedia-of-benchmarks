@@ -1,0 +1,37 @@
+# Return the shortest common supersequence length of two packed ASCII sequences.
+def shortest_common_supersequence_length_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 512:
+        return -1
+    left_value: i64 = input_values[0]
+    right_value: i64 = input_values[1]
+    if left_value < 0 or left_value > 255 or right_value < 0 or right_value > 255:
+        return -1
+    left_length: usize = left_value.usize()
+    right_length: usize = right_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1
+    index: mutable usize = 0
+    while index < left_length + right_length:
+        value: i64 = input_values[2 + index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    rows: usize = left_length + 1
+    columns: usize = right_length + 1
+    result: i64 =
+        while i < rows |i: mutable usize = 0, table: mutable i64[65536] = zeroed| -> left_value + right_value - table[(rows - 1) * columns + columns - 1]:
+            table <- while j < columns |j: mutable usize = 0, current: mutable i64[65536] = table| -> current:
+                if i == 0 or j == 0:
+                    current[i * columns + j] <- 0
+                elif input_values[1 + i] == input_values[1 + left_length + j]:
+                    current[i * columns + j] <- current[(i - 1) * columns + j - 1] + 1
+                elif current[(i - 1) * columns + j] > current[i * columns + j - 1]:
+                    current[i * columns + j] <- current[(i - 1) * columns + j]
+                else:
+                    current[i * columns + j] <- current[i * columns + j - 1]
+                j <- j + 1
+            i <- i + 1
+    result
+
+export fn shortest_common_supersequence_length(input_values: i64&, length: usize) -> i64 = shortest_common_supersequence_length_impl

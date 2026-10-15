@@ -1,0 +1,68 @@
+# Lyndon factorization using Duval's linear-time algorithm.
+def valid_input(values: i64&, length: usize) -> bool:
+    if length > 4096:
+        return false
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 127:
+            return false
+        index <- index + 1
+    true
+
+def factor_count(values: i64&, length: usize) -> usize:
+    start: mutable usize = 0
+    count: mutable usize = 0
+    while start < length:
+        end: mutable usize = start + 1
+        repeat: mutable usize = start
+        while end < length and values[repeat] <= values[end]:
+            if values[repeat] < values[end]:
+                repeat <- start
+            else:
+                repeat <- repeat + 1
+            end <- end + 1
+        factor_length: usize = end - repeat
+        while start <= repeat:
+            count <- count + 1
+            start <- start + factor_length
+    count
+
+def store_u32_le(output: mutable u8&, offset: usize, value: usize) -> void:
+    output[offset] <- (value & 255).u8()
+    output[offset + 1] <- ((value >> 8) & 255).u8()
+    output[offset + 2] <- ((value >> 16) & 255).u8()
+    output[offset + 3] <- ((value >> 24) & 255).u8()
+
+def write_factors(values: i64&, length: usize, output: mutable u8&) -> void:
+    start: mutable usize = 0
+    factor_index: mutable usize = 0
+    while start < length:
+        end: mutable usize = start + 1
+        repeat: mutable usize = start
+        while end < length and values[repeat] <= values[end]:
+            if values[repeat] < values[end]:
+                repeat <- start
+            else:
+                repeat <- repeat + 1
+            end <- end + 1
+        factor_length: usize = end - repeat
+        while start <= repeat:
+            store_u32_le(output, 4 * factor_index, factor_length)
+            factor_index <- factor_index + 1
+            start <- start + factor_length
+
+def duval_algorithm_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if not valid_input(values, length):
+        return -1
+    count: usize = factor_count(values, length)
+    required: usize = 4 * count
+    if required == 0:
+        return 0
+    if output_capacity < required:
+        return -2
+    write_factors(values, length, output)
+    count.i64()
+
+export fn duval_algorithm(values: i64&, length: usize, output: mutable u8&,
+                          output_capacity: usize) -> i64 = duval_algorithm_impl

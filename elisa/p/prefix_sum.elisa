@@ -1,0 +1,80 @@
+# Prefix preprocessing, inclusive range queries, and prefix-set membership.
+def prefix_sum_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    remaining: mutable i64 = value
+    byte: mutable usize = 0
+    while byte < 8:
+        raw: i64 = (remaining % 256 + 256) % 256
+        output[position + byte] <- raw.u8()
+        remaining <- (remaining - raw) / 256
+        byte <- byte + 1
+
+def prefix_sum_hash_key(key: i64) -> usize:
+    bucket: i64 = (key % 1024 + 1024) % 1024
+    bucket.usize()
+
+def prefix_sum_contains(prefix: i64&, count: usize, target: i64) -> bool:
+    keys: mutable i64[1024] = zeroed
+    used: mutable bool[1024] = zeroed
+    slot: mutable usize = prefix_sum_hash_key(0)
+    used[slot] <- true
+    keys[slot] <- 0
+    ending: mutable usize = 1
+    while ending <= count:
+        wanted: i64 = prefix[ending] - target
+        slot <- prefix_sum_hash_key(wanted)
+        while used[slot] and keys[slot] != wanted:
+            slot <- (slot + 1) % 1024
+        if used[slot]:
+            return true
+        slot <- prefix_sum_hash_key(prefix[ending])
+        while used[slot] and keys[slot] != prefix[ending]:
+            slot <- (slot + 1) % 1024
+        if not used[slot]:
+            used[slot] <- true
+            keys[slot] <- prefix[ending]
+        ending <- ending + 1
+    false
+
+def prefix_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > 2 or input[1] < 0 or input[1] > 256:
+        return -1
+    operation: i64 = input[0]
+    count: usize = input[1].usize()
+    extra: usize = if operation == 1: 2 else if operation == 2: 1 else: 0
+    if length != 2 + count + extra or (operation == 1 and count == 0):
+        return -1
+    index: mutable usize = 0
+    while index < count:
+        if input[2 + index] < -2_147_483_648 or input[2 + index] > 2_147_483_647:
+            return -1
+        index <- index + 1
+    if operation == 1:
+        left: i64 = input[2 + count]
+        right: i64 = input[3 + count]
+        if left < 0 or right < left or right >= count.i64():
+            return -1
+    if operation == 2 and (input[2 + count] < -1_000_000_000_000 or input[2 + count] > 1_000_000_000_000):
+        return -1
+    prefix: mutable i64[257] = zeroed
+    index <- 0
+    while index < count:
+        prefix[index + 1] <- prefix[index] + input[2 + index]
+        index <- index + 1
+    words: usize = if operation == 0: count else: 1
+    if output_capacity < words * 8:
+        return -2
+    if operation == 0:
+        index <- 0
+        while index < count:
+            prefix_sum_store_i64(prefix[index + 1], output, index * 8)
+            index <- index + 1
+        return count.i64()
+    result: i64 = 0
+    if operation == 1:
+        result <- prefix[(input[3 + count] + 1).usize()] - prefix[input[2 + count].usize()]
+    else if prefix_sum_contains(prefix, count, input[2 + count]):
+        result <- 1
+    prefix_sum_store_i64(result, output, 0)
+    1
+
+export fn prefix_sum(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = prefix_sum_impl

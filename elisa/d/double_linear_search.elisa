@@ -1,0 +1,20 @@
+# Two-ended linear search with source-compatible endpoint priority.
+def double_linear_search_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 100002: return -1
+    let target = values[0]
+    let count_value = values[1]
+    if target < -9007199254740991 or target > 9007199254740991 or count_value < 0 or count_value > 100000: return -1
+    let count = count_value.usize()
+    if length != count + 2: return -1
+    for index in 0..<count:
+        if values[index + 2] < -9007199254740991 or values[index + 2] > 9007199254740991: return -1
+    start: mutable usize = 0
+    right: mutable usize = count
+    while start < right:
+        if values[start + 2] == target: return start.i64()
+        if values[right + 1] == target: return (right - 1).i64()
+        start <- start + 1
+        right <- right - 1
+    return -1
+
+export fn double_linear_search(values: i64&, length: usize) -> i64 = double_linear_search_impl

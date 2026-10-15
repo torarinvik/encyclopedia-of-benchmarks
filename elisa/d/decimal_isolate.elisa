@@ -1,0 +1,12 @@
+def decimal_isolate_impl(input: f64) -> f64:
+    if not (input > 0.0 and input <= 999999.0):
+        return -1.0
+    scaled_value: f64 = input * 10000.0
+    scaled: i64 = scaled_value.i64()
+    if scaled.f64() != scaled_value or scaled.f64() / 10000.0 != input:
+        return -1.0
+    if scaled % 625 != 0 or scaled % 10000 == 0:
+        return -1.0
+    (scaled % 10000).f64() / 10000.0
+
+export fn decimal_isolate(input: f64) -> f64 = decimal_isolate_impl

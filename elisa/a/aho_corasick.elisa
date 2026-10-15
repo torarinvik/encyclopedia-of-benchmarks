@@ -1,0 +1,132 @@
+const MAX_PATTERNS: usize = 16
+const MAX_PATTERN_LENGTH: usize = 32
+const MAX_TEXT_LENGTH: usize = 256
+const MAX_NODES: usize = 1 + MAX_PATTERNS * MAX_PATTERN_LENGTH
+const ALPHABET: usize = 128
+
+def aho_corasick_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 256:
+        return -1
+    pattern_count: usize = input[0].usize()
+    if length < 2 + pattern_count:
+        return -1
+    starts: mutable usize[16]
+    text_start: mutable usize = 2 + pattern_count
+    p: mutable usize = 0
+    while p < pattern_count:
+        if input[2 + p] < 1 or input[2 + p] > 32:
+            return -1
+        size: usize = input[2 + p].usize()
+        if text_start + size > length:
+            return -1
+        starts[p] <- text_start
+        i: mutable usize = 0
+        while i < size:
+            if input[starts[p] + i] < 1 or input[starts[p] + i] > 127:
+                return -1
+            i <- i + 1
+        q: mutable usize = 0
+        while q < p:
+            if input[2 + q] == size.i64():
+                i <- 0
+                while i < size and input[starts[q] + i] == input[starts[p] + i]:
+                    i <- i + 1
+                if i == size:
+                    return -1
+            q <- q + 1
+        text_start <- text_start + size
+        p <- p + 1
+    text_length: usize = input[1].usize()
+    if text_start + text_length != length:
+        return -1
+    i: mutable usize = 0
+    while i < text_length:
+        if input[text_start + i] < 1 or input[text_start + i] > 127:
+            return -1
+        i <- i + 1
+    output_size: usize = pattern_count * 8
+    if output_capacity < output_size:
+        return -2
+
+    next: mutable i64[MAX_NODES * ALPHABET]
+    failure: mutable usize[MAX_NODES]
+    terminal: mutable i64[MAX_NODES]
+    queue: mutable usize[MAX_NODES]
+    n: mutable usize = 0
+    while n < MAX_NODES:
+        failure[n] <- 0
+        terminal[n] <- -1
+        i <- 0
+        while i < ALPHABET:
+            next[n * ALPHABET + i] <- -1
+            i <- i + 1
+        n <- n + 1
+    nodes: mutable usize = 1
+    p <- 0
+    while p < pattern_count:
+        state: mutable usize = 0
+        i <- 0
+        while i < input[2 + p].usize():
+            ch: usize = input[starts[p] + i].usize()
+            slot: usize = state * ALPHABET + ch
+            if next[slot] == -1:
+                next[slot] <- nodes.i64()
+                nodes <- nodes + 1
+            state <- next[slot].usize()
+            i <- i + 1
+        terminal[state] <- p.i64()
+        p <- p + 1
+    head: mutable usize = 0
+    queue_end: mutable usize = 0
+    ch: mutable usize = 1
+    while ch < ALPHABET:
+        if next[ch] != -1:
+            queue[queue_end] <- next[ch].usize()
+            queue_end <- queue_end + 1
+        ch <- ch + 1
+    while head < queue_end:
+        state: usize = queue[head]
+        head <- head + 1
+        ch <- 1
+        while ch < ALPHABET:
+            child: i64 = next[state * ALPHABET + ch]
+            if child >= 0:
+                suffix: mutable usize = failure[state]
+                while suffix != 0 and next[suffix * ALPHABET + ch] == -1:
+                    suffix <- failure[suffix]
+                if next[suffix * ALPHABET + ch] != -1:
+                    suffix <- next[suffix * ALPHABET + ch].usize()
+                failure[child.usize()] <- suffix
+                queue[queue_end] <- child.usize()
+                queue_end <- queue_end + 1
+            ch <- ch + 1
+    counts: mutable i64[16]
+    p <- 0
+    while p < 16:
+        counts[p] <- 0
+        p <- p + 1
+    state: mutable usize = 0
+    i <- 0
+    while i < text_length:
+        ch <- input[text_start + i].usize()
+        while state != 0 and next[state * ALPHABET + ch] == -1:
+            state <- failure[state]
+        if next[state * ALPHABET + ch] != -1:
+            state <- next[state * ALPHABET + ch].usize()
+        matched: mutable usize = state
+        while matched != 0:
+            if terminal[matched] >= 0:
+                counts[terminal[matched].usize()] <- counts[terminal[matched].usize()] + 1
+            matched <- failure[matched]
+        i <- i + 1
+    p <- 0
+    while p < pattern_count:
+        value: usize = counts[p].usize()
+        i <- 0
+        while i < 8:
+            output[p * 8 + i] <- ((value >> (8 * i)) & 255).u8()
+            i <- i + 1
+        p <- p + 1
+    output_size.i64()
+
+export fn aho_corasick(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = aho_corasick_impl

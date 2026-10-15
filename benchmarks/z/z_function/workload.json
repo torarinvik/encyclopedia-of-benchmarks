@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "z-function-ascii-i64-array-v1",
+  "algorithm": "z_function",
+  "function_symbol": "z_function",
+  "input": {
+    "kind": "ascii_code_point_array",
+    "length_range": [0, 256],
+    "code_point_range": [0, 127],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_little_endian_array",
+    "encoding": "one Z-value per input position; z[0] is zero",
+    "valid_result": "8 times the input length",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty_string","input_values":[],"expected_result":0,"expected_output_hex":""},
+    {"id":"single_character","input_values":[97],"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"repeated_character","input_values":[97,97,97,97],"expected_result":32,"expected_output_hex":"0000000000000000030000000000000002000000000000000100000000000000"},
+    {"id":"alternating_characters","input_values":[97,98,97,98],"expected_result":32,"expected_output_hex":"0000000000000000000000000000000002000000000000000000000000000000"},
+    {"id":"abacaba","input_values":[97,98,97,99,97,98,97],"expected_result":56,"expected_output_hex":"0000000000000000000000000000000001000000000000000000000000000000030000000000000000000000000000000100000000000000"},
+    {"id":"pinned_abracadabra","input_values":[97,98,114,97,99,97,100,97,98,114,97],"expected_result":88,"expected_output_hex":"00000000000000000000000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000400000000000000000000000000000000000000000000000100000000000000"},
+    {"id":"embedded_nul","input_values":[0,0,1],"expected_result":24,"expected_output_hex":"000000000000000001000000000000000000000000000000"},
+    {"id":"invalid_negative_code_point","input_values":[-1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid_non_ascii_code_point","input_values":[128],"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output_capacity","input_values":[97],"workspace_bytes":7,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

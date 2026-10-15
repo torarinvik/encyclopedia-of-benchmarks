@@ -1,0 +1,52 @@
+def spain_check_letter(index: usize) -> i64:
+    if index == 0: return 84
+    if index == 1: return 82
+    if index == 2: return 87
+    if index == 3: return 65
+    if index == 4: return 71
+    if index == 5: return 77
+    if index == 6: return 89
+    if index == 7: return 70
+    if index == 8: return 80
+    if index == 9: return 68
+    if index == 10: return 88
+    if index == 11: return 66
+    if index == 12: return 78
+    if index == 13: return 74
+    if index == 14: return 90
+    if index == 15: return 83
+    if index == 16: return 81
+    if index == 17: return 86
+    if index == 18: return 72
+    if index == 19: return 76
+    if index == 20: return 67
+    if index == 21: return 75
+    if index == 22: return 69
+    -1
+
+def spain_national_id_impl(input: i64&, length: usize) -> i64:
+    if length != 9 and length != 10:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 127:
+            return -1
+        index <- index + 1
+    if length == 10 and input[8] != 45:
+        return -1
+    number: mutable i64 = 0
+    index <- 0
+    while index < 8:
+        if input[index] < 48 or input[index] > 57:
+            return -1
+        number <- number * 10 + input[index] - 48
+        index <- index + 1
+    letter: mutable i64 = input[length - 1]
+    if letter >= 97 and letter <= 122:
+        letter <- letter - 32
+    if letter < 65 or letter > 90:
+        return -1
+    expected: i64 = spain_check_letter((number % 23).usize())
+    if letter == expected: 1 else: 0
+
+export fn is_spain_national_id(input: i64&, length: usize) -> i64 = spain_national_id_impl

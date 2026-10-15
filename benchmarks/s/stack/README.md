@@ -36,3 +36,4 @@ Run `python3 benchmarks/verify_stack.py --elisa-compiler PATH/TO/elisac` to chec
 - [Swift](https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/data_structures/Stack/stack.swift)
 - [TypeScript](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/data_structures/stack/stack.ts)
 - [Zig](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/stack.zig)
+- Array-backed aliases: [C# dynamically resizing stack](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/Stack/ArrayBasedStack.cs) and [Dart fixed-capacity stack](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/data_structures/Stack/Array_Stack.dart)

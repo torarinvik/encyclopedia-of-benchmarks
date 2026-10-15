@@ -1,0 +1,145 @@
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_OBSERVATIONS: usize = 128
+const MAX_GROUPS: usize = 8
+const INVALID_RESULT: f64 = -1.0e300
+
+def safe_denominator(value: f64) -> f64:
+    magnitude: mutable f64 = value
+    if magnitude < 0.0:
+        magnitude <- -magnitude
+    if magnitude >= 1.0e-300:
+        return value
+    if value < 0.0:
+        return -1.0e-300
+    1.0e-300
+
+def log_gamma_lanczos(value: f64) -> f64:
+    z: f64 = value - 1.0
+    total: mutable f64 = 0.99999999999980993
+    total <- total + 676.5203681218851 / (z + 1.0)
+    total <- total - 1259.1392167224028 / (z + 2.0)
+    total <- total + 771.32342877765313 / (z + 3.0)
+    total <- total - 176.61502916214059 / (z + 4.0)
+    total <- total + 12.507343278686905 / (z + 5.0)
+    total <- total - 0.13857109526572012 / (z + 6.0)
+    total <- total + 9.9843695780195716e-6 / (z + 7.0)
+    total <- total + 1.5056327351493116e-7 / (z + 8.0)
+    t: f64 = z + 7.5
+    0.91893853320467274178 + (z + 0.5) * log(t) - t + log(total)
+
+def beta_fraction(a: f64, b: f64, x: f64) -> f64:
+    qab: f64 = a + b
+    qap: f64 = a + 1.0
+    qam: f64 = a - 1.0
+    c: mutable f64 = 1.0
+    d: mutable f64 = safe_denominator(1.0 - qab * x / qap)
+    d <- 1.0 / d
+    result: mutable f64 = d
+    m: mutable usize = 1
+    while m <= 200:
+        md: f64 = m.f64()
+        m2: f64 = 2.0 * md
+        coefficient: mutable f64 = md * (b - md) * x / ((qam + m2) * (a + m2))
+        d <- safe_denominator(1.0 + coefficient * d)
+        c <- safe_denominator(1.0 + coefficient / c)
+        d <- 1.0 / d
+        result <- result * d * c
+        coefficient <- -(a + md) * (qab + md) * x / ((a + m2) * (qap + m2))
+        d <- safe_denominator(1.0 + coefficient * d)
+        c <- safe_denominator(1.0 + coefficient / c)
+        d <- 1.0 / d
+        change: f64 = d * c
+        result <- result * change
+        difference: mutable f64 = change - 1.0
+        if difference < 0.0:
+            difference <- -difference
+        if difference <= 3.0e-14:
+            break
+        m <- m + 1
+    result
+
+def regularized_beta(x: f64, a: f64, b: f64) -> f64:
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    front: f64 = exp(a * log(x) + b * log(1.0 - x) +
+                     log_gamma_lanczos(a + b) - log_gamma_lanczos(a) - log_gamma_lanczos(b))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * beta_fraction(a, b, x) / a
+    1.0 - front * beta_fraction(b, a, 1.0 - x) / b
+
+def anova_oneway_impl(input: i64&, length: usize) -> f64:
+    if length < 3:
+        return INVALID_RESULT
+    statistic: i64 = input[0]
+    observation_count: i64 = input[1]
+    group_count: i64 = input[2]
+    if statistic < 0 or statistic > 7 or observation_count <= group_count or observation_count > 128 or group_count < 2 or group_count > 8 or length != 3 + 2 * observation_count.usize():
+        return INVALID_RESULT
+
+    group_sums: mutable f64[8] = zeroed
+    group_means: mutable f64[8] = zeroed
+    group_sizes: mutable i64[8] = zeroed
+    labels: mutable i64[128] = zeroed
+    total: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < observation_count.usize():
+        value: i64 = input[3 + i]
+        group: i64 = input[3 + observation_count.usize() + i]
+        if value < -1000000 or value > 1000000 or group < 0 or group >= group_count:
+            return INVALID_RESULT
+        labels[i] <- group
+        group_index: usize = group.usize()
+        group_sums[group_index] <- group_sums[group_index] + value.f64()
+        group_sizes[group_index] <- group_sizes[group_index] + 1
+        total <- total + value.f64()
+        i <- i + 1
+
+    group: mutable usize = 0
+    while group < group_count.usize():
+        if group_sizes[group] == 0:
+            return INVALID_RESULT
+        group_means[group] <- group_sums[group] / group_sizes[group].f64()
+        group <- group + 1
+    grand_mean: f64 = total / observation_count.f64()
+    ss_between: mutable f64 = 0.0
+    group <- 0
+    while group < group_count.usize():
+        difference: f64 = group_means[group] - grand_mean
+        ss_between <- ss_between + group_sizes[group].f64() * difference * difference
+        group <- group + 1
+    ss_within: mutable f64 = 0.0
+    group <- 0
+    while group < group_count.usize():
+        i <- 0
+        while i < observation_count.usize():
+            if labels[i] == group.i64():
+                difference: f64 = input[3 + i].f64() - group_means[group]
+                ss_within <- ss_within + difference * difference
+            i <- i + 1
+        group <- group + 1
+    if ss_within <= 0.0:
+        return INVALID_RESULT
+
+    df_between: f64 = (group_count - 1).f64()
+    df_within: f64 = (observation_count - group_count).f64()
+    ms_between: f64 = ss_between / df_between
+    ms_within: f64 = ss_within / df_within
+    f_statistic: f64 = ms_between / ms_within
+    beta_x: f64 = df_within / (df_within + df_between * f_statistic)
+    p_value: f64 = regularized_beta(beta_x, df_within / 2.0, df_between / 2.0)
+    outputs: mutable f64[8] = zeroed
+    outputs[0] <- df_between
+    outputs[1] <- df_within
+    outputs[2] <- ss_between
+    outputs[3] <- ss_within
+    outputs[4] <- ms_between
+    outputs[5] <- ms_within
+    outputs[6] <- f_statistic
+    outputs[7] <- p_value
+    outputs[statistic.usize()]
+
+export fn anova_oneway(input: i64&, length: usize) -> f64 = anova_oneway_impl

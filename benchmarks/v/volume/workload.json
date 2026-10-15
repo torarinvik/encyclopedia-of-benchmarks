@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "shared-geometric-volume-integer-formulas-v1",
+  "algorithm": "volume",
+  "function_symbol": "volume",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[operation,a,b,c]",
+    "operations": {
+      "0": "cube: a^3; b and c must be zero",
+      "1": "cuboid: a*b*c",
+      "2": "triangular prism: a*b*c/2 when the product is divisible by 2",
+      "3": "rectangular pyramid: a*b*c/3 when the product is divisible by 3"
+    },
+    "dimension_range": [0, 1000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "exact integer volume for the selected shared geometric formula",
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"cube","input_values":[0,5,0,0],"expected_result":125},
+    {"id":"zero_cube","input_values":[0,0,0,0],"expected_result":0},
+    {"id":"cube_rejects_unused_dimensions","input_values":[0,5,1,0],"expected_result":-1},
+    {"id":"cuboid","input_values":[1,4,3,5],"expected_result":60},
+    {"id":"zero_cuboid","input_values":[1,0,8,5],"expected_result":0},
+    {"id":"triangular_prism_exact_integer","input_values":[2,3,4,5],"expected_result":30},
+    {"id":"triangular_prism_fractional","input_values":[2,3,3,1],"expected_result":-1},
+    {"id":"rectangular_pyramid_exact_integer","input_values":[3,10,3,5],"expected_result":50},
+    {"id":"rectangular_pyramid_fractional","input_values":[3,2,2,2],"expected_result":-1},
+    {"id":"negative_dimension","input_values":[1,-1,2,3],"expected_result":-1},
+    {"id":"dimension_above_bound","input_values":[1,1001,1,1],"expected_result":-1},
+    {"id":"unsupported_operation","input_values":[9,1,2,3],"expected_result":-1},
+    {"id":"short_packed_input","input_values":[0,1,0],"expected_result":-1},
+    {"id":"long_packed_input","input_values":[0,1,0,0,0],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 14,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

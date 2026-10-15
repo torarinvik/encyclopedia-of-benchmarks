@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "double-linear-search-packed-i64-v1",
+  "algorithm": "double_linear_search",
+  "input": {
+    "kind": "packed_i64_target_and_sequence",
+    "encoding": "[target, item_count, item_0, ..., item_(n-1)]",
+    "minimum_item_count": 0,
+    "maximum_item_count": 100000,
+    "safe_integer_range": [
+      -9007199254740991,
+      9007199254740991
+    ],
+    "invalid_result": -1,
+    "missing_result": -1,
+    "duplicate_match_rule": "check left endpoint before right endpoint on every inward step"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        5,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "singleton_hit",
+      "input_values": [
+        7,
+        1,
+        7
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "singleton_miss",
+      "input_values": [
+        9,
+        1,
+        7
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "left_endpoint_hit",
+      "input_values": [
+        1,
+        4,
+        1,
+        5,
+        7,
+        9
+      ],
+      "expected_result": 0,
+      "input_length": 6
+    },
+    {
+      "id": "right_endpoint_hit",
+      "input_values": [
+        9,
+        4,
+        1,
+        5,
+        7,
+        9
+      ],
+      "expected_result": 3,
+      "input_length": 6
+    },
+    {
+      "id": "middle_hit",
+      "input_values": [
+        4,
+        5,
+        1,
+        6,
+        4,
+        9,
+        2
+      ],
+      "expected_result": 2,
+      "input_length": 7
+    },
+    {
+      "id": "duplicate_right_endpoint_precedes_inner_hit",
+      "input_values": [
+        5,
+        4,
+        0,
+        5,
+        2,
+        5
+      ],
+      "expected_result": 3,
+      "input_length": 6
+    },
+    {
+      "id": "duplicate_left_endpoint_precedes_right",
+      "input_values": [
+        5,
+        4,
+        5,
+        0,
+        2,
+        5
+      ],
+      "expected_result": 0,
+      "input_length": 6
+    },
+    {
+      "id": "miss",
+      "input_values": [
+        4,
+        3,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "input_length": 5
+    },
+    {
+      "id": "malformed_packed_length",
+      "input_values": [
+        5,
+        2,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "unsafe_target",
+      "input_values": [
+        9007199254740992,
+        1,
+        9007199254740992
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "unsafe_item_rejected_before_search",
+      "input_values": [
+        0,
+        2,
+        9007199254740992,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 4
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "function_symbol": "double_linear_search"
+}

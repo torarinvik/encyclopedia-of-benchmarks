@@ -7,6 +7,7 @@ import argparse
 from collections import deque
 import datetime as dt
 from functools import lru_cache
+import heapq
 import hashlib
 from itertools import permutations
 import json
@@ -643,6 +644,121 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "aho_corasick":
+        maximum_length = 2 + 16 + 16 * 32 + 256
+        if (not isinstance(values, list) or len(values) < 3 or len(values) > maximum_length
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        pattern_count, text_length = values[:2]
+        if not 1 <= pattern_count <= 16 or not 0 <= text_length <= 256 or len(values) < 2 + pattern_count:
+            return -1, b""
+        pattern_lengths = values[2:2 + pattern_count]
+        if (len(pattern_lengths) != pattern_count
+                or any(not 1 <= length <= 32 for length in pattern_lengths)):
+            return -1, b""
+        text_start = 2 + pattern_count + sum(pattern_lengths)
+        if len(values) != text_start + text_length:
+            return -1, b""
+        pattern_bytes_start = 2 + pattern_count
+        patterns = []
+        for pattern_length in pattern_lengths:
+            pattern = values[pattern_bytes_start:pattern_bytes_start + pattern_length]
+            if any(not 1 <= byte <= 127 for byte in pattern):
+                return -1, b""
+            patterns.append(bytes(pattern))
+            pattern_bytes_start += pattern_length
+        if len(set(patterns)) != pattern_count:
+            return -1, b""
+        text_values = values[text_start:]
+        if any(not 1 <= byte <= 127 for byte in text_values):
+            return -1, b""
+        text = bytes(text_values)
+        counts = [
+            sum(text[index:index + len(pattern)] == pattern
+                for index in range(len(text) - len(pattern) + 1))
+            for pattern in patterns
+        ]
+        output = struct.pack("<" + "q" * pattern_count, *counts)
+        return len(output), output
+
+    if algorithm == "z_function":
+        if (not isinstance(values, list) or len(values) > 256
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        z_values = [0] * len(values)
+        for index in range(1, len(values)):
+            match_length = 0
+            while (index + match_length < len(values)
+                   and values[match_length] == values[index + match_length]):
+                match_length += 1
+            z_values[index] = match_length
+        output = b"".join(struct.pack("<q", value) for value in z_values)
+        return len(output), output
+
+    if algorithm == "infix_to_postfix_conversion":
+        if (not isinstance(values, list) or not values or len(values) > 257
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        expression_length = values[0]
+        expression = values[1:]
+        if (not 0 <= expression_length <= 256 or len(expression) != expression_length
+                or any(not (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122
+                            or value in (40, 41, 42, 43, 45, 47, 94))
+                       for value in expression)):
+            return -1, b""
+
+        precedence = {43: 1, 45: 1, 42: 2, 47: 2, 94: 3}
+        postfix: list[int] = []
+        operators: list[int] = []
+        expect_operand = True
+        for value in expression:
+            if (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122):
+                if not expect_operand:
+                    return -1, b""
+                postfix.append(value)
+                expect_operand = False
+            elif value == 40:  # (
+                if not expect_operand:
+                    return -1, b""
+                operators.append(value)
+            elif value == 41:  # )
+                if expect_operand:
+                    return -1, b""
+                while operators and operators[-1] != 40:
+                    postfix.append(operators.pop())
+                if not operators:
+                    return -1, b""
+                operators.pop()
+                expect_operand = False
+            else:
+                if expect_operand:
+                    return -1, b""
+                while (operators and operators[-1] != 40
+                       and (precedence[operators[-1]] > precedence[value]
+                            or (precedence[operators[-1]] == precedence[value] and value != 94))):
+                    postfix.append(operators.pop())
+                operators.append(value)
+                expect_operand = True
+        if expect_operand:
+            if expression:
+                return -1, b""
+        while operators:
+            if operators[-1] == 40:
+                return -1, b""
+            postfix.append(operators.pop())
+        output = b" ".join(bytes((value,)) for value in postfix) + b"\0"
+        return len(output), output
+
+    if algorithm in {"binary_or_operator", "binary_xor_operator"}:
+        if (len(values) != 2
+                or any(type(value) is not int or not 0 <= value <= 2**31 - 1 for value in values)):
+            return -1, b""
+        left, right = values
+        result = left | right if algorithm == "binary_or_operator" else left ^ right
+        width = max(1, left.bit_length(), right.bit_length())
+        output = b"0b" + format(result, f"0{width}b").encode("ascii")
+        return len(output), output
+
     if algorithm == "shortest_coprime_segment":
         if (not isinstance(values, list) or len(values) > 128
                 or any(type(value) is not int or not 1 <= value <= 1000 for value in values)):
@@ -664,6 +780,376 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         result = values[best_start:best_start + best_length]
         output = struct.pack("<" + "q" * len(result), *result)
         return len(output), output
+
+    if algorithm == "prefix_sum":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, count = values[0], values[1]
+        if operation not in (0, 1, 2) or not 0 <= count <= 256:
+            return -1, b""
+        extra = 2 if operation == 1 else 1 if operation == 2 else 0
+        if len(values) != 2 + count + extra or (operation == 1 and count == 0):
+            return -1, b""
+        array = values[2:2 + count]
+        if any(not -(2**31) <= value <= 2**31 - 1 for value in array):
+            return -1, b""
+        prefix = [0]
+        for value in array:
+            prefix.append(prefix[-1] + value)
+        if operation == 0:
+            words = prefix[1:]
+        elif operation == 1:
+            left, right = values[2 + count:4 + count]
+            if not 0 <= left <= right < count:
+                return -1, b""
+            words = [prefix[right + 1] - prefix[left]]
+        else:
+            target = values[2 + count]
+            if not -(10**12) <= target <= 10**12:
+                return -1, b""
+            prior: set[int] = {0}
+            found = False
+            for current in prefix[1:]:
+                if current - target in prior:
+                    found = True
+                    break
+                prior.add(current)
+            words = [int(found)]
+        output = b"".join(struct.pack("<q", word) for word in words)
+        return len(words), output
+
+    if algorithm == "max_heap":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 512 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        inserted = 0
+        heap: list[int] = []
+        results: list[int] = []
+        for index in range(operation_count):
+            operation = values[1 + 2 * index]
+            value = values[2 + 2 * index]
+            if operation == 0:
+                inserted += 1
+                if inserted > 256 or not -(2**31) <= value <= 2**31 - 1:
+                    return -1, b""
+                heapq.heappush(heap, -value)
+            elif operation in (1, 2):
+                if value != 0:
+                    return -1, b""
+                if not heap:
+                    results.append(-(2**63))
+                elif operation == 1:
+                    results.append(-heap[0])
+                else:
+                    results.append(-heapq.heappop(heap))
+            else:
+                return -1, b""
+        output = b"".join(struct.pack("<q", result) for result in results)
+        return len(results), output
+
+    if algorithm == "range_minimum_query":
+        if (not isinstance(values, list) or len(values) < 5
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        if not 1 <= count <= 64 or len(values) < count + 3:
+            return -1, b""
+        array = values[1:1 + count]
+        if any(not -1000 <= value <= 1000 for value in array):
+            return -1, b""
+        query_count = values[1 + count]
+        if not 1 <= query_count <= 64 or len(values) != 2 + count + 2 * query_count:
+            return -1, b""
+        answers = []
+        for index in range(query_count):
+            start, end = values[2 + count + 2 * index:4 + count + 2 * index]
+            if not 0 <= start < end <= count:
+                answers.append(-(2**63))
+            else:
+                answers.append(min(array[start:end]))
+        output = b"".join(struct.pack("<q", answer) for answer in answers)
+        return len(output), output
+
+    if algorithm == "windowed_median":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        window_size, stream_length = values[:2]
+        if (not 1 <= window_size <= 64 or not 1 <= stream_length <= 128
+                or len(values) != stream_length + 2):
+            return -1, b""
+        stream = values[2:]
+        if any(not -1_000_000 <= value <= 1_000_000 for value in stream):
+            return -1, b""
+        medians = []
+        for index in range(stream_length):
+            start = max(0, index + 1 - window_size)
+            ordered = sorted(stream[start:index + 1])
+            middle = len(ordered) // 2
+            if len(ordered) % 2:
+                median = float(ordered[middle])
+            else:
+                median = 0.5 * ordered[middle - 1] + 0.5 * ordered[middle]
+            medians.append(struct.pack("<d", median))
+        output = b"".join(medians)
+        return len(output), output
+
+    if algorithm == "aho_corasick":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        pattern_count, text_length = values[:2]
+        if (not 1 <= pattern_count <= 16 or not 0 <= text_length <= 256
+                or len(values) < 2 + pattern_count):
+            return -1, b""
+        pattern_lengths = values[2:2 + pattern_count]
+        if any(not 1 <= length <= 32 for length in pattern_lengths):
+            return -1, b""
+        cursor = 2 + pattern_count
+        patterns = []
+        for length in pattern_lengths:
+            if length > len(values) - cursor:
+                return -1, b""
+            pattern = values[cursor:cursor + length]
+            if any(not 1 <= byte <= 127 for byte in pattern):
+                return -1, b""
+            patterns.append(bytes(pattern))
+            cursor += length
+        if text_length != len(values) - cursor:
+            return -1, b""
+        text = values[cursor:]
+        if any(not 1 <= byte <= 127 for byte in text) or len(set(patterns)) != pattern_count:
+            return -1, b""
+        text_bytes = bytes(text)
+        counts = []
+        for pattern in patterns:
+            counts.append(sum(
+                text_bytes.startswith(pattern, start)
+                for start in range(len(text_bytes) - len(pattern) + 1)
+            ))
+        output = b"".join(struct.pack("<q", count) for count in counts)
+        return len(output), output
+
+    if algorithm == "volume_conversions":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        value, from_unit, to_unit = values
+        if (not 0 <= value <= 1000 or not 0 <= from_unit <= 2
+                or not 0 <= to_unit <= 2 or from_unit == to_unit):
+            return -1, b""
+        factor_to_cubic_meters = (1.0, 0.001, 1.0)
+        cubic_meters = float(value) * factor_to_cubic_meters[from_unit]
+        converted = cubic_meters / factor_to_cubic_meters[to_unit]
+        output = struct.pack("<d", converted)
+        return len(output), output
+
+    if algorithm == "binary_and_operator":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not 0 <= value <= 2**31 - 1 for value in values)):
+            return -1, b""
+        first, second = values
+        width = max(1, first.bit_length(), second.bit_length())
+        output = f"0b{first & second:0{width}b}".encode("ascii")
+        return len(output), output
+
+    if algorithm == "capitalize":
+        if (not isinstance(values, list) or len(values) > 256
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytearray(values)
+        if output and ord("a") <= output[0] <= ord("z"):
+            output[0] -= 32
+        return len(output), bytes(output)
+
+    if algorithm == "sliding_window_maximum":
+        max_length = 1024
+        if (not isinstance(values, list) or len(values) < 2 or len(values) > max_length + 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count, window = values[:2]
+        if not 0 <= count <= max_length or not 1 <= window <= max_length or len(values) != count + 2:
+            return -1, b""
+        array = values[2:]
+        if any(not -(2**31) <= value <= 2**31 - 1 for value in array):
+            return -1, b""
+        if count < window:
+            return 0, b""
+        candidates: deque[int] = deque()
+        maxima: list[int] = []
+        for index, value in enumerate(array):
+            while candidates and candidates[0] <= index - window:
+                candidates.popleft()
+            while candidates and array[candidates[-1]] < value:
+                candidates.pop()
+            candidates.append(index)
+            if index >= window - 1:
+                maxima.append(array[candidates[0]])
+        output = b"".join(struct.pack("<q", maximum) for maximum in maxima)
+        return len(maxima), output
+
+    if algorithm == "dynamic_array":
+        max_operations = 128
+        max_elements = 64
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1 + 3 * max_operations
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= max_operations:
+            return -1, b""
+        state: list[int] = []
+        query_results: list[int] = []
+        capacity = 16
+        cursor = 1
+        for _ in range(operation_count):
+            if cursor >= len(values):
+                return -1, b""
+            operation = values[cursor]
+            cursor += 1
+            if operation == 0:
+                if cursor >= len(values) or len(state) >= max_elements:
+                    return -1, b""
+                if len(state) == capacity:
+                    capacity *= 2
+                state.append(values[cursor])
+                cursor += 1
+            elif operation == 1:
+                if cursor + 1 >= len(values):
+                    return -1, b""
+                index, value = values[cursor:cursor + 2]
+                cursor += 2
+                if not 0 <= index < len(state):
+                    return -1, b""
+                state[index] = value
+            elif operation == 2:
+                if cursor >= len(values):
+                    return -1, b""
+                index = values[cursor]
+                cursor += 1
+                if not 0 <= index < len(state):
+                    return -1, b""
+                query_results.append(state[index])
+            elif operation == 3:
+                query_results.append(len(state))
+            else:
+                return -1, b""
+        if cursor != len(values):
+            return -1, b""
+        words = [len(query_results), *query_results, len(state), *state]
+        output = b"".join(struct.pack("<q", word) for word in words)
+        return len(words), output
+
+    if algorithm == "decimal_to_fraction":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        mantissa, decimal_places = values
+        if not 0 <= decimal_places <= 4:
+            return -1, b""
+        scale = 10**decimal_places
+        if (abs(mantissa) > 1_000_000 * scale
+                or mantissa % (5**decimal_places) != 0):
+            return -1, b""
+
+        # Match the bounded exact-binary subset of the pinned float-based sources.
+        value = float(mantissa) / scale
+        if value.is_integer():
+            numerator, denominator = int(value), 1
+        else:
+            decimal_text = str(value)
+            fractional_digits = decimal_text.partition(".")[2].rstrip("0")
+            if not fractional_digits or "e" in decimal_text.lower():
+                return -1, b""
+            decimal_scale = 10**len(fractional_digits)
+            scaled_value = int(value * decimal_scale)
+            divisor = math.gcd(abs(scaled_value), decimal_scale)
+            numerator = scaled_value // divisor
+            denominator = decimal_scale // divisor
+        return 16, struct.pack("<qq", numerator, denominator)
+
+    if algorithm == "infix_to_prefix":
+        if (not isinstance(values, list) or len(values) > 256
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        if not values:
+            return 0, b""
+        operators = {ord("+"), ord("-"), ord("*"), ord("/"), ord("^")}
+
+        def parse_expression(index: int) -> tuple[bytes, int] | None:
+            if index >= len(values):
+                return None
+            token = values[index]
+            if 48 <= token <= 57 or 65 <= token <= 90 or 97 <= token <= 122:
+                return bytes((token,)), index + 1
+            if token != ord("("):
+                return None
+            left = parse_expression(index + 1)
+            if left is None:
+                return None
+            left_prefix, operator_index = left
+            if operator_index >= len(values) or values[operator_index] not in operators:
+                return None
+            operator = values[operator_index]
+            right = parse_expression(operator_index + 1)
+            if right is None:
+                return None
+            right_prefix, close_index = right
+            if close_index >= len(values) or values[close_index] != ord(")"):
+                return None
+            return bytes((operator,)) + left_prefix + right_prefix, close_index + 1
+
+        parsed = parse_expression(0)
+        if parsed is None or parsed[1] != len(values):
+            return -1, b""
+        output = parsed[0]
+        return len(output), output
+
+    if algorithm == "geometric_series":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        term_count, first_term, common_ratio = values
+        if (not 0 <= term_count <= 16 or not 1 <= first_term <= 8
+                or not 1 <= common_ratio <= 4):
+            return -1, b""
+        terms = []
+        term = float(first_term)
+        for _ in range(term_count):
+            terms.append(term)
+            term *= float(common_ratio)
+        output = struct.pack("<" + "d" * term_count, *terms)
+        return len(output), output
+
+    if algorithm == "assembly_line_scheduling":
+        if (not isinstance(values, list) or len(values) < 7
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        station_count = values[0]
+        if not 1 <= station_count <= 64 or len(values) != 4 * station_count + 3:
+            return -1, b""
+        if any(not 0 <= cost <= 1000 for cost in values[1:]):
+            return -1, b""
+
+        n = station_count
+        a0 = 1
+        a1 = a0 + n
+        t0 = a1 + n
+        t1 = t0 + n - 1
+        entry = t1 + n - 1
+        line0 = values[entry] + values[a0]
+        line1 = values[entry + 1] + values[a1]
+        for station in range(1, n):
+            next0 = min(line0 + values[a0 + station],
+                        line1 + values[t1 + station - 1] + values[a0 + station])
+            next1 = min(line1 + values[a1 + station],
+                        line0 + values[t0 + station - 1] + values[a1 + station])
+            line0, line1 = next0, next1
+        answer = min(line0 + values[entry + 2], line1 + values[entry + 3])
+        return 4, struct.pack("<i", answer)
 
     if algorithm == "reverse_string":
         if (not isinstance(values, list) or not 1 <= len(values) <= 257
@@ -2837,6 +3323,203 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             output_values.append(math.trunc(updated * output_scale))
         return steps, struct.pack("<" + "q" * steps, *output_values)
 
+    if algorithm == "adam":
+        import struct
+
+        input_scale = 1_000_000_000
+        output_scale = 1_000_000
+        max_steps = 256
+        max_parameters = 16
+        if (not isinstance(values, list) or not 9 <= len(values) <= 7 + max_parameters + max_steps * max_parameters
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        steps, parameter_count, learning_rate_value, beta1_value, beta2_value, epsilon_value, weight_decay_value = values[:7]
+        if (not 1 <= steps <= max_steps or not 1 <= parameter_count <= max_parameters
+                or len(values) != 7 + parameter_count + steps * parameter_count
+                or not 1 <= learning_rate_value <= input_scale
+                or not 0 <= beta1_value < input_scale or not 0 <= beta2_value < input_scale
+                or not 1 <= epsilon_value <= 10_000_000 or not 0 <= weight_decay_value <= 100_000_000):
+            return -1, b""
+        parameter_values = values[7:7 + parameter_count]
+        gradient_values = values[7 + parameter_count:]
+        if (any(not -1_000_000_000_000_000 <= value <= 1_000_000_000_000_000 for value in parameter_values)
+                or any(not -1_000_000_000_000 <= value <= 1_000_000_000_000 for value in gradient_values)):
+            return -1, b""
+
+        learning_rate = learning_rate_value / input_scale
+        beta1 = beta1_value / input_scale
+        beta2 = beta2_value / input_scale
+        epsilon = epsilon_value / input_scale
+        weight_decay = weight_decay_value / input_scale
+        parameters = [value / input_scale for value in parameter_values]
+        first_moment = [0.0] * parameter_count
+        second_moment = [0.0] * parameter_count
+        beta1_power = 1.0
+        beta2_power = 1.0
+
+        def adam_sqrt(value: float) -> float:
+            if value <= 0.0:
+                return 0.0
+            root = value if value > 1.0 else 1.0
+            for _ in range(80):
+                root = 0.5 * (root + value / root)
+            return root
+
+        output_values = []
+        for step in range(steps):
+            beta1_power *= beta1
+            beta2_power *= beta2
+            for index in range(parameter_count):
+                gradient = gradient_values[step * parameter_count + index] / input_scale
+                first_moment[index] = beta1 * first_moment[index] + (1.0 - beta1) * gradient
+                second_moment[index] = beta2 * second_moment[index] + (1.0 - beta2) * (gradient * gradient)
+                corrected_first = first_moment[index] / (1.0 - beta1_power)
+                corrected_second = second_moment[index] / (1.0 - beta2_power)
+                updated = (parameters[index] - learning_rate * corrected_first /
+                           (adam_sqrt(corrected_second) + epsilon) -
+                           learning_rate * weight_decay * parameters[index])
+                parameters[index] = updated
+                output_values.append(math.trunc(updated * output_scale))
+        return len(output_values), struct.pack("<" + "q" * len(output_values), *output_values)
+
+    if algorithm == "adwin":
+        import struct
+
+        input_scale = 1_000_000_000
+        max_samples = 256
+        max_levels = 16
+        max_buckets = 5
+        bucket_capacity = max_buckets + 1
+        min_subwindow = 5
+        if (not isinstance(values, list) or not 3 <= len(values) <= 2 + max_samples
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        sample_count, delta_value = values[:2]
+        samples = values[2:]
+        if (not 1 <= sample_count <= max_samples or len(samples) != sample_count
+                or not 1 <= delta_value <= 100_000_000
+                or any(not -input_scale <= value <= input_scale for value in samples)):
+            return -1, b""
+
+        def adwin_sqrt(value: float) -> float:
+            if value <= 0.0:
+                return 0.0
+            root = value if value > 1.0 else 1.0
+            for _ in range(80):
+                root = 0.5 * (root + value / root)
+            return root
+
+        def adwin_ln(input_value: float) -> float:
+            value = input_value
+            exponent = 0
+            while value >= 2.0:
+                value *= 0.5
+                exponent += 1
+            ratio = (value - 1.0) / (value + 1.0)
+            square = ratio * ratio
+            term = ratio
+            total = 0.0
+            for iteration in range(40):
+                total += term / (2 * iteration + 1)
+                term *= square
+            return 2.0 * total + exponent * 0.693147180559945309417232121458176568
+
+        sizes = [0] * max_levels
+        totals = [[0.0] * bucket_capacity for _ in range(max_levels)]
+        variances = [[0.0] * bucket_capacity for _ in range(max_levels)]
+        width = 0
+        total = 0.0
+        variance = 0.0
+        delta = delta_value / input_scale
+        output_values = []
+
+        for raw_value in samples:
+            value = raw_value / input_scale
+            width += 1
+            totals[0][sizes[0]] = value
+            variances[0][sizes[0]] = 0.0
+            sizes[0] += 1
+            if width > 1:
+                deviation = value - total / (width - 1)
+                variance += (width - 1) * deviation * deviation / width
+            total += value
+
+            for level in range(max_levels - 1):
+                if sizes[level] <= max_buckets:
+                    break
+                bucket_size = float(1 << level)
+                first_mean = totals[level][0] / bucket_size
+                second_mean = totals[level][1] / bucket_size
+                difference = first_mean - second_mean
+                merged_variance = (variances[level][0] + variances[level][1] +
+                                   bucket_size * bucket_size * difference * difference /
+                                   (bucket_size + bucket_size))
+                next_slot = sizes[level + 1]
+                totals[level + 1][next_slot] = totals[level][0] + totals[level][1]
+                variances[level + 1][next_slot] = merged_variance
+                sizes[level + 1] += 1
+                for bucket in range(2, sizes[level]):
+                    totals[level][bucket - 2] = totals[level][bucket]
+                    variances[level][bucket - 2] = variances[level][bucket]
+                sizes[level] -= 2
+
+            changed = False
+            searching = True
+            while searching and width >= 2 * min_subwindow:
+                searching = False
+                stop = False
+                old_width = 0
+                old_total = 0.0
+                for level in range(max_levels - 1, -1, -1):
+                    for bucket in range(sizes[level]):
+                        if level == 0 and bucket == sizes[level] - 1:
+                            stop = True
+                            break
+                        old_width += 1 << level
+                        old_total += totals[level][bucket]
+                        recent_width = width - old_width
+                        recent_total = total - old_total
+                        if recent_width < min_subwindow:
+                            stop = True
+                            break
+                        if old_width >= min_subwindow:
+                            harmonic = (1.0 / (old_width - min_subwindow + 1) +
+                                        1.0 / (recent_width - min_subwindow + 1))
+                            confidence = adwin_ln(2.0 * adwin_ln(float(width)) / delta)
+                            window_variance = variance / width
+                            epsilon = (adwin_sqrt(2.0 * harmonic * window_variance * confidence) +
+                                       2.0 / 3.0 * confidence * harmonic)
+                            difference = old_total / old_width - recent_total / recent_width
+                            if abs(difference) > epsilon:
+                                changed = True
+                                searching = True
+                                oldest_level = max(level for level in range(max_levels) if sizes[level] > 0)
+                                bucket_size = 1 << oldest_level
+                                bucket_total = totals[oldest_level][0]
+                                width -= bucket_size
+                                total -= bucket_total
+                                if width > 0:
+                                    bucket_mean = bucket_total / bucket_size
+                                    drop_difference = bucket_mean - total / width
+                                    variance -= (variances[oldest_level][0] + bucket_size * width *
+                                                 drop_difference * drop_difference / (bucket_size + width))
+                                else:
+                                    variance = 0.0
+                                if variance < 0.0:
+                                    variance = 0.0
+                                for index in range(1, sizes[oldest_level]):
+                                    totals[oldest_level][index - 1] = totals[oldest_level][index]
+                                    variances[oldest_level][index - 1] = variances[oldest_level][index]
+                                sizes[oldest_level] -= 1
+                                stop = True
+                                break
+                    if stop:
+                        break
+
+            output_values.extend((int(changed), width))
+        output = struct.pack("<" + "q" * len(output_values), *output_values)
+        return len(output_values), output
+
     if algorithm == "account_merge":
         return account_merge_output(values)
     if algorithm == "a_star_search":
@@ -3540,6 +4223,14 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = bytes(value + 32 if 65 <= value <= 90 else value for value in values)
         return len(output), output
 
+    if algorithm == "upper":
+        if (len(values) > 256
+                or any(type(value) is not int or not 0 <= value <= 127
+                       or value in range(9, 14) or value == 32 for value in values)):
+            return -1, b""
+        output = bytes(value - 32 if 97 <= value <= 122 else value for value in values)
+        return len(output), output
+
     if algorithm == "acronym":
         if (len(values) > 79
                 or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
@@ -4069,6 +4760,59 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 if row > 0 and row + 1 < rows:
                     step = cycle - step
         return len(output), bytes(output)
+
+    if algorithm == "manacher":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1000
+                or any(type(value) is not int or
+                       not (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122)
+                       for value in values)):
+            return -1, b""
+        best_start = 0
+        best_length = 0
+        for center in range(len(values)):
+            left = center
+            right = center
+            while left >= 0 and right < len(values) and values[left] == values[right]:
+                candidate_length = right - left + 1
+                if (candidate_length > best_length or
+                        (candidate_length == best_length and left < best_start)):
+                    best_start = left
+                    best_length = candidate_length
+                left -= 1
+                right += 1
+
+            left = center
+            right = center + 1
+            while left >= 0 and right < len(values) and values[left] == values[right]:
+                candidate_length = right - left + 1
+                if (candidate_length > best_length or
+                        (candidate_length == best_length and left < best_start)):
+                    best_start = left
+                    best_length = candidate_length
+                left -= 1
+                right += 1
+        return best_length, bytes(values[best_start:best_start + best_length])
+
+    if algorithm == "duval_algorithm":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytearray()
+        start = 0
+        while start < len(values):
+            end = start + 1
+            repeat = start
+            while end < len(values) and values[repeat] <= values[end]:
+                if values[repeat] < values[end]:
+                    repeat = start
+                else:
+                    repeat += 1
+                end += 1
+            factor_length = end - repeat
+            while start <= repeat:
+                output.extend(struct.pack("<I", factor_length))
+                start += factor_length
+        return len(output) // 4, bytes(output)
 
     if algorithm in {"longest_palindromic_substring", "longest_palindromic_substring_dp"}:
         if (not 1 <= len(values) <= 1000

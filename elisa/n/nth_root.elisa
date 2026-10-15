@@ -1,0 +1,17 @@
+extern fabs(value: f64) -> f64
+extern floor(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def nth_root_impl(radicand: f64, index: f64, tolerance: f64) -> f64:
+    if radicand != radicand or index != index or tolerance != tolerance or radicand < 0.5 or radicand > 1000.0 or index < 3.0 or index > 8.0 or index != floor(index) or tolerance < 1.0e-12 or tolerance > 1.0e-3:
+        return -1.0e300
+    new_approximation: f64 = radicand
+    old_approximation: f64 = new_approximation + tolerance + 0.1
+    while tolerance <= fabs(old_approximation - new_approximation):
+        old_approximation = new_approximation
+        first_summand: f64 = (index - 1.0) / index * old_approximation
+        second_summand: f64 = radicand / (index * pow(old_approximation, index - 1.0))
+        new_approximation = first_summand + second_summand
+    new_approximation
+
+export fn nth_root(radicand: f64, index: f64, tolerance: f64) f64 = nth_root_impl

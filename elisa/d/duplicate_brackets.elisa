@@ -1,0 +1,41 @@
+def duplicate_brackets_impl(input_values: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    count: i64 = input_values[0]
+    if count < 0 or count > 256 or length != count + 1:
+        return -1
+    valid: bool =
+        while index < count |index: mutable usize = 0, depth: mutable i64 = 0, valid: mutable bool = true| -> valid:
+            ch: i64 = input_values[index + 1]
+            if ch < 32 or ch > 126:
+                break false
+            if ch == 40:
+                depth <- depth + 1
+            elif ch == 41:
+                depth <- depth - 1
+                if depth < 0:
+                    break false
+            index <- index + 1
+            if index == count and depth != 0:
+                valid <- false
+            valid
+    if not valid:
+        return -1
+    duplicate: i64 =
+        while index < count |index: mutable usize = 0, stack: mutable i64[256] = zeroed, top: mutable usize = 0, duplicate: mutable i64 = 0| -> duplicate:
+            ch: i64 = input_values[index + 1]
+            if ch == 41:
+                if top == 0 or stack[top - 1] == 40:
+                    break 1
+                while top > 0 and stack[top - 1] != 40:
+                    top <- top - 1
+                if top > 0:
+                    top <- top - 1
+            else:
+                stack[top] <- ch
+                top <- top + 1
+            index <- index + 1
+            duplicate
+    duplicate
+
+export fn duplicate_brackets(input_values: i64&, length: usize) -> i64 = duplicate_brackets_impl

@@ -1,0 +1,15 @@
+extern sin(value: f64) -> f64
+extern asin(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def snell_law_impl(n1: f64, n2: f64, theta1: f64) -> f64:
+    half_pi: f64 = 1.5707963267948966
+    if n1 != n1 or n2 != n2 or theta1 != theta1 or n1 < 0.5 or n1 > 2.5 or n2 < 0.5 or n2 > 2.5 or theta1 < -half_pi or theta1 > half_pi:
+        return -1.0e300
+    ratio: f64 = n1 / n2
+    sin_theta2: f64 = ratio * sin(theta1)
+    if fabs(sin_theta2) > 1.0:
+        return -1.0e300
+    asin(sin_theta2)
+
+export fn snell_law(n1: f64, n2: f64, theta1: f64) -> f64 = snell_law_impl
