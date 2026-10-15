@@ -1,0 +1,16 @@
+def is_leap_year(year: i64) -> bool:
+    year % 400 == 0 or (year % 100 != 0 and year % 4 == 0)
+
+# Return the pinned JavaScript helper's month length.
+def get_month_days_impl(month_number: i64, year: i64) -> i64:
+    if year < 0 or year > 9999:
+        return -1
+    if month_number == 1 or month_number == 3 or month_number == 5 or month_number == 7 or month_number == 8 or month_number == 10 or month_number == 12:
+        return 31
+    if month_number == 4 or month_number == 6 or month_number == 9 or month_number == 11:
+        return 30
+    if month_number == 2:
+        return if is_leap_year(year): 29 else: 28
+    -1
+
+export fn get_month_days(month_number: i64, year: i64) -> i64 = get_month_days_impl

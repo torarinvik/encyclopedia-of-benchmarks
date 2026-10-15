@@ -1,0 +1,6 @@
+def all_twos_sequence_impl(index: i64) -> i64:
+    if index < 0:
+        return -1
+    2
+
+export fn all_twos_sequence(index: i64) -> i64 = all_twos_sequence_impl

@@ -1,0 +1,17 @@
+const MAX_INDEX: i64 = 9999
+
+def divisors_count_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > MAX_INDEX:
+        return -1
+    n: i64 = index + 1
+    if n == 1:
+        return 1
+    count: mutable i64 = 2
+    k: mutable i64 = 2
+    while k < n:
+        if n % k == 0:
+            count <- count + 1
+        k <- k + 1
+    count
+
+export fn divisors_count_sequence(index: i64) -> i64 = divisors_count_sequence_impl

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "rms-speed-of-molecule-v1",
+  "algorithm": "rms_speed_of_molecule",
+  "function_symbol": "rms_speed_of_molecule",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["temperature", "molar_mass"],
+    "temperature_minimum": 0,
+    "temperature_maximum": 1000,
+    "molar_mass_minimum": 1,
+    "molar_mass_maximum": 1000,
+    "universal_gas_constant": 8.3144598,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(3 * 8.3144598 * temperature / molar_mass) ** 0.5",
+    "unit": "metre_per_second",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"zero-temperature","input_values":[0,12],"input_length":2,"expected_result":0.0},
+    {"id":"source-example-one","input_values":[100,2],"input_length":2,"expected_result":35.315279554323226},
+    {"id":"source-example-two","input_values":[273,12],"input_length":2,"expected_result":23.821458421977443},
+    {"id":"nitrogen-like-input","input_values":[300,28],"input_length":2,"expected_result":16.347797820239535},
+    {"id":"maximum-temperature-minimum-mass","input_values":[1000,1],"input_length":2,"expected_result":157.9347314557504},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[100],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-negative-temperature","input_values":[-1,12],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-zero-molar-mass","input_values":[273,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[1001,12],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

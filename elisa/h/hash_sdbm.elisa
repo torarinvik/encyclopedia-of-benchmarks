@@ -1,0 +1,25 @@
+# Hash ASCII byte arrays with the pinned 64-bit SDBM recurrence.
+const MAX_BYTES: usize = 64
+const HIGH_BIT: u64 = 9223372036854775808.u64()
+
+def hash_sdbm_signed_bits(value: u64) -> i64:
+    if value < HIGH_BIT:
+        return value.i64()
+    offset: i64 = (value - HIGH_BIT).i64()
+    -9223372036854775807 - 1 + offset
+
+def hash_sdbm_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_BYTES:
+        return -1
+    hash: mutable u64 = 0.u64()
+    index: mutable usize = 0
+    while index < length:
+        byte: i64 = input[index]
+        if byte < 1 or byte > 127:
+            return -1
+        value: u64 = byte.u64()
+        hash <- value + (hash << 6) + (hash << 16) - hash
+        index <- index + 1
+    hash_sdbm_signed_bits(hash)
+
+export fn hash_sdbm(input: i64&, length: usize) -> i64 = hash_sdbm_impl

@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -87,6 +87,23 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                         (start / (1.0 - end)) * (1.0 - math.pow(end, int(t))))
         if abs(expected - expected_sum) > tolerance * max(1.0, abs(start), abs(end)):
             raise ValueError("sum_of_geometric_progression expected result must match the finite progression sum")
+    elif algorithm == "sum_of_harmonic_series":
+        valid = (0.0 < start <= 1000.0 and 0.0 <= end <= 1000.0
+                 and t.is_integer() and 1.0 <= t <= 256.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid sum_of_harmonic_series inputs must use the -1e300 result sentinel")
+        else:
+            if expected == -1e300:
+                raise ValueError("valid sum_of_harmonic_series inputs cannot use the invalid-input sentinel")
+            arithmetic_term = 1.0 / start
+            expected_sum = 0.0
+            for index in range(int(t)):
+                expected_sum += 1.0 / arithmetic_term
+                if index + 1 < int(t):
+                    arithmetic_term += end
+            if abs(expected - expected_sum) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("sum_of_harmonic_series expected result must match the harmonic progression sum")
     elif algorithm == "equated_monthly_installments":
         valid = (0.0 < start <= 1_000_000.0 and 0.0001 <= end <= 0.2
                  and t.is_integer() and 1.0 <= t <= 30.0)
@@ -148,6 +165,34 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
         expected_probability = (start + end) - (start * t)
         if abs(expected - expected_probability) > tolerance:
             raise ValueError("addition_rule expected result must match P(A) + P(B) - P(A) * P(B|A)")
+    elif algorithm == "electric_power":
+        valid = (start.is_integer() and end.is_integer() and t.is_integer()
+                 and -10000.0 <= start <= 10000.0
+                 and -10000.0 <= end <= 10000.0
+                 and 0.0 <= t <= 100000000.0
+                 and sum(value == 0.0 for value in (start, end, t)) == 1)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid electric_power inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (t / end if start == 0.0 else
+                              t / start if end == 0.0 else
+                              abs(start * end))
+            if abs(expected - expected_value) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("electric_power expected result must match the source branch formula")
+    elif algorithm == "cartesian_to_polar":
+        valid = (abs(start) <= 1_000_000.0 and abs(end) <= 1_000_000.0
+                 and t in (0.0, 1.0))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid cartesian_to_polar inputs must use the -1e300 result sentinel")
+        else:
+            if expected == -1e300:
+                raise ValueError("valid cartesian_to_polar inputs cannot use the invalid-input sentinel")
+            expected_component = (math.sqrt(start * start + end * end) if t == 0.0
+                                  else math.atan2(end, start))
+            if abs(expected - expected_component) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("cartesian_to_polar expected result must match its selected component")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

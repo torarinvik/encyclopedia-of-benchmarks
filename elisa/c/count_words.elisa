@@ -1,0 +1,40 @@
+const MAX_LENGTH: usize = 4096
+
+def is_trim_character(value: i64) -> bool:
+    value <= 32
+
+def is_regex_whitespace(value: i64) -> bool:
+    value == 9 or value == 10 or value == 11 or value == 12 or value == 13 or value == 32
+
+# Count tokens after Java String.trim() and split("\\s+").
+def count_words_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    i: mutable usize = 0
+    while i < length:
+        if values[i] < 0 or values[i] > 127:
+            return -1
+        i <- i + 1
+    if length == 0:
+        return 0
+    start: mutable usize = 0
+    end: mutable usize = length
+    while start < end and is_trim_character(values[start]):
+        start <- start + 1
+    while end > start and is_trim_character(values[end - 1]):
+        end <- end - 1
+    if start == end:
+        return 1
+    count: mutable i64 = 0
+    in_word: mutable bool = false
+    i <- start
+    while i < end:
+        if is_regex_whitespace(values[i]):
+            in_word <- false
+        elif not in_word:
+            count <- count + 1
+            in_word <- true
+        i <- i + 1
+    count
+
+export fn count_words(values: i64&, length: usize) -> i64 = count_words_impl

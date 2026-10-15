@@ -1,0 +1,35 @@
+# Solve impedance, resistance, or reactance from the other two values.
+extern sqrt(value: f64) -> f64
+
+def electrical_impedance_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    resistance: i64 = values[0]
+    reactance: i64 = values[1]
+    impedance: i64 = values[2]
+    if resistance < 0 or resistance > 1000 or reactance < 0 or reactance > 1000 or impedance < 0 or impedance > 1000:
+        return -1.0e300
+    zeros: mutable i64 = 0
+    if resistance == 0:
+        zeros <- zeros + 1
+    if reactance == 0:
+        zeros <- zeros + 1
+    if impedance == 0:
+        zeros <- zeros + 1
+    if zeros != 1:
+        return -1.0e300
+    r: f64 = resistance.f64()
+    x: f64 = reactance.f64()
+    z: f64 = impedance.f64()
+    radicand: mutable f64 = 0.0
+    if resistance == 0:
+        radicand <- z * z - x * x
+    elif reactance == 0:
+        radicand <- z * z - r * r
+    else:
+        radicand <- r * r + x * x
+    if radicand < 0.0:
+        return -1.0e300
+    sqrt(radicand)
+
+export fn electrical_impedance(values: i64&, length: usize) -> f64 = electrical_impedance_impl

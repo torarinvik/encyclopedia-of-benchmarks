@@ -1,0 +1,11 @@
+# Hooke's law restoring force: -spring_constant * displacement.
+def hookes_law_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    spring_constant: i64 = values[0]
+    displacement: i64 = values[1]
+    if spring_constant < 1 or spring_constant > 1000 or displacement < -1000 or displacement > 1000:
+        return -1.0e300
+    (-spring_constant.f64()) * displacement.f64()
+
+export fn hookes_law(values: i64&, length: usize) -> f64 = hookes_law_impl

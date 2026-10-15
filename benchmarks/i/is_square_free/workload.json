@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "is-square-free-i64-scalar-v1",
+  "algorithm": "is_square_free",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 1000000],
+    "invalid_result": -1,
+    "result_encoding": {"square_free": 1, "not_square_free": 0}
+  },
+  "cases": [
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"prime_two","input_value":2,"expected_result":1},
+    {"id":"prime_large","input_value":999983,"expected_result":1},
+    {"id":"square_free_composite","input_value":30,"expected_result":1},
+    {"id":"product_of_two_primes","input_value":210,"expected_result":1},
+    {"id":"small_square","input_value":4,"expected_result":0},
+    {"id":"repeated_factor","input_value":12,"expected_result":0},
+    {"id":"perfect_square","input_value":49,"expected_result":0},
+    {"id":"largest_supported_square","input_value":1000000,"expected_result":0},
+    {"id":"zero_outside_shared_domain","input_value":0,"expected_result":-1},
+    {"id":"negative_outside_domain","input_value":-1,"expected_result":-1},
+    {"id":"first_unsupported_positive","input_value":1000001,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

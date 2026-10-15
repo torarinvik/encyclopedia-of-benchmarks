@@ -1,0 +1,16 @@
+# Photoelectric maximum electron kinetic energy in electronvolts.
+def photoelectric_effect_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    frequency: i64 = values[0]
+    work_function: i64 = values[1]
+    if frequency < 0 or frequency > 1000000000000000000 or work_function < 0 or work_function > 1000:
+        return -1.0e300
+    planck_ev: f64 = 4.1357e-15
+    photon_energy: f64 = planck_ev * frequency.f64()
+    energy_difference: f64 = photon_energy - work_function.f64()
+    if energy_difference > 0.0:
+        return energy_difference
+    return 0.0
+
+export fn photoelectric_effect(values: i64&, length: usize) -> f64 = photoelectric_effect_impl

@@ -1,0 +1,15 @@
+# XOR-fold an int32 array to find its unique odd-frequency value.
+def number_appearing_odd_times_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 4096:
+        return -2147483649
+    result: mutable i32 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -2147483648 or value > 2147483647:
+            return -2147483649
+        result <- result ^ value.i32()
+        index <- index + 1
+    result.i64()
+
+export fn number_appearing_odd_times(values: i64&, length: usize) -> i64 = number_appearing_odd_times_impl

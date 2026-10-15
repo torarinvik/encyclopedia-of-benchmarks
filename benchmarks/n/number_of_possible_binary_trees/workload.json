@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "number-of-possible-binary-trees-python-scalar-v1",
+  "algorithm": "number_of_possible_binary_trees",
+  "function_symbol": "number_of_possible_binary_trees",
+  "input": {
+    "kind": "positive_node_count",
+    "minimum": 1,
+    "maximum": 14,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "labeled_binary_tree_count",
+    "definition": "Catalan(n) * n!",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"one_node", "input_value":1, "expected_result":1},
+    {"id":"two_nodes", "input_value":2, "expected_result":4},
+    {"id":"three_nodes", "input_value":3, "expected_result":30},
+    {"id":"four_nodes", "input_value":4, "expected_result":336},
+    {"id":"source_five_nodes", "input_value":5, "expected_result":5040},
+    {"id":"source_six_nodes", "input_value":6, "expected_result":95040},
+    {"id":"seven_nodes", "input_value":7, "expected_result":2162160},
+    {"id":"twelve_nodes", "input_value":12, "expected_result":99638080819200},
+    {"id":"maximum_i64_domain", "input_value":14, "expected_result":233153109116928000},
+    {"id":"zero_invalid", "input_value":0, "expected_result":-1},
+    {"id":"above_bound_invalid", "input_value":15, "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

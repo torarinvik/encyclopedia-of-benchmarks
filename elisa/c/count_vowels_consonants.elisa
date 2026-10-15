@@ -1,0 +1,23 @@
+# Count ASCII vowels and consonants, packing the two counts into one i64.
+const COUNT_BASE: i64 = 4294967296
+
+def count_vowels_consonants_impl(values: i64&, length: usize) -> i64:
+    if length > 100000:
+        return -1
+    vowels: mutable i64 = 0
+    consonants: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        code: i64 = values[index]
+        if code < 0 or code > 127:
+            return -1
+        if (code >= 65 and code <= 90) or (code >= 97 and code <= 122):
+            letter: i64 = code | 32
+            if letter == 97 or letter == 101 or letter == 105 or letter == 111 or letter == 117:
+                vowels <- vowels + 1
+            else:
+                consonants <- consonants + 1
+        index <- index + 1
+    vowels * COUNT_BASE + consonants
+
+export fn count_vowels_consonants(values: i64&, length: usize) -> i64 = count_vowels_consonants_impl

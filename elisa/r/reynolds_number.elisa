@@ -1,0 +1,14 @@
+# Reynolds number: density * abs(velocity) * diameter / viscosity.
+def reynolds_number_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    density: i64 = values[0]
+    velocity: i64 = values[1]
+    diameter: i64 = values[2]
+    viscosity: i64 = values[3]
+    if density < 1 or density > 1000 or velocity < -1000 or velocity > 1000 or diameter < 1 or diameter > 1000 or viscosity < 1 or viscosity > 1000:
+        return -1.0e300
+    speed: i64 = if velocity < 0: -velocity else: velocity
+    (((density.f64() * speed.f64()) * diameter.f64()) / viscosity.f64())
+
+export fn reynolds_number(values: i64&, length: usize) -> f64 = reynolds_number_impl

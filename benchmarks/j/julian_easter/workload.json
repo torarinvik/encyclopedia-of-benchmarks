@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "julian-easter-i64-scalar-v1",
+  "algorithm": "julian_easter",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 9999],
+    "output_encoding": "YYYYMMDD integer; source DateTime is UTC midnight",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"minimum_year","input_value":1,"expected_result":1000327},
+    {"id":"year_1900","input_value":1900,"expected_result":19000409},
+    {"id":"year_2000","input_value":2000,"expected_result":20000417},
+    {"id":"year_2023","input_value":2023,"expected_result":20230403},
+    {"id":"year_2024","input_value":2024,"expected_result":20240422},
+    {"id":"year_2025","input_value":2025,"expected_result":20250407},
+    {"id":"maximum_year","input_value":9999,"expected_result":99990415},
+    {"id":"zero_year","input_value":0,"expected_result":-1},
+    {"id":"first_year_beyond_datetime","input_value":10000,"expected_result":-1},
+    {"id":"signed64_minimum","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

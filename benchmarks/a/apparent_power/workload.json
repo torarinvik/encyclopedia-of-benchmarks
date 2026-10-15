@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "apparent-power-v1",
+  "algorithm": "apparent_power",
+  "function_symbol": "apparent_power",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 5,
+    "argument_order": [
+      "component_selector",
+      "voltage",
+      "current",
+      "voltage_angle_degrees",
+      "current_angle_degrees"
+    ],
+    "component_selector_values": {
+      "0": "real component",
+      "1": "imaginary component"
+    },
+    "voltage_range": [
+      0,
+      1000
+    ],
+    "current_range": [
+      0,
+      1000
+    ],
+    "angle_degrees_range": [
+      -360,
+      360
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "volt-amperes",
+    "definition": "The selected real or imaginary component of rect(voltage, radians(voltage_angle)) * rect(current, radians(current_angle)).",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero-angle-real",
+      "input_values": [
+        0,
+        100,
+        5,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 500.0
+    },
+    {
+      "id": "zero-angle-imaginary",
+      "input_values": [
+        1,
+        100,
+        5,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "quadrature-real",
+      "input_values": [
+        0,
+        100,
+        5,
+        90,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 3.061616997868383e-14
+    },
+    {
+      "id": "quadrature-imaginary",
+      "input_values": [
+        1,
+        100,
+        5,
+        90,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 500.0
+    },
+    {
+      "id": "negative-phase-real",
+      "input_values": [
+        0,
+        100,
+        5,
+        -45,
+        -60
+      ],
+      "input_length": 5,
+      "expected_result": -129.40952255126027
+    },
+    {
+      "id": "negative-phase-imaginary",
+      "input_values": [
+        1,
+        100,
+        5,
+        -45,
+        -60
+      ],
+      "input_length": 5,
+      "expected_result": -482.9629131445341
+    },
+    {
+      "id": "large-vector-real",
+      "input_values": [
+        0,
+        200,
+        10,
+        -30,
+        -90
+      ],
+      "input_length": 5,
+      "expected_result": -999.9999999999998
+    },
+    {
+      "id": "large-vector-imaginary",
+      "input_values": [
+        1,
+        200,
+        10,
+        -30,
+        -90
+      ],
+      "input_length": 5,
+      "expected_result": -1732.0508075688776
+    },
+    {
+      "id": "wrapped-quarter-turn-real",
+      "input_values": [
+        0,
+        50,
+        10,
+        45,
+        45
+      ],
+      "input_length": 5,
+      "expected_result": 7.532153756227988e-14
+    },
+    {
+      "id": "wrapped-quarter-turn-imaginary",
+      "input_values": [
+        1,
+        50,
+        10,
+        45,
+        45
+      ],
+      "input_length": 5,
+      "expected_result": 499.99999999999994
+    },
+    {
+      "id": "zero-voltage-real",
+      "input_values": [
+        0,
+        0,
+        23,
+        77,
+        -103
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero-voltage-imaginary",
+      "input_values": [
+        1,
+        0,
+        23,
+        77,
+        -103
+      ],
+      "input_length": 5,
+      "expected_result": -0.0
+    },
+    {
+      "id": "invalid-selector",
+      "input_values": [
+        2,
+        100,
+        5,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-voltage",
+      "input_values": [
+        0,
+        -1,
+        5,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-current",
+      "input_values": [
+        1,
+        100,
+        1001,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-angle",
+      "input_values": [
+        0,
+        100,
+        5,
+        361,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-length",
+      "input_values": [
+        0,
+        100,
+        5,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

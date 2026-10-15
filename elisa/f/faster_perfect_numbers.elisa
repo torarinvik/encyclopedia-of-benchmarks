@@ -1,0 +1,63 @@
+const MAX_INPUT: i64 = 2305843009213693951
+
+def get_prime_limit(value: i64) -> u64:
+    scaled: mutable u64 = value.u64() * 8.u64() + 1.u64()
+    limit: mutable u64 = 0.u64()
+    while scaled >= 4.u64():
+        scaled <- scaled / 4.u64()
+        limit <- limit + 1.u64()
+    limit
+
+def is_prime(value: u64) -> bool:
+    if value < 2.u64():
+        return false
+    divisor: mutable u64 = 2.u64()
+    while divisor * divisor <= value:
+        if value % divisor == 0.u64():
+            return false
+        divisor <- divisor + 1.u64()
+    true
+
+def is_mersenne_prime(exponent: u64) -> bool:
+    if exponent == 2.u64():
+        return true
+    if exponent < 2.u64():
+        return false
+    modulus: u64 = (1.u64() << exponent.usize()) - 1.u64()
+    residue: mutable u64 = 4.u64()
+    iteration: mutable u64 = 0.u64()
+    while iteration < exponent - 2.u64():
+        residue <- (residue * residue - 2.u64()) % modulus
+        iteration <- iteration + 1.u64()
+    residue == 0.u64()
+
+def faster_perfect_numbers_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 0 or value > MAX_INPUT:
+        return -1
+    perfects: mutable i64[8] = zeroed
+    count: mutable usize = 0
+    limit: u64 = get_prime_limit(value)
+    exponent: mutable u64 = 2.u64()
+    while exponent <= limit:
+        if is_prime(exponent) and is_mersenne_prime(exponent):
+            mersenne: u64 = (1.u64() << exponent.usize()) - 1.u64()
+            perfect: u64 = mersenne * (1.u64() << (exponent - 1.u64()).usize())
+            if perfect <= value.u64():
+                perfects[count] <- perfect.i64()
+                count <- count + 1
+        exponent <- exponent + 1.u64()
+    required: usize = count * 8
+    if output_capacity < required:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        bits: mutable u64 = perfects[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- (bits % 256.u64()).u8()
+            bits <- bits / 256.u64()
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()
+
+export fn faster_perfect_numbers(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = faster_perfect_numbers_impl

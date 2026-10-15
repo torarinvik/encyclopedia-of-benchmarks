@@ -1,0 +1,15 @@
+def absolute(value: f64) -> f64:
+    if value < 0.0:
+        return -value
+    value
+
+def babylonian_sqrt_impl(input: f64) -> f64:
+    if not (input >= 0.0 and input <= 1000000.0):
+        return -1.0
+    estimate: mutable f64 = input / 2.0
+    tolerance: f64 = 0.000001
+    while tolerance <= absolute(estimate * estimate - input):
+        estimate <- 0.5 * (estimate + input / estimate)
+    estimate
+
+export fn babylonian_sqrt(input: f64) -> f64 = babylonian_sqrt_impl

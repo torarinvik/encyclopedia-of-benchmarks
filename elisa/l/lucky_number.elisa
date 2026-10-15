@@ -1,0 +1,16 @@
+const MAX_INPUT: i64 = 1000000
+
+# Preserve the pinned Java rank loop, including counter += 1 each round.
+def lucky_number_impl(number: i64) -> i64:
+    if number < 1 or number > MAX_INPUT:
+        return -1
+    counter: mutable i64 = 2
+    position: mutable i64 = number
+    while counter <= position:
+        if position % counter == 0:
+            return 0
+        position <- position - position / counter
+        counter <- counter + 1
+    1
+
+export fn lucky_number(number: i64) -> i64 = lucky_number_impl

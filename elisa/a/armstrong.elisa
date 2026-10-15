@@ -1,0 +1,32 @@
+# Check whether n is an Armstrong number in base 10.
+def armstrong_impl(n: i64) -> i64:
+    if n < -2147483648 or n > 2147483647:
+        return -1
+    if n < 0:
+        return 0
+    if n == 0:
+        return 1
+
+    original: i64 = n
+    remaining: mutable i64 = n
+    digits: mutable i64 = 0
+    while remaining > 0:
+        digits <- digits + 1
+        remaining <- remaining / 10
+
+    sum: mutable i64 = 0
+    remaining <- n
+    while remaining > 0:
+        digit: i64 = remaining % 10
+        power: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < digits:
+            power <- power * digit
+            exponent <- exponent + 1
+        sum <- sum + power
+        remaining <- remaining / 10
+    if sum == original:
+        return 1
+    0
+
+export fn armstrong(n: i64) -> i64 = armstrong_impl

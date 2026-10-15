@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "parity-i64-v1",
+  "algorithm": "parity",
+  "function_symbol": "parity",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "popcount(number) mod 2",
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":0},
+    {"id":"ten-set-bits","input_value":1023,"expected_result":0},
+    {"id":"high-single-bit","input_value":4611686018427387904,"expected_result":1},
+    {"id":"even-high-popcount","input_value":4611686018427387903,"expected_result":0},
+    {"id":"maximum-signed-i64","input_value":9223372036854775807,"expected_result":1},
+    {"id":"invalid-negative","input_value":-1,"expected_result":-1},
+    {"id":"invalid-i64-minimum","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

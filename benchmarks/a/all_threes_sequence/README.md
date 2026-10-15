@@ -1,0 +1,35 @@
+# All threes sequence
+
+## Contract
+
+The input is a zero-based signed 64-bit index `n`. For every supported index `n >= 0`, return 3; return `-1` for a negative index. The sequence is `3, 3, 3, 3, ...` and has no mathematical upper index bound. This scalar benchmark accepts every nonnegative index representable by its `i64` input ABI.
+
+The scalar ABI is `int64_t all_threes_sequence(int64_t index)`. The invalid sentinel `-1` cannot collide with a valid term, which is always 3.
+
+## Source behavior
+
+The pinned C# `ISequence` implementation yields the `BigInteger` value 3 forever. The benchmark uses zero-based indexing into that generator; the source's first yielded term is at index 0.
+
+This indexed contract measures constant-time term lookup. The source itself exposes a lazy generator, so advancing it to index `n` takes O(n) iteration steps; the ports return the same indexed value directly in O(1). This package therefore preserves the sequence values, not the generator's iteration cost.
+
+## Workload
+
+[`workload.json`](workload.json) covers initial terms, later indices, the largest signed 64-bit index, and negative invalid indices.
+
+## Implementations
+
+| Language | Source |
+| --- | --- |
+| C | [`c/a/all_threes_sequence.c`](../../../c/a/all_threes_sequence.c) |
+| C3 | [`c3/a/all_threes_sequence.c3`](../../../c3/a/all_threes_sequence.c3) |
+| C++ | [`cpp/a/all_threes_sequence.cpp`](../../../cpp/a/all_threes_sequence.cpp) |
+| Elisa | [`elisa/a/all_threes_sequence.elisa`](../../../elisa/a/all_threes_sequence.elisa) |
+| Nim | [`nim/a/all_threes_sequence.nim`](../../../nim/a/all_threes_sequence.nim) |
+| Odin | [`odin/a/all_threes_sequence.odin`](../../../odin/a/all_threes_sequence.odin) |
+| Rust | [`rust/a/all_threes_sequence.rs`](../../../rust/a/all_threes_sequence.rs) |
+| V | [`v/a/all_threes_sequence.v`](../../../v/a/all_threes_sequence.v) |
+| Zig | [`zig/a/all_threes_sequence.zig`](../../../zig/a/all_threes_sequence.zig) |
+
+## TheAlgorithms reference
+
+- [C# `AllThreesSequence.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/AllThreesSequence.cs)

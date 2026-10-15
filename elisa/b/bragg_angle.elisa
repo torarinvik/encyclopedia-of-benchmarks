@@ -1,0 +1,29 @@
+# Bragg diffraction angle, rounded to one decimal degree.
+extern asin(value: f64) -> f64
+extern floor(value: f64) -> f64
+const PI: f64 = 3.141592653589793238462643383279502884
+
+def round_one_even(value: f64) -> f64:
+    scaled: f64 = value * 10.0
+    lower: f64 = floor(scaled)
+    fraction: f64 = scaled - lower
+    rounded: i64 = lower.i64()
+    if fraction > 0.5 or (fraction == 0.5 and rounded % 2 != 0):
+        rounded = rounded + 1
+    rounded.f64() / 10.0
+
+def bragg_angle_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    distance: i64 = values[0]
+    order: i64 = values[1]
+    wavelength: i64 = values[2]
+    if distance < 1 or distance > 1000000 or order < -1000 or order > 1000 or wavelength < 0 or wavelength > 1000000:
+        return -1.0e300
+    sine: f64 = (order.f64() * wavelength.f64()) / (2.0 * distance.f64())
+    if sine < -1.0 or sine > 1.0:
+        return -1.0e300
+    degrees: f64 = asin(sine) * (180.0 / PI)
+    round_one_even(degrees)
+
+export fn bragg_angle(values: i64&, length: usize) -> f64 = bragg_angle_impl

@@ -1,0 +1,13 @@
+const MAX_LENGTH: usize = 64
+const MAX_ABS_VALUE: i64 = 1000000
+def arithmetic_mean_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > MAX_LENGTH: return -1.0e300
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -MAX_ABS_VALUE or value > MAX_ABS_VALUE: return -1.0e300
+        total <- total + value
+        index <- index + 1
+    total.f64() / length.f64()
+export fn arithmetic_mean(values: i64&, length: usize) -> f64 = arithmetic_mean_impl

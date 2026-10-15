@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-recursive-scalar-i64-v1",
+  "algorithm": "fibonacci_recursive",
+  "function_symbol": "fibonacci_recursive",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 30,
+    "definition": "Return F(n) using the naive recursive recurrence.",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "five",
+      "input_value": 5,
+      "expected_result": 5
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 55
+    },
+    {
+      "id": "twenty",
+      "input_value": 20,
+      "expected_result": 6765
+    },
+    {
+      "id": "twenty_five",
+      "input_value": 25,
+      "expected_result": 75025
+    },
+    {
+      "id": "maximum",
+      "input_value": 30,
+      "expected_result": 832040
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound",
+      "input_value": 31,
+      "expected_result": -1
+    }
+  ]
+}

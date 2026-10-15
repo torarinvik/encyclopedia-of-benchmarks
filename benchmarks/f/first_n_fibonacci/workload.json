@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "first-n-fibonacci-i64-array-bytes-v1",
+  "algorithm": "first_n_fibonacci",
+  "function_symbol": "first_n_fibonacci",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 1,
+    "argument_order": [
+      "term_count"
+    ],
+    "term_count_range": [
+      3,
+      79
+    ],
+    "definition": "Return F(0) through F(term_count-1).",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "ascending decimal Fibonacci terms, each followed by a NUL byte",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 400004
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "first_three",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 6,
+      "expected_output_hex": "300031003100"
+    },
+    {
+      "id": "first_ten",
+      "input_values": [
+        10
+      ],
+      "input_length": 1,
+      "expected_result": 23,
+      "expected_output_hex": "3000310031003200330035003800313300323100333400"
+    },
+    {
+      "id": "first_32",
+      "input_values": [
+        32
+      ],
+      "input_length": 1,
+      "expected_result": 142,
+      "expected_output_hex": "30003100310032003300350038003133003231003334003535003839003134340032333300333737003631300039383700313539370032353834003431383100363736350031303934360031373731310032383635370034363336380037353032350031323133393300313936343138003331373831310035313432323900383332303430003133343632363900"
+    },
+    {
+      "id": "largest_exact_prefix",
+      "input_values": [
+        79
+      ],
+      "input_length": 1,
+      "expected_result": 736,
+      "expected_output_hex": "30003100310032003300350038003133003231003334003535003839003134340032333300333737003631300039383700313539370032353834003431383100363736350031303934360031373731310032383635370034363336380037353032350031323133393300313936343138003331373831310035313432323900383332303430003133343632363900323137383330390033353234353738003537303238383700393232373436350031343933303335320032343135373831370033393038383136390036333234353938360031303233333431353500313635353830313431003236373931343239360034333334393434333700373031343038373333003131333439303331373000313833363331313930330032393731323135303733003438303735323639373600373737383734323034390031323538363236393032350032303336353031313037340033323935313238303039390035333331363239313137330038363236373537313237320031333935383338363234343500323235383531343333373137003336353433353239363136320035393132383637323938373900393536373232303236303431003135343830303837353539323000323530343733303738313936310034303532373339353337383831003635353734373033313938343200313036313032303938353737323300313731363736383031373735363500323737373738393030333532383800343439343535373032313238353300373237323334363032343831343100313137363639303330343630393934003139303339323439303730393133350033303830363135323131373031323900343938343534303131383739323634003830363531353533333034393339330031333034393639353434393238363537003231313134383530373739373830353000333431363435343632323930363730370035353237393339373030383834373537003839343433393433323337393134363400"
+    },
+    {
+      "id": "invalid_below_source_domain",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_one_term",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_zero_terms",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_count",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_over_bound",
+      "input_values": [
+        80
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_wrong_length",
+      "input_values": [
+        10,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

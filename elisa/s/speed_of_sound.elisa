@@ -1,0 +1,13 @@
+# Speed of sound in a fluid: (bulk modulus / density) ** 0.5.
+extern pow(base: f64, exponent: f64) -> f64
+
+def speed_of_sound_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    density: i64 = values[0]
+    bulk_modulus: i64 = values[1]
+    if density < 1 or density > 1000 or bulk_modulus < 1 or bulk_modulus > 1000000000:
+        return -1.0e300
+    pow(bulk_modulus.f64() / density.f64(), 0.5)
+
+export fn speed_of_sound(values: i64&, length: usize) -> f64 = speed_of_sound_impl

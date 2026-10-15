@@ -1,0 +1,47 @@
+# Pack triangular, tetrahedral, and pentatope membership bits.
+def is_triangular(n: i64) -> bool:
+    i: mutable i64 = 0
+    while i <= n:
+        term: i64 = i * (i + 1) / 2
+        if term == n:
+            return true
+        if term > n:
+            return false
+        i <- i + 1
+    return false
+
+def is_tetrahedral(n: i64) -> bool:
+    i: mutable i64 = 1
+    while i <= n:
+        term: i64 = i * (i + 1) * (i + 2) / 6
+        if term == n:
+            return true
+        if term > n:
+            return false
+        i <- i + 1
+    return false
+
+def is_pentatope(n: i64) -> bool:
+    i: mutable i64 = 1
+    while i <= n:
+        term: i64 = i * (i + 1) * (i + 2) * (i + 3) / 24
+        if term == n:
+            return true
+        if term > n:
+            return false
+        i <- i + 1
+    return false
+
+def figurate_number_impl(n: i64) -> i64:
+    if n < 0 or n > 1000000:
+        return -1
+    result: mutable i64 = 0
+    if is_triangular(n):
+        result <- result + 1
+    if is_tetrahedral(n):
+        result <- result + 2
+    if is_pentatope(n):
+        result <- result + 4
+    return result
+
+export fn figurate_number(n: i64) -> i64 = figurate_number_impl

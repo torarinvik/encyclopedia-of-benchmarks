@@ -1,0 +1,26 @@
+# Inductive reactance relation over a bounded integer-valued domain.
+def ind_reactance_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    inductance: i64 = values[0]
+    frequency: i64 = values[1]
+    reactance: i64 = values[2]
+    if inductance < 0 or inductance > 1000 or frequency < 0 or frequency > 1000 or reactance < 0 or reactance > 1000:
+        return -1.0e300
+    zeros: mutable i64 = 0
+    if inductance == 0:
+        zeros <- zeros + 1
+    if frequency == 0:
+        zeros <- zeros + 1
+    if reactance == 0:
+        zeros <- zeros + 1
+    if zeros != 1:
+        return -1.0e300
+    pi: f64 = 3.14159265358979323846
+    if inductance == 0:
+        return reactance.f64() / (2.0 * pi * frequency.f64())
+    if frequency == 0:
+        return reactance.f64() / (2.0 * pi * inductance.f64())
+    return 2.0 * pi * frequency.f64() * inductance.f64()
+
+export fn ind_reactance(values: i64&, length: usize) -> f64 = ind_reactance_impl

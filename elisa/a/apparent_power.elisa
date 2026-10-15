@@ -1,0 +1,28 @@
+# Selected component of single-phase complex apparent power.
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+def apparent_power_impl(values: i64&, length: usize) -> f64:
+    if length != 5:
+        return -1.0e300
+    component: i64 = values[0]
+    voltage: i64 = values[1]
+    current: i64 = values[2]
+    voltage_angle: i64 = values[3]
+    current_angle: i64 = values[4]
+    if (component != 0 and component != 1) or voltage < 0 or voltage > 1000 or current < 0 or current > 1000 or voltage_angle < -360 or voltage_angle > 360 or current_angle < -360 or current_angle > 360:
+        return -1.0e300
+    pi: f64 = 3.14159265358979323846
+    voltage_radians: f64 = voltage_angle.f64() * (pi / 180.0)
+    current_radians: f64 = current_angle.f64() * (pi / 180.0)
+    voltage_real: f64 = voltage.f64() * cos(voltage_radians)
+    voltage_imag: f64 = voltage.f64() * sin(voltage_radians)
+    current_real: f64 = current.f64() * cos(current_radians)
+    current_imag: f64 = current.f64() * sin(current_radians)
+    real: f64 = voltage_real * current_real - voltage_imag * current_imag
+    imag: f64 = voltage_real * current_imag + voltage_imag * current_real
+    if component == 0:
+        return real
+    imag
+
+export fn apparent_power(values: i64&, length: usize) -> f64 = apparent_power_impl

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "shear-stress-python-binary64-v1",
+  "algorithm": "shear_stress",
+  "function_symbol": "shear_stress",
+  "input": {
+    "kind": "bounded_integer_valued_shear_stress_triple",
+    "argument_order": ["stress", "tangential_force", "area"],
+    "value_range": [0, 1000],
+    "exactly_one_zero_required": true,
+    "integer_valued_required": true,
+    "invalid_result": -1.0,
+    "branch_formulas": {
+      "stress_zero": "tangential_force / area",
+      "tangential_force_zero": "stress * area",
+      "area_zero": "tangential_force / stress"
+    },
+    "unit_mapping": {
+      "stress": "pascal",
+      "tangential_force": "newton",
+      "area": "square_metre"
+    },
+    "normalized_input_subset": "The two supplied nonzero values are integers from 1 through 1000; the missing value is 0."
+  },
+  "output": {
+    "kind": "binary64",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"solve-stress","input_values":[0.0,100.0,20.0],"expected_result":5.0},
+    {"id":"solve-force","input_values":[25.0,0.0,40.0],"expected_result":1000.0},
+    {"id":"solve-area","input_values":[25.0,100.0,0.0],"expected_result":4.0},
+    {"id":"lower-nonzero-bound","input_values":[0.0,1.0,1000.0],"expected_result":0.001},
+    {"id":"upper-product-bound","input_values":[1000.0,0.0,1000.0],"expected_result":1000000.0},
+    {"id":"no-zero","input_values":[2.0,3.0,6.0],"expected_result":-1.0},
+    {"id":"two-zeros","input_values":[0.0,0.0,5.0],"expected_result":-1.0},
+    {"id":"all-zero","input_values":[0.0,0.0,0.0],"expected_result":-1.0},
+    {"id":"negative-value","input_values":[0.0,-2.0,4.0],"expected_result":-1.0},
+    {"id":"fractional-value","input_values":[0.0,0.5,4.0],"expected_result":-1.0},
+    {"id":"out-of-range-value","input_values":[0.0,1001.0,4.0],"expected_result":-1.0}
+  ]
+}

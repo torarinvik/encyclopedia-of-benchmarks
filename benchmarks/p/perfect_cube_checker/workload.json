@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "perfect-cube-checker-i64-scalar-v1",
+  "algorithm": "perfect_cube_checker",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [-2147483648, 2147483647],
+    "out_of_range_result": -1,
+    "result_encoding": {"perfect_cube": 1, "not_perfect_cube": 0}
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"negative_one","input_value":-1,"expected_result":1},
+    {"id":"source_example_cube","input_value":27,"expected_result":1},
+    {"id":"negative_cube","input_value":-125,"expected_result":1},
+    {"id":"largest_positive_int32_cube","input_value":2146689000,"expected_result":1},
+    {"id":"largest_negative_int32_cube","input_value":-2146689000,"expected_result":1},
+    {"id":"near_cube_below","input_value":26,"expected_result":0},
+    {"id":"near_cube_above","input_value":28,"expected_result":0},
+    {"id":"int32_minimum","input_value":-2147483648,"expected_result":0},
+    {"id":"int32_maximum","input_value":2147483647,"expected_result":0},
+    {"id":"first_outside_positive","input_value":2147483648,"expected_result":-1},
+    {"id":"first_outside_negative","input_value":-2147483649,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}

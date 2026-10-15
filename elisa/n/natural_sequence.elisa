@@ -1,0 +1,6 @@
+def natural_sequence_impl(index: i64) -> i64:
+    if index < 0 or index == 9223372036854775807:
+        return -1
+    index + 1
+
+export fn natural_sequence(index: i64) -> i64 = natural_sequence_impl

@@ -1,0 +1,8 @@
+def kynea_numbers_impl(index: i64) -> i64:
+    if index < 1 or index > 31:
+        return -1
+    value: i64 = (1 << index) + 1
+    square: i64 = value * value
+    square - 2
+
+export fn kynea_numbers(index: i64) -> i64 = kynea_numbers_impl

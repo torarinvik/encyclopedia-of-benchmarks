@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "binary-search-matrix-python-i64-array-scalar-v1",
+  "algorithm": "binary_search_matrix",
+  "function_symbol": "binary_search_matrix",
+  "input": {
+    "kind": "row_major_sorted_integer_matrix",
+    "encoding": "[rows, columns, target, row-major matrix values...]",
+    "maximum_rows": 32,
+    "maximum_columns": 32,
+    "value_range": [-1000000000, 1000000000],
+    "result_encoding": "found coordinate [row, column] becomes row * columns + column; missing is -1",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"source_first_cell", "input_values":[5,5,1, 1,4,7,11,15, 2,5,8,12,19, 3,6,9,16,22, 10,13,14,17,24, 18,21,23,26,30], "expected_result":0},
+    {"id":"source_missing_value", "input_values":[5,5,34, 1,4,7,11,15, 2,5,8,12,19, 3,6,9,16,22, 10,13,14,17,24, 18,21,23,26,30], "expected_result":-1},
+    {"id":"source_middle_row", "input_values":[5,5,16, 1,4,7,11,15, 2,5,8,12,19, 3,6,9,16,22, 10,13,14,17,24, 18,21,23,26,30], "expected_result":13},
+    {"id":"source_first_row", "input_values":[5,5,15, 1,4,7,11,15, 2,5,8,12,19, 3,6,9,16,22, 10,13,14,17,24, 18,21,23,26,30], "expected_result":4},
+    {"id":"later_row_first_column_source_edge", "input_values":[3,3,2, 1,4,7, 2,5,8, 3,6,9], "expected_result":-1},
+    {"id":"single_row", "input_values":[1,5,7, 1,3,5,7,9], "expected_result":3},
+    {"id":"single_cell_found", "input_values":[1,1,42, 42], "expected_result":0},
+    {"id":"empty_matrix_invalid", "input_values":[0,0,42], "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

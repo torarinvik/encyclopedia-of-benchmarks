@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "lucky-number-java-rank-loop-positive-int32-scalar-v1",
+  "algorithm": "lucky_number",
+  "function_symbol": "lucky_number",
+  "input": {
+    "kind": "bounded_positive_integer",
+    "minimum": 1,
+    "maximum": 1000000,
+    "source_integer_domain": "positive signed int32",
+    "predicate": "iteratively check position % counter, then position -= position / counter and counter += 1",
+    "true_result": 1,
+    "false_result": 0,
+    "invalid_result": -1,
+    "note": "Pinned method returns false for 15; this preserves its rank loop rather than standard lucky-number membership."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "one-true", "input_value": 1, "expected_result": 1},
+    {"id": "two-divisible", "input_value": 2, "expected_result": 0},
+    {"id": "three-true", "input_value": 3, "expected_result": 1},
+    {"id": "seven-true", "input_value": 7, "expected_result": 1},
+    {"id": "thirteen-true", "input_value": 13, "expected_result": 1},
+    {"id": "standard-lucky-15-source-false", "input_value": 15, "expected_result": 0},
+    {"id": "upper-bound", "input_value": 1000000, "expected_result": 0},
+    {"id": "zero-source-error-mapped", "input_value": 0, "expected_result": -1},
+    {"id": "negative-source-error-mapped", "input_value": -1, "expected_result": -1},
+    {"id": "above-bound", "input_value": 1000001, "expected_result": -1}
+  ]
+}

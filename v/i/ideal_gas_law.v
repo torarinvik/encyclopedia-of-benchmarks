@@ -1,14 +1,20 @@
 module ideal_gas_law
 
-// Pressure from the ideal gas law: n * T * R / V.
+// Solve one ideal-gas-law variable using a portable operation selector.
 @[export: 'ideal_gas_law']
 pub fn ideal_gas_law(values &i64, length usize) f64 {
-	if length != 3 { return -1.0e300 }
-	moles := unsafe { values[0] }
-	kelvin := unsafe { values[1] }
-	volume := unsafe { values[2] }
-	if moles < 0 || moles > 1000 || kelvin < 0 || kelvin > 1000 || volume < 1 || volume > 1000 {
+	if length != 4 { return -1.0e300 }
+	operation := unsafe { values[0] }
+	a := unsafe { values[1] }
+	b := unsafe { values[2] }
+	c := unsafe { values[3] }
+	if operation < 0 || operation > 3 || a < 0 || a > 1000 || b < 0 || b > 1000 || c < 0 || c > 1000 {
 		return -1.0e300
 	}
-	return (f64(moles) * f64(kelvin) * 8.314462) / f64(volume)
+	if operation == 0 || operation == 1 {
+		if c == 0 { return -1.0e300 }
+		return (f64(a) * f64(b) * 8.314462) / f64(c)
+	}
+	if a == 0 { return -1.0e300 }
+	return (f64(c) * f64(b)) / (f64(a) * 8.314462)
 }

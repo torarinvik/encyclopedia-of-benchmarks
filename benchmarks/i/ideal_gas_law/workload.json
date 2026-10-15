@@ -1,80 +1,91 @@
 {
   "schema_version": 1,
-  "id": "ideal-gas-law-pressure-v1",
+  "id": "ideal-gas-law-four-operations-v1",
   "algorithm": "ideal_gas_law",
   "function_symbol": "ideal_gas_law",
   "input": {
     "kind": "signed_64_bit_integer_array",
-    "required_length": 3,
+    "required_length": 4,
     "layout": [
-      "moles",
-      "kelvin",
-      "volume"
+      "operation",
+      "arg1",
+      "arg2",
+      "arg3"
     ],
-    "moles_minimum": 0,
-    "moles_maximum": 1000,
-    "kelvin_minimum": 0,
-    "kelvin_maximum": 1000,
-    "volume_minimum": 1,
-    "volume_maximum": 1000,
+    "operation_selector_mapping": {
+      "0": "pressure_of_gas_system(moles, kelvin, volume)",
+      "1": "volume_of_gas_system(moles, kelvin, pressure)",
+      "2": "temperature_of_gas_system(moles, volume, pressure)",
+      "3": "moles_of_gas_system(kelvin, volume, pressure)"
+    },
+    "argument_minimum": 0,
+    "argument_maximum": 1000,
+    "denominator_rules": {
+      "operations_0_and_1": "arg3 must be nonzero",
+      "operations_2_and_3": "arg1 must be nonzero"
+    },
     "invalid_input_result": -1e+300
   },
   "output": {
     "kind": "binary64",
-    "definition": "moles * kelvin * 8.314462 / volume",
-    "unit": "pascal",
+    "definition": "The selected ideal gas law formula using R = 8.314462",
+    "unit": "the unit implied by the selected source function",
     "invalid_input_result": -1e+300
   },
   "cases": [
     {
-      "id": "source-example",
-      "input_values": [
-        2,
-        100,
-        5
-      ],
-      "input_length": 3,
+      "id": "pressure-source-example",
+      "input_values": [0, 2, 100, 5],
+      "input_length": 4,
       "expected_result": 332.57848
     },
     {
-      "id": "one-mole-at-273-kelvin",
-      "input_values": [
-        1,
-        273,
-        1
-      ],
-      "input_length": 3,
-      "expected_result": 2269.848126
+      "id": "volume-source-example",
+      "input_values": [1, 2, 100, 5],
+      "input_length": 4,
+      "expected_result": 332.57848
     },
     {
-      "id": "zero-moles",
-      "input_values": [
-        0,
-        50,
-        5
-      ],
-      "input_length": 3,
+      "id": "temperature-source-example",
+      "input_values": [2, 2, 100, 5],
+      "input_length": 4,
+      "expected_result": 30.068090996146232
+    },
+    {
+      "id": "moles-source-example",
+      "input_values": [3, 100, 5, 10],
+      "input_length": 4,
+      "expected_result": 0.06013618199229246
+    },
+    {
+      "id": "pressure-zero-moles",
+      "input_values": [0, 0, 100, 5],
+      "input_length": 4,
       "expected_result": 0.0
     },
     {
-      "id": "fractional-pressure-result",
-      "input_values": [
-        3,
-        300,
-        2
-      ],
-      "input_length": 3,
-      "expected_result": 3741.5079
+      "id": "volume-zero-kelvin",
+      "input_values": [1, 2, 0, 5],
+      "input_length": 4,
+      "expected_result": 0.0
     },
     {
-      "id": "maximum-bounds",
-      "input_values": [
-        1000,
-        1000,
-        1
-      ],
-      "input_length": 3,
-      "expected_result": 8314462.0
+      "id": "temperature-zero-pressure",
+      "input_values": [2, 2, 100, 0],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "moles-zero-volume",
+      "input_values": [3, 100, 0, 10],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "pressure-maximum-bounds",
+      "input_values": [0, 1000, 1000, 1],
+      "input_length": 4,
+      "expected_result": 8314462.000000001
     },
     {
       "id": "invalid-empty",
@@ -83,42 +94,57 @@
       "expected_result": -1e+300
     },
     {
-      "id": "invalid-length",
-      "input_values": [
-        2,
-        100
-      ],
-      "input_length": 2,
-      "expected_result": -1e+300
-    },
-    {
-      "id": "invalid-zero-volume",
-      "input_values": [
-        2,
-        100,
-        0
-      ],
+      "id": "invalid-short-length",
+      "input_values": [0, 2, 100],
       "input_length": 3,
       "expected_result": -1e+300
     },
     {
-      "id": "invalid-negative-moles",
-      "input_values": [
-        -1,
-        100,
-        5
-      ],
-      "input_length": 3,
+      "id": "invalid-long-length",
+      "input_values": [0, 2, 100, 5, 7],
+      "input_length": 5,
       "expected_result": -1e+300
     },
     {
-      "id": "invalid-above-bound",
-      "input_values": [
-        2,
-        100,
-        1001
-      ],
-      "input_length": 3,
+      "id": "invalid-operation-selector",
+      "input_values": [4, 2, 100, 5],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-volume-denominator",
+      "input_values": [0, 2, 100, 0],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-pressure-denominator",
+      "input_values": [1, 2, 100, 0],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-moles-denominator",
+      "input_values": [2, 0, 100, 5],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-kelvin-denominator",
+      "input_values": [3, 0, 100, 5],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-negative-input",
+      "input_values": [0, -1, 100, 5],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-above-bound-input",
+      "input_values": [2, 2, 1001, 5],
+      "input_length": 4,
       "expected_result": -1e+300
     }
   ],

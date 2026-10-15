@@ -1,0 +1,31 @@
+{
+  "id": "check-snake-case-javascript-regex-v1",
+  "algorithm": "check_snake_case",
+  "function_symbol": "check_snake_case",
+  "contract": {
+    "input": "A sequence of zero through 4,096 printable ASCII code values in 32..126.",
+    "source_predicate": "/(.*?)_([a-zA-Z])*/ with no anchors; true exactly when an underscore occurs.",
+    "output": "1 if any input code value is underscore (95), otherwise 0.",
+    "invalid_input_result": -2,
+    "empty_sequence_result": 0,
+    "input_mutated": false
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty","input_values":[],"input_length":0,"expected_result":0},
+    {"id":"underscore-only","input_values":[95],"input_length":1,"expected_result":1},
+    {"id":"snake-looking-name","input_values":[104,101,108,108,111,95,119,111,114,108,100],"input_length":11,"expected_result":1},
+    {"id":"leading-underscore","input_values":[95,108,101,97,100,105,110,103],"input_length":8,"expected_result":1},
+    {"id":"multiple-underscores","input_values":[97,95,95,98],"input_length":4,"expected_result":1},
+    {"id":"underscore-with-digits","input_values":[97,95,49,50],"input_length":4,"expected_result":1},
+    {"id":"letters-only","input_values":[104,101,108,108,111],"input_length":5,"expected_result":0},
+    {"id":"hyphen-only","input_values":[104,101,108,108,111,45,119,111,114,108,100],"input_length":11,"expected_result":0},
+    {"id":"invalid-control-value","input_values":[97,95,10],"input_length":3,"expected_result":-2},
+    {"id":"invalid-non-ascii-value","input_values":[97,95,233],"input_length":3,"expected_result":-2}
+  ]
+}

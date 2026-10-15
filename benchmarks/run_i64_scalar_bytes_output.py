@@ -21,6 +21,37 @@ MAX_OUTPUT_BYTES = 256
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "int_to_string_packed":
+        if value < 0:
+            return -1, b""
+        number, base_offset = divmod(value, 15)
+        base = base_offset + 2
+        if number > 65535:
+            return -1, b""
+        digits = b"0123456789abcdef"
+        output = bytearray()
+        while True:
+            output.append(digits[number % base])
+            number //= base
+            if number == 0:
+                break
+        output.reverse()
+        output.append(0)
+        result = bytes(output)
+        return len(result), result
+    if encoding == "factorial_large_number":
+        if not 0 <= value <= 100:
+            return -1, b""
+        result = 1
+        for factor in range(2, value + 1):
+            result *= factor
+        output = str(result).encode("ascii")
+        return len(output), output
+    if encoding == "uint32_fixed_binary":
+        if not 0 <= value <= 2**32 - 1:
+            return -1, b""
+        output = format(value, "032b").encode("ascii")
+        return len(output), output
     if encoding == "count_and_say":
         if not 1 <= value <= 19:
             return -1, b""
@@ -121,6 +152,16 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
             return -1, b""
         digits = str(max(0, value))
         output = ("0b" + "".join(f"{int(digit):04b}" for digit in digits)).encode("ascii")
+        return len(output), output
+    if encoding == "binary_twos_complement":
+        if value > 0:
+            return -1, b""
+        if value == 0:
+            output = b"0b0"
+            return len(output), output
+        bit_length = abs(value).bit_length()
+        suffix = format((1 << bit_length) - abs(value), f"0{bit_length}b")
+        output = ("0b1" + suffix).encode("ascii")
         return len(output), output
     if encoding == "prime_numbers":
         if not 0 <= value <= 80:

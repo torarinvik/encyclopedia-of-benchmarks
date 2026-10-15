@@ -1,0 +1,12 @@
+# Return the parity of the set-bit count using Kernighan's bit clearing.
+def parity_impl(number: i64) -> i64:
+    if number < 0:
+        return -1
+    current: mutable i64 = number
+    result: mutable i64 = 0
+    while current != 0:
+        result <- result ^ 1
+        current <- current & (current - 1)
+    result
+
+export fn parity(number: i64) -> i64 = parity_impl

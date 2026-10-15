@@ -1,0 +1,8 @@
+const MAX_INDEX: i64 = 3037000499
+
+def squares_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > MAX_INDEX:
+        return -1
+    index * index
+
+export fn squares_sequence(index: i64) -> i64 = squares_sequence_impl

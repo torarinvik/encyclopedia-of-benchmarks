@@ -1,0 +1,27 @@
+# Compare Kernighan, modulo-shift, and byte-lookup set-bit counters.
+def count_number_of_one_bits_impl(number: i64, method: i64) -> i64:
+    if number < 0 or number > 4294967295 or method < 0 or method > 2:
+        return -1
+    remaining: mutable i64 = number
+    count: mutable i64 = 0
+    if method == 0:
+        while remaining != 0:
+            remaining <- remaining & (remaining - 1)
+            count <- count + 1
+        return count
+    if method == 1:
+        while remaining != 0:
+            if remaining % 2 == 1:
+                count <- count + 1
+            remaining <- remaining >> 1
+        return count
+    lookup: mutable i64[256]
+    lookup[0] <- 0
+    index: mutable usize = 1
+    while index < 256:
+        lookup[index] <- lookup[index >> 1] + (index & 1).i64()
+        index <- index + 1
+    lookup[(remaining & 255).usize()] + lookup[((remaining >> 8) & 255).usize()] +
+        lookup[((remaining >> 16) & 255).usize()] + lookup[((remaining >> 24) & 255).usize()]
+
+export fn count_number_of_one_bits(number: i64, method: i64) -> i64 = count_number_of_one_bits_impl

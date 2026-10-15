@@ -1,0 +1,40 @@
+# Memoized top-down subset existence for signed values.
+const MAX_ITEMS: usize = 16
+const WIDTH: usize = 801
+const STATES: usize = 17 * WIDTH
+
+def subset_sum_dynamic_search(input: i64&, item_count: usize, index: usize,
+                              remaining: i64, memo: mutable i64&) -> i64:
+    if remaining == 0:
+        return 1
+    if index == item_count:
+        return 0
+    state: usize = index * WIDTH + (remaining + 400).usize()
+    if memo[state] != -2:
+        return memo[state]
+    result: mutable i64 = subset_sum_dynamic_search(input, item_count, index + 1,
+        remaining - input[index + 1], memo)
+    if result == 0:
+        result <- subset_sum_dynamic_search(input, item_count, index + 1, remaining, memo)
+    memo[state] <- result
+    return result
+
+def subset_sum_dynamic_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_ITEMS + 1:
+        return -1
+    target: i64 = input[0]
+    if target < -80 or target > 80:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < -20 or input[index] > 20:
+            return -1
+        index <- index + 1
+    memo: mutable i64[STATES] = zeroed
+    index: mutable usize = 0
+    while index < STATES:
+        memo[index] <- -2
+        index <- index + 1
+    subset_sum_dynamic_search(input, length - 1, 0, target, memo)
+
+export fn subset_sum_dynamic(input: i64&, length: usize) -> i64 = subset_sum_dynamic_impl

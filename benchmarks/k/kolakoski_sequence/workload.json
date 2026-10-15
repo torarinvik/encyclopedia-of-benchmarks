@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "kolakoski-sequence-i64-index-v1",
+  "algorithm": "kolakoski_sequence",
+  "function_symbol": "kolakoski_sequence",
+  "input": {
+    "kind": "signed_64_bit_sequence_index",
+    "supported_range": [0, 63],
+    "indexing": "zero_based",
+    "sequence_definition": "the sequence begins 1,2,2; each symbol alternates by run, and the run lengths are the sequence terms",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"first_term","input_values":[0],"expected_result":1},
+    {"id":"second_term","input_values":[1],"expected_result":2},
+    {"id":"third_term","input_values":[2],"expected_result":2},
+    {"id":"first_generated_run","input_values":[3],"expected_result":1},
+    {"id":"first_generated_run_end","input_values":[4],"expected_result":1},
+    {"id":"second_generated_run","input_values":[5],"expected_result":2},
+    {"id":"index_15","input_values":[15],"expected_result":1},
+    {"id":"index_31","input_values":[31],"expected_result":1},
+    {"id":"index_32","input_values":[32],"expected_result":2},
+    {"id":"index_62","input_values":[62],"expected_result":2},
+    {"id":"maximum_valid","input_values":[63],"expected_result":1},
+    {"id":"negative_index","input_values":[-1],"expected_result":-1},
+    {"id":"first_unsupported_index","input_values":[64],"expected_result":-1},
+    {"id":"signed_64_minimum","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed_64_maximum","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

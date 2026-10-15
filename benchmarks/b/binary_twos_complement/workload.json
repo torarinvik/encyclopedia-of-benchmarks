@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "binary-twos-complement-i64-bytes-v1",
+  "algorithm": "binary_twos_complement",
+  "function_symbol": "twos_complement",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 0,
+    "encoding": "binary_twos_complement",
+    "invalid_result": -1,
+    "capacity_error_result": -2,
+    "output_format": "ASCII 0b prefix plus source bit digits"
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "maximum_length": 67,
+    "length_result": "number of bytes written"
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"zero", "input_value":0, "expected_result":3, "expected_output":"0b0"},
+    {"id":"source-minus-one", "input_value":-1, "expected_result":4, "expected_output":"0b11"},
+    {"id":"source-minus-five", "input_value":-5, "expected_result":6, "expected_output":"0b1011"},
+    {"id":"source-minus-seventeen", "input_value":-17, "expected_result":8, "expected_output":"0b101111"},
+    {"id":"source-minus-207", "input_value":-207, "expected_result":11, "expected_output":"0b100110001"},
+    {"id":"negative-power-of-two-eight", "input_value":-8, "expected_result":7, "expected_output":"0b11000"},
+    {"id":"negative-power-of-two-sixteen", "input_value":-16, "expected_result":8, "expected_output":"0b110000"},
+    {"id":"negative-128", "input_value":-128, "expected_result":11, "expected_output":"0b110000000"},
+    {"id":"negative-1024", "input_value":-1024, "expected_result":14, "expected_output":"0b110000000000"},
+    {"id":"minimum-i32", "input_value":-2147483648, "expected_result":35, "expected_output":"0b110000000000000000000000000000000"},
+    {"id":"minimum-i64", "input_value":-9223372036854775808, "expected_result":67, "expected_output":"0b11000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"positive-one-rejected", "input_value":1, "expected_result":-1, "expected_output":""},
+    {"id":"maximum-i64-rejected", "input_value":9223372036854775807, "expected_result":-1, "expected_output":""}
+  ]
+}

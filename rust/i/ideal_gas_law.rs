@@ -1,12 +1,18 @@
-/// Pressure from the ideal gas law: n * T * R / V.
+/// Solve one ideal-gas-law variable using a portable operation selector.
 #[no_mangle]
 pub extern "C" fn ideal_gas_law(values: *const i64, length: usize) -> f64 {
-    if values.is_null() || length != 3 { return -1.0e300; }
-    let moles = unsafe { *values };
-    let kelvin = unsafe { *values.add(1) };
-    let volume = unsafe { *values.add(2) };
-    if !(0..=1000).contains(&moles) || !(0..=1000).contains(&kelvin) || !(1..=1000).contains(&volume) {
+    if values.is_null() || length != 4 { return -1.0e300; }
+    let operation = unsafe { *values };
+    let a = unsafe { *values.add(1) };
+    let b = unsafe { *values.add(2) };
+    let c = unsafe { *values.add(3) };
+    if !(0..=3).contains(&operation) || !(0..=1000).contains(&a) || !(0..=1000).contains(&b) || !(0..=1000).contains(&c) {
         return -1.0e300;
     }
-    ((moles as f64) * (kelvin as f64) * 8.314462) / (volume as f64)
+    if operation == 0 || operation == 1 {
+        if c == 0 { return -1.0e300; }
+        return ((a as f64) * (b as f64) * 8.314462) / (c as f64);
+    }
+    if a == 0 { return -1.0e300; }
+    ((c as f64) * (b as f64)) / ((a as f64) * 8.314462)
 }

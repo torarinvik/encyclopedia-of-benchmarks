@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "binomial-sequence-i64-v1",
+  "algorithm": "binomial_sequence",
+  "function_symbol": "binomial_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 230],
+    "indexing": "zero_based_flattened_pascal_rows",
+    "sequence_definition": "row n contains C(n,0), C(n,1), ..., C(n,n); rows start at n=0",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"signed64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"row_zero","input_value":0,"expected_result":1},
+    {"id":"row_one_left","input_value":1,"expected_result":1},
+    {"id":"row_one_right","input_value":2,"expected_result":1},
+    {"id":"row_two_middle","input_value":4,"expected_result":2},
+    {"id":"row_three_middle_left","input_value":7,"expected_result":3},
+    {"id":"row_five_center","input_value":17,"expected_result":10},
+    {"id":"row_ten_center","input_value":60,"expected_result":252},
+    {"id":"row_twenty_center","input_value":220,"expected_result":184756},
+    {"id":"last_coefficient_row_twenty","input_value":230,"expected_result":1},
+    {"id":"first_unsupported_index","input_value":231,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

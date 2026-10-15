@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "factorial-large-number-c-i64-scalar-bytes-v1",
+  "algorithm": "factorial_large_number",
+  "function_symbol": "factorial_large_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "factorial_large_number",
+    "range": [
+      0,
+      100
+    ],
+    "definition": "Compute n! using a base-10 digit array."
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "decimal digits in most-significant-first order, without a NUL terminator",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero_factorial",
+      "input_value": 0,
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "one_factorial",
+      "input_value": 1,
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "five_factorial",
+      "input_value": 5,
+      "expected_result": 3,
+      "expected_output_hex": "313230"
+    },
+    {
+      "id": "ten_factorial",
+      "input_value": 10,
+      "expected_result": 7,
+      "expected_output_hex": "33363238383030"
+    },
+    {
+      "id": "twenty_factorial",
+      "input_value": 20,
+      "expected_result": 19,
+      "expected_output_hex": "32343332393032303038313736363430303030"
+    },
+    {
+      "id": "fifty_factorial",
+      "input_value": 50,
+      "expected_result": 65,
+      "expected_output_hex": "3330343134303933323031373133333738303433363132363038313636303634373638383434333737363431353638393630353132303030303030303030303030"
+    },
+    {
+      "id": "maximum_factorial",
+      "input_value": 100,
+      "expected_result": 158,
+      "expected_output_hex": "3933333236323135343433393434313532363831363939323338383536323636373030343930373135393638323634333831363231343638353932393633383935323137353939393933323239393135363038393431343633393736313536353138323836323533363937393230383237323233373538323531313835323130393136383634303030303030303030303030303030303030303030303030"
+    },
+    {
+      "id": "negative_input",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_bound",
+      "input_value": 101,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

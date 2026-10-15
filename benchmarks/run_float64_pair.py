@@ -15,31 +15,84 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"conditional_probability"}
+SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "leaky_relu"}
 
 
-def encode_case(case: dict, tolerance: float) -> tuple[float, float, float]:
+def source_agm(a: float, g: float) -> float:
+    """Match the pinned JavaScript AGM update and stopping condition."""
+    if a == g:
+        return a
+    while True:
+        old_a = a
+        a = (a + g) / 2.0
+        g = math.sqrt(old_a * g)
+        if a == old_a or math.isnan(a):
+            return a
+
+
+def encode_case(case: dict, tolerance: float,
+                algorithm: str = "conditional_probability") -> tuple[float, float, float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) != 2
             or any(type(value) not in (int, float) or not math.isfinite(float(value)) for value in values)
             or type(expected) not in (int, float) or not math.isfinite(float(expected))):
         raise ValueError("float64 pair cases require two finite values and one finite expected result")
-    intersection, probability_b = map(float, values)
-    valid = (0.0 <= intersection <= probability_b and 0.0 < probability_b <= 1.0)
-    if valid and not 0.0 <= expected <= 1.0:
-        raise ValueError("valid conditional probability inputs must produce a result in [0, 1]")
-    if not valid and expected != -1.0:
-        raise ValueError("invalid conditional probability inputs must use the -1 result sentinel")
-    if valid and expected == -1.0:
-        raise ValueError("valid conditional probability inputs cannot use the invalid-input sentinel")
     if not math.isfinite(tolerance) or tolerance <= 0.0:
         raise ValueError("relative tolerance must be positive and finite")
-    return intersection, probability_b, float(expected)
+    first, second = map(float, values)
+    if algorithm == "conditional_probability":
+        valid = (0.0 <= first <= second and 0.0 < second <= 1.0)
+        if valid and not 0.0 <= expected <= 1.0:
+            raise ValueError("valid conditional probability inputs must produce a result in [0, 1]")
+        if not valid and expected != -1.0:
+            raise ValueError("invalid conditional probability inputs must use the -1 result sentinel")
+        if valid and expected == -1.0:
+            raise ValueError("valid conditional probability inputs cannot use the invalid-input sentinel")
+    elif algorithm == "arithmetic_geometric_mean":
+        valid = (0.0 <= first <= 1_000_000.0 and 0.0 <= second <= 1_000_000.0)
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid arithmetic_geometric_mean inputs must use the -1 result sentinel")
+        else:
+            if expected == -1.0 or not 0.0 <= expected <= max(first, second):
+                raise ValueError("valid arithmetic_geometric_mean inputs must produce a nonnegative result")
+            expected_agm = source_agm(first, second)
+            if abs(expected - expected_agm) > tolerance * max(1.0, abs(first), abs(second)):
+                raise ValueError("arithmetic_geometric_mean expected result must match the pinned iteration")
+    elif algorithm == "speed_conversions":
+        valid = (0.0 <= first <= 1_000_000.0 and 0.0 <= second <= 15.0
+                 and second.is_integer())
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid speed conversion inputs must use the -1 result sentinel")
+        else:
+            unit_from, unit_to = divmod(int(second), 4)
+            factors = (1.0, 3.6, 1.609344, 1.852)
+            inverse_factors = (1.0, 0.277777778, 0.621371192, 0.539956803)
+            expected_conversion = round(first * factors[unit_from] * inverse_factors[unit_to], 3)
+            if abs(expected - expected_conversion) > tolerance * max(1.0, abs(first)):
+                raise ValueError("speed_conversions expected result must match the pinned conversion")
+            if expected == -1.0:
+                raise ValueError("valid speed conversion inputs cannot use the invalid-input sentinel")
+    elif algorithm == "leaky_relu":
+        valid = (-1_000_000.0 <= first <= 1_000_000.0
+                 and -1_000_000.0 <= second <= 1_000_000.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid leaky_relu inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = first * second if first < 0.0 else first
+            scale = max(1.0, abs(first), abs(second))
+            if abs(expected - expected_value) > tolerance * scale:
+                raise ValueError("leaky_relu expected result must match x < 0 ? x * alpha : x")
+    else:
+        raise ValueError(f"unsupported float64_pair algorithm: {algorithm}")
+    return first, second, float(expected)
 
 
 def matches(observed: float, expected: float, tolerance: float,
-            intersection: float, probability_b: float) -> bool:
-    scale = max(1.0, abs(intersection), abs(probability_b))
+            first: float, second: float) -> bool:
+    scale = max(1.0, abs(first), abs(second))
     return math.isfinite(observed) and abs(observed - expected) <= tolerance * scale
 
 
@@ -92,22 +145,22 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        intersection, probability_b, expected = encode_case(case, tolerance)
+        first, second, expected = encode_case(case, tolerance, algorithm)
         command = [str(executable), *(format(value, ".17g") for value in
-                   (intersection, probability_b, expected, tolerance)),
+                   (first, second, expected, tolerance)),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:
             raise SystemExit(f"float64 pair runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)
         observed = float(raw["observed_result"])
-        if not matches(observed, expected, tolerance, intersection, probability_b) \
+        if not matches(observed, expected, tolerance, first, second) \
                 or len(raw["samples_ns"]) != samples:
             raise ValueError(f"float64 pair runner returned an invalid result for {case['id']}")
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
-                                     "input_length": None, "input_values": [intersection, probability_b],
+                                     "input_length": None, "input_values": [first, second],
                                      "case": case["id"], "target": None, "expected_result": expected},
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],

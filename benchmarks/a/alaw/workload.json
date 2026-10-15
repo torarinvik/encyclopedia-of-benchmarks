@@ -21,5 +21,5 @@
     {"id": "above_pcm_range", "input_value": 32768, "expected_result": -1},
     {"id": "below_pcm_range", "input_value": -32769, "expected_result": -1}
   ],
-  "measurement": {"comparison_model": "signed_i64_scalar_call"}
+  "measurement": {"comparison_model": "scalar_call"}
 }

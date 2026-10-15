@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "krishnamurthy-number-checker-i64-scalar-v1",
+  "algorithm": "krishnamurthy_number_checker",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [-2147483648, 2147483647],
+    "out_of_range_result": -1,
+    "result_encoding": {"krishnamurthy": 1, "not_krishnamurthy": 0}
+  },
+  "cases": [
+    {"id":"zero_source_guard","input_value":0,"expected_result":0},
+    {"id":"negative","input_value":-145,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"source_example_145","input_value":145,"expected_result":1},
+    {"id":"known_40585","input_value":40585,"expected_result":1},
+    {"id":"non_match","input_value":123,"expected_result":0},
+    {"id":"single_digit_non_match","input_value":3,"expected_result":0},
+    {"id":"int32_minimum","input_value":-2147483648,"expected_result":0},
+    {"id":"int32_maximum","input_value":2147483647,"expected_result":0},
+    {"id":"first_outside_positive","input_value":2147483648,"expected_result":-1},
+    {"id":"first_outside_negative","input_value":-2147483649,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}

@@ -1,0 +1,26 @@
+const MAX_INDEX: i64 = 999
+
+def prime_pi_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > MAX_INDEX:
+        return -1
+    target: i64 = index + 1
+    primes: mutable i64[168] = zeroed
+    prime_count: mutable usize = 0
+    if target >= 2:
+        primes[prime_count] <- 2
+        prime_count <- prime_count + 1
+    candidate: mutable i64 = 3
+    while candidate <= target:
+        is_prime: mutable bool = true
+        prime_index: mutable usize = 0
+        while prime_index < prime_count and is_prime:
+            if candidate % primes[prime_index] == 0:
+                is_prime <- false
+            prime_index <- prime_index + 1
+        if is_prime:
+            primes[prime_count] <- candidate
+            prime_count <- prime_count + 1
+        candidate <- candidate + 2
+    prime_count.i64()
+
+export fn prime_pi_sequence(index: i64) -> i64 = prime_pi_sequence_impl

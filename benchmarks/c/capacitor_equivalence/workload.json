@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "capacitor-equivalence-v1",
+  "algorithm": "capacitor_equivalence",
+  "function_symbol": "capacitor_equivalence",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 2,
+    "maximum_length": 33,
+    "layout": ["operation", "capacitor_values"],
+    "operation_mapping": {"0": "parallel", "1": "series"},
+    "capacitor_minimum": 0,
+    "capacitor_maximum": 1000,
+    "series_capacitor_minimum": 1,
+    "maximum_capacitor_count": 32,
+    "normalized_input_subset": "The Python source accepts floating-point values; this workload uses bounded integer-valued capacitances.",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "operation 0: sequential capacitance sum; operation 1: reciprocal of sequential reciprocal sum",
+    "unit": "same capacitance unit as inputs",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"parallel-three-capacitors","input_values":[0,5,12,3],"input_length":4,"expected_result":20.0},
+    {"id":"parallel-equal-pair","input_values":[0,10,10],"input_length":3,"expected_result":20.0},
+    {"id":"parallel-single","input_values":[0,7],"input_length":2,"expected_result":7.0},
+    {"id":"parallel-zero-value","input_values":[0,0,7],"input_length":3,"expected_result":7.0},
+    {"id":"series-three-capacitors","input_values":[1,5,12,3],"input_length":4,"expected_result":1.6216216216216215},
+    {"id":"series-equal-pair","input_values":[1,10,10],"input_length":3,"expected_result":5.0},
+    {"id":"series-single","input_values":[1,7],"input_length":2,"expected_result":7.0},
+    {"id":"parallel-maximum-count-and-value","input_values":[0,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000],"input_length":33,"expected_result":32000.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-missing-capacitors","input_values":[0],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-operation","input_values":[2,5],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-series-zero","input_values":[1,5,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-negative","input_values":[0,5,-1],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[0,1001],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

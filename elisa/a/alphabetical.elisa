@@ -1,0 +1,34 @@
+# Check whether an ASCII letter string is case-insensitively sorted.
+def alphabetical_is_letter(value: i64) -> bool:
+    return (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def alphabetical_lowercase(value: i64) -> i64:
+    if value >= 65 and value <= 90:
+        return value + 32
+    return value
+
+def alphabetical_impl(values: i64&, length: usize) -> i64:
+    if length > 256:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+    if length == 0:
+        return 0
+    previous: mutable i64 = -1
+    index <- 0
+    while index < length:
+        value: i64 = values[index]
+        if not alphabetical_is_letter(value):
+            return 0
+        current: i64 = alphabetical_lowercase(value)
+        if current < previous:
+            return 0
+        previous <- current
+        index <- index + 1
+    return 1
+
+export fn alphabetical(values: i64&, length: usize) -> i64 = alphabetical_impl

@@ -1,0 +1,6 @@
+def zero_sequence_impl(index: i64) -> i64:
+    if index < 0:
+        return -1
+    0
+
+export fn zero_sequence(index: i64) -> i64 = zero_sequence_impl

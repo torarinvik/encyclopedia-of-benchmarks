@@ -1,0 +1,6 @@
+def negative_integers_sequence_impl(index: i64) -> i64:
+    if index < 0:
+        return 0
+    -index - 1
+
+export fn negative_integers_sequence(index: i64) -> i64 = negative_integers_sequence_impl

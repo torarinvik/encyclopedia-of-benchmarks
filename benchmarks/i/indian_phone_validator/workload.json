@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "indian-phone-validator-ascii-v1",
+  "algorithm": "indian_phone_validator",
+  "function_symbol": "indian_phone_validator",
+  "input": {
+    "kind": "ascii_byte_array",
+    "encoding": "one signed 64-bit ASCII byte value per character",
+    "minimum_length": 1,
+    "maximum_length": 18,
+    "accepted_pattern": "^(\\+91[\\-\\s]?)?[0]?(91)?[789]\\d{9}$",
+    "ascii_whitespace_separator_values": [9, 10, 11, 12, 13, 32],
+    "final_line_feed_rule": "Python $ anchor can match immediately before one final LF",
+    "matching_result": 1,
+    "nonmatching_result": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"country_plus", "input_values":[43,57,49,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"country_plus_hyphen", "input_values":[43,57,49,45,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"country_plus_space", "input_values":[43,57,49,32,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"leading_zero", "input_values":[48,55,54,53,52,51,50,49,48,57,56], "expected_result":1},
+    {"id":"bare_country_digits", "input_values":[57,49,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"final_line_feed", "input_values":[57,56,55,54,53,52,51,50,49,48,10], "expected_result":1},
+    {"id":"tab_separator", "input_values":[43,57,49,9,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"form_feed_separator", "input_values":[43,57,49,12,57,56,55,54,53,52,51,50,49,48], "expected_result":1},
+    {"id":"maximum_length_line_feed", "input_values":[43,57,49,45,48,57,49,57,56,55,54,53,52,51,50,49,48,10], "expected_result":1},
+    {"id":"wrong_first_mobile_digit", "input_values":[57,49,54,56,55,54,53,52,51,50,49], "expected_result":0},
+    {"id":"wrong_length", "input_values":[57,49,56,55,54,53,52,51,50,49], "expected_result":0},
+    {"id":"double_separator", "input_values":[43,57,49,45,32,56,55,54,53,52,51,50,49,48,57,56,55], "expected_result":0},
+    {"id":"two_trailing_line_feeds", "input_values":[57,56,55,54,53,52,51,50,49,48,10,10], "expected_result":0},
+    {"id":"empty", "input_values":[], "expected_result":-1},
+    {"id":"non_ascii", "input_values":[57,49,56,55,54,1633,52,51,50,49,48], "expected_result":-1},
+    {"id":"oversized", "input_values":[48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48], "expected_result":-1}
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "photoelectric-effect-v1",
+  "algorithm": "photoelectric_effect",
+  "function_symbol": "photoelectric_effect",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 2,
+    "argument_order": ["frequency_hz", "work_function_ev"],
+    "frequency_range_hz": [0, 1000000000000000000],
+    "work_function_range_ev": [0, 1000],
+    "in_ev_fixed": true,
+    "joule_branch_included": false,
+    "normalized_input_subset": "The Python source accepts floating-point values and negative work functions; the benchmark uses bounded nonnegative integers.",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "electronvolt",
+    "definition": "h_ev = 4.1357 * pow(10, -15); max((h_ev * frequency_hz) - work_function_ev, 0)",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"pinned-example","input_values":[10000000000000000,2],"input_length":2,"expected_result":39.357000000000006},
+    {"id":"positive-energy","input_values":[1000000000000000,2],"input_length":2,"expected_result":2.1357},
+    {"id":"energy-at-threshold","input_values":[1000000000000000,4],"input_length":2,"expected_result":0.1357},
+    {"id":"clamped-zero","input_values":[1000000000000000,5],"input_length":2,"expected_result":0.0},
+    {"id":"zero-frequency","input_values":[0,4],"input_length":2,"expected_result":0.0},
+    {"id":"zero-work-function","input_values":[1000000000000000000,0],"input_length":2,"expected_result":4135.7},
+    {"id":"upper-work-function","input_values":[1000000000000000000,1000],"input_length":2,"expected_result":3135.7},
+    {"id":"invalid-negative-frequency","input_values":[-1,2],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-frequency-over-bound","input_values":[1000000000000000001,2],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-work-function-over-bound","input_values":[1000000000000000,1001],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-wrong-length","input_values":[1000000000000000],"input_length":1,"expected_result":-1e300}
+  ]
+}

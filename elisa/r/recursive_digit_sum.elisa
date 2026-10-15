@@ -1,0 +1,20 @@
+# Compute the source's repeated-digit-sum result from n and k.
+def recursive_digit_sum_impl(number: i64, repetitions: i64) -> i64:
+    if number < 0 or repetitions < 0 or repetitions > 1000000:
+        return -1
+    digit_sum: mutable i64 = 0
+    remaining: mutable i64 = number
+    while remaining != 0:
+        digit_sum <- digit_sum + remaining % 10
+        remaining <- remaining / 10
+    total: mutable i64 = digit_sum * repetitions
+    while total >= 10:
+        next_sum: mutable i64 = 0
+        remaining <- total
+        while remaining != 0:
+            next_sum <- next_sum + remaining % 10
+            remaining <- remaining / 10
+        total <- next_sum
+    total
+
+export fn recursive_digit_sum(number: i64, repetitions: i64) -> i64 = recursive_digit_sum_impl

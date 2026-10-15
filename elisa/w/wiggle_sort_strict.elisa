@@ -1,0 +1,95 @@
+# QuickSelect median followed by alternating low/high placement.
+const MAX_ARRAY_LENGTH: usize = 4096
+
+def select_kth(values: mutable i64&, count: usize, target: usize) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = count.i64() - 1
+    while low < high:
+        left: mutable i64 = low
+        right: mutable i64 = high
+        pivot: i64 = values[((left + right + 1) / 2).usize()]
+        while left <= right:
+            while left <= right and values[left.usize()] < pivot:
+                left <- left + 1
+            while left <= right and values[right.usize()] > pivot:
+                right <- right - 1
+            if left <= right:
+                temporary: i64 = values[left.usize()]
+                values[left.usize()] <- values[right.usize()]
+                values[right.usize()] <- temporary
+                left <- left + 1
+                right <- right - 1
+        if target.i64() <= right:
+            high <- right
+        elif target.i64() >= left:
+            low <- left
+        else:
+            break
+    values[target]
+
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def wiggle_sort_strict_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ARRAY_LENGTH:
+        return -1
+    values: mutable i64[MAX_ARRAY_LENGTH] = zeroed
+
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647:
+            return -1
+        values[index] <- input[index]
+        index <- index + 1
+    byte_count: usize = length * 4
+    if output_capacity < byte_count:
+        return -2
+    if length == 0:
+        return 0
+
+    median: i64 = select_kth(&values[0], length, length / 2)
+    median_count: mutable usize = 0
+    smallest_value: mutable i64 = values[0]
+    index <- 0
+    while index < length:
+        if values[index] == median:
+            median_count <- median_count + 1
+        if values[index] < smallest_value:
+            smallest_value <- values[index]
+        index <- index + 1
+    maximum_medians: usize = (length + 1) / 2
+    if median_count > maximum_medians or (length % 2 == 1 and median_count == maximum_medians and smallest_value != median):
+        return -1
+
+    i: mutable i64 = 0
+    j: mutable i64 = 0
+    k: mutable i64 = length.i64() - 1
+    modulus: i64 = length.i64() + 1 - (length.i64() % 2)
+    while j <= k:
+        mapped_j: usize = ((2 * j + 1) % modulus).usize()
+        if values[mapped_j] > median:
+            mapped_i: usize = ((2 * i + 1) % modulus).usize()
+            temporary: i64 = values[mapped_j]
+            values[mapped_j] <- values[mapped_i]
+            values[mapped_i] <- temporary
+            i <- i + 1
+            j <- j + 1
+        elif values[mapped_j] < median:
+            mapped_k: usize = ((2 * k + 1) % modulus).usize()
+            temporary: i64 = values[mapped_j]
+            values[mapped_j] <- values[mapped_k]
+            values[mapped_k] <- temporary
+            k <- k - 1
+        else:
+            j <- j + 1
+    index <- 0
+    while index < length:
+        store_i32_le(values[index], output, index * 4)
+        index <- index + 1
+    length.i64()
+
+export fn wiggle_sort_strict(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = wiggle_sort_strict_impl

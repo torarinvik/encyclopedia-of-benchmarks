@@ -1,0 +1,37 @@
+# One-pass alternating local swaps: <= >= <= wave.
+const MAX_ARRAY_LENGTH: usize = 4096
+
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ARRAY_LENGTH:
+        return -1
+    values: mutable i64[MAX_ARRAY_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647:
+            return -1
+        values[index] <- input[index]
+        index <- index + 1
+    byte_count: usize = length * 4
+    if output_capacity < byte_count:
+        return -2
+    index <- 1
+    while index < length:
+        if (index % 2 == 1 and values[index - 1] > values[index]) or (index % 2 == 0 and values[index - 1] < values[index]):
+            temporary: i64 = values[index]
+            values[index] <- values[index - 1]
+            values[index - 1] <- temporary
+        index <- index + 1
+    index <- 0
+    while index < length:
+        store_i32_le(values[index], output, index * 4)
+        index <- index + 1
+    length.i64()
+
+export fn wiggle_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = wiggle_sort_impl

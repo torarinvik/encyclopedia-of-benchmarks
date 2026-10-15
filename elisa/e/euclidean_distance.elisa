@@ -1,0 +1,25 @@
+extern sqrt(value: f64) -> f64
+const MAX_DIMENSION: i64 = 128
+
+def euclidean_distance_impl(values: i64&, length: usize) -> f64:
+    if length < 1:
+        return -1.0e300
+    dimension_value: i64 = values[0]
+    if dimension_value < 0 or dimension_value > MAX_DIMENSION:
+        return -1.0e300
+    dimension: usize = dimension_value.usize()
+    if length != 1 + 2 * dimension:
+        return -1.0e300
+    sum_of_squares: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < dimension:
+        first: i64 = values[1 + index]
+        second: i64 = values[1 + dimension + index]
+        if first < -1000000 or first > 1000000 or second < -1000000 or second > 1000000:
+            return -1.0e300
+        difference: f64 = first.f64() - second.f64()
+        sum_of_squares <- sum_of_squares + difference * difference
+        index <- index + 1
+    sqrt(sum_of_squares)
+
+export fn euclidean_distance(values: i64&, length: usize) -> f64 = euclidean_distance_impl

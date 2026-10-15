@@ -1,0 +1,12 @@
+# Naive recursive Fibonacci on a deliberately small domain.
+def fibonacci_value(n: i64) -> i64:
+    if n < 2:
+        return n
+    fibonacci_value(n - 1) + fibonacci_value(n - 2)
+
+def fibonacci_recursive_impl(n: i64) -> i64:
+    if n < 0 or n > 30:
+        return -1
+    fibonacci_value(n)
+
+export fn fibonacci_recursive(n: i64) -> i64 = fibonacci_recursive_impl

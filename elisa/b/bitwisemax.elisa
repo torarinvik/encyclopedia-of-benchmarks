@@ -1,0 +1,15 @@
+# Select the larger signed-32-bit nonnegative value with a sign bit.
+const MAX_VALUE: i64 = 2147483647
+
+def bitwisemax_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    left: i64 = values[0]
+    right: i64 = values[1]
+    if left < 0 or left > MAX_VALUE or right < 0 or right > MAX_VALUE:
+        return -1
+    difference: i64 = left - right
+    choose_right: i64 = (difference.u32() >> 31).i64()
+    left - choose_right * difference
+
+export fn bitwisemax(values: i64&, length: usize) -> i64 = bitwisemax_impl

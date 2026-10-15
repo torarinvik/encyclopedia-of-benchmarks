@@ -1,0 +1,13 @@
+# Overflow-safe floor arithmetic mean using the bitwise identity.
+const MAX_VALUE: i64 = 9000000000000000000
+
+def arithmeticmean_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    left: i64 = values[0]
+    right: i64 = values[1]
+    if left < 0 or left > MAX_VALUE or right < 0 or right > MAX_VALUE:
+        return -1
+    ((left ^ right) >> 1) + (left & right)
+
+export fn arithmeticmean(values: i64&, length: usize) -> i64 = arithmeticmean_impl

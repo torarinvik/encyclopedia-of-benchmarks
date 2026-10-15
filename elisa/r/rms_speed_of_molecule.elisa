@@ -1,0 +1,14 @@
+# RMS molecular speed: (3 * R * temperature / molar_mass) ** 0.5.
+extern pow(base: f64, exponent: f64) -> f64
+
+def rms_speed_of_molecule_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    temperature: i64 = values[0]
+    molar_mass: i64 = values[1]
+    if temperature < 0 or temperature > 1000 or molar_mass < 1 or molar_mass > 1000:
+        return -1.0e300
+    numerator: f64 = (3.0 * 8.3144598) * temperature.f64()
+    pow(numerator / molar_mass.f64(), 0.5)
+
+export fn rms_speed_of_molecule(values: i64&, length: usize) -> f64 = rms_speed_of_molecule_impl

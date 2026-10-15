@@ -1,0 +1,25 @@
+# Equivalent capacitance for series and parallel connections.
+def capacitor_equivalence_impl(values: i64&, length: usize) -> f64:
+    if length < 2 or length > 33:
+        return -1.0e300
+    operation: i64 = values[0]
+    if operation != 0 and operation != 1:
+        return -1.0e300
+    accumulated: f64 = 0.0
+    for index in 1..<length:
+        capacitor: i64 = values[index]
+        if capacitor < 0 and operation == 0:
+            return -1.0e300
+        if capacitor < 1 and operation == 1:
+            return -1.0e300
+        if capacitor > 1000:
+            return -1.0e300
+        if operation == 0:
+            accumulated = accumulated + capacitor.f64()
+        else:
+            accumulated = accumulated + (1.0 / capacitor.f64())
+    if operation == 0:
+        return accumulated
+    1.0 / accumulated
+
+export fn capacitor_equivalence(values: i64&, length: usize) -> f64 = capacitor_equivalence_impl

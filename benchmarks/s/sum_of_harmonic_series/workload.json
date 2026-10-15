@@ -1,0 +1,105 @@
+{
+  "algorithm": "sum_of_harmonic_series",
+  "function_symbol": "sum_of_harmonic_series",
+  "abi_family": "float64_triple",
+  "contract": {
+    "input_kind": "three_binary64_inputs",
+    "first_term_range": "(0, 1000]",
+    "common_difference_range": "[0, 1000]",
+    "number_of_terms_range": "[1, 256]",
+    "number_of_terms_must_be_integer": true,
+    "invalid_input_sentinel": -1e+300,
+    "output_kind": "binary64",
+    "output_definition": "Sum reciprocal terms whose denominators are an arithmetic progression beginning at 1 / first_term with common_difference."
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "samples": 5,
+    "warmups": 2,
+    "repetitions": 1000
+  },
+  "cases": [
+    {
+      "input_values": [
+        0.5,
+        2.0,
+        2.0
+      ],
+      "expected_result": 0.75,
+      "label": "pinned Python and Rust example"
+    },
+    {
+      "input_values": [
+        0.2,
+        5.0,
+        5.0
+      ],
+      "expected_result": 0.45666666666666667,
+      "label": "pinned Python and Rust example"
+    },
+    {
+      "input_values": [
+        1.25,
+        3.0,
+        1.0
+      ],
+      "expected_result": 1.25,
+      "label": "single term"
+    },
+    {
+      "input_values": [
+        0.5,
+        0.0,
+        4.0
+      ],
+      "expected_result": 2.0,
+      "label": "zero common difference"
+    },
+    {
+      "input_values": [
+        0.5,
+        0.25,
+        4.0
+      ],
+      "expected_result": 1.7080808080808083,
+      "label": "fractional progression"
+    },
+    {
+      "input_values": [
+        0.0,
+        1.0,
+        2.0
+      ],
+      "expected_result": -1e+300,
+      "label": "invalid zero first term"
+    },
+    {
+      "input_values": [
+        0.5,
+        -0.25,
+        4.0
+      ],
+      "expected_result": -1e+300,
+      "label": "invalid negative difference"
+    },
+    {
+      "input_values": [
+        0.5,
+        2.0,
+        2.5
+      ],
+      "expected_result": -1e+300,
+      "label": "invalid fractional term count"
+    },
+    {
+      "input_values": [
+        0.5,
+        2.0,
+        257.0
+      ],
+      "expected_result": -1e+300,
+      "label": "invalid term count above bound"
+    }
+  ]
+}

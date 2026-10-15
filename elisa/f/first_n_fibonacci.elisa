@@ -1,0 +1,79 @@
+# Emit the first n Fibonacci terms as decimal NUL-terminated values.
+const MIN_COUNT: i64 = 3
+const MAX_COUNT: i64 = 79
+
+def decimal_length(number_value: i64) -> usize:
+    remaining: mutable i64 = number_value
+    length: mutable usize = 1
+    while remaining >= 10:
+        remaining <- remaining / 10
+        length <- length + 1
+    length
+
+def required_length(count: i64) -> usize:
+    bytes: mutable usize = 0
+    previous: mutable i64 = 0
+    current: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < count:
+        value: mutable i64 = 0
+        if index == 0:
+            value <- 0
+        elif index == 1:
+            value <- 1
+        else:
+            value <- previous + current
+            previous <- current
+            current <- value
+        bytes <- bytes + decimal_length(value) + 1
+        index <- index + 1
+    bytes
+
+def append_decimal(number_value: i64, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[20]
+    count: mutable usize = 0
+    remaining: mutable i64 = number_value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    if count == 0:
+        digits[0] <- 48.u8()
+        count <- 1
+    position: mutable usize = position_value
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def first_n_fibonacci_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1:
+        return -1
+    count: i64 = values[0]
+    if count < MIN_COUNT or count > MAX_COUNT:
+        return -1
+    required: usize = required_length(count)
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    previous: mutable i64 = 0
+    current: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < count:
+        value: mutable i64 = 0
+        if index == 0:
+            value <- 0
+        elif index == 1:
+            value <- 1
+        else:
+            value <- previous + current
+            previous <- current
+            current <- value
+        position <- append_decimal(value, output, position)
+        output[position] <- 0.u8()
+        position <- position + 1
+        index <- index + 1
+    position.i64()
+
+export fn first_n_fibonacci(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = first_n_fibonacci_impl

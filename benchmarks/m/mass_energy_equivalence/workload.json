@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "mass-energy-equivalence-v1",
+  "algorithm": "mass_energy_equivalence",
+  "function_symbol": "mass_energy_equivalence",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["operation", "value"],
+    "operation_mapping": {"0": "energy_from_mass_kg_to_joules", "1": "mass_from_energy_joules_to_kg"},
+    "value_minimum": 0,
+    "value_maximum": 1000000000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definitions": {
+      "0": "mass_kg * (299792458.0 ** 2), in joules",
+      "1": "energy_joules / (299792458.0 ** 2), in kilograms"
+    },
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"zero-mass","input_values":[0,0],"input_length":2,"expected_result":0.0},
+    {"id":"source-energy-example","input_values":[0,320],"input_length":2,"expected_result":2.8760165719578165e19},
+    {"id":"maximum-mass","input_values":[0,1000000000],"input_length":2,"expected_result":8.987551787368176e25},
+    {"id":"zero-energy","input_values":[1,0],"input_length":2,"expected_result":0.0},
+    {"id":"source-mass-example","input_values":[1,320],"input_length":2,"expected_result":3.560480179371579e-15},
+    {"id":"large-energy-input","input_values":[1,1000000000],"input_length":2,"expected_result":1.1126500560536185e-8},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[0],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-operation","input_values":[2,320],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-negative-value","input_values":[0,-1],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-value-high","input_values":[1,1000000001],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

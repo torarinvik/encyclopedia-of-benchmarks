@@ -1,0 +1,6 @@
+def all_ones_sequence_impl(index: i64) -> i64:
+    if index < 0:
+        return -1
+    1
+
+export fn all_ones_sequence(index: i64) -> i64 = all_ones_sequence_impl

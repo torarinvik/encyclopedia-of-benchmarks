@@ -1,0 +1,28 @@
+def format_phone_number_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 10:
+        return -1
+    i: mutable usize = 0
+    while i < 10:
+        if values[i] < 48 or values[i] > 57:
+            return -1
+        i <- i + 1
+    if output_capacity < 14:
+        return -2
+
+    output[0] <- 40
+    output[1] <- values[0].u8()
+    output[2] <- values[1].u8()
+    output[3] <- values[2].u8()
+    output[4] <- 41
+    output[5] <- 32
+    output[6] <- values[3].u8()
+    output[7] <- values[4].u8()
+    output[8] <- values[5].u8()
+    output[9] <- 45
+    i <- 6
+    while i < 10:
+        output[10 + i - 6] <- values[i].u8()
+        i <- i + 1
+    14
+
+export fn format_phone_number(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = format_phone_number_impl

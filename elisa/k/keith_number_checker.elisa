@@ -1,0 +1,32 @@
+# Preserve the digit-window recurrence used by the pinned C# checker.
+def keith_number_checker_impl(number: i64) -> i64:
+    if number < 2 or number > 1000:
+        return -1
+    original: i64 = number
+    temp: mutable i64 = number
+    digits: mutable i64 = 0
+    while temp != 0:
+        digits <- digits + 1
+        temp <- temp / 10
+    terms: mutable i64[1000] = zeroed
+    temp <- number
+    index: mutable i64 = digits
+    while index > 0:
+        index <- index - 1
+        terms[index.usize()] <- temp % 10
+        temp <- temp / 10
+    sum: mutable i64 = 0
+    k: mutable i64 = digits
+    while sum < original:
+        sum <- 0
+        j: mutable i64 = 1
+        while j <= digits:
+            sum <- sum + terms[(k - j).usize()]
+            j <- j + 1
+        terms[k.usize()] <- sum
+        k <- k + 1
+    if sum == original:
+        return 1
+    0
+
+export fn keith_number_checker(number: i64) -> i64 = keith_number_checker_impl

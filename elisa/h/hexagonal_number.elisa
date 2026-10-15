@@ -1,0 +1,7 @@
+# Return the nth hexagonal number for a JS-safe positive index.
+def hexagonal_number_impl(number: i64) -> i64:
+    if number < 1 or number > 67108864:
+        return -1
+    number * (2 * number - 1)
+
+export fn hexagonal_number(number: i64) -> i64 = hexagonal_number_impl

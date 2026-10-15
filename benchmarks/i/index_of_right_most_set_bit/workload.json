@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "index-of-right-most-set-bit-java-signed-int32-zero-based-scalar-v1",
+  "algorithm": "index_of_right_most_set_bit",
+  "function_symbol": "index_of_right_most_set_bit",
+  "input": {
+    "kind": "signed_32_bit_integer",
+    "minimum": -2147483648,
+    "maximum": 2147483647,
+    "meaning": "zero-based index of the least significant set bit after the pinned Java negative-input handling",
+    "zero_result": -1,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero-has-no-set-bit", "input_value": 0, "expected_result": -1},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "positive-even", "input_value": 18, "expected_result": 1},
+    {"id": "positive-mixed", "input_value": 36, "expected_result": 2},
+    {"id": "positive-high-bit", "input_value": 1073741824, "expected_result": 30},
+    {"id": "negative-magnitude", "input_value": -18, "expected_result": 1},
+    {"id": "negative-int32-minimum-java-wrap", "input_value": -2147483648, "expected_result": 31},
+    {"id": "int32-maximum", "input_value": 2147483647, "expected_result": 0},
+    {"id": "below-int32", "input_value": -2147483649, "expected_result": -1},
+    {"id": "above-int32", "input_value": 2147483648, "expected_result": -1}
+  ]
+}

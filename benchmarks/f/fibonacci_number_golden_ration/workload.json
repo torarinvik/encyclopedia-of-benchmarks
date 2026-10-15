@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-number-golden-ration-binet-f64-round-v1",
+  "algorithm": "fibonacci_number_golden_ration",
+  "function_symbol": "fibonacci_number_golden_ration",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 70,
+    "result": "binary64 Binet formula rounded with Java Math.round semantics",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 1},
+    {"id": "ten", "input_value": 10, "expected_result": 55},
+    {"id": "twenty", "input_value": 20, "expected_result": 6765},
+    {"id": "fifty", "input_value": 50, "expected_result": 12586269025},
+    {"id": "sixty_nine", "input_value": 69, "expected_result": 117669030460994},
+    {"id": "maximum", "input_value": 70, "expected_result": 190392490709135},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 71, "expected_result": -1}
+  ]
+}

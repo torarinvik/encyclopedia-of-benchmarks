@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "doppler-frequency-v1",
+  "algorithm": "doppler_frequency",
+  "function_symbol": "doppler_frequency",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 4,
+    "argument_order": ["org_freq", "wave_vel", "obs_vel", "src_vel"],
+    "org_freq_range_hz": [1, 1000],
+    "wave_vel_range_m_per_s": [200, 1000],
+    "obs_vel_range_m_per_s": [-100, 100],
+    "src_vel_range_m_per_s": [-100, 100],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "hertz",
+    "definition": "(org_freq * (wave_vel + obs_vel)) / (wave_vel - src_vel)",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"observer-approaching","input_values":[100,330,10,0],"input_length":4,"expected_result":103.03030303030303},
+    {"id":"observer-receding","input_values":[100,330,-10,0],"input_length":4,"expected_result":96.96969696969697},
+    {"id":"source-approaching","input_values":[100,330,0,10],"input_length":4,"expected_result":103.125},
+    {"id":"source-receding","input_values":[100,330,0,-10],"input_length":4,"expected_result":97.05882352941177},
+    {"id":"both-approaching","input_values":[100,330,10,10],"input_length":4,"expected_result":106.25},
+    {"id":"zero-motion","input_values":[100,330,0,0],"input_length":4,"expected_result":100.0},
+    {"id":"minimum-source-frequency","input_values":[1,1000,-100,100],"input_length":4,"expected_result":1.0},
+    {"id":"upper-bounds","input_values":[1000,200,100,100],"input_length":4,"expected_result":3000.0},
+    {"id":"invalid-zero-frequency","input_values":[0,330,10,0],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-wave-speed-low","input_values":[100,199,0,0],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-observer-speed-high","input_values":[100,330,101,0],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-source-speed-low","input_values":[100,330,0,-101],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-wrong-length","input_values":[100,330,0],"input_length":3,"expected_result":-1e300}
+  ]
+}

@@ -1,0 +1,19 @@
+def padovan_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 156:
+        return -1
+    if index <= 2:
+        return 1
+    a: mutable i64 = 1
+    b: mutable i64 = 1
+    c: mutable i64 = 1
+    result: mutable i64 = 0
+    i: mutable i64 = 3
+    while i <= index:
+        result <- a + b
+        a <- b
+        b <- c
+        c <- result
+        i <- i + 1
+    result
+
+export fn padovan_sequence(index: i64) -> i64 = padovan_sequence_impl

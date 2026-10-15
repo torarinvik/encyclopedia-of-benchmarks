@@ -1,0 +1,40 @@
+# Convert a bounded speed between the four units in the pinned source.
+extern floor(value: f64) -> f64
+extern fma(first: f64, second: f64, third: f64) -> f64
+
+def source_factor(unit: usize) -> f64:
+    if unit == 0: return 1.0
+    if unit == 1: return 3.6
+    if unit == 2: return 1.609344
+    1.852
+
+def destination_inverse_factor(unit: usize) -> f64:
+    if unit == 0: return 1.0
+    if unit == 1: return 0.277777778
+    if unit == 2: return 0.621371192
+    0.539956803
+
+def round_three_even(value: f64) -> f64:
+    lower: f64 = floor(value * 1000.0)
+    midpoint: f64 = lower + 0.5
+    exact_side: f64 = fma(value, 1000.0, -midpoint)
+    rounded: mutable i64 = lower.i64()
+    if exact_side > 0.0 or (exact_side == 0.0 and rounded % 2 != 0):
+        rounded <- rounded + 1
+    rounded.f64() / 1000.0
+
+def speed_conversions_impl(speed: f64, route: f64) -> f64:
+    if speed != speed:
+        return -1.0
+    if route != route:
+        return -1.0
+    if speed < 0.0 or speed > 1000000.0:
+        return -1.0
+    if route < 0.0 or route > 15.0 or floor(route) != route:
+        return -1.0
+    encoded: usize = route.usize()
+    unit_from: usize = encoded / 4
+    unit_to: usize = encoded % 4
+    round_three_even(speed * source_factor(unit_from) * destination_inverse_factor(unit_to))
+
+export fn speed_conversions(speed: f64, route: f64) -> f64 = speed_conversions_impl

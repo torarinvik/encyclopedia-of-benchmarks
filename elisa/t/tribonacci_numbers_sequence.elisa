@@ -1,0 +1,19 @@
+# Zero-based Tribonacci sequence with source seeds 1, 1, 1.
+def tribonacci_numbers_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 60:
+        return -1
+    if index < 3:
+        return 1
+    first: mutable i64 = 1
+    second: mutable i64 = 1
+    third: mutable i64 = 1
+    i: mutable i64 = 3
+    while i <= index:
+        next: i64 = first + second + third
+        first <- second
+        second <- third
+        third <- next
+        i <- i + 1
+    third
+
+export fn tribonacci_numbers_sequence(index: i64) -> i64 = tribonacci_numbers_sequence_impl

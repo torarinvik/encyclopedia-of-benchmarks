@@ -1,0 +1,31 @@
+def kolakoski_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 63:
+        return -1
+    if index == 0:
+        return 1
+    if index <= 2:
+        return 2
+
+    encoded: mutable u64 = 6.u64()
+    read_bit: mutable u64 = 4.u64()
+    write_bit: mutable u64 = 8.u64()
+    target: u64 = index.u64()
+    current_index: mutable u64 = 3.u64()
+    next_element: mutable i64 = 1
+
+    while current_index <= target:
+        run_length: u64 = 1.u64() + (encoded / read_bit) % 2.u64()
+        emitted: mutable u64 = 0.u64()
+        while emitted < run_length:
+            if next_element == 2:
+                encoded <- encoded + write_bit
+            if current_index == target:
+                return next_element
+            current_index <- current_index + 1.u64()
+            write_bit <- write_bit * 2.u64()
+            emitted <- emitted + 1.u64()
+        read_bit <- read_bit * 2.u64()
+        next_element <- 3 - next_element
+    -1
+
+export fn kolakoski_sequence(index: i64) -> i64 = kolakoski_sequence_impl

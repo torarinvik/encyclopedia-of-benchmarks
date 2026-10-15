@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "kynea-numbers-one-based-i64-v1",
+  "algorithm": "kynea_numbers",
+  "function_symbol": "kynea_numbers",
+  "input": {
+    "kind": "one_based_signed_integer_index",
+    "minimum_value": 1,
+    "maximum_value": 31,
+    "formula": "((1 << n) + 1) * ((1 << n) + 1) - 2, evaluated as shift, add, square, subtract",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"one","input_values":[1],"expected_result":7},
+    {"id":"two","input_values":[2],"expected_result":23},
+    {"id":"three","input_values":[3],"expected_result":79},
+    {"id":"four","input_values":[4],"expected_result":287},
+    {"id":"five","input_values":[5],"expected_result":1087},
+    {"id":"six","input_values":[6],"expected_result":4223},
+    {"id":"ten","input_values":[10],"expected_result":1050623},
+    {"id":"fifteen","input_values":[15],"expected_result":1073807359},
+    {"id":"twenty","input_values":[20],"expected_result":1099513724927},
+    {"id":"twenty_five","input_values":[25],"expected_result":1125899973951487},
+    {"id":"thirty","input_values":[30],"expected_result":1152921506754330623},
+    {"id":"maximum_valid","input_values":[31],"expected_result":4611686022722355199},
+    {"id":"zero_invalid","input_values":[0],"expected_result":-1},
+    {"id":"negative_invalid","input_values":[-1],"expected_result":-1},
+    {"id":"above_bound_invalid","input_values":[32],"expected_result":-1},
+    {"id":"signed_64_minimum_invalid","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed_64_maximum_invalid","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

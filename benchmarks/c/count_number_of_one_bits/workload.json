@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "count-number-of-one-bits-python-binary-scalar-v1",
+  "algorithm": "count_number_of_one_bits",
+  "function_symbol": "count_number_of_one_bits",
+  "input": {
+    "kind": "unsigned_32_bit_integer_and_method_selector",
+    "layout": ["number", "method"],
+    "maximum_number": 4294967295,
+    "methods": {
+      "0": "Brian Kernighan bit clearing",
+      "1": "modulo 2 and right shift",
+      "2": "lookup table over four bytes, initialized per call"
+    },
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "population_count",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"brian_25", "input_values":[25,0], "expected_result":3},
+    {"id":"modulo_25", "input_values":[25,1], "expected_result":3},
+    {"id":"lookup_25", "input_values":[25,2], "expected_result":3},
+    {"id":"brian_37", "input_values":[37,0], "expected_result":3},
+    {"id":"modulo_37", "input_values":[37,1], "expected_result":3},
+    {"id":"lookup_37", "input_values":[37,2], "expected_result":3},
+    {"id":"brian_21", "input_values":[21,0], "expected_result":3},
+    {"id":"modulo_21", "input_values":[21,1], "expected_result":3},
+    {"id":"lookup_21", "input_values":[21,2], "expected_result":3},
+    {"id":"brian_58", "input_values":[58,0], "expected_result":4},
+    {"id":"modulo_58", "input_values":[58,1], "expected_result":4},
+    {"id":"lookup_58", "input_values":[58,2], "expected_result":4},
+    {"id":"brian_zero", "input_values":[0,0], "expected_result":0},
+    {"id":"modulo_zero", "input_values":[0,1], "expected_result":0},
+    {"id":"lookup_zero", "input_values":[0,2], "expected_result":0},
+    {"id":"brian_256", "input_values":[256,0], "expected_result":1},
+    {"id":"modulo_256", "input_values":[256,1], "expected_result":1},
+    {"id":"lookup_256", "input_values":[256,2], "expected_result":1},
+    {"id":"brian_1023", "input_values":[1023,0], "expected_result":10},
+    {"id":"modulo_1023", "input_values":[1023,1], "expected_result":10},
+    {"id":"lookup_1023", "input_values":[1023,2], "expected_result":10},
+    {"id":"brian_uint32_max", "input_values":[4294967295,0], "expected_result":32},
+    {"id":"modulo_uint32_max", "input_values":[4294967295,1], "expected_result":32},
+    {"id":"lookup_uint32_max", "input_values":[4294967295,2], "expected_result":32},
+    {"id":"negative_invalid", "input_values":[-1,0], "expected_result":-1},
+    {"id":"method_invalid", "input_values":[25,3], "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

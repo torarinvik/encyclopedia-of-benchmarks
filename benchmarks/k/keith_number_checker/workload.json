@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "keith-number-checker-i64-scalar-v1",
+  "algorithm": "keith_number_checker",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [2, 1000],
+    "out_of_range_result": -1,
+    "result_encoding": {"source_sequence_reaches_input": 1, "sum_exceeds_input": 0}
+  },
+  "cases": [
+    {"id":"single_digit_2_source_behavior","input_value":2,"expected_result":1},
+    {"id":"single_digit_9_source_behavior","input_value":9,"expected_result":1},
+    {"id":"first_two_digit_keith_number","input_value":14,"expected_result":1},
+    {"id":"two_digit_non_match","input_value":15,"expected_result":0},
+    {"id":"keith_number_19","input_value":19,"expected_result":1},
+    {"id":"keith_number_47","input_value":47,"expected_result":1},
+    {"id":"keith_number_61","input_value":61,"expected_result":1},
+    {"id":"keith_number_75","input_value":75,"expected_result":1},
+    {"id":"three_digit_keith_number","input_value":197,"expected_result":1},
+    {"id":"three_digit_non_match","input_value":198,"expected_result":0},
+    {"id":"largest_supported_input","input_value":1000,"expected_result":0},
+    {"id":"zero_source_exception","input_value":0,"expected_result":-1},
+    {"id":"one_source_exception","input_value":1,"expected_result":-1},
+    {"id":"negative_source_exception","input_value":-1,"expected_result":-1},
+    {"id":"first_outside_positive","input_value":1001,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}

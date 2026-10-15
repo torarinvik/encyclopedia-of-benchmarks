@@ -1,0 +1,15 @@
+const INT32_MIN_VALUE: i64 = -2147483648
+const INT32_MAX_VALUE: i64 = 2147483647
+
+# Zero-based trailing set-bit index using the Java magnitude behavior.
+def index_of_right_most_set_bit_impl(value: i64) -> i64:
+    if value < INT32_MIN_VALUE or value > INT32_MAX_VALUE or value == 0:
+        return -1
+    magnitude: mutable i64 = if value < 0: -value else: value
+    index: mutable i64 = 0
+    while magnitude % 2 == 0:
+        magnitude <- magnitude / 2
+        index <- index + 1
+    index
+
+export fn index_of_right_most_set_bit(value: i64) -> i64 = index_of_right_most_set_bit_impl

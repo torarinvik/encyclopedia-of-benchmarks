@@ -1,0 +1,7 @@
+# Newton's Law of Gravitation
+
+This package benchmarks the pinned [TheAlgorithms/Python implementation](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/newtons_law_of_gravitation.py). Its `gravitational_law` function accepts exactly one zero among force, mass 1, mass 2, and distance, then solves for that parameter with `G = 6.6743e-11`.
+
+The `i64_array_float64` ABI accepts `[missing_parameter_index, packed_other_values]`. Indices 0, 1, 2, and 3 mean missing force, mass 1, mass 2, and distance, respectively. Pack the other three values in canonical order `[force, mass_1, mass_2, distance]`, skipping the missing slot. Each supplied value is a positive integer from 1 through 1,000 in its source unit: newtons, kilograms, or metres. The selector stands for the source's one missing value, set to zero; all other inputs remain positive. This preserves the source's exactly-one-zero rule and avoids its negative-input and zero-denominator error paths.
+
+The four formulas are `G*m1*m2/(distance**2)`, `force*distance**2/(G*m2)`, `force*distance**2/(G*m1)`, and `sqrt(G*m1*m2/force)`, selected in that order. The ABI returns only the derived numeric value; its parameter name and unit are implied by the selector. Invalid length, selector, or supplied values return -1e300. Outputs are binary64 with relative and absolute tolerances of 1e-12. Runtime and auxiliary space are O(1).

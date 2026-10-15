@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "wiggle-sort-bounded-i32-array-v1",
+  "algorithm": "wiggle_sort",
+  "function_symbol": "wiggle_sort",
+  "input": {
+    "kind": "signed_i64_array_with_signed_i32_values",
+    "array_length_range": [0, 4096],
+    "value_range": [-2147483648, 2147483647],
+    "pattern": "a[0] <= a[1] >= a[2] <= a[3] ...",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "signed 32-bit little-endian wiggle array; return output element count"
+  },
+  "cases": [
+    {"id":"empty","input_values":[],"input_length":0,"expected_result":0},
+    {"id":"single","input_values":[7],"input_length":1,"expected_result":1},
+    {"id":"python_rust_example","input_values":[0,5,3,2,2],"input_length":5,"expected_result":5},
+    {"id":"alternating_example","input_values":[3,5,2,1,6,4],"input_length":6,"expected_result":6},
+    {"id":"ascending","input_values":[1,2,3,4,5,6],"input_length":6,"expected_result":6},
+    {"id":"descending","input_values":[6,5,4,3,2,1],"input_length":6,"expected_result":6},
+    {"id":"equal_values","input_values":[4,4,4,4,4],"input_length":5,"expected_result":5},
+    {"id":"signed_i32_edges","input_values":[-2147483648,2147483647,0,-1],"input_length":4,"expected_result":4},
+    {"id":"outside_i32_range","input_values":[2147483648],"input_length":1,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

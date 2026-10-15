@@ -1,0 +1,17 @@
+# PN junction built-in voltage over bounded integer concentrations.
+extern log(value: f64) -> f64
+
+def builtin_voltage_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    donor: i64 = values[0]
+    acceptor: i64 = values[1]
+    intrinsic: i64 = values[2]
+    if donor < 1 or donor > 1000 or acceptor < 1 or acceptor > 1000 or intrinsic < 1 or intrinsic > 1000 or donor <= intrinsic or acceptor <= intrinsic:
+        return -1.0e300
+    boltzmann: f64 = 1.380649e-23
+    electron_volt: f64 = 1.602176634e-19
+    ratio: f64 = (donor.f64() * acceptor.f64()) / (intrinsic.f64() * intrinsic.f64())
+    return boltzmann * 300.0 * log(ratio) / electron_volt
+
+export fn builtin_voltage(values: i64&, length: usize) -> f64 = builtin_voltage_impl

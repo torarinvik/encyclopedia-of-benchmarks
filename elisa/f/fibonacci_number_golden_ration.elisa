@@ -1,0 +1,17 @@
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+
+def fibonacci_number_golden_ration_impl(input: i64) -> i64:
+    if input < 0 or input > 70:
+        return -1
+    if input <= 1:
+        return input
+
+    sqrt5: f64 = sqrt(5.0)
+    phi: f64 = (1.0 + sqrt5) / 2.0
+    psi: f64 = (1.0 - sqrt5) / 2.0
+    result: f64 = (pow(phi, input.f64()) - pow(psi, input.f64())) / sqrt5
+    floor(result + 0.5).i64()
+
+export fn fibonacci_number_golden_ration(input: i64) -> i64 = fibonacci_number_golden_ration_impl

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-octal-recursion-v1",
+  "algorithm": "decimal_to_octal_recursion",
+  "function_symbol": "decimal_to_octal_recursion",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 295600127],
+    "output_encoding": "decimal integer whose decimal digits are the octal representation",
+    "zero_result": 0,
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"seven","input_value":7,"expected_result":7},
+    {"id":"eight","input_value":8,"expected_result":10},
+    {"id":"nine","input_value":9,"expected_result":11},
+    {"id":"sixty_three","input_value":63,"expected_result":77},
+    {"id":"sixty_four","input_value":64,"expected_result":100},
+    {"id":"three_hundred_forty_two","input_value":342,"expected_result":526},
+    {"id":"one_thousand_twenty_four","input_value":1024,"expected_result":2000},
+    {"id":"upper_bound","input_value":295600127,"expected_result":2147477777},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"above_bound","input_value":295600128,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

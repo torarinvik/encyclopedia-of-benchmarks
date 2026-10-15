@@ -1,0 +1,22 @@
+# Solve Newton's law of gravitation for one missing parameter.
+extern sqrt(value: f64) -> f64
+const GRAVITATIONAL_CONSTANT: f64 = 6.6743e-11
+
+def newtons_law_of_gravitation_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    target: i64 = values[0]
+    a: i64 = values[1]
+    b: i64 = values[2]
+    c: i64 = values[3]
+    if target < 0 or target > 3 or a < 1 or a > 1000 or b < 1 or b > 1000 or c < 1 or c > 1000:
+        return -1.0e300
+    if target == 0:
+        return GRAVITATIONAL_CONSTANT * (a.f64() * b.f64()) / (c.f64() * c.f64())
+    if target == 1:
+        return a.f64() * (c.f64() * c.f64()) / (GRAVITATIONAL_CONSTANT * b.f64())
+    if target == 2:
+        return a.f64() * (c.f64() * c.f64()) / (GRAVITATIONAL_CONSTANT * b.f64())
+    sqrt((GRAVITATIONAL_CONSTANT * (b.f64() * c.f64())) / a.f64())
+
+export fn newtons_law_of_gravitation(values: i64&, length: usize) -> f64 = newtons_law_of_gravitation_impl

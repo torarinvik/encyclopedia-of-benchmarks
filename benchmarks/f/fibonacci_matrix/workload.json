@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-matrix-i64-v1",
+  "algorithm": "fibonacci_matrix",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 92,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"ten","input_value":10,"expected_result":55},
+    {"id":"forty_six","input_value":46,"expected_result":1836311903},
+    {"id":"ninety_one","input_value":91,"expected_result":4660046610375530309},
+    {"id":"maximum","input_value":92,"expected_result":7540113804746346429},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"first_out_of_range","input_value":93,"expected_result":-1},
+    {"id":"signed_64_bit_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

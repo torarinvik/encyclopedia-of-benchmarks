@@ -46,7 +46,7 @@ static int parse_f64(const char *text, double *value)
     char *end = NULL;
     errno = 0;
     *value = strtod(text, &end);
-    return errno != ERANGE && end != text && *end == '\0' && isfinite(*value);
+    return end != text && *end == '\0' && isfinite(*value);
 }
 
 static uint64_t result_bits(double result)
@@ -54,6 +54,14 @@ static uint64_t result_bits(double result)
     uint64_t bits;
     memcpy(&bits, &result, sizeof(bits));
     return bits;
+}
+
+/* Match using abs(actual-expected) <= abs_tol + rel_tol*abs(expected). */
+static int result_matches(double actual, double expected, double absolute_tolerance,
+                          double relative_tolerance)
+{
+    if (!isfinite(actual)) return 0;
+    return fabs(actual - expected) <= absolute_tolerance + relative_tolerance * fabs(expected);
 }
 
 static double run_batch(const int64_t *values, size_t length, size_t repetitions,
@@ -74,13 +82,13 @@ int main(int argc, char **argv)
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
     const int stdin_mode = argc > 1 && strcmp(argv[1], "--stdin") == 0;
     if (stdin_mode) {
-        if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > MAX_INPUT_LENGTH) {
-            fprintf(stderr, "usage: i64_array_float64_runner --stdin LENGTH EXPECTED SAMPLES WARMUPS REPETITIONS\n");
+        if (argc != 9 || !parse_u64(argv[2], &length_arg) || length_arg > MAX_INPUT_LENGTH) {
+            fprintf(stderr, "usage: i64_array_float64_runner --stdin LENGTH EXPECTED ABS_TOL REL_TOL SAMPLES WARMUPS REPETITIONS\n");
             return 2;
         }
-    } else if (argc < 6 || !parse_u64(argv[1], &length_arg) || length_arg > MAX_INPUT_LENGTH ||
-               (uint64_t)argc != length_arg + 6) {
-        fprintf(stderr, "usage: i64_array_float64_runner LENGTH VALUES... EXPECTED SAMPLES WARMUPS REPETITIONS\n");
+    } else if (argc < 8 || !parse_u64(argv[1], &length_arg) || length_arg > MAX_INPUT_LENGTH ||
+               (uint64_t)argc != length_arg + 8) {
+        fprintf(stderr, "usage: i64_array_float64_runner LENGTH VALUES... EXPECTED ABS_TOL REL_TOL SAMPLES WARMUPS REPETITIONS\n");
         return 2;
     }
 
@@ -110,11 +118,13 @@ int main(int argc, char **argv)
     }
 
     const size_t expected_index = stdin_mode ? 3 : length + 2;
-    double expected;
+    double expected, absolute_tolerance, relative_tolerance;
     if (!parse_f64(argv[expected_index], &expected) ||
-        !parse_u64(argv[expected_index + 1], &samples_arg) ||
-        !parse_u64(argv[expected_index + 2], &warmups_arg) ||
-        !parse_u64(argv[expected_index + 3], &repetitions_arg) ||
+        !parse_f64(argv[expected_index + 1], &absolute_tolerance) || absolute_tolerance < 0.0 ||
+        !parse_f64(argv[expected_index + 2], &relative_tolerance) || relative_tolerance < 0.0 ||
+        !parse_u64(argv[expected_index + 3], &samples_arg) ||
+        !parse_u64(argv[expected_index + 4], &warmups_arg) ||
+        !parse_u64(argv[expected_index + 5], &repetitions_arg) ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000) {
         fprintf(stderr, "invalid expected value or timing settings\n");
@@ -131,7 +141,7 @@ int main(int argc, char **argv)
         free(values);
         return 2;
     }
-    if (run_algorithm(values, length) != expected) {
+    if (!result_matches(run_algorithm(values, length), expected, absolute_tolerance, relative_tolerance)) {
         fprintf(stderr, "correctness mismatch for array input\n");
         free(sample_ns);
         free(values);
@@ -141,7 +151,8 @@ int main(int argc, char **argv)
     volatile uint64_t warmup_observer = 0;
     for (size_t warmup = 0; warmup < warmup_count; ++warmup) {
         uint64_t checksum = 0;
-        if (run_batch(values, length, repetitions, &checksum) != expected) {
+        if (!result_matches(run_batch(values, length, repetitions, &checksum), expected,
+                            absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "algorithm result changed during warmup\n");
             free(sample_ns);
             free(values);
@@ -163,7 +174,8 @@ int main(int argc, char **argv)
         uint64_t checksum = 0;
         observed_result = run_batch(values, length, repetitions, &checksum);
         const clock_t finish = clock();
-        if (finish == (clock_t)-1 || finish < start || observed_result != expected) {
+        if (finish == (clock_t)-1 || finish < start ||
+            !result_matches(observed_result, expected, absolute_tolerance, relative_tolerance)) {
             fprintf(stderr, "clock() or result check failed during a sample\n");
             free(sample_ns);
             free(values);

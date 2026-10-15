@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "newtons-law-of-gravitation-v1",
+  "algorithm": "newtons_law_of_gravitation",
+  "function_symbol": "newtons_law_of_gravitation",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 4,
+    "layout": ["missing_parameter_index", "remaining_parameters_in_canonical_order"],
+    "parameter_index_mapping": {"0": "force_newtons", "1": "mass_1_kg", "2": "mass_2_kg", "3": "distance_m"},
+    "supplied_value_minimum": 1,
+    "supplied_value_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "solve F = 6.6743e-11 * mass_1 * mass_2 / distance^2 for the indexed missing parameter",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-force-example","input_values":[0,5,10,20],"input_length":4,"expected_result":8.342875e-12},
+    {"id":"solve-mass-1","input_values":[1,100,2,5],"input_length":4,"expected_result":18728555803604.875},
+    {"id":"solve-mass-2","input_values":[2,100,2,5],"input_length":4,"expected_result":18728555803604.875},
+    {"id":"solve-distance","input_values":[3,100,5,10],"input_length":4,"expected_result":5.776807076577856e-6},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[0,5,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-index","input_values":[4,5,10,20],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-zero-supplied","input_values":[0,5,0,20],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-negative-supplied","input_values":[0,5,-1,20],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[0,5,10,1001],"input_length":4,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

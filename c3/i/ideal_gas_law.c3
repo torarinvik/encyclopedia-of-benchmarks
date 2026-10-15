@@ -2,13 +2,17 @@ module ideal_gas_law;
 
 const double INVALID_RESULT = -1.0e300;
 
-// Pressure from the ideal gas law: n * T * R / V.
+// Solve one ideal-gas-law variable using a portable operation selector.
 fn double ideal_gas_law(long* values, usz length) @export("ideal_gas_law") {
-    if (length != 3 || values == null) return INVALID_RESULT;
-    long moles = values[0];
-    long kelvin = values[1];
-    long volume = values[2];
-    if (moles < 0 || moles > 1000 || kelvin < 0 || kelvin > 1000 || volume < 1 || volume > 1000)
+    if (length != 4 || values == null) return INVALID_RESULT;
+    long operation = values[0];
+    long a = values[1], b = values[2], c = values[3];
+    if (operation < 0 || operation > 3 || a < 0 || a > 1000 || b < 0 || b > 1000 || c < 0 || c > 1000)
         return INVALID_RESULT;
-    return ((double)moles * (double)kelvin * 8.314462) / (double)volume;
+    if (operation == 0 || operation == 1) {
+        if (c == 0) return INVALID_RESULT;
+        return ((double)a * (double)b * 8.314462) / (double)c;
+    }
+    if (a == 0) return INVALID_RESULT;
+    return ((double)c * (double)b) / ((double)a * 8.314462);
 }

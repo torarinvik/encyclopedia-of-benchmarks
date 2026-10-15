@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "reynolds-number-v1",
+  "algorithm": "reynolds_number",
+  "function_symbol": "reynolds_number",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 4,
+    "layout": ["density", "velocity", "diameter", "viscosity"],
+    "density_minimum": 1,
+    "density_maximum": 1000,
+    "velocity_minimum": -1000,
+    "velocity_maximum": 1000,
+    "diameter_minimum": 1,
+    "diameter_maximum": 1000,
+    "viscosity_minimum": 1,
+    "viscosity_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "density * abs(velocity) * diameter / viscosity",
+    "unit": "dimensionless",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"integer-result","input_values":[900,2,5,4],"input_length":4,"expected_result":2250.0},
+    {"id":"negative-velocity","input_values":[200,-3,5,6],"input_length":4,"expected_result":500.0},
+    {"id":"fractional-result","input_values":[450,-4,78,23],"input_length":4,"expected_result":6104.3478260869565},
+    {"id":"zero-velocity","input_values":[1000,0,1000,1],"input_length":4,"expected_result":0.0},
+    {"id":"maximum-bounds","input_values":[1000,1000,1000,1],"input_length":4,"expected_result":1000000000.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[900,2,5],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-zero-density","input_values":[0,2,5,4],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-zero-diameter","input_values":[900,2,0,4],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-zero-viscosity","input_values":[900,2,5,0],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-bound","input_values":[1001,2,5,4],"input_length":4,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

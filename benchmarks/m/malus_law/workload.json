@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "malus-law-v1",
+  "algorithm": "malus_law",
+  "function_symbol": "malus_law",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["initial_intensity", "angle_degrees"],
+    "initial_intensity_minimum": 0,
+    "initial_intensity_maximum": 1000,
+    "angle_minimum_degrees": 0,
+    "angle_maximum_degrees": 360,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "initial_intensity * cos(radians(angle_degrees)) ** 2",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"forty-five-degrees","input_values":[10,45],"input_length":2,"expected_result":5.0},
+    {"id":"sixty-degrees","input_values":[100,60],"input_length":2,"expected_result":25.0},
+    {"id":"one-hundred-fifty-degrees","input_values":[50,150],"input_length":2,"expected_result":37.5},
+    {"id":"ninety-degrees","input_values":[100,90],"input_length":2,"expected_result":3.749399456654644e-31},
+    {"id":"zero-intensity","input_values":[0,45],"input_length":2,"expected_result":0.0},
+    {"id":"zero-degrees","input_values":[100,0],"input_length":2,"expected_result":100.0},
+    {"id":"full-turn","input_values":[100,360],"input_length":2,"expected_result":100.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[10],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-negative-intensity","input_values":[-1,45],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-angle-low","input_values":[10,-1],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-angle-high","input_values":[10,361],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

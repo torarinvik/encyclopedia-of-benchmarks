@@ -1,0 +1,17 @@
+extern floor(value: f64) -> f64
+def sum_of_harmonic_series_impl(first_term: f64, common_difference: f64, number_of_terms: f64) -> f64:
+    if first_term <= 0.0 or first_term > 1000.0 or common_difference < 0.0 or common_difference > 1000.0:
+        return -1.0e300
+    if number_of_terms < 1.0 or number_of_terms > 256.0 or floor(number_of_terms) != number_of_terms:
+        return -1.0e300
+    count: i64 = number_of_terms.i64()
+    arithmetic_term: mutable f64 = 1.0 / first_term
+    total: mutable f64 = 0.0
+    index: mutable i64 = 0
+    while index < count:
+        total <- total + (1.0 / arithmetic_term)
+        if index + 1 < count:
+            arithmetic_term <- arithmetic_term + common_difference
+        index <- index + 1
+    total
+export fn sum_of_harmonic_series(first_term: f64, common_difference: f64, number_of_terms: f64) -> f64 = sum_of_harmonic_series_impl

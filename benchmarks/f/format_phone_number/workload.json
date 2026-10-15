@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "format-phone-number-ascii-digits-v1",
+  "algorithm": "format_phone_number",
+  "function_symbol": "format_phone_number",
+  "input": {
+    "kind": "ascii_digit_array",
+    "encoding": "exactly ten signed 64-bit ASCII digit values",
+    "minimum_length": 10,
+    "maximum_length": 10,
+    "digit_range": [48, 57],
+    "output_encoding": "14 ASCII bytes in the pattern (XXX) XXX-XXXX",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"published_example", "input_values":[49,50,51,52,53,54,55,56,57,48], "input_length":10, "expected_result":14, "expected_output_hex":"2831323329203435362d37383930"},
+    {"id":"leading_zeroes", "input_values":[48,48,49,50,51,52,53,54,55,56], "input_length":10, "expected_result":14, "expected_output_hex":"2830303129203233342d35363738"},
+    {"id":"all_zeroes", "input_values":[48,48,48,48,48,48,48,48,48,48], "input_length":10, "expected_result":14, "expected_output_hex":"2830303029203030302d30303030"},
+    {"id":"maximum_digits", "input_values":[57,57,57,57,57,57,57,57,57,57], "input_length":10, "expected_result":14, "expected_output_hex":"2839393929203939392d39393939"},
+    {"id":"empty_input", "input_values":[], "input_length":0, "expected_result":-1, "expected_output_hex":""},
+    {"id":"nine_digits", "input_values":[49,50,51,52,53,54,55,56,57], "input_length":9, "expected_result":-1, "expected_output_hex":""},
+    {"id":"eleven_digits", "input_values":[49,50,51,52,53,54,55,56,57,48,49], "input_length":11, "expected_result":-1, "expected_output_hex":""},
+    {"id":"non_digit", "input_values":[49,50,51,52,53,54,55,56,57,65], "input_length":10, "expected_result":-1, "expected_output_hex":""},
+    {"id":"non_ascii", "input_values":[49,50,51,52,53,54,55,56,57,1633], "input_length":10, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,68 @@
+const MAX_LIMIT: i64 = 10000
+
+def digit_sum(number: i64, base: i64) -> i64:
+    remaining: mutable i64 = number
+    sum: mutable i64 = 0
+    while remaining > 0:
+        sum <- sum + remaining % base
+        remaining <- remaining / base
+    sum
+
+def base_length(number: i64, base: i64) -> usize:
+    remaining: mutable i64 = number
+    length: mutable usize = 0
+    while remaining > 0:
+        remaining <- remaining / base
+        length <- length + 1
+    length
+
+def required_length(limit: i64, base: i64) -> usize:
+    length: mutable usize = 0
+    number: mutable i64 = 1
+    while number < limit:
+        if number % digit_sum(number, base) == 0:
+            length <- length + base_length(number, base) + 1
+        number <- number + 1
+    length
+
+def digit_byte(digit: i64) -> u8:
+    if digit < 10:
+        return (48 + digit).u8()
+    (55 + digit).u8()
+
+def append_base(number_value: i64, base: i64, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[64]
+    count: mutable usize = 0
+    remaining: mutable i64 = number_value
+    while remaining > 0:
+        digits[count] <- digit_byte(remaining % base)
+        count <- count + 1
+        remaining <- remaining / base
+    position: mutable usize = position_value
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def harshad_numbers_in_base_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    limit: i64 = values[0]
+    base: i64 = values[1]
+    if limit > MAX_LIMIT or base < 2 or base > 36:
+        return -1
+    required: usize = required_length(limit, base)
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    number: mutable i64 = 1
+    while number < limit:
+        if number % digit_sum(number, base) == 0:
+            position <- append_base(number, base, output, position)
+            output[position] <- 0.u8()
+            position <- position + 1
+        number <- number + 1
+    position.i64()
+
+export fn harshad_numbers_in_base(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = harshad_numbers_in_base_impl

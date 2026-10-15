@@ -30,7 +30,7 @@
     { "id": "case_18", "input_value": 9223372036854775807, "expected_result": -1 }
   ],
   "measurement": {
-    "comparison_model": "i64_scalar_i64_output_call",
+    "comparison_model": "scalar_call",
     "sample_count": 9,
     "warmup_rounds": 2,
     "repetitions_per_sample": 100

@@ -18,13 +18,43 @@ U64_MAX = 2**64 - 1
 I64_MIN = -(2**63)
 
 
-def encode_values(case: dict) -> tuple[int, int, int]:
+def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
     values = case.get("input_values")
     expected = case.get("expected_result")
     if (not isinstance(values, list) or len(values) != 2
             or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
+    if algorithm == "count_number_of_one_bits":
+        number, method = values
+        valid = 0 <= number <= 0xFFFFFFFF and 0 <= method <= 2
+        expected_from_source = number.bit_count() if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("count_number_of_one_bits expected_result does not match its selected source variant")
+    elif algorithm == "bitwise_addition_recursive":
+        first, second = values
+        valid = 0 <= first <= 2**31 - 1 and 0 <= second <= 2**31 - 1
+        expected_from_source = first + second if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("bitwise_addition_recursive expected_result must equal the bounded nonnegative sum")
+    elif algorithm == "recursive_digit_sum":
+        number, repetitions = values
+        valid = 0 <= number <= 2**63 - 1 and 0 <= repetitions <= 1_000_000
+        if valid:
+            total = sum(int(digit) for digit in str(number)) * repetitions
+            while total >= 10:
+                total = sum(int(digit) for digit in str(total))
+            expected_from_source = total
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("recursive_digit_sum expected_result does not match the pinned super-digit definition")
+    elif algorithm == "xor_swap_two_integers":
+        first, second = values
+        valid = -32768 <= first <= 32767 and -32768 <= second <= 32767
+        expected_from_source = (second + 32768) * 65536 + (first + 32768) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("xor_swap_two_integers expected_result must encode the swapped pair")
     return values[0], values[1], expected
 
 
@@ -74,7 +104,7 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        left, right, expected = encode_values(case)
+        left, right, expected = encode_values(case, algorithm)
         abi_left = left if left >= 0 else left + (1 << 64)
         abi_right = right if right >= 0 else right + (1 << 64)
         command = [str(executable), str(abi_left), str(abi_right), str(expected),

@@ -1,0 +1,33 @@
+def keith_number_impl(number: i64) -> i64:
+    if number < 10 or number > 999999:
+        return -1
+    reversed: mutable i64[6] = zeroed
+    digits: mutable i64[6] = zeroed
+    value: mutable i64 = number
+    digit_count: mutable i64 = 0
+    while value > 0:
+        reversed[digit_count.usize()] <- value % 10
+        digit_count <- digit_count + 1
+        value <- value / 10
+    i: mutable i64 = 0
+    while i < digit_count:
+        digits[i.usize()] <- reversed[(digit_count - 1 - i).usize()]
+        i <- i + 1
+
+    oldest: mutable i64 = 0
+    while true:
+        next: mutable i64 = 0
+        i <- 0
+        while i < digit_count:
+            next <- next + digits[((oldest + i) % digit_count).usize()]
+            i <- i + 1
+        if next >= number:
+            if next == number:
+                return 1
+            else:
+                return 0
+        digits[oldest.usize()] <- next
+        oldest <- (oldest + 1) % digit_count
+    0
+
+export fn keith_number(number: i64) -> i64 = keith_number_impl

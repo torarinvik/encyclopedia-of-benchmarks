@@ -1,0 +1,7 @@
+# Escape Velocity
+
+This package benchmarks the pinned [TheAlgorithms/Python implementation](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/escape_velocity.py). It computes `round(sqrt(2 * 6.67430e-11 * mass / radius), 3)` and returns the result in metres per second.
+
+The `i64_array_float64` ABI accepts exactly `[mass_kg, radius_m]`. The benchmark domain is mass 0..1,000,000,000,000,000 kg and radius 1..1,000,000,000 m. This preserves the source's zero-mass result, excludes its zero-radius exception and negative-mass square-root error, and keeps all integer inputs exactly representable in binary64. Ports preserve the source's formula order and Python's three-decimal rounding of the computed binary64 value. The rounding helper uses a fused multiply-add residual against the exact half-thousand midpoint before applying ties-to-even; this avoids the scale-first double-rounding difference. For `[825929310938975, 1000000000]`, the binary64 velocity is `0.0105`; Python `round(value, 3)` returns `0.011`, while `round(value * 1000) / 1000` would return `0.01`. Invalid length, negative or oversized mass, and nonpositive or oversized radius return -1e300.
+
+This calculation is the speed needed to escape a body's gravitational field; it is distinct from terminal velocity, which models drag. The output tolerance is 1e-12 relative and absolute. Runtime and auxiliary space are O(1).

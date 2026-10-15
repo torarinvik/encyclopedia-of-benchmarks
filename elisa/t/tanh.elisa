@@ -1,0 +1,9 @@
+# Hyperbolic tangent using the normalized logistic identity.
+extern exp(value: f64) -> f64
+
+def tanh_impl(x: f64) -> f64:
+    if x != x or x < -10.0 or x > 10.0:
+        return -1.0e300
+    (2.0 / (1.0 + exp(-2.0 * x))) - 1.0
+
+export fn tanh(x: f64) -> f64 = tanh_impl

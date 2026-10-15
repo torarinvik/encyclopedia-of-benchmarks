@@ -1,0 +1,75 @@
+# QuickSelect median followed by alternating low/high placement.
+const MAX_ARRAY_LENGTH: usize = 4096
+
+def select_kth(values: mutable i64&, count: usize, target: usize) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = count.i64() - 1
+    while low < high:
+        left: mutable i64 = low
+        right: mutable i64 = high
+        pivot: i64 = values[((left + right + 1) / 2).usize()]
+        while left <= right:
+            while left <= right and values[left.usize()] < pivot:
+                left <- left + 1
+            while left <= right and values[right.usize()] > pivot:
+                right <- right - 1
+            if left <= right:
+                temporary: i64 = values[left.usize()]
+                values[left.usize()] <- values[right.usize()]
+                values[right.usize()] <- temporary
+                left <- left + 1
+                right <- right - 1
+        if target.i64() <= right:
+            high <- right
+        elif target.i64() >= left:
+            low <- left
+        else:
+            break
+    values[target]
+
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def simplified_wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ARRAY_LENGTH:
+        return -1
+    values: mutable i64[MAX_ARRAY_LENGTH] = zeroed
+    ordered: mutable i64[MAX_ARRAY_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647:
+            return -1
+        values[index] <- input[index]
+        index <- index + 1
+    byte_count: usize = length * 4
+    if output_capacity < byte_count:
+        return -2
+    if length == 0:
+        return 0
+
+    median: i64 = select_kth(&values[0], length, length / 2)
+    smaller: mutable usize = 0
+    greater: mutable i64 = (length.i64() - 1 - (length.i64() % 2))
+    index <- 0
+    while index < length:
+        if values[index] > median:
+            ordered[greater.usize()] <- values[index]
+            greater <- greater - 2
+        elif smaller < length:
+            ordered[smaller] <- values[index]
+            smaller <- smaller + 2
+        else:
+            ordered[greater.usize()] <- values[index]
+            greater <- greater - 2
+        index <- index + 1
+    index <- 0
+    while index < length:
+        store_i32_le(ordered[index], output, index * 4)
+        index <- index + 1
+    length.i64()
+
+export fn simplified_wiggle_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = simplified_wiggle_sort_impl

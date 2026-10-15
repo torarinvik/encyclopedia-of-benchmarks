@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "radians-float64-unary-v1",
+  "algorithm": "radians",
+  "function_symbol": "radians",
+  "input": {
+    "kind": "finite_binary64_degrees",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "formula_order": "degree / (180 / pi)",
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64_radians",
+    "unit": "radian",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"source-180-degrees", "input_values":[180.0], "expected_result":3.141592653589793},
+    {"id":"source-92-degrees", "input_values":[92.0], "expected_result":1.6057029118347832},
+    {"id":"source-274-degrees", "input_values":[274.0], "expected_result":4.782202150464463},
+    {"id":"source-109-82-degrees", "input_values":[109.82], "expected_result":1.9167205845401725},
+    {"id":"zero", "input_values":[0.0], "expected_result":0.0},
+    {"id":"negative-2-degrees", "input_values":[-2.0], "expected_result":-0.03490658503988659},
+    {"id":"negative-quarter-turn", "input_values":[-90.0], "expected_result":-1.5707963267948966},
+    {"id":"full-turn", "input_values":[360.0], "expected_result":6.283185307179586},
+    {"id":"fractional-degree", "input_values":[0.1], "expected_result":0.0017453292519943296},
+    {"id":"lower-bound", "input_values":[-1000000.0], "expected_result":-17453.292519943294},
+    {"id":"upper-bound", "input_values":[1000000.0], "expected_result":17453.292519943294},
+    {"id":"above-bound", "input_values":[1000000.5], "expected_result":-1e300},
+    {"id":"below-bound", "input_values":[-1000000.5], "expected_result":-1e300}
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "narcissistic-number-checker-i64-scalar-v1",
+  "algorithm": "narcissistic_number_checker",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [-2147483648, 999999],
+    "out_of_range_result": -1,
+    "result_encoding": {"narcissistic": 1, "not_narcissistic": 0}
+  },
+  "cases": [
+    {"id":"source_zero_behavior","input_value":0,"expected_result":1},
+    {"id":"negative","input_value":-153,"expected_result":0},
+    {"id":"one_digit","input_value":7,"expected_result":1},
+    {"id":"source_example_370","input_value":370,"expected_result":1},
+    {"id":"source_example_371","input_value":371,"expected_result":1},
+    {"id":"source_example_407","input_value":407,"expected_result":1},
+    {"id":"four_digit_1634","input_value":1634,"expected_result":1},
+    {"id":"six_digit_548834","input_value":548834,"expected_result":1},
+    {"id":"non_match","input_value":123,"expected_result":0},
+    {"id":"negative_int32_minimum","input_value":-2147483648,"expected_result":0},
+    {"id":"largest_supported_input","input_value":999999,"expected_result":0},
+    {"id":"first_outside_positive","input_value":1000000,"expected_result":-1},
+    {"id":"outside_int32_negative","input_value":-2147483649,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}

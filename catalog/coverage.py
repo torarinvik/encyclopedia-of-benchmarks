@@ -15,6 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
              "odin": "odin", "rust": "rs", "v": "v", "zig": "zig"}
+EXCLUDED_STATUSES = {
+    "reviewed_excluded_invalid_source",
+    "reviewed_excluded_non_benchmarkable_source",
+}
+REVIEWED_STATUSES = EXCLUDED_STATUSES | {"reviewed_algorithm_semantics"}
 
 
 def audit() -> dict:
@@ -46,7 +51,7 @@ def audit() -> dict:
     complete_algorithms = set()
     for candidate in candidates:
         name = candidate["candidate_id"]
-        excluded = candidate["review_status"] == "reviewed_excluded_invalid_source"
+        excluded = candidate["review_status"] in EXCLUDED_STATUSES
         target = canonical(candidate)
         if excluded:
             if ("alias_of" in candidate or "benchmark_name" in candidate
@@ -84,8 +89,7 @@ def audit() -> dict:
         missing = sorted({language for detail in benchmark_details
                           for language in detail["missing_languages"]})
         workload_matches = all(detail["workload_matches"] for detail in benchmark_details)
-        reviewed = candidate["review_status"] in {
-            "reviewed_algorithm_semantics", "reviewed_excluded_invalid_source"}
+        reviewed = candidate["review_status"] in REVIEWED_STATUSES
         complete = (not excluded and reviewed and target["review_status"] == "reviewed_algorithm_semantics"
                     and all(not detail["missing_languages"] and detail["guide_present"]
                             and detail["workload_matches"] for detail in benchmark_details))
@@ -106,6 +110,10 @@ def audit() -> dict:
         "reviewed_candidates": sum(entry["reviewed"] for entry in entries),
         "files_present_and_reviewed": sum(entry["files_present_and_reviewed"] for entry in entries),
         "reviewed_excluded_sources": sum(entry["source_excluded"] for entry in entries),
+        "reviewed_excluded_invalid_sources": sum(
+            candidate["review_status"] == "reviewed_excluded_invalid_source" for candidate in candidates),
+        "reviewed_excluded_non_benchmarkable_sources": sum(
+            candidate["review_status"] == "reviewed_excluded_non_benchmarkable_source" for candidate in candidates),
             "canonical_candidate_count": sum("alias_of" not in candidate for candidate in candidates),
         "unique_benchmarks_complete": len(complete_algorithms),
         "reviewed_aliases": sum(entry["reviewed"] and entry["alias_of"] is not None for entry in entries),

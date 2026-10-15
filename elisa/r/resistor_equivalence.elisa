@@ -1,0 +1,25 @@
+# Series and parallel resistor equivalents.
+def resistor_equivalence_impl(values: i64&, length: usize) -> f64:
+    if length < 2 or length > 33:
+        return -1.0e300
+    operation: i64 = values[0]
+    if operation != 0 and operation != 1:
+        return -1.0e300
+    accumulated: f64 = 0.0
+    for index in 1..<length:
+        resistor: i64 = values[index]
+        if resistor < 1 and operation == 0:
+            return -1.0e300
+        if resistor < 0 and operation == 1:
+            return -1.0e300
+        if resistor > 1000:
+            return -1.0e300
+        if operation == 0:
+            accumulated = accumulated + (1.0 / resistor.f64())
+        else:
+            accumulated = accumulated + resistor.f64()
+    if operation == 0:
+        return 1.0 / accumulated
+    accumulated
+
+export fn resistor_equivalence(values: i64&, length: usize) -> f64 = resistor_equivalence_impl

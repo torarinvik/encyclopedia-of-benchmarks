@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "armstrong-digit-cubes-signed-int32-v1",
+  "algorithm": "armstrong_digit_cubes",
+  "function_symbol": "armstrong_digit_cubes",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [-2147483648, 2147483647],
+    "predicate": "input equals the signed sum of the cubes of its decimal digits",
+    "result_encoding": {"match": 1, "no_match": 0},
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"positive_one_digit_match","input_value":1,"expected_result":1},
+    {"id":"negative_one_digit_match","input_value":-1,"expected_result":1},
+    {"id":"positive_one_digit_nonmatch","input_value":2,"expected_result":0},
+    {"id":"negative_one_digit_nonmatch","input_value":-2,"expected_result":0},
+    {"id":"source_style_153","input_value":153,"expected_result":1},
+    {"id":"negative_153_signed_digits","input_value":-153,"expected_result":1},
+    {"id":"known_370","input_value":370,"expected_result":1},
+    {"id":"known_371","input_value":371,"expected_result":1},
+    {"id":"known_407","input_value":407,"expected_result":1},
+    {"id":"negative_407_signed_digits","input_value":-407,"expected_result":1},
+    {"id":"generalized_armstrong_548834_is_not_fixed_cube","input_value":548834,"expected_result":0},
+    {"id":"four_digit_nonmatch","input_value":9474,"expected_result":0},
+    {"id":"negative_four_digit_nonmatch","input_value":-9474,"expected_result":0},
+    {"id":"zero_padded_decimal_nonmatch","input_value":1000,"expected_result":0},
+    {"id":"int32_maximum","input_value":2147483647,"expected_result":0},
+    {"id":"int32_minimum","input_value":-2147483648,"expected_result":0},
+    {"id":"above_int32_maximum","input_value":2147483648,"expected_result":-1},
+    {"id":"below_int32_minimum","input_value":-2147483649,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

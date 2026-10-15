@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "builtin-voltage-v1",
+  "algorithm": "builtin_voltage",
+  "function_symbol": "builtin_voltage",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 3,
+    "argument_order": ["donor_conc", "acceptor_conc", "intrinsic_conc"],
+    "concentration_range": [1, 1000],
+    "donor_greater_than_intrinsic": true,
+    "acceptor_greater_than_intrinsic": true,
+    "temperature_kelvin": 300,
+    "constants": {"boltzmann_j_per_k": 1.380649e-23, "electron_volt_j": 1.602176634e-19},
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "volt",
+    "definition": "Boltzmann * 300 * log((donor_conc * acceptor_conc) / (intrinsic_conc ** 2)) / electron_volt",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"symmetric-doping","input_values":[100,100,10],"input_length":3,"expected_result":0.11905285866466345},
+    {"id":"asymmetric-doping","input_values":[1000,500,100],"input_length":3,"expected_result":0.10113361790085933},
+    {"id":"small-ratio","input_values":[2,2,1],"input_length":3,"expected_result":0.0358384815276082},
+    {"id":"near-intrinsic-limit","input_values":[999,1000,999],"input_length":3,"expected_result":0.00002586493441013248},
+    {"id":"invalid-zero-donor","input_values":[0,100,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-zero-intrinsic","input_values":[100,100,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-donor-not-greater","input_values":[10,20,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-acceptor-not-greater","input_values":[20,10,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-negative","input_values":[100,-1,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[1001,1000,10],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-wrong-length","input_values":[100,100],"input_length":2,"expected_result":-1e300}
+  ]
+}

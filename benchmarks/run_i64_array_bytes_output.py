@@ -641,6 +641,42 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "first_n_fibonacci":
+        if (not isinstance(values, list) or len(values) != 1
+                or type(values[0]) is not int or not -(2**63) <= values[0] < 2**63
+                or not 3 <= values[0] <= 79):
+            return -1, b""
+        previous, current = 0, 1
+        output = bytearray()
+        for index in range(values[0]):
+            value = previous if index == 0 else current if index == 1 else previous + current
+            if index >= 2:
+                previous, current = current, value
+            output.extend(str(value).encode("ascii"))
+            output.append(0)
+        return len(output), bytes(output)
+
+    if algorithm == "kaprekar_numbers_in_range":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        start, end = values
+        if not 0 <= start <= end <= 100_000:
+            return -1, b""
+        numbers = []
+        for value in range(start, end + 1):
+            if value <= 1:
+                numbers.append(value)
+                continue
+            square = value * value
+            right_width = len(str(value))
+            left, right = divmod(square, 10**right_width)
+            if right != 0 and left + right == value:
+                numbers.append(value)
+        output = b"".join(str(value).encode("ascii") + b"\0" for value in numbers)
+        return len(output), output
+
     if algorithm == "quartile":
         import struct
 
@@ -2589,7 +2625,137 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = struct.pack("<" + "i" * len(ordered), *ordered) if ordered else b""
         return len(ordered), output
 
-    if algorithm in {"wave_sort", "wave_sort_greedy"}:
+    if algorithm == "harshad_numbers_in_base":
+        if (len(values) != 2 or any(type(value) is not int for value in values)):
+            return -1, b""
+        limit, base = values
+        if base < 2 or base > 36 or limit > 10_000:
+            return -1, b""
+        output = bytearray()
+        if limit > 1:
+            alphabet = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            for number in range(1, limit):
+                remaining = number
+                digit_sum = 0
+                while remaining:
+                    digit_sum += remaining % base
+                    remaining //= base
+                if number % digit_sum != 0:
+                    continue
+                digits = bytearray()
+                remaining = number
+                while remaining:
+                    digits.append(alphabet[remaining % base])
+                    remaining //= base
+                output.extend(reversed(digits))
+                output.append(0)
+        return len(output), bytes(output)
+
+    if algorithm == "wiggle_sort_strict":
+        import struct
+
+        if (len(values) > MAX_WAVE_SORT_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
+            return -1, b""
+        if not values:
+            return 0, b""
+        ordered = list(values)
+        low = 0
+        high = len(ordered) - 1
+        target = len(ordered) // 2
+        while low < high:
+            left = low
+            right = high
+            pivot = ordered[(left + right + 1) // 2]
+            while left <= right:
+                while left <= right and ordered[left] < pivot:
+                    left += 1
+                while left <= right and ordered[right] > pivot:
+                    right -= 1
+                if left <= right:
+                    ordered[left], ordered[right] = ordered[right], ordered[left]
+                    left += 1
+                    right -= 1
+            if target <= right:
+                high = right
+            elif target >= left:
+                low = left
+            else:
+                break
+        median = ordered[target]
+        median_count = sum(value == median for value in ordered)
+        maximum_medians = (len(ordered) + 1) // 2
+        if (median_count > maximum_medians
+                or (len(ordered) % 2 == 1 and median_count == maximum_medians
+                    and min(ordered) != median)):
+            return -1, b""
+        left = 0
+        scan = 0
+        right = len(ordered) - 1
+        modulus = len(ordered) + 1 - (len(ordered) % 2)
+        while scan <= right:
+            mapped_scan = (2 * scan + 1) % modulus
+            if ordered[mapped_scan] > median:
+                mapped_left = (2 * left + 1) % modulus
+                ordered[mapped_scan], ordered[mapped_left] = ordered[mapped_left], ordered[mapped_scan]
+                left += 1
+                scan += 1
+            elif ordered[mapped_scan] < median:
+                mapped_right = (2 * right + 1) % modulus
+                ordered[mapped_scan], ordered[mapped_right] = ordered[mapped_right], ordered[mapped_scan]
+                right -= 1
+            else:
+                scan += 1
+        output = struct.pack("<" + "i" * len(ordered), *ordered)
+        return len(ordered), output
+
+    if algorithm == "simplified_wiggle_sort":
+        if (len(values) > MAX_WAVE_SORT_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
+            return -1, b""
+        if not values:
+            return 0, b""
+        ordered = list(values)
+        low = 0
+        high = len(ordered) - 1
+        target = len(ordered) // 2
+        while low < high:
+            left = low
+            right = high
+            pivot = ordered[(left + right + 1) // 2]
+            while left <= right:
+                while left <= right and ordered[left] < pivot:
+                    left += 1
+                while left <= right and ordered[right] > pivot:
+                    right -= 1
+                if left <= right:
+                    ordered[left], ordered[right] = ordered[right], ordered[left]
+                    left += 1
+                    right -= 1
+            if target <= right:
+                high = right
+            elif target >= left:
+                low = left
+            else:
+                break
+        median = ordered[target]
+        result = [0] * len(ordered)
+        smaller = 0
+        greater = len(ordered) - 1 - (len(ordered) % 2)
+        for value in ordered:
+            if value > median:
+                result[greater] = value
+                greater -= 2
+            elif smaller < len(ordered):
+                result[smaller] = value
+                smaller += 2
+            else:
+                result[greater] = value
+                greater -= 2
+        output = struct.pack("<" + "i" * len(result), *result)
+        return len(result), output
+
+    if algorithm in {"wave_sort", "wave_sort_greedy", "wiggle_sort"}:
         if (len(values) > MAX_WAVE_SORT_INPUT_LENGTH
                 or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
             return -1, b""
@@ -2598,12 +2764,17 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             ordered.sort()
             for index in range(0, len(ordered) - 1, 2):
                 ordered[index], ordered[index + 1] = ordered[index + 1], ordered[index]
-        else:
+        elif algorithm == "wave_sort_greedy":
             for index in range(0, len(ordered), 2):
                 if index > 0 and ordered[index] < ordered[index - 1]:
                     ordered[index], ordered[index - 1] = ordered[index - 1], ordered[index]
                 if index + 1 < len(ordered) and ordered[index] < ordered[index + 1]:
                     ordered[index], ordered[index + 1] = ordered[index + 1], ordered[index]
+        else:
+            for index in range(1, len(ordered)):
+                if ((index % 2 == 1 and ordered[index - 1] > ordered[index])
+                        or (index % 2 == 0 and ordered[index - 1] < ordered[index])):
+                    ordered[index - 1], ordered[index] = ordered[index], ordered[index - 1]
         output = struct.pack("<" + "i" * len(ordered), *ordered) if ordered else b""
         return len(ordered), output
 
@@ -3500,7 +3671,7 @@ def main() -> int:
                             MAX_SQUARE_STREAK_INPUT_LENGTH if algorithm == "longest_square_streak" else
                             MAX_SQUARED_ARRAY_INPUT_LENGTH if algorithm == "squares_of_a_sorted_array" else
                             MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH if algorithm == "sort_array_by_parity" else
-                            MAX_WAVE_SORT_INPUT_LENGTH if algorithm in {"wave_sort", "wave_sort_greedy"} else
+                            MAX_WAVE_SORT_INPUT_LENGTH if algorithm in {"wave_sort", "wave_sort_greedy", "wiggle_sort", "simplified_wiggle_sort", "wiggle_sort_strict"} else
                             MAX_FIND_DUPLICATES_INPUT_LENGTH + 1 if algorithm == "find_all_duplicates_in_array" else
                             MAX_REDUNDANT_CONNECTION_INPUT_LENGTH + 2 if algorithm == "redundant_connection" else
                             MAX_INPUT_LENGTH)

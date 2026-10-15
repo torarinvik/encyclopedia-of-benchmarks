@@ -1,0 +1,33 @@
+# Multiply a base-10 digit array by each factor through n.
+const MAX_N: i64 = 100
+const MAX_DIGITS: usize = 160
+
+def factorial_large_number_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if n < 0 or n > MAX_N:
+        return -1
+    digits: mutable i64[MAX_DIGITS] = zeroed
+    digits[0] <- 1
+    digit_count: mutable usize = 1
+    factor: mutable i64 = 2
+    while factor <= n:
+        carry: mutable i64 = 0
+        index: mutable usize = 0
+        while index < digit_count:
+            product: i64 = digits[index] * factor + carry
+            digits[index] <- product % 10
+            carry <- product / 10
+            index <- index + 1
+        while carry != 0:
+            digits[digit_count] <- carry % 10
+            digit_count <- digit_count + 1
+            carry <- carry / 10
+        factor <- factor + 1
+    if output_capacity < digit_count:
+        return -2
+    index <- 0
+    while index < digit_count:
+        output[index] <- (48 + digits[digit_count - index - 1]).u8()
+        index <- index + 1
+    digit_count.i64()
+
+export fn factorial_large_number(n: i64, output: mutable u8&, output_capacity: usize) -> i64 = factorial_large_number_impl

@@ -1,0 +1,14 @@
+# LC resonant frequency over bounded integer-valued inputs.
+extern sqrt(value: f64) -> f64
+
+def resonant_frequency_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    inductance: i64 = values[0]
+    capacitance: i64 = values[1]
+    if inductance < 1 or inductance > 1000 or capacitance < 1 or capacitance > 1000:
+        return -1.0e300
+    pi: f64 = 3.14159265358979323846
+    return 1.0 / (2.0 * pi * sqrt(inductance.f64() * capacitance.f64()))
+
+export fn resonant_frequency(values: i64&, length: usize) -> f64 = resonant_frequency_impl

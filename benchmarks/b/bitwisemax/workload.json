@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "bitwisemax-i32-v1",
+  "algorithm": "bitwisemax",
+  "function_symbol": "bitwisemax",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["a", "b"],
+    "minimum": 0,
+    "maximum": 2147483647,
+    "source_base": 31,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "max(a, b)",
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"source-example","input_values":[32,64],"input_length":2,"expected_result":64},
+    {"id":"left-larger","input_values":[64,32],"input_length":2,"expected_result":64},
+    {"id":"equal-values","input_values":[6,6],"input_length":2,"expected_result":6},
+    {"id":"zero-values","input_values":[0,0],"input_length":2,"expected_result":0},
+    {"id":"right-at-bound","input_values":[0,2147483647],"input_length":2,"expected_result":2147483647},
+    {"id":"left-at-bound","input_values":[2147483647,0],"input_length":2,"expected_result":2147483647},
+    {"id":"odd-distance","input_values":[7,4],"input_length":2,"expected_result":7},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"invalid-length","input_values":[32],"input_length":1,"expected_result":-1},
+    {"id":"invalid-length-long","input_values":[32,64,128],"input_length":3,"expected_result":-1},
+    {"id":"invalid-negative","input_values":[-1,64],"input_length":2,"expected_result":-1},
+    {"id":"invalid-above-bound","input_values":[0,2147483648],"input_length":2,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

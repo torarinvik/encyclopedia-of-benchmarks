@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "make-change-sequence-i64-v1",
+  "algorithm": "make_change_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 128],
+    "indexing": "amount_in_cents",
+    "sequence_definition": "ways to make amount n with unlimited 1,2,5,10-cent coins; terms 0..16 use pinned source seeds and later terms use its recurrence",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_amount","input_value":-1,"expected_result":-1},
+    {"id":"zero_cents","input_value":0,"expected_result":1},
+    {"id":"one_cent","input_value":1,"expected_result":1},
+    {"id":"two_cents","input_value":2,"expected_result":2},
+    {"id":"ten_cents","input_value":10,"expected_result":11},
+    {"id":"last_seed_term","input_value":16,"expected_result":25},
+    {"id":"first_recurrence_term","input_value":17,"expected_result":28},
+    {"id":"amount_twenty_five","input_value":25,"expected_result":64},
+    {"id":"amount_fifty","input_value":50,"expected_result":341},
+    {"id":"largest_supported_amount","input_value":128,"expected_result":4277},
+    {"id":"first_unsupported_amount","input_value":129,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

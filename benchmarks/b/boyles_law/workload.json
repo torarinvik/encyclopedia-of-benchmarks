@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "boyles-law-v1",
+  "algorithm": "boyles_law",
+  "function_symbol": "boyles_law",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 4,
+    "layout": ["missing_variable_index", "remaining_variables_in_canonical_order"],
+    "variable_index_mapping": {"0": "v1", "1": "v2", "2": "p1", "3": "p2"},
+    "supplied_value_minimum": 1,
+    "supplied_value_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "solve p1*v1=p2*v2 for the indexed missing variable; round the exact rational quotient to three decimal places using ties-to-even",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-p2-example","input_values":[3,120,150,100],"input_length":4,"expected_result":80.0},
+    {"id":"source-v2-example","input_values":[1,20,10,20],"input_length":4,"expected_result":10.0},
+    {"id":"source-p1-example","input_values":[2,13,19,17],"input_length":4,"expected_result":24.846},
+    {"id":"source-v1-example","input_values":[0,27,25,29],"input_length":4,"expected_result":31.32},
+    {"id":"third-decimal-round-up","input_values":[3,13,19,17],"input_length":4,"expected_result":11.632},
+    {"id":"ties-to-even-down","input_values":[3,1,16,1],"input_length":4,"expected_result":0.062},
+    {"id":"ties-to-even-up","input_values":[3,3,16,1],"input_length":4,"expected_result":0.188},
+    {"id":"binary64-format-divergence","input_values":[3,1,80,1],"input_length":4,"expected_result":0.012},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-short","input_values":[3,100,120],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-long","input_values":[3,100,120,150,1],"input_length":5,"expected_result":-1e300},
+    {"id":"invalid-index","input_values":[4,100,120,150],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-zero-value","input_values":[3,100,0,150],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-above-bound","input_values":[3,100,120,1001],"input_length":4,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

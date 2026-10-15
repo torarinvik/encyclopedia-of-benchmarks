@@ -1,0 +1,20 @@
+# Encode the C# uint overload as exactly 32 ASCII binary digits.
+def int2_binary_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 0 or value > 4294967295:
+        return -1
+    if output == null or output_capacity < 32:
+        return -2
+    remaining: mutable i64 = value
+    most_significant_bit: mutable i64 = 2147483648
+    position: mutable usize = 0
+    while position < 32:
+        if remaining >= most_significant_bit:
+            output[position] <- 49
+            remaining <- remaining - most_significant_bit
+        else:
+            output[position] <- 48
+        most_significant_bit <- most_significant_bit / 2
+        position <- position + 1
+    32
+
+export fn int2_binary(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = int2_binary_impl

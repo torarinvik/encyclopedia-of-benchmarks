@@ -1,0 +1,12 @@
+# Recursively encode octal digits as a decimal integer.
+def encode_octal_digits(value: i64) -> i64:
+    if value == 0:
+        return 0
+    encode_octal_digits(value / 8) * 10 + value % 8
+
+def decimal_to_octal_recursion_impl(value: i64) -> i64:
+    if value < 0 or value > 295600127:
+        return -1
+    encode_octal_digits(value)
+
+export fn decimal_to_octal_recursion(value: i64) -> i64 = decimal_to_octal_recursion_impl

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "tanh-scalar-binary64-v1",
+  "algorithm": "tanh",
+  "function_symbol": "tanh",
+  "input": {
+    "kind": "binary64_scalar",
+    "minimum": -10.0,
+    "maximum": 10.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(2 / (1 + exp(-2 * x))) - 1",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"negative_ten","input_values":[-10.0],"expected_result":-0.9999999958776927},
+    {"id":"negative_one","input_values":[-1.0],"expected_result":-0.7615941559557649},
+    {"id":"negative_fraction","input_values":[-0.5],"expected_result":-0.46211715726000974},
+    {"id":"zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"positive_fraction","input_values":[0.5],"expected_result":0.46211715726000974},
+    {"id":"positive_one","input_values":[1.0],"expected_result":0.7615941559557649},
+    {"id":"positive_ten","input_values":[10.0],"expected_result":0.9999999958776927},
+    {"id":"below_domain","input_values":[-10.0001],"expected_result":-1e300},
+    {"id":"above_domain","input_values":[10.0001],"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-6,
+    "absolute_tolerance": 1e-7,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

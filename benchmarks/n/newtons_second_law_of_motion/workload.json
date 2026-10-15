@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "newtons-second-law-of-motion-v1",
+  "algorithm": "newtons_second_law_of_motion",
+  "function_symbol": "newtons_second_law_of_motion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["mass", "acceleration"],
+    "minimum": -1000,
+    "maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "mass * acceleration",
+    "unit": "newton",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-example","input_values":[10,10],"input_length":2,"expected_result":100.0},
+    {"id":"small-product","input_values":[2,1],"input_length":2,"expected_result":2.0},
+    {"id":"negative-acceleration","input_values":[10,-3],"input_length":2,"expected_result":-30.0},
+    {"id":"negative-mass","input_values":[-4,5],"input_length":2,"expected_result":-20.0},
+    {"id":"both-negative","input_values":[-4,-5],"input_length":2,"expected_result":20.0},
+    {"id":"zero-mass","input_values":[0,5],"input_length":2,"expected_result":0.0},
+    {"id":"zero-acceleration","input_values":[7,0],"input_length":2,"expected_result":0.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[1],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-lower-bound","input_values":[-1001,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-upper-bound","input_values":[1,1001],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

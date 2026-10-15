@@ -1,0 +1,54 @@
+# Emit the pinned minimal-width two's-complement string for a signed integer.
+def twos_complement_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value > 0:
+        return -1
+    if value == 0:
+        if output_capacity < 3:
+            return -2
+        output[0] <- 48.u8()
+        output[1] <- 98.u8()
+        output[2] <- 48.u8()
+        return 3
+    magnitude: u64 = (-(value + 1)).u64() + 1.u64()
+    bit_length: mutable usize = 0
+    remaining: mutable u64 = magnitude
+    while remaining > 0:
+        bit_length <- bit_length + 1
+        remaining <- remaining / 2.u64()
+    suffix: mutable u64 = magnitude
+    if bit_length < 64:
+        power: mutable u64 = 1.u64()
+        exponent: mutable usize = 0
+        while exponent < bit_length:
+            power <- power * 2.u64()
+            exponent <- exponent + 1
+        suffix <- power - magnitude
+    bits: mutable u8[64]
+    bit_count: mutable usize = 0
+    remaining <- suffix
+    while remaining > 0:
+        bits[bit_count] <- (48 + (remaining % 2.u64()).i64()).u8()
+        bit_count <- bit_count + 1
+        remaining <- remaining / 2.u64()
+    required: usize = bit_length + 3
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    output[position] <- 48.u8()
+    position <- position + 1
+    output[position] <- 98.u8()
+    position <- position + 1
+    output[position] <- 49.u8()
+    position <- position + 1
+    zero_count: mutable usize = bit_length - bit_count
+    while zero_count > 0:
+        output[position] <- 48.u8()
+        position <- position + 1
+        zero_count <- zero_count - 1
+    while bit_count > 0:
+        bit_count <- bit_count - 1
+        output[position] <- bits[bit_count]
+        position <- position + 1
+    position.i64()
+
+export fn twos_complement(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = twos_complement_impl

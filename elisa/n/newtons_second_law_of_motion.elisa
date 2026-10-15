@@ -1,0 +1,11 @@
+# Newton's second law: net force equals mass times acceleration.
+def newtons_second_law_of_motion_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    mass: i64 = values[0]
+    acceleration: i64 = values[1]
+    if mass < -1000 or mass > 1000 or acceleration < -1000 or acceleration > 1000:
+        return -1.0e300
+    mass.f64() * acceleration.f64()
+
+export fn newtons_second_law_of_motion(values: i64&, length: usize) -> f64 = newtons_second_law_of_motion_impl

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "bragg-angle-v1",
+  "algorithm": "bragg_angle",
+  "function_symbol": "bragg_angle",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 3,
+    "layout": ["distance_pm", "order", "wavelength_pm"],
+    "distance_minimum_pm": 1,
+    "distance_maximum_pm": 1000000,
+    "order_minimum": -1000,
+    "order_maximum": 1000,
+    "wavelength_minimum_pm": 0,
+    "wavelength_maximum_pm": 1000000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "compute theta_degrees = degrees(asin((order * wavelength_pm) / (2 * distance_pm))); round theta_degrees * 10 to the nearest integer using ties-to-even, then divide by 10",
+    "unit": "degrees",
+    "rounding": {
+      "decimal_places": 1,
+      "method": "ties_to_even",
+      "normalized_rule": "nearest integer to theta_degrees * 10, divided by 10"
+    },
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-example-30-degrees","input_values":[220,1,220],"input_length":3,"expected_result":30.0},
+    {"id":"source-example-11-5-degrees","input_values":[500,2,100],"input_length":3,"expected_result":11.5},
+    {"id":"three-quarter-sine","input_values":[1000,3,500],"input_length":3,"expected_result":48.6},
+    {"id":"negative-order","input_values":[1000,-1,500],"input_length":3,"expected_result":-14.5},
+    {"id":"zero-wavelength","input_values":[1000,1000,0],"input_length":3,"expected_result":0.0},
+    {"id":"critical-angle","input_values":[100,2,100],"input_length":3,"expected_result":90.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[220,1],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-zero-distance","input_values":[0,1,220],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-sine-high","input_values":[100,3,100],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-sine-low","input_values":[100,-3,100],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-order-bound","input_values":[100,1001,100],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-wavelength-bound","input_values":[100,1,1000001],"input_length":3,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,14 @@
+# Unoptimized trial division under a bounded positive input contract.
+def prime_check_naive_impl(n: i64) -> i64:
+    if n > 10000:
+        return -1
+    if n < 2:
+        return 0
+    divisor: mutable i64 = 2
+    while divisor < n:
+        if n % divisor == 0:
+            return 0
+        divisor <- divisor + 1
+    1
+
+export fn prime_check_naive(n: i64) -> i64 = prime_check_naive_impl

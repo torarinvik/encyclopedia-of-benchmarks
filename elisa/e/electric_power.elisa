@@ -1,0 +1,29 @@
+# Pinned electric_power formula over the benchmark's bounded integer-valued domain.
+def electric_power_impl(voltage: f64, current: f64, power: f64) -> f64:
+    if voltage != voltage or current != current or power != power:
+        return -1.0e300
+    if voltage < -10000.0 or voltage > 10000.0 or current < -10000.0 or current > 10000.0:
+        return -1.0e300
+    if power < 0.0 or power > 100000000.0:
+        return -1.0e300
+    if voltage != f64(i64(voltage)) or current != f64(i64(current)) or power != f64(i64(power)):
+        return -1.0e300
+    zeros: mutable i64 = 0
+    if voltage == 0.0:
+        zeros <- zeros + 1
+    if current == 0.0:
+        zeros <- zeros + 1
+    if power == 0.0:
+        zeros <- zeros + 1
+    if zeros != 1:
+        return -1.0e300
+    if voltage == 0.0:
+        return power / current
+    if current == 0.0:
+        return power / voltage
+    product: f64 = voltage * current
+    if product < 0.0:
+        return -product
+    return product
+
+export fn electric_power(voltage: f64, current: f64, power: f64) -> f64 = electric_power_impl

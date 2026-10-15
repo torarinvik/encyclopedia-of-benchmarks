@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "kaprekar-numbers-in-range-i64-array-bytes-v1",
+  "algorithm": "kaprekar_numbers_in_range",
+  "function_symbol": "kaprekar_numbers_in_range",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 2,
+    "argument_order": [
+      "start_inclusive",
+      "end_inclusive"
+    ],
+    "start_minimum": 0,
+    "end_maximum": 100000,
+    "invalid_input_result": -1,
+    "range_semantics": "inclusive ascending enumeration, including 0 and 1 when present"
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "encoding": "decimal Kaprekar values in ascending order, each followed by a NUL byte",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 400004
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero_only",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output_hex": "3000"
+    },
+    {
+      "id": "zero_and_one",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 4,
+      "expected_output_hex": "30003100"
+    },
+    {
+      "id": "first_ten",
+      "input_values": [
+        0,
+        10
+      ],
+      "input_length": 2,
+      "expected_result": 6,
+      "expected_output_hex": "300031003900"
+    },
+    {
+      "id": "classic_under_100",
+      "input_values": [
+        0,
+        100
+      ],
+      "input_length": 2,
+      "expected_result": 15,
+      "expected_output_hex": "300031003900343500353500393900"
+    },
+    {
+      "id": "three_digit_values",
+      "input_values": [
+        100,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 12,
+      "expected_output_hex": "323937003730330039393900"
+    },
+    {
+      "id": "empty_range_of_values",
+      "input_values": [
+        2,
+        8
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "inclusive_known_endpoints",
+      "input_values": [
+        9,
+        99
+      ],
+      "input_length": 2,
+      "expected_result": 11,
+      "expected_output_hex": "3900343500353500393900"
+    },
+    {
+      "id": "source_examples_to_10000",
+      "input_values": [
+        0,
+        10000
+      ],
+      "input_length": 2,
+      "expected_result": 62,
+      "expected_output_hex": "3000310039003435003535003939003239370037303300393939003232323300323732380034393530003530353000373237320037373737003939393900"
+    },
+    {
+      "id": "upper_bound_singleton",
+      "input_values": [
+        100000,
+        100000
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_start",
+      "input_values": [
+        -1,
+        10
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_reversed_range",
+      "input_values": [
+        10,
+        9
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_end_above_bound",
+      "input_values": [
+        0,
+        100001
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_wrong_length",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

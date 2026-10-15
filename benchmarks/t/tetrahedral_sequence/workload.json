@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "tetrahedral-sequence-i64-v1",
+  "algorithm": "tetrahedral_sequence",
+  "function_symbol": "tetrahedral_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 3810777],
+    "indexing": "zero_based",
+    "sequence_definition": "term[n]=n*(n+1)*(n+2)/6",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"signed64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"first_term","input_value":0,"expected_result":0},
+    {"id":"second_term","input_value":1,"expected_result":1},
+    {"id":"third_term","input_value":2,"expected_result":4},
+    {"id":"fifth_term","input_value":4,"expected_result":20},
+    {"id":"index_one_thousand","input_value":1000,"expected_result":167167000},
+    {"id":"largest_i64_term","input_value":3810777,"expected_result":9223371416043870029},
+    {"id":"first_unsupported_index","input_value":3810778,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

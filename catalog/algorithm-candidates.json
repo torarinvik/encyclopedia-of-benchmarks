@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3833,
+  "candidate_count": 3836,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -1865,7 +1865,7 @@
         "AArch64_Assembly"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -1875,7 +1875,8 @@
           "local_folder_source": null,
           "portability": "architecture_specific_reference"
         }
-      ]
+      ],
+      "review_notes": "The pinned AArch64 source is an interactive Linux terminal game rather than a standalone algorithm entry point. It includes architecture-specific termios, signal, poll, keyboard, random tile-spawn, display, and replay code. Extracting only its directional move kernels would be a new subalgorithm contract and would not cover this full program candidate, so it is excluded from the portable benchmark inventory."
     },
     {
       "candidate_id": "206",
@@ -5914,7 +5915,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -5923,7 +5924,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/AllOnesSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "all_ones_sequence",
+      "benchmark_contract": "benchmarks/a/all_ones_sequence/README.md",
+      "review_notes": "The pinned C# source is an infinite lazy ISequence that yields BigInteger 1 forever. The benchmark indexes this sequence from zero and returns the same term for every nonnegative i64 input, using -1 only for negative indices. The indexed ports run in O(1), while advancing the source generator to index n takes O(n); README documents that this preserves sequence values rather than generator iteration cost."
     },
     {
       "candidate_id": "all_paths_from_source_to_target",
@@ -5986,7 +5990,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -5995,7 +5999,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/AllThreesSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "all_threes_sequence",
+      "benchmark_contract": "benchmarks/a/all_threes_sequence/README.md",
+      "review_notes": "The pinned C# source is an infinite lazy ISequence that yields BigInteger 3 forever. The benchmark indexes this sequence from zero and returns the same term for every nonnegative i64 input, using -1 only for negative indices. The indexed ports run in O(1), while advancing the source generator to index n takes O(n); README documents that this preserves sequence values rather than generator iteration cost."
     },
     {
       "candidate_id": "all_twos_sequence",
@@ -6004,7 +6011,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -6013,7 +6020,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/AllTwosSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "all_twos_sequence",
+      "benchmark_contract": "benchmarks/a/all_twos_sequence/README.md",
+      "review_notes": "The pinned C# source is an infinite lazy ISequence that yields BigInteger 2 forever. The benchmark indexes this sequence from zero and returns the same term for every nonnegative i64 input, using -1 only for negative indices. The indexed ports run in O(1), while advancing the source generator to index n takes O(n); README documents that this preserves sequence values rather than generator iteration cost."
     },
     {
       "candidate_id": "allocation_number",
@@ -6103,7 +6113,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -6112,7 +6122,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/Alphabetical.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java method rejects null and blank strings, lowercases with Locale.ROOT, rejects nonletters, and checks nondecreasing character order. This benchmark preserves that behavior on bounded ASCII letters with case-insensitive comparison; empty strings and nonletters return 0, while out-of-ASCII values or overlong inputs use the ABI invalid sentinel.",
+      "benchmark_contract": "benchmarks/a/alphabetical/README.md"
     },
     {
       "candidate_id": "alternate_disjoint_set",
@@ -6431,7 +6443,8 @@
         }
       ],
       "benchmark_name": "uint53_bitwise_and",
-      "review_notes": "The pinned Lua source returns a closure implementing numeric uint53 bitwise AND through low-bit extraction and arithmetic reconstruction. The nine-port package preserves this operation on 0..2^53-1 and uses separate nonzero checks to avoid fixed-width multiplication wrap."
+      "review_notes": "The pinned Lua source returns a closure implementing numeric uint53 bitwise AND through low-bit extraction and arithmetic reconstruction. The nine-port package preserves this operation on 0..2^53-1 and uses separate nonzero checks to avoid fixed-width multiplication wrap.",
+      "benchmark_contract": "benchmarks/u/uint53_bitwise_and/README.md"
     },
     {
       "candidate_id": "and_gate",
@@ -6666,7 +6679,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -6675,7 +6688,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/apparent_power.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "apparent_power",
+      "benchmark_contract": "benchmarks/a/apparent_power/README.md",
+      "review_notes": "The pinned Python function converts voltage and current from polar form using degree angles, then multiplies the resulting complex rectangular values. Because the source returns a complex pair and the shared ABI returns one scalar, this benchmark uses a component selector to record real and imaginary outputs in separate calls on the bounded magnitude/angle domain."
     },
     {
       "candidate_id": "append",
@@ -7037,7 +7053,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -7046,7 +7062,13 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/arithmetic.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "arithmetic_mean",
+      "additional_benchmark_names": [
+        "is_arithmetic_series"
+      ],
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "review_notes": "The pinned Python file exposes two independent routines: is_arithmetic_series checks that all adjacent differences match (a singleton is true; an empty list is rejected), and arithmetic_mean returns sum(values) / len(values). They are benchmarked separately over bounded nonempty integer arrays."
     },
     {
       "candidate_id": "arithmetic_coding",
@@ -7155,7 +7177,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -7164,7 +7186,33 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/binary/arithmeticmean.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "arithmeticmean",
+      "benchmark_contract": "benchmarks/a/arithmeticmean/README.md",
+      "review_notes": "The pinned Go `MeanUsingAndXor` method returns `((a ^ b) >> 1) + (a & b)`, an overflow-safe floor mean. The benchmark restricts both operands to nonnegative signed-i64 values 0..9e18, preserving right-shift behavior and exercising sums that overflow ordinary addition; invalid -1 cannot collide with a valid result. The separate Go `MeanUsingRightShift` method is excluded."
+    },
+    {
+      "candidate_id": "armstrong_digit_cubes",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "C"
+      ],
+      "local_source_folders": [
+        "c"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "C",
+          "language": "C",
+          "path": "math/is_armstrong.c",
+          "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/is_armstrong.c",
+          "local_folder_source": "c"
+        }
+      ],
+      "benchmark_name": "armstrong_digit_cubes",
+      "benchmark_contract": "benchmarks/a/armstrong_digit_cubes/README.md",
+      "review_notes": "The pinned C program sums the cubes of signed decimal digits using C remainder and truncating division, then compares the sum with the original signed int. The benchmark preserves that fixed-cube predicate over the signed-int32 domain; it is distinct from the generalized Java Armstrong predicate, which raises digits to the number of digits."
     },
     {
       "candidate_id": "armstrong",
@@ -7173,7 +7221,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -7182,7 +7230,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Armstrong.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "armstrong",
+      "benchmark_contract": "benchmarks/a/armstrong/README.md",
+      "review_notes": "The pinned Java predicate rejects negative ints, computes the decimal digit count, and compares the sum of each digit raised to that count against the input. Zero returns true because the digit loop is empty and the accumulator starts at zero. The benchmark preserves this behavior over the complete Java signed-int domain; it remains distinct from the narrower C# Narcissistic checker contract."
     },
     {
       "candidate_id": "armstrong_number",
@@ -7791,7 +7842,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -7800,7 +7851,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/astronomical_length_scale_conversion.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "order_of_magnitude_conversion",
+      "review_notes": "The pinned Python length_conversion normalizes full unit names and SI symbols, then multiplies by 10 raised to the source-prefix exponent minus the target-prefix exponent. Its nine metric length prefixes use exponents 0, 3, ..., 24, matching the reviewed order_of_magnitude_conversion contract and its numeric unit codes."
     },
     {
       "candidate_id": "atbash",
@@ -8152,21 +8205,13 @@
     },
     {
       "candidate_id": "average_absolute_deviation",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Julia",
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
-        {
-          "repository": "Julia",
-          "language": "Julia",
-          "path": "src/math/average_absolute_deviation.jl",
-          "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/average_absolute_deviation.jl",
-          "local_folder_source": null
-        },
         {
           "repository": "Python",
           "language": "Python",
@@ -8174,7 +8219,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/average_absolute_deviation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python function computes the arithmetic mean absolute deviation of the supplied integer list and returns the unrounded binary64 value. The shared bounded contract preserves input order and the unrounded result; the Julia source with the same filename is split into average_absolute_deviation_rounded because it rounds to two decimal places.",
+      "benchmark_contract": "benchmarks/a/average_absolute_deviation/README.md"
     },
     {
       "candidate_id": "average_margin_ranking_loss",
@@ -8602,7 +8649,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Julia",
@@ -8611,7 +8658,10 @@
           "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/babylonian_sqrt.jl",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "babylonian_sqrt",
+      "benchmark_contract": "benchmarks/b/babylonian_sqrt/README.md",
+      "review_notes": "The pinned Julia function defaults to tolerance 1e-6 and initial guess S/2, then updates xn as 0.5 * (xn + S/xn) while the squared residual is at least the tolerance. The package preserves this default path on a bounded nonnegative input domain; it is distinct from the Java Babylonian implementation with a different initialization and stopping rule."
     },
     {
       "candidate_id": "back_propagation_neural_network",
@@ -11111,7 +11161,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -11120,7 +11170,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/binary_search_matrix.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binary_search_matrix",
+      "benchmark_contract": "benchmarks/b/binary_search_matrix/README.md",
+      "review_notes": "The pinned Python function checks matrix[0][0], then scans rows while each row's first value is strictly less than the target and applies recursive binary search to that row. Consequently, a target equal to a later row's first element is skipped; the benchmark preserves this edge behavior and encodes found coordinates as row-major indices."
     },
     {
       "candidate_id": "binary_search_recursion",
@@ -11826,7 +11879,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -11835,7 +11888,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_node_sum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binary_tree_node_sum",
+      "benchmark_contract": "benchmarks/b/binary_tree_node_sum/README.md",
+      "review_notes": "The pinned Python class performs a recursive depth-first sum of each node value plus the left and right subtree sums. The benchmark preserves that traversal semantics in an indexed tree encoding; malformed shapes and cycles map to the documented invalid sentinel."
     },
     {
       "candidate_id": "binary_tree_path_sum",
@@ -12245,7 +12301,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -12254,7 +12310,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/BinomialSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binomial_sequence",
+      "benchmark_contract": "benchmarks/b/binomial_sequence/README.md",
+      "review_notes": "The pinned C# source flattens Pascal rows in order starting with row 0; the benchmark maps scalar indices 0..230 to rows 0..20 and uses the same recursive binomial recurrence. The workload keeps repetitions low for the recursive center coefficient."
     },
     {
       "candidate_id": "binomialcoefficient",
@@ -12755,7 +12814,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -12764,7 +12823,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/max/bitwisemax.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "bitwisemax",
+      "benchmark_contract": "benchmarks/b/bitwisemax/README.md",
+      "review_notes": "The pinned Go `Bitwise(a,b,base)` extracts bit 31 of a-b and returns a-(i*(a-b)). The benchmark fixes base=31 and restricts a,b to nonnegative int32 so the sign bit exactly selects the larger input without subtraction overflow. It models the source’s 32-bit variant; other tested base widths are excluded."
     },
     {
       "candidate_id": "bitwisemin",
@@ -12773,7 +12835,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -12782,7 +12844,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/min/bitwisemin.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "bitwisemin",
+      "benchmark_contract": "benchmarks/b/bitwisemin/README.md",
+      "review_notes": "The pinned Go function folds a variadic list with a sign-bit mask, selecting between the running minimum and each next value without branches. On the benchmark’s bounded nonnegative signed-i32 domain, fixed shift base 31 matches the signed-int convention; the ports preserve the bitwise selection recurrence."
     },
     {
       "candidate_id": "black_scholes_option_pricing",
@@ -13589,7 +13654,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -13598,7 +13663,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/boyles_law.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "boyles_law",
+      "benchmark_contract": "benchmarks/b/boyles_law/README.md",
+      "review_notes": "The pinned Python source validates exactly three positive pressure/volume values, solves the missing variable from p1*v1=p2*v2, formats the binary64 quotient to three decimal places, and parses it back. The shared benchmark instead defines exact-rational ties-to-even rounding so all nine ports agree; README/workload document the known discriminator [3,1,80,1] (benchmark 0.012, Python .3f 0.013)."
     },
     {
       "candidate_id": "bpe_tokenizer",
@@ -13625,7 +13693,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -13634,7 +13702,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/bragg_angle.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "bragg_angle",
+      "benchmark_contract": "benchmarks/b/bragg_angle/README.md",
+      "review_notes": "The pinned Python source computes sine=(order*wavelength)/(2*distance), rejects values outside [-1,1], applies asin and degrees, then rounds to one decimal place. The benchmark records a bounded integer-picometre subset and explicitly defines a shared scale-first ties-to-even rounding rule; this can differ from Python near binary64 decimal midpoints and is documented as a normalized cross-language contract."
     },
     {
       "candidate_id": "braik_mac_construction",
@@ -15044,7 +15115,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -15053,7 +15124,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/builtin_voltage.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "builtin_voltage",
+      "benchmark_contract": "benchmarks/b/builtin_voltage/README.md",
+      "review_notes": "The pinned Python function rejects nonpositive concentrations, then requires donor and acceptor concentrations to exceed intrinsic concentration. It returns Boltzmann * 300 * log((donor * acceptor) / intrinsic**2) divided by the SciPy electron-volt constant; the package uses the bounded positive integer subset and preserves this operation order."
     },
     {
       "candidate_id": "burkes",
@@ -15586,7 +15660,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -15595,7 +15669,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/capacitor_equivalence.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "capacitor_equivalence",
+      "benchmark_contract": "benchmarks/c/capacitor_equivalence/README.md",
+      "review_notes": "The pinned Python module computes parallel capacitance with a sequential sum and series capacitance as the reciprocal of a sequential sum of reciprocals. Parallel mode allows zero but rejects negative values; series mode rejects zero and negatives. The benchmark selects the source function by operation and uses bounded nonempty integer-valued inputs."
     },
     {
       "candidate_id": "capitalize",
@@ -15726,7 +15803,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -15735,7 +15812,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/cartesian_to_polar.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "cartesian_to_polar",
+      "review_notes": "The pinned C helper returns radius and an angle in radians; its radius uses sqrt(x*x+y*y), while its quadrant branches can disagree with the atan2(y,x) assertion in its own test. The package covers both selected outputs on bounded finite coordinates, follows atan2 for the angle, and documents the upstream quadrant defect.",
+      "benchmark_contract": "benchmarks/c/cartesian_to_polar/README.md"
     },
     {
       "candidate_id": "casimir_effect",
@@ -16807,7 +16887,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -16816,7 +16896,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/CheckKishnamurthyNumber.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "krishnamurthy_number_checker",
+      "review_notes": "The pinned JavaScript predicate sums factorials of the decimal digits for positive integers and compares the sum with the input. On the signed-int32 domain it agrees with the shared checker, including false for zero and negatives; fractional JavaScript inputs are outside the contract.",
+      "benchmark_contract": "benchmarks/k/krishnamurthy_number_checker/README.md"
     },
     {
       "candidate_id": "check_odd",
@@ -17025,7 +17108,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -17034,7 +17117,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/CheckSnakeCase.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript implementation uses the unanchored pattern /(.*?)_([a-zA-Z])*/; because the trailing letter group may be empty, it returns true exactly when an underscore is present. The benchmark preserves this behavior over printable ASCII bytes, including empty input, and differs from anchored case validators.",
+      "benchmark_contract": "benchmarks/c/check_snake_case/README.md"
     },
     {
       "candidate_id": "check_tree_is_symmetric",
@@ -17074,7 +17159,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -17083,7 +17168,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/CheckVowels.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "check_vowels",
+      "benchmark_contract": "benchmarks/c/check_vowels/README.md",
+      "review_notes": "The pinned Java `hasVowels` returns false for null/empty strings, lowercases input, then tests for a/e/i/o/u. The benchmark restricts to lowercase ASCII, where lowercasing is identity, and returns boolean 0/1; it counts presence, not occurrences, unlike `count_vowels`."
     },
     {
       "candidate_id": "check_word_occurrence",
@@ -17128,7 +17216,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -17144,7 +17232,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/checkisnumberpoweroftwo.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "power_of_two",
+      "review_notes": "The pinned Go integer methods IsPowerOfTwo and IsPowerOfTwoLeftShift match the power_of_two predicate on the shared nonnegative signed-64-bit domain. The same normalized filename also has a floating logarithm helper, which is not represented by this alias and is excluded from the integer contract.",
+      "benchmark_contract": "benchmarks/p/power_of_two/README.md"
     },
     {
       "candidate_id": "chinese_remainder_theorem",
@@ -20061,7 +20152,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -20070,7 +20161,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/count_1s_brian_kernighan_method.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "count_number_of_one_bits",
+      "review_notes": "The pinned Python method selector 0 uses the Brian Kernighan loop number &= number - 1 and returns the same set-bit count as the shared benchmark on its unsigned-32-bit value domain. Other method selectors are outside this filename candidate mapping.",
+      "benchmark_contract": "benchmarks/c/count_number_of_one_bits/README.md"
     },
     {
       "candidate_id": "count_bits_flip",
@@ -20239,7 +20333,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -20248,7 +20342,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/count_islands_in_matrix.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python matrix function scans row-major and recursively flood-fills all eight surrounding neighbors, so diagonal land cells belong to the same island. The bounded rectangular binary-grid contract preserves this behavior and is distinct from four-neighbor island counting and largest-area variants.",
+      "benchmark_contract": "benchmarks/c/count_islands_in_matrix/README.md"
     },
     {
       "candidate_id": "count_leading_zeros",
@@ -20345,7 +20441,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -20354,7 +20450,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/slidingwindow/CountNiceSubarrays.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java method counts contiguous windows containing exactly k odd integers using a sliding window and memoized even prefixes. Its `(value & 1) == 1` test counts negative odd integers. The shared contract preserves this for signed-32-bit values and k in 1..4096; k=0 is excluded because the source's leading-even scan can run past the array. The maximum result at n=4096 fits signed 32-bit.",
+      "benchmark_contract": "benchmarks/c/count_nice_subarrays/README.md"
     },
     {
       "candidate_id": "count_nucleotide",
@@ -20381,7 +20479,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -20390,7 +20488,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/count_number_of_one_bits.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_number_of_one_bits",
+      "benchmark_contract": "benchmarks/c/count_number_of_one_bits/README.md",
+      "review_notes": "The pinned Python source contains three set-bit counters: Brian Kernighan's `n &= n - 1`, repeated modulo/right-shift, and a per-call 256-entry byte lookup table summed over four bytes. The benchmark exposes these methods with a selector on the shared nonnegative uint32 domain."
     },
     {
       "candidate_id": "count_numbers_divisible",
@@ -20482,7 +20583,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -20491,7 +20592,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/count_paths.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_paths",
+      "benchmark_contract": "benchmarks/c/count_paths/README.md",
+      "review_notes": "The pinned Python function counts vertex-simple paths from the upper-left to lower-right cell using recursive DFS, treating 1 as blocked, marking each visited cell during a path, and exploring down, up, right, then left. The benchmark bounds dimensions and uses binary cells for the indexed ABI; ragged grids are outside the source assumptions."
     },
     {
       "candidate_id": "count_sentences",
@@ -20585,7 +20689,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -20601,7 +20705,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/count_sorted_vowel_strings.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_sorted_vowel_strings",
+      "benchmark_contract": "benchmarks/c/count_sorted_vowel_strings/README.md",
+      "review_notes": "The pinned Ruby formula uses (n+4)*(n+3)*(n+2)*(n+1)/24 in that multiplication order; its dynamic-programming sibling agrees for n>=0. The benchmark bounds n to 0..30,000 so the pre-division product fits signed i64, and preserves n=0 -> 1. Invalid -1 is outside the valid result range."
     },
     {
       "candidate_id": "count_substrings",
@@ -20665,7 +20772,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -20674,7 +20781,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/count_vowels_consonants.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_vowels_consonants",
+      "benchmark_contract": "benchmarks/c/count_vowels_consonants/README.md",
+      "review_notes": "The pinned Python routine counts ASCII vowels case-insensitively and treats every other Unicode alphabetic character as a consonant, ignoring nonalphabetic characters. This package documents its portable ASCII-only input normalization and packs the two counts into one scalar result."
     },
     {
       "candidate_id": "count_words",
@@ -20683,7 +20793,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -20692,7 +20802,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/CountWords.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_words",
+      "benchmark_contract": "benchmarks/c/count_words/README.md",
+      "review_notes": "The pinned Java `wordCount` returns 0 for null/empty strings, otherwise applies `trim().split(\"\\s+\").length`. On the bounded ASCII domain, the benchmark preserves Java trim (edge codepoints <= U+0020), default regex whitespace splitting, and the nonempty all-whitespace result of 1. It excludes the separate secondaryWordCount method and maps invalid codepoints to -1."
     },
     {
       "candidate_id": "counting_bits",
@@ -22613,7 +22726,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -22622,7 +22735,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/decimal_to_octal_recursion.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "decimal_to_octal_recursion",
+      "benchmark_contract": "benchmarks/d/decimal_to_octal_recursion/README.md",
+      "review_notes": "The pinned C function recursively divides a nonnegative decimal input by eight and appends each remainder as a base-10 digit, so the result is octal digits packed into a decimal integer (342 returns 526). The benchmark retains this distinct numeric output and caps the range at 295,600,127 so the source result fits signed 32-bit; negative inputs avoid the source’s nonterminating recursion and return the benchmark sentinel."
     },
     {
       "candidate_id": "decimal_to_roman",
@@ -24405,7 +24521,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -24414,7 +24530,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/disarium.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "disarium_number",
+      "review_notes": "The pinned Python function sums decimal digits raised to their one-based positions and matches the existing disarium_number benchmark over 1..99,999,999. Python returns true for zero, while the Java-backed benchmark rejects nonpositive values; the alias is limited to the shared positive bounded domain.",
+      "benchmark_contract": "benchmarks/d/disarium_number/README.md"
     },
     {
       "candidate_id": "disarium_number",
@@ -24787,7 +24906,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -24796,7 +24915,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/DivisorsCountSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "divisors_count_sequence",
+      "benchmark_contract": "benchmarks/d/divisors_count_sequence/README.md",
+      "review_notes": "The pinned C# lazy sequence begins with tau(1)=1; for each later integer n it initializes count=2 and scans divisors from 2 through n-1, yielding the number of positive divisors. The zero-based term at index i is tau(i+1). The benchmark bounds indices to 0..9,999 to preserve the source scan with practical runtime; it is distinct from direct factorization-based number_of_positive_divisors."
     },
     {
       "candidate_id": "djb2",
@@ -25041,7 +25163,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -25050,7 +25172,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/doppler_frequency.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "doppler_frequency",
+      "benchmark_contract": "benchmarks/d/doppler_frequency/README.md",
+      "review_notes": "The pinned Python file exports `doppler_effect` and computes `(org_freq * (wave_vel + obs_vel)) / (wave_vel - src_vel)`, raising for equal wave/source speeds or nonpositive outputs. The benchmark bounds a positive subset that excludes both error cases and preserves the source expression order."
     },
     {
       "candidate_id": "double_ended_queue",
@@ -26393,7 +26518,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26402,7 +26527,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/electric_conductivity.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python function requires exactly one zero, rejects negative inputs, uses electron charge 1.6021e-19, and follows the documented three formula branches. The benchmark maps it to the integer domain 1..1000 for each nonzero input; all nine ports and workload follow that bounded subset and use -1e300 for invalid inputs.",
+      "benchmark_contract": "benchmarks/e/electric_conductivity/README.md"
     },
     {
       "candidate_id": "electric_power",
@@ -26411,7 +26538,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26420,7 +26547,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/electric_power.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "electric_power",
+      "benchmark_contract": "benchmarks/e/electric_power/README.md",
+      "review_notes": "The pinned Python function requires exactly one of voltage, current, and power to be zero, rejects negative power, and solves the missing value using P=VI. It preserves signs in the voltage/current division branches and rounds absolute voltage-times-current to two decimals for the power branch; the integer-valued bounded benchmark domain makes that rounding an identity."
     },
     {
       "candidate_id": "electrical_impedance",
@@ -26429,7 +26559,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26438,7 +26568,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/electrical_impedance.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python function requires exactly one zero and solves the missing component with sqrt(Z²-X²), sqrt(Z²-R²), or sqrt(R²+X²). The benchmark preserves these branches on a bounded nonnegative integer domain, maps negative radicands and other invalid inputs to -1e300, and measures the numeric result rather than the source name/value pair.",
+      "benchmark_contract": "benchmarks/e/electrical_impedance/README.md"
     },
     {
       "candidate_id": "elementary",
@@ -26947,7 +27079,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26956,7 +27088,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/escape_velocity.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "escape_velocity",
+      "benchmark_contract": "benchmarks/e/escape_velocity/README.md",
+      "review_notes": "The pinned Python source computes sqrt(2*G*mass/radius) in that order and rounds the resulting binary64 to 3 decimal places. The ports use a fused residual against the half-thousand midpoint to reproduce Python rounding; the workload includes mass=825929310938975, radius=1e9, where scale-first rounding would return 0.01 but Python returns 0.011. The bounded domain preserves zero mass and excludes invalid negative mass/zero radius."
     },
     {
       "candidate_id": "euclid_gcd",
@@ -27051,7 +27186,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -27088,7 +27223,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/euclidean_distance.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "euclidean_distance",
+      "benchmark_contract": "benchmarks/e/euclidean_distance/README.md",
+      "review_notes": "The pinned JavaScript, MATLAB-Octave, Python, R, and Rust sources compute the n-dimensional Euclidean distance as the square root of the sum of squared coordinate differences. Their behavior for vectors with unequal lengths differs; the shared benchmark contract requires an explicit dimension and exact input length, uses an invalid sentinel for malformed data, and preserves the shared mathematical formula."
     },
     {
       "candidate_id": "euclidean_gcd",
@@ -28598,7 +28736,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -28607,7 +28745,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/FactorialSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "factorial",
+      "benchmark_contract": "benchmarks/f/factorial/README.md",
+      "review_notes": "The pinned C# sequence yields 0!, 1!, 2!, ... using BigInteger and an incremental recurrence. The existing factorial benchmark computes the same term on the shared 0..20 signed-i64-safe domain. This alias identifies the same sequence values; the C# source is a lazy generator while the benchmark performs a per-call factorial loop."
     },
     {
       "candidate_id": "factorial_trailing_zeroes",
@@ -28854,7 +28995,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -28863,7 +29004,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/fast_fibonacci.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "fibonacci_fast",
+      "review_notes": "The pinned Python fast-doubling function returns F(n) using the recursive pair (F(n), F(n+1)); it matches the shared fast Fibonacci benchmark exactly for indices 0..92. Arbitrary-precision results beyond the signed-64-bit benchmark domain are excluded.",
+      "benchmark_contract": "benchmarks/f/fibonacci_fast/README.md"
     },
     {
       "candidate_id": "fast_fibonacci_number",
@@ -29091,7 +29235,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -29100,7 +29244,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/faster_perfect_numbers.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "faster_perfect_numbers",
+      "benchmark_contract": "benchmarks/f/faster_perfect_numbers/README.md",
+      "review_notes": "The pinned Rust generator enumerates primes up to its logarithmic bound, applies the Lucas–Lehmer test to Mersenne numbers, forms each Euclid–Euler perfect number, and filters by the input limit. The package preserves this enumeration on a range that keeps the source's `num * 8 + 1` usize intermediate safe and emits ascending i64 values."
     },
     {
       "candidate_id": "fastexponent",
@@ -29372,7 +29519,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -29381,7 +29528,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/FermatPrimesSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "fermat_numbers_sequence",
+      "benchmark_contract": "benchmarks/f/fermat_numbers_sequence/README.md",
+      "review_notes": "The pinned C# `FermatPrimesSequence` takes the first five outputs of `FermatNumbersSequence` unchanged. It therefore matches terms F(0)..F(4) of the existing bounded Fermat-number benchmark; the name is historical and does not filter for primality."
     },
     {
       "candidate_id": "fermats_little_theorem",
@@ -29792,7 +29942,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -29801,7 +29951,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/Fibonacci2.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "first_n_fibonacci",
+      "review_notes": "The pinned PHP function returns the first n Fibonacci values as a list, matching the byte-output benchmark’s F(0)..F(n-1) result on the shared bounded count domain 3..79.",
+      "benchmark_contract": "benchmarks/f/first_n_fibonacci/README.md"
     },
     {
       "candidate_id": "fibonacci_bottom_up",
@@ -30034,7 +30187,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -30050,7 +30203,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/fibonacci_matrix_exponentiation.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "fibonacci_matrix_exponentiation",
+      "benchmark_contract": "benchmarks/f/fibonacci_matrix_exponentiation/README.md",
+      "review_notes": "Both pinned C++ repositories contain the same `fibo(uint64_t n, uint64_t mod)` implementation: binary matrix exponentiation of the Fibonacci transition matrix, returning one-based F(n) modulo mod. The benchmark excludes n=0 and modulus=0, bounds inputs for exact binary64 representation and safe uint64 modular products, and preserves the algorithmic contract."
     },
     {
       "candidate_id": "fibonacci_number",
@@ -30098,7 +30254,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -30107,7 +30263,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/FibonacciNumberGoldenRation.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java compute method accepts indices 0..70, returns n for 0/1, and otherwise evaluates the Binet expression with Math.sqrt, Math.pow, and Math.round in the documented binary64 operation order. The nine ports preserve that method and its bound; this is distinct from recurrence and binary32 one-based formula benchmarks.",
+      "benchmark_contract": "benchmarks/f/fibonacci_number_golden_ration/README.md"
     },
     {
       "candidate_id": "fibonacci_number_recursive",
@@ -30116,7 +30274,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -30125,7 +30283,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Recursive/FibonacciNumberRecursive.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "fibonacci_recursive",
+      "review_notes": "The pinned JavaScript function returns n for n<2 and otherwise evaluates fibonacci(n-1)+fibonacci(n-2). The benchmark preserves this direct recursive recurrence on the bounded 0..30 domain and returns -1 outside it.",
+      "benchmark_contract": "benchmarks/f/fibonacci_recursive/README.md"
     },
     {
       "candidate_id": "fibonacci_numbers",
@@ -30136,7 +30297,7 @@
       "local_source_folders": [
         "nim"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Nim",
@@ -30145,6 +30306,17 @@
           "url": "https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/dynamic_programming/fibonacci_numbers.nim",
           "local_folder_source": "nim"
         }
+      ],
+      "benchmark_name": "fibonacci_matrix",
+      "review_notes": "The pinned Nim file contains several methods. This candidate maps fibonacciMatrix to the exact matrix benchmark, fibonacciSeqIterative/fibonacciSeqClosure to first_n_fibonacci, and fibonacciRecursive to the bounded naive recursive benchmark.",
+      "benchmark_contract": "benchmarks/f/fibonacci_matrix/README.md",
+      "additional_benchmark_names": [
+        "first_n_fibonacci",
+        "fibonacci_recursive"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/f/first_n_fibonacci/README.md",
+        "benchmarks/f/fibonacci_recursive/README.md"
       ]
     },
     {
@@ -30157,7 +30329,7 @@
       "local_source_folders": [
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -30173,7 +30345,10 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/fibonacciRecursion.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "alias_of": "fibonacci_number_recursive",
+      "review_notes": "The pinned Zig source uses the standard naive recursive Fibonacci recurrence and the Dart source uses the same recurrence with a one-based base case. Both match the recursive benchmark on the shared positive range 1..30; Dart n=0 is excluded because the source does not terminate there.",
+      "benchmark_contract": "benchmarks/f/fibonacci_recursive/README.md"
     },
     {
       "candidate_id": "fibonacci_search",
@@ -30305,7 +30480,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -30321,6 +30496,15 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/maths/fibonacci_sequence.m",
           "local_folder_source": null
         }
+      ],
+      "alias_of": "fibonacci",
+      "benchmark_contract": "benchmarks/f/fibonacci/README.md",
+      "review_notes": "This candidate maps its nth-term method to fibonacci and its list-returning method to first_n_fibonacci; the latter is normalized to the shared n=3..79 prefix domain to avoid source-language edge differences.",
+      "additional_benchmark_names": [
+        "first_n_fibonacci"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/f/first_n_fibonacci/README.md"
       ]
     },
     {
@@ -30330,7 +30514,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -30339,7 +30523,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/recursion/FibonacciSeries.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "fibonacci_number_recursive",
+      "review_notes": "The pinned Java method is explicitly naive recursive Fibonacci: it returns n for n<2 and otherwise calls itself at n-1 and n-2. It matches fibonacci_recursive on the package domain 0..30, where the Java int result remains exact; negative inputs are outside the shared domain.",
+      "benchmark_contract": "benchmarks/f/fibonacci_recursive/README.md"
     },
     {
       "candidate_id": "fibonacci_sum",
@@ -30424,7 +30611,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -30433,7 +30620,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/FigurateNumber.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "figurate_number",
+      "benchmark_contract": "benchmarks/f/figurate_number/README.md",
+      "review_notes": "The pinned JavaScript module exports triangular, tetrahedral, and pentatope membership predicates plus `checkAll`. The benchmark preserves their distinct index starts (triangular begins at 0; tetrahedral and pentatope begin at 1) and packs the three booleans into bits 0..2 of one scalar result."
     },
     {
       "candidate_id": "finance_ratios",
@@ -31108,7 +31298,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "R",
@@ -31117,7 +31307,9 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/first_n_fibonacci.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned R source returns the first n Fibonacci terms in list form. The bounded contract emits F(0) through F(n-1) as decimal NUL-delimited bytes for n=3..79; the lower bound avoids the source R loop’s descending 3:2 behavior at n=2, and the upper bound keeps R binary64 values exact and results within i64.",
+      "benchmark_contract": "benchmarks/f/first_n_fibonacci/README.md"
     },
     {
       "candidate_id": "first_unique_character",
@@ -31817,7 +32009,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -31826,7 +32018,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/FormatPhoneNumber.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript function requires length 10 and a false isNaN coercion check, then replaces each X in `(XXX) XXX-XXXX` with the corresponding input character in order. This benchmark restricts inputs to exactly ten ASCII digits, preserving leading zeroes while avoiding wider JavaScript coercion cases.",
+      "benchmark_contract": "benchmarks/f/format_phone_number/README.md"
     },
     {
       "candidate_id": "formatted_output",
@@ -32301,7 +32495,8 @@
         }
       ],
       "review_notes": "The function marks each vertex visited and appends it after recursively visiting outgoing neighbors, producing DFS finishing order. This is the same algorithm variant as the existing topological_sort_dfs benchmark; its local contract adds deterministic traversal and cycle detection.",
-      "benchmark_name": "topological_sort_dfs"
+      "benchmark_name": "topological_sort_dfs",
+      "benchmark_contract": "benchmarks/t/topological_sort_dfs/README.md"
     },
     {
       "candidate_id": "gabor_filter",
@@ -33736,7 +33931,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -33745,7 +33940,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/GermainPrimeAndSafePrime.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "germain_prime_and_safe_prime",
+      "benchmark_contract": "benchmarks/g/germain_prime_and_safe_prime/README.md",
+      "review_notes": "The pinned Java class exposes distinct Germain-prime and safe-prime predicates using deterministic trial-division primality checks. The benchmark preserves both methods behind a selector and bounds n so 2*n+1 stays in Java int range."
     },
     {
       "candidate_id": "germain_primes",
@@ -33847,7 +34045,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -33856,7 +34054,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Timing-Functions/GetMonthDays.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "get_month_days",
+      "benchmark_contract": "benchmarks/g/get_month_days/README.md",
+      "review_notes": "The pinned JavaScript helper supports months 1..12, returns 31/30 for fixed-length months, and delegates February to the Gregorian leap-year predicate; year 0 is leap under that rule. The benchmark adds an integer year bound 0..9,999 and maps invalid months/out-of-range years to -1 in place of the source TypeError. It returns month length, distinct from a Boolean leap-year predicate."
     },
     {
       "candidate_id": "get_products_of_all_other_elements",
@@ -35998,7 +36199,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -36007,7 +36208,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/harshad_numbers.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source enumerates positive integers strictly below limit whose numeric value is divisible by the sum of their base-b digits, returning uppercase base strings; it validates bases 2 through 36 and returns an empty list for negative limits. The benchmark ports that enumeration as NUL-delimited ASCII strings, bounds the limit at 10,000, and maps invalid bases and out-of-bound positive limits to -1. The source boolean helper is separate and is not aliased to this enumeration.",
+      "benchmark_name": "harshad_numbers_in_base",
+      "benchmark_contract": "benchmarks/h/harshad_numbers_in_base/README.md"
     },
     {
       "candidate_id": "has_loop",
@@ -36227,7 +36431,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -36236,7 +36440,9 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/hash/hash_sdbm.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "review_notes": "The pinned C source starts at zero and updates a uint64_t hash for each non-NUL byte as `byte + (hash << 6) + (hash << 16) - hash`, with unsigned wraparound. The benchmark restricts payload bytes to nonzero ASCII, then exposes the resulting 64-bit pattern as signed i64 without changing its bits.",
+      "benchmark_contract": "benchmarks/h/hash_sdbm/README.md"
     },
     {
       "candidate_id": "hash_search",
@@ -37433,7 +37639,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -37449,7 +37655,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/hexagonal_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "hexagonal_number",
+      "benchmark_contract": "benchmarks/h/hexagonal_number/README.md",
+      "review_notes": "The pinned JavaScript and Python sources require a positive integer index and compute n*(2*n-1). The benchmark uses the common exact domain 1..67,108,864, keeping JavaScript integer results at or below 2^53-1; the next index exceeds that precision limit. Invalid inputs return -1."
     },
     {
       "candidate_id": "hexagonal_numbers",
@@ -37800,7 +38009,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -37809,7 +38018,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/hookes_law.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "hookes_law",
+      "benchmark_contract": "benchmarks/h/hookes_law/README.md",
+      "review_notes": "The pinned Python implementation requires spring_constant > 0 and returns -spring_constant * displacement, with negative and zero displacement valid. The bounded integral domain (k=1..1000, displacement=-1000..1000) preserves the source formula and unary-negation/multiplication order; outputs cannot collide with the -1e300 invalid sentinel. This remains distinct from other force formulas."
     },
     {
       "candidate_id": "hopcroft_karp",
@@ -38381,7 +38593,8 @@
         }
       ],
       "benchmark_name": "ideal_gas_law",
-      "review_notes": "The pinned Python pressure function computes moles * kelvin * 8.314462 / volume in that order and rejects negative arguments. The package preserves this formula on a bounded integer subset, excludes zero volume to avoid division by zero, and uses a noncolliding -1e300 invalid sentinel."
+      "review_notes": "The package covers all four pinned Python functions through operation selectors 0..3, preserving each function's argument order and formula with R=8.314462. Its bounded 0..1000 integer subset excludes zero only for the selected denominator and maps invalid ABI inputs to -1e300.",
+      "benchmark_contract": "benchmarks/i/ideal_gas_law/README.md"
     },
     {
       "candidate_id": "idigest",
@@ -38716,7 +38929,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -38725,7 +38938,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/ind_reactance.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "ind_reactance",
+      "benchmark_contract": "benchmarks/i/ind_reactance/README.md",
+      "review_notes": "The pinned Python function requires exactly one zero, rejects negatives, and returns the missing inductance, frequency, or reactance using the corresponding source branch formula. The benchmark preserves branch order and expression order on bounded positive integer-valued inputs."
     },
     {
       "candidate_id": "index_2d_array_in_1d",
@@ -38770,7 +38986,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -38779,7 +38995,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/IndexOfRightMostSetBit.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java method returns the zero-based index of the least-significant set bit, including negative signed-int32 values via its negate-then-isolate behavior (INT32_MIN yields 31). This is distinct from the Rust `rightmost_set_bit` benchmark, which returns a one-based position and accepts only positive values; zero is the -1 invalid sentinel here.",
+      "benchmark_name": "index_of_right_most_set_bit",
+      "benchmark_contract": "benchmarks/i/index_of_right_most_set_bit/README.md"
     },
     {
       "candidate_id": "index_of_rightmost_set_bit",
@@ -38798,9 +39017,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "rightmost_set_bit",
-      "review_notes": "The pinned Python function returns a zero-based index of the least-significant set bit for positive inputs, while the Rust `rightmost_set_bit` benchmark returns a one-based position. On the shared positive int32 domain, add one to the Python result to match the canonical benchmark; zero already maps to the benchmark invalid sentinel and is outside the accepted domain. This is distinct from the isolated bit mask returned by `lowest_set_bit`.",
-      "benchmark_contract": "benchmarks/r/rightmost_set_bit/README.md"
+      "alias_of": "index_of_right_most_set_bit",
+      "review_notes": "The pinned Python function returns the zero-based index of the least-significant set bit for nonnegative inputs and rejects negatives. It maps to the Java canonical benchmark on the shared positive-input domain; the benchmark additionally preserves Java signed-int32 behavior.",
+      "benchmark_contract": "benchmarks/i/index_of_right_most_set_bit/README.md"
     },
     {
       "candidate_id": "indexed_priority_queue",
@@ -38827,7 +39046,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -38836,7 +39055,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/indian_phone_validator.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python implementation searches for the anchored pattern ^\\u0028\\\\+91[\\\\-\\\\s]?\\u0029?[0]?(91)?[789]\\\\d{9}$ and requires the match to span the supplied string. The benchmark preserves the optional +91, single optional separator, leading zero, 91 prefix, and 7/8/9 mobile prefix over ASCII input; it also models Python $ accepting one final LF and the ASCII subset of \\s. The domain is bounded to 1..18 bytes, with invalid length or non-ASCII input returning -1.",
+      "benchmark_contract": "benchmarks/i/indian_phone_validator/README.md"
     },
     {
       "candidate_id": "individual_e_l_add",
@@ -39470,7 +39691,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -39479,7 +39700,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/Int2Binary.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "int2_binary",
+      "benchmark_contract": "benchmarks/i/int2_binary/README.md",
+      "review_notes": "The pinned C# Int2Bin overloads emit fixed-width MSB-first digits for ushort, uint, and ulong. This benchmark selects the uint overload, accepts 0..UINT32_MAX, and emits exactly 32 ASCII binary digits including leading zeroes; the 16- and 64-bit overload domains are documented as outside this contract."
     },
     {
       "candidate_id": "int_file_storage",
@@ -40583,23 +40807,13 @@
     },
     {
       "candidate_id": "is_armstrong",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "C",
         "MATLAB-Octave"
       ],
-      "local_source_folders": [
-        "c"
-      ],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
-        {
-          "repository": "C",
-          "language": "C",
-          "path": "math/is_armstrong.c",
-          "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/is_armstrong.c",
-          "local_folder_source": "c"
-        },
         {
           "repository": "MATLAB-Octave",
           "language": "MATLAB",
@@ -40607,7 +40821,10 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/maths/is_armstrong.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned MATLAB-Octave function reverses decimal digits and compares the reversed value with the original, so it is a palindrome predicate rather than a digit-power Armstrong predicate. On its nonnegative integer domain it aliases the existing palindrome_number contract; negative behavior lies outside that shared domain.",
+      "benchmark_contract": "benchmarks/p/palindrome_number/README.md",
+      "alias_of": "palindrome_number"
     },
     {
       "candidate_id": "is_contains_unique_chars",
@@ -40763,7 +40980,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -40772,7 +40989,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/is_int_palindrome.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "palindrome_number",
+      "review_notes": "The pinned Python predicate uses decimal digit reversal and agrees with the existing palindrome_number contract for every nonnegative signed-32-bit input. Negative values are excluded by that shared domain, where the upstream languages differ in whether they return false or throw.",
+      "benchmark_contract": "benchmarks/p/palindrome_number/README.md"
     },
     {
       "candidate_id": "is_ip_v4_address_valid",
@@ -41226,7 +41446,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -41235,7 +41455,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/IsPronic.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pronic_number",
+      "benchmark_contract": "benchmarks/p/pronic_number/README.md",
+      "review_notes": "The pinned JavaScript source checks ceil(sqrt(n))*floor(sqrt(n))==n, which is equivalent to n=m*(m+1) on the benchmark’s exact nonnegative INT32 domain; zero is included. It aliases the canonical `pronic_number` package."
     },
     {
       "candidate_id": "is_sorted",
@@ -41270,7 +41493,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "TypeScript",
@@ -41279,7 +41502,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/other/is_sorted_array.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned TypeScript loop returns false whenever arr[i] >= arr[i + 1], so its predicate is strictly increasing rather than nondecreasing. It returns true for empty and singleton arrays and stops on the first duplicate or descent. The benchmark limits integer values to the JavaScript safe-integer range for exact cross-language comparisons.",
+      "benchmark_contract": "benchmarks/i/is_sorted_array/README.md"
     },
     {
       "candidate_id": "is_spain_national_id",
@@ -41301,14 +41526,13 @@
     },
     {
       "candidate_id": "is_square_free",
-      "source_repository_count": 3,
+      "source_repository_count": 2,
       "source_repositories": [
         "JavaScript",
-        "Python",
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -41318,20 +41542,16 @@
           "local_folder_source": null
         },
         {
-          "repository": "Python",
-          "language": "Python",
-          "path": "maths/is_square_free.py",
-          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/is_square_free.py",
-          "local_folder_source": null
-        },
-        {
           "repository": "TypeScript",
           "language": "TypeScript",
           "path": "maths/is_square_free.ts",
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/is_square_free.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "is_square_free",
+      "benchmark_contract": "benchmarks/i/is_square_free/README.md",
+      "review_notes": "The pinned JavaScript and TypeScript predicates test whether a positive integer is square-free by checking for repeated prime factors. They map to the numeric predicate package on its bounded positive-integer domain; the Python file with the same basename instead checks uniqueness in a supplied factor list and is cataloged separately."
     },
     {
       "candidate_id": "is_srilankan_phone_number",
@@ -41340,7 +41560,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -41349,7 +41569,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/is_srilankan_phone_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "is_srilankan_phone_number",
+      "benchmark_contract": "benchmarks/i/is_srilankan_phone_number/README.md",
+      "review_notes": "The pinned Python regex is anchored and accepts prefixes 0, 94, +94, or 0094, followed by 7 and an allowed provider digit, an optional single hyphen or space, and seven digits. The benchmark preserves Python's final-LF `$` behavior and restricts the byte ABI to ASCII; the Zig export accepts a nullable pointer to match the documented invalid-input result."
     },
     {
       "candidate_id": "is_subsequence",
@@ -42644,7 +42867,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -42653,7 +42876,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/JulianEaster.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "julian_easter",
+      "benchmark_contract": "benchmarks/j/julian_easter/README.md",
+      "review_notes": "The pinned C# method uses Meeus’s Julian Easter calculation with year residues modulo 4, 7, and 19, then constructs a UTC date. The benchmark preserves the formula for years 1 through 9,999 and packs the returned year, month, and day as YYYYMMDD."
     },
     {
       "candidate_id": "jump",
@@ -43442,7 +43668,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -43451,7 +43677,16 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/KaprekarNumbers.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "additional_benchmark_names": [
+        "kaprekar_numbers_in_range"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/k/kaprekar_numbers_in_range/README.md"
+      ],
+      "review_notes": "The pinned Java class exposes both a scalar Kaprekar predicate and inclusive range enumeration. The scalar predicate agrees with the existing kaprekar_number benchmark on positive inputs; it returns true for zero, unlike that benchmark contract, so the scalar mapping is restricted to its positive domain. The separate range benchmark preserves Java's inclusion of zero and one.",
+      "benchmark_contract": "benchmarks/k/kaprekar_number/README.md",
+      "benchmark_name": "kaprekar_number"
     },
     {
       "candidate_id": "karatsuba",
@@ -43669,7 +43904,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -43685,7 +43920,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/keith_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "keith_number",
+      "benchmark_contract": "benchmarks/k/keith_number/README.md",
+      "review_notes": "The pinned Java and Python sources seed the recurrence with the input digits in decimal order, repeatedly sum the preceding digit-count terms, and test whether the generated term equals the input. Java returns true for a one-digit positive input while Python excludes values below 10; the shared contract starts at 10 and caps inputs at 999,999 to preserve Java int arithmetic."
     },
     {
       "candidate_id": "keith_number_checker",
@@ -43694,7 +43932,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -43703,7 +43941,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/KeithNumberChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "keith_number_checker",
+      "benchmark_contract": "benchmarks/k/keith_number_checker/README.md",
+      "review_notes": "The pinned C# checker counts input digits, then appends sums of the most recent digitCount terms until the sum reaches the input. It returns true for one-digit inputs 2..9, but inputs 0 and 1 throw due to an array write; negatives throw ArgumentException. The benchmark preserves the recurrence on 2..1000 and maps source exceptions/out-of-range inputs to -1."
     },
     {
       "candidate_id": "kelly_criterion",
@@ -44586,7 +44827,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -44595,7 +44836,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/KolakoskiSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "kolakoski_sequence",
+      "benchmark_contract": "benchmarks/k/kolakoski_sequence/README.md",
+      "review_notes": "The pinned C# iterator yields 1, 2, 2, seeds its queue with run length 2, and emits alternating 1s and 2s according to queued run lengths. The benchmark exposes zero-based terms 0..63, preserving the sequence while bounding the packed representation."
     },
     {
       "candidate_id": "kolakoski_sequence2",
@@ -44604,7 +44848,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -44613,7 +44857,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/KolakoskiSequence2.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "kolakoski_sequence",
+      "review_notes": "The pinned C# KolakoskiSequence2 is an alternate lazy generator of the same 1,2 self-run-length sequence. It maps to the shared zero-based Kolakoski sequence contract.",
+      "benchmark_contract": "benchmarks/k/kolakoski_sequence/README.md"
     },
     {
       "candidate_id": "kosajaru",
@@ -44733,7 +44980,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -44742,7 +44989,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/krishnamurthy.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "krishnamurthy_number_checker",
+      "review_notes": "The pinned Go predicate returns false for n<=0, then sums factorials of decimal digits and compares with n. It agrees with the shared checker on signed-int32 inputs.",
+      "benchmark_contract": "benchmarks/k/krishnamurthy_number_checker/README.md"
     },
     {
       "candidate_id": "krishnamurthy_number",
@@ -44788,7 +45038,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -44797,7 +45047,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/KrishnamurthyNumberChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "krishnamurthy_number_checker",
+      "benchmark_contract": "benchmarks/k/krishnamurthy_number_checker/README.md",
+      "review_notes": "The pinned C# predicate returns false for n<=0; for positive int32 values it sums the factorials of decimal digits and compares with n. The benchmark preserves that predicate on the source int32 domain, mapping nonpositive results to 0 and out-of-range ABI inputs to -1."
     },
     {
       "candidate_id": "kronecker_product",
@@ -45186,7 +45439,7 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -45195,7 +45448,10 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/Kynea_numbers.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "kynea_numbers",
+      "benchmark_contract": "benchmarks/k/kynea_numbers/README.md",
+      "review_notes": "The pinned Dart function takes a one-based index and evaluates (2^n + 1)^2 - 2 in that order. The benchmark keeps this formula and restricts indices to 1 through 31 so the exact results fit signed 64-bit; the next index exceeds that range."
     },
     {
       "candidate_id": "label_encode",
@@ -45918,7 +46174,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -45927,7 +46183,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/leaky_relu.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Rust function clones the vector and multiplies each element strictly below zero by alpha; nonnegative values, including signed zero, remain unchanged. The benchmark applies the same operation to a singleton vector with finite bounded binary64 inputs and preserves the source branch and multiplication order.",
+      "benchmark_contract": "benchmarks/l/leaky_relu/README.md"
     },
     {
       "candidate_id": "leap_year",
@@ -48288,7 +48546,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -48297,7 +48555,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/LongestAlternatingSubsequence.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "longest_alternating_subsequence",
+      "benchmark_contract": "benchmarks/l/longest_alternating_subsequence/README.md",
+      "review_notes": "The pinned Java method uses two dynamic-programming states per endpoint: a strict rise extends a falling subsequence and a strict fall extends a rising subsequence. It initializes each state and the overall result to 1, so its empty-input result is also 1; the benchmark preserves that source edge behavior. The local contract bounds values to signed int32 and length to 512."
     },
     {
       "candidate_id": "longest_arithmetic_subsequence",
@@ -49720,7 +49981,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -49729,7 +49990,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/LucasNumbersBeginningAt2Sequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "lucas_series",
+      "benchmark_contract": "benchmarks/l/lucas_series/README.md",
+      "review_notes": "The pinned C# source yields Lucas values 2, 1, then advances by previous+current, exactly matching zero-based L(0)=2, L(1)=1. The existing Lucas benchmark supports indices 0..90; this is a bounded scalar term view of the same lazy BigInteger sequence."
     },
     {
       "candidate_id": "lucas_series",
@@ -49807,7 +50071,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -49816,7 +50080,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/LuckyNumber.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "lucky_number",
+      "benchmark_contract": "benchmarks/l/lucky_number/README.md",
+      "review_notes": "The pinned Java implementation is an iterative position test whose counter starts at 2 and increments by exactly one after each division step. The benchmark preserves that exact method, including its difference from standard lucky-number sieve membership (for example, 15 is false), on positive inputs 1..1,000,000. Boolean results 0/1 cannot collide with the -1 invalid sentinel."
     },
     {
       "candidate_id": "ludecomposition",
@@ -50307,7 +50574,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -50316,7 +50583,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/MakeChangeSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "make_change_sequence",
+      "benchmark_contract": "benchmarks/m/make_change_sequence/README.md",
+      "review_notes": "The pinned C# source yields the first 17 change-count terms for unlimited 1-, 2-, 5-, and 10-cent coins, then uses its stated seven-offset recurrence. The benchmark indexes terms for amounts 0 through 128; the nine ports preserve the seed values and left-to-right recurrence order."
     },
     {
       "candidate_id": "make_graph",
@@ -50370,7 +50640,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -50379,7 +50649,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/malus_law.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "malus_law",
+      "benchmark_contract": "benchmarks/m/malus_law/README.md",
+      "review_notes": "The pinned Python source requires nonnegative intensity and angle in inclusive [0,360], then computes `initial_intensity * (cos(radians(angle)) ** 2)`. The benchmark selects bounded integer inputs from the float API, preserves the source guards and operation order, and maps invalid ABI cases to -1e300; the source itself raises ValueError for invalid physical inputs."
     },
     {
       "candidate_id": "manacher",
@@ -50690,7 +50963,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -50699,7 +50972,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/mass_energy_equivalence.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "mass_energy_equivalence",
+      "benchmark_contract": "benchmarks/m/mass_energy_equivalence/README.md",
+      "review_notes": "The pinned Python source exports energy_from_mass(mass)=mass*c**2 and mass_from_energy(energy)=energy/c**2 using c=299792458 m/s; each rejects negative inputs and accepts zero. The benchmark exposes both operations through an operation selector and bounds the nonnegative integer input to 1,000,000,000. All nine ports preserve the operation-specific formula and invalid-input behavior."
     },
     {
       "candidate_id": "match_word_pattern",
@@ -57055,7 +57331,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -57064,7 +57340,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/NarcissisticNumberChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "narcissistic_number_checker",
+      "benchmark_contract": "benchmarks/n/narcissistic_number_checker/README.md",
+      "review_notes": "The pinned C# checker counts decimal digits, sums each digit raised to that count, then compares with the input. Zero returns true because both loops are skipped; negative values return false, including INT32_MIN. The benchmark preserves these behaviors within its bounded int32 domain; it is distinct from the enumeration benchmark `narcissistic_number`."
     },
     {
       "candidate_id": "nasa_data",
@@ -57091,7 +57370,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -57100,7 +57379,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/NaturalSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "natural_sequence",
+      "benchmark_contract": "benchmarks/n/natural_sequence/README.md",
+      "review_notes": "The pinned C# source is an infinite lazy generator beginning at BigInteger 1 and incrementing after each yield. The benchmark maps zero-based index n to n+1, restricts valid indices to 0..INT64_MAX-1 so the result fits i64, and reserves -1 for invalid indices. Indexed ports are O(1) while advancing the source generator is O(n); README documents this cost difference."
     },
     {
       "candidate_id": "natural_sort",
@@ -57303,7 +57585,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -57312,7 +57594,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/NegativeIntegersSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "negative_integers_sequence",
+      "benchmark_contract": "benchmarks/n/negative_integers_sequence/README.md",
+      "review_notes": "The pinned C# source is a lazy BigInteger generator yielding -1,-2,-3,...; zero-based index n maps to -n-1. The benchmark supports every nonnegative i64 index through INT64_MAX, where the result is INT64_MIN, and uses 0 as an invalid sentinel that cannot collide with a term. Indexed ports are O(1), while advancing the source generator is O(n); README documents this cost difference."
     },
     {
       "candidate_id": "negative_log_likelihood",
@@ -57750,7 +58035,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -57759,7 +58044,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/newtons_law_of_gravitation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "newtons_law_of_gravitation",
+      "benchmark_contract": "benchmarks/n/newtons_law_of_gravitation/README.md",
+      "review_notes": "The pinned Python function requires exactly one zero among force, mass_1, mass_2, and distance, rejects negative values, and solves the corresponding Newtonian gravitation equation with G=6.6743e-11. The benchmark encodes the missing parameter with a selector, bounds the three supplied values to positive integers 1..1000, and preserves the source formula order for each of the four outputs."
     },
     {
       "candidate_id": "newtons_second_law_of_motion",
@@ -57768,7 +58056,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -57777,7 +58065,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/newtons_second_law_of_motion.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "newtons_second_law_of_motion",
+      "benchmark_contract": "benchmarks/n/newtons_second_law_of_motion/README.md",
+      "review_notes": "The pinned Python function returns mass * acceleration without positivity checks; it catches exceptions and returns -0.0, but the bounded numeric ABI inputs cannot trigger that fallback. The benchmark preserves signed products on an integral domain bounded to -1,000..1,000."
     },
     {
       "candidate_id": "next_greater_element",
@@ -58315,7 +58606,8 @@
         }
       ],
       "benchmark_name": "uint53_bitwise_not",
-      "review_notes": "The pinned Lua source computes the complement over exactly 53 bits using byte lookup, a residual-bit tail, and leading one bits. The nine-port package preserves that uint53 complement and rejects values outside 0..2^53-1."
+      "review_notes": "The pinned Lua source computes the complement over exactly 53 bits using byte lookup, a residual-bit tail, and leading one bits. The nine-port package preserves that uint53 complement and rejects values outside 0..2^53-1.",
+      "benchmark_contract": "benchmarks/u/uint53_bitwise_not/README.md"
     },
     {
       "candidate_id": "not_gate",
@@ -58456,7 +58748,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -58465,7 +58757,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/nth_fibonacci_using_matrix_exponentiation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "fibonacci_numbers",
+      "review_notes": "The pinned Python method returns n for n<=1, otherwise computes the top-left entry of the Fibonacci Q-matrix raised to n-1. It matches the exact matrix benchmark for indices 0..92; negative-input behavior is outside the shared domain.",
+      "benchmark_contract": "benchmarks/f/fibonacci_matrix/README.md"
     },
     {
       "candidate_id": "nth_root",
@@ -58536,7 +58831,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -58545,7 +58840,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/NumberAppearingOddTimes.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "number_appearing_odd_times",
+      "benchmark_contract": "benchmarks/n/number_appearing_odd_times/README.md",
+      "review_notes": "The pinned Java method initializes an int accumulator to zero and XOR-folds every element of its int array. The benchmark preserves signed-int32 bit patterns and sign-extends the result; the odd-frequency precondition is documented but not validated, matching source behavior. Its invalid sentinel -2147483649 is outside the valid int32 output range."
     },
     {
       "candidate_id": "number_container_system",
@@ -58686,7 +58984,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -58695,7 +58993,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Array/NumberOfLocalMaximumPoints.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "number_of_local_maximum_points",
+      "benchmark_contract": "benchmarks/n/number_of_local_maximum_points/README.md",
+      "review_notes": "The pinned JavaScript recursively splits the index range but tests each element exactly once. Endpoints require strict comparison with their sole neighbor; interior values must exceed both neighbors. A singleton returns 0 because its comparison against the missing next value is false. The benchmark adds bounded i32-array input handling; it is distinct from peak-index search."
     },
     {
       "candidate_id": "number_of_paths",
@@ -58765,7 +59066,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -58774,7 +59075,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/number_of_possible_binary_trees.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python binary_tree_count(n) multiplies Catalan(n) by n!, using the same exact integer result as the benchmark. The benchmark selects the positive-node domain [1,14] enforced by the source CLI; although the callable helper returns 1 for n=0, empty trees are outside this workload contract. Fourteen is the largest result that fits signed 64-bit output.",
+      "benchmark_contract": "benchmarks/n/number_of_possible_binary_trees/README.md"
     },
     {
       "candidate_id": "number_of_primes_by_number_of_digits_sequence",
@@ -58882,7 +59185,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -58898,7 +59201,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/numbers_different_signs.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "numbers_different_signs",
+      "benchmark_contract": "benchmarks/n/numbers_different_signs/README.md",
+      "review_notes": "The pinned Java and Python implementations both return whether (left XOR right) < 0. The benchmark restricts Python inputs to Java signed int32 so the same bit width and signed result apply; it preserves zero paired with a negative value returning true under this bitwise predicate."
     },
     {
       "candidate_id": "numeric_string_sort",
@@ -59612,7 +59918,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Lua",
@@ -59621,7 +59927,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/bit/uint53/ones_count.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "uint53_ones_count",
+      "benchmark_contract": "benchmarks/u/uint53_ones_count/README.md",
+      "review_notes": "The pinned Lua source counts the set bits of one unsigned safe-integer value using byte decomposition. The benchmark supports 0..2^53-1 and preserves popcount semantics; it is distinct from Java `count_set_bits`, which computes a prefix total."
     },
     {
       "candidate_id": "ones_counting_sequence",
@@ -59630,7 +59939,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -59639,7 +59948,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/OnesCountingSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "ones_count",
+      "benchmark_contract": "benchmarks/u/uint53_ones_count/README.md",
+      "review_notes": "The pinned C# sequence emits popcount(n) for n=0,1,2,..., matching the Lua `ones_count` operation on the shared uint53 domain. The indexed benchmark computes one term directly rather than advancing the lazy sequence; Java `count_set_bits` remains distinct because it counts set bits across the full prefix 0..n."
     },
     {
       "candidate_id": "open_google_results",
@@ -59857,7 +60169,8 @@
         }
       ],
       "benchmark_name": "uint53_bitwise_or",
-      "review_notes": "The pinned Lua source implements numeric uint53 bitwise OR by peeling low bits and appending the remaining operand. The package preserves the source loop on 0..2^53-1 and validates the bounded integer domain."
+      "review_notes": "The pinned Lua source implements numeric uint53 bitwise OR by peeling low bits and appending the remaining operand. The package preserves the source loop on 0..2^53-1 and validates the bounded integer domain.",
+      "benchmark_contract": "benchmarks/u/uint53_bitwise_or/README.md"
     },
     {
       "candidate_id": "or_gate",
@@ -60168,7 +60481,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -60184,7 +60497,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/padovan_sequence.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "padovan_sequence",
+      "benchmark_contract": "benchmarks/p/padovan_sequence/README.md",
+      "review_notes": "The pinned Java and Python functions share seeds P(0)=P(1)=P(2)=1 and recurrence P(n)=P(n-2)+P(n-3), with iterative updates and negative-index rejection. Python uses unbounded integers while Java returns long; the benchmark caps the index at 156 so all results fit signed 64-bit."
     },
     {
       "candidate_id": "page_rank",
@@ -61086,7 +61402,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -61095,7 +61411,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/parity.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "parity",
+      "benchmark_contract": "benchmarks/p/parity/README.md",
+      "review_notes": "The pinned Python source rejects negative integers, then uses Kernighan bit clearing while toggling a parity bit. The benchmark preserves the 0/1 result for nonnegative signed-i64 values and maps invalid negative input to -1. It is distinct from set-bit count and from the even-parity boolean benchmark."
     },
     {
       "candidate_id": "parity_check",
@@ -61942,7 +62261,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -61951,7 +62270,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/PerfectCubeChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "perfect_cube_checker",
+      "benchmark_contract": "benchmarks/p/perfect_cube_checker/README.md",
+      "review_notes": "The pinned C# primary method rounds a floating cube root and tests its cube against the magnitude. On signed i32 inputs its predicate matches exact integer-root checking, including INT32_MIN (not a cube despite unchecked negation). The package follows that predicate with a progress-safe bounded search; the source’s alternate binary-search method is excluded because its int cube may overflow."
     },
     {
       "candidate_id": "perfect_number",
@@ -62187,7 +62509,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -62196,7 +62518,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/PerfectSquareChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "perfect_square_checker",
+      "benchmark_contract": "benchmarks/p/perfect_square_checker/README.md",
+      "review_notes": "The pinned C# source returns false for negative int inputs; for nonnegative inputs it floors Math.Sqrt and checks root*root==n. The benchmark uses exact integer search over signed int32, equivalent on this domain, and reserves -1 for values outside it."
     },
     {
       "candidate_id": "perfectnumber",
@@ -62262,7 +62587,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -62271,7 +62596,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/period_of_pendulum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "period_of_pendulum",
+      "benchmark_contract": "benchmarks/p/period_of_pendulum/README.md",
+      "review_notes": "The pinned Python source rejects negative lengths and computes 2*pi*(length/g)**0.5 using standard gravity 9.80665. The benchmark uses the bounded integer subset 0..1000, preserves division-before-square-root and final multiplication order, and returns zero at length zero. Its -1e300 sentinel cannot collide with a valid nonnegative period; README distinguishes this closed form from RK4 simulation."
     },
     {
       "candidate_id": "perlin_noise",
@@ -62633,7 +62961,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -62642,7 +62970,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/photoelectric_effect.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "photoelectric_effect",
+      "benchmark_contract": "benchmarks/p/photoelectric_effect/README.md",
+      "review_notes": "The pinned Python function `maximum_kinetic_energy` rejects negative frequency and returns `max(h_ev * frequency - work_function, 0)` when `in_ev=True`, with `h_ev` built as `4.1357 * pow(10, -15)`. The benchmark fixes that option and a bounded nonnegative integer input subset; the joule branch remains outside this contract."
     },
     {
       "candidate_id": "pi_approximation",
@@ -63916,7 +64247,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -63925,7 +64256,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/power_of_4.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "power_of_four",
+      "review_notes": "The pinned Python predicate accepts positive integers and recognizes a power of four by requiring exactly one set bit at an even zero-based position. It agrees with the Java-backed benchmark on positive signed-32-bit inputs; nonpositive inputs and Python integers beyond the ABI domain are outside the alias domain.",
+      "benchmark_contract": "benchmarks/p/power_of_four/README.md"
     },
     {
       "candidate_id": "power_of_four",
@@ -64083,7 +64417,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -64099,7 +64433,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/power_using_recursion.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java and Python functions implement the same linear recursive recurrence: exponent zero returns one, otherwise multiply base by the result at exponent minus one. The shared integer benchmark bounds bases to -10..10 and exponents to 0..15; negative exponents are excluded because the source recurses until failure.",
+      "benchmark_contract": "benchmarks/p/power_using_recursion/README.md"
     },
     {
       "candidate_id": "powers_of10_sequence",
@@ -65099,7 +65435,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -65108,7 +65444,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/PrimePiSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "prime_pi_sequence",
+      "benchmark_contract": "benchmarks/p/prime_pi_sequence/README.md",
+      "review_notes": "The pinned C# sequence starts with pi(1)=0 and maps zero-based term i to pi(i+1), consuming PrimesSequence (2 followed by odd candidates tested against prior primes). The benchmark preserves that generation strategy and caps i at 999 for practical per-call work. This is distinct from prime counts by decimal bands and from nth-prime outputs."
     },
     {
       "candidate_id": "prime_sieve",
@@ -65161,7 +65500,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -65170,7 +65509,16 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/prime/primecheck.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "prime_check",
+      "additional_benchmark_names": [
+        "prime_check_naive"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/p/prime_check_naive/README.md"
+      ],
+      "review_notes": "The pinned Go file provides both optimized odd-divisor trial division through sqrt(n), matching prime_check on its signed-int32 domain, and plain TrialDivision checking every divisor below n, preserved separately as prime_check_naive with an upper bound of 10000.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "primefactorization",
@@ -65246,7 +65594,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -65255,7 +65603,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/PrimesSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "primes_sequence",
+      "benchmark_contract": "benchmarks/p/primes_sequence/README.md",
+      "review_notes": "The pinned C# iterator yields 2, then tests successive odd candidates against every previously yielded prime, retaining accepted primes in a list. The benchmark returns the zero-based indexed term while preserving that candidate-generation strategy and bounds the index to 99."
     },
     {
       "candidate_id": "primes_up_to_billion",
@@ -65292,7 +65643,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -65301,7 +65652,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/PrimorialNumbersSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "primorial_numbers_sequence",
+      "benchmark_contract": "benchmarks/p/primorial_numbers_sequence/README.md",
+      "review_notes": "The pinned C# generator starts with product 1, yields it before multiplying by the next prime, and then repeats forever. This makes index 0 the empty product and index n the product of the first n primes. The local i64 contract supports indices 0 through 15, keeping results representable, and all nine ports enumerate primes in order and preserve that indexing."
     },
     {
       "candidate_id": "prims_minimum_spanning_tree",
@@ -71175,7 +71529,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -71198,7 +71552,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/pronic_number.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "pronic_number",
+      "benchmark_contract": "benchmarks/p/pronic_number/README.md",
+      "review_notes": "The JavaScript, Java, Python, TypeScript, and Go sources all test whether n=m*(m+1) on the shared integer domain 0..INT32_MAX. The ports correspond to Java’s public O(1) square-root method; zero is pronic. Python/TypeScript validation and negative-input behavior differ, so the common contract excludes non-integers and negatives; Go’s negative/odd shortcuts preserve the result because every positive pronic value is even. Boolean output 0/1 cannot collide with the -1 ABI sentinel."
     },
     {
       "candidate_id": "pronicnumber",
@@ -71207,7 +71564,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -71216,7 +71573,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/pronicnumber.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pronic_number",
+      "benchmark_contract": "benchmarks/p/pronic_number/README.md",
+      "review_notes": "The pinned Go source rejects negatives and odd values before checking the adjacent-factor product. This agrees with the shared nonnegative INT32 domain because zero is pronic and all positive pronic values are even. It aliases the canonical `pronic_number` package."
     },
     {
       "candidate_id": "proof_of_stake",
@@ -73121,7 +73481,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -73130,7 +73490,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/radians.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python implementation returns degree / (180 / pi) directly. The benchmark preserves this operation order over a bounded finite binary64 domain, including negative and fractional angles; values outside the domain return the ABI invalid sentinel.",
+      "benchmark_contract": "benchmarks/r/radians/README.md"
     },
     {
       "candidate_id": "radians_to_degrees",
@@ -73544,7 +73906,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -73553,7 +73915,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/rainfall_intensity.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python function rejects nonpositive parameters and computes (k * return_period**a) / ((duration + b)**c). The shared contract preserves expression order on a bounded positive integer subset, with matching invalid handling and units.",
+      "benchmark_contract": "benchmarks/r/rainfall_intensity/README.md"
     },
     {
       "candidate_id": "ramer_douglas_peucker",
@@ -74459,7 +74823,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -74468,7 +74832,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/activation_functions/rectified_linear_unit.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "relu",
+      "review_notes": "The pinned Python function applies numpy.maximum(0, vector), matching the canonical ReLU operation elementwise. Its vector form maps to the unary benchmark on the bounded exactly representable input domain.",
+      "benchmark_contract": "benchmarks/r/relu/README.md"
     },
     {
       "candidate_id": "recursive_approach_knapsack",
@@ -74572,7 +74939,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -74581,7 +74948,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/recursive_digit_sum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "recursive_digit_sum",
+      "benchmark_contract": "benchmarks/r/recursive_digit_sum/README.md",
+      "review_notes": "The pinned Python super-digit routine sums the input string's digits, multiplies by repetitions, and repeatedly sums decimal digits until one remains. The benchmark maps the digit string to its nonnegative integer value, which preserves digit sum including leading-zero equivalence, and bounds repetitions for safe intermediates."
     },
     {
       "candidate_id": "recursive_double_linear_search",
@@ -74986,7 +75356,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -75002,7 +75372,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/relu.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "Pinned C# computes Math.Max(0.0, input), and pinned Rust sets each f32 vector element <= 0 to zero; the Python rectified_linear_unit candidate also uses np.maximum(0, vector). On integer-valued inputs in [-2^24, 2^24], the Rust f32 representation is exact and all sources agree with max(0, x). The benchmark returns -1e300 for non-finite, fractional, or out-of-domain inputs.",
+      "benchmark_contract": "benchmarks/r/relu/README.md"
     },
     {
       "candidate_id": "relu_function",
@@ -75283,7 +75655,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -75292,7 +75664,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/resistor_equivalence.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "resistor_equivalence",
+      "benchmark_contract": "benchmarks/r/resistor_equivalence/README.md",
+      "review_notes": "The pinned Python file provides parallel and series functions. Parallel resistance is the reciprocal of a sequential sum of reciprocal positive resistances; series resistance is a sequential sum and accepts zero while rejecting negatives. The benchmark selects between them by operation and defines bounded nonempty input arrays."
     },
     {
       "candidate_id": "resize",
@@ -75319,7 +75694,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -75328,7 +75703,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/resonant_frequency.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "resonant_frequency",
+      "benchmark_contract": "benchmarks/r/resonant_frequency/README.md",
+      "review_notes": "The pinned Python function computes 1 / (2 * pi * sqrt(inductance * capacitance)) after rejecting nonpositive inputs. The benchmark preserves this formula order over bounded positive integer-valued magnitudes."
     },
     {
       "candidate_id": "return_subsequence",
@@ -75971,7 +76349,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -75980,7 +76358,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/reynolds_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "reynolds_number",
+      "benchmark_contract": "benchmarks/r/reynolds_number/README.md",
+      "review_notes": "The pinned Python implementation requires positive density, diameter, and viscosity, accepts either velocity sign, and returns (density * abs(velocity) * diameter) / viscosity in that operation order. The benchmark uses a bounded integer subset; all nine ports preserve the formula and invalid sentinel -1e300 cannot collide with a valid nonnegative result. It is distinct from the other mapped physics formulas."
     },
     {
       "candidate_id": "rgb_cmyk_conversion",
@@ -76311,7 +76692,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -76320,7 +76701,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/rms_speed_of_molecule.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "rms_speed_of_molecule",
+      "benchmark_contract": "benchmarks/r/rms_speed_of_molecule/README.md",
+      "review_notes": "The pinned Python source uses R=8.3144598, requires temperature >= 0 and molar_mass > 0, and computes `(3 * R * temperature / molar_mass) ** 0.5`. The benchmark uses a bounded integral subset of the float API, preserves operation order and zero-temperature output, and maps source exceptions/out-of-range ABI inputs to -1e300."
     },
     {
       "candidate_id": "rmsprop",
@@ -79453,7 +79837,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -79462,7 +79846,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/shear_stress.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "shear_stress",
+      "benchmark_contract": "benchmarks/s/shear_stress/README.md",
+      "review_notes": "The pinned Python function requires exactly one zero, rejects negative stress, force, or area, and solves stress = tangential_force / area by the branch corresponding to the missing quantity. The benchmark preserves those formulas and branch order on a bounded integer-valued input subset; the scalar ABI omits the source tuple’s quantity label."
     },
     {
       "candidate_id": "shell_sort",
@@ -80824,7 +81211,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -80833,7 +81220,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Sorts/SimplifiedWiggleSort.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "simplified_wiggle_sort",
+      "benchmark_contract": "benchmarks/s/simplified_wiggle_sort/README.md",
+      "review_notes": "The pinned JavaScript source selects rank floor(n/2) with QuickSelect, then places values greater than the median at descending odd indices and all remaining values at ascending even indices. Its QuickSelectSearch helper can leave the active interval unchanged when the requested rank reaches the upper boundary, and the wrapper rejects empty input. The nine ports preserve the median-and-placement method with a progress-safe Hoare partition, define empty input as empty output, and share a bounded signed-i32 contract."
     },
     {
       "candidate_id": "simplist_radical_form",
@@ -81033,7 +81423,8 @@
         }
       ],
       "benchmark_name": "sin_degrees",
-      "review_notes": "The pinned Python sin function accepts degrees, reduces full turns with floor, converts to radians, performs 18 Taylor additions by default, and rounds to 10 decimal places. The sin_degrees package preserves that operation order and is distinct from the radians-based Go sin_radians benchmark."
+      "review_notes": "The pinned Python `sin` function accepts degrees, reduces by full turns, converts to radians, performs 18 Taylor additions by default, and rounds to 10 decimal places. The `sin_degrees` package preserves that order; the module comment calling x radians is contradicted by its API, code, and doctests.",
+      "benchmark_contract": "benchmarks/s/sin_degrees/README.md"
     },
     {
       "candidate_id": "sin_radians",
@@ -82888,7 +83279,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -82897,7 +83288,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/speed_conversions.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "speed_conversions",
+      "benchmark_contract": "benchmarks/s/speed_conversions/README.md",
+      "review_notes": "The pinned Python convert_speed function validates both unit keys, then returns round(speed * source_factor * destination_inverse_factor, 3), preserving that multiplication order. The benchmark supports the four chart units on a bounded nonnegative speed domain and maps invalid selectors or out-of-range speeds to its sentinel."
     },
     {
       "candidate_id": "speed_of_sound",
@@ -82906,7 +83300,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -82915,7 +83309,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/speed_of_sound.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/s/speed_of_sound/README.md",
+      "review_notes": "The pinned Python source requires positive density and bulk modulus and computes (bulk_modulus / density) ** 0.5. The bounded positive integer domain preserves division-before-power operation order; valid results are positive and cannot collide with the -1e300 invalid sentinel.",
+      "benchmark_name": "speed_of_sound"
     },
     {
       "candidate_id": "speeds_of_gas_molecules",
@@ -83306,6 +83703,27 @@
       ]
     },
     {
+      "candidate_id": "square_free_factor_list",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "maths/is_square_free.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/is_square_free.py",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "square_free_factor_list",
+      "benchmark_contract": "benchmarks/s/square_free_factor_list/README.md",
+      "review_notes": "The pinned Python function accepts an iterable of factor values and returns whether the list contains duplicates; it does not validate primality or test whether an integer has repeated prime factors. The package preserves the uniqueness predicate on a bounded signed-int32 list domain, separate from the JavaScript/TypeScript numeric square-free predicate."
+    },
+    {
       "candidate_id": "square_free_integer",
       "source_repository_count": 1,
       "source_repositories": [
@@ -83523,7 +83941,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -83532,7 +83950,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/SquaresSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "squares_sequence",
+      "benchmark_contract": "benchmarks/s/squares_sequence/README.md",
+      "review_notes": "The pinned C# source is a lazy BigInteger generator beginning at zero and yielding n*n before incrementing n. The benchmark uses zero-based indexing and supports 0..3,037,000,499, the largest index whose square fits signed i64; the next square is out of range. All nine ports guard before multiplication. It is distinct from square-pyramidal sums."
     },
     {
       "candidate_id": "srtfscheduling",
@@ -84762,7 +85183,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -84771,7 +85192,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/string_is_valid_number.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "string_is_valid_number",
+      "benchmark_contract": "benchmarks/s/string_is_valid_number/README.md",
+      "review_notes": "The pinned Python parser classifies digits, signs, decimal points, and exponent markers and advances through eight finite-state-machine states; only WHOLE, FRACTION, and EXP_NUMBER accept. The package preserves complete-string validation on ASCII bytes, with Unicode digit extensions outside the benchmark contract."
     },
     {
       "candidate_id": "string_match",
@@ -85322,7 +85746,8 @@
           "local_folder_source": "cpp"
         }
       ],
-      "alias_of": "subset_sum"
+      "review_notes": "The pinned C++ source uses a top-down include/exclude recurrence with memoization keyed by item index and remaining target. This benchmark preserves that recursive dynamic-programming method and boolean subset-existence result on a bounded signed domain; it is separate from the existing bottom-up one-dimensional subset_sum_exists implementation.",
+      "benchmark_contract": "benchmarks/s/subset_sum_dynamic/README.md"
     },
     {
       "candidate_id": "subset_sum_space_optimized",
@@ -86149,7 +86574,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -86158,7 +86583,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/SwapAdjacentBits.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java method swaps adjacent bits using the 0xAAAAAAAA and 0x55555555 masks and one-bit shifts. The benchmark bounds input to 0..0x3fffffff so Java int, Rust u32, and Python/Dart integer behavior agree and the result fits signed 32-bit output.",
+      "benchmark_contract": "benchmarks/s/swap_adjacent_bits/README.md"
     },
     {
       "candidate_id": "swap_all_odd_and_even_bits",
@@ -86168,7 +86595,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -86184,7 +86611,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/swap_all_odd_and_even_bits.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "swap_adjacent_bits",
+      "review_notes": "The pinned Python and Dart implementations apply the same 0xAAAAAAAA/0x55555555 adjacent-bit masks and shifts as the canonical Java operation on the shared bounded 32-bit domain.",
+      "benchmark_contract": "benchmarks/s/swap_adjacent_bits/README.md"
     },
     {
       "candidate_id": "swap_case",
@@ -86231,7 +86661,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -86240,7 +86670,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/swap_odd_even_bits.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "swap_adjacent_bits",
+      "review_notes": "The pinned Rust implementation applies the same 0xAAAAAAAA/0x55555555 adjacent-bit masks and shifts as the canonical Java operation on the shared bounded 32-bit domain.",
+      "benchmark_contract": "benchmarks/s/swap_adjacent_bits/README.md"
     },
     {
       "candidate_id": "swap_sort",
@@ -87206,7 +87639,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -87215,7 +87648,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/TetrahedralSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "tetrahedral_sequence",
+      "benchmark_contract": "benchmarks/t/tetrahedral_sequence/README.md",
+      "review_notes": "The pinned C# sequence yields the zero-based tetrahedral term n(n+1)(n+2)/6. The benchmark supports 0..3,810,777, the largest index with a signed-i64 result; ports reduce factors by 2 and 3 before multiplication to keep intermediates in range. The next term exceeds i64."
     },
     {
       "candidate_id": "tetranacci_numbers_sequence",
@@ -87515,7 +87951,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -87524,7 +87960,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/ThreeNPlusOneStepsSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "collatz",
+      "benchmark_contract": "benchmarks/c/collatz/README.md",
+      "review_notes": "The pinned C# source yields the Collatz step count for starts 1,2,3,...; zero-based term index i therefore maps to `collatz(i+1)`. The existing benchmark supports starts 1..1,000,000, so this alias covers sequence indices 0..999,999."
     },
     {
       "candidate_id": "three_sum",
@@ -89378,7 +89817,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -89387,7 +89826,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/TribonacciNumbersSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "tribonacci_numbers_sequence",
+      "benchmark_contract": "benchmarks/t/tribonacci_numbers_sequence/README.md",
+      "review_notes": "The pinned C# sequence starts with T(0)=T(1)=T(2)=1, yields the first term, then repeatedly replaces the first three buffer entries with the preceding three-term sum; the fourth initialized entry is unused. The benchmark preserves the resulting sequence and bounds the index for signed 64-bit output, distinct from the tribonacci sequence seeded 0, 1, 1."
     },
     {
       "candidate_id": "trie",
@@ -92420,7 +92862,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -92429,7 +92871,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/WhileLoopFactorial.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "factorial",
+      "review_notes": "The pinned JavaScript loop multiplies downward while n>1, returning 1 for 0 and 1. It matches the shared factorial benchmark on integers 0..20; negative values are outside the alias domain because the source returns 1 there.",
+      "benchmark_contract": "benchmarks/f/factorial/README.md"
     },
     {
       "candidate_id": "wiggle_sort",
@@ -92446,7 +92891,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -92490,7 +92935,14 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/wiggle_sort.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "wiggle_sort",
+      "additional_benchmark_names": [
+        "wave_sort_greedy",
+        "wiggle_sort_strict"
+      ],
+      "benchmark_contract": "benchmarks/w/wiggle_sort/README.md",
+      "review_notes": "The pinned Python, Rust, and R sources use a left-to-right adjacent-swap pass producing the non-strict pattern a[0] <= a[1] >= a[2] <= ...; the nine portable ports preserve this deterministic pass. The two pinned C++ sources instead implement the existing even-index-peak wave_sort_greedy contract and map there. Java uses a strict QuickSelect and virtual-index Dutch-flag algorithm that rejects unsortable inputs; it maps to the separate wiggle_sort_strict contract."
     },
     {
       "candidate_id": "wild_card_matcher",
@@ -93253,7 +93705,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -93262,7 +93714,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/xor_swap_two_integers.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python xor_swap(a,b) performs the three XOR assignments and returns the swapped pair. The benchmark uses a signed-16-bit domain to make the two returned values portable across the nine-language ABI, then packs them into a nonnegative signed-64-bit result; the upstream 12345/54321 example lies outside this subset.",
+      "benchmark_contract": "benchmarks/x/xor_swap_two_integers/README.md"
     },
     {
       "candidate_id": "xorcipher",
@@ -93696,7 +94150,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -93705,7 +94159,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sequences/ZeroSequence.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "zero_sequence",
+      "benchmark_contract": "benchmarks/z/zero_sequence/README.md",
+      "review_notes": "The pinned C# source is an infinite lazy ISequence that yields BigInteger 0 forever. The benchmark indexes it from zero and returns 0 for every nonnegative i64 input, using -1 only for negative indices. The indexed ports run in O(1), while advancing the source generator to index n takes O(n); README documents that this preserves sequence values rather than generator iteration cost."
     },
     {
       "candidate_id": "zfunction",
@@ -93786,6 +94243,36 @@
           "local_folder_source": null
         }
       ]
+    },
+    {
+      "candidate_id": "average_absolute_deviation_rounded",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Julia"
+      ],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Julia",
+          "language": "Julia",
+          "path": "src/math/average_absolute_deviation.jl",
+          "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/average_absolute_deviation.jl",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "This split candidate preserves the Julia implementation sharing the average_absolute_deviation filename: it computes the mean absolute deviation and rounds the binary64 result to two decimals using ties-to-even. The separate Python candidate returns the unrounded value.",
+      "benchmark_contract": "benchmarks/a/average_absolute_deviation_rounded/README.md"
     }
   ]
 }

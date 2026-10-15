@@ -1,0 +1,20 @@
+# Match n against the signed sum of the cubes of its decimal digits.
+def armstrong_digit_cubes_impl(n: i64) -> i64:
+    if n < -2147483648 or n > 2147483647:
+        return -1
+    original: i64 = n
+    magnitude: mutable i64 = n
+    if magnitude < 0:
+        magnitude <- -magnitude
+    sum: mutable i64 = 0
+    while magnitude > 0:
+        digit: i64 = magnitude % 10
+        sum <- sum + digit * digit * digit
+        magnitude <- magnitude / 10
+    if original < 0:
+        sum <- -sum
+    if sum == original:
+        return 1
+    0
+
+export fn armstrong_digit_cubes(n: i64) -> i64 = armstrong_digit_cubes_impl

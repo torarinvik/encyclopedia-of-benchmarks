@@ -1,0 +1,23 @@
+def average_absolute_deviation_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > 256:
+        return -1.0e300
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -2147483648 or value > 2147483647:
+            return -1.0e300
+        total <- total + value.f64()
+        index <- index + 1
+    average: f64 = total / length.f64()
+    deviations: mutable f64 = 0.0
+    index <- 0
+    while index < length:
+        value: f64 = values[index].f64()
+        if value >= average:
+            deviations <- deviations + (value - average)
+        else:
+            deviations <- deviations + (average - value)
+        index <- index + 1
+    deviations / length.f64()
+export fn average_absolute_deviation(values: i64&, length: usize) -> f64 = average_absolute_deviation_impl

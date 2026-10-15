@@ -12,18 +12,159 @@ import platform
 import shlex
 import subprocess
 import sys
+from functools import lru_cache
 
 from build_abi import ROOT, sha256_file
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
-def encode_case(case: dict) -> list[int]:
+def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) > 100001
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("array scalar cases require up to 100001 signed 64-bit values")
+    if algorithm == "count_vowels_consonants":
+        if len(values) > 100_000 or any(not 0 <= value <= 127 for value in values):
+            raise ValueError("count_vowels_consonants requires at most 100000 ASCII code points")
+        vowels = consonants = 0
+        for codepoint in values:
+            if 65 <= codepoint <= 90 or 97 <= codepoint <= 122:
+                letter = codepoint | 32
+                if letter in (97, 101, 105, 111, 117):
+                    vowels += 1
+                else:
+                    consonants += 1
+        expected_from_source = vowels * (2**32) + consonants
+        if expected != expected_from_source:
+            raise ValueError("count_vowels_consonants expected_result must match the packed ASCII counts")
+    elif algorithm == "count_islands_in_matrix":
+        valid_shape = (
+            len(values) >= 2
+            and 1 <= values[0] <= 16
+            and 1 <= values[1] <= 16
+            and len(values) == 2 + values[0] * values[1]
+            and all(value in (0, 1) for value in values[2:])
+        )
+        if not valid_shape:
+            if expected != -1:
+                raise ValueError("invalid count_islands_in_matrix inputs must return -1")
+        else:
+            rows, columns = values[:2]
+            cells = values[2:]
+            visited: set[int] = set()
+            island_count = 0
+            for start, cell in enumerate(cells):
+                if cell != 1 or start in visited:
+                    continue
+                island_count += 1
+                visited.add(start)
+                stack = [start]
+                while stack:
+                    current = stack.pop()
+                    row, column = divmod(current, columns)
+                    for next_row in range(max(0, row - 1), min(rows, row + 2)):
+                        for next_column in range(max(0, column - 1), min(columns, column + 2)):
+                            neighbor = next_row * columns + next_column
+                            if cells[neighbor] == 1 and neighbor not in visited:
+                                visited.add(neighbor)
+                                stack.append(neighbor)
+            if expected != island_count:
+                raise ValueError("count_islands_in_matrix expected_result must match eight-neighbor connectivity")
+    elif algorithm == "check_snake_case":
+        if len(values) > 4096 or any(not 32 <= value <= 126 for value in values):
+            expected_from_source = -2
+        else:
+            expected_from_source = int(95 in values)
+        if expected != expected_from_source:
+            raise ValueError("check_snake_case expected_result must match the printable-ASCII underscore predicate")
+    elif algorithm == "alphabetical":
+        valid = len(values) <= 256 and all(0 <= value <= 127 for value in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            letters = []
+            for value in values:
+                if 65 <= value <= 90:
+                    letters.append(value + 32)
+                elif 97 <= value <= 122:
+                    letters.append(value)
+                else:
+                    break
+            expected_from_source = int(len(letters) == len(values)
+                                       and all(left <= right for left, right in zip(letters, letters[1:])))
+        if expected != expected_from_source:
+            raise ValueError("alphabetical expected_result must match the ASCII case-insensitive order predicate")
+    elif algorithm == "indian_phone_validator":
+        import re
+
+        if not 1 <= len(values) <= 18 or any(not 0 <= value <= 127 for value in values):
+            expected_from_source = -1
+        else:
+            text = bytes(values).decode("ascii")
+            pattern = r"^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$"
+            expected_from_source = int(re.search(pattern, text) is not None)
+        if expected != expected_from_source:
+            raise ValueError("indian_phone_validator expected_result must match the bounded source regular expression")
+    elif algorithm == "count_nice_subarrays":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 4096
+                 and 1 <= values[1] <= 4096 and len(values) == values[0] + 2
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[2:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            n, target = values[:2]
+            prefix_counts = {0: 1}
+            odd_prefix = answer = 0
+            for value in values[2:]:
+                odd_prefix += value & 1
+                answer += prefix_counts.get(odd_prefix - target, 0)
+                prefix_counts[odd_prefix] = prefix_counts.get(odd_prefix, 0) + 1
+            expected_from_source = answer
+        if expected != expected_from_source:
+            raise ValueError("count_nice_subarrays expected_result must match the exact odd-count prefix oracle")
+    elif algorithm == "hash_sdbm":
+        valid = 1 <= len(values) <= 64 and all(1 <= value <= 127 for value in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            hash_bits = 0
+            for value in values:
+                hash_bits = (value + (hash_bits << 6) + (hash_bits << 16) - hash_bits) & (2**64 - 1)
+            expected_from_source = hash_bits if hash_bits < 2**63 else hash_bits - 2**64
+        if expected != expected_from_source:
+            raise ValueError("hash_sdbm expected_result must preserve the source's unsigned 64-bit hash bits")
+    elif algorithm == "subset_sum_dynamic":
+        valid = (1 <= len(values) <= 17 and -80 <= values[0] <= 80
+                 and all(-20 <= value <= 20 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            target, items = values[0], tuple(values[1:])
+
+            @lru_cache(maxsize=None)
+            def has_subset(index: int, remaining: int) -> bool:
+                if remaining == 0:
+                    return True
+                if index == len(items):
+                    return False
+                return has_subset(index + 1, remaining - items[index]) or has_subset(index + 1, remaining)
+
+            expected_from_source = int(has_subset(0, target))
+        if expected != expected_from_source:
+            raise ValueError("subset_sum_dynamic expected_result does not match memoized subset existence")
+    elif algorithm == "hash_sdbm":
+        valid = 1 <= len(values) <= 64 and all(1 <= byte <= 127 for byte in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            hash_value = 0
+            for byte in values:
+                hash_value = (byte + (hash_value << 6) + (hash_value << 16) - hash_value) & (2**64 - 1)
+            expected_from_source = hash_value if hash_value < 2**63 else hash_value - 2**64
+        if expected != expected_from_source:
+            raise ValueError("hash_sdbm expected_result must be the signed i64 interpretation of the SDBM hash")
     return values
 
 
@@ -74,7 +215,7 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        values = encode_case(case)
+        values = encode_case(case, algorithm)
         if case.get("input_length") not in (None, len(values)):
             raise ValueError(f"declared input length differs for {case['id']}")
         if len(values) > 1024:

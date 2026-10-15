@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "recursive-digit-sum-python-binary-scalar-v1",
+  "algorithm": "recursive_digit_sum",
+  "function_symbol": "recursive_digit_sum",
+  "input": {
+    "kind": "nonnegative_integer_and_repetition_count",
+    "layout": ["number", "repetitions"],
+    "maximum_number": 9223372036854775807,
+    "maximum_repetitions": 1000000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "single_super_digit",
+    "definition": "repeated decimal digit sum until one digit remains",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"source_148_repeated_three_times", "input_values":[148,3], "expected_result":3},
+    {"id":"source_9875_repeated_four_times", "input_values":[9875,4], "expected_result":8},
+    {"id":"source_123_repeated_three_times", "input_values":[123,3], "expected_result":9},
+    {"id":"zero_number", "input_values":[0,1000000], "expected_result":0},
+    {"id":"zero_repetitions", "input_values":[987654321,0], "expected_result":0},
+    {"id":"single_digit", "input_values":[7,3], "expected_result":3},
+    {"id":"max_signed_integer", "input_values":[9223372036854775807,1000000], "expected_result":7},
+    {"id":"max_repetitions", "input_values":[9,1000000], "expected_result":9},
+    {"id":"negative_number_invalid", "input_values":[-1,2], "expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "relu-scalar-binary64-integer-domain-v1",
+  "algorithm": "relu",
+  "function_symbol": "relu",
+  "input": {
+    "kind": "binary64_scalar",
+    "minimum": -16777216,
+    "maximum": 16777216,
+    "integer_valued_only": true,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "max(0, x)",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"negative","input_values":[-9.0],"expected_result":0.0},
+    {"id":"negative-bound","input_values":[-16777216.0],"expected_result":0.0},
+    {"id":"negative-zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"positive","input_values":[9.0],"expected_result":9.0},
+    {"id":"positive-bound","input_values":[16777216.0],"expected_result":16777216.0},
+    {"id":"fractional-input","input_values":[1.5],"expected_result":-1e300},
+    {"id":"below-bound","input_values":[-16777217.0],"expected_result":-1e300},
+    {"id":"above-bound","input_values":[16777217.0],"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

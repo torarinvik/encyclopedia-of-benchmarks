@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "id": "leaky-relu-singleton-f64-pair-v1",
+  "algorithm": "leaky_relu",
+  "function_symbol": "leaky_relu",
+  "description": "Apply the source's elementwise leaky ReLU to one vector element with the supplied slope alpha.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["x", "alpha"],
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "x * alpha if x < 0, otherwise x",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"negative_standard_slope","input_values":[-10.0,0.01],"expected_result":-0.1},
+    {"id":"negative_custom_slope","input_values":[-3.0,0.25],"expected_result":-0.75},
+    {"id":"negative_slope_parameter","input_values":[-4.0,-0.5],"expected_result":2.0},
+    {"id":"positive_input_unchanged","input_values":[5.0,0.01],"expected_result":5.0},
+    {"id":"zero_input_unchanged","input_values":[0.0,0.25],"expected_result":0.0},
+    {"id":"negative_zero_unchanged","input_values":[-0.0,0.25],"expected_result":-0.0},
+    {"id":"negative_input_bound","input_values":[-1000000.0,1.0],"expected_result":-1000000.0},
+    {"id":"alpha_input_bound","input_values":[-1.0,1000000.0],"expected_result":-1000000.0},
+    {"id":"x_below_bound","input_values":[-1000001.0,0.01],"expected_result":-1e300},
+    {"id":"alpha_above_bound","input_values":[-1.0,1000001.0],"expected_result":-1e300}
+  ]
+}

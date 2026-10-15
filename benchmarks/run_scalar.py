@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import platform
 import subprocess
@@ -24,6 +25,45 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "fibonacci_recursive":
+        if 0 <= input_value <= 30:
+            previous, current = 0, 1
+            for _ in range(input_value):
+                previous, current = current, previous + current
+            expected_from_source = previous
+        else:
+            expected_from_source = -1
+        if expected_result != expected_from_source:
+            raise ValueError("fibonacci_recursive expected_result must match the bounded Fibonacci recurrence")
+        return
+    if algorithm == "prime_check_naive":
+        if input_value < 2:
+            expected_from_source = 0
+        elif input_value > 10_000:
+            expected_from_source = -1
+        else:
+            expected_from_source = int(all(input_value % divisor != 0
+                                           for divisor in range(2, input_value)))
+        if expected_result != expected_from_source:
+            raise ValueError("prime_check_naive expected_result must match bounded plain trial division")
+        return
+    if algorithm != "fibonacci_number_golden_ration":
+        return
+    if not 0 <= input_value <= 70:
+        expected_from_source = -1
+    elif input_value <= 1:
+        expected_from_source = input_value
+    else:
+        sqrt5 = math.sqrt(5.0)
+        phi = (1.0 + sqrt5) / 2.0
+        psi = (1.0 - sqrt5) / 2.0
+        result = (math.pow(phi, input_value) - math.pow(psi, input_value)) / sqrt5
+        expected_from_source = math.floor(result + 0.5)
+    if expected_result != expected_from_source:
+        raise ValueError("fibonacci_number_golden_ration expected_result must match the bounded Binet formula")
 
 
 def main() -> int:
@@ -103,6 +143,7 @@ def main() -> int:
     for case in workload["cases"]:
         input_value = int(case["input_value"])
         expected_result = int(case["expected_result"])
+        validate_expected_result(args.algorithm, input_value, expected_result)
         command = [
             str(executable_path),
             str(input_value),

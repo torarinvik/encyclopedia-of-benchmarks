@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "prime-check-naive-linear-trial-division-v1",
+  "algorithm": "prime_check_naive",
+  "function_symbol": "prime_check_naive",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 10000,
+    "below_two_result": 0,
+    "prime_result": 1,
+    "composite_result": 0,
+    "above_maximum_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "signed_minimum", "input_value": -9223372036854775808, "expected_result": 0},
+    {"id": "negative", "input_value": -11, "expected_result": 0},
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "two", "input_value": 2, "expected_result": 1},
+    {"id": "small_prime", "input_value": 97, "expected_result": 1},
+    {"id": "small_composite", "input_value": 99, "expected_result": 0},
+    {"id": "prime_near_limit", "input_value": 997, "expected_result": 1},
+    {"id": "maximum", "input_value": 10000, "expected_result": 0},
+    {"id": "first_above_maximum", "input_value": 10001, "expected_result": -1}
+  ]
+}

@@ -1,0 +1,9 @@
+# Leaky ReLU for one vector element and a caller-supplied slope.
+def leaky_relu_impl(x: f64, alpha: f64) -> f64:
+    if x != x or alpha != alpha or x < -1000000.0 or x > 1000000.0 or alpha < -1000000.0 or alpha > 1000000.0:
+        return -1.0e300
+    if x < 0.0:
+        return x * alpha
+    x
+
+export fn leaky_relu(x: f64, alpha: f64) -> f64 = leaky_relu_impl

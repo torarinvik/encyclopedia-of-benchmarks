@@ -1,0 +1,23 @@
+const MAX_INDEX: i64 = 3810777
+
+def tetrahedral_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > MAX_INDEX:
+        return -1
+    a: mutable i64 = index
+    b: mutable i64 = index + 1
+    c: mutable i64 = index + 2
+    if a % 2 == 0:
+        a <- a / 2
+    elif b % 2 == 0:
+        b <- b / 2
+    else:
+        c <- c / 2
+    if a % 3 == 0:
+        a <- a / 3
+    elif b % 3 == 0:
+        b <- b / 3
+    else:
+        c <- c / 3
+    a * b * c
+
+export fn tetrahedral_sequence(index: i64) -> i64 = tetrahedral_sequence_impl

@@ -1,0 +1,13 @@
+# Doppler frequency using the bounded integer-valued source contract.
+def doppler_frequency_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    org_freq: i64 = values[0]
+    wave_vel: i64 = values[1]
+    obs_vel: i64 = values[2]
+    src_vel: i64 = values[3]
+    if org_freq < 1 or org_freq > 1000 or wave_vel < 200 or wave_vel > 1000 or obs_vel < -100 or obs_vel > 100 or src_vel < -100 or src_vel > 100:
+        return -1.0e300
+    return (org_freq.f64() * (wave_vel.f64() + obs_vel.f64())) / (wave_vel.f64() - src_vel.f64())
+
+export fn doppler_frequency(values: i64&, length: usize) -> f64 = doppler_frequency_impl

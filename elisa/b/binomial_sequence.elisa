@@ -1,0 +1,20 @@
+const MAX_INDEX: i64 = 230
+
+def binomial_coefficient(n: i64, k: i64) -> i64:
+    if k == 0 or k == n:
+        return 1
+    if n < 0:
+        return 0
+    binomial_coefficient(n - 1, k) + binomial_coefficient(n - 1, k - 1)
+
+def binomial_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > MAX_INDEX:
+        return -1
+    row: mutable i64 = 0
+    row_start: mutable i64 = 0
+    while index >= row_start + row + 1:
+        row_start <- row_start + row + 1
+        row <- row + 1
+    binomial_coefficient(row, index - row_start)
+
+export fn binomial_sequence(index: i64) -> i64 = binomial_sequence_impl

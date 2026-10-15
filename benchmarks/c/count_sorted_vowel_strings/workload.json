@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "count-sorted-vowel-strings-ruby-closed-form-i64-scalar-v1",
+  "algorithm": "count_sorted_vowel_strings",
+  "function_symbol": "count_sorted_vowel_strings",
+  "input": {
+    "kind": "bounded_nonnegative_integer",
+    "minimum": 0,
+    "maximum": 30000,
+    "definition": "count nondecreasing strings of length n over the five ordered vowels a,e,i,o,u",
+    "formula": "(n+4)*(n+3)*(n+2)*(n+1)/24",
+    "evaluation_order": "multiply the four consecutive factors left-to-right, then exact integer divide by 24",
+    "maximum_intermediate_product": 810270031501500024,
+    "maximum_result": 33761251312562501,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "empty-string", "input_value": 0, "expected_result": 1},
+    {"id": "length-one", "input_value": 1, "expected_result": 5},
+    {"id": "length-two", "input_value": 2, "expected_result": 15},
+    {"id": "length-three", "input_value": 3, "expected_result": 35},
+    {"id": "source-example-33", "input_value": 33, "expected_result": 66045},
+    {"id": "upper-bound", "input_value": 30000, "expected_result": 33761251312562501},
+    {"id": "negative-invalid", "input_value": -1, "expected_result": -1},
+    {"id": "above-bound-invalid", "input_value": 30001, "expected_result": -1}
+  ]
+}

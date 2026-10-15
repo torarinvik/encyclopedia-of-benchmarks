@@ -1,0 +1,19 @@
+# Sherman rainfall intensity curve over bounded integer inputs.
+extern pow(base: f64, exponent: f64) -> f64
+
+def rainfall_intensity_impl(values: i64&, length: usize) -> f64:
+    if length != 6:
+        return -1.0e300
+    k: i64 = values[0]
+    a: i64 = values[1]
+    b: i64 = values[2]
+    c: i64 = values[3]
+    period: i64 = values[4]
+    duration: i64 = values[5]
+    if k < 1 or k > 1000 or a < 1 or a > 3 or b < 1 or b > 100 or c < 1 or c > 3 or period < 1 or period > 100 or duration < 1 or duration > 1000:
+        return -1.0e300
+    numerator: f64 = k.f64() * pow(period.f64(), a.f64())
+    denominator: f64 = pow((duration + b).f64(), c.f64())
+    return numerator / denominator
+
+export fn rainfall_intensity(values: i64&, length: usize) -> f64 = rainfall_intensity_impl

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "swap-adjacent-bits-i64-scalar-v1",
+  "algorithm": "swap_adjacent_bits",
+  "function_symbol": "swap_adjacent_bits",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 1073741823],
+    "formula": "((n & 0xAAAAAAAA) >> 1) | ((n & 0x55555555) << 1)",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "nonnegative_signed_32_bit_integer",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"bit_zero_moves_up","input_value":1,"expected_result":2},
+    {"id":"bit_one_moves_down","input_value":2,"expected_result":1},
+    {"id":"low_pair_unchanged","input_value":3,"expected_result":3},
+    {"id":"bit_two_moves_up","input_value":4,"expected_result":8},
+    {"id":"mixed_low_bits","input_value":5,"expected_result":10},
+    {"id":"source_example_23","input_value":23,"expected_result":43},
+    {"id":"source_example_24","input_value":24,"expected_result":36},
+    {"id":"alternating_input","input_value":357913941,"expected_result":715827882},
+    {"id":"maximum_supported_input","input_value":1073741823,"expected_result":1073741823},
+    {"id":"negative_input","input_value":-1,"expected_result":-1},
+    {"id":"first_above_bound","input_value":1073741824,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

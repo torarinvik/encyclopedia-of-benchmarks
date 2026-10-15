@@ -1,0 +1,11 @@
+# Rectified linear unit over a bounded integer-valued binary64 domain.
+extern trunc(value: f64) -> f64
+
+def relu_impl(x: f64) -> f64:
+    if x != x or x < -16777216.0 or x > 16777216.0 or trunc(x) != x:
+        return -1.0e300
+    if x > 0.0:
+        return x
+    0.0
+
+export fn relu(x: f64) -> f64 = relu_impl

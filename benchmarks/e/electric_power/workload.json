@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "electric-power-python-binary64-v1",
+  "algorithm": "electric_power",
+  "function_symbol": "electric_power",
+  "input": {
+    "kind": "bounded_integer_valued_electric_power_triple",
+    "argument_order": [
+      "voltage",
+      "current",
+      "power"
+    ],
+    "voltage_range": [
+      -10000,
+      10000
+    ],
+    "current_range": [
+      -10000,
+      10000
+    ],
+    "power_range": [
+      0,
+      100000000
+    ],
+    "exactly_one_zero_required": true,
+    "integer_valued_required": true,
+    "invalid_result": -1e+300,
+    "branch_formulas": {
+      "voltage_zero": "power / current",
+      "current_zero": "power / voltage",
+      "power_zero": "abs(voltage * current)"
+    },
+    "source_rounding": "round(abs(voltage * current), 2); identity for bounded integer-valued inputs"
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "solve-voltage",
+      "input_values": [
+        0.0,
+        2.0,
+        5.0
+      ],
+      "expected_result": 2.5
+    },
+    {
+      "id": "solve-current",
+      "input_values": [
+        2.0,
+        0.0,
+        6.0
+      ],
+      "expected_result": 3.0
+    },
+    {
+      "id": "solve-power",
+      "input_values": [
+        2.0,
+        2.0,
+        0.0
+      ],
+      "expected_result": 4.0
+    },
+    {
+      "id": "negative-voltage",
+      "input_values": [
+        -2.0,
+        0.0,
+        6.0
+      ],
+      "expected_result": -3.0
+    },
+    {
+      "id": "negative-current",
+      "input_values": [
+        0.0,
+        -2.0,
+        6.0
+      ],
+      "expected_result": -3.0
+    },
+    {
+      "id": "valid-result-minus-one",
+      "input_values": [
+        0.0,
+        -1.0,
+        1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "signed-product",
+      "input_values": [
+        -2.0,
+        3.0,
+        0.0
+      ],
+      "expected_result": 6.0
+    },
+    {
+      "id": "zero-current-negative-voltage",
+      "input_values": [
+        -5.0,
+        0.0,
+        10.0
+      ],
+      "expected_result": -2.0
+    },
+    {
+      "id": "zero-voltage-negative-current",
+      "input_values": [
+        0.0,
+        -5.0,
+        10.0
+      ],
+      "expected_result": -2.0
+    },
+    {
+      "id": "minimum-negative-voltage",
+      "input_values": [
+        -10000.0,
+        0.0,
+        100000000.0
+      ],
+      "expected_result": -10000.0
+    },
+    {
+      "id": "maximum-signed-product",
+      "input_values": [
+        -10000.0,
+        10000.0,
+        0.0
+      ],
+      "expected_result": 100000000.0
+    },
+    {
+      "id": "no-zero",
+      "input_values": [
+        2.0,
+        3.0,
+        6.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "two-zeros",
+      "input_values": [
+        0.0,
+        0.0,
+        5.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "all-zero",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-power",
+      "input_values": [
+        2.0,
+        0.0,
+        -6.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional-voltage",
+      "input_values": [
+        0.5,
+        2.0,
+        4.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "voltage-out-of-range",
+      "input_values": [
+        10001.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "power-out-of-range",
+      "input_values": [
+        1.0,
+        0.0,
+        100000001.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

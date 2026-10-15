@@ -1,0 +1,11 @@
+extern sqrt(value: f64) -> f64
+
+def pronic_number_impl(n: i64) -> i64:
+    if n < 0 or n > 2147483647:
+        return -1
+    root: i64 = sqrt(n.f64()).i64()
+    if root * (root + 1) == n:
+        return 1
+    0
+
+export fn pronic_number(n: i64) -> i64 = pronic_number_impl

@@ -1,0 +1,15 @@
+# Meeus Julian Easter date encoded as YYYYMMDD.
+def julian_easter_impl(year: i64) -> i64:
+    if year < 1 or year > 9999:
+        return -1
+    a: i64 = year % 4
+    b: i64 = year % 7
+    c: i64 = year % 19
+    d: i64 = (19 * c + 15) % 30
+    e: i64 = (2 * a + 4 * b - d + 34) % 7
+    day_of_year: i64 = d + e + 114
+    month: i64 = day_of_year / 31
+    day: i64 = day_of_year % 31 + 1
+    year * 10000 + month * 100 + day
+
+export fn julian_easter(year: i64) -> i64 = julian_easter_impl

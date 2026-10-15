@@ -1,0 +1,23 @@
+# Generate zero-based prime terms using divisibility by all earlier primes.
+def primes_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 99:
+        return -1
+    primes: mutable i64[100] = zeroed
+    primes[0] <- 2
+    count: mutable i64 = 1
+    candidate: mutable i64 = 3
+    while count <= index:
+        is_prime: mutable i64 = 1
+        divisor_index: mutable i64 = 0
+        while divisor_index < count:
+            if candidate % primes[divisor_index.usize()] == 0:
+                is_prime <- 0
+                break
+            divisor_index <- divisor_index + 1
+        if is_prime == 1:
+            primes[count.usize()] <- candidate
+            count <- count + 1
+        candidate <- candidate + 2
+    primes[index.usize()]
+
+export fn primes_sequence(index: i64) -> i64 = primes_sequence_impl

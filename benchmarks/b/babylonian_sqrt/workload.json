@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "babylonian-sqrt-julia-defaults-f64-unary-v1",
+  "algorithm": "babylonian_sqrt",
+  "function_symbol": "babylonian_sqrt",
+  "input": {
+    "kind": "finite_binary64",
+    "minimum": 0.0,
+    "maximum": 1000000.0,
+    "tolerance": 0.000001,
+    "initial_guess": "input divided by 2",
+    "negative_result": -1.0,
+    "over_limit_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_approximation",
+    "definition": "Babylonian iterate returned when the absolute squared residual is less than 1e-6",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"tiny_positive_source_early_stop","input_values":[1e-10],"expected_result":5e-11},
+    {"id":"tolerance_boundary_scale","input_values":[1e-6],"expected_result":5e-7},
+    {"id":"source_pi_example_default_guess","input_values":[3.141592653589793],"expected_result":1.772453851526627},
+    {"id":"source_square_example_default_guess","input_values":[100.0],"expected_result":10.000000000107445},
+    {"id":"one","input_values":[1.0],"expected_result":1.0000000464611474},
+    {"id":"two","input_values":[2.0],"expected_result":1.4142135623746899},
+    {"id":"three","input_values":[3.0],"expected_result":1.7320508100147274},
+    {"id":"four_square","input_values":[4.0],"expected_result":2.0},
+    {"id":"ten","input_values":[10.0],"expected_result":3.1622776604441363},
+    {"id":"upper_bound","input_values":[1000000.0],"expected_result":1000.0000000000118},
+    {"id":"negative_domain_error","input_values":[-1.0],"expected_result":-1.0},
+    {"id":"over_contract_bound","input_values":[1000001.0],"expected_result":-1.0}
+  ]
+}

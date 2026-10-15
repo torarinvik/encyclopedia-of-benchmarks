@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "count-substrings-javascript-indexof-overlapping-v1",
+  "algorithm": "count_substrings",
+  "function_symbol": "count_substrings",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": ["text_length", "pattern_length", "text_ascii", "pattern_ascii"],
+    "text_length_range": [0, 4096],
+    "pattern_length_range": [0, 4096],
+    "ascii_code_range": [0, 127],
+    "overlap_policy": "resume search one code unit after each match",
+    "empty_pattern_result": "text_length + 1",
+    "malformed_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "number of matching pattern positions, including overlaps",
+    "maximum_result": 4097
+  },
+  "cases": [
+    {"id":"pinned-example","input_values":[16,2,84,104,105,115,32,105,115,32,97,32,115,116,114,105,110,103,105,115],"expected_result":2},
+    {"id":"overlapping-repeats","input_values":[4,2,97,97,97,97,97,97],"expected_result":3},
+    {"id":"empty-pattern","input_values":[3,0,97,98,99],"expected_result":4},
+    {"id":"empty-text-and-pattern","input_values":[0,0],"expected_result":1},
+    {"id":"pattern-longer-than-text","input_values":[2,3,97,98,97,98,99],"expected_result":0},
+    {"id":"single-character-pattern","input_values":[5,1,97,98,97,97,99,97],"expected_result":3},
+    {"id":"embedded-zero-code","input_values":[3,1,97,0,97,0],"expected_result":1},
+    {"id":"invalid-text-code","input_values":[1,0,128],"expected_result":-1},
+    {"id":"invalid-packed-length","input_values":[2,1,97,98],"expected_result":-1},
+    {"id":"invalid-negative-length","input_values":[-1,0],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

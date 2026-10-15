@@ -20,13 +20,75 @@ I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
 
 
-def encode_case(case: dict) -> tuple[list[int], float]:
+def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) > MAX_INPUT_LENGTH
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
+    if algorithm == "electrical_impedance":
+        valid = (len(values) == 3 and all(0 <= value <= 1000 for value in values)
+                 and sum(value == 0 for value in values) == 1)
+        if valid:
+            resistance, reactance, impedance = values
+            if resistance == 0:
+                valid = impedance >= reactance
+                expected_from_source = (math.sqrt(impedance * impedance - reactance * reactance)
+                                        if valid else -1e300)
+            elif reactance == 0:
+                valid = impedance >= resistance
+                expected_from_source = (math.sqrt(impedance * impedance - resistance * resistance)
+                                        if valid else -1e300)
+            else:
+                expected_from_source = math.sqrt(resistance * resistance + reactance * reactance)
+        else:
+            expected_from_source = -1e300
+        if expected == -1e300:
+            if valid:
+                raise ValueError("valid electrical_impedance inputs cannot use the invalid sentinel")
+        elif (not valid or not math.isclose(expected, expected_from_source,
+                                            rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError("electrical_impedance expected_result must match its selected impedance formula")
     return values, float(expected)
+
+
+def resolve_tolerances(workload: dict) -> tuple[float, float]:
+    """Resolve finite nonnegative tolerances from output/measurement metadata.
+
+    Results match when abs(observed - expected) <= absolute + relative * abs(expected).
+    Missing tolerances default to zero, preserving exact comparison.
+    """
+    resolved = []
+    for key in ("absolute_tolerance", "relative_tolerance"):
+        declared = []
+        for section in ("output", "measurement"):
+            metadata = workload.get(section, {})
+            if not isinstance(metadata, dict):
+                raise ValueError(f"{section} metadata must be an object")
+            if key not in metadata:
+                continue
+            value = metadata[key]
+            if (isinstance(value, bool) or not isinstance(value, (int, float))
+                    or value < 0):
+                raise ValueError(f"{section}.{key} must be a finite nonnegative number")
+            try:
+                numeric_value = float(value)
+            except OverflowError as error:
+                raise ValueError(f"{section}.{key} must be a finite nonnegative number") from error
+            if not math.isfinite(numeric_value):
+                raise ValueError(f"{section}.{key} must be a finite nonnegative number")
+            declared.append(numeric_value)
+        if len(declared) == 2 and declared[0] != declared[1]:
+            raise ValueError(f"output.{key} and measurement.{key} must agree")
+        resolved.append(declared[0] if declared else 0.0)
+    return resolved[0], resolved[1]
+
+
+def result_matches(observed: float, expected: float, absolute_tolerance: float,
+                   relative_tolerance: float) -> bool:
+    return (math.isfinite(observed)
+            and abs(observed - expected)
+            <= absolute_tolerance + relative_tolerance * abs(expected))
 
 
 def main() -> int:
@@ -60,6 +122,7 @@ def main() -> int:
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
     timing = workload["measurement"]
+    absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
     repetitions = args.repetitions if args.repetitions is not None else timing["repetitions_per_sample"]
@@ -80,15 +143,17 @@ def main() -> int:
     records = []
 
     for case in workload["cases"]:
-        values, expected = encode_case(case)
+        values, expected = encode_case(case, algorithm)
         if case.get("input_length") not in (None, len(values)):
             raise ValueError(f"declared input length differs for {case['id']}")
         if len(values) > 1024:
             command = [str(executable), "--stdin", str(len(values)), repr(expected),
+                       repr(absolute_tolerance), repr(relative_tolerance),
                        str(samples), str(warmups), str(repetitions)]
             streamed_values = " ".join(map(str, values)) + "\n"
         else:
             command = [str(executable), str(len(values)), *map(str, values), repr(expected),
+                       repr(absolute_tolerance), repr(relative_tolerance),
                        str(samples), str(warmups), str(repetitions)]
             streamed_values = None
         completed = subprocess.run(command, input=streamed_values, capture_output=True, text=True, check=False)
@@ -96,7 +161,8 @@ def main() -> int:
             raise SystemExit(f"array-float64 runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)
         observed = float(raw["observed_result"])
-        if observed != expected or len(raw["samples_ns"]) != samples:
+        if (not result_matches(observed, expected, absolute_tolerance, relative_tolerance)
+                or len(raw["samples_ns"]) != samples):
             raise ValueError(f"array-float64 runner returned an invalid result for {case['id']}")
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
@@ -106,6 +172,8 @@ def main() -> int:
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],
                                         "comparison_model": "i64_array_float64_call",
+                                        "absolute_tolerance": absolute_tolerance,
+                                        "relative_tolerance": relative_tolerance,
                                         "target_comparisons_per_sample": None,
                                         "warmup_rounds": warmups, "repetitions_per_sample": repetitions,
                                         "samples_ns": raw["samples_ns"], "observed_result": observed,

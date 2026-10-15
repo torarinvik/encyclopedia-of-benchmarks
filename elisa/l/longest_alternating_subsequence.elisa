@@ -1,0 +1,30 @@
+# Strict longest alternating subsequence; empty input retains Java source result 1.
+const MAX_LENGTH: usize = 512
+
+def longest_alternating_subsequence_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    rising: mutable i64[MAX_LENGTH] = zeroed
+    falling: mutable i64[MAX_LENGTH] = zeroed
+    result: mutable i64 = 1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        rising[index] <- 1
+        falling[index] <- 1
+        previous: mutable usize = 0
+        while previous < index:
+            if values[previous] < values[index] and rising[index] < falling[previous] + 1:
+                rising[index] <- falling[previous] + 1
+            if values[previous] > values[index] and falling[index] < rising[previous] + 1:
+                falling[index] <- rising[previous] + 1
+            previous <- previous + 1
+        if rising[index] > result:
+            result <- rising[index]
+        if falling[index] > result:
+            result <- falling[index]
+        index <- index + 1
+    result
+
+export fn longest_alternating_subsequence(values: i64&, length: usize) -> i64 = longest_alternating_subsequence_impl

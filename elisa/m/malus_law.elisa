@@ -1,0 +1,16 @@
+# Malus's law: I0 * cos(radians(angle))^2.
+extern cos(value: f64) -> f64
+const PI: f64 = 3.141592653589793238462643383279502884
+
+def malus_law_impl(values: i64&, length: usize) -> f64:
+    if length != 2:
+        return -1.0e300
+    initial_intensity: i64 = values[0]
+    angle: i64 = values[1]
+    if initial_intensity < 0 or initial_intensity > 1000 or angle < 0 or angle > 360:
+        return -1.0e300
+    radians: f64 = (angle.f64() * PI) / 180.0
+    cosine: f64 = cos(radians)
+    initial_intensity.f64() * (cosine * cosine)
+
+export fn malus_law(values: i64&, length: usize) -> f64 = malus_law_impl

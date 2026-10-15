@@ -1,0 +1,47 @@
+const MAX_INDEX: f64 = 9007199254740991.0
+const MAX_MODULUS: f64 = 4294967295.0
+
+def multiply_sum(a: u64, b: u64, c: u64, d: u64, modulus: u64) -> u64:
+    ((a * b) % modulus + (c * d) % modulus) % modulus
+
+def fibonacci_matrix_exponentiation_impl(index_input: f64, modulus_input: f64) -> f64:
+    if not (index_input >= 1.0 and index_input <= MAX_INDEX) or not (modulus_input >= 1.0 and modulus_input <= MAX_MODULUS):
+        return -1.0
+    index: u64 = index_input.u64()
+    modulus: u64 = modulus_input.u64()
+    if index.f64() != index_input or modulus.f64() != modulus_input:
+        return -1.0
+
+    r00: mutable u64 = 1.u64() % modulus
+    r01: mutable u64 = 0.u64()
+    r10: mutable u64 = 0.u64()
+    r11: mutable u64 = 1.u64() % modulus
+    t00: mutable u64 = 0.u64()
+    t01: mutable u64 = 1.u64() % modulus
+    t10: mutable u64 = 1.u64() % modulus
+    t11: mutable u64 = 1.u64() % modulus
+    exponent: mutable u64 = index - 1.u64()
+    while exponent > 0.u64():
+        if exponent % 2.u64() == 1.u64():
+            n00: u64 = multiply_sum(r00, t00, r01, t10, modulus)
+            n01: u64 = multiply_sum(r00, t01, r01, t11, modulus)
+            n10: u64 = multiply_sum(r10, t00, r11, t10, modulus)
+            n11: u64 = multiply_sum(r10, t01, r11, t11, modulus)
+            r00 <- n00
+            r01 <- n01
+            r10 <- n10
+            r11 <- n11
+            exponent <- exponent - 1.u64()
+        else:
+            n00: u64 = multiply_sum(t00, t00, t01, t10, modulus)
+            n01: u64 = multiply_sum(t00, t01, t01, t11, modulus)
+            n10: u64 = multiply_sum(t10, t00, t11, t10, modulus)
+            n11: u64 = multiply_sum(t10, t01, t11, t11, modulus)
+            t00 <- n00
+            t01 <- n01
+            t10 <- n10
+            t11 <- n11
+            exponent <- exponent / 2.u64()
+    ((r00 + r10) % modulus).f64()
+
+export fn fibonacci_matrix_exponentiation(index_input: f64, modulus_input: f64) -> f64 = fibonacci_matrix_exponentiation_impl

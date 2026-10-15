@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "id": "fibonacci-matrix-exponentiation-bounded-u32-mod-v1",
+  "algorithm": "fibonacci_matrix_exponentiation",
+  "function_symbol": "fibonacci_matrix_exponentiation",
+  "description": "Compute a one-based Fibonacci number modulo an integer using 2x2 matrix exponentiation.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["index", "modulus"],
+    "index_range": [1, 9007199254740991],
+    "modulus_range": [1, 4294967295],
+    "integer_valued_inputs_required": true,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "F(index) modulo modulus",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-16,
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"modulus_one","input_values":[1.0,1.0],"expected_result":0.0},
+    {"id":"first_term","input_values":[1.0,2.0],"expected_result":1.0},
+    {"id":"second_term","input_values":[2.0,1000.0],"expected_result":1.0},
+    {"id":"third_term","input_values":[3.0,1000.0],"expected_result":2.0},
+    {"id":"source_example_six","input_values":[6.0,1000000007.0],"expected_result":8.0},
+    {"id":"source_example_five","input_values":[5.0,1000000007.0],"expected_result":5.0},
+    {"id":"source_example_ten","input_values":[10.0,1000000007.0],"expected_result":55.0},
+    {"id":"source_example_mod_100","input_values":[500.0,100.0],"expected_result":25.0},
+    {"id":"source_example_mod_10000","input_values":[500.0,10000.0],"expected_result":4125.0},
+    {"id":"large_modulus","input_values":[100.0,4294967295.0],"expected_result":4184880765.0},
+    {"id":"largest_exact_index","input_values":[9007199254740991.0,97.0],"expected_result":8.0},
+    {"id":"zero_index","input_values":[0.0,1000.0],"expected_result":-1.0},
+    {"id":"negative_index","input_values":[-1.0,1000.0],"expected_result":-1.0},
+    {"id":"zero_modulus","input_values":[10.0,0.0],"expected_result":-1.0},
+    {"id":"negative_modulus","input_values":[10.0,-1.0],"expected_result":-1.0},
+    {"id":"fractional_index","input_values":[5.5,1000.0],"expected_result":-1.0},
+    {"id":"fractional_modulus","input_values":[10.0,1000.5],"expected_result":-1.0},
+    {"id":"index_above_exact_range","input_values":[9007199254740992.0,97.0],"expected_result":-1.0},
+    {"id":"modulus_above_bound","input_values":[10.0,4294967296.0],"expected_result":-1.0}
+  ]
+}

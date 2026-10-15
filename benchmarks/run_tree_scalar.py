@@ -18,6 +18,8 @@ from build_abi import ROOT, sha256_file
 MAX_NODE_COUNT = 1023
 VALUE_MIN, VALUE_MAX = -100_000, 100_000
 MASK64 = 2**64 - 1
+NODE_SUM_INVALID = -9_000_000_000_000_000_000
+NODE_SUM_MAX_NODE_COUNT = 900
 
 
 def max_ancestor_diff_oracle(nodes: list[list[int]], root_index: int) -> int:
@@ -261,6 +263,36 @@ def binary_tree_maximum_path_sum_oracle(nodes: list[list[int]], root_index: int)
     return best_path if len(seen) == count and best_path is not None else -1
 
 
+def binary_tree_node_sum_oracle(nodes: list[list[int]], root_index: int) -> int:
+    count = len(nodes)
+    if not 1 <= count <= NODE_SUM_MAX_NODE_COUNT or type(root_index) is not int:
+        return NODE_SUM_INVALID
+    if not 0 <= root_index < count:
+        return NODE_SUM_INVALID
+    stack = [root_index]
+    seen: set[int] = set()
+    total = 0
+    while stack:
+        node = stack.pop()
+        if node in seen:
+            return NODE_SUM_INVALID
+        seen.add(node)
+        row = nodes[node]
+        if (not isinstance(row, list) or len(row) != 3
+                or any(type(value) is not int for value in row)):
+            return NODE_SUM_INVALID
+        value, left, right = row
+        if (not -1_000_000_000 <= value <= 1_000_000_000
+                or left < -1 or left >= count or right < -1 or right >= count):
+            return NODE_SUM_INVALID
+        total += value
+        if right >= 0:
+            stack.append(right)
+        if left >= 0:
+            stack.append(left)
+    return total
+
+
 def bst_iterator_oracle(nodes: list[list[int]], root_index: int) -> int:
     count = len(nodes)
     if not 0 <= count <= MAX_NODE_COUNT or type(root_index) is not int:
@@ -414,6 +446,8 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return univalued_binary_tree_oracle(nodes, root_index)
     if algorithm == "binary_tree_maximum_path_sum":
         return binary_tree_maximum_path_sum_oracle(nodes, root_index)
+    if algorithm == "binary_tree_node_sum":
+        return binary_tree_node_sum_oracle(nodes, root_index)
     if algorithm == "bst_iterator":
         return bst_iterator_oracle(nodes, root_index)
     if algorithm == "validate_bst":

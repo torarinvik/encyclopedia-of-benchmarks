@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "hookes-law-v1",
+  "algorithm": "hookes_law",
+  "function_symbol": "hookes_law",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["spring_constant", "displacement"],
+    "spring_constant_minimum": 1,
+    "spring_constant_maximum": 1000,
+    "displacement_minimum": -1000,
+    "displacement_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "-spring_constant * displacement",
+    "unit": "newton",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"unit-displacement","input_values":[50,1],"input_length":2,"expected_result":-50.0},
+    {"id":"larger-extension","input_values":[100,5],"input_length":2,"expected_result":-500.0},
+    {"id":"negative-displacement","input_values":[200,-2],"input_length":2,"expected_result":400.0},
+    {"id":"unit-constant","input_values":[1,1000],"input_length":2,"expected_result":-1000.0},
+    {"id":"zero-displacement","input_values":[7,0],"input_length":2,"expected_result":-0.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[50],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid-zero-constant","input_values":[0,5],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-negative-constant","input_values":[-1,5],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-displacement-bound","input_values":[50,1001],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "get-month-days-javascript-gregorian-binary-scalar-v1",
+  "algorithm": "get_month_days",
+  "function_symbol": "get_month_days",
+  "input": {
+    "kind": "month_number_and_year",
+    "argument_order": ["month_number", "year"],
+    "month_minimum": 1,
+    "month_maximum": 12,
+    "year_minimum": 0,
+    "year_maximum": 9999,
+    "leap_year_rule": "year%400==0 || (year%100!=0 && year%4==0)",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "january-31-days", "input_values": [1, 2023], "expected_result": 31},
+    {"id": "april-30-days", "input_values": [4, 2024], "expected_result": 30},
+    {"id": "february-common-year", "input_values": [2, 2023], "expected_result": 28},
+    {"id": "february-leap-year", "input_values": [2, 2024], "expected_result": 29},
+    {"id": "february-nonleap-century", "input_values": [2, 1900], "expected_result": 28},
+    {"id": "february-leap-century", "input_values": [2, 2000], "expected_result": 29},
+    {"id": "source-year-zero-leap", "input_values": [2, 0], "expected_result": 29},
+    {"id": "december-upper-year", "input_values": [12, 9999], "expected_result": 31},
+    {"id": "invalid-month-low", "input_values": [0, 2024], "expected_result": -1},
+    {"id": "invalid-month-high", "input_values": [13, 2024], "expected_result": -1},
+    {"id": "invalid-year-low", "input_values": [2, -1], "expected_result": -1},
+    {"id": "invalid-year-high", "input_values": [2, 10000], "expected_result": -1}
+  ]
+}

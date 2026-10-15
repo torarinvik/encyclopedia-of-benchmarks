@@ -1,0 +1,14 @@
+# Small-amplitude pendulum period: 2 * pi * sqrt(length / g).
+extern pow(base: f64, exponent: f64) -> f64
+const PI: f64 = 3.141592653589793238462643383279502884
+
+def period_of_pendulum_impl(values: i64&, length: usize) -> f64:
+    if length != 1:
+        return -1.0e300
+    pendulum_length: i64 = values[0]
+    if pendulum_length < 0 or pendulum_length > 1000:
+        return -1.0e300
+    root: f64 = pow(pendulum_length.f64() / 9.80665, 0.5)
+    (2.0 * PI) * root
+
+export fn period_of_pendulum(values: i64&, length: usize) -> f64 = period_of_pendulum_impl

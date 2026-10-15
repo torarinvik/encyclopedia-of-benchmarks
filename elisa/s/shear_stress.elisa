@@ -1,0 +1,24 @@
+# Shear stress, force, and area relation over a bounded integer-valued domain.
+def shear_stress_impl(stress: f64, tangential_force: f64, area: f64) -> f64:
+    if stress != stress or tangential_force != tangential_force or area != area:
+        return -1.0
+    if stress < 0.0 or stress > 1000.0 or tangential_force < 0.0 or tangential_force > 1000.0 or area < 0.0 or area > 1000.0:
+        return -1.0
+    if stress != f64(i64(stress)) or tangential_force != f64(i64(tangential_force)) or area != f64(i64(area)):
+        return -1.0
+    zeros: mutable i64 = 0
+    if stress == 0.0:
+        zeros <- zeros + 1
+    if tangential_force == 0.0:
+        zeros <- zeros + 1
+    if area == 0.0:
+        zeros <- zeros + 1
+    if zeros != 1:
+        return -1.0
+    if stress == 0.0:
+        return tangential_force / area
+    if tangential_force == 0.0:
+        return stress * area
+    return tangential_force / stress
+
+export fn shear_stress(stress: f64, tangential_force: f64, area: f64) -> f64 = shear_stress_impl

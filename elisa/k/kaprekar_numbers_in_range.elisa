@@ -1,0 +1,71 @@
+# Enumerate Kaprekar numbers as decimal NUL-terminated values.
+const MAX_END: i64 = 100000
+
+def is_kaprekar(number: i64) -> bool:
+    if number == 0 or number == 1:
+        return true
+    square: i64 = number * number
+    split: mutable i64 = 1
+    remaining: mutable i64 = number
+    while remaining > 0:
+        split <- split * 10
+        remaining <- remaining / 10
+    right: i64 = square % split
+    right != 0 and square / split + right == number
+
+def decimal_length(number_value: i64) -> usize:
+    remaining: mutable i64 = number_value
+    length: mutable usize = 1
+    while remaining >= 10:
+        remaining <- remaining / 10
+        length <- length + 1
+    length
+
+def required_length(start: i64, end: i64) -> usize:
+    bytes: mutable usize = 0
+    number: mutable i64 = start
+    while number <= end:
+        if is_kaprekar(number):
+            bytes <- bytes + decimal_length(number) + 1
+        number <- number + 1
+    bytes
+
+def append_decimal(number_value: i64, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[20]
+    count: mutable usize = 0
+    remaining: mutable i64 = number_value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    if count == 0:
+        digits[0] <- 48.u8()
+        count <- 1
+    position: mutable usize = position_value
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def kaprekar_numbers_in_range_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    start: i64 = values[0]
+    end: i64 = values[1]
+    if start < 0 or start > end or end > MAX_END:
+        return -1
+    required: usize = required_length(start, end)
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    number: mutable i64 = start
+    while number <= end:
+        if is_kaprekar(number):
+            position <- append_decimal(number, output, position)
+            output[position] <- 0.u8()
+            position <- position + 1
+        number <- number + 1
+    position.i64()
+
+export fn kaprekar_numbers_in_range(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = kaprekar_numbers_in_range_impl
