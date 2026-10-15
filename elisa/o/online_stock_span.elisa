@@ -1,0 +1,33 @@
+const MAX_DAYS: usize = 4095
+
+def online_stock_span_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    if input[0] < 1 or input[0] > i64(MAX_DAYS):
+        return -1
+    count: usize = usize(input[0])
+    if length != count + 1:
+        return -1
+    for day in 0..<count |input|:
+        if input[day + 1] < 1 or input[day + 1] > 100000:
+            return -1
+    output_bytes: usize = count * 8
+    if output_capacity < output_bytes:
+        return -2
+
+    decreasing: mutable usize[4095] = zeroed
+    top: mutable usize = 0
+    for day in 0..<count |input, output, decreasing, top|:
+        price: i64 = input[day + 1]
+        while top > 0 and input[decreasing[top - 1] + 1] <= price |input, decreasing, top|:
+            top <- top - 1
+        span: usize = day + 1
+        if top > 0:
+            span <- day - decreasing[top - 1]
+        for byte in 0..<8 |output|:
+            output[day * 8 + byte] <- u8((span >> (byte * 8)) & 255)
+        decreasing[top] <- day
+        top <- top + 1
+    i64(count)
+
+export fn online_stock_span(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = online_stock_span_impl

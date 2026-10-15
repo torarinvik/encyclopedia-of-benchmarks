@@ -1,0 +1,33 @@
+# Count all palindromic substrings by expanding around odd and even centers.
+def palindromic_substrings_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 1000:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 97 or values[index] > 122:
+            return -1
+        index <- index + 1
+
+    count: mutable i64 = 0
+    center: mutable usize = 0
+    while center < length:
+        count <- count + 1
+        left: mutable usize = center
+        right: mutable usize = center
+        while left > 0 and right + 1 < length and values[left - 1] == values[right + 1]:
+            count <- count + 1
+            left <- left - 1
+            right <- right + 1
+
+        left <- center
+        right <- center + 1
+        while right < length and values[left] == values[right]:
+            count <- count + 1
+            if left == 0 or right + 1 == length:
+                break
+            left <- left - 1
+            right <- right + 1
+        center <- center + 1
+    count
+
+export fn palindromic_substrings(values: i64&, length: usize) -> i64 = palindromic_substrings_impl

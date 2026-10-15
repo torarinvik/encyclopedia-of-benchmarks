@@ -1,0 +1,58 @@
+# Return whether every room is reachable from room zero.
+def keys_and_rooms_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or length > 100001:
+        return -1
+    if values[0] < 2 or values[0] > 1000:
+        return -1
+    room_count: usize = values[0].usize()
+    starts: mutable usize[1000] = zeroed
+    degrees: mutable usize[1000] = zeroed
+    cursor: mutable usize = 1
+    room: mutable usize = 0
+    while room < room_count:
+        if cursor >= length:
+            return -1
+        count_value: i64 = values[cursor]
+        if count_value < 0 or count_value > room_count.i64():
+            return -1
+        cursor <- cursor + 1
+        degree: usize = count_value.usize()
+        if degree > length - cursor:
+            return -1
+        starts[room] <- cursor
+        degrees[room] <- degree
+        edge: mutable usize = 0
+        while edge < degree:
+            key: i64 = values[cursor + edge]
+            if key < 0 or key >= room_count.i64():
+                return -1
+            edge <- edge + 1
+        cursor <- cursor + degree
+        room <- room + 1
+    if cursor != length:
+        return -1
+
+    visited: mutable bool[1000] = zeroed
+    worklist: mutable usize[1000] = zeroed
+    worklist[0] <- 0
+    visited[0] <- true
+    stack_size: mutable usize = 1
+    reached: mutable usize = 0
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        current: usize = worklist[stack_size]
+        reached <- reached + 1
+        edge: mutable usize = 0
+        while edge < degrees[current]:
+            key: usize = values[starts[current] + edge].usize()
+            if not visited[key]:
+                visited[key] <- true
+                worklist[stack_size] <- key
+                stack_size <- stack_size + 1
+            edge <- edge + 1
+    if reached == room_count:
+        1
+    else:
+        0
+
+export fn keys_and_rooms(values: i64&, length: usize) -> i64 = keys_and_rooms_impl

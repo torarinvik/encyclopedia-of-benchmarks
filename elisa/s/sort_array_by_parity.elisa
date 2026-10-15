@@ -1,0 +1,37 @@
+const MAX_ARRAY_LENGTH: usize = 5000
+
+# Place evens first and fill the odd section from its end.
+def sort_array_by_parity_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_ARRAY_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = input[index]
+        if value < 0 or value > 5000:
+            return -1
+        index <- index + 1
+
+    output_bytes: usize = length * 4
+    if output_capacity < output_bytes:
+        return -2
+    even_index: mutable usize = 0
+    odd_index: mutable usize = length
+    index <- 0
+    while index < length:
+        value: i64 = input[index]
+        destination: mutable usize = 0
+        if (value & 1) == 0:
+            destination <- even_index
+            even_index <- even_index + 1
+        else:
+            odd_index <- odd_index - 1
+            destination <- odd_index
+        bits: u32 = value.u32()
+        output[destination * 4] <- (bits & 255).u8()
+        output[destination * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[destination * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[destination * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    length.i64()
+
+export fn sort_array_by_parity(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sort_array_by_parity_impl

@@ -1,0 +1,9 @@
+# Count low-order zero bits by shifting away factors of two.
+def binary_count_trailing_zeros_impl(n: i64) -> i64:
+    if n < 0:
+        return -1
+    while remaining > 0 and remaining % 2 == 0 |remaining: i64 = n, count: i64 = 0| -> count:
+        remaining <- remaining / 2
+        count <- count + 1
+
+export fn binary_count_trailing_zeros(n: i64) -> i64 = binary_count_trailing_zeros_impl

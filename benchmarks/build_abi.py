@@ -34,7 +34,13 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "tree_symmetric": ("tree_symmetric_call",
                                ["tree_symmetric_runner", "tree_symmetric_check"]),
             "tree_scalar": ("tree_scalar_call",
-                            ["tree_scalar_runner", "tree_scalar_check"])}
+                            ["tree_scalar_runner", "tree_scalar_check"]),
+            "tree_range_sum": ("tree_range_sum_call",
+                               ["tree_range_sum_runner", "tree_range_sum_check"]),
+            "tree_rank": ("tree_rank_call", ["tree_rank_runner", "tree_rank_check"]),
+            "tree_value_output": ("tree_value_output_call",
+                                 ["tree_value_output_runner", "tree_value_output_check"]),
+            "tree_trim": ("tree_trim_call", ["tree_trim_runner", "tree_trim_check"])}
 COMPILERS = {"c": "cc", "c3": "c3c", "cpp": "c++", "elisa": "elisac", "nim": "nim",
              "odin": "odin", "rust": "rustc", "v": "v", "zig": "zig"}
 

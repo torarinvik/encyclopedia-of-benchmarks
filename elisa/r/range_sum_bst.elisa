@@ -1,0 +1,85 @@
+const MAX_NODE_COUNT: usize = 1023
+const MAX_VALUE: i64 = 100000
+
+# Preserve the source's full tree traversal while validating the BST input.
+def range_sum_bst_impl(nodes: i64&, node_count: usize, root_index: i64,
+                       low: i64, high: i64) -> i64:
+    if node_count > MAX_NODE_COUNT or low < 1 or high > MAX_VALUE or low > high:
+        return -1
+    if node_count == 0:
+        return 0 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+
+    parents: mutable i64[1023] = zeroed
+    seen: mutable i64[1023] = zeroed
+    stack_node: mutable i64[1023] = zeroed
+    stack_low: mutable i64[1023] = zeroed
+    stack_high: mutable i64[1023] = zeroed
+    index: mutable usize = 0
+    while index < node_count:
+        value: i64 = nodes[3 * index]
+        left: i64 = nodes[3 * index + 1]
+        right: i64 = nodes[3 * index + 2]
+        if value < 1 or value > MAX_VALUE or left < -1 or right < -1:
+            return -1
+        if (left >= 0 and left.u64() >= node_count.u64()) or (right >= 0 and right.u64() >= node_count.u64()):
+            return -1
+        if left >= 0:
+            left_index: usize = left.usize()
+            parents[left_index] <- parents[left_index] + 1
+            if parents[left_index] > 1:
+                return -1
+        if right >= 0:
+            right_index: usize = right.usize()
+            parents[right_index] <- parents[right_index] + 1
+            if parents[right_index] > 1:
+                return -1
+        index <- index + 1
+    root: usize = root_index.usize()
+    if parents[root] != 0:
+        return -1
+    index <- 0
+    while index < node_count:
+        if index != root and parents[index] != 1:
+            return -1
+        index <- index + 1
+
+    top: mutable usize = 1
+    visited: mutable usize = 0
+    stack_node[0] <- root_index
+    stack_low[0] <- 0
+    stack_high[0] <- MAX_VALUE + 1
+    total: mutable i64 = 0
+    while top > 0:
+        top <- top - 1
+        index <- stack_node[top].usize()
+        lower: i64 = stack_low[top]
+        upper: i64 = stack_high[top]
+        if seen[index] != 0:
+            return -1
+        seen[index] <- 1
+        visited <- visited + 1
+        value: i64 = nodes[3 * index]
+        left: i64 = nodes[3 * index + 1]
+        right: i64 = nodes[3 * index + 2]
+        if value <= lower or value >= upper:
+            return -1
+        if low <= value and value <= high:
+            total <- total + value
+        if right >= 0:
+            stack_node[top] <- right
+            stack_low[top] <- value
+            stack_high[top] <- upper
+            top <- top + 1
+        if left >= 0:
+            stack_node[top] <- left
+            stack_low[top] <- lower
+            stack_high[top] <- value
+            top <- top + 1
+    if visited != node_count:
+        return -1
+    total
+
+export fn range_sum_bst(nodes: i64&, node_count: usize, root_index: i64,
+                        low: i64, high: i64) -> i64 = range_sum_bst_impl

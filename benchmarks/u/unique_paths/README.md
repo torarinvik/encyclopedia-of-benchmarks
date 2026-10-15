@@ -13,6 +13,10 @@ The bounded contract keeps every result within signed 64-bit while including cas
 
 ## Inspected upstream sources
 
+- [TheAlgorithms/C LeetCode 62](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/62.c)
+
+The C source uses a full two-dimensional table and returns int. The shared ports keep the same recurrence in one row to bound memory and use an exact signed 64-bit result.
+
 - [TheAlgorithms/Java `UniquePaths.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/UniquePaths.java)
 - [TheAlgorithms/JavaScript `UniquePaths.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/UniquePaths.js)
 

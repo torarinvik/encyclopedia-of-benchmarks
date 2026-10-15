@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz")
+ALGORITHMS = ("factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -161,6 +161,22 @@ def oracle(algorithm: str, n: int) -> int:
         return math.comb(2 * n, n) // (n + 1) if 0 <= n <= 35 else -1
     if algorithm == "factorial":
         return math.factorial(n) if 0 <= n <= 20 else -1
+    if algorithm == "factorial_trailing_zeroes":
+        if not 0 <= n <= 1_000_000_000:
+            return -1
+        count, power = 0, 5
+        while power <= n:
+            count += n // power
+            power *= 5
+        return count
+    if algorithm == "binary_count_trailing_zeros":
+        if n < 0:
+            return -1
+        return 0 if n == 0 else (n & -n).bit_length() - 1
+    if algorithm == "trailing_zeroes":
+        if n < 0:
+            return -1
+        return len(str(n)) - len(str(n).rstrip("0"))
     if algorithm in {"fibonacci", "fibonacci_fast"}:
         return fibonacci_pair(n)[0] if 0 <= n <= 92 else -1
     if algorithm == "tribonacci":
@@ -231,6 +247,33 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     elif algorithm == "factorial":
         inputs.update(range(-4, 26))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "factorial_trailing_zeroes":
+        inputs.update(range(-4, 10_001))
+        inputs.update(rng.randrange(0, 1_000_000_001) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 4, 5, 6, 24, 25, 26,
+                       124, 125, 126, 1_000_000_000, 1_000_000_001,
+                       I64_MAX - 1, I64_MAX])
+        power = 5
+        while power <= 1_000_000_000:
+            inputs.update([power - 1, power, power + 1])
+            power *= 5
+    elif algorithm == "binary_count_trailing_zeros":
+        inputs.update(range(-4, 65_536))
+        inputs.update(rng.randrange(0, I64_MAX + 1) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 4, 5, 6, 8, 16,
+                       2**31, 2**32, 2**32 + 1, 2**62 - 1, 2**62, I64_MAX - 1, I64_MAX])
+        for bit in range(63):
+            value = 1 << bit
+            inputs.update([value - 1, value, value + 1])
+    elif algorithm == "trailing_zeroes":
+        inputs.update(range(-1024, 10_001))
+        inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 9, 10, 11, 99, 100,
+                       1000, 102983100000, 10**18 - 1, 10**18, 10**18 + 1,
+                       I64_MAX - 1, I64_MAX])
+        for power in range(1, 19):
+            value = 10**power
+            inputs.update([value - 1, value, value + 1])
     elif algorithm in {"fibonacci", "fibonacci_fast"}:
         inputs.update(range(-4, 98))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])

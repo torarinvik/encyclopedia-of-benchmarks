@@ -1,8 +1,6 @@
 # Find the leftmost longest ASCII alphanumeric palindrome by expanding centers.
 def is_ascii_alphanumeric(value: i64) -> bool:
-    (value >= 48 and value <= 57) or
-    (value >= 65 and value <= 90) or
-    (value >= 97 and value <= 122)
+    (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
 
 def longest_palindromic_substring_impl(values: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
@@ -23,7 +21,7 @@ def longest_palindromic_substring_impl(values: i64&, length: usize,
         while left > 0 and right + 1 < length and values[left - 1] == values[right + 1]:
             left <- left - 1
             right <- right + 1
-        candidate_length: usize = right - left + 1
+        candidate_length: mutable usize = right - left + 1
         if candidate_length > best_length:
             best_start <- left
             best_length <- candidate_length

@@ -1,0 +1,36 @@
+const MAX_TERM_INDEX: i64 = 19
+const MAX_TERM_LENGTH: usize = 256
+
+def count_and_say_impl(term_index: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if term_index < 1 or term_index > MAX_TERM_INDEX:
+        return -1
+    current: mutable u8[MAX_TERM_LENGTH] = zeroed
+    next: mutable u8[MAX_TERM_LENGTH] = zeroed
+    current[0] <- 49.u8()
+    current_length: mutable usize = 1
+    term: mutable i64 = 1
+    while term < term_index |term, current, current_length, next|:
+        next_length: mutable usize = 0
+        index: mutable usize = 0
+        while index < current_length |index, next_length, current, next|:
+            end: mutable usize = index + 1
+            while end < current_length and current[end] == current[index] |end, current|:
+                end <- end + 1
+            run_length: usize = end - index
+            if next_length + 2 > MAX_TERM_LENGTH:
+                return -1
+            next[next_length] <- (48 + run_length).u8()
+            next[next_length + 1] <- current[index]
+            next_length <- next_length + 2
+            index <- end
+        for position in 0..<next_length |position, current, next|:
+            current[position] <- next[position]
+        current_length <- next_length
+        term <- term + 1
+    if output_capacity < current_length:
+        return -2
+    for index in 0..<current_length |index, current, output|:
+        output[index] <- current[index]
+    current_length.i64()
+
+export fn count_and_say(term_index: i64, output: mutable u8&, output_capacity: usize) -> i64 = count_and_say_impl

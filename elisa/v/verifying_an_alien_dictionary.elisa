@@ -1,0 +1,62 @@
+const MAX_WORDS: usize = 100
+const MAX_INPUT_LENGTH: usize = 2127
+const INVALID_RESULT: i64 = -1
+
+def verifying_an_alien_dictionary_impl(input: i64&, length: usize) -> i64:
+    if length < 27 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    if input[0] < 1 or input[0] > i64(MAX_WORDS):
+        return INVALID_RESULT
+    word_count: usize = usize(input[0])
+    rank: mutable i64[26] = zeroed
+    order_seen: mutable bool[26] = zeroed
+    for position in 0..<26 |input, rank, order_seen|:
+        letter: i64 = input[1 + position]
+        if letter < i64('a') or letter > i64('z'):
+            return INVALID_RESULT
+        index: usize = usize(letter - i64('a'))
+        if order_seen[index]:
+            return INVALID_RESULT
+        order_seen[index] <- true
+        rank[index] <- i64(position)
+
+    starts: mutable usize[100] = zeroed
+    word_lengths: mutable usize[100] = zeroed
+    offset: mutable usize = 27
+    for word in 0..<word_count |input, starts, word_lengths, offset|:
+        if offset >= length or input[offset] < 1 or input[offset] > 20:
+            return INVALID_RESULT
+        word_length: usize = usize(input[offset])
+        offset <- offset + 1
+        if word_length > length - offset:
+            return INVALID_RESULT
+        starts[word] <- offset
+        word_lengths[word] <- word_length
+        for character in 0..<word_length |input, offset|:
+            letter: i64 = input[offset + character]
+            if letter < i64('a') or letter > i64('z'):
+                return INVALID_RESULT
+        offset <- offset + word_length
+    if offset != length:
+        return INVALID_RESULT
+
+    for word in 0..<(word_count - 1) |input, starts, word_lengths, rank|:
+        left_length: usize = word_lengths[word]
+        right_length: usize = word_lengths[word + 1]
+        limit: usize = left_length
+        if right_length < limit:
+            limit <- right_length
+        decided: mutable bool = false
+        for character in 0..<limit |input, starts, rank, decided|:
+            left_letter: usize = usize(input[starts[word] + character] - i64('a'))
+            right_letter: usize = usize(input[starts[word + 1] + character] - i64('a'))
+            if rank[left_letter] < rank[right_letter]:
+                decided <- true
+                break
+            if rank[left_letter] > rank[right_letter]:
+                return 0
+        if not decided and left_length > right_length:
+            return 0
+    1
+
+export fn verifying_an_alien_dictionary(input: i64&, length: usize) -> i64 = verifying_an_alien_dictionary_impl

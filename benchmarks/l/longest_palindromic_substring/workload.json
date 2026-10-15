@@ -16,7 +16,7 @@
     {
       "id": "empty",
       "input_values": [],
-      "expected_result": 0,
+      "expected_result": -1,
       "expected_output_hex": ""
     },
     {
@@ -1169,8 +1169,8 @@
         33,
         97
       ],
-      "expected_result": 3,
-      "expected_output_hex": "612161"
+      "expected_result": -1,
+      "expected_output_hex": ""
     },
     {
       "id": "too_long",

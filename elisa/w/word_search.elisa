@@ -1,0 +1,70 @@
+const MAX_CELLS: usize = 36
+const MAX_WORD_LENGTH: usize = 15
+
+def word_search_is_letter(value: i64) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def word_search_visit(input: i64&, columns: usize, rows: usize, word_start: usize,
+                      word_length: usize, position: usize, word_index: usize,
+                      visited: mutable bool&) -> bool:
+    if visited[position] or input[2 + position] != input[word_start + word_index]:
+        return false
+    visited[position] <- true
+    if word_index + 1 == word_length:
+        visited[position] <- false
+        return true
+    row: usize = position / columns
+    column: usize = position % columns
+    found: mutable bool = false
+    if row > 0:
+        found <- word_search_visit(input, columns, rows, word_start, word_length,
+                                   position - columns, word_index + 1, visited)
+    if not found and row + 1 < rows:
+        found <- word_search_visit(input, columns, rows, word_start, word_length,
+                                   position + columns, word_index + 1, visited)
+    if not found and column > 0:
+        found <- word_search_visit(input, columns, rows, word_start, word_length,
+                                   position - 1, word_index + 1, visited)
+    if not found and column + 1 < columns:
+        found <- word_search_visit(input, columns, rows, word_start, word_length,
+                                   position + 1, word_index + 1, visited)
+    visited[position] <- false
+    found
+
+def word_search_impl(input: i64&, length: usize) -> i64:
+    if length < 5 or input[0] < 1 or input[0] > 6 or input[1] < 1 or input[1] > 6:
+        return -1
+    rows: usize = input[0].usize()
+    columns: usize = input[1].usize()
+    cells: usize = rows * columns
+    word_length_index: usize = 2 + cells
+    if length <= word_length_index:
+        return -1
+    word_length_value: i64 = input[word_length_index]
+    if word_length_value < 1 or word_length_value > 15 or
+       length != word_length_index + 1 + word_length_value.usize():
+        return -1
+    word_length: usize = word_length_value.usize()
+    index: mutable usize = 0
+    while index < cells:
+        if not word_search_is_letter(input[2 + index]):
+            return -1
+        index <- index + 1
+    word_start: usize = word_length_index + 1
+    index <- 0
+    while index < word_length:
+        if not word_search_is_letter(input[word_start + index]):
+            return -1
+        index <- index + 1
+    if word_length > cells:
+        return 0
+    visited: mutable bool[36] = zeroed
+    index <- 0
+    while index < cells:
+        if word_search_visit(input, columns, rows, word_start, word_length,
+                             index, 0, &visited[0]):
+            return 1
+        index <- index + 1
+    0
+
+export fn word_search(input: i64&, length: usize) -> i64 = word_search_impl

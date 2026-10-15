@@ -1,0 +1,80 @@
+const MAX_LENGTH: usize = 100000
+
+def sift_down(values: mutable i32&, root_value: usize, end: usize) -> void:
+    root: mutable usize = root_value
+    while root * 2 + 1 < end:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: i32 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+def heap_sort(values: mutable i32&, length: usize) -> void:
+    start: mutable usize = length / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(values, start, length)
+    end: mutable usize = length
+    while end > 1:
+        end <- end - 1
+        temporary: i32 = values[0]
+        values[0] <- values[end]
+        values[end] <- temporary
+        sift_down(values, 0, end)
+
+# Sort a bounded copy and emit sorted duplicate values as little-endian i32s.
+def find_all_duplicates_in_array_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    if length == 0:
+        return 0
+
+    sorted_values: mutable i32[100000] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 1 or value > length.i64():
+            return -1
+        sorted_values[index] <- value.i32()
+        index <- index + 1
+    heap_sort(&sorted_values[0], length)
+
+    duplicate_count: mutable usize = 0
+    index <- 0
+    while index < length:
+        end: mutable usize = index + 1
+        while end < length and sorted_values[end] == sorted_values[index]:
+            end <- end + 1
+        frequency: usize = end - index
+        if frequency > 2:
+            return -1
+        if frequency == 2:
+            duplicate_count <- duplicate_count + 1
+        index <- end
+
+    output_bytes: usize = duplicate_count * 4
+    if output_capacity < output_bytes:
+        return -2
+    destination: mutable usize = 0
+    index <- 0
+    while index < length:
+        end: mutable usize = index + 1
+        while end < length and sorted_values[end] == sorted_values[index]:
+            end <- end + 1
+        if end - index == 2:
+            value: u32 = sorted_values[index].u32()
+            output[destination * 4] <- (value & 255).u8()
+            output[destination * 4 + 1] <- ((value >> 8) & 255).u8()
+            output[destination * 4 + 2] <- ((value >> 16) & 255).u8()
+            output[destination * 4 + 3] <- ((value >> 24) & 255).u8()
+            destination <- destination + 1
+        index <- end
+    duplicate_count.i64()
+
+export fn find_all_duplicates_in_array(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = find_all_duplicates_in_array_impl

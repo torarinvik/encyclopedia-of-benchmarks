@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "count-and-say-ascii-v1",
+  "algorithm": "count_and_say",
+  "function_symbol": "count_and_say",
+  "input": {
+    "kind": "one_based_term_index",
+    "encoding": "count_and_say",
+    "minimum": 1,
+    "maximum": 19,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "the indexed count-and-say term as ASCII digits, without a NUL terminator",
+    "maximum_output_bytes": 226
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "term_01",
+      "input_value": 1,
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "term_02",
+      "input_value": 2,
+      "expected_result": 2,
+      "expected_output_hex": "3131"
+    },
+    {
+      "id": "term_03",
+      "input_value": 3,
+      "expected_result": 2,
+      "expected_output_hex": "3231"
+    },
+    {
+      "id": "term_04",
+      "input_value": 4,
+      "expected_result": 4,
+      "expected_output_hex": "31323131"
+    },
+    {
+      "id": "term_05",
+      "input_value": 5,
+      "expected_result": 6,
+      "expected_output_hex": "313131323231"
+    },
+    {
+      "id": "term_10",
+      "input_value": 10,
+      "expected_result": 20,
+      "expected_output_hex": "3133323131333131313233313133313132323131"
+    },
+    {
+      "id": "term_15",
+      "input_value": 15,
+      "expected_result": 78,
+      "expected_output_hex": "333131333131323232313133313131323331313331313132313332313132333131333231333232313132313131333132323131333132313131333232323132333131333232313133323132323231"
+    },
+    {
+      "id": "term_19",
+      "input_value": 19,
+      "expected_result": 226,
+      "expected_output_hex": "31333231313332313332323131333331313231333231323331323331313231313133313132323231313231333231313332313232333131323131313331313232323131323131313331323231313331323131313332323231313231333231313332313332323132333231313231313133313231313132313333323231313233313133313132323231313331313132333131333332313131323133313232313132333131333131313233313132313131333331313231313133313232313132313332313133323133323131313231333332323132333131333232313133323132323231"
+    },
+    {
+      "id": "term_00",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "term_negative_one",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "term_20",
+      "input_value": 20,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

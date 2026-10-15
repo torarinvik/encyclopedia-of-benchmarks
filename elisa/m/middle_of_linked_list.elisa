@@ -1,0 +1,33 @@
+const MAX_NODES: usize = 100000
+
+def middle_of_linked_list_impl(next: i64&, length: usize) -> i64:
+    if length > MAX_NODES:
+        return -2
+    for index in 0..<length |next|:
+        if next[index] < -1 or next[index] >= length.i64():
+            return -2
+    if length == 0:
+        return -1
+
+    slow: mutable i64 = 0
+    fast: mutable i64 = 0
+    while fast >= 0 |slow, fast, next|:
+        first: i64 = next[fast.usize()]
+        if first < 0:
+            break
+        slow <- next[slow.usize()]
+        fast <- next[first.usize()]
+        if slow == fast:
+            return -2
+
+    slow <- 0
+    fast <- 0
+    while fast >= 0 |slow, fast, next|:
+        first: i64 = next[fast.usize()]
+        if first < 0:
+            break
+        slow <- next[slow.usize()]
+        fast <- next[first.usize()]
+    slow
+
+export fn middle_of_linked_list(next: i64&, length: usize) -> i64 = middle_of_linked_list_impl

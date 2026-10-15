@@ -22,6 +22,10 @@ MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 MAX_OUTPUT_CAPACITY = 400004
 MAX_SMALL_INPUT_LENGTH = 66
+MAX_SQUARED_ARRAY_INPUT_LENGTH = 10000
+MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH = 5000
+MAX_FIND_DUPLICATES_INPUT_LENGTH = 100000
+MAX_REDUNDANT_CONNECTION_INPUT_LENGTH = 2000
 KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
           7: b"pqrs", 8: b"tuv", 9: b"wxyz"}
 
@@ -62,6 +66,55 @@ def amicable_proper_divisor_sum(number: int) -> int:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "sudoku_solver":
+        import struct
+
+        if (len(values) != 81
+                or any(type(value) is not int or not 0 <= value <= 9 for value in values)):
+            return -1, b""
+        board = list(values)
+        rows = [0] * 9
+        columns = [0] * 9
+        boxes = [0] * 9
+        for position, digit in enumerate(board):
+            if digit == 0:
+                continue
+            row, column = divmod(position, 9)
+            box = (row // 3) * 3 + column // 3
+            bit = 1 << digit
+            if rows[row] & bit or columns[column] & bit or boxes[box] & bit:
+                return -1, b""
+            rows[row] |= bit
+            columns[column] |= bit
+            boxes[box] |= bit
+
+        def solve(position: int) -> bool:
+            while position < 81 and board[position] != 0:
+                position += 1
+            if position == 81:
+                return True
+            row, column = divmod(position, 9)
+            box = (row // 3) * 3 + column // 3
+            for digit in range(1, 10):
+                bit = 1 << digit
+                if rows[row] & bit or columns[column] & bit or boxes[box] & bit:
+                    continue
+                board[position] = digit
+                rows[row] |= bit
+                columns[column] |= bit
+                boxes[box] |= bit
+                if solve(position + 1):
+                    return True
+                board[position] = 0
+                rows[row] ^= bit
+                columns[column] ^= bit
+                boxes[box] ^= bit
+            return False
+
+        if not solve(0):
+            return -1, b""
+        return 81, struct.pack("<81i", *board)
+
     if algorithm == "invert_binary_tree":
         import struct
 
@@ -106,6 +159,64 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         invert(root)
         flattened = [value for node in nodes for value in node]
         return node_count, struct.pack("<" + "q" * len(flattened), *flattened)
+
+    if algorithm == "merge_two_binary_trees":
+        import struct
+
+        null_slot = -1_000_001
+        if (len(values) < 2 or len(values) > 512
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        first_count = values[0]
+        if not 0 <= first_count <= 255:
+            return -1, b""
+        second_count_position = first_count + 1
+        if second_count_position >= len(values):
+            return -1, b""
+        second_count = values[second_count_position]
+        second_start = second_count_position + 1
+        if not 0 <= second_count <= 255 or len(values) != second_start + second_count:
+            return -1, b""
+        first, second = values[1:second_count_position], values[second_start:]
+
+        def valid_heap_tree(slots: list[int]) -> bool:
+            return (all(value == null_slot or -100_000 <= value <= 100_000 for value in slots)
+                    and all(index == 0 or slots[(index - 1) // 2] != null_slot or value == null_slot
+                            for index, value in enumerate(slots)))
+
+        if not valid_heap_tree(first) or not valid_heap_tree(second):
+            return -1, b""
+        merged = []
+        for index in range(max(first_count, second_count)):
+            left = first[index] if index < first_count else null_slot
+            right = second[index] if index < second_count else null_slot
+            if left == null_slot and right == null_slot:
+                merged.append(null_slot)
+            else:
+                merged.append((0 if left == null_slot else left) + (0 if right == null_slot else right))
+        while merged and merged[-1] == null_slot:
+            merged.pop()
+        node_count = sum(value != null_slot for value in merged)
+        output = struct.pack("<" + "i" * len(merged), *merged) if merged else b""
+        return node_count, output
+
+    if algorithm == "online_stock_span":
+        import struct
+
+        if (not 2 <= len(values) <= 4096
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        count, prices = values[0], values[1:]
+        if count != len(prices) or not 1 <= count <= 4095 or any(not 1 <= price <= 100_000 for price in prices):
+            return -1, b""
+        spans = []
+        decreasing: list[int] = []
+        for index, price in enumerate(prices):
+            while decreasing and prices[decreasing[-1]] <= price:
+                decreasing.pop()
+            spans.append(index - decreasing[-1] if decreasing else index + 1)
+            decreasing.append(index)
+        return count, struct.pack("<" + "q" * count, *spans)
 
     if algorithm == "ones_minus_zeros":
         import struct
@@ -606,6 +717,135 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         return len(values), bytes(reversed(values))
 
+    if algorithm == "reverse_only_letters":
+        if (len(values) > 4096
+                or any(type(value) is not int or not 32 <= value <= 126 for value in values)):
+            return -1, b""
+        output = bytearray(values)
+        left, right = 0, len(output) - 1
+        while left < right:
+            if not (65 <= output[left] <= 90 or 97 <= output[left] <= 122):
+                left += 1
+                continue
+            if not (65 <= output[right] <= 90 or 97 <= output[right] <= 122):
+                right -= 1
+                continue
+            output[left], output[right] = output[right], output[left]
+            left += 1
+            right -= 1
+        return len(output), bytes(output)
+
+    if algorithm == "sort_array_by_parity":
+        import struct
+
+        if (len(values) > MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH
+                or any(type(value) is not int or not 0 <= value <= 5000 for value in values)):
+            return -1, b""
+        even_values = [value for value in values if value % 2 == 0]
+        odd_values = [value for value in values if value % 2 != 0]
+        ordered = even_values + list(reversed(odd_values))
+        output = struct.pack("<" + "i" * len(ordered), *ordered) if ordered else b""
+        return len(ordered), output
+
+    if algorithm == "find_all_duplicates_in_array":
+        import struct
+
+        if (len(values) > MAX_FIND_DUPLICATES_INPUT_LENGTH
+                or any(type(value) is not int or not 1 <= value <= len(values) for value in values)):
+            return -1, b""
+        frequencies: dict[int, int] = {}
+        for value in values:
+            frequencies[value] = frequencies.get(value, 0) + 1
+            if frequencies[value] > 2:
+                return -1, b""
+        duplicates = sorted(value for value, frequency in frequencies.items() if frequency == 2)
+        output = struct.pack("<" + "i" * len(duplicates), *duplicates) if duplicates else b""
+        return len(duplicates), output
+
+    if algorithm == "sum_even_after_queries":
+        import struct
+
+        if (len(values) < 5 or len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        number_count, query_count = values[:2]
+        if not 1 <= number_count <= 1000 or not 1 <= query_count <= 1000:
+            return -1, b""
+        if len(values) != 2 + number_count + 2 * query_count:
+            return -1, b""
+        working = values[2:2 + number_count]
+        if any(not 1 <= value <= 1000 for value in working):
+            return -1, b""
+        queries = list(zip(values[2 + number_count::2], values[3 + number_count::2]))
+        if (len(queries) != query_count
+                or any(not -1000 <= delta <= 1000 or not 0 <= index < number_count
+                       for delta, index in queries)):
+            return -1, b""
+        output: list[int] = []
+        for delta, index in queries:
+            working[index] += delta
+            output.append(sum(value for value in working if value % 2 == 0))
+        encoded = struct.pack("<" + "i" * len(output), *output)
+        return query_count, encoded
+
+    if algorithm == "redundant_connection":
+        import struct
+
+        if (len(values) < 6 or len(values) > MAX_REDUNDANT_CONNECTION_INPUT_LENGTH
+                or len(values) % 2 != 0
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count = len(values) // 2
+        if not 3 <= vertex_count <= 1000:
+            return -1, b""
+        edges = list(zip(values[::2], values[1::2]))
+        if any(not 1 <= endpoint <= vertex_count for edge in edges for endpoint in edge):
+            return -1, b""
+        if any(left == right for left, right in edges):
+            return -1, b""
+        parents = list(range(vertex_count + 1))
+
+        def find_root(node: int) -> int:
+            while parents[node] != node:
+                parents[node] = parents[parents[node]]
+                node = parents[node]
+            return node
+
+        redundant: tuple[int, int] | None = None
+        redundant_count = 0
+        for left, right in edges:
+            left_root, right_root = find_root(left), find_root(right)
+            if left_root == right_root:
+                redundant = (left, right)
+                redundant_count += 1
+            else:
+                parents[left_root] = right_root
+        if redundant_count != 1 or redundant is None:
+            return -1, b""
+        return 2, struct.pack("<ii", *redundant)
+
+    if algorithm == "zigzag_conversion":
+        if (not 1 <= len(values) <= 1025
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        rows, text = values[0], values[1:]
+        if (not 1 <= rows <= 1024
+                or any(not (65 <= value <= 90 or 97 <= value <= 122) for value in text)):
+            return -1, b""
+        if not text or rows == 1 or rows >= len(text):
+            return len(text), bytes(text)
+        cycle = 2 * (rows - 1)
+        output = bytearray()
+        for row in range(rows):
+            index = row
+            step = cycle if row == 0 or row + 1 == rows else cycle - 2 * row
+            while index < len(text):
+                output.append(text[index])
+                index += step
+                if row > 0 and row + 1 < rows:
+                    step = cycle - step
+        return len(output), bytes(output)
+
     if algorithm == "longest_palindromic_substring":
         if (not 1 <= len(values) <= 1000
                 or any(type(value) is not int or
@@ -629,6 +869,34 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                     best_length = candidate_length
         return best_length, bytes(values[best_start:best_start + best_length])
 
+    if algorithm == "3sum":
+        import struct
+        from collections import Counter
+
+        if (len(values) > 257
+                or any(type(value) is not int or not -100_000 <= value <= 100_000
+                       for value in values)):
+            return -1, b""
+        frequencies = Counter(values)
+        distinct = sorted(frequencies)
+        triplets = []
+        for first_index, first in enumerate(distinct):
+            for second in distinct[first_index:]:
+                third = -first - second
+                if third < second or third not in frequencies:
+                    continue
+                if first == second == third:
+                    if frequencies[first] < 3:
+                        continue
+                elif first == second:
+                    if frequencies[first] < 2:
+                        continue
+                elif second == third and frequencies[second] < 2:
+                    continue
+                triplets.append((first, second, third))
+        output = b"".join(struct.pack("<iii", *triplet) for triplet in triplets)
+        return len(triplets), output
+
     if algorithm == "rotate_array":
         import struct
 
@@ -644,6 +912,18 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         rotated = items[-shift:] + items[:-shift] if shift else items[:]
         output = struct.pack("<" + "i" * len(rotated), *rotated) if rotated else b""
         return len(rotated), output
+
+    if algorithm == "squares_of_a_sorted_array":
+        import struct
+
+        if (len(values) > MAX_SQUARED_ARRAY_INPUT_LENGTH
+                or any(type(value) is not int or not -10000 <= value <= 10000
+                       for value in values)
+                or any(values[index - 1] > values[index] for index in range(1, len(values)))):
+            return -1, b""
+        squared = sorted(value * value for value in values)
+        output = struct.pack("<" + "q" * len(squared), *squared) if squared else b""
+        return len(squared), output
 
     if algorithm == "rotate_array_reversal":
         import struct
@@ -1136,6 +1416,10 @@ def main() -> int:
         values = case.get("input_values")
         max_input_length = (MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else
                             MAX_SQUARE_STREAK_INPUT_LENGTH if algorithm == "longest_square_streak" else
+                            MAX_SQUARED_ARRAY_INPUT_LENGTH if algorithm == "squares_of_a_sorted_array" else
+                            MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH if algorithm == "sort_array_by_parity" else
+                            MAX_FIND_DUPLICATES_INPUT_LENGTH + 1 if algorithm == "find_all_duplicates_in_array" else
+                            MAX_REDUNDANT_CONNECTION_INPUT_LENGTH + 2 if algorithm == "redundant_connection" else
                             MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):

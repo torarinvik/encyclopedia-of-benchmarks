@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "trailing-zeroes-v1",
+  "algorithm": "trailing_zeroes",
+  "function_symbol": "trailing_zeroes",
+  "input": {
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "zero_result": 1,
+    "negative_result": -1,
+    "meaning": "number of decimal zero digits at the end of the input value"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_zero",
+      "input_value": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "two_zeroes",
+      "input_value": 100,
+      "expected_result": 2
+    },
+    {
+      "id": "three_zeroes",
+      "input_value": 1000,
+      "expected_result": 3
+    },
+    {
+      "id": "mixed_digits",
+      "input_value": 102983100000,
+      "expected_result": 5
+    },
+    {
+      "id": "one_quintillion",
+      "input_value": 1000000000000000000,
+      "expected_result": 18
+    },
+    {
+      "id": "one_quintillion_minus_one",
+      "input_value": 999999999999999999,
+      "expected_result": 0
+    },
+    {
+      "id": "int64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

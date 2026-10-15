@@ -1,0 +1,55 @@
+const MAX_NUMBERS: usize = 1000
+const MAX_QUERIES: usize = 1000
+
+# Apply each point update, then emit the running even sum as little-endian i32s.
+def sum_even_after_queries_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 5 or length > 4002:
+        return -1
+    if values[0] < 1 or values[0] > MAX_NUMBERS.i64() or values[1] < 1 or values[1] > MAX_QUERIES.i64():
+        return -1
+    number_count: usize = values[0].usize()
+    query_count: usize = values[1].usize()
+    if length != 2 + number_count + 2 * query_count:
+        return -1
+
+    working: mutable i64[1000] = zeroed
+    even_sum: mutable i64 = 0
+    index: mutable usize = 0
+    while index < number_count:
+        value: i64 = values[2 + index]
+        if value < 1 or value > 1000:
+            return -1
+        working[index] <- value
+        if value % 2 == 0:
+            even_sum <- even_sum + value
+        index <- index + 1
+    query: mutable usize = 0
+    while query < query_count:
+        offset: usize = 2 + number_count + 2 * query
+        if values[offset] < -1000 or values[offset] > 1000 or values[offset + 1] < 0 or values[offset + 1] >= number_count.i64():
+            return -1
+        query <- query + 1
+    output_bytes: usize = query_count * 4
+    if output_capacity < output_bytes:
+        return -2
+
+    query <- 0
+    while query < query_count:
+        offset: usize = 2 + number_count + 2 * query
+        delta: i64 = values[offset]
+        index <- values[offset + 1].usize()
+        if working[index] % 2 == 0:
+            even_sum <- even_sum - working[index]
+        working[index] <- working[index] + delta
+        if working[index] % 2 == 0:
+            even_sum <- even_sum + working[index]
+        output[query * 4] <- (even_sum & 255).u8()
+        output[query * 4 + 1] <- ((even_sum >> 8) & 255).u8()
+        output[query * 4 + 2] <- ((even_sum >> 16) & 255).u8()
+        output[query * 4 + 3] <- ((even_sum >> 24) & 255).u8()
+        query <- query + 1
+    query_count.i64()
+
+export fn sum_even_after_queries(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = sum_even_after_queries_impl

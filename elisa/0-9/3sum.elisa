@@ -1,0 +1,93 @@
+# Return unique sorted zero-sum triplets using sort-and-two-pointers.
+const MAX_ITEMS: usize = 257
+const BYTES_PER_TRIPLET: usize = 12
+
+def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+    root: mutable usize = root_start
+    while root < end / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: i64 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+def heap_sort(values: mutable i64&, length: usize) -> void:
+    start: mutable usize = length / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(values, start, length)
+    ending: mutable usize = length
+    while ending > 1:
+        ending <- ending - 1
+        temporary: i64 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        sift_down(values, 0, ending)
+
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def enumerate_triplets(values: i64&, length: usize, output: mutable u8&,
+        write_output: bool) -> usize:
+    result_count: mutable usize = 0
+    first: mutable usize = 0
+    while first + 2 < length:
+        if first > 0 and values[first] == values[first - 1]:
+            first <- first + 1
+            continue
+        left: mutable usize = first + 1
+        right: mutable usize = length - 1
+        while left < right:
+            sum: i64 = values[first] + values[left] + values[right]
+            if sum < 0:
+                left <- left + 1
+            elif sum > 0:
+                right <- right - 1
+            else:
+                if write_output:
+                    offset: usize = result_count * BYTES_PER_TRIPLET
+                    store_i32_le(values[first], output, offset)
+                    store_i32_le(values[left], output, offset + 4)
+                    store_i32_le(values[right], output, offset + 8)
+                result_count <- result_count + 1
+                left <- left + 1
+                right <- right - 1
+                while left < right and values[left] == values[left - 1]:
+                    left <- left + 1
+                while left < right and values[right] == values[right + 1]:
+                    right <- right - 1
+        first <- first + 1
+    result_count
+
+def three_sum_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length > MAX_ITEMS:
+        return -1
+    values: mutable i64[MAX_ITEMS] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -100000 or input[index] > 100000:
+            return -1
+        values[index] <- input[index]
+        index <- index + 1
+    heap_sort(&values[0], length)
+
+    maximum_bytes: mutable usize = 0
+    if length > 1:
+        maximum_bytes <- (length * (length - 1) / 2) * BYTES_PER_TRIPLET
+    if output_capacity < maximum_bytes:
+        needed: usize = enumerate_triplets(&values[0], length, output, false) * BYTES_PER_TRIPLET
+        if output_capacity < needed:
+            return -2
+    enumerate_triplets(&values[0], length, output, true).i64()
+
+export fn three_sum(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = three_sum_impl

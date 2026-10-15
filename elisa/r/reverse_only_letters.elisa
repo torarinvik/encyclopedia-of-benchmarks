@@ -1,0 +1,33 @@
+const MAX_LENGTH: usize = 4096
+
+def is_ascii_letter(value: u8) -> bool:
+    (value >= 65u8 and value <= 90u8) or (value >= 97u8 and value <= 122u8)
+
+def reverse_only_letters_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for index in 0..<length |input|:
+        value: i64 = input[index]
+        if value < 32 or value > 126:
+            return -1
+    if output_capacity < length:
+        return -2
+    for index in 0..<length |input, output|:
+        output[index] <- input[index].u8()
+
+    left: mutable usize = 0
+    right: mutable usize = length
+    while left < right |left, right, output|:
+        if not is_ascii_letter(output[left]):
+            left <- left + 1
+        elif not is_ascii_letter(output[right - 1]):
+            right <- right - 1
+        else:
+            temporary: u8 = output[left]
+            output[left] <- output[right - 1]
+            output[right - 1] <- temporary
+            left <- left + 1
+            right <- right - 1
+    length.i64()
+
+export fn reverse_only_letters(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = reverse_only_letters_impl

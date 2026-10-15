@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "factorial-trailing-zeroes-v1",
+  "algorithm": "factorial_trailing_zeroes",
+  "function_symbol": "factorial_trailing_zeroes",
+  "input": {
+    "minimum": 0,
+    "maximum": 1000000000,
+    "out_of_range_result": -1,
+    "meaning": "number of factors of five in n!, equal to its trailing decimal zero count"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "below_five",
+      "input_value": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "first_five",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "below_twenty_five",
+      "input_value": 24,
+      "expected_result": 4
+    },
+    {
+      "id": "power_of_five_25",
+      "input_value": 25,
+      "expected_result": 6
+    },
+    {
+      "id": "one_hundred_twenty_four",
+      "input_value": 124,
+      "expected_result": 28
+    },
+    {
+      "id": "power_of_five_125",
+      "input_value": 125,
+      "expected_result": 31
+    },
+    {
+      "id": "250",
+      "input_value": 250,
+      "expected_result": 62
+    },
+    {
+      "id": "power_of_five_625",
+      "input_value": 625,
+      "expected_result": 156
+    },
+    {
+      "id": "one_million",
+      "input_value": 1000000,
+      "expected_result": 249998
+    },
+    {
+      "id": "maximum",
+      "input_value": 1000000000,
+      "expected_result": 249999998
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_maximum",
+      "input_value": 1000000001,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

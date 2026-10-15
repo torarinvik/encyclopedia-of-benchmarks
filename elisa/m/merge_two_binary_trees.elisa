@@ -1,0 +1,59 @@
+const MAX_TREE_SLOTS: usize = 255
+const MAX_INPUT_LENGTH: usize = 512
+const NULL_SLOT: i64 = -1000001
+
+def valid_tree(input: i64&, start: usize, count: usize) -> bool:
+    for index in 0..<count |input|:
+        value: i64 = input[start + index]
+        if value != NULL_SLOT and (value < -100000 or value > 100000):
+            return false
+        if index > 0 and input[start + (index - 1) / 2] == NULL_SLOT and value != NULL_SLOT:
+            return false
+    true
+
+def merge_two_binary_trees_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > 255:
+        return -1
+    first_count: usize = input[0].usize()
+    second_count_position: usize = first_count + 1
+    if second_count_position >= length:
+        return -1
+    if input[second_count_position] < 0 or input[second_count_position] > 255:
+        return -1
+    second_count: usize = input[second_count_position].usize()
+    first_start: usize = 1
+    second_start: usize = second_count_position + 1
+    if length != second_start + second_count:
+        return -1
+    if not valid_tree(input, first_start, first_count) or not valid_tree(input, second_start, second_count):
+        return -1
+
+    maximum_slots: usize = first_count if first_count > second_count else second_count
+    merged: mutable i64[MAX_TREE_SLOTS] = zeroed
+    node_count: mutable usize = 0
+    for index in 0..<maximum_slots |input, merged, node_count|:
+        first: i64 = input[first_start + index] if index < first_count else NULL_SLOT
+        second: i64 = input[second_start + index] if index < second_count else NULL_SLOT
+        if first == NULL_SLOT and second == NULL_SLOT:
+            merged[index] <- NULL_SLOT
+        else:
+            first_value: i64 = 0 if first == NULL_SLOT else first
+            second_value: i64 = 0 if second == NULL_SLOT else second
+            merged[index] <- first_value + second_value
+            node_count <- node_count + 1
+
+    output_slots: mutable usize = maximum_slots
+    while output_slots > 0 and merged[output_slots - 1] == NULL_SLOT |output_slots, merged|:
+        output_slots <- output_slots - 1
+    output_bytes: usize = output_slots * 4
+    if output_capacity < output_bytes:
+        return -2
+    for index in 0..<output_slots |merged, output|:
+        value: i64 = merged[index]
+        for byte in 0..<4 |value, output|:
+            output[index * 4 + byte] <- ((value >> (byte * 8)) & 255).u8()
+    node_count.i64()
+
+export fn merge_two_binary_trees(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = merge_two_binary_trees_impl

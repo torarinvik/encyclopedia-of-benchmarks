@@ -21,6 +21,22 @@ MAX_OUTPUT_BYTES = 256
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "count_and_say":
+        if not 1 <= value <= 19:
+            return -1, b""
+        term = b"1"
+        for _ in range(value - 1):
+            next_term = bytearray()
+            index = 0
+            while index < len(term):
+                end = index + 1
+                while end < len(term) and term[end] == term[index]:
+                    end += 1
+                next_term.extend(str(end - index).encode("ascii"))
+                next_term.append(term[index])
+                index = end
+            term = bytes(next_term)
+        return len(term), term
     if encoding == "pascal_triangle_row":
         if not 0 <= value <= 33:
             return -1, b""

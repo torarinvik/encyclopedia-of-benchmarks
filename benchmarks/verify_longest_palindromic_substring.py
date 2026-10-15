@@ -46,7 +46,8 @@ def corpus(workload: dict) -> tuple[str, int]:
     for case in workload["cases"]:
         values = tuple(case["input_values"])
         oracle = expected_output(list(values), ALGORITHM)
-        if case["expected_result"] != oracle[0]:
+        if (case["expected_result"] != oracle[0]
+                or case.get("expected_output_hex") != oracle[1].hex()):
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         cases[values] = oracle
 

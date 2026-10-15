@@ -1,0 +1,38 @@
+const MAX_NODE_COUNT: usize = 1023
+const MAX_VALUE: i64 = 10000
+const INVALID_TREE_RESULT: i64 = -9223372036854775807 - 1
+
+# Visit nodes in order and propagate a found value without scanning later nodes.
+def kth_smallest_bst_visit(nodes: i64&, node_count: usize, node: i64,
+                           remaining: mutable i64&) -> i64:
+    if node == -1:
+        return -1
+    if node < 0 or node.u64() >= node_count.u64():
+        return INVALID_TREE_RESULT
+    index: usize = node.usize()
+    value: i64 = nodes[3 * index]
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    if value < 0 or value > MAX_VALUE or left < -1 or right < -1:
+        return INVALID_TREE_RESULT
+    if (left >= 0 and left.u64() >= node_count.u64()) or (right >= 0 and right.u64() >= node_count.u64()):
+        return INVALID_TREE_RESULT
+    left_result: i64 = kth_smallest_bst_visit(nodes, node_count, left, remaining)
+    if left_result >= 0 or left_result == INVALID_TREE_RESULT:
+        return left_result
+    remaining <- remaining - 1
+    if remaining == 0:
+        return value
+    kth_smallest_bst_visit(nodes, node_count, right, remaining)
+
+def kth_smallest_bst_impl(nodes: i64&, node_count: usize, root_index: i64, k: i64) -> i64:
+    if node_count == 0 or node_count > MAX_NODE_COUNT or root_index < 0 or
+       root_index.u64() >= node_count.u64() or k < 1 or k.u64() > node_count.u64():
+        return -1
+    remaining: mutable i64 = k
+    result: i64 = kth_smallest_bst_visit(nodes, node_count, root_index, remaining)
+    if result < 0:
+        return -1
+    result
+
+export fn kth_smallest_bst(nodes: i64&, node_count: usize, root_index: i64, k: i64) -> i64 = kth_smallest_bst_impl

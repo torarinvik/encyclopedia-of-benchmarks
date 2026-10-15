@@ -1,0 +1,18 @@
+const MAX_ARRAY_LENGTH: usize = 100000
+
+# Find the peak of a strict mountain array with binary search.
+def peak_index_in_mountain_array_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or length > MAX_ARRAY_LENGTH:
+        return -1
+    peak_index: usize =
+        while low < high |low: mutable usize = 0, high: mutable usize = length - 1| -> low:
+            middle: usize = low + (high - low) / 2
+            if values[middle] < values[middle + 1]:
+                low <- middle + 1
+            else:
+                high <- middle
+    if peak_index == 0 or peak_index + 1 == length:
+        return -1
+    peak_index.i64()
+
+export fn peak_index_in_mountain_array(values: i64&, length: usize) -> i64 = peak_index_in_mountain_array_impl

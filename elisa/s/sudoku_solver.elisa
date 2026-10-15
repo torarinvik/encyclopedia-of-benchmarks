@@ -1,0 +1,69 @@
+# Row-major backtracking Sudoku solver with row, column, and box masks.
+def sudoku_search(board: mutable i64&, rows: mutable i64&, columns: mutable i64&,
+        boxes: mutable i64&, position: usize) -> bool:
+    current: mutable usize = position
+    while current < 81 and board[current] != 0:
+        current <- current + 1
+    if current == 81:
+        return true
+    row: usize = current / 9
+    column: usize = current % 9
+    box: usize = (row / 3) * 3 + column / 3
+    digit: mutable i64 = 1
+    while digit <= 9:
+        bit: i64 = 1 << digit
+        if (rows[row] & bit) == 0 and (columns[column] & bit) == 0 and (boxes[box] & bit) == 0:
+            board[current] <- digit
+            rows[row] <- rows[row] | bit
+            columns[column] <- columns[column] | bit
+            boxes[box] <- boxes[box] | bit
+            if sudoku_search(board, rows, columns, boxes, current + 1):
+                return true
+            board[current] <- 0
+            rows[row] <- rows[row] ^ bit
+            columns[column] <- columns[column] ^ bit
+            boxes[box] <- boxes[box] ^ bit
+        digit <- digit + 1
+    false
+
+def sudoku_solver_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 81:
+        return -1
+    board: mutable i64[81] = zeroed
+    rows: mutable i64[9] = zeroed
+    columns: mutable i64[9] = zeroed
+    boxes: mutable i64[9] = zeroed
+    position: mutable usize = 0
+    while position < 81:
+        digit: i64 = values[position]
+        if digit < 0 or digit > 9:
+            return -1
+        board[position] <- digit
+        if digit != 0:
+            row: usize = position / 9
+            column: usize = position % 9
+            box: usize = (row / 3) * 3 + column / 3
+            bit: i64 = 1 << digit
+            if (rows[row] & bit) != 0 or (columns[column] & bit) != 0 or (boxes[box] & bit) != 0:
+                return -1
+            rows[row] <- rows[row] | bit
+            columns[column] <- columns[column] | bit
+            boxes[box] <- boxes[box] | bit
+        position <- position + 1
+    if output_capacity < 324:
+        return -2
+    if not sudoku_search(board, rows, columns, boxes, 0):
+        return -1
+    position <- 0
+    while position < 81:
+        digit_bits: i64 = board[position]
+        output[position * 4] <- (digit_bits & 255).u8()
+        output[position * 4 + 1] <- ((digit_bits >> 8) & 255).u8()
+        output[position * 4 + 2] <- ((digit_bits >> 16) & 255).u8()
+        output[position * 4 + 3] <- ((digit_bits >> 24) & 255).u8()
+        position <- position + 1
+    return 81
+
+export fn sudoku_solver(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = sudoku_solver_impl

@@ -1,0 +1,41 @@
+const MAX_INPUT_LENGTH: usize = 1025
+const MAX_ROWS: i64 = 1024
+
+def is_ascii_letter(value: i64) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def zigzag_conversion_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > MAX_INPUT_LENGTH:
+        return -1
+    rows_value: i64 = values[0]
+    if rows_value < 1 or rows_value > MAX_ROWS:
+        return -1
+    text_length: usize = length - 1
+    for index in 0..<text_length |values|:
+        if not is_ascii_letter(values[index + 1]):
+            return -1
+    if output_capacity < text_length:
+        return -2
+    if text_length == 0:
+        return 0
+    rows: usize = rows_value.usize()
+    if rows == 1 or rows >= text_length:
+        for index in 0..<text_length |values, output|:
+            output[index] <- values[index + 1].u8()
+        return text_length.i64()
+    cycle: usize = 2 * (rows - 1)
+    written: mutable usize = 0
+    for row in 0..<rows |values, output, written|:
+        index: mutable usize = row
+        step: mutable usize = cycle - 2 * row
+        if row == 0 or row + 1 == rows:
+            step <- cycle
+        while index < text_length |index, step, written, values, output|:
+            output[written] <- values[index + 1].u8()
+            written <- written + 1
+            index <- index + step
+            if row > 0 and row + 1 < rows:
+                step <- cycle - step
+    written.i64()
+
+export fn zigzag_conversion(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = zigzag_conversion_impl

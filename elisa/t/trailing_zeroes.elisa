@@ -1,0 +1,11 @@
+# Count decimal zero digits at the end of a nonnegative integer.
+def trailing_zeroes_impl(n: i64) -> i64:
+    if n < 0:
+        return -1
+    if n == 0:
+        return 1
+    while remaining > 0 and remaining % 10 == 0 |remaining: i64 = n, count: i64 = 0| -> count:
+        count <- count + 1
+        remaining <- remaining / 10
+
+export fn trailing_zeroes(n: i64) -> i64 = trailing_zeroes_impl

@@ -1,0 +1,36 @@
+const MAX_N: usize = 100
+const INVALID_RESULT: i64 = -10001
+
+def minimum_falling_path_sum_impl(input: i64&, length: usize) -> i64:
+    if length < 1:
+        return INVALID_RESULT
+    if input[0] < 1 or input[0] > i64(MAX_N):
+        return INVALID_RESULT
+    n: usize = usize(input[0])
+    if length != 1 + n * n:
+        return INVALID_RESULT
+    for index in 0..<(n * n):
+        if input[1 + index] < -100 or input[1 + index] > 100:
+            return INVALID_RESULT
+
+    costs: mutable i64[100] = zeroed
+    next_costs: mutable i64[100] = zeroed
+    for column in 0..<n |costs, input|:
+        costs[column] <- input[1 + column]
+    for row in 1..<n |costs, next_costs, input|:
+        for column in 0..<n |costs, next_costs, input|:
+            best: mutable i64 = costs[column]
+            if column > 0 and costs[column - 1] < best:
+                best <- costs[column - 1]
+            if column + 1 < n and costs[column + 1] < best:
+                best <- costs[column + 1]
+            next_costs[column] <- best + input[1 + row * n + column]
+        for column in 0..<n |costs, next_costs|:
+            costs[column] <- next_costs[column]
+    minimum: mutable i64 = costs[0]
+    for column in 1..<n |costs, minimum|:
+        if costs[column] < minimum:
+            minimum <- costs[column]
+    minimum
+
+export fn minimum_falling_path_sum(input: i64&, length: usize) -> i64 = minimum_falling_path_sum_impl

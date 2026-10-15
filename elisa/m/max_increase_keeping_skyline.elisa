@@ -1,0 +1,41 @@
+# Return the total allowable increase while preserving row and column skylines.
+def max_increase_keeping_skyline_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 2501:
+        return -1
+    if values[0] < 2 or values[0] > 50:
+        return -1
+    size: usize = values[0].usize()
+    if length != 1 + size * size:
+        return -1
+
+    row_max: mutable i64[50] = zeroed
+    column_max: mutable i64[50] = zeroed
+    row: mutable usize = 0
+    while row < size:
+        column: mutable usize = 0
+        while column < size:
+            height: i64 = values[1 + row * size + column]
+            if height < 0 or height > 100:
+                return -1
+            if height > row_max[row]:
+                row_max[row] <- height
+            if height > column_max[column]:
+                column_max[column] <- height
+            column <- column + 1
+        row <- row + 1
+
+    total: mutable i64 = 0
+    row <- 0
+    while row < size:
+        column: mutable usize = 0
+        while column < size:
+            height: i64 = values[1 + row * size + column]
+            skyline: mutable i64 = row_max[row]
+            if column_max[column] < skyline:
+                skyline <- column_max[column]
+            total <- total + skyline - height
+            column <- column + 1
+        row <- row + 1
+    total
+
+export fn max_increase_keeping_skyline(values: i64&, length: usize) -> i64 = max_increase_keeping_skyline_impl

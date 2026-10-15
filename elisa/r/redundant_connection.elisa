@@ -1,0 +1,68 @@
+const MAX_VERTICES: usize = 1000
+
+def find_root(parents: mutable i32&, node_value: usize) -> usize:
+    root: mutable usize = node_value
+    while parents[root].usize() != root:
+        root <- parents[root].usize()
+    node: mutable usize = node_value
+    while parents[node].usize() != node:
+        next: usize = parents[node].usize()
+        parents[node] <- root.i32()
+        node <- next
+    root
+
+# Return the edge that first closes the cycle under input-order union-find.
+def redundant_connection_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 6 or length > MAX_VERTICES * 2 or length % 2 != 0:
+        return -1
+    edge_count: usize = length / 2
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 1 or value > edge_count.i64():
+            return -1
+        index <- index + 1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        if values[2 * edge] == values[2 * edge + 1]:
+            return -1
+        edge <- edge + 1
+
+    parents: mutable i32[1001] = zeroed
+    index <- 0
+    while index <= edge_count:
+        parents[index] <- index.i32()
+        index <- index + 1
+    redundant_left: mutable usize = 0
+    redundant_right: mutable usize = 0
+    redundant_count: mutable usize = 0
+    edge <- 0
+    while edge < edge_count:
+        left: usize = values[2 * edge].usize()
+        right: usize = values[2 * edge + 1].usize()
+        left_root: usize = find_root(&parents[0], left)
+        right_root: usize = find_root(&parents[0], right)
+        if left_root == right_root:
+            redundant_left <- left
+            redundant_right <- right
+            redundant_count <- redundant_count + 1
+        else:
+            parents[left_root] <- right_root.i32()
+        edge <- edge + 1
+    if redundant_count != 1:
+        return -1
+    if output_capacity < 8:
+        return -2
+    output[0] <- (redundant_left.u32() & 255).u8()
+    output[1] <- ((redundant_left.u32() >> 8) & 255).u8()
+    output[2] <- ((redundant_left.u32() >> 16) & 255).u8()
+    output[3] <- ((redundant_left.u32() >> 24) & 255).u8()
+    output[4] <- (redundant_right.u32() & 255).u8()
+    output[5] <- ((redundant_right.u32() >> 8) & 255).u8()
+    output[6] <- ((redundant_right.u32() >> 16) & 255).u8()
+    output[7] <- ((redundant_right.u32() >> 24) & 255).u8()
+    2
+
+export fn redundant_connection(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = redundant_connection_impl

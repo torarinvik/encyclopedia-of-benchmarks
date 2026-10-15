@@ -1,0 +1,11 @@
+# Count factors of five in n!, which determine its trailing decimal zeros.
+const MAX_N: i64 = 1000000000
+
+def factorial_trailing_zeroes_impl(n: i64) -> i64:
+    if n < 0 or n > MAX_N:
+        return -1
+    while remaining > 0 |remaining: i64 = n, count: i64 = 0| -> count:
+        remaining <- remaining / 5
+        count <- count + remaining
+
+export fn factorial_trailing_zeroes(n: i64) -> i64 = factorial_trailing_zeroes_impl
