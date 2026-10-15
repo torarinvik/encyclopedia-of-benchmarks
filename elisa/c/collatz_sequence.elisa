@@ -1,0 +1,35 @@
+def collatz_sequence_next_term(value: i64) -> i64:
+    if value % 2 == 0:
+        return value / 2
+    3 * value + 1
+
+def collatz_sequence_store_i64_le(output: mutable u8&, offset_value: usize, value: i64) -> usize:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset_value + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+        byte <- byte + 1
+    offset_value + 8
+
+def collatz_sequence_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1 or input[0] < 1 or input[0] > 1000000:
+        return -1
+    current: mutable i64 = input[0]
+    term_count: mutable usize = 1
+    while current != 1:
+        current <- collatz_sequence_next_term(current)
+        term_count <- term_count + 1
+    required: usize = term_count * 8
+    if output_capacity < required:
+        return -2
+    current <- input[0]
+    written: mutable usize = 0
+    while true:
+        written <- collatz_sequence_store_i64_le(output, written, current)
+        if current == 1:
+            break
+        current <- collatz_sequence_next_term(current)
+    written.i64()
+
+export fn collatz_sequence(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = collatz_sequence_impl

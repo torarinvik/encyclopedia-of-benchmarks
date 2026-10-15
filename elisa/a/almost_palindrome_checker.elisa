@@ -1,0 +1,30 @@
+def almost_palindrome_is_range_palindrome(text: i64&, left_value: usize, right_value: usize) -> i64:
+    left: mutable usize = left_value
+    right: mutable usize = right_value
+    while left < right:
+        if text[left] != text[right - 1]:
+            return 0
+        left <- left + 1
+        right <- right - 1
+    1
+
+def almost_palindrome_checker_impl(text: i64&, length: usize) -> i64:
+    if length > 100000:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if text[index] < 97 or text[index] > 122:
+            return -1
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = length
+    while left < right:
+        if text[left] != text[right - 1]:
+            if almost_palindrome_is_range_palindrome(text, left + 1, right) == 1 or almost_palindrome_is_range_palindrome(text, left, right - 1) == 1:
+                return 1
+            return 0
+        left <- left + 1
+        right <- right - 1
+    1
+
+export fn almost_palindrome_checker(text: i64&, length: usize) -> i64 = almost_palindrome_checker_impl

@@ -1,0 +1,9 @@
+# Return 1 for a positive Gregorian leap year, 0 otherwise, or -1 for invalid years.
+def leap_year_impl(year: i64) -> i64:
+    if year <= 0:
+        return -1
+    if year % 400 == 0 or (year % 4 == 0 and year % 100 != 0):
+        return 1
+    0
+
+export fn leap_year(year: i64) -> i64 = leap_year_impl

@@ -1,0 +1,14 @@
+def average_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > 4096:
+        return -1.0e300
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -1000000000 or value > 1000000000:
+            return -1.0e300
+        total <- total + value
+        index <- index + 1
+    total.f64() / length.f64()
+
+export fn average(values: i64&, length: usize) -> f64 = average_impl

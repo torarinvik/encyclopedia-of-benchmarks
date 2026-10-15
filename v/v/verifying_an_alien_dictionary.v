@@ -10,8 +10,8 @@ pub fn verifying_an_alien_dictionary(input &i64, length usize) i64 {
 		mut order_seen := [26]bool{}
 		for position in 0 .. 26 {
 			letter := input[1 + position]
-			if letter < i64('a') || letter > i64('z') { return -1 }
-			index := int(letter - i64('a'))
+            if letter < 97 || letter > 122 { return -1 }
+            index := int(letter - 97)
 			if order_seen[index] { return -1 }
 			order_seen[index] = true
 			rank[index] = i64(position)
@@ -28,7 +28,7 @@ pub fn verifying_an_alien_dictionary(input &i64, length usize) i64 {
 			word_lengths[word] = word_length
 			for character in 0 .. word_length {
 				letter := input[offset + character]
-				if letter < i64('a') || letter > i64('z') { return -1 }
+                if letter < 97 || letter > 122 { return -1 }
 			}
 			offset += word_length
 		}
@@ -40,8 +40,8 @@ pub fn verifying_an_alien_dictionary(input &i64, length usize) i64 {
 			if right_length < limit { limit = right_length }
 			mut decided := false
 			for character in 0 .. limit {
-				left_letter := int(input[starts[word] + character] - i64('a'))
-				right_letter := int(input[starts[word + 1] + character] - i64('a'))
+                left_letter := int(input[starts[word] + character] - 97)
+                right_letter := int(input[starts[word + 1] + character] - 97)
 				if rank[left_letter] < rank[right_letter] {
 					decided = true
 					break

@@ -1,0 +1,32 @@
+def acronym_valid_phrase(phrase: i64&, length: usize, acronym_length: mutable usize&) -> bool:
+    if length > 79:
+        return false
+    acronym_length <- 0
+    index: mutable usize = 0
+    while index < length:
+        if phrase[index] < 1 or phrase[index] > 127:
+            return false
+        if phrase[index] != 32 and (index == 0 or phrase[index - 1] == 32):
+            acronym_length <- acronym_length + 1
+        index <- index + 1
+    true
+
+def acronym_impl(phrase: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    required: mutable usize = 0
+    if not acronym_valid_phrase(phrase, length, required):
+        return -1
+    if output_capacity < required:
+        return -2
+    written: mutable usize = 0
+    index: mutable usize = 0
+    while index < length:
+        value: mutable i64 = phrase[index]
+        if value != 32 and (index == 0 or phrase[index - 1] == 32):
+            if value >= 97 and value <= 122:
+                value <- value - 32
+            output[written] <- value.u8()
+            written <- written + 1
+        index <- index + 1
+    written.i64()
+
+export fn acronym(phrase: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = acronym_impl

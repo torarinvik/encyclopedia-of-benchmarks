@@ -20,3 +20,5 @@ The portable ports are [`c/s/str_str_brute_force.c`](../../../c/s/str_str_brute_
 ## Upstream reference
 
 - [C LeetCode 28](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/28.c)
+- [C++ `brute_force_string_searching.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/strings/brute_force_string_searching.cpp)
+- [C++ (additional repository) `brute_force_string_searching.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/strings/brute_force_string_searching.cpp)

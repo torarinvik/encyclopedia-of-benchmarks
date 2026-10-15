@@ -2,7 +2,7 @@ module merge_two_binary_trees
 
 const max_tree_slots = 255
 const max_input_length = 512
-const null_slot = i64(-1_000_001)
+const null_slot = -1_000_001
 
 fn valid_tree(input &i64, start usize, count usize) bool {
 	unsafe {

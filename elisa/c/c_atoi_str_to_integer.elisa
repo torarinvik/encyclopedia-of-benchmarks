@@ -1,0 +1,34 @@
+const MAX_INPUT_LENGTH: usize = 4096
+const INT32_MAX_VALUE: i64 = 2147483647
+const INT32_MIN_MAGNITUDE: i64 = 2147483648
+
+def c_atoi_str_to_integer_impl(input: i64&, length: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
+        return -2
+    for position in 0..<length |input|:
+        if input[position] < 0 or input[position] > 127:
+            return -2
+    index: mutable usize = 0
+    while index < length and input[index] != 0 and ((input[index] >= 9 and input[index] <= 13) or input[index] == 32):
+        index <- index + 1
+    negative: mutable bool = false
+    if index < length and input[index] != 0 and (input[index] == 43 or input[index] == 45):
+        negative <- input[index] == 45
+        index <- index + 1
+    limit: mutable i64 = INT32_MAX_VALUE
+    if negative:
+        limit <- INT32_MIN_MAGNITUDE
+    magnitude: mutable i64 = 0
+    while index < length and input[index] != 0 and input[index] >= 48 and input[index] <= 57 |index, magnitude|:
+        digit: i64 = input[index] - 48
+        if magnitude > limit / 10 or (magnitude == limit / 10 and digit > limit % 10):
+            if negative:
+                return -INT32_MIN_MAGNITUDE
+            return INT32_MAX_VALUE
+        magnitude <- magnitude * 10 + digit
+        index <- index + 1
+    if negative:
+        return -magnitude
+    magnitude
+
+export fn c_atoi_str_to_integer(input: i64&, length: usize) -> i64 = c_atoi_str_to_integer_impl

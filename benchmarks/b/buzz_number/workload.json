@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "buzz-number-v1",
+  "algorithm": "buzz_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 9223372036854775807,
+    "result": "1 when divisible by 7 or nonnegative and ending in decimal digit 7; 0 otherwise"
+  },
+  "cases": [
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":0},
+    {"id":"negative_nonmultiple","input_value":-17,"expected_result":0},
+    {"id":"negative_ending_in_seven","input_value":-27,"expected_result":0},
+    {"id":"negative_multiple_of_seven","input_value":-14,"expected_result":1},
+    {"id":"negative_multiple_ending_in_seven","input_value":-77,"expected_result":1},
+    {"id":"zero","input_value":0,"expected_result":1},
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"last_digit_seven","input_value":7,"expected_result":1},
+    {"id":"multiple_of_seven","input_value":14,"expected_result":1},
+    {"id":"neither_condition","input_value":15,"expected_result":0},
+    {"id":"ending_in_seven_not_multiple","input_value":17,"expected_result":1},
+    {"id":"both_conditions","input_value":77,"expected_result":1},
+    {"id":"neighbor_before_multiple","input_value":20,"expected_result":0},
+    {"id":"neighbor_after_multiple","input_value":22,"expected_result":0},
+    {"id":"large_ending_in_seven","input_value":9223372036854775807,"expected_result":1},
+    {"id":"large_multiple_of_seven","input_value":9223372036854775806,"expected_result":0}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

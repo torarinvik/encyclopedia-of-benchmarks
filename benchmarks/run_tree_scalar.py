@@ -342,6 +342,65 @@ def validate_bst_oracle(nodes: list[list[int]], root_index: int) -> int:
     return int(all(ordered[index - 1] < ordered[index] for index in range(1, count)))
 
 
+def distribute_coins_oracle(nodes: list[list[int]], root_index: int) -> int:
+    count = len(nodes)
+    if count > 100 or type(root_index) is not int:
+        return -1
+    if count == 0:
+        return 0 if root_index == -1 else -1
+    if not 0 <= root_index < count:
+        return -1
+
+    parents = [-1] * count
+    coin_total = 0
+    for node, row in enumerate(nodes):
+        if (not isinstance(row, list) or len(row) != 3
+                or any(type(value) is not int for value in row)):
+            return -1
+        coins, left, right = row
+        if not 0 <= coins <= 100:
+            return -1
+        coin_total += coins
+        for child in (left, right):
+            if child < -1 or child >= count:
+                return -1
+            if child >= 0:
+                if parents[child] != -1:
+                    return -1
+                parents[child] = node
+    if coin_total != count or parents[root_index] != -1:
+        return -1
+    if any(node != root_index and parents[node] == -1 for node in range(count)):
+        return -1
+
+    order = []
+    stack = [root_index]
+    seen: set[int] = set()
+    while stack:
+        node = stack.pop()
+        if node in seen:
+            return -1
+        seen.add(node)
+        order.append(node)
+        _coins, left, right = nodes[node]
+        if left >= 0:
+            stack.append(left)
+        if right >= 0:
+            stack.append(right)
+    if len(order) != count:
+        return -1
+
+    excesses = [0] * count
+    moves = 0
+    for node in reversed(order):
+        coins, left, right = nodes[node]
+        left_excess = 1 if left == -1 else excesses[left]
+        right_excess = 1 if right == -1 else excesses[right]
+        moves += abs(1 - left_excess) + abs(1 - right_excess)
+        excesses[node] = coins + left_excess + right_excess - 2
+    return moves if excesses[root_index] == 1 else -1
+
+
 def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
     if algorithm == "max_ancestor_diff":
         return max_ancestor_diff_oracle(nodes, root_index)
@@ -359,6 +418,8 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return bst_iterator_oracle(nodes, root_index)
     if algorithm == "validate_bst":
         return validate_bst_oracle(nodes, root_index)
+    if algorithm == "distribute_coins":
+        return distribute_coins_oracle(nodes, root_index)
     raise ValueError(f"no tree scalar oracle for {algorithm}")
 
 

@@ -1,0 +1,87 @@
+# Count coin transfers by combining postorder subtree excesses.
+def distribute_coins_analyze(nodes: i64&, node: i64, moves: mutable i64&) -> i64:
+    if node == -1:
+        return 1
+    index: usize = node.usize()
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    left_excess: i64 = distribute_coins_analyze(nodes, left, moves)
+    right_excess: i64 = distribute_coins_analyze(nodes, right, moves)
+    left_flow: i64 = 1 - left_excess
+    right_flow: i64 = 1 - right_excess
+    moves <- moves + (left_flow if left_flow >= 0 else -left_flow) + (right_flow if right_flow >= 0 else -right_flow)
+    nodes[3 * index] + left_excess + right_excess - 2
+
+def distribute_coins_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
+    if node_count > 100:
+        return -1
+    if node_count == 0:
+        return 0 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+
+    parent: mutable i64[100] = zeroed
+    worklist: mutable usize[100] = zeroed
+    seen: mutable bool[100] = zeroed
+    node: mutable usize = 0
+    while node < node_count:
+        parent[node] <- -1
+        node <- node + 1
+
+    coin_total: mutable i64 = 0
+    edge: mutable usize = 1
+    node <- 0
+    while node < node_count:
+        value: i64 = nodes[3 * node]
+        if value < 0 or value > 100:
+            return -1
+        coin_total <- coin_total + value
+        edge <- 1
+        while edge <= 2:
+            child: i64 = nodes[3 * node + edge]
+            if child < -1 or (child >= 0 and child.u64() >= node_count.u64()):
+                return -1
+            if child >= 0:
+                child_index: usize = child.usize()
+                if parent[child_index] != -1:
+                    return -1
+                parent[child_index] <- node.i64()
+            edge <- edge + 1
+        node <- node + 1
+    if coin_total != node_count.i64():
+        return -1
+    root: usize = root_index.usize()
+    if parent[root] != -1:
+        return -1
+    node <- 0
+    while node < node_count:
+        if node != root and parent[node] == -1:
+            return -1
+        node <- node + 1
+
+    top: mutable usize = 0
+    reached: mutable usize = 0
+    worklist[top] <- root
+    top <- top + 1
+    while top > 0:
+        top <- top - 1
+        current: usize = worklist[top]
+        if seen[current]:
+            return -1
+        seen[current] <- true
+        reached <- reached + 1
+        edge <- 1
+        while edge <= 2:
+            child: i64 = nodes[3 * current + edge]
+            if child >= 0:
+                worklist[top] <- child.usize()
+                top <- top + 1
+            edge <- edge + 1
+    if reached != node_count:
+        return -1
+
+    moves: mutable i64 = 0
+    distribute_coins_analyze(nodes, root_index, moves)
+    moves
+
+export fn distribute_coins(nodes: i64&, node_count: usize, root_index: i64) -> i64 = distribute_coins_impl

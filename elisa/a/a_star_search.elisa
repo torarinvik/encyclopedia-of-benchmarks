@@ -1,0 +1,98 @@
+const MAX_VERTICES: usize = 256
+const MAX_EDGES: usize = 4096
+const INF: i64 = 2305843009213693951
+
+def a_star_search_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 5 or length > 4 + MAX_VERTICES + 2 * MAX_EDGES:
+        return -1
+    vertex_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if vertex_value < 1 or vertex_value > 256 or edge_value < 0 or edge_value > 4096:
+        return -1
+    if source_value < 0 or source_value >= vertex_value or target_value < 0 or target_value >= vertex_value:
+        return -1
+    vertices: usize = vertex_value.usize()
+    edges: usize = edge_value.usize()
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    if length != 4 + vertices + 2 * edges:
+        return -1
+
+    heuristic: mutable i64[MAX_VERTICES] = zeroed
+    from_vertex: mutable usize[MAX_EDGES] = zeroed
+    to_vertex: mutable usize[MAX_EDGES] = zeroed
+    distance: mutable i64[MAX_VERTICES] = zeroed
+    parent: mutable i64[MAX_VERTICES] = zeroed
+    reversed: mutable usize[MAX_VERTICES] = zeroed
+    opened: mutable bool[MAX_VERTICES] = zeroed
+    closed: mutable bool[MAX_VERTICES] = zeroed
+    for vertex in 0..<vertices |input, heuristic, distance, parent, opened, closed|:
+        heuristic[vertex] <- input[4 + vertex]
+        if heuristic[vertex] < 0 or heuristic[vertex] > 1000000000:
+            return -1
+        distance[vertex] <- INF
+        parent[vertex] <- -1
+    if heuristic[target] != 0:
+        return -1
+    edge_offset: usize = 4 + vertices
+    for edge in 0..<edges |input, from_vertex, to_vertex|:
+        u: i64 = input[edge_offset + 2 * edge]
+        v: i64 = input[edge_offset + 2 * edge + 1]
+        if u < 0 or u >= vertex_value or v < 0 or v >= vertex_value:
+            return -1
+        if heuristic[u.usize()] > heuristic[v.usize()] + 1:
+            return -1
+        from_vertex[edge] <- u.usize()
+        to_vertex[edge] <- v.usize()
+
+    distance[source] <- 0
+    opened[source] <- true
+    while true |distance, heuristic, opened, closed, parent, from_vertex, to_vertex|:
+        best: mutable usize = vertices
+        for vertex in 0..<vertices |best, opened, distance, heuristic|:
+            if not opened[vertex]:
+                continue
+            if best == vertices:
+                best <- vertex
+            elif distance[vertex] + heuristic[vertex] < distance[best] + heuristic[best]:
+                best <- vertex
+            elif distance[vertex] + heuristic[vertex] == distance[best] + heuristic[best] and (distance[vertex] < distance[best] or (distance[vertex] == distance[best] and vertex < best)):
+                best <- vertex
+        if best == vertices:
+            break
+        opened[best] <- false
+        closed[best] <- true
+        if best == target:
+            break
+        for edge in 0..<edges |distance, opened, closed, parent, from_vertex, to_vertex|:
+            if from_vertex[edge] != best:
+                continue
+            neighbor: usize = to_vertex[edge]
+            if closed[neighbor]:
+                continue
+            candidate: i64 = distance[best] + 1
+            if candidate < distance[neighbor]:
+                distance[neighbor] <- candidate
+                parent[neighbor] <- best.i64()
+                opened[neighbor] <- true
+    if distance[target] == INF:
+        return 0
+    path_length: mutable usize = 0
+    current: mutable i64 = target.i64()
+    while current >= 0 and path_length < vertices |current, path_length, reversed, parent|:
+        reversed[path_length] <- current.usize()
+        path_length <- path_length + 1
+        if current.usize() == source:
+            break
+        current <- parent[current.usize()]
+    if path_length == 0 or reversed[path_length - 1] != source or path_length - 1 > 30:
+        return -1
+    if output_capacity < path_length:
+        return -2
+    for index in 0..<path_length |output|:
+        output[index] <- reversed[path_length - 1 - index].u8()
+    path_length.i64()
+
+export fn a_star_search(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = a_star_search_impl

@@ -18,7 +18,7 @@ export fn online_stock_span(input: [*]const i64, length: usize,
         while (top > 0 and input[decreasing[top - 1] + 1] <= price) top -= 1;
         const span = if (top == 0) day + 1 else day - decreasing[top - 1];
         const encoded: u64 = @intCast(span);
-        for (0..8) |byte| output[day * 8 + byte] = @truncate(encoded >> (byte * 8));
+        for (0..8) |byte| output[day * 8 + byte] = @truncate(encoded >> @as(u6, @intCast(byte * 8)));
         decreasing[top] = day;
         top += 1;
     }

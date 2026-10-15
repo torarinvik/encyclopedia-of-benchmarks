@@ -174,7 +174,11 @@
           "description": "Search key, or null for sorting, scalar, and graph algorithms."
         },
         "expected_result": {
-          "type": "number"
+          "oneOf": [
+            {"type": "number"},
+            {"const": "NaN"}
+          ],
+          "description": "Expected scalar result; the string NaN records an IEEE-754 NaN without using nonstandard JSON numbers."
         },
         "input_values": {
           "type": "array",
@@ -269,7 +273,11 @@
           }
         },
         "observed_result": {
-          "type": "number"
+          "oneOf": [
+            {"type": "number"},
+            {"const": "NaN"}
+          ],
+          "description": "Observed scalar result; NaN is represented by the string NaN."
         },
         "result_input_scaled_tolerance": {
           "type": "number",
@@ -300,6 +308,63 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "float64_point_array_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 65536
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 131072,
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "description": "Interleaved binary64 point coordinates [x0, y0, ...], with two coordinates per point."
+              },
+              "expected_result": {
+                "oneOf": [
+                  {"type": "number"},
+                  {"const": "NaN"}
+                ]
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
     {
       "if": {
         "properties": {

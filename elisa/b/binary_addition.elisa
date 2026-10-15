@@ -1,0 +1,44 @@
+# Add two most-significant-first binary digit arrays packed after their lengths.
+def binary_addition_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 4096:
+        return -1
+    length_a_value: i64 = values[0]
+    length_b_value: i64 = values[1]
+    if length_a_value < 0 or length_a_value > 2047 or length_b_value < 0 or length_b_value > 2047:
+        return -1
+    length_a: usize = length_a_value.usize()
+    length_b: usize = length_b_value.usize()
+    if length != 2 + length_a + length_b:
+        return -1
+    for index in 0..<length_a |values|:
+        digit: i64 = values[2 + index]
+        if digit != 0 and digit != 1:
+            return -1
+    for index in 0..<length_b |values, length_a|:
+        digit: i64 = values[2 + length_a + index]
+        if digit != 0 and digit != 1:
+            return -1
+
+    width: usize = if length_a > length_b: length_a else: length_b
+    carry: mutable i64 = 0
+    for offset in 0..<width |values, length_a, length_b, carry|:
+        digit_a: i64 = if offset < length_a: values[2 + length_a - 1 - offset] else: 0
+        digit_b: i64 = if offset < length_b: values[2 + length_a + length_b - 1 - offset] else: 0
+        sum: i64 = digit_a + digit_b + carry
+        carry <- sum >> 1
+    output_length: usize = width + carry.usize()
+    if output_capacity < output_length:
+        return -2
+
+    carry <- 0
+    for offset in 0..<width |values, length_a, length_b, carry, output|:
+        digit_a: i64 = if offset < length_a: values[2 + length_a - 1 - offset] else: 0
+        digit_b: i64 = if offset < length_b: values[2 + length_a + length_b - 1 - offset] else: 0
+        sum: i64 = digit_a + digit_b + carry
+        output[width - 1 - offset] <- (48 + (sum & 1)).u8()
+        carry <- sum >> 1
+    if carry != 0:
+        output[0] <- 49.u8()
+    output_length.i64()
+
+export fn binary_addition(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_addition_impl

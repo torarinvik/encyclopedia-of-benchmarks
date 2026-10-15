@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "addition-rule-binary64-v1",
+  "algorithm": "addition_rule",
+  "input": {
+    "kind": "finite_binary64_probabilities",
+    "layout": "[probability_a, probability_b, probability_b_given_a]",
+    "probability_range": [
+      0.0,
+      1.0
+    ],
+    "formula": "probability_a + probability_b - probability_a * probability_b_given_a",
+    "independent_case": "set probability_b_given_a equal to probability_b",
+    "input_scaled_tolerance": 1e-12
+  },
+  "output": "binary64 probability_a_or_b",
+  "cases": [
+    {
+      "id": "independent_half_quarter",
+      "input_values": [0.5, 0.25, 0.25],
+      "expected_result": 0.625
+    },
+    {
+      "id": "independent_fractional",
+      "input_values": [0.2, 0.3, 0.3],
+      "expected_result": 0.44
+    },
+    {
+      "id": "dependent_given_zero",
+      "input_values": [0.5, 0.25, 0.0],
+      "expected_result": 0.75
+    },
+    {
+      "id": "dependent_given_one",
+      "input_values": [0.5, 0.25, 1.0],
+      "expected_result": 0.625
+    },
+    {
+      "id": "dependent_example_from_source",
+      "input_values": [0.5, 0.25, 0.05],
+      "expected_result": 0.725
+    },
+    {
+      "id": "mutually_exclusive_events",
+      "input_values": [0.4, 0.4, 0.0],
+      "expected_result": 0.8
+    },
+    {
+      "id": "certain_a",
+      "input_values": [1.0, 0.75, 0.75],
+      "expected_result": 1.0
+    },
+    {
+      "id": "zero_probability_a",
+      "input_values": [0.0, 1.0, 0.4],
+      "expected_result": 1.0
+    },
+    {
+      "id": "small_probabilities",
+      "input_values": [0.01, 0.02, 0.5],
+      "expected_result": 0.025
+    }
+  ],
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  }
+}

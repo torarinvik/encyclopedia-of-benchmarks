@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "area-under-curve-trapezoid-fixed-micro-v1",
+  "algorithm": "area_under_curve",
+  "function_symbol": "area_under_curve",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[function_id,start_milli,end_milli,step_count]",
+    "function_id_range": [
+      0,
+      2
+    ],
+    "function_ids": [
+      "constant_5",
+      "x",
+      "x_squared"
+    ],
+    "coordinate_milli_range": [
+      0,
+      100000
+    ],
+    "coordinate_unit": "input coordinate = integer / 1000",
+    "step_count_range": [
+      1,
+      10000
+    ],
+    "invalid_result": -1,
+    "output": "trapezoid sum rounded to nearest micro-unit"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "constant_function",
+      "input_values": [
+        0,
+        0,
+        2000,
+        10
+      ],
+      "input_length": 4,
+      "expected_result": 10000000
+    },
+    {
+      "id": "linear_function",
+      "input_values": [
+        1,
+        0,
+        2000,
+        10
+      ],
+      "input_length": 4,
+      "expected_result": 2000000
+    },
+    {
+      "id": "quadratic_coarse",
+      "input_values": [
+        2,
+        0,
+        2000,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 3000000
+    },
+    {
+      "id": "quadratic_refined",
+      "input_values": [
+        2,
+        0,
+        2000,
+        100
+      ],
+      "input_length": 4,
+      "expected_result": 2666800
+    },
+    {
+      "id": "quadratic_max_steps",
+      "input_values": [
+        2,
+        0,
+        2000,
+        10000
+      ],
+      "input_length": 4,
+      "expected_result": 2666667
+    },
+    {
+      "id": "reversed_bounds_sorted",
+      "input_values": [
+        2,
+        2000,
+        0,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 3000000
+    },
+    {
+      "id": "zero_width",
+      "input_values": [
+        2,
+        2000,
+        2000,
+        50
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "fractional_coordinates",
+      "input_values": [
+        1,
+        123,
+        4567,
+        37
+      ],
+      "input_length": 4,
+      "expected_result": 10421180
+    },
+    {
+      "id": "quadratic_unit_interval",
+      "input_values": [
+        2,
+        1000,
+        2000,
+        1000
+      ],
+      "input_length": 4,
+      "expected_result": 2333334
+    },
+    {
+      "id": "constant_large_interval",
+      "input_values": [
+        0,
+        25000,
+        50000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 125000000
+    },
+    {
+      "id": "quadratic_max_coordinate",
+      "input_values": [
+        2,
+        0,
+        100000,
+        10000
+      ],
+      "input_length": 4,
+      "expected_result": 333333335000
+    }
+  ]
+}

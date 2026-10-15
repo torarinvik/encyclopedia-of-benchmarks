@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "triangular-number-v1",
+  "algorithm": "triangular_number",
+  "function_symbol": "triangular_number",
+  "input": {
+    "kind": "zero_based_position",
+    "minimum": 0,
+    "maximum": 4294967295,
+    "formula": "n*(n+1)/2, dividing the even factor before multiplication",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 3},
+    {"id": "three", "input_value": 3, "expected_result": 6},
+    {"id": "ten", "input_value": 10, "expected_result": 55},
+    {"id": "one_thousand", "input_value": 1000, "expected_result": 500500},
+    {"id": "maximum_supported_position", "input_value": 4294967295, "expected_result": 9223372034707292160},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 4294967296, "expected_result": -1},
+    {"id": "minimum_i64", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "maximum_i64", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

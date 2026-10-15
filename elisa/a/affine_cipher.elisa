@@ -1,0 +1,80 @@
+# Transform indexed alphabet symbols with an affine key or its modular inverse.
+def affine_cipher_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def affine_cipher_inverse(value: i64, modulus: i64) -> i64:
+    candidate: mutable i64 = 1
+    while candidate < modulus:
+        if (value * candidate) % modulus == 1:
+            return candidate
+        candidate <- candidate + 1
+    -1
+
+def affine_cipher_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 7 or length > 612:
+        return -1
+    mode: i64 = values[0]
+    key_a: i64 = values[1]
+    key_b: i64 = values[2]
+    alphabet_length_arg: i64 = values[3]
+    if mode < 0 or mode > 1 or alphabet_length_arg < 2 or alphabet_length_arg > 95:
+        return -1
+    alphabet_length: usize = alphabet_length_arg.usize()
+    text_length_index: usize = 4 + alphabet_length
+    if length <= text_length_index:
+        return -1
+    text_length_arg: i64 = values[text_length_index]
+    if key_a < 0 or key_a > 1000000 or key_b < 0 or key_b >= alphabet_length_arg:
+        return -1
+    if text_length_arg < 0 or text_length_arg > 512 or affine_cipher_gcd(key_a, alphabet_length_arg) != 1:
+        return -1
+    text_length: usize = text_length_arg.usize()
+    if length != text_length_index + 1 + text_length:
+        return -1
+
+    positions: mutable i64[128] = zeroed
+    code: mutable usize = 0
+    while code < 128:
+        positions[code] <- -1
+        code <- code + 1
+    index: mutable usize = 0
+    while index < alphabet_length:
+        symbol: i64 = values[4 + index]
+        if symbol < 32 or symbol > 126:
+            return -1
+        symbol_index: usize = symbol.usize()
+        if positions[symbol_index] != -1:
+            return -1
+        positions[symbol_index] <- index.i64()
+        index <- index + 1
+    index <- 0
+    while index < text_length:
+        symbol: i64 = values[text_length_index + 1 + index]
+        if symbol < 32 or symbol > 126 or positions[symbol.usize()] < 0:
+            return -1
+        index <- index + 1
+    if text_length > output_capacity:
+        return -2
+
+    multiplier: i64 = key_a % alphabet_length_arg
+    inverse: mutable i64 = 0
+    if mode == 1:
+        inverse <- affine_cipher_inverse(multiplier, alphabet_length_arg)
+    index <- 0
+    while index < text_length:
+        symbol: i64 = values[text_length_index + 1 + index]
+        position: i64 = positions[symbol.usize()]
+        mapped: mutable i64 = (position * multiplier + key_b) % alphabet_length_arg
+        if mode == 1:
+            mapped <- (((position - key_b + alphabet_length_arg) % alphabet_length_arg) * inverse) % alphabet_length_arg
+        output[index] <- values[4 + mapped.usize()].u8()
+        index <- index + 1
+    text_length.i64()
+
+export fn affine_cipher(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = affine_cipher_impl

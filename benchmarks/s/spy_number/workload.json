@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "spy-number-v1",
+  "algorithm": "spy_number",
+  "function_symbol": "spy_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "positive_number_rule": "decimal digit sum equals decimal digit product",
+    "nonpositive_result": 0,
+    "output": "1 for a Spy Number, otherwise 0"
+  },
+  "cases": [
+    {"id": "negative", "input_value": -1, "expected_result": 0},
+    {"id": "minimum_i64", "input_value": -9223372036854775808, "expected_result": 0},
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "single_digit_five", "input_value": 5, "expected_result": 1},
+    {"id": "two_twos", "input_value": 22, "expected_result": 1},
+    {"id": "one_two_three", "input_value": 123, "expected_result": 1},
+    {"id": "published_example", "input_value": 1124, "expected_result": 1},
+    {"id": "non_spy_number", "input_value": 124, "expected_result": 0},
+    {"id": "contains_zero", "input_value": 10, "expected_result": 0},
+    {"id": "repeated_nines", "input_value": 99, "expected_result": 0},
+    {"id": "maximum_i64", "input_value": 9223372036854775807, "expected_result": 0}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

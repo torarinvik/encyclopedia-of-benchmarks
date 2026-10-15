@@ -1,0 +1,5 @@
+# Probability of A or B using P(B | A). Set P(B | A) = P(B) for independence.
+def addition_rule_impl(probability_a: f64, probability_b: f64, probability_b_given_a: f64) -> f64:
+    (probability_a + probability_b) - (probability_a * probability_b_given_a)
+
+export fn addition_rule(probability_a: f64, probability_b: f64, probability_b_given_a: f64) -> f64 = addition_rule_impl

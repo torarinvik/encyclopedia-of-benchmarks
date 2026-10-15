@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "not-gate-unary-v1",
+  "algorithm": "not_gate",
+  "function_symbol": "not_gate",
+  "input": {
+    "kind": "boolean_integer",
+    "valid_values": [
+      0,
+      1
+    ],
+    "result": "1 when the input is 0; otherwise 0"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "false_input",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "true_input",
+      "input_value": 1,
+      "expected_result": 0
+    }
+  ]
+}

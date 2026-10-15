@@ -1,0 +1,33 @@
+# Return the Gregorian weekday for [year, month, day]; Sunday is zero.
+def is_leap_year(year: i64) -> bool:
+    year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+def zellers_congruence_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    year: mutable i64 = values[0]
+    month: mutable i64 = values[1]
+    day: i64 = values[2]
+    if year < 46 or year > 8499 or month < 1 or month > 12 or day < 1:
+        return -1
+    maximum_day: mutable i64 = 31
+    if month == 4 or month == 6 or month == 9 or month == 11:
+        maximum_day <- 30
+    if month == 2:
+        maximum_day <- if is_leap_year(year): 29 else: 28
+    if day > maximum_day:
+        return -1
+
+    if month <= 2:
+        year <- year - 1
+        month <- month + 12
+    century: i64 = year / 100
+    year_of_century: i64 = year % 100
+    month_term: i64 = (260 * month - 539) / 100
+    total: i64 = day + year_of_century + month_term + century / 4 + year_of_century / 4 - 2 * century
+    weekday: mutable i64 = total % 7
+    if weekday < 0:
+        weekday <- weekday + 7
+    weekday
+
+export fn zellers_congruence(values: i64&, length: usize) -> i64 = zellers_congruence_impl

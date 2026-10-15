@@ -14,11 +14,11 @@ extern double BENCHMARK_FUNCTION(double input);
 _Static_assert(sizeof(double) == sizeof(uint64_t) && DBL_MANT_DIG == 53 && DBL_MAX_EXP == 1024,
                "float64_unary requires IEEE 754 binary64 double");
 
-static int matches(double observed, double expected, double relative_tolerance)
+static int matches(double observed, double expected, double relative_tolerance,
+                   double absolute_tolerance)
 {
     if (!isfinite(observed)) return 0;
-    if (expected == 0.0) return observed == 0.0;
-    return fabs(observed - expected) <= relative_tolerance * fabs(expected);
+    return fabs(observed - expected) <= absolute_tolerance + relative_tolerance * fabs(expected);
 }
 
 int main(void)
@@ -29,15 +29,17 @@ int main(void)
         return 2;
     }
     while (checked < case_count) {
-        double input, expected, relative_tolerance;
-        if (scanf("%lf %lf %lf", &input, &expected, &relative_tolerance) != 3 ||
-            !isfinite(input) || input < 0.0 || input > 1e300 ||
-            !isfinite(expected) || expected < 0.0 || !isfinite(relative_tolerance) || relative_tolerance <= 0.0) {
+        double input, expected, relative_tolerance, absolute_tolerance;
+        if (scanf("%lf %lf %lf %lf", &input, &expected, &relative_tolerance,
+                  &absolute_tolerance) != 4 ||
+            !isfinite(input) || !isfinite(expected) ||
+            !isfinite(relative_tolerance) || relative_tolerance <= 0.0 ||
+            !isfinite(absolute_tolerance) || absolute_tolerance < 0.0) {
             fprintf(stderr, "invalid one-input binary64 case\n");
             return 2;
         }
         const double observed = BENCHMARK_FUNCTION(input);
-        if (!matches(observed, expected, relative_tolerance)) {
+        if (!matches(observed, expected, relative_tolerance, absolute_tolerance)) {
             fprintf(stderr, "case=%" PRIu64 ": expected %.17g, observed %.17g\n",
                     checked, expected, observed);
             return 3;

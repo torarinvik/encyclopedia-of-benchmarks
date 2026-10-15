@@ -16,7 +16,7 @@ def lowest_common_ancestor_impl(input: i64&, length: usize) -> i64:
     q: usize = usize(input[3])
 
     parent: mutable i64[1023] = zeroed
-    stack: mutable usize[1023] = zeroed
+    node_stack: mutable usize[1023] = zeroed
     path_p: mutable usize[1023] = zeroed
     path_q: mutable usize[1023] = zeroed
     seen: mutable bool[1023] = zeroed
@@ -26,7 +26,7 @@ def lowest_common_ancestor_impl(input: i64&, length: usize) -> i64:
         offset: usize = 4 + 3 * node
         if input[offset] < -1000000000 or input[offset] > 1000000000:
             return INVALID_RESULT
-        for edge in 1..3 |input, parent|:
+        for edge in 1..<3 |input, parent|:
             child: i64 = input[offset + edge]
             if child < -1 or child >= i64(count):
                 return INVALID_RESULT
@@ -43,20 +43,20 @@ def lowest_common_ancestor_impl(input: i64&, length: usize) -> i64:
 
     top: mutable usize = 0
     reached: mutable usize = 0
-    stack[top] <- root
+    node_stack[top] <- root
     top <- top + 1
-    while top > 0 |top, stack, seen, input, reached|:
+    while top > 0 |top, node_stack, seen, input, reached|:
         top <- top - 1
-        node: usize = stack[top]
+        node: usize = node_stack[top]
         if seen[node]:
             return INVALID_RESULT
         seen[node] <- true
         reached <- reached + 1
         offset: usize = 4 + 3 * node
-        for edge in 1..3 |input, stack, top|:
+        for edge in 1..<3 |input, node_stack, top|:
             child: i64 = input[offset + edge]
             if child >= 0:
-                stack[top] <- usize(child)
+                node_stack[top] <- usize(child)
                 top <- top + 1
     if reached != count:
         return INVALID_RESULT

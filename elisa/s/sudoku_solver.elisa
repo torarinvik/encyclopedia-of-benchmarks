@@ -53,7 +53,7 @@ def sudoku_solver_impl(values: i64&, length: usize,
         position <- position + 1
     if output_capacity < 324:
         return -2
-    if not sudoku_search(board, rows, columns, boxes, 0):
+    if not sudoku_search(&board[0], &rows[0], &columns[0], &boxes[0], 0):
         return -1
     position <- 0
     while position < 81:

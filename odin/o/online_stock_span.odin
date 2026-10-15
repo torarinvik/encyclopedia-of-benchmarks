@@ -25,7 +25,7 @@ online_stock_span :: proc "c" (input: [^]i64, length: c.size_t,
         if top > 0 do span = day - decreasing[top - 1]
         encoded := u64(span)
         for byte := 0; byte < 8; byte += 1 {
-            output[day * 8 + byte] = u8((encoded >> (byte * 8)) & 255)
+			output[day * 8 + byte] = u8((encoded >> u64(byte * 8)) & 255)
         }
         decreasing[top] = day
         top += 1

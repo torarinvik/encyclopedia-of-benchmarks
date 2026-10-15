@@ -1,0 +1,7 @@
+# 1 only when at least one input is 0; 0 when both are 1.
+def nand_gate_impl(left: u64, right: u64) -> i64:
+    if left == 1.u64() and right == 1.u64():
+        return 0
+    1
+
+export fn nand_gate(left: u64, right: u64) -> i64 = nand_gate_impl

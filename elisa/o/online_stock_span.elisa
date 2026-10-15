@@ -21,7 +21,7 @@ def online_stock_span_impl(input: i64&, length: usize, output: mutable u8&, outp
         price: i64 = input[day + 1]
         while top > 0 and input[decreasing[top - 1] + 1] <= price |input, decreasing, top|:
             top <- top - 1
-        span: usize = day + 1
+        span: mutable usize = day + 1
         if top > 0:
             span <- day - decreasing[top - 1]
         for byte in 0..<8 |output|:

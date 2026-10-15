@@ -6,7 +6,7 @@ MAX_TREE_SLOTS :: 255
 MAX_INPUT_LENGTH :: 512
 NULL_SLOT :: -1_000_001
 
-valid_tree :: proc(input: [^]i64, start, count: c.size_t) -> bool {
+valid_tree :: proc "contextless" (input: [^]i64, start, count: c.size_t) -> bool {
 	for index := c.size_t(0); index < count; index += 1 {
 		value := input[start + index]
 		if value != NULL_SLOT && (value < -100_000 || value > 100_000) do return false
@@ -34,13 +34,17 @@ merge_two_binary_trees :: proc "contextless" (input: [^]i64, length: c.size_t,
 	merged: [MAX_TREE_SLOTS]i32
 	node_count := i64(0)
 	for index := c.size_t(0); index < maximum_slots; index += 1 {
-		first := if index < first_count { input[first_start + index] } else { NULL_SLOT }
-		second := if index < second_count { input[second_start + index] } else { NULL_SLOT }
+		first := i64(NULL_SLOT)
+		second := i64(NULL_SLOT)
+		if index < first_count { first = input[first_start + index] }
+		if index < second_count { second = input[second_start + index] }
 		if first == NULL_SLOT && second == NULL_SLOT {
 			merged[index] = i32(NULL_SLOT)
 		} else {
-			first_value := if first == NULL_SLOT { i64(0) } else { first }
-			second_value := if second == NULL_SLOT { i64(0) } else { second }
+			first_value := i64(0)
+			second_value := i64(0)
+			if first != NULL_SLOT { first_value = first }
+			if second != NULL_SLOT { second_value = second }
 			merged[index] = i32(first_value + second_value)
 			node_count += 1
 		}

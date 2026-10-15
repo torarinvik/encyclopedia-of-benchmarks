@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "xor-gate-two-input-v1",
+  "algorithm": "xor_gate",
+  "function_symbol": "xor_gate",
+  "input": {
+    "kind": "two_boolean_integers",
+    "valid_values": [
+      0,
+      1
+    ],
+    "result": "1 when the inputs differ; otherwise 0."
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "input_0_0",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "input_0_1",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "input_1_0",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "input_1_1",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 0
+    }
+  ]
+}

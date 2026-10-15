@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "adaptive-merge-sort-ordered-v1",
+  "algorithm": "adaptive_merge_sort",
+  "abi": "mutable_i64_array",
+  "input": {
+    "lengths": [0, 16, 64, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 1,
+      "modulus": 1000000,
+      "offset": 0,
+      "formula": "values[index] = index"
+    }
+  },
+  "measurement": {
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "maximum_input_length": 1024
+  }
+}

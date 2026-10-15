@@ -41,11 +41,11 @@ static int parse_f64(const char *text, double *value)
     return errno != ERANGE && end != text && *end == '\0' && isfinite(*value);
 }
 
-static int matches(double observed, double expected, double relative_tolerance)
+static int matches(double observed, double expected, double relative_tolerance,
+                   double absolute_tolerance)
 {
     if (!isfinite(observed)) return 0;
-    if (expected == 0.0) return observed == 0.0;
-    return fabs(observed - expected) <= relative_tolerance * fabs(expected);
+    return fabs(observed - expected) <= absolute_tolerance + relative_tolerance * fabs(expected);
 }
 
 static uint64_t result_bits(double value)
@@ -69,15 +69,16 @@ static double run_batch(double input, size_t repetitions, uint64_t *checksum)
 
 int main(int argc, char **argv)
 {
-    double input, expected, relative_tolerance;
+    double input, expected, relative_tolerance, absolute_tolerance;
     uint64_t samples_arg, warmups_arg, repetitions_arg;
-    if (argc != 7 || !parse_f64(argv[1], &input) || input < 0.0 || input > 1e300 ||
-        !parse_f64(argv[2], &expected) || expected < 0.0 ||
+    if (argc != 8 || !parse_f64(argv[1], &input) ||
+        !parse_f64(argv[2], &expected) ||
         !parse_f64(argv[3], &relative_tolerance) || relative_tolerance <= 0.0 ||
-        !parse_u64(argv[4], &samples_arg) || !parse_u64(argv[5], &warmups_arg) ||
-        !parse_u64(argv[6], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
+        !parse_f64(argv[4], &absolute_tolerance) || absolute_tolerance < 0.0 ||
+        !parse_u64(argv[5], &samples_arg) || !parse_u64(argv[6], &warmups_arg) ||
+        !parse_u64(argv[7], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
         warmups_arg > 100000 || repetitions_arg == 0 || repetitions_arg > 1000000000) {
-        fprintf(stderr, "usage: float64_unary_runner INPUT EXPECTED REL_TOL SAMPLES WARMUPS REPETITIONS\n");
+        fprintf(stderr, "usage: float64_unary_runner INPUT EXPECTED REL_TOL ABS_TOL SAMPLES WARMUPS REPETITIONS\n");
         return 2;
     }
     const size_t sample_count = (size_t)samples_arg;
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "unable to allocate sample data\n");
         return 2;
     }
-    if (!matches(run_algorithm(input), expected, relative_tolerance)) {
+    if (!matches(run_algorithm(input), expected, relative_tolerance, absolute_tolerance)) {
         fprintf(stderr, "correctness mismatch for one-input binary64 function\n");
         free(sample_ns);
         return 3;
@@ -96,7 +97,8 @@ int main(int argc, char **argv)
     volatile uint64_t warmup_observer = 0;
     for (size_t warmup = 0; warmup < warmup_count; ++warmup) {
         uint64_t checksum = 0;
-        if (!matches(run_batch(input, repetitions, &checksum), expected, relative_tolerance)) {
+        if (!matches(run_batch(input, repetitions, &checksum), expected,
+                     relative_tolerance, absolute_tolerance)) {
             fprintf(stderr, "result changed during warmup\n");
             free(sample_ns);
             return 3;
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
         observed_result = run_batch(input, repetitions, &checksum);
         const clock_t after = clock();
         if (after == (clock_t)-1 || after < before ||
-            !matches(observed_result, expected, relative_tolerance)) {
+            !matches(observed_result, expected, relative_tolerance, absolute_tolerance)) {
             fprintf(stderr, "clock() or result check failed during a sample\n");
             free(sample_ns);
             return 4;

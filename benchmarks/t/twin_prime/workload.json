@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "twin-prime-v1",
+  "algorithm": "twin_prime",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": -4096,
+    "maximum_value": 4096,
+    "result": "n + 2 when n and n + 2 are both prime, otherwise -1",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_minimum","input_value":-4096,"expected_result":-1},
+    {"id":"negative","input_value":-3,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":-1},
+    {"id":"one","input_value":1,"expected_result":-1},
+    {"id":"first_twin_pair","input_value":3,"expected_result":5},
+    {"id":"second_twin_pair","input_value":5,"expected_result":7},
+    {"id":"prime_without_twin_successor","input_value":7,"expected_result":-1},
+    {"id":"composite","input_value":9,"expected_result":-1},
+    {"id":"larger_twin_pair","input_value":11,"expected_result":13},
+    {"id":"larger_non_twin_pair","input_value":13,"expected_result":-1},
+    {"id":"twin_pair_29_31","input_value":29,"expected_result":31},
+    {"id":"twin_pair_41_43","input_value":41,"expected_result":43},
+    {"id":"maximum","input_value":4096,"expected_result":-1},
+    {"id":"below_range","input_value":-4097,"expected_result":-1},
+    {"id":"above_range","input_value":4097,"expected_result":-1},
+    {"id":"signed_64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

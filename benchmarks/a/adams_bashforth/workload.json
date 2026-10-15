@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "adams-bashforth-v1",
+  "algorithm": "adams_bashforth",
+  "function_symbol": "adams_bashforth",
+  "input": {
+    "kind": "packed_adams_bashforth",
+    "encoding": "[order, forecast_step_count, y0_scaled, ..., y(order-1)_scaled]",
+    "forecast_step_count_range": [
+      1,
+      4
+    ],
+    "initial_y_scaled_range": [
+      -100000,
+      100000
+    ],
+    "initial_y_scale": 100000,
+    "x_grid": "x_i = i/4 for i in 0..order-1; h=1/4; x_final=(order-1+forecast_step_count)/4",
+    "right_hand_side": "f(x,y)=x+y",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "comma-separated base-10 integers trunc(y_i*1,000,000) for every returned solution value, including initial values",
+    "order_range": [
+      2,
+      5
+    ],
+    "supported_orders": [
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "ab2_short",
+      "input_values": [
+        2,
+        1,
+        0,
+        20000
+      ],
+      "input_length": 4,
+      "expected_result": 15,
+      "expected_output_hex": "302c3230303030302c333638373530"
+    },
+    {
+      "id": "ab2_three_steps",
+      "input_values": [
+        2,
+        3,
+        0,
+        50000
+      ],
+      "input_length": 4,
+      "expected_result": 31,
+      "expected_output_hex": "302c3530303030302c3738313235302c313136373936382c31373237303530"
+    },
+    {
+      "id": "ab3_python_example_shape",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        4000
+      ],
+      "input_length": 5,
+      "expected_result": 30,
+      "expected_output_hex": "302c302c34303030302c3231353431362c3532343035332c393838373734"
+    },
+    {
+      "id": "ab3_four_steps",
+      "input_values": [
+        3,
+        4,
+        10000,
+        20000,
+        30000
+      ],
+      "input_length": 5,
+      "expected_result": 58,
+      "expected_output_hex": "3130303030302c3230303030302c3330303030302c3534333735302c3934333838302c313532373430362c323334353035322c33343634313538"
+    },
+    {
+      "id": "ab4_python_example_shape",
+      "input_values": [
+        4,
+        2,
+        0,
+        0,
+        4000,
+        12800
+      ],
+      "input_length": 6,
+      "expected_result": 30,
+      "expected_output_hex": "302c302c34303030302c3132383030302c3339353439392c383430303838"
+    },
+    {
+      "id": "ab4_zero_initials",
+      "input_values": [
+        4,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 29,
+      "expected_output_hex": "302c302c302c302c3231383735302c3632353332352c31313932383934"
+    },
+    {
+      "id": "ab5_python_example_shape",
+      "input_values": [
+        5,
+        2,
+        0,
+        2140,
+        2140,
+        22211,
+        42536
+      ],
+      "input_length": 7,
+      "expected_result": 53,
+      "expected_output_hex": "302c32313430302c32313430302c3232323131302c3432353336302c2d3136333739362c2d313930393731382c2d34393035363731"
+    },
+    {
+      "id": "ab5_four_steps",
+      "input_values": [
+        5,
+        4,
+        10000,
+        -20000,
+        30000,
+        -40000,
+        50000
+      ],
+      "input_length": 7,
+      "expected_result": 79,
+      "expected_output_hex": "3130303030302c2d3230303030302c3330303030302c2d3430303030302c3530303030302c3431323931362c2d3630313638322c2d333035383034362c2d363933303232332c2d3130333435343632"
+    },
+    {
+      "id": "invalid_order_low",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_order_high",
+      "input_values": [
+        6,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_zero_steps",
+      "input_values": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_too_many_steps",
+      "input_values": [
+        2,
+        5,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_initial_out_of_range",
+      "input_values": [
+        2,
+        1,
+        100001,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_shape",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

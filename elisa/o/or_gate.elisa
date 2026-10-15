@@ -1,0 +1,7 @@
+# 1 when either input is 1; otherwise 0.
+def or_gate_impl(left: u64, right: u64) -> i64:
+    if left == 1.u64() or right == 1.u64():
+        return 1
+    0
+
+export fn or_gate(left: u64, right: u64) -> i64 = or_gate_impl

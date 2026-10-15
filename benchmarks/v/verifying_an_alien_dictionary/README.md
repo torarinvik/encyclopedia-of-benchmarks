@@ -11,7 +11,7 @@ Check whether the words appear in nondecreasing lexicographic order under a supp
 
 ## Workload
 
-[`workload.json`](workload.json) covers the published examples, both prefix orders, equal words, a first-letter decision where the left word is longer, a custom alphabet, and malformed order/word encodings.
+[`workload.json`](workload.json) covers the published examples, both prefix orders, equal words, a first-letter decision where the left word is longer, a custom alphabet, and malformed order/word encodings. All nine ports pass 10,684 oracle cases and all 10 workload cases with [`verify_verifying_an_alien_dictionary.py`](../../verify_verifying_an_alien_dictionary.py).
 
 ## Upstream source
 

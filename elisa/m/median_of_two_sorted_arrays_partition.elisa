@@ -1,0 +1,69 @@
+const MAX_ARRAY_LENGTH: usize = 1000
+const VALUE_MIN: i64 = -1000000
+const VALUE_MAX: i64 = 1000000
+const PARTITION_MIN: i64 = -1000001
+const PARTITION_MAX: i64 = 1000001
+
+# Return twice the exact median using a binary partition of the shorter array.
+def median_of_two_sorted_arrays_partition_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 2 * MAX_ARRAY_LENGTH + 2:
+        return -2000001
+    first_count_value: i64 = input[0]
+    second_count_value: i64 = input[1]
+    if first_count_value < 0 or first_count_value > MAX_ARRAY_LENGTH.i64() or second_count_value < 0 or second_count_value > MAX_ARRAY_LENGTH.i64():
+        return -2000001
+    first_count: usize = first_count_value.usize()
+    second_count: usize = second_count_value.usize()
+    total_count: usize = first_count + second_count
+    if total_count == 0 or total_count > 2 * MAX_ARRAY_LENGTH or length != total_count + 2:
+        return -2000001
+    second_start: usize = first_count + 2
+
+    valid_first: bool =
+        while index < first_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 2]
+            if value < VALUE_MIN or value > VALUE_MAX or (index > 0 and input[index + 1] > value):
+                break false
+            index <- index + 1
+            valid
+    if not valid_first:
+        return -2000001
+    valid_second: bool =
+        while index < second_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[second_start + index]
+            if value < VALUE_MIN or value > VALUE_MAX or (index > 0 and input[second_start + index - 1] > value):
+                break false
+            index <- index + 1
+            valid
+    if not valid_second:
+        return -2000001
+
+    short_count: usize = first_count < second_count ? first_count : second_count
+    long_count: usize = first_count < second_count ? second_count : first_count
+    first_start: usize = first_count <= second_count ? 2 : second_start
+    long_start: usize = first_count <= second_count ? second_start : 2
+    left_count: usize = (total_count + 1) / 2
+    median_twice: i64 =
+        while low <= high |low: mutable usize = 0, high: mutable usize = short_count, median: mutable i64 = -2000001, first_cut: mutable usize = 0, second_cut: mutable usize = 0, first_left: mutable i64 = 0, first_right: mutable i64 = 0, second_left: mutable i64 = 0, second_right: mutable i64 = 0, left_max: mutable i64 = 0, right_min: mutable i64 = 0| -> median:
+            first_cut <- low + (high - low) / 2
+            second_cut <- left_count - first_cut
+            first_left <- first_cut == 0 ? PARTITION_MIN : input[first_start + first_cut - 1]
+            first_right <- first_cut == short_count ? PARTITION_MAX : input[first_start + first_cut]
+            second_left <- second_cut == 0 ? PARTITION_MIN : input[long_start + second_cut - 1]
+            second_right <- second_cut == long_count ? PARTITION_MAX : input[long_start + second_cut]
+            if first_left <= second_right and second_left <= first_right:
+                left_max <- first_left > second_left ? first_left : second_left
+                if total_count % 2 != 0:
+                    break left_max * 2
+                right_min <- first_right < second_right ? first_right : second_right
+                break left_max + right_min
+            if first_left > second_right:
+                if first_cut == 0:
+                    break -2000001
+                high <- first_cut - 1
+            else:
+                low <- first_cut + 1
+            median
+    median_twice
+
+export fn median_of_two_sorted_arrays_partition(input: i64&, length: usize) -> i64 = median_of_two_sorted_arrays_partition_impl

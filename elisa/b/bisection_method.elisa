@@ -1,0 +1,47 @@
+const MAX_COORD_MILLI: i64 = 100000
+const MAX_TOLERANCE_MICRO: i64 = 1000000
+const ROOT_SCALE: f64 = 1000000.0
+const MAX_ITERATIONS: i64 = 64
+
+def evaluate(equation: i64, x: f64) -> f64:
+    if equation == 0:
+        return x * x * x + 2.0 * x - 10.0
+    x * x * x - 4.0 * x - 9.0
+
+def bisection_method_impl(input: i64&, length: usize) -> i64:
+    if length != 4:
+        return -1
+    equation: i64 = input[0]
+    left_milli: i64 = input[1]
+    right_milli: i64 = input[2]
+    tolerance_micro: i64 = input[3]
+    if equation < 0 or equation > 1 or left_milli < -MAX_COORD_MILLI or left_milli > MAX_COORD_MILLI or right_milli < -MAX_COORD_MILLI or right_milli > MAX_COORD_MILLI or left_milli >= right_milli or tolerance_micro < 1 or tolerance_micro > MAX_TOLERANCE_MICRO:
+        return -1
+    left: mutable f64 = left_milli.f64() / 1000.0
+    right: mutable f64 = right_milli.f64() / 1000.0
+    f_left: mutable f64 = evaluate(equation, left)
+    f_right: f64 = evaluate(equation, right)
+    if f_left == 0.0:
+        return (left * ROOT_SCALE + 0.5).i64()
+    if f_right == 0.0:
+        return (right * ROOT_SCALE + 0.5).i64()
+    if (f_left < 0.0) == (f_right < 0.0):
+        return -2
+    tolerance: f64 = tolerance_micro.f64() / ROOT_SCALE
+    iteration: mutable i64 = 0
+    while iteration < MAX_ITERATIONS |iteration, left, right, f_left|:
+        middle: f64 = left + (right - left) * 0.5
+        f_middle: f64 = evaluate(equation, middle)
+        if f_middle == 0.0:
+            return (middle * ROOT_SCALE + 0.5).i64()
+        if (f_left < 0.0) != (f_middle < 0.0):
+            right <- middle
+        else:
+            left <- middle
+            f_left <- f_middle
+        if right - left <= tolerance:
+            return ( (left + (right - left) * 0.5) * ROOT_SCALE + 0.5 ).i64()
+        iteration <- iteration + 1
+    -2
+
+export fn bisection_method(input: i64&, length: usize) -> i64 = bisection_method_impl

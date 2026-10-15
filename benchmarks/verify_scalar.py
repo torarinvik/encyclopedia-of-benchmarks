@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz")
+ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -159,6 +159,31 @@ def oracle(algorithm: str, n: int) -> int:
             inputs.update([value - 1, value, value + 1, -value + 1, -value, -value - 1])
     if algorithm == "catalan_number":
         return math.comb(2 * n, n) // (n + 1) if 0 <= n <= 35 else -1
+    if algorithm == "bell_numbers":
+        if not 0 <= n <= 25:
+            return -1
+        # Independent oracle: sum the Stirling numbers of the second kind.
+        stirling_row = [1]
+        for set_size in range(1, n + 1):
+            next_row = [0] * (set_size + 1)
+            for subset_count in range(1, set_size + 1):
+                previous_same_count = (
+                    stirling_row[subset_count] if subset_count < set_size else 0
+                )
+                next_row[subset_count] = (
+                    stirling_row[subset_count - 1]
+                    + subset_count * previous_same_count
+                )
+            stirling_row = next_row
+        return sum(stirling_row)
+    if algorithm == "check_factorial":
+        if n <= 0:
+            return 0
+        factorial_value, factor = 1, 1
+        while factorial_value < n:
+            factor += 1
+            factorial_value *= factor
+        return int(factorial_value == n)
     if algorithm == "factorial":
         return math.factorial(n) if 0 <= n <= 20 else -1
     if algorithm == "factorial_trailing_zeroes":
@@ -244,6 +269,12 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     elif algorithm == "lucas_series_recursive":
         inputs.update(range(-4, 27))
         inputs.update([I64_MIN, I64_MIN + 1, 24, 25, 26, I64_MAX - 1, I64_MAX])
+    elif algorithm == "check_factorial":
+        inputs.update(range(-4, 1001))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, I64_MAX - 1, I64_MAX])
+        for factorial_index in range(1, 21):
+            value = math.factorial(factorial_index)
+            inputs.update([value - 1, value, value + 1])
     elif algorithm == "factorial":
         inputs.update(range(-4, 26))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
@@ -410,6 +441,10 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(256))
         inputs.update([I64_MIN, -2, -1, 0, 1, 2, 3, 4, 5, 20, 25, 30,
                        34, 35, 36, 50, I64_MAX])
+    elif algorithm == "bell_numbers":
+        inputs.update(range(-4, 31))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 8, 15, 20,
+                       23, 24, 25, 26, 27, I64_MAX - 1, I64_MAX])
     for case in workload["cases"]:
         expected = oracle(algorithm, case["input_value"])
         if case["expected_result"] != expected:

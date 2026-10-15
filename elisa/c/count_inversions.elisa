@@ -1,0 +1,56 @@
+# Count strict inversions with bottom-up merge sort.
+const MAX_LENGTH: usize = 4096
+
+def count_inversions_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    if length < 2:
+        return 0
+
+    source: mutable i64[4096] = zeroed
+    scratch: mutable i64[4096] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        source[index] <- values[index]
+        index <- index + 1
+
+    inversions: mutable i64 = 0
+    width: mutable usize = 1
+    while width < length:
+        low: mutable usize = 0
+        while low < length:
+            middle: mutable usize = low + width
+            if middle > length:
+                middle <- length
+            high: mutable usize = middle + width
+            if high > length:
+                high <- length
+            left: mutable usize = low
+            right: mutable usize = middle
+            output: mutable usize = low
+            while left < middle and right < high:
+                if source[left] <= source[right]:
+                    scratch[output] <- source[left]
+                    left <- left + 1
+                else:
+                    scratch[output] <- source[right]
+                    right <- right + 1
+                    inversions <- inversions + (middle - left).i64()
+                output <- output + 1
+            while left < middle:
+                scratch[output] <- source[left]
+                left <- left + 1
+                output <- output + 1
+            while right < high:
+                scratch[output] <- source[right]
+                right <- right + 1
+                output <- output + 1
+            low <- high
+        index <- 0
+        while index < length:
+            source[index] <- scratch[index]
+            index <- index + 1
+        width <- width * 2
+    inversions
+
+export fn count_inversions(values: i64&, length: usize) -> i64 = count_inversions_impl

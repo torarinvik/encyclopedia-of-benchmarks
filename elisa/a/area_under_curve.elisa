@@ -1,0 +1,42 @@
+const MAX_STEPS: i64 = 10000
+const MAX_COORD_MILLI: i64 = 100000
+const OUTPUT_SCALE: f64 = 1000000.0
+
+def sample_value(function_id: i64, x: f64) -> f64:
+    if function_id == 0:
+        return 5.0
+    if function_id == 1:
+        return x
+    x * x
+
+def area_under_curve_impl(input: i64&, length: usize) -> i64:
+    if length != 4:
+        return -1
+    function_id: i64 = input[0]
+    start_milli: i64 = input[1]
+    end_milli: i64 = input[2]
+    steps: i64 = input[3]
+    if function_id < 0 or function_id > 2 or start_milli < 0 or start_milli > MAX_COORD_MILLI or end_milli < 0 or end_milli > MAX_COORD_MILLI or steps < 1 or steps > MAX_STEPS:
+        return -1
+    low_milli: i64 = start_milli
+    high_milli: i64 = end_milli
+    if start_milli > end_milli:
+        low_milli <- end_milli
+        high_milli <- start_milli
+    start: f64 = low_milli.f64() / 1000.0
+    end: f64 = high_milli.f64() / 1000.0
+    width: f64 = (end - start) / steps.f64()
+    x1: mutable f64 = start
+    y1: mutable f64 = sample_value(function_id, x1)
+    area: mutable f64 = 0.0
+    index: mutable i64 = 0
+    while index < steps |index, x1, y1, area|:
+        x2: f64 = x1 + width
+        y2: f64 = sample_value(function_id, x2)
+        area <- area + (y1 + y2) * width * 0.5
+        x1 <- x2
+        y1 <- y2
+        index <- index + 1
+    (area * OUTPUT_SCALE + 0.5).i64()
+
+export fn area_under_curve(input: i64&, length: usize) -> i64 = area_under_curve_impl

@@ -21,3 +21,4 @@ Portable ports are [`c/m/merge_two_binary_trees.c`](../../../c/m/merge_two_binar
 ## Upstream reference
 
 - [TheAlgorithms/C LeetCode 617](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/617.c)
+- [TheAlgorithms/Python `merge_two_binary_trees`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/merge_two_binary_trees.py) uses the same recursive add/copy behavior and mutates its first input tree; this benchmark compares the merged output shape and values.

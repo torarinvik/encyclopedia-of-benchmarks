@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "zellers-congruence-v1",
+  "algorithm": "zellers_congruence",
+  "input": {
+    "kind": "three_signed_64_bit_integers_year_month_day",
+    "length": 3,
+    "year_range": [
+      46,
+      8499
+    ],
+    "calendar": "proleptic_gregorian",
+    "weekday_encoding": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "source_example_2010_01_31",
+      "input_values": [
+        2010,
+        1,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "typescript_example_2000_01_01",
+      "input_values": [
+        2000,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 6
+    },
+    {
+      "id": "ordinary_monday",
+      "input_values": [
+        2024,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "leap_day_2024",
+      "input_values": [
+        2024,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "century_nonleap_1900_feb28",
+      "input_values": [
+        1900,
+        2,
+        28
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "century_nonleap_1900_mar01",
+      "input_values": [
+        1900,
+        3,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "century_leap_2000_feb29",
+      "input_values": [
+        2000,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "gregorian_reform_date_proleptic",
+      "input_values": [
+        1582,
+        10,
+        15
+      ],
+      "input_length": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "minimum_year",
+      "input_values": [
+        46,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_year",
+      "input_values": [
+        8499,
+        12,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "year_below_minimum",
+      "input_values": [
+        45,
+        12,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "year_above_maximum",
+      "input_values": [
+        8500,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum_year",
+      "input_values": [
+        -9223372036854775808,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_zero",
+      "input_values": [
+        2024,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "month_thirteen",
+      "input_values": [
+        2024,
+        13,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "day_zero",
+      "input_values": [
+        2024,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "april_31",
+      "input_values": [
+        2024,
+        4,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "nonleap_february_29",
+      "input_values": [
+        1900,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "nonleap_century_2100",
+      "input_values": [
+        2100,
+        2,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_length_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_length_extra",
+      "input_values": [
+        2024,
+        1,
+        1,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

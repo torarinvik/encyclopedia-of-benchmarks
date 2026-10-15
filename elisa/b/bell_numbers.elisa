@@ -1,0 +1,26 @@
+# Return the exact Bell number for indices that fit in signed 64-bit output.
+def bell_numbers_impl(n: i64) -> i64:
+    if n < 0 or n > 25:
+        return -1
+    if n == 0:
+        return 1
+
+    initial: i64[26] = zeroed
+    initial[0] <- 1
+    final_row: i64[26] =
+        while current < n |current: mutable i64 = 1, values: mutable i64[26] = initial| -> values:
+            previous_first: i64 = values[0]
+            previous_last: i64 = values[(current - 1).usize()]
+            values[0] <- previous_last
+            values <- while column <= current |column: mutable i64 = 1, row_values: mutable i64[26] = values, previous_old: mutable i64 = previous_first| -> row_values:
+                column_index: usize = column.usize()
+                old_value: mutable i64 = 0
+                if column < current:
+                    old_value <- row_values[column_index]
+                row_values[column_index] <- row_values[column_index - 1] + previous_old
+                previous_old <- old_value
+                column <- column + 1
+            current <- current + 1
+    final_row[(n - 1).usize()]
+
+export fn bell_numbers(n: i64) -> i64 = bell_numbers_impl

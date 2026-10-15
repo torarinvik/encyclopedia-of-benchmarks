@@ -1,0 +1,9 @@
+const PI: f64 = 3.141592653589793238462643383279502884
+
+# Return arc length; unit 0 uses degrees and unit 1 uses radians.
+def arc_length_impl(radius: f64, angle: f64, unit: f64) -> f64:
+    if unit == 0.0:
+        return 2.0 * PI * radius * (angle / 360.0)
+    radius * angle
+
+export fn arc_length(radius: f64, angle: f64, unit: f64) -> f64 = arc_length_impl

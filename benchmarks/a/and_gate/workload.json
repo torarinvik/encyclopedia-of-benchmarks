@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "and-gate-two-input-v1",
+  "algorithm": "and_gate",
+  "function_symbol": "and_gate",
+  "input": {
+    "kind": "two_boolean_integers",
+    "valid_values": [
+      0,
+      1
+    ],
+    "result": "1 iff both inputs are 1; 0 otherwise"
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "false_and_false",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "false_and_true",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "true_and_false",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "true_and_true",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 1
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "arc-length-degree-and-radian-v1",
+  "algorithm": "arc_length",
+  "function_symbol": "arc_length",
+  "input": {
+    "kind": "binary64_triple",
+    "layout": "[radius, angle, unit]",
+    "radius_range": [
+      0,
+      1000000
+    ],
+    "angle_unit": "degrees when unit=0, radians when unit=1",
+    "degree_angle_range": [
+      0,
+      360
+    ],
+    "radian_angle_range": [
+      0,
+      6.283185307179586
+    ],
+    "unit_values": [
+      0,
+      1
+    ]
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "degree_5_45",
+      "input_values": [
+        5.0,
+        45.0,
+        0.0
+      ],
+      "expected_result": 3.9269908169872414
+    },
+    {
+      "id": "degree_15_120",
+      "input_values": [
+        15.0,
+        120.0,
+        0.0
+      ],
+      "expected_result": 31.415926535897928
+    },
+    {
+      "id": "degree_10_90",
+      "input_values": [
+        10.0,
+        90.0,
+        0.0
+      ],
+      "expected_result": 15.707963267948966
+    },
+    {
+      "id": "degree_zero_angle",
+      "input_values": [
+        12.5,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "degree_zero_radius",
+      "input_values": [
+        0.0,
+        270.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "degree_full_circle",
+      "input_values": [
+        2.0,
+        360.0,
+        0.0
+      ],
+      "expected_result": 12.566370614359172
+    },
+    {
+      "id": "radian_quarter_turn",
+      "input_values": [
+        5.0,
+        1.5707963267948966,
+        1.0
+      ],
+      "expected_result": 7.853981633974483
+    },
+    {
+      "id": "radian_half_turn",
+      "input_values": [
+        3.0,
+        3.141592653589793,
+        1.0
+      ],
+      "expected_result": 9.42477796076938
+    },
+    {
+      "id": "radian_zero_angle",
+      "input_values": [
+        100.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum_radius_degree",
+      "input_values": [
+        1000000.0,
+        360.0,
+        0.0
+      ],
+      "expected_result": 6283185.307179586
+    }
+  ]
+}

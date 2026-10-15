@@ -1,0 +1,86 @@
+# Case-insensitive ASCII pattern search using the Z algorithm.
+def z_algorithm_search_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    if values[0] < 0 or values[0] > 2047 or values[1] < 0 or values[1] > 2047:
+        return -1
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    index: usize = 2
+    while index < length |index, values|:
+        if values[index] < 0 or values[index] > 127:
+            break false
+        index <- index + 1
+        true
+    if not valid:
+        return -1
+
+    if pattern_length == 0:
+        count: usize = text_length + 1
+        if output_capacity < 4 * count:
+            return -2
+        while index < count |index: mutable usize = 0, output| -> output:
+            position: u32 = (index + 1).u32()
+            for byte_index in 0..<4 |byte_index, output, position|:
+                output[4 * index + byte_index] <- ((position >> (byte_index * 8)) & 255.u32()).u8()
+            index <- index + 1
+            output
+        return count.i64()
+
+    sequence: mutable u32[4095] = zeroed
+    z: mutable usize[4095] = zeroed
+    total: usize = pattern_length + 1 + text_length
+    while index < pattern_length |index: mutable usize = 0, sequence, values, text_length|:
+        value: i64 = values[2 + text_length + index]
+        if value >= 65 and value <= 90:
+            value <- value + 32
+        sequence[index] <- value.u32()
+        index <- index + 1
+        sequence
+    sequence[pattern_length] <- 256.u32()
+    while index < text_length |index: mutable usize = 0, sequence, values|:
+        value: i64 = values[2 + index]
+        if value >= 65 and value <= 90:
+            value <- value + 32
+        sequence[pattern_length + 1 + index] <- value.u32()
+        index <- index + 1
+        sequence
+
+    left: mutable usize = 0
+    right: mutable usize = 0
+    while index < total |index: mutable usize = 1, left, right, sequence, z|:
+        if index < right:
+            remaining: usize = right - index
+            if z[index - left] < remaining:
+                z[index] <- z[index - left]
+            else:
+                z[index] <- remaining
+        while index + z[index] < total and sequence[z[index]] == sequence[index + z[index]]:
+            z[index] <- z[index] + 1
+        if index + z[index] > right:
+            left <- index
+            right <- index + z[index]
+        index <- index + 1
+        z
+
+    count: usize = 0
+    while index < total |index: mutable usize = pattern_length + 1, count, z|:
+        if z[index] >= pattern_length:
+            count <- count + 1
+        index <- index + 1
+        count
+    if output_capacity < 4 * count:
+        return -2
+    while index < total |index: mutable usize = pattern_length + 1, write: mutable usize = 0, z, output| -> output:
+        if z[index] >= pattern_length:
+            position: u32 = (index - pattern_length).u32()
+            for byte_index in 0..<4 |byte_index, output, position, write|:
+                output[4 * write + byte_index] <- ((position >> (byte_index * 8)) & 255.u32()).u8()
+            write <- write + 1
+        index <- index + 1
+        output
+    count.i64()
+
+export fn z_algorithm_search(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = z_algorithm_search_impl

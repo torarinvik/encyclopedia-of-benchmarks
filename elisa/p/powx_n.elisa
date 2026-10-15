@@ -1,0 +1,25 @@
+def powx_n_positive(base: f64, exponent: i64) -> f64:
+    if exponent == 0:
+        return 1.0
+    mask: mutable i64 = 1
+    while mask <= exponent / 2:
+        mask <- mask * 2
+    result: mutable f64 = base
+    mask <- mask / 2
+    while mask != 0:
+        result <- result * result
+        if (exponent & mask) != 0:
+            result <- result * base
+        mask <- mask / 2
+    result
+
+def powx_n_impl(base: f64, exponent: i32) -> f64:
+    if exponent == 0:
+        return 1.0
+    if exponent == -2147483648:
+        return 1.0 / (powx_n_positive(base, 2147483647) * base)
+    if exponent < 0:
+        return 1.0 / powx_n_positive(base, -(exponent.i64()))
+    powx_n_positive(base, exponent.i64())
+
+export fn powx_n(base: f64, exponent: i32) -> f64 = powx_n_impl

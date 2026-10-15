@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "powx-n-binary64-i32-v1",
+  "algorithm": "powx_n",
+  "function_symbol": "powx_n",
+  "input": {
+    "kind": "finite_binary64_base_and_signed_int32_exponent",
+    "base_minimum_exclusive": -100.0,
+    "base_maximum_exclusive": 100.0,
+    "exponent_minimum": -2147483648,
+    "exponent_maximum": 2147483647,
+    "zero_base_requires_positive_exponent": true,
+    "output_minimum": -10000.0,
+    "output_maximum": 10000.0,
+    "output_semantics": "IEEE-754 binary64, including signed zero"
+  },
+  "measurement": {
+    "comparison_model": "float64_i32_call",
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "zero_exponent", "base": -2.0, "exponent": 0, "expected_result": 1.0},
+    {"id": "positive_integer_power", "base": 2.0, "exponent": 10, "expected_result": 1024.0},
+    {"id": "fractional_base", "base": 2.1, "exponent": 3, "expected_result": 9.261},
+    {"id": "positive_reciprocal", "base": 2.0, "exponent": -2, "expected_result": 0.25},
+    {"id": "negative_base_odd", "base": -2.0, "exponent": 3, "expected_result": -8.0},
+    {"id": "negative_base_reciprocal", "base": -2.0, "exponent": -3, "expected_result": -0.125},
+    {"id": "positive_zero", "base": 0.0, "exponent": 3, "expected_result": 0.0},
+    {"id": "negative_zero_odd", "base": -0.0, "exponent": 3, "expected_result": -0.0},
+    {"id": "negative_zero_even", "base": -0.0, "exponent": 2, "expected_result": 0.0},
+    {"id": "large_reciprocal_result", "base": 0.5, "exponent": -13, "expected_result": 8192.0},
+    {"id": "near_base_limit", "base": 99.0, "exponent": 2, "expected_result": 9801.0},
+    {"id": "output_limit", "base": 10.0, "exponent": 4, "expected_result": 10000.0},
+    {"id": "int32_maximum_exponent", "base": -1.0, "exponent": 2147483647, "expected_result": -1.0},
+    {"id": "int32_minimum_exponent_positive_base", "base": 1.0, "exponent": -2147483648, "expected_result": 1.0},
+    {"id": "int32_minimum_exponent_negative_base", "base": -1.0, "exponent": -2147483648, "expected_result": 1.0}
+  ]
+}

@@ -1,0 +1,23 @@
+# Return n + 2 when n and n + 2 are twin primes, otherwise -1.
+def twin_prime_impl(value: i64) -> i64:
+    if value < -4096 or value > 4096:
+        return -1
+    if is_prime(value) and is_prime(value + 2):
+        return value + 2
+    return -1
+
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value == 2:
+        return true
+    if value % 2 == 0:
+        return false
+    composite: bool =
+        while divisor <= value / divisor |divisor: mutable i64 = 3, found: bool = false| -> found:
+            if value % divisor == 0:
+                break true
+            divisor <- divisor + 2
+    not composite
+
+export fn twin_prime(value: i64) -> i64 = twin_prime_impl

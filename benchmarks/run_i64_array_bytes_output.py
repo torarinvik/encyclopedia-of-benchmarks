@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import platform
 import shlex
+import struct
 import subprocess
 import sys
 
@@ -22,10 +23,13 @@ MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 MAX_OUTPUT_CAPACITY = 400004
 MAX_SMALL_INPUT_LENGTH = 66
+MAX_AFFINE_CIPHER_INPUT_LENGTH = 612
 MAX_SQUARED_ARRAY_INPUT_LENGTH = 10000
 MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH = 5000
 MAX_FIND_DUPLICATES_INPUT_LENGTH = 100000
 MAX_REDUNDANT_CONNECTION_INPUT_LENGTH = 2000
+MAX_A_STAR_INPUT_LENGTH = 4 + 256 + 2 * 4096
+MAX_ACCOUNT_MERGE_INPUT_LENGTH = 100002
 KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
           7: b"pqrs", 8: b"tuv", 9: b"wxyz"}
 
@@ -65,7 +69,261 @@ def amicable_proper_divisor_sum(number: int) -> int:
     return sigma - number
 
 
+def account_merge_output(values: list[int]) -> tuple[int, bytes]:
+    if (not isinstance(values, list) or not values or len(values) > MAX_ACCOUNT_MERGE_INPUT_LENGTH
+            or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+        return -1, b""
+    account_count = values[0]
+    if not 0 <= account_count <= 64:
+        return -1, b""
+    accounts: list[tuple[bytes, list[bytes]]] = []
+    emails: list[tuple[bytes, int]] = []
+    position = 1
+    for account_index in range(account_count):
+        if position >= len(values) or not 1 <= values[position] <= 64:
+            return -1, b""
+        name_length = values[position]
+        position += 1
+        if name_length > len(values) - position:
+            return -1, b""
+        name_values = values[position:position + name_length]
+        if any(not 32 <= byte <= 126 for byte in name_values):
+            return -1, b""
+        name = bytes(name_values)
+        position += name_length
+        if position >= len(values) or not 0 <= values[position] <= 1024:
+            return -1, b""
+        email_count = values[position]
+        position += 1
+        if email_count > 1024 - len(emails):
+            return -1, b""
+        account_emails = []
+        for _ in range(email_count):
+            if position >= len(values) or not 1 <= values[position] <= 64:
+                return -1, b""
+            email_length = values[position]
+            position += 1
+            if email_length > len(values) - position:
+                return -1, b""
+            email_values = values[position:position + email_length]
+            if any(not 33 <= byte <= 126 for byte in email_values):
+                return -1, b""
+            email = bytes(email_values)
+            account_emails.append(email)
+            emails.append((email, account_index))
+            position += email_length
+        accounts.append((name, account_emails))
+    if position != len(values):
+        return -1, b""
+
+    parent = list(range(account_count))
+    rank = [0] * account_count
+
+    def find(value: int) -> int:
+        while parent[value] != value:
+            parent[value] = parent[parent[value]]
+            value = parent[value]
+        return value
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root == right_root:
+            return
+        if rank[left_root] < rank[right_root]:
+            parent[left_root] = right_root
+        elif rank[left_root] > rank[right_root]:
+            parent[right_root] = left_root
+        else:
+            parent[right_root] = left_root
+            rank[left_root] += 1
+
+    email_owner: dict[bytes, int] = {}
+    for email, account_index in emails:
+        previous = email_owner.get(email)
+        if previous is None:
+            email_owner[email] = account_index
+        else:
+            union(account_index, previous)
+
+    groups: dict[int, list[bytes]] = {}
+    for account_index, (name, _) in enumerate(accounts):
+        root = find(account_index)
+        if accounts[root][0] != name:
+            return -1, b""
+        groups.setdefault(root, [])
+    for email, account_index in email_owner.items():
+        groups[find(account_index)].append(email)
+    ordered = [(accounts[root][0], sorted(group_emails), root)
+               for root, group_emails in groups.items()]
+    ordered.sort(key=lambda group: (group[0], 0 if not group[1] else 1,
+                                    group[1][0] if group[1] else b"", group[2]))
+
+    output = bytearray()
+
+    def write_u16(value: int) -> None:
+        output.extend(value.to_bytes(2, "little"))
+
+    write_u16(len(ordered))
+    for name, group_emails, _ in ordered:
+        write_u16(len(name))
+        write_u16(len(group_emails))
+        output.extend(name)
+        for email in group_emails:
+            write_u16(len(email))
+            output.extend(email)
+    return len(output), bytes(output)
+
+
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "z_algorithm_search":
+        if (len(values) < 2 or any(type(value) is not int for value in values)
+                or not 0 <= values[0] <= 2047 or not 0 <= values[1] <= 2047
+                or len(values) != 2 + values[0] + values[1]
+                or any(not 0 <= value <= 127 for value in values[2:])):
+            return -1, b""
+        text_length, pattern_length = values[:2]
+        text = [value + 32 if 65 <= value <= 90 else value for value in values[2:2 + text_length]]
+        pattern = [value + 32 if 65 <= value <= 90 else value for value in values[2 + text_length:]]
+        if pattern_length == 0:
+            positions = range(1, text_length + 2)
+        else:
+            positions = (start + 1 for start in range(text_length - pattern_length + 1)
+                         if text[start:start + pattern_length] == pattern)
+        encoded = bytearray()
+        count = 0
+        for position in positions:
+            encoded.extend(position.to_bytes(4, "little"))
+            count += 1
+        return count, bytes(encoded)
+    if algorithm == "adagrad":
+        import struct
+
+        input_scale = 1_000_000_000
+        output_scale = 1_000_000
+        max_steps = 256
+        max_groups = 16
+        if (not 6 <= len(values) <= 3 + 3 * max_steps
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        steps, learning_rate_value, epsilon_value = values[:3]
+        if (not 1 <= steps <= max_steps or len(values) != 3 + 3 * steps
+                or not 1 <= learning_rate_value <= input_scale
+                or not 1 <= epsilon_value <= 10_000_000):
+            return -1, b""
+        learning_rate = learning_rate_value / input_scale
+        epsilon = epsilon_value / input_scale
+        def adagrad_sqrt(value: float) -> float:
+            if value <= 0.0:
+                return 0.0
+            root = value if value > 1.0 else 1.0
+            for _ in range(80):
+                root = 0.5 * (root + value / root)
+            return root
+
+        accumulated = [0.0] * max_groups
+        output_values = []
+        for offset in range(3, len(values), 3):
+            group_id, parameter_value, gradient_value = values[offset:offset + 3]
+            if (not 0 <= group_id < max_groups
+                    or not -1_000_000_000_000_000 <= parameter_value <= 1_000_000_000_000_000
+                    or not -1_000_000_000_000 <= gradient_value <= 1_000_000_000_000):
+                return -1, b""
+            parameter = parameter_value / input_scale
+            gradient = gradient_value / input_scale
+            accumulated[group_id] += gradient * gradient
+            updated = parameter - learning_rate / (adagrad_sqrt(accumulated[group_id]) + epsilon) * gradient
+            output_values.append(math.trunc(updated * output_scale))
+        return steps, struct.pack("<" + "q" * steps, *output_values)
+
+    if algorithm == "account_merge":
+        return account_merge_output(values)
+    if algorithm == "a_star_search":
+        if (len(values) < 5 or len(values) > MAX_A_STAR_INPUT_LENGTH
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count, source, target = values[:4]
+        if (not 1 <= vertex_count <= 256 or not 0 <= edge_count <= 4096
+                or not 0 <= source < vertex_count or not 0 <= target < vertex_count
+                or len(values) != 4 + vertex_count + 2 * edge_count):
+            return -1, b""
+        heuristic = values[4:4 + vertex_count]
+        if (any(not 0 <= value <= 1_000_000_000 for value in heuristic)
+                or heuristic[target] != 0):
+            return -1, b""
+        edges = values[4 + vertex_count:]
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        for offset in range(0, len(edges), 2):
+            origin, neighbor = edges[offset:offset + 2]
+            if not 0 <= origin < vertex_count or not 0 <= neighbor < vertex_count:
+                return -1, b""
+            if heuristic[origin] > heuristic[neighbor] + 1:
+                return -1, b""
+            adjacency[origin].append(neighbor)
+
+        import heapq
+
+        distances: list[int | None] = [None] * vertex_count
+        parents = [-1] * vertex_count
+        closed = [False] * vertex_count
+        distances[source] = 0
+        queue = [(heuristic[source], 0, source)]
+        while queue:
+            _, distance, vertex = heapq.heappop(queue)
+            if closed[vertex] or distances[vertex] != distance:
+                continue
+            if vertex == target:
+                break
+            closed[vertex] = True
+            for neighbor in adjacency[vertex]:
+                if closed[neighbor]:
+                    continue
+                candidate = distance + 1
+                if distances[neighbor] is None or candidate < distances[neighbor]:
+                    distances[neighbor] = candidate
+                    parents[neighbor] = vertex
+                    heapq.heappush(queue, (candidate + heuristic[neighbor], candidate, neighbor))
+
+        if distances[target] is None:
+            return 0, b""
+        if distances[target] > 30:
+            return -1, b""
+        path = []
+        vertex = target
+        while vertex != -1:
+            path.append(vertex)
+            if vertex == source:
+                break
+            vertex = parents[vertex]
+        if not path or path[-1] != source:
+            return -1, b""
+        path.reverse()
+        return len(path), bytes(path)
+
+    if algorithm == "binary_addition":
+        if (len(values) < 2 or len(values) > 4096
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        first_length, second_length = values[:2]
+        if (not 0 <= first_length <= 2047 or not 0 <= second_length <= 2047
+                or len(values) != 2 + first_length + second_length):
+            return -1, b""
+        first = values[2:2 + first_length]
+        second = values[2 + first_length:]
+        if any(bit not in (0, 1) for bit in first + second):
+            return -1, b""
+        result = []
+        carry = 0
+        for offset in range(max(first_length, second_length)):
+            left = first[-1 - offset] if offset < first_length else 0
+            right = second[-1 - offset] if offset < second_length else 0
+            total = left + right + carry
+            result.append(48 + total % 2)
+            carry = total // 2
+        if carry:
+            result.append(49)
+        result.reverse()
+        return len(result), bytes(result)
+
     if algorithm == "sudoku_solver":
         import struct
 
@@ -503,6 +761,41 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 output[index] = 219 - value
         return len(output), bytes(output)
 
+    if algorithm == "affine_cipher":
+        if (len(values) < 7 or len(values) > MAX_AFFINE_CIPHER_INPUT_LENGTH
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        mode, key_a, key_b, alphabet_length = values[:4]
+        if not 2 <= alphabet_length <= 95 or len(values) < 5 + alphabet_length:
+            return -1, b""
+        alphabet = values[4:4 + alphabet_length]
+        text_length = values[4 + alphabet_length]
+        text = values[5 + alphabet_length:]
+        if (mode not in (0, 1) or not 0 <= key_a <= 1_000_000
+                or not 0 <= key_b < alphabet_length or not 0 <= text_length <= 512
+                or len(text) != text_length):
+            return -1, b""
+        if (any(not 32 <= value <= 126 for value in alphabet)
+                or len(set(alphabet)) != alphabet_length
+                or any(not 32 <= value <= 126 for value in text)
+                or any(value not in set(alphabet) for value in text)):
+            return -1, b""
+        import math
+        if math.gcd(key_a, alphabet_length) != 1:
+            return -1, b""
+        positions = {symbol: index for index, symbol in enumerate(alphabet)}
+        multiplier = key_a % alphabet_length
+        inverse = pow(multiplier, -1, alphabet_length) if mode == 1 else 0
+        output = bytearray()
+        for symbol in text:
+            position = positions[symbol]
+            if mode == 0:
+                mapped = (position * multiplier + key_b) % alphabet_length
+            else:
+                mapped = ((position - key_b) * inverse) % alphabet_length
+            output.append(alphabet[mapped])
+        return text_length, bytes(output)
+
     if algorithm == "vigenere_cipher":
         if not 2 <= len(values) <= MAX_SMALL_INPUT_LENGTH or any(type(value) is not int for value in values):
             return -1, b""
@@ -555,6 +848,32 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
             return -1, b""
         output = bytes(value + 32 if 65 <= value <= 90 else value for value in values)
+        return len(output), output
+
+    if algorithm == "acronym":
+        if (len(values) > 79
+                or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytearray()
+        at_token_start = True
+        for value in values:
+            if value == 32:
+                at_token_start = True
+            elif at_token_start:
+                output.append(value - 32 if 97 <= value <= 122 else value)
+                at_token_start = False
+        return len(output), bytes(output)
+
+    if algorithm == "collatz_sequence":
+        if (len(values) != 1 or type(values[0]) is not int
+                or not 1 <= values[0] <= 1_000_000):
+            return -1, b""
+        sequence = [values[0]]
+        current = values[0]
+        while current != 1:
+            current = current // 2 if current % 2 == 0 else 3 * current + 1
+            sequence.append(current)
+        output = struct.pack("<" + "q" * len(sequence), *sequence)
         return len(output), output
 
     if algorithm == "merge_two_sorted_lists":
@@ -846,7 +1165,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                     step = cycle - step
         return len(output), bytes(output)
 
-    if algorithm == "longest_palindromic_substring":
+    if algorithm in {"longest_palindromic_substring", "longest_palindromic_substring_dp"}:
         if (not 1 <= len(values) <= 1000
                 or any(type(value) is not int or
                        not (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122)
@@ -862,9 +1181,11 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                                  (end - start < 2 or palindrome[start + 1][end - 1]))
                 palindrome[start][end] = is_palindrome
                 candidate_length = end - start + 1
+                better_tie = (start > best_start if algorithm == "longest_palindromic_substring_dp"
+                              else start < best_start)
                 if (is_palindrome and
                         (candidate_length > best_length or
-                         (candidate_length == best_length and start < best_start))):
+                         (candidate_length == best_length and better_tie))):
                     best_start = start
                     best_length = candidate_length
         return best_length, bytes(values[best_start:best_start + best_length])
@@ -1415,6 +1736,9 @@ def main() -> int:
     for case in workload["cases"]:
         values = case.get("input_values")
         max_input_length = (MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else
+                            MAX_ACCOUNT_MERGE_INPUT_LENGTH if algorithm == "account_merge" else
+                            MAX_A_STAR_INPUT_LENGTH if algorithm == "a_star_search" else
+                            MAX_AFFINE_CIPHER_INPUT_LENGTH if algorithm == "affine_cipher" else
                             MAX_SQUARE_STREAK_INPUT_LENGTH if algorithm == "longest_square_streak" else
                             MAX_SQUARED_ARRAY_INPUT_LENGTH if algorithm == "squares_of_a_sorted_array" else
                             MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH if algorithm == "sort_array_by_parity" else

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "leap-year-gregorian-positive-i64-v1",
+  "algorithm": "leap_year",
+  "function_symbol": "leap_year",
+  "input": {
+    "kind": "signed_i64",
+    "range": [
+      1,
+      9223372036854775807
+    ],
+    "invalid_result": -1,
+    "result": "1 for Gregorian leap years; 0 for common years"
+  },
+  "cases": [
+    {
+      "id": "year_1",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "year_4",
+      "input_value": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "year_100",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "year_400",
+      "input_value": 400,
+      "expected_result": 1
+    },
+    {
+      "id": "year_1900",
+      "input_value": 1900,
+      "expected_result": 0
+    },
+    {
+      "id": "year_2000",
+      "input_value": 2000,
+      "expected_result": 1
+    },
+    {
+      "id": "year_2100",
+      "input_value": 2100,
+      "expected_result": 0
+    },
+    {
+      "id": "year_2400",
+      "input_value": 2400,
+      "expected_result": 1
+    },
+    {
+      "id": "recent_leap_year",
+      "input_value": 2024,
+      "expected_result": 1
+    },
+    {
+      "id": "recent_common_year",
+      "input_value": 2023,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -4,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_max_common",
+      "input_value": 9223372036854775807,
+      "expected_result": 0
+    },
+    {
+      "id": "int64_max_minus_three_leap",
+      "input_value": 9223372036854775804,
+      "expected_result": 1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -43,7 +43,7 @@ def verifying_an_alien_dictionary_impl(input: i64&, length: usize) -> i64:
     for word in 0..<(word_count - 1) |input, starts, word_lengths, rank|:
         left_length: usize = word_lengths[word]
         right_length: usize = word_lengths[word + 1]
-        limit: usize = left_length
+        limit: mutable usize = left_length
         if right_length < limit:
             limit <- right_length
         decided: mutable bool = false

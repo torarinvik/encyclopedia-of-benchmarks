@@ -1,0 +1,7 @@
+# Two-input Boolean AND over the benchmark's 0/1 domain.
+def and_gate_impl(left: u64, right: u64) -> i64:
+    if left == 1.u64() and right == 1.u64():
+        return 1
+    0
+
+export fn and_gate(left: u64, right: u64) -> i64 = and_gate_impl

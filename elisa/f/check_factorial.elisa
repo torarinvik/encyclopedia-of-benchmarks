@@ -1,0 +1,11 @@
+def check_factorial_impl(n: i64) -> i64:
+    if n <= 0:
+        return 0
+    value: mutable i64 = n
+    divisor: mutable i64 = 2
+    while value % divisor == 0:
+        value <- value / divisor
+        divisor <- divisor + 1
+    if value == 1: 1 else: 0
+
+export fn check_factorial(n: i64) -> i64 = check_factorial_impl

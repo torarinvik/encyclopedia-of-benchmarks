@@ -1,0 +1,54 @@
+const MAX_COUNT: usize = 1000
+
+def alternate_harmonic_series_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 1 + 2 * MAX_COUNT:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 1000:
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    index: mutable usize = 0
+    while index < count:
+        numerator: i64 = values[1 + 2 * index]
+        denominator: i64 = values[2 + 2 * index]
+        if numerator == 0 or numerator < -1000 or numerator > 1000 or denominator < 1 or denominator > 1000:
+            return -1
+        index <- index + 1
+    index <- 1
+    while index < count:
+        if (values[1 + 2 * index] < 0) == (values[1 + 2 * (index - 1)] < 0):
+            return 0
+        index <- index + 1
+    if count < 3:
+        return 1
+
+    first_numerator: i64 = values[1]
+    if first_numerator < 0:
+        first_numerator <- -first_numerator
+    second_numerator: i64 = values[3]
+    if second_numerator < 0:
+        second_numerator <- -second_numerator
+    base_difference_numerator: i64 = values[4] * first_numerator - values[2] * second_numerator
+    base_difference_denominator: i64 = first_numerator * second_numerator
+
+    index <- 2
+    while index < count:
+        previous_numerator: mutable i64 = values[1 + 2 * (index - 1)]
+        if previous_numerator < 0:
+            previous_numerator <- -previous_numerator
+        current_numerator: mutable i64 = values[1 + 2 * index]
+        if current_numerator < 0:
+            current_numerator <- -current_numerator
+        previous_denominator: i64 = values[2 + 2 * (index - 1)]
+        current_denominator: i64 = values[2 + 2 * index]
+        difference_numerator: i64 = current_denominator * previous_numerator - previous_denominator * current_numerator
+        difference_denominator: i64 = previous_numerator * current_numerator
+        if difference_numerator * base_difference_denominator != base_difference_numerator * difference_denominator:
+            return 0
+        index <- index + 1
+    1
+
+export fn alternate_harmonic_series(values: i64&, length: usize) -> i64 = alternate_harmonic_series_impl

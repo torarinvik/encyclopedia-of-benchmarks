@@ -11,7 +11,7 @@ Return the minimum sum of a falling path from the first row through the last row
 
 ## Workload
 
-[`workload.json`](workload.json) covers a single negative cell, both published examples, edge-column transitions, tied paths, and a 100×100 boundary matrix.
+[`workload.json`](workload.json) covers a single negative cell, both published examples, edge-column transitions, tied paths, and a 100×100 boundary matrix. All nine ports pass 20,812 oracle matrices and all six workload cases with [`verify_minimum_falling_path_sum.py`](../../verify_minimum_falling_path_sum.py).
 
 ## Upstream source
 

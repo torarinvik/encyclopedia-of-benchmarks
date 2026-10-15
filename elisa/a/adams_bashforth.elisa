@@ -1,0 +1,83 @@
+# Bounded Adams-Bashforth methods for y' = x + y on a quarter-step grid.
+def coefficient(order: i64, offset: usize) -> i64:
+    if order == 2:
+        return if offset == 0: 3 else: -1
+    if order == 3:
+        return if offset == 0: 23 else: if offset == 1: -16 else: 5
+    if order == 4:
+        return if offset == 0: 55 else: if offset == 1: -59 else: if offset == 2: 37 else: -9
+    if offset == 0: 1901 else: if offset == 1: -2774 else: if offset == 2: -2616 else: if offset == 3: -1274 else: 251
+
+def append_integer(value_input: i64, output: mutable u8&, position_input: usize) -> usize:
+    digits: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    value: mutable i64 = value_input
+    if value < 0:
+        output[position_input] <- 45
+        value <- -value
+    position: mutable usize = position_input
+    if value_input < 0:
+        position <- position + 1
+    while true:
+        digits[count] <- (48 + (value % 10).u8()).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0:
+            break
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def adams_bashforth_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 4:
+        return -1
+    order: i64 = values[0]
+    steps: i64 = values[1]
+    if order < 2 or order > 5 or steps < 1 or steps > 4 or length != order.usize() + 2:
+        return -1
+    x: mutable f64[14] = zeroed
+    y: mutable f64[14] = zeroed
+    index: mutable usize = 0
+    while index < order.usize():
+        if values[index + 2] < -100000 or values[index + 2] > 100000:
+            return -1
+        x[index] <- index.f64() * 0.25
+        y[index] <- values[index + 2].f64() / 100000.0
+        index <- index + 1
+    denominator: f64 = if order == 2: 2.0 else: if order == 3: 12.0 else: if order == 4: 24.0 else: 720.0
+    iterations: mutable usize = steps.usize()
+    if order == 3 or order == 5:
+        iterations <- iterations + 1
+    count: mutable usize = order.usize()
+    iteration: mutable usize = 0
+    while iteration < iterations:
+        weighted: mutable f64 = 0.0
+        offset: mutable usize = 0
+        while offset < order.usize():
+            current: usize = count - 1 - offset
+            weighted <- weighted + coefficient(order, offset).f64() * (x[current] + y[current])
+            offset <- offset + 1
+        y[count] <- y[count - 1] + (0.25 / denominator) * weighted
+        x[count] <- x[count - 1] + 0.25
+        count <- count + 1
+        iteration <- iteration + 1
+    encoded: mutable u8[256] = zeroed
+    position: mutable usize = 0
+    index <- 0
+    while index < count:
+        if index > 0:
+            encoded[position] <- 44
+            position <- position + 1
+        position <- append_integer((y[index] * 1000000.0).i64(), encoded, position)
+        index <- index + 1
+    if output_capacity < position:
+        return -2
+    index <- 0
+    while index < position:
+        output[index] <- encoded[index]
+        index <- index + 1
+    position.i64()
+
+export fn adams_bashforth(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adams_bashforth_impl

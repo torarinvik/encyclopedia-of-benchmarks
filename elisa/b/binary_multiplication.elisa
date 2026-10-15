@@ -1,0 +1,9 @@
+# Multiply nonnegative operands with shift-and-add; inputs are at most 1e9.
+def binary_multiplication_impl(a: u64, b: u64) -> i64:
+    while multiplier > 0 |multiplicand: mutable u64 = a, multiplier: mutable u64 = b, result: mutable u64 = 0| -> result:
+        if (multiplier & 1.u64()) != 0.u64():
+            result <- result + multiplicand
+        multiplicand <- multiplicand << 1
+        multiplier <- multiplier >> 1
+
+export fn binary_multiplication(a: u64, b: u64) -> i64 = binary_multiplication_impl

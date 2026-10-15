@@ -75,6 +75,24 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
             factors.append(str(remaining))
         output = ",".join(factors).encode("ascii")
         return len(output), output
+    if encoding == "prime_factorization_pairs_u32le":
+        if not 1 <= value <= 1_000_005:
+            return -1, b""
+        remaining = value
+        divisor = 2
+        pairs = bytearray()
+        while divisor <= remaining // divisor:
+            if remaining % divisor == 0:
+                exponent = 0
+                while remaining % divisor == 0:
+                    remaining //= divisor
+                    exponent += 1
+                pairs.extend(struct.pack("<II", divisor, exponent))
+            divisor += 1
+        if remaining > 1:
+            pairs.extend(struct.pack("<II", remaining, 1))
+        output = bytes(pairs)
+        return len(output), output
     if encoding == "prime_numbers":
         if not 0 <= value <= 80:
             return -1, b""

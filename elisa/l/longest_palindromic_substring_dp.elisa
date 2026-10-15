@@ -1,0 +1,50 @@
+const MAX_LENGTH: usize = 1000
+
+def is_ascii_alphanumeric(value: i64) -> bool:
+    (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+# Find the rightmost longest ASCII alphanumeric palindrome with gap-based DP.
+def longest_palindromic_substring_dp_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > MAX_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if not is_ascii_alphanumeric(values[index]):
+            return -1
+        index <- index + 1
+
+    palindrome: mutable bool[MAX_LENGTH][MAX_LENGTH] = zeroed
+    best_start: mutable usize = 0
+    best_end: mutable usize = 0
+    gap: mutable usize = 0
+    while gap < length:
+        start: mutable usize = 0
+        end: mutable usize = gap
+        while end < length:
+            is_palindrome: bool = false
+            if gap == 0:
+                is_palindrome <- true
+            elif gap == 1:
+                is_palindrome <- values[start] == values[end]
+            else:
+                is_palindrome <- values[start] == values[end] and palindrome[start + 1][end - 1]
+            palindrome[start][end] <- is_palindrome
+            if is_palindrome:
+                best_start <- start
+                best_end <- end
+            start <- start + 1
+            end <- end + 1
+        gap <- gap + 1
+
+    best_length: usize = best_end - best_start + 1
+    if output_capacity < best_length:
+        return -2
+    index <- 0
+    while index < best_length:
+        output[index] <- values[best_start + index].u8()
+        index <- index + 1
+    best_length.i64()
+
+export fn longest_palindromic_substring_dp(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = longest_palindromic_substring_dp_impl

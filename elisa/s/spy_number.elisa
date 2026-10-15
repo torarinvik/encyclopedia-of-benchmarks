@@ -1,0 +1,15 @@
+# Return whether a positive integer's decimal digit sum equals its product.
+def spy_number_impl(input: i64) -> i64:
+    if input <= 0:
+        return 0
+    number: mutable i64 = input
+    digit_sum: mutable i64 = 0
+    digit_product: mutable i64 = 1
+    while number > 0 |number, digit_sum, digit_product|:
+        digit: i64 = number % 10
+        digit_sum <- digit_sum + digit
+        digit_product <- digit_product * digit
+        number <- number / 10
+    1 if digit_sum == digit_product else 0
+
+export fn spy_number(input: i64) -> i64 = spy_number_impl

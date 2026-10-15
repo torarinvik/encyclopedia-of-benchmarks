@@ -12,7 +12,7 @@ Given two distinct nodes in a binary tree, return their lowest common ancestor. 
 
 ## Workload
 
-[`workload.json`](workload.json) covers the two published tree shapes, a target that is itself an ancestor, a nonzero root table index, a maximum-depth chain, and an invalid child index.
+[`workload.json`](workload.json) covers the two published tree shapes, a target that is itself an ancestor, a nonzero root table index, a maximum-depth chain, and an invalid child index. All nine ports pass 23,424 oracle cases and all six workload cases with [`verify_lowest_common_ancestor.py`](../../verify_lowest_common_ancestor.py).
 
 ## Upstream source
 

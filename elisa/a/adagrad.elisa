@@ -1,0 +1,51 @@
+const MAX_STEPS: usize = 256
+const MAX_GROUPS: usize = 16
+const INPUT_SCALE: f64 = 1000000000.0
+const OUTPUT_SCALE: f64 = 1000000.0
+
+def adagrad_sqrt(value: f64) -> f64:
+    if value <= 0.0:
+        return 0.0
+    root: mutable f64 = if value > 1.0: value else: 1.0
+    iteration: mutable usize = 0
+    while iteration < 80 |root, iteration|:
+        root <- 0.5 * (root + value / root)
+        iteration <- iteration + 1
+    root
+
+def adagrad_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 6 or length > 3 + 3 * MAX_STEPS:
+        return -1
+    steps_value: i64 = input[0]
+    learning_rate_value: i64 = input[1]
+    epsilon_value: i64 = input[2]
+    if steps_value < 1 or steps_value > 256 or length != 3 + 3 * steps_value.usize() or
+       learning_rate_value < 1 or learning_rate_value > 1000000000 or
+       epsilon_value < 1 or epsilon_value > 10000000:
+        return -1
+    steps: usize = steps_value.usize()
+    for step in 0..<steps |input|:
+        id: i64 = input[3 + 3 * step]
+        parameter: i64 = input[4 + 3 * step]
+        gradient: i64 = input[5 + 3 * step]
+        if id < 0 or id >= 16 or parameter < -1000000000000000 or parameter > 1000000000000000 or
+           gradient < -1000000000000 or gradient > 1000000000000:
+            return -1
+    if output_capacity < 8 * steps:
+        return -2
+
+    learning_rate: f64 = f64(learning_rate_value) / INPUT_SCALE
+    epsilon: f64 = f64(epsilon_value) / INPUT_SCALE
+    accumulated: mutable f64[MAX_GROUPS] = zeroed
+    for step in 0..<steps |input, accumulated, output|:
+        id: usize = input[3 + 3 * step].usize()
+        parameter: f64 = f64(input[4 + 3 * step]) / INPUT_SCALE
+        gradient: f64 = f64(input[5 + 3 * step]) / INPUT_SCALE
+        accumulated[id] <- accumulated[id] + gradient * gradient
+        updated: f64 = parameter - learning_rate / (adagrad_sqrt(accumulated[id]) + epsilon) * gradient
+        encoded: i64 = i64(updated * OUTPUT_SCALE)
+        for byte in 0..<8 |output|:
+            output[8 * step + byte] <- ((encoded >> (8 * byte)) & 255).u8()
+    steps.i64()
+
+export fn adagrad(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adagrad_impl

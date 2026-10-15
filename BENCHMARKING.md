@@ -220,6 +220,21 @@ python3 benchmarks/run_i64_array_scalar.py \
 
 Digit-array decoders such as `octal_to_decimal` and `hexadecimal_to_decimal` use this family as well. Each contract defines its accepted digit range, input length, overflow behavior, and invalid-input result.
 
+Checksums over byte arrays such as Adler-32 also use this family. Its input array stores one byte value per signed 64-bit slot:
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_scalar \
+  --algorithm adler32 --language rust --with-checker
+python3 benchmarks/run_i64_array_scalar.py \
+  --build-manifest build/i64_array_scalar/adler32/rust/build.json
+```
+
+ASCII integer parsers such as [`string_to_integer`](benchmarks/s/string_to_integer/README.md) and [`c_atoi_str_to_integer`](benchmarks/c/c_atoi_str_to_integer/README.md) use this family too. Their guides define accepted bytes, whitespace, terminators, and overflow handling.
+
+Fixed-point numerical integration such as [`area_under_curve`](benchmarks/a/area_under_curve/README.md) also uses this family when the inputs and rounded result fit signed 64-bit slots.
+
+Finite rational-series predicates such as [`alternate_harmonic_series`](benchmarks/a/alternate_harmonic_series/README.md) and [`alternating_harmonic_series`](benchmarks/a/alternating_harmonic_series/README.md) use the same family. Each input packs a term count followed by numerator/denominator pairs; the guides define their exact term bounds and predicate semantics.
+
 For an array algorithm that writes byte output into a caller-provided buffer, use:
 
 ```sh
@@ -231,6 +246,8 @@ python3 benchmarks/run_i64_array_bytes_output.py \
 
 The same `i64_array_bytes_output` family supports binary, octal, and hexadecimal digit-array conversions. The binary decoders accept up to 63 bits, octal decoders accept up to 21 octal digits, and hexadecimal decoders accept up to 16 nibbles subject to the signed 64-bit bound. The converters write prefix-free output. The harness accepts arrays up to 4,096 values so verifiers can submit overlength cases and confirm rejection; each algorithm enforces its own documented contract.
 
+String-producing algorithms such as binary addition can pack input strings as numeric arrays and return ASCII bytes through this family. See the [Binary Addition contract](benchmarks/b/binary_addition/README.md) for its two-operand packed layout.
+
 For a scalar algorithm that writes bytes into a caller-provided buffer, use the `i64_scalar_bytes_output` family. `decimal_to_binary`, `decimal_to_octal`, and `decimal_to_hexadecimal` share this ABI. Their workloads declare radix 2, 8, or 16; the recorder emits prefix-free digits (lowercase for hexadecimal) and checks caller-buffer capacity.
 
 ```sh
@@ -240,10 +257,11 @@ python3 benchmarks/run_i64_scalar_bytes_output.py \
   --build-manifest build/i64_scalar_bytes_output/d/decimal_to_binary/rust/build.json
 ```
 
-For LERP's binary64 triple ABI, use:
+For binary64 functions that take three values, use the `float64_triple` family. It supports LERP and arc length:
 
 ```sh
 python3 benchmarks/build_abi.py --family float64_triple --algorithm lerp --language rust
+python3 benchmarks/build_abi.py --family float64_triple --algorithm arc_length --language rust
 ```
 
 For indexed binary-tree traversal, use the `tree_level_order` family. The harness allocates output, level-offset, and queue buffers before timing:
@@ -352,7 +370,7 @@ python3 benchmarks/run_binary_scalar.py \
 
 [`benchmarks/verify_next_greater_nodes.py`](benchmarks/verify_next_greater_nodes.py) checks the forward-scan next-greater-node algorithm against a monotonic-stack oracle, with exhaustive short sequences, deterministic full-range inputs, a 4,096-node workload, invalid values, and insufficient output capacity.
 
-[`benchmarks/verify_float64_triple.py`](benchmarks/verify_float64_triple.py) checks LERP in all nine languages against a high-precision decimal oracle and applies the documented input-scaled tolerance to finite binary64 values.
+[`benchmarks/verify_float64_triple.py`](benchmarks/verify_float64_triple.py) checks LERP in all nine languages against a high-precision decimal oracle and applies the documented input-scaled tolerance to finite binary64 values. The shared `float64_triple` recorder also supports arc length.
 
 The `float64_unary` ABI family measures one-input binary64 algorithms such as [square root](benchmarks/s/square_root/README.md). `benchmarks/run_float64_unary.py` records results against each workload's expected value and relative tolerance.
 

@@ -22,10 +22,7 @@ def encode_case(case: dict) -> tuple[float, float]:
             or type(values[0]) not in (int, float) or not math.isfinite(float(values[0]))
             or type(expected) not in (int, float) or not math.isfinite(float(expected))):
         raise ValueError("float64 unary cases require one finite input and one finite expected result")
-    value, result = float(values[0]), float(expected)
-    if not 0.0 <= value <= 1e300 or result < 0.0:
-        raise ValueError("square-root cases require inputs in [0, 1e300] and nonnegative results")
-    return value, result
+    return float(values[0]), float(expected)
 
 
 def main() -> int:
@@ -38,8 +35,10 @@ def main() -> int:
     parser.add_argument("--repetitions", type=int)
     args = parser.parse_args()
     manifest = json.loads(args.build_manifest.read_text(encoding="utf-8"))
-    if manifest.get("family") != "float64_unary" or manifest.get("algorithm") != "square_root":
-        parser.error("build manifest must declare the square_root float64_unary ABI")
+    if manifest.get("family") != "float64_unary":
+        parser.error("build manifest must declare the float64_unary ABI")
+    algorithm = manifest["algorithm"]
+    letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     language = manifest["language"]
     source = (ROOT / manifest["source_path"]).resolve()
     source.relative_to(ROOT)
@@ -50,13 +49,17 @@ def main() -> int:
             or sha256_file(executable) != binary["sha256"]
             or sha256_file(runner_source) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
-    workload_path = args.workload or ROOT / "benchmarks/s/square_root/workload.json"
+    workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
-    if (workload.get("algorithm") != "square_root"
+    if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_unary_call"):
-        parser.error("workload does not match the square_root float64 unary algorithm")
+        parser.error("workload does not match the built float64 unary algorithm")
     timing = workload["measurement"]
     tolerance = float(timing["relative_tolerance"])
+    absolute_tolerance = float(timing.get("absolute_tolerance", 0.0))
+    if (not math.isfinite(tolerance) or tolerance <= 0.0
+            or not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0):
+        parser.error("workload float64 tolerances must be finite, with positive relative and nonnegative absolute values")
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
     repetitions = args.repetitions if args.repetitions is not None else timing["repetitions_per_sample"]
@@ -77,17 +80,18 @@ def main() -> int:
     for case in workload["cases"]:
         value, expected = encode_case(case)
         command = [str(executable), *(format(number, ".17g") for number in
-                   (value, expected, tolerance)), str(samples), str(warmups), str(repetitions)]
+                   (value, expected, tolerance, absolute_tolerance)),
+                   str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:
             raise SystemExit(f"float64 unary runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)
         observed = float(raw["observed_result"])
-        if (not math.isfinite(observed) or (expected == 0.0 and observed != 0.0)
-                or (expected != 0.0 and abs(observed - expected) > tolerance * abs(expected))
+        if (not math.isfinite(observed)
+                or abs(observed - expected) > absolute_tolerance + tolerance * abs(expected)
                 or len(raw["samples_ns"]) != samples):
             raise ValueError(f"float64 unary runner returned an invalid result for {case['id']}")
-        records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": "square_root",
+        records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
                                      "input_length": None, "input_values": [value],
@@ -99,8 +103,9 @@ def main() -> int:
                                         "warmup_rounds": warmups, "repetitions_per_sample": repetitions,
                                         "samples_ns": raw["samples_ns"], "observed_result": observed,
                                         "result_checksum": raw["result_checksum"],
-                                        "result_relative_tolerance": tolerance}})
-    output = args.output or ROOT / "results/s/square_root" / f"{language}.jsonl"
+                                        "result_relative_tolerance": tolerance,
+                                        "result_absolute_tolerance": absolute_tolerance}})
+    output = args.output or ROOT / "results" / letter / algorithm / f"{language}.jsonl"
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("a", encoding="utf-8", newline="\n") as destination:
         for record in records:

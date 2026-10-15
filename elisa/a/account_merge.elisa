@@ -1,0 +1,286 @@
+const MAX_ACCOUNTS: usize = 64
+const MAX_EMAIL_REFERENCES: usize = 1024
+const EMAIL_TABLE_SIZE: usize = 2048
+
+def account_merge_find_root(parent: mutable usize&, value: usize) -> usize:
+    current: mutable usize = value
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def account_merge_join(parent: mutable usize&, rank: mutable usize&, left: usize, right: usize) -> void:
+    left_root: usize = account_merge_find_root(parent, left)
+    right_root: usize = account_merge_find_root(parent, right)
+    if left_root == right_root:
+        return
+    if rank[left_root] < rank[right_root]:
+        parent[left_root] <- right_root
+    elif rank[left_root] > rank[right_root]:
+        parent[right_root] <- left_root
+    else:
+        parent[right_root] <- left_root
+        rank[left_root] <- rank[left_root] + 1
+
+def account_merge_compare_text(values: i64&, left_start: usize, left_length: usize,
+                               right_start: usize, right_length: usize) -> i64:
+    shared: usize = left_length if left_length < right_length else right_length
+    index: mutable usize = 0
+    while index < shared:
+        if values[left_start + index] < values[right_start + index]:
+            return -1
+        if values[left_start + index] > values[right_start + index]:
+            return 1
+        index <- index + 1
+    if left_length < right_length:
+        return -1
+    if left_length > right_length:
+        return 1
+    0
+
+def account_merge_hash(values: i64&, start: usize, text_length: usize) -> usize:
+    # The table uses 11 low bits of FNV-1a; keeping each step modulo 2048 is equivalent.
+    hash: mutable i64 = 805
+    index: mutable usize = 0
+    while index < text_length:
+        hash <- ((hash ^ values[start + index]) * 435) % 2048
+        index <- index + 1
+    hash.usize()
+
+def account_merge_sort_emails(values: i64&, email_start: usize&, email_length: usize&,
+                              indices: mutable usize&, scratch: mutable usize&, count: usize) -> void:
+    width: mutable usize = 1
+    while width < count:
+        low: mutable usize = 0
+        while low < count:
+            middle: mutable usize = low + width
+            if middle > count:
+                middle <- count
+            high: mutable usize = middle + width
+            if high > count:
+                high <- count
+            left: mutable usize = low
+            right: mutable usize = middle
+            output_index: mutable usize = low
+            while left < middle and right < high:
+                a: usize = indices[left]
+                b: usize = indices[right]
+                comparison: i64 = account_merge_compare_text(values, email_start[a], email_length[a], email_start[b], email_length[b])
+                if comparison <= 0:
+                    scratch[output_index] <- indices[left]
+                    left <- left + 1
+                else:
+                    scratch[output_index] <- indices[right]
+                    right <- right + 1
+                output_index <- output_index + 1
+            while left < middle:
+                scratch[output_index] <- indices[left]
+                left <- left + 1
+                output_index <- output_index + 1
+            while right < high:
+                scratch[output_index] <- indices[right]
+                right <- right + 1
+                output_index <- output_index + 1
+            index: mutable usize = low
+            while index < high:
+                indices[index] <- scratch[index]
+                index <- index + 1
+            low <- high
+        if width > count / 2:
+            break
+        width <- width * 2
+
+def account_merge_write_u16(output: mutable u8&, position: mutable usize&, value: usize) -> void:
+    output[position] <- (value & 255).u8()
+    position <- position + 1
+    output[position] <- ((value / 256) & 255).u8()
+    position <- position + 1
+
+def account_merge_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or values[0] < 0 or values[0] > 64:
+        return -1
+    account_count_value: i64 = values[0]
+    account_count: usize = account_count_value.usize()
+    name_start: mutable usize[64] = zeroed
+    name_length: mutable usize[64] = zeroed
+    parent: mutable usize[64] = zeroed
+    rank: mutable usize[64] = zeroed
+    email_start: mutable usize[1024] = zeroed
+    email_length: mutable usize[1024] = zeroed
+    email_account: mutable usize[1024] = zeroed
+    email_root: mutable usize[1024] = zeroed
+    table: mutable i64[2048] = zeroed
+    for slot in 0..<EMAIL_TABLE_SIZE:
+        table[slot] <- -1
+    for account in 0..<account_count:
+        parent[account] <- account
+
+    email_reference_count: mutable usize = 0
+    position: mutable usize = 1
+    account: mutable usize = 0
+    while account < account_count:
+        if position >= length or values[position] < 1 or values[position] > 64:
+            return -1
+        owner_length: usize = values[position].usize()
+        position <- position + 1
+        if owner_length > length - position:
+            return -1
+        name_start[account] <- position
+        name_length[account] <- owner_length
+        byte: mutable usize = 0
+        while byte < owner_length:
+            if values[position + byte] < 32 or values[position + byte] > 126:
+                return -1
+            byte <- byte + 1
+        position <- position + owner_length
+        if position >= length or values[position] < 0 or values[position] > 1024:
+            return -1
+        account_email_count: usize = values[position].usize()
+        position <- position + 1
+        if account_email_count > MAX_EMAIL_REFERENCES - email_reference_count:
+            return -1
+        entry: mutable usize = 0
+        while entry < account_email_count:
+            if position >= length or values[position] < 1 or values[position] > 64:
+                return -1
+            current_length: usize = values[position].usize()
+            position <- position + 1
+            if current_length > length - position:
+                return -1
+            byte <- 0
+            while byte < current_length:
+                if values[position + byte] < 33 or values[position + byte] > 126:
+                    return -1
+                byte <- byte + 1
+            email_start[email_reference_count] <- position
+            email_length[email_reference_count] <- current_length
+            email_account[email_reference_count] <- account
+            slot: mutable usize = account_merge_hash(values, position, current_length)
+            while table[slot] >= 0:
+                previous: usize = table[slot].usize()
+                if account_merge_compare_text(values, position, current_length,
+                        email_start[previous], email_length[previous]) == 0:
+                    account_merge_join(parent, rank, account, email_account[previous])
+                    break
+                slot <- (slot + 1) & (EMAIL_TABLE_SIZE - 1)
+            if table[slot] < 0:
+                table[slot] <- email_reference_count.i64()
+            email_reference_count <- email_reference_count + 1
+            position <- position + current_length
+            entry <- entry + 1
+        account <- account + 1
+    if position != length:
+        return -1
+
+    group_roots: mutable usize[64] = zeroed
+    root_seen: mutable bool[64] = zeroed
+    group_email_count: mutable usize[64] = zeroed
+    first_email: mutable usize[64] = zeroed
+    first_seen: mutable bool[64] = zeroed
+    group_count: mutable usize = 0
+    account <- 0
+    while account < account_count:
+        root: usize = account_merge_find_root(parent, account)
+        if account_merge_compare_text(values, name_start[account], name_length[account],
+                name_start[root], name_length[root]) != 0:
+            return -1
+        if not root_seen[root]:
+            root_seen[root] <- true
+            group_roots[group_count] <- root
+            group_count <- group_count + 1
+        account <- account + 1
+
+    unique_indices: mutable usize[1024] = zeroed
+    scratch: mutable usize[1024] = zeroed
+    unique_count: mutable usize = 0
+    slot: mutable usize = 0
+    while slot < EMAIL_TABLE_SIZE:
+        if table[slot] >= 0:
+            index: usize = table[slot].usize()
+            email_root[index] <- account_merge_find_root(parent, email_account[index])
+            root: usize = email_root[index]
+            group_email_count[root] <- group_email_count[root] + 1
+            unique_indices[unique_count] <- index
+            unique_count <- unique_count + 1
+        slot <- slot + 1
+    account_merge_sort_emails(values, email_start, email_length, unique_indices, scratch, unique_count)
+    index: mutable usize = 0
+    while index < unique_count:
+        root: usize = email_root[unique_indices[index]]
+        if not first_seen[root]:
+            first_seen[root] <- true
+            first_email[root] <- unique_indices[index]
+        index <- index + 1
+
+    group_index: mutable usize = 1
+    while group_index < group_count:
+        value: usize = group_roots[group_index]
+        destination: mutable usize = group_index
+        while destination > 0:
+            previous_root: usize = group_roots[destination - 1]
+            comparison: i64 = account_merge_compare_text(values,
+                name_start[value], name_length[value], name_start[previous_root], name_length[previous_root])
+            if comparison == 0:
+                left_count: usize = group_email_count[value]
+                right_count: usize = group_email_count[previous_root]
+                if left_count == 0 or right_count == 0:
+                    if left_count != right_count:
+                        comparison <- -1 if left_count == 0 else 1
+                    else:
+                        comparison <- -1 if value < previous_root else 1 if value > previous_root else 0
+                else:
+                    left_email: usize = first_email[value]
+                    right_email: usize = first_email[previous_root]
+                    comparison <- account_merge_compare_text(values, email_start[left_email], email_length[left_email],
+                        email_start[right_email], email_length[right_email])
+                    if comparison == 0:
+                        comparison <- -1 if value < previous_root else 1 if value > previous_root else 0
+            if comparison >= 0:
+                break
+            group_roots[destination] <- previous_root
+            destination <- destination - 1
+        group_roots[destination] <- value
+        group_index <- group_index + 1
+
+    required: mutable usize = 2
+    group_index <- 0
+    while group_index < group_count:
+        root: usize = group_roots[group_index]
+        required <- required + 4 + name_length[root]
+        index <- 0
+        while index < unique_count:
+            email_index: usize = unique_indices[index]
+            if email_root[email_index] == root:
+                required <- required + 2 + email_length[email_index]
+            index <- index + 1
+        group_index <- group_index + 1
+    if output_capacity < required:
+        return -2
+
+    output_position: mutable usize = 0
+    account_merge_write_u16(output, output_position, group_count)
+    group_index <- 0
+    while group_index < group_count:
+        root: usize = group_roots[group_index]
+        account_merge_write_u16(output, output_position, name_length[root])
+        account_merge_write_u16(output, output_position, group_email_count[root])
+        byte <- 0
+        while byte < name_length[root]:
+            output[output_position] <- values[name_start[root] + byte].u8()
+            output_position <- output_position + 1
+            byte <- byte + 1
+        index <- 0
+        while index < unique_count:
+            email_index: usize = unique_indices[index]
+            if email_root[email_index] == root:
+                account_merge_write_u16(output, output_position, email_length[email_index])
+                byte <- 0
+                while byte < email_length[email_index]:
+                    output[output_position] <- values[email_start[email_index] + byte].u8()
+                    output_position <- output_position + 1
+                    byte <- byte + 1
+            index <- index + 1
+        group_index <- group_index + 1
+    output_position.i64()
+
+export fn account_merge(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = account_merge_impl

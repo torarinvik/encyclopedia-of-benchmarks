@@ -1,0 +1,7 @@
+# Return the logical complement on the Boolean 0/1 domain.
+def not_gate_impl(value: i64) -> i64:
+    if value == 0:
+        return 1
+    0
+
+export fn not_gate(value: i64) -> i64 = not_gate_impl
