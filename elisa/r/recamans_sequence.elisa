@@ -1,0 +1,17 @@
+def recamans_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 32:
+        return -1
+    seen: mutable bool[529] = zeroed
+    seen[0] <- true
+    previous: mutable i64 = 0
+    step: mutable i64 = 1
+    while step <= index:
+        candidate: mutable i64 = previous - step
+        if candidate < 0 or seen[candidate.usize()]:
+            candidate <- previous + step
+        seen[candidate.usize()] <- true
+        previous <- candidate
+        step <- step + 1
+    previous
+
+export fn recamans_sequence(index: i64) -> i64 = recamans_sequence_impl

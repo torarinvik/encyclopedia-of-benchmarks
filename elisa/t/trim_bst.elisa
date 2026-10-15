@@ -8,8 +8,8 @@ def trim_bst_valid(nodes: i64&, node_count: usize, root_index: i64) -> bool:
         right: i64 = nodes[3 * index + 2]
         if value < 1 or value > 10000 or left < -1 or right < -1:
             return false
-        if (left >= 0 and left.u64() >= node_count.u64()) or
-           (right >= 0 and right.u64() >= node_count.u64()):
+        if ((left >= 0 and left.u64() >= node_count.u64()) or
+           (right >= 0 and right.u64() >= node_count.u64())):
             return false
         if left >= 0:
             child: usize = left.usize()

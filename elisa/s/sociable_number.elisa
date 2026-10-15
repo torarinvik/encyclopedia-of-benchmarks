@@ -1,0 +1,28 @@
+# Exact-cycle sociable-number check adapted from the pinned Java source.
+def sociable_number_impl(number: u64, cycle_length: u64) -> i64:
+    if number == 0 or number > 100000 or cycle_length < 2 or cycle_length > 3:
+        return -1
+    current: mutable u64 = number
+    step: mutable u64 = 0
+    while step < cycle_length:
+        if current <= 1:
+            current <- 0
+        else:
+            divisor: mutable u64 = 2
+            total: mutable u64 = 1
+            while divisor <= current / divisor:
+                if current % divisor == 0:
+                    other: u64 = current / divisor
+                    total <- total + divisor
+                    if other != divisor:
+                        total <- total + other
+                divisor <- divisor + 1
+            current <- total
+        if current == number:
+            if step == cycle_length - 1:
+                return 1
+            return 0
+        step <- step + 1
+    0
+
+export fn sociable_number(number: u64, cycle_length: u64) -> i64 = sociable_number_impl

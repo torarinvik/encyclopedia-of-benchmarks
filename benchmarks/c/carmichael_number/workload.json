@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "carmichael-number-bounded-v1",
+  "algorithm": "carmichael_number",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": 1,
+    "maximum_value": 10000,
+    "result": "1 for composite Carmichael numbers, 0 otherwise",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":0},
+    {"id":"small_prime","input_value":3,"expected_result":0},
+    {"id":"composite_non_carmichael","input_value":4,"expected_result":0},
+    {"id":"prime_13","input_value":13,"expected_result":0},
+    {"id":"composite_561","input_value":561,"expected_result":1},
+    {"id":"composite_1105","input_value":1105,"expected_result":1},
+    {"id":"composite_562","input_value":562,"expected_result":0},
+    {"id":"prime_near_upper_bound","input_value":9973,"expected_result":0},
+    {"id":"carmichael_8911","input_value":8911,"expected_result":1},
+    {"id":"upper_bound_composite","input_value":10000,"expected_result":0},
+    {"id":"zero_invalid","input_value":0,"expected_result":-1},
+    {"id":"negative_invalid","input_value":-1,"expected_result":-1},
+    {"id":"above_bound_invalid","input_value":10001,"expected_result":-1},
+    {"id":"signed_64_minimum_invalid","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_64_maximum_invalid","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 20
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "bailey-borwein-plouffe-v1",
+  "algorithm": "bailey_borwein_plouffe",
+  "input": {
+    "kind": "one_based_pi_hex_digit_position",
+    "tested_range": [1, 10],
+    "precision": 1000,
+    "precision_origin": "pinned source default",
+    "out_of_range_result": -1,
+    "result_encoding": "hexadecimal digit as numeric nibble 0..15"
+  },
+  "cases": [
+    {"id":"position_zero","input_value":0,"expected_result":-1},
+    {"id":"negative_position","input_value":-1,"expected_result":-1},
+    {"id":"hex_digit_1_2","input_value":1,"expected_result":2},
+    {"id":"hex_digit_2_4","input_value":2,"expected_result":4},
+    {"id":"hex_digit_3_3","input_value":3,"expected_result":3},
+    {"id":"hex_digit_4_f","input_value":4,"expected_result":15},
+    {"id":"hex_digit_5_6","input_value":5,"expected_result":6},
+    {"id":"hex_digit_6_a","input_value":6,"expected_result":10},
+    {"id":"hex_digit_7_8","input_value":7,"expected_result":8},
+    {"id":"hex_digit_8_8","input_value":8,"expected_result":8},
+    {"id":"hex_digit_9_8","input_value":9,"expected_result":8},
+    {"id":"hex_digit_10_5","input_value":10,"expected_result":5},
+    {"id":"position_above_bound","input_value":11,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 1,
+    "warmup_rounds": 1,
+    "sample_count": 7
+  }
+}

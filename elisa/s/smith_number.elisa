@@ -1,0 +1,43 @@
+def is_prime(value: i64) -> bool:
+    if value == 2:
+        return true
+    if value < 2 or value % 2 == 0:
+        return false
+    divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 2
+    true
+
+def digit_sum(value_arg: i64) -> i64:
+    value: mutable i64 = value_arg
+    sum: mutable i64 = 0
+    while value != 0:
+        sum <- sum + value % 10
+        value <- value / 10
+    sum
+
+def prime_factor_digit_sum(value: i64) -> i64:
+    sum: mutable i64 = 0
+    remainder: mutable i64 = value
+    factor: mutable i64 = 2
+    while factor <= value / factor:
+        while remainder % factor == 0:
+            sum <- sum + digit_sum(factor)
+            remainder <- remainder / factor
+        factor <- factor + 1
+    if remainder > 1:
+        sum <- sum + digit_sum(remainder)
+    sum
+
+def smith_number_impl(value: i64) -> i64:
+    if value < 1 or value > 2147483647:
+        return -1
+    if is_prime(value):
+        return 0
+    if digit_sum(value) == prime_factor_digit_sum(value):
+        return 1
+    0
+
+export fn smith_number(value: i64) -> i64 = smith_number_impl

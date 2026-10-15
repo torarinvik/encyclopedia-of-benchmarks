@@ -16,3 +16,4 @@ The pinned C LeetCode implementation builds a character-frequency lookup from th
 ## Upstream source
 
 - [TheAlgorithms/C LeetCode 771](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/771.c)
+- [TheAlgorithms/Ruby `jewels_and_stones.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/strings/jewels_and_stones.rb) first defines a brute-force method and then replaces it with a hash-based method of the same name. The latter is the active Ruby implementation and counts each stone whose character appears among the unique jewels, matching this benchmark's lookup-table contract.

@@ -1,0 +1,12 @@
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def fibonacci_formula_impl(input: i64) -> i64:
+    if input < 0 or input > 35:
+        return -1
+    exponent: f64 = (input + 1).f64()
+    seq: f32 = ((1.0 / sqrt(5.0) * pow((1.0 + sqrt(5.0)) / 2.0, exponent)) -
+                (1.0 / sqrt(5.0) * pow((1.0 - sqrt(5.0)) / 2.0, exponent))).f32()
+    seq.i32().i64()
+
+export fn fibonacci_formula(input: i64) -> i64 = fibonacci_formula_impl

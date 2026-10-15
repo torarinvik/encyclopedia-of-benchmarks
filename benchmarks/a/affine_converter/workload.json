@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "affine-converter-binary64-v1",
+  "algorithm": "affine_converter",
+  "function_symbol": "affine_converter",
+  "input": {
+    "kind": "finite_binary64_slope_x_intercept",
+    "operand_range": [
+      -1000.0,
+      1000.0
+    ],
+    "formula": "slope * x + intercept",
+    "operation_order": "multiply slope by x, then add intercept",
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "identity",
+      "input_values": [
+        1.0,
+        42.0,
+        0.0
+      ],
+      "expected_result": 42.0
+    },
+    {
+      "id": "translation",
+      "input_values": [
+        1.0,
+        -7.5,
+        3.25
+      ],
+      "expected_result": -4.25
+    },
+    {
+      "id": "positive_scale",
+      "input_values": [
+        2.5,
+        4.0,
+        0.0
+      ],
+      "expected_result": 10.0
+    },
+    {
+      "id": "negative_slope",
+      "input_values": [
+        -2.0,
+        3.0,
+        1.0
+      ],
+      "expected_result": -5.0
+    },
+    {
+      "id": "fractional_operands",
+      "input_values": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "expected_result": 0.32
+    },
+    {
+      "id": "zero_slope",
+      "input_values": [
+        0.0,
+        12.5,
+        -3.0
+      ],
+      "expected_result": -3.0
+    },
+    {
+      "id": "cancellation",
+      "input_values": [
+        999.5,
+        -1.0,
+        -999.5
+      ],
+      "expected_result": -1999.0
+    },
+    {
+      "id": "negative_translation",
+      "input_values": [
+        1.0,
+        -40.0,
+        -32.0
+      ],
+      "expected_result": -72.0
+    },
+    {
+      "id": "unit_slope_offset",
+      "input_values": [
+        -1.0,
+        -100.0,
+        25.0
+      ],
+      "expected_result": 125.0
+    },
+    {
+      "id": "operand_upper_bounds",
+      "input_values": [
+        1000.0,
+        1000.0,
+        1000.0
+      ],
+      "expected_result": 1001000.0
+    },
+    {
+      "id": "operand_lower_bounds",
+      "input_values": [
+        -1000.0,
+        1000.0,
+        -1000.0
+      ],
+      "expected_result": -1001000.0
+    },
+    {
+      "id": "zero_everywhere",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    }
+  ]
+}

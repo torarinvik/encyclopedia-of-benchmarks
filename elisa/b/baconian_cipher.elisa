@@ -1,0 +1,218 @@
+# Baconian cipher with Java, Python, and Rust source dialects.
+def bacon_upper(value: i64) -> i64:
+    if value >= 97 and value <= 122:
+        return value - 32
+    value
+
+def bacon_python_code_for_letter(upper: i64) -> i64:
+    if upper >= 65 and upper <= 73:
+        return upper - 65
+    if upper == 74:
+        return 28
+    if upper >= 75 and upper <= 85:
+        return upper - 66
+    if upper == 86:
+        return 29
+    if upper >= 87 and upper <= 90:
+        return upper - 67
+    -1
+
+def bacon_python_letter_for_code(code: i64) -> i64:
+    if code >= 0 and code <= 8:
+        return 97 + code
+    if code == 28:
+        return 106
+    if code == 29:
+        return 118
+    if code >= 9 and code <= 19:
+        return 97 + code + 1
+    if code >= 20 and code <= 23:
+        return 97 + code + 2
+    -1
+
+def bacon_decode_code(values: i64&, start: usize) -> i64:
+    code: mutable i64 = 0
+    for bit in 0..<5 |bit, values, code|:
+        code <- (code * 2) + (values[start + bit] == 66).i64()
+    code
+
+def bacon_write_code(output: mutable u8&, position: usize, code: i64) -> usize:
+    for bit in 0..<5 |bit, output, code|:
+        letter: mutable i64 = 65
+        if ((code >> (4 - bit)) % 2) == 1:
+            letter <- 66
+        output[position + bit] <- letter.u8()
+    position + 5
+
+def bacon_python_decode_length(values: i64&, start: usize, length: usize) -> i64:
+    words: mutable usize = 0
+    letters: mutable usize = 0
+    used: mutable usize = 0
+    code: mutable i64 = 0
+    in_word: mutable bool = false
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[start + index]
+        if value == 32:
+            if used != 0:
+                return -1
+            if in_word:
+                words <- words + 1
+                in_word <- false
+        else:
+            if value != 65 and value != 66:
+                return -1
+            in_word <- true
+            code <- code * 2 + (value == 66).i64()
+            used <- used + 1
+            if used == 5:
+                if bacon_python_letter_for_code(code) < 0:
+                    return -1
+                letters <- letters + 1
+                used <- 0
+                code <- 0
+        index <- index + 1
+    if used != 0:
+        return -1
+    if in_word:
+        words <- words + 1
+    word_separators: mutable usize = words
+    if words > 0:
+        word_separators <- words - 1
+    (letters + word_separators).i64()
+
+def baconian_cipher_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 1026:
+        return -1
+    mode: i64 = values[0]
+    dialect: i64 = values[1]
+    if (mode != 0 and mode != 1) or dialect < 0 or dialect > 2:
+        return -1
+    n: usize = length - 2
+    for index in 0..<n |index, values|:
+        if values[index + 2] < 0 or values[index + 2] > 127:
+            return -1
+
+    if mode == 0:
+        for index in 0..<n |index, values|:
+            value: i64 = values[index + 2]
+            upper: i64 = bacon_upper(value)
+            is_letter: bool = upper >= 65 and upper <= 90
+            if dialect == 1 and value != 32 and not is_letter:
+                return -1
+            if dialect == 2 and is_letter and upper > 88:
+                return -1
+
+    output_length: mutable usize = 0
+    if mode == 0:
+        for index in 0..<n |index, values, output_length|:
+            value: i64 = values[index + 2]
+            upper: i64 = bacon_upper(value)
+            is_letter: bool = upper >= 65 and upper <= 90
+            if dialect == 0:
+                if is_letter:
+                    output_length <- output_length + 5
+            elif dialect == 1:
+                if value == 32:
+                    output_length <- output_length + 1
+                elif is_letter:
+                    output_length <- output_length + 5
+            else:
+                if is_letter:
+                    output_length <- output_length + 5
+                else:
+                    output_length <- output_length + 1
+    elif dialect == 0:
+        if n % 5 != 0:
+            return -1
+        for index in 0..<n |index, values|:
+            if values[index + 2] != 65 and values[index + 2] != 66:
+                return -1
+        index: mutable usize = 0
+        while index < n:
+            if bacon_decode_code(values, index + 2) > 25:
+                return -1
+            index <- index + 5
+        output_length <- n / 5
+    elif dialect == 1:
+        decoded_length: i64 = bacon_python_decode_length(values, 2, n)
+        if decoded_length < 0:
+            return -1
+        output_length <- decoded_length.usize()
+    else:
+        output_length <- (n + 4) / 5
+    if output_capacity < output_length:
+        return -2
+
+    write: mutable usize = 0
+    if mode == 0:
+        for index in 0..<n |index, values, output, write|:
+            value: i64 = values[index + 2]
+            upper: i64 = bacon_upper(value)
+            if dialect == 0:
+                if upper >= 65 and upper <= 90:
+                    code: mutable i64 = upper - 65
+                    if upper == 73:
+                        code <- 9
+                    write <- bacon_write_code(output, write, code)
+            elif dialect == 1:
+                if value == 32:
+                    output[write] <- 32.u8()
+                    write <- write + 1
+                else:
+                    write <- bacon_write_code(output, write, bacon_python_code_for_letter(upper))
+            else:
+                if upper >= 65 and upper <= 90:
+                    write <- bacon_write_code(output, write, upper - 65)
+                else:
+                    output[write] <- value.u8()
+                    write <- write + 1
+    elif dialect == 0:
+        index: mutable usize = 0
+        while index < n:
+            code: i64 = bacon_decode_code(values, index + 2)
+            value: mutable i64 = 65 + code
+            if code == 8 or code == 9:
+                value <- 73
+            output[write] <- value.u8()
+            write <- write + 1
+            index <- index + 5
+    elif dialect == 1:
+        index: mutable usize = 0
+        first_word: mutable bool = true
+        while index < n:
+            while index < n and values[index + 2] == 32:
+                index <- index + 1
+            if index == n:
+                break
+            if not first_word:
+                output[write] <- 32.u8()
+                write <- write + 1
+            first_word <- false
+            while index < n and values[index + 2] != 32:
+                output[write] <- bacon_python_letter_for_code(bacon_decode_code(values, index + 2)).u8()
+                write <- write + 1
+                index <- index + 5
+    else:
+        index: mutable usize = 0
+        while index < n:
+            if n - index < 5:
+                output[write] <- 32.u8()
+                write <- write + 1
+                break
+            code: mutable i64 = 0
+            valid: mutable bool = true
+            for bit in 0..<5 |bit, values, index, code, valid|:
+                value: i64 = values[index + 2 + bit]
+                if value != 65 and value != 66:
+                    valid <- false
+                code <- code * 2 + (value == 66).i64()
+            if valid and code < 24:
+                output[write] <- (65 + code).u8()
+            else:
+                output[write] <- 32.u8()
+            write <- write + 1
+            index <- index + 5
+    output_length.i64()
+
+export fn baconian_cipher(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = baconian_cipher_impl

@@ -1,0 +1,12 @@
+def sum_of_arithmetic_series_impl(packed: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    a: i64 = packed[0]
+    d: i64 = packed[1]
+    n: i64 = packed[2]
+    if a < -1000 or a > 1000 or d < -1000 or d > 1000 or n < 1 or n > 1000:
+        return -1.0e300
+    result: i64 = n * (2 * a + (n - 1) * d) / 2
+    result.f64()
+
+export fn sum_of_arithmetic_series(packed: i64&, length: usize) -> f64 = sum_of_arithmetic_series_impl

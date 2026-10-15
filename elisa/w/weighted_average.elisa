@@ -1,0 +1,22 @@
+def weighted_average_impl(packed: i64&, length: usize) -> f64:
+    if length < 1 or length > 129:
+        return -1.0e300
+    n: i64 = packed[0]
+    if n < 1 or n > 64 or length != (1 + 2 * n).usize():
+        return -1.0e300
+    weighted_sum: mutable i64 = 0
+    total_weight: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < n:
+        value: i64 = packed[(1 + index).usize()]
+        weight: i64 = packed[(1 + n + index).usize()]
+        if value < -1000000 or value > 1000000 or weight < -1000000 or weight > 1000000:
+            return -1.0e300
+        weighted_sum <- weighted_sum + value * weight
+        total_weight <- total_weight + weight
+        index <- index + 1
+    if total_weight == 0:
+        return -1.0e300
+    weighted_sum.f64() / total_weight.f64()
+
+export fn weighted_average(packed: i64&, length: usize) -> f64 = weighted_average_impl

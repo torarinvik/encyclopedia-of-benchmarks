@@ -1,0 +1,15 @@
+def van_ecks_sequence_impl(position: i64) -> i64:
+    if position < 1 or position > 16:
+        return -1
+    last_seen: mutable i64[17] = zeroed
+    previous: mutable i64 = 0
+    for current in 2..position:
+        next: i64 = if last_seen[previous.usize()] == 0:
+            0
+        else:
+            current - last_seen[previous.usize()]
+        last_seen[previous.usize()] <- current
+        previous <- next
+    previous
+
+export fn van_ecks_sequence(position: i64) -> i64 = van_ecks_sequence_impl

@@ -1,0 +1,140 @@
+const SUDOKU_CELLS: usize = 81
+const ALL_DIGITS: i64 = 1022
+
+def sudoku_mrv_is_single(candidates: i64) -> bool:
+    candidates != 0 and (candidates & (candidates - 1)) == 0
+
+def sudoku_mrv_eliminate(candidates: mutable i64&, cell: usize, removed: i64) -> bool:
+    if (candidates[cell] & removed) == 0:
+        return true
+    candidates[cell] <- candidates[cell] & (ALL_DIGITS ^ removed)
+    remaining: i64 = candidates[cell]
+    if remaining == 0:
+        return false
+
+    if sudoku_mrv_is_single(remaining):
+        peer: mutable usize = 0
+        while peer < SUDOKU_CELLS:
+            if peer != cell:
+                row: usize = cell / 9
+                column: usize = cell % 9
+                peer_row: usize = peer / 9
+                peer_column: usize = peer % 9
+                shares_row: bool = row == peer_row
+                shares_column: bool = column == peer_column
+                shares_box: bool = row / 3 == peer_row / 3 and column / 3 == peer_column / 3
+                if (shares_row or shares_column or shares_box) and not sudoku_mrv_eliminate(candidates, peer, remaining):
+                    return false
+            peer <- peer + 1
+
+    row: usize = cell / 9
+    column: usize = cell % 9
+    box_row: usize = (row / 3) * 3
+    box_column: usize = (column / 3) * 3
+    unit: mutable usize = 0
+    while unit < 3:
+        only_place: mutable usize = 0
+        place_count: mutable usize = 0
+        offset: mutable usize = 0
+        while offset < 9:
+            place: mutable usize = 0
+            if unit == 0:
+                place <- row * 9 + offset
+            elif unit == 1:
+                place <- offset * 9 + column
+            else:
+                place <- (box_row + offset / 3) * 9 + box_column + offset % 3
+            if (candidates[place] & removed) != 0:
+                only_place <- place
+                place_count <- place_count + 1
+            offset <- offset + 1
+        if place_count == 0:
+            return false
+        if place_count == 1 and not sudoku_mrv_assign(candidates, only_place, removed):
+            return false
+        unit <- unit + 1
+    true
+
+def sudoku_mrv_assign(candidates: mutable i64&, cell: usize, selected: i64) -> bool:
+    if (candidates[cell] & selected) == 0:
+        return false
+    other: mutable i64 = candidates[cell] & (ALL_DIGITS ^ selected)
+    while other != 0:
+        bit: i64 = other & -other
+        other <- other ^ bit
+        if not sudoku_mrv_eliminate(candidates, cell, bit):
+            return false
+    true
+
+def sudoku_mrv_search(candidates: mutable i64&) -> bool:
+    best_cell: mutable usize = SUDOKU_CELLS
+    best_count: mutable usize = 10
+    cell: mutable usize = 0
+    while cell < SUDOKU_CELLS:
+        count: mutable usize = 0
+        bits: mutable i64 = candidates[cell]
+        while bits != 0:
+            count <- count + 1
+            bits <- bits & (bits - 1)
+        if count == 0:
+            return false
+        if count > 1 and count < best_count:
+            best_cell <- cell
+            best_count <- count
+        cell <- cell + 1
+    if best_cell == SUDOKU_CELLS:
+        return true
+
+    choices: i64 = candidates[best_cell]
+    digit: mutable i64 = 1
+    while digit <= 9:
+        bit: i64 = 1 << digit
+        if (choices & bit) != 0:
+            branch: mutable i64[81] = zeroed
+            cell <- 0
+            while cell < SUDOKU_CELLS:
+                branch[cell] <- candidates[cell]
+                cell <- cell + 1
+            if sudoku_mrv_assign(&branch[0], best_cell, bit) and sudoku_mrv_search(&branch[0]):
+                cell <- 0
+                while cell < SUDOKU_CELLS:
+                    candidates[cell] <- branch[cell]
+                    cell <- cell + 1
+                return true
+        digit <- digit + 1
+    false
+
+def sudoku_solver_mrv_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length != SUDOKU_CELLS:
+        return -1
+    candidates: mutable i64[81] = zeroed
+    cell: mutable usize = 0
+    while cell < SUDOKU_CELLS:
+        if values[cell] < 0 or values[cell] > 9:
+            return -1
+        candidates[cell] <- ALL_DIGITS
+        cell <- cell + 1
+    cell <- 0
+    while cell < SUDOKU_CELLS:
+        if values[cell] != 0 and not sudoku_mrv_assign(&candidates[0], cell, 1 << values[cell]):
+            return -1
+        cell <- cell + 1
+    if not sudoku_mrv_search(&candidates[0]):
+        return -1
+    if output_capacity < 4 * SUDOKU_CELLS:
+        return -2
+    cell <- 0
+    while cell < SUDOKU_CELLS:
+        digit: mutable i64 = 1
+        while (candidates[cell] & (1 << digit)) == 0:
+            digit <- digit + 1
+        output[cell * 4] <- (digit & 255).u8()
+        output[cell * 4 + 1] <- ((digit >> 8) & 255).u8()
+        output[cell * 4 + 2] <- ((digit >> 16) & 255).u8()
+        output[cell * 4 + 3] <- ((digit >> 24) & 255).u8()
+        cell <- cell + 1
+    81
+
+export fn sudoku_solver_mrv(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = sudoku_solver_mrv_impl

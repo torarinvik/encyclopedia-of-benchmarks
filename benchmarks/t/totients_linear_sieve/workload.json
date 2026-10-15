@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "totients-linear-sieve-v1",
+  "algorithm": "totients_linear_sieve",
+  "input": {
+    "minimum": 1,
+    "maximum": 80,
+    "out_of_range_result": -1,
+    "encoding": "comma_separated_decimal",
+    "meaning": "Euler totients phi(1) through phi(n), computed by the linear sieve and emitted in ascending input order"
+  },
+  "cases": [
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "n_1",
+      "input_value": 1,
+      "expected_result": 1,
+      "expected_output": "1"
+    },
+    {
+      "id": "n_2",
+      "input_value": 2,
+      "expected_result": 3,
+      "expected_output": "1,1"
+    },
+    {
+      "id": "n_3",
+      "input_value": 3,
+      "expected_result": 5,
+      "expected_output": "1,1,2"
+    },
+    {
+      "id": "n_4",
+      "input_value": 4,
+      "expected_result": 7,
+      "expected_output": "1,1,2,2"
+    },
+    {
+      "id": "n_7",
+      "input_value": 7,
+      "expected_result": 13,
+      "expected_output": "1,1,2,2,4,2,6"
+    },
+    {
+      "id": "n_12",
+      "input_value": 12,
+      "expected_result": 24,
+      "expected_output": "1,1,2,2,4,2,6,4,6,4,10,4"
+    },
+    {
+      "id": "n_20",
+      "input_value": 20,
+      "expected_result": 43,
+      "expected_output": "1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8"
+    },
+    {
+      "id": "n_30",
+      "input_value": 30,
+      "expected_result": 71,
+      "expected_output": "1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8,12,10,22,8,20,12,18,12,28,8"
+    },
+    {
+      "id": "n_50",
+      "input_value": 50,
+      "expected_result": 131,
+      "expected_output": "1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8,12,10,22,8,20,12,18,12,28,8,30,16,20,16,24,12,36,18,24,16,40,12,42,20,24,22,46,16,42,20"
+    },
+    {
+      "id": "n_80",
+      "input_value": 80,
+      "expected_result": 221,
+      "expected_output": "1,1,2,2,4,2,6,4,6,4,10,4,12,6,8,8,16,6,18,8,12,10,22,8,20,12,18,12,28,8,30,16,20,16,24,12,36,18,24,16,40,12,42,20,24,22,46,16,42,20,32,24,52,18,40,24,36,28,58,16,60,30,36,32,48,20,66,32,44,24,70,24,72,36,40,36,60,24,78,32"
+    },
+    {
+      "id": "first_above_range",
+      "input_value": 81,
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "function_symbol": "totients_linear_sieve"
+}

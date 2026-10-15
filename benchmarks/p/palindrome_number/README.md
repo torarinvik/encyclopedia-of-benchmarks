@@ -13,6 +13,8 @@ The pinned C source uses half reversal. Dart and Java use full reversal; local p
 
 ## Workload and verification
 
+Additional numeric sources use the same decimal palindrome predicate on this benchmark’s nonnegative integer domain: [R `isPalindrome.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/isPalindrome.r), [TypeScript `is_palindrome.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/is_palindrome.ts), and [JavaScript `IsPalindrome.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/IsPalindrome.js).
+
 [`workload.json`](workload.json) covers zero, one-digit values, odd- and even-length palindromes, trailing zeros, inner zeros, signed 32-bit boundaries, and invalid values. [`verify_scalar.py`](../../verify_scalar.py) includes this algorithm in its independent string-reversal oracle and exhaustive, random, and boundary inputs across all nine languages.
 
 ```sh
@@ -26,3 +28,6 @@ Build and record with the `scalar` ABI family. Sources are under `p/` in `c/`, `
 - [C LeetCode `9.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/9.c) reverses half the number and compares the remaining and reversed halves.
 - [Dart `palindrome_number.dart`](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/palindrome_number.dart) reverses all decimal digits and rejects negative input by throwing.
 - [Java `PalindromeNumber.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PalindromeNumber.java) also uses full reversal and rejects negative values.
+- [C++ `palindrome_of_number.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/palindrome_of_number.cpp) compares the integer’s decimal text with its reversed text.
+- [JavaScript `isPalindromeIntegerNumber.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/isPalindromeIntegerNumber.js) reverses decimal digits after rejecting non-integers and negatives.
+- [MATLAB-Octave `isPalindromeNumber.m`](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/project-euler/Problem4/isPalindromeNumber.m) compares nonnegative number text with its reversal.

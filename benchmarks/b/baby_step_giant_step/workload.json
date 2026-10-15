@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "baby-step-giant-step-v1",
+  "algorithm": "baby_step_giant_step",
+  "input": {
+    "layout": "[a, b, n]",
+    "minimum_modulus": 1,
+    "maximum_modulus": 1000000007,
+    "canonical_residues": true,
+    "no_solution_result": -1,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "modulus_one", "input_values": [0, 0, 1], "expected_result": 1},
+    {"id": "source_small_example", "input_values": [5, 3, 11], "expected_result": 2},
+    {"id": "source_non_primitive_base", "input_values": [3, 83, 100], "expected_result": 9},
+    {"id": "source_target_one", "input_values": [9, 1, 61], "expected_result": 5},
+    {"id": "source_longer_solution", "input_values": [5, 1, 67], "expected_result": 22},
+    {"id": "source_composite_modulus", "input_values": [7, 1, 45], "expected_result": 12},
+    {"id": "solution_at_one", "input_values": [2, 2, 7], "expected_result": 1},
+    {"id": "zero_target_no_solution", "input_values": [2, 0, 7], "expected_result": -1},
+    {"id": "source_no_solution_1", "input_values": [7, 6, 45], "expected_result": -1},
+    {"id": "source_no_solution_2", "input_values": [23, 15, 85], "expected_result": -1},
+    {"id": "non_coprime_base", "input_values": [2, 1, 84], "expected_result": -1},
+    {"id": "source_large_modulus", "input_values": [3, 311401496, 998244353], "expected_result": 178105253},
+    {"id": "upper_bound_modulus", "input_values": [5, 324637211, 1000000007], "expected_result": 976653449},
+    {"id": "empty_input", "input_values": [], "expected_result": -1},
+    {"id": "wrong_input_length", "input_values": [5, 3], "expected_result": -1},
+    {"id": "negative_base", "input_values": [-1, 0, 7], "expected_result": -1},
+    {"id": "base_not_canonical", "input_values": [7, 1, 7], "expected_result": -1},
+    {"id": "target_not_canonical", "input_values": [2, 7, 7], "expected_result": -1},
+    {"id": "zero_modulus", "input_values": [1, 0, 0], "expected_result": -1},
+    {"id": "modulus_above_bound", "input_values": [2, 1, 1000000008], "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

@@ -1,0 +1,40 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+
+# Return the source's extracted hexadecimal digit as a numeric nibble.
+def modular_power_16_impl(exponent_value: i64, modulus: i64) -> i64:
+    result: mutable i64 = 1 % modulus
+    base: mutable i64 = 16 % modulus
+    remaining: mutable i64 = exponent_value
+    while remaining > 0:
+        if remaining % 2 == 1:
+            result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        remaining <- remaining / 2
+    result
+
+def bbp_subsum_impl(position: i64, addend: i64) -> f64:
+    total: f64 =
+        while index < position + 1000 |index: mutable i64 = 0, current: f64 = 0.0| -> current:
+            denominator: i64 = 8 * index + addend
+            exponent: i64 = position - 1 - index
+            term: f64 =
+                if index < position:
+                    (modular_power_16_impl(exponent, denominator) as f64) / (denominator as f64)
+                else:
+                    pow(16.0, exponent as f64) / (denominator as f64)
+            current <- current + term
+            index <- index + 1
+    total
+
+def bailey_borwein_plouffe_impl(position: i64) -> i64:
+    if position < 1 or position > 10:
+        return -1
+    sum_result: f64 = 4.0 * bbp_subsum_impl(position, 1)
+        - 2.0 * bbp_subsum_impl(position, 4)
+        - bbp_subsum_impl(position, 5)
+        - bbp_subsum_impl(position, 6)
+    fractional: f64 = sum_result - floor(sum_result)
+    (fractional * 16.0) as i64
+
+export fn bailey_borwein_plouffe(position: i64) -> i64 = bailey_borwein_plouffe_impl

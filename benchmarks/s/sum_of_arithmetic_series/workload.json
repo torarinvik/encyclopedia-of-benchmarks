@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-arithmetic-series-packed-i64-binary64-v1",
+  "algorithm": "sum_of_arithmetic_series",
+  "function_symbol": "sum_of_arithmetic_series",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": ["a", "d", "n"],
+    "required_length": 3,
+    "a_minimum": -1000,
+    "a_maximum": 1000,
+    "d_minimum": -1000,
+    "d_maximum": 1000,
+    "n_minimum": 1,
+    "n_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "n * (2*a + (n-1)*d) / 2",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"natural_numbers_1_to_10","input_values":[1,1,10],"input_length":3,"expected_result":55.0},
+    {"id":"positive_common_difference","input_values":[2,3,4],"input_length":3,"expected_result":26.0},
+    {"id":"constant_series","input_values":[5,0,3],"input_length":3,"expected_result":15.0},
+    {"id":"single_term","input_values":[1,2,1],"input_length":3,"expected_result":1.0},
+    {"id":"negative_common_difference","input_values":[1,-1,5],"input_length":3,"expected_result":-5.0},
+    {"id":"negative_first_term","input_values":[-7,4,6],"input_length":3,"expected_result":18.0},
+    {"id":"all_negative_terms","input_values":[-10,-3,5],"input_length":3,"expected_result":-80.0},
+    {"id":"maximum_positive_result","input_values":[1000,1000,1000],"input_length":3,"expected_result":500500000.0},
+    {"id":"maximum_negative_result","input_values":[-1000,-1000,1000],"input_length":3,"expected_result":-500500000.0},
+    {"id":"zero_terms_outside_domain","input_values":[1,1,0],"input_length":3,"expected_result":-1e300},
+    {"id":"negative_term_count","input_values":[1,1,-1],"input_length":3,"expected_result":-1e300},
+    {"id":"first_term_out_of_range","input_values":[1001,1,2],"input_length":3,"expected_result":-1e300},
+    {"id":"difference_out_of_range","input_values":[0,-1001,2],"input_length":3,"expected_result":-1e300},
+    {"id":"malformed_packed_length","input_values":[1,1,2,4],"input_length":4,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

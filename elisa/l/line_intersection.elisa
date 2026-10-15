@@ -1,0 +1,121 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def line_intersection_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def line_intersection_write_point(output: mutable u8&, capacity: usize,
+        x: f64, y: f64) -> i64:
+    if capacity < 16:
+        return -2
+    line_intersection_write_f64(output, 0, x)
+    line_intersection_write_f64(output, 8, y)
+    1
+
+def line_intersection_same(x1: i64, y1: i64, x2: i64, y2: i64) -> bool:
+    x1 == x2 and y1 == y2
+
+def line_intersection_absolute(value: i64) -> i64:
+    if value < 0:
+        return -value
+    value
+
+def line_intersection_min(left: i64, right: i64) -> i64:
+    if left < right:
+        return left
+    right
+
+def line_intersection_max(left: i64, right: i64) -> i64:
+    if left > right:
+        return left
+    right
+
+def line_intersection_cross(ax: i64, ay: i64, bx: i64, by: i64,
+        px: i64, py: i64) -> i64:
+    (bx - ax) * (py - ay) - (by - ay) * (px - ax)
+
+def line_intersection_on_segment(ax: i64, ay: i64, bx: i64, by: i64,
+        px: i64, py: i64) -> bool:
+    (line_intersection_cross(ax, ay, bx, by, px, py) == 0 and
+        ((ax <= px and px <= bx) or (bx <= px and px <= ax)) and
+        ((ay <= py and py <= by) or (by <= py and py <= ay)))
+
+def line_intersection_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 9:
+        return -1
+    index: mutable usize = 0
+    while index < 8:
+        if values[index] < -10000 or values[index] > 10000:
+            return -1
+        index <- index + 1
+    if values[8] != 0 and values[8] != 1:
+        return -1
+
+    x1: i64 = values[0]
+    y1: i64 = values[1]
+    x2: i64 = values[2]
+    y2: i64 = values[3]
+    x3: i64 = values[4]
+    y3: i64 = values[5]
+    x4: i64 = values[6]
+    y4: i64 = values[7]
+    segments: bool = values[8] == 1
+    p_point: bool = line_intersection_same(x1, y1, x2, y2)
+    q_point: bool = line_intersection_same(x3, y3, x4, y4)
+    if not segments and (p_point or q_point):
+        return -1
+    if segments and p_point and q_point:
+        if line_intersection_same(x1, y1, x3, y3):
+            return line_intersection_write_point(output, output_capacity, x1.f64(), y1.f64())
+        return 0
+    if segments and p_point:
+        if line_intersection_on_segment(x3, y3, x4, y4, x1, y1):
+            return line_intersection_write_point(output, output_capacity, x1.f64(), y1.f64())
+        return 0
+    if segments and q_point:
+        if line_intersection_on_segment(x1, y1, x2, y2, x3, y3):
+            return line_intersection_write_point(output, output_capacity, x3.f64(), y3.f64())
+        return 0
+
+    denominator: i64 = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if denominator == 0:
+        return 0
+    determinant_p: i64 = x1 * y2 - y1 * x2
+    determinant_q: i64 = x3 * y4 - y3 * x4
+    numerator_x: i64 = determinant_p * (x3 - x4) - (x1 - x2) * determinant_q
+    numerator_y: i64 = determinant_p * (y3 - y4) - (y1 - y2) * determinant_q
+    if segments:
+        sign: mutable i64 = 1
+        if denominator < 0:
+            sign <- -1
+        positive_denominator: i64 = line_intersection_absolute(denominator)
+        positive_x: i64 = sign * numerator_x
+        positive_y: i64 = sign * numerator_y
+        p_min_x: i64 = line_intersection_min(x1, x2)
+        p_max_x: i64 = line_intersection_max(x1, x2)
+        q_min_x: i64 = line_intersection_min(x3, x4)
+        q_max_x: i64 = line_intersection_max(x3, x4)
+        p_min_y: i64 = line_intersection_min(y1, y2)
+        p_max_y: i64 = line_intersection_max(y1, y2)
+        q_min_y: i64 = line_intersection_min(y3, y4)
+        q_max_y: i64 = line_intersection_max(y3, y4)
+        min_x: i64 = line_intersection_max(p_min_x, q_min_x)
+        max_x: i64 = line_intersection_min(p_max_x, q_max_x)
+        min_y: i64 = line_intersection_max(p_min_y, q_min_y)
+        max_y: i64 = line_intersection_min(p_max_y, q_max_y)
+        if (positive_x < min_x * positive_denominator or positive_x > max_x * positive_denominator or
+                positive_y < min_y * positive_denominator or positive_y > max_y * positive_denominator):
+            return 0
+        return line_intersection_write_point(output, output_capacity,
+            positive_x.f64() / positive_denominator.f64(),
+            positive_y.f64() / positive_denominator.f64())
+    line_intersection_write_point(output, output_capacity,
+        numerator_x.f64() / denominator.f64(), numerator_y.f64() / denominator.f64())
+
+export fn line_intersection(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = line_intersection_impl

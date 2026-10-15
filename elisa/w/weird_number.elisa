@@ -1,0 +1,24 @@
+# Return whether a value is abundant and not semiperfect.
+def weird_number_impl(value: i64) -> i64:
+    if value < 0 or value > 512:
+        return -1
+    if value == 0:
+        return 0
+    reachable: mutable bool[513] = zeroed
+    reachable[0] <- true
+    divisor_sum: mutable i64 = 0
+    divisor: mutable i64 = 1
+    while divisor <= value / 2:
+        if value % divisor == 0:
+            divisor_sum <- divisor_sum + divisor
+            total: mutable i64 = value
+            while total >= divisor:
+                if reachable[(total - divisor).usize()]:
+                    reachable[total.usize()] <- true
+                total <- total - 1
+        divisor <- divisor + 1
+    if divisor_sum > value and not reachable[value.usize()]:
+        return 1
+    0
+
+export fn weird_number(value: i64) -> i64 = weird_number_impl

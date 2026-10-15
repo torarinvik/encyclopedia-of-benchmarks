@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "digit-separation-v1",
+  "algorithm": "digit_separation",
+  "input": {
+    "encoding": "signed_i64_array",
+    "minimum_length": 2,
+    "maximum_length": 2,
+    "meaning": "[signed 64-bit number, direction (0=reverse, 1=forward)]",
+    "digit_encoding": "one byte per digit, numeric byte values 0..9"
+  },
+  "cases": [
+    {
+      "id": "zero_reverse",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "zero_forward",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "sample_reverse",
+      "input_values": [
+        1234567890,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 10,
+      "expected_output_hex": "00090807060504030201"
+    },
+    {
+      "id": "sample_forward",
+      "input_values": [
+        1234567890,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 10,
+      "expected_output_hex": "01020304050607080900"
+    },
+    {
+      "id": "negative_reverse",
+      "input_values": [
+        -987654321012345,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 15,
+      "expected_output_hex": "050403020100010203040506070809"
+    },
+    {
+      "id": "negative_forward",
+      "input_values": [
+        -987654321012345,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 15,
+      "expected_output_hex": "090807060504030201000102030405"
+    },
+    {
+      "id": "minimum_i64_reverse",
+      "input_values": [
+        -9223372036854775808,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 19,
+      "expected_output_hex": "08000805070704050806030002070303020209"
+    },
+    {
+      "id": "minimum_i64_forward",
+      "input_values": [
+        -9223372036854775808,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 19,
+      "expected_output_hex": "09020203030702000306080504070705080008"
+    },
+    {
+      "id": "maximum_i64_forward",
+      "input_values": [
+        9223372036854775807,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 19,
+      "expected_output_hex": "09020203030702000306080504070705080007"
+    },
+    {
+      "id": "invalid_direction",
+      "input_values": [
+        123,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        12
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

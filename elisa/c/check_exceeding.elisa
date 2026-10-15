@@ -1,0 +1,31 @@
+# Check nondecreasing letter gaps after ASCII normalization and filtering.
+def check_exceeding_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -2
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 32 or value > 126:
+            return -2
+        index <- index + 1
+
+    previous_letter: mutable i64 = -1
+    previous_gap: mutable i64 = -1
+    index <- 0
+    while index < length:
+        letter: mutable i64 = values[index]
+        if letter >= 97 and letter <= 122:
+            letter <- letter - 32
+        if letter >= 65 and letter <= 90:
+            if previous_letter >= 0 and letter != previous_letter:
+                gap: mutable i64 = letter - previous_letter
+                if gap < 0:
+                    gap <- -gap
+                if previous_gap >= 0 and gap < previous_gap:
+                    return 0
+                previous_gap <- gap
+            previous_letter <- letter
+        index <- index + 1
+    1
+
+export fn check_exceeding(values: i64&, length: usize) -> i64 = check_exceeding_impl

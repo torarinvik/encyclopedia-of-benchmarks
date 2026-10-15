@@ -1,0 +1,66 @@
+const MAX_INPUT_VALUES: usize = 512
+
+def count_matches(values: i64&, text_length: usize, pattern_length: usize, pattern_start: usize, shifts: usize&) -> usize:
+    if pattern_length == 0:
+        return text_length + 1
+    if pattern_length > text_length:
+        return 0
+    count: mutable usize = 0
+    start: mutable usize = 0
+    while start <= text_length - pattern_length:
+        current: mutable usize = pattern_length
+        while current > 0 and values[pattern_start + current - 1] == values[2 + start + current - 1]:
+            current <- current - 1
+        if current == 0:
+            count <- count + 1
+            start <- start + 1
+        else:
+            tail_value: usize = values[2 + start + pattern_length - 1].usize()
+            start <- start + shifts[tail_value]
+    count
+
+def boyer_moore_horspool_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    if values[0] < 0 or values[0] > 255 or values[1] < 0 or values[1] > 255:
+        return -1
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    pattern_start: usize = 2 + text_length
+    for index in 0..<(text_length + pattern_length):
+        if values[2 + index] < 0 or values[2 + index] > 127:
+            return -1
+
+    shifts: mutable usize[128] = zeroed
+    for byte in 0..<128:
+        shifts[byte] <- pattern_length
+    for index in 0..<pattern_length:
+        if index + 1 < pattern_length:
+            shifts[values[pattern_start + index].usize()] <- pattern_length - 1 - index
+    match_count: usize = count_matches(values, text_length, pattern_length, pattern_start, &shifts[0])
+    if output_capacity < match_count:
+        return -2
+
+    written: mutable usize = 0
+    if pattern_length == 0:
+        for position in 0..<(text_length + 1):
+            output[written] <- position.i64().u8()
+            written <- written + 1
+    elif pattern_length <= text_length:
+        start: mutable usize = 0
+        while start <= text_length - pattern_length:
+            current: mutable usize = pattern_length
+            while current > 0 and values[pattern_start + current - 1] == values[2 + start + current - 1]:
+                current <- current - 1
+            if current == 0:
+                output[written] <- start.i64().u8()
+                written <- written + 1
+                start <- start + 1
+            else:
+                tail_value: usize = values[2 + start + pattern_length - 1].usize()
+                start <- start + shifts[tail_value]
+    written.i64()
+
+export fn boyer_moore_horspool(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = boyer_moore_horspool_impl

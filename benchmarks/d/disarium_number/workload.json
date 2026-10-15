@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "disarium-number-i32-v1",
+  "algorithm": "disarium_number",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      1,
+      99999999
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "disarium": 1,
+      "not_disarium": 0
+    },
+    "definition": "For the decimal digits d1..dk, a positive n is Disarium iff sum(di^i, i=1..k) equals n."
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "eight",
+      "input_value": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "twenty_four",
+      "input_value": 24,
+      "expected_result": 0
+    },
+    {
+      "id": "eighty_nine",
+      "input_value": 89,
+      "expected_result": 1
+    },
+    {
+      "id": "ninety",
+      "input_value": 90,
+      "expected_result": 0
+    },
+    {
+      "id": "classic_135",
+      "input_value": 135,
+      "expected_result": 1
+    },
+    {
+      "id": "neighbor_136",
+      "input_value": 136,
+      "expected_result": 0
+    },
+    {
+      "id": "classic_175",
+      "input_value": 175,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_518",
+      "input_value": 518,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_598",
+      "input_value": 598,
+      "expected_result": 1
+    },
+    {
+      "id": "disarium_1306",
+      "input_value": 1306,
+      "expected_result": 1
+    },
+    {
+      "id": "disarium_1676",
+      "input_value": 1676,
+      "expected_result": 1
+    },
+    {
+      "id": "disarium_2427",
+      "input_value": 2427,
+      "expected_result": 1
+    },
+    {
+      "id": "eight_digit_disarium_2646798",
+      "input_value": 2646798,
+      "expected_result": 1
+    },
+    {
+      "id": "upper_bound",
+      "input_value": 99999999,
+      "expected_result": 0
+    },
+    {
+      "id": "above_upper_bound",
+      "input_value": 100000000,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "dna-complement-v1",
+  "algorithm": "dna",
+  "function_symbol": "dna",
+  "input": {
+    "kind": "signed_64_bit_mode_and_byte_array",
+    "minimum_length": 1,
+    "maximum_length": 1001,
+    "maximum_payload_bytes": 1000,
+    "modes": {
+      "0": "return the complementary DNA strand"
+    },
+    "alphabet": "ASCII A, C, G, and T only",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding_output": "length-delimited DNA ASCII bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_strand",
+      "input_values": [0],
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "source_example_gcta",
+      "input_values": [0, 71, 67, 84, 65],
+      "expected_result": 4,
+      "expected_output": "CGAT"
+    },
+    {
+      "id": "source_example_atgc",
+      "input_values": [0, 65, 84, 71, 67],
+      "expected_result": 4,
+      "expected_output": "TACG"
+    },
+    {
+      "id": "source_example_ctga",
+      "input_values": [0, 67, 84, 71, 65],
+      "expected_result": 4,
+      "expected_output": "GACT"
+    },
+    {
+      "id": "single_base_mappings",
+      "input_values": [0, 65, 84, 67, 71],
+      "expected_result": 4,
+      "expected_output": "TAGC"
+    },
+    {
+      "id": "longer_sequence",
+      "input_values": [0, 65, 67, 71, 84, 65, 67, 71, 84, 71, 71, 67, 65, 84, 84, 65, 67, 71, 67, 84, 65, 71, 67, 84, 65, 84, 67, 71, 65, 67, 84, 71, 65],
+      "expected_result": 32,
+      "expected_output": "TGCATGCACCGTAATGCGATCGATAGCTGACT"
+    },
+    {
+      "id": "invalid_ambiguous_base",
+      "input_values": [0, 71, 70, 71, 71],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "invalid_lowercase",
+      "input_values": [0, 103, 99, 116, 97],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "invalid_byte_range",
+      "input_values": [0, 65, 256],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_byte",
+      "input_values": [0, -1],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "unsupported_mode",
+      "input_values": [1, 65, 84, 67, 71],
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ]
+}

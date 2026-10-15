@@ -1,0 +1,19 @@
+# Check whether the bounded ASCII input is entirely lowercase letters.
+def check_flat_case_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -2
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 32 or value > 126:
+            return -2
+        index <- index + 1
+    index <- 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 97 or value > 122:
+            return 0
+        index <- index + 1
+    1
+
+export fn check_flat_case(values: i64&, length: usize) -> i64 = check_flat_case_impl

@@ -1,0 +1,24 @@
+def sum_divisors(number: u64) -> i64:
+    sum: mutable i64 = 0
+    divisor: mutable u64 = 1
+    while divisor * divisor <= number:
+        if number % divisor == 0:
+            sum <- sum + (divisor as i64)
+            other: u64 = number / divisor
+            if other != divisor:
+                sum <- sum + (other as i64)
+        divisor <- divisor + 1
+    sum
+
+def friendly_number_impl(a: u64, b: u64) -> i64:
+    if a > 1000000 or b > 1000000:
+        return -1
+    if a == 0 or b == 0:
+        return 0
+    sigma_a: i64 = sum_divisors(a)
+    sigma_b: i64 = sum_divisors(b)
+    if sigma_a * (b as i64) == sigma_b * (a as i64):
+        return 1
+    0
+
+export fn friendly_number(a: u64, b: u64) -> i64 = friendly_number_impl

@@ -1,6 +1,6 @@
 # String Search by Brute Force
 
-This benchmark returns the first occurrence of a pattern in a text using a direct scan. C LeetCode 28 contains both a brute-force `strStr` definition and a second `strStr` definition that uses KMP; this benchmark records the brute-force variant, while the KMP variant is covered by the existing [Knuth–Morris–Pratt benchmark](../knuth_morris_pratt/README.md).
+This benchmark returns the first occurrence of a pattern in a text using a direct scan. C LeetCode 28 contains both a brute-force `strStr` definition and a second `strStr` definition that uses KMP; this benchmark records the brute-force variant, while the KMP variant is covered by the existing [Knuth–Morris–Pratt benchmark](../../k/knuth_morris_pratt/README.md).
 
 ## Contract
 

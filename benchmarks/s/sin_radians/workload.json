@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "go-bhaskara-sin-radians-binary64-v1",
+  "algorithm": "sin_radians",
+  "function_symbol": "sin_radians",
+  "input": {
+    "kind": "finite_binary64_radians",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "formula_order": "cos((pi/2)-x): y=(pi/2)-x; y*=1/(2*pi); y-=0.25+floor(y+0.25); y*=16*(abs(y)-0.5); y+=0.225*y*(abs(y)-1)",
+    "invalid_result": -1.0,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"pi_over_six","input_values":[0.5235987755982988],"expected_result":0.5},
+    {"id":"negative_pi_over_six","input_values":[-0.5235987755982988],"expected_result":-0.5},
+    {"id":"pi_over_two","input_values":[1.5707963267948966],"expected_result":1.0},
+    {"id":"pi","input_values":[3.141592653589793],"expected_result":0.0},
+    {"id":"negative_pi_over_two","input_values":[-1.5707963267948966],"expected_result":-1.0},
+    {"id":"shifted_one_radian","input_values":[0.5707963267948966],"expected_result":0.5404837362694085},
+    {"id":"shifted_negative_one_radian","input_values":[2.5707963267948966],"expected_result":0.5404837362694083},
+    {"id":"shifted_large_positive_range_reduction","input_values":[-998.4292036732051],"expected_result":0.5626536669905601},
+    {"id":"shifted_large_negative_range_reduction","input_values":[1001.5707963267949],"expected_result":0.5626536669905601},
+    {"id":"lower_input_bound","input_values":[-1000000.0],"expected_result":0.34929582032755563},
+    {"id":"upper_input_bound","input_values":[1000000.0],"expected_result":-0.34929582032755563},
+    {"id":"below_bound_invalid","input_values":[-1000000.1],"expected_result":-1.0},
+    {"id":"above_bound_invalid","input_values":[1000000.1],"expected_result":-1.0}
+  ]
+}

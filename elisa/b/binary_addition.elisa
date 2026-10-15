@@ -19,11 +19,17 @@ def binary_addition_impl(values: i64&, length: usize, output: mutable u8&, outpu
         if digit != 0 and digit != 1:
             return -1
 
-    width: usize = if length_a > length_b: length_a else: length_b
+    width: mutable usize = length_a
+    if length_b > width:
+        width <- length_b
     carry: mutable i64 = 0
     for offset in 0..<width |values, length_a, length_b, carry|:
-        digit_a: i64 = if offset < length_a: values[2 + length_a - 1 - offset] else: 0
-        digit_b: i64 = if offset < length_b: values[2 + length_a + length_b - 1 - offset] else: 0
+        digit_a: mutable i64 = 0
+        digit_b: mutable i64 = 0
+        if offset < length_a:
+            digit_a <- values[2 + length_a - 1 - offset]
+        if offset < length_b:
+            digit_b <- values[2 + length_a + length_b - 1 - offset]
         sum: i64 = digit_a + digit_b + carry
         carry <- sum >> 1
     output_length: usize = width + carry.usize()
@@ -32,8 +38,12 @@ def binary_addition_impl(values: i64&, length: usize, output: mutable u8&, outpu
 
     carry <- 0
     for offset in 0..<width |values, length_a, length_b, carry, output|:
-        digit_a: i64 = if offset < length_a: values[2 + length_a - 1 - offset] else: 0
-        digit_b: i64 = if offset < length_b: values[2 + length_a + length_b - 1 - offset] else: 0
+        digit_a: mutable i64 = 0
+        digit_b: mutable i64 = 0
+        if offset < length_a:
+            digit_a <- values[2 + length_a - 1 - offset]
+        if offset < length_b:
+            digit_b <- values[2 + length_a + length_b - 1 - offset]
         sum: i64 = digit_a + digit_b + carry
         output[width - 1 - offset] <- (48 + (sum & 1)).u8()
         carry <- sum >> 1

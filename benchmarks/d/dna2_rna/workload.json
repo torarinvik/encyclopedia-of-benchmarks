@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "dna-to-rna-replace-t-v1",
+  "algorithm": "dna2_rna",
+  "function_symbol": "dna2_rna",
+  "input": {
+    "kind": "signed_64_bit_mode_and_byte_array",
+    "minimum_length": 1,
+    "maximum_length": 1001,
+    "maximum_payload_bytes": 1000,
+    "modes": {
+      "0": "replace T with U and preserve other uppercase ASCII letters"
+    },
+    "alphabet": "ASCII A through Z",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding_output": "length-delimited RNA ASCII bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_sequence",
+      "input_values": [0],
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "source_example_atgc",
+      "input_values": [0, 65, 84, 71, 67],
+      "expected_result": 4,
+      "expected_output": "AUGC"
+    },
+    {
+      "id": "replace_thymine",
+      "input_values": [0, 65, 67, 71, 84],
+      "expected_result": 4,
+      "expected_output": "ACGU"
+    },
+    {
+      "id": "preserve_other_uppercase_letters",
+      "input_values": [0, 65, 84, 71, 67, 78, 82, 89],
+      "expected_result": 7,
+      "expected_output": "AUGCNRY"
+    },
+    {
+      "id": "longer_sequence",
+      "input_values": [0, 65, 67, 71, 84, 65, 67, 71, 84, 71, 71, 67, 65, 84, 84, 65, 67, 71, 67, 84, 65, 71, 67, 84, 65, 84, 67, 71, 65, 67, 84, 71, 65],
+      "expected_result": 32,
+      "expected_output": "ACGUACGUGGCAUUACGCUAGCUAUCGACUGA"
+    },
+    {
+      "id": "invalid_lowercase",
+      "input_values": [0, 65, 116, 71],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "invalid_nonletter",
+      "input_values": [0, 65, 78, 33],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "invalid_byte_range",
+      "input_values": [0, 65, 256],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "unsupported_mode",
+      "input_values": [1, 65, 84, 71, 67],
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ]
+}

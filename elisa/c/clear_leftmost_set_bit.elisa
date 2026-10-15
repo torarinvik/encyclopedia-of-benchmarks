@@ -1,0 +1,14 @@
+def clear_leftmost_set_bit_impl(value: i64) -> i64:
+    if value < 0 or value > 2147483647:
+        return -1
+    if value == 0:
+        return 0
+    temp: mutable i64 = value
+    position: mutable i64 = 0
+    while temp > 0:
+        temp <- temp >> 1
+        position <- position + 1
+    mask: i64 = ~(1 << (position - 1))
+    value & mask
+
+export fn clear_leftmost_set_bit(value: i64) -> i64 = clear_leftmost_set_bit_impl

@@ -1,0 +1,28 @@
+def count_negative_numbers_in_sorted_matrix_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 514:
+        return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > 512 or columns_value < 1 or columns_value > 512:
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    if rows * columns > 512 or length != 2 + rows * columns:
+        return -1
+    nonnegative: mutable usize = 0
+    bound: mutable usize = columns
+    for row in 0..<rows:
+        left: mutable usize = 0
+        right: mutable usize = bound
+        while left < right:
+            middle: usize = left + (right - left) / 2
+            value: i64 = input[2 + row * columns + middle]
+            if value >= 0:
+                left <- middle + 1
+            else:
+                right <- middle
+        bound <- left
+        nonnegative <- nonnegative + bound
+    (rows * columns - nonnegative).i64()
+
+export fn count_negative_numbers_in_sorted_matrix(input: i64&, length: usize) -> i64 = count_negative_numbers_in_sorted_matrix_impl

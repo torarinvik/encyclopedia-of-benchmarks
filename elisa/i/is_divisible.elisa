@@ -1,0 +1,9 @@
+# Remainder check from the pinned JavaScript and TypeScript sources.
+def is_divisible_impl(dividend: u64, divisor: u64) -> i64:
+    if dividend > 1000000000 or divisor == 0 or divisor > 1000000000:
+        return -1
+    if dividend % divisor == 0:
+        return 1
+    0
+
+export fn is_divisible(dividend: u64, divisor: u64) -> i64 = is_divisible_impl

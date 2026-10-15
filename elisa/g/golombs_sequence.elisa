@@ -1,0 +1,28 @@
+def golombs_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 64:
+        return -1
+    if index == 0:
+        return 1
+    if index <= 2:
+        return 2
+    queue: mutable i64[65] = zeroed
+    queue[0] <- 2
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    generated: mutable i64 = 3
+    value: mutable i64 = 3
+    while generated <= index:
+        repetitions: i64 = queue[head]
+        head <- head + 1
+        repeated: mutable i64 = 0
+        while repeated < repetitions and generated <= index:
+            queue[tail] <- value
+            tail <- tail + 1
+            if generated == index:
+                return value
+            generated <- generated + 1
+            repeated <- repeated + 1
+        value <- value + 1
+    -1
+
+export fn golombs_sequence(index: i64) -> i64 = golombs_sequence_impl

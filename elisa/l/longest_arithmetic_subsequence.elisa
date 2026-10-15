@@ -1,0 +1,41 @@
+# Length of the longest arithmetic subsequence.
+def longest_arithmetic_subsequence_impl(values: i64&, length: usize) -> i64:
+    if length > 64:
+        return -1
+    if length == 0:
+        return 0
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1
+        index <- index + 1
+    if length == 1:
+        return 1
+
+    keys: mutable i64[64][127] = zeroed
+    sizes: mutable i64[64][127] = zeroed
+    maximum: mutable i64 = 2
+    right: mutable usize = 0
+    while right < length:
+        left: mutable usize = 0
+        while left < right:
+            difference: i64 = values[right] - values[left]
+            slot: mutable usize = usize((difference % 127 + 127) % 127)
+            while sizes[left][slot] != 0 and keys[left][slot] != difference:
+                slot <- (slot + 1) % 127
+            candidate: mutable i64 = sizes[left][slot] + 1
+            if sizes[left][slot] == 0:
+                candidate <- 2
+            slot <- usize((difference % 127 + 127) % 127)
+            while sizes[right][slot] != 0 and keys[right][slot] != difference:
+                slot <- (slot + 1) % 127
+            if sizes[right][slot] == 0 or candidate > sizes[right][slot]:
+                keys[right][slot] <- difference
+                sizes[right][slot] <- candidate
+            if candidate > maximum:
+                maximum <- candidate
+            left <- left + 1
+        right <- right + 1
+    maximum
+
+export fn longest_arithmetic_subsequence(values: i64&, length: usize) -> i64 = longest_arithmetic_subsequence_impl

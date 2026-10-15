@@ -1,0 +1,71 @@
+# Deterministic depth-first topological sort with three-color cycle detection.
+def topological_sort_dfs_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length == 0 or length > 66:
+        return -2
+    vertices_value: i64 = values[0]
+    if vertices_value < 0 or vertices_value > 40 or (length - 1) % 2 != 0:
+        return -2
+    vertices: usize = vertices_value.usize()
+    edge_count: usize = (length - 1) / 2
+    adjacency: mutable u64[40] = zeroed
+    state: mutable u8[40] = zeroed
+    dfs_stack: mutable usize[40] = zeroed
+    next_neighbor: mutable usize[40] = zeroed
+    order: mutable usize[40] = zeroed
+
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[1 + 2 * edge]
+        destination_value: i64 = values[2 + 2 * edge]
+        if origin_value < 0 or destination_value < 0:
+            return -2
+        if origin_value.u64() >= vertices.u64() or destination_value.u64() >= vertices.u64():
+            return -2
+        origin: usize = origin_value.usize()
+        destination: usize = destination_value.usize()
+        adjacency[origin] <- adjacency[origin] | (1.u64() << destination)
+        edge <- edge + 1
+
+    count: mutable usize = 0
+    root: mutable usize = 0
+    while root < vertices:
+        if state[root] == 0:
+            top: mutable usize = 0
+            dfs_stack[top] <- root
+            next_neighbor[top] <- 0
+            state[root] <- 1
+            while true:
+                origin: usize = dfs_stack[top]
+                destination: mutable usize = next_neighbor[top]
+                while (destination < vertices and
+                       (adjacency[origin] & (1.u64() << destination)) == 0):
+                    destination <- destination + 1
+                if destination == vertices:
+                    state[origin] <- 2
+                    order[count] <- origin
+                    count <- count + 1
+                    if top == 0:
+                        break
+                    top <- top - 1
+                    continue
+                next_neighbor[top] <- destination + 1
+                if state[destination] == 1:
+                    return -1
+                if state[destination] == 0:
+                    top <- top + 1
+                    dfs_stack[top] <- destination
+                    next_neighbor[top] <- 0
+                    state[destination] <- 1
+        root <- root + 1
+
+    if output_capacity < vertices:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        output[index] <- order[count - 1 - index].u8()
+        index <- index + 1
+    count.i64()
+
+export fn topological_sort_dfs(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = topological_sort_dfs_impl

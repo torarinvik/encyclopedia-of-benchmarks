@@ -1,0 +1,13 @@
+def count_leading_zeros_impl(value: i64) -> i64:
+    if value < -2147483648 or value > 2147483647:
+        return -1
+    if value == 0:
+        return 32
+    mask: mutable i64 = 2147483648
+    count: mutable i64 = 0
+    while (mask & value) == 0:
+        count <- count + 1
+        mask <- mask >> 1
+    count
+
+export fn count_leading_zeros(value: i64) -> i64 = count_leading_zeros_impl

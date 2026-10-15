@@ -1,0 +1,8 @@
+# Future value of an annuity due using the pinned source formula.
+extern pow(base: f64, exponent: f64) -> f64
+
+def annuity_due_future_value_impl(payment: f64, periods: f64, rate: f64) -> f64:
+    annuity_factor: f64 = (pow(1.0 + rate, periods) - 1.0) / rate
+    return payment * annuity_factor * (1.0 + rate)
+
+export fn annuity_due_future_value(payment: f64, periods: f64, rate: f64) -> f64 = annuity_due_future_value_impl

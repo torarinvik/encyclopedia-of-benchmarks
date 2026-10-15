@@ -1,0 +1,93 @@
+# Tarjan low-link cut-edge search for a simple undirected graph.
+const MAX_VERTEX_COUNT: usize = 64
+const MAX_EDGE_COUNT: usize = 2047
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
+
+def bridges_visit(adjacency: u64&, bridge_mask: mutable u64&, discovery: mutable i64&,
+        low: mutable i64&, parent: mutable i64&, vertex_count: usize,
+        vertex: usize, time: mutable usize&) -> void:
+    discovery[vertex] <- time.i64()
+    low[vertex] <- time.i64()
+    time <- time + 1
+    neighbor: mutable usize = 0
+    while neighbor < vertex_count |neighbor, adjacency, bridge_mask, discovery, low, parent, time|:
+        if (adjacency[vertex] & (1.u64() << neighbor)) == 0:
+            neighbor <- neighbor + 1
+            continue
+        if discovery[neighbor] == -1:
+            parent[neighbor] <- vertex.i64()
+            bridges_visit(adjacency, bridge_mask, discovery, low, parent,
+                vertex_count, neighbor, time)
+            if low[neighbor] < low[vertex]:
+                low[vertex] <- low[neighbor]
+            if low[neighbor] > discovery[vertex]:
+                bridge_mask[vertex] <- bridge_mask[vertex] | (1.u64() << neighbor)
+                bridge_mask[neighbor] <- bridge_mask[neighbor] | (1.u64() << vertex)
+        elif neighbor.i64() != parent[vertex] and discovery[neighbor] < low[vertex]:
+            low[vertex] <- discovery[neighbor]
+        neighbor <- neighbor + 1
+
+def bridges_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > i64(MAX_VERTEX_COUNT) or input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT):
+        return -1
+    vertex_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+    adjacency: mutable u64[MAX_VERTEX_COUNT] = zeroed
+    for edge in 0..<edge_count |input, adjacency|:
+        left_value: i64 = input[2 + 2 * edge]
+        right_value: i64 = input[3 + 2 * edge]
+        if left_value < 0 or right_value < 0 or left_value >= vertex_count.i64() or right_value >= vertex_count.i64():
+            return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        adjacency[left] <- adjacency[left] | (1.u64() << right)
+        adjacency[right] <- adjacency[right] | (1.u64() << left)
+    bridge_mask: mutable u64[MAX_VERTEX_COUNT] = zeroed
+    discovery: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    low: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    parent: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    vertex: mutable usize = 0
+    while vertex < MAX_VERTEX_COUNT |vertex, discovery, parent|:
+        discovery[vertex] <- -1
+        parent[vertex] <- -1
+        vertex <- vertex + 1
+    time: mutable usize = 0
+    vertex <- 0
+    while vertex < vertex_count |vertex, discovery, adjacency, bridge_mask, low, parent, time|:
+        if discovery[vertex] == -1:
+            bridges_visit(&adjacency[0], &bridge_mask[0], &discovery[0], &low[0], &parent[0],
+                vertex_count, vertex, time)
+        vertex <- vertex + 1
+    bridge_count: mutable usize = 0
+    left: mutable usize = 0
+    while left < vertex_count |left, vertex_count, bridge_count, bridge_mask|:
+        right: mutable usize = left + 1
+        while right < vertex_count |right, vertex_count, bridge_count, bridge_mask|:
+            if (bridge_mask[left] & (1.u64() << right)) != 0:
+                bridge_count <- bridge_count + 1
+            right <- right + 1
+        left <- left + 1
+    output_length: usize = 2 * bridge_count
+    if output_capacity < output_length:
+        return -2
+    position: mutable usize = 0
+    right: mutable usize = 0
+    left <- 0
+    while left < vertex_count |left, vertex_count, bridge_mask, position, output|:
+        right <- left + 1
+        while right < vertex_count |right, vertex_count, bridge_mask, position, output|:
+            if (bridge_mask[left] & (1.u64() << right)) != 0:
+                output[position] <- left.u8()
+                output[position + 1] <- right.u8()
+                position <- position + 2
+            right <- right + 1
+        left <- left + 1
+    output_length.i64()
+
+export fn bridges(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = bridges_impl

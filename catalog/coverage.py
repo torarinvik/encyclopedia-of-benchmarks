@@ -2,7 +2,8 @@
 """Audit actual file coverage against every pinned filename candidate.
 
 This checks review status and file presence, not algorithm correctness or the
-completeness of algorithm discovery within each upstream file.
+completeness of algorithm discovery within each upstream file. Invalid source
+candidates can be marked as reviewed exclusions and are counted separately.
 """
 
 from __future__ import annotations
@@ -45,18 +46,25 @@ def audit() -> dict:
     complete_algorithms = set()
     for candidate in candidates:
         name = candidate["candidate_id"]
+        excluded = candidate["review_status"] == "reviewed_excluded_invalid_source"
         target = canonical(candidate)
-        benchmark_name = target.get("benchmark_name", target["candidate_id"])
-        additional_names = target.get("additional_benchmark_names", [])
-        candidate_additional_names = candidate.get("additional_benchmark_names", [])
-        if not isinstance(additional_names, list) or not isinstance(candidate_additional_names, list):
-            raise ValueError(f"additional_benchmark_names must be a list for candidate {name}")
-        if candidate is not target:
-            additional_names = [*additional_names, *candidate_additional_names]
-        benchmark_names = [benchmark_name, *additional_names]
-        if (any(not isinstance(item, str) or not item for item in benchmark_names)
-                or len(set(benchmark_names)) != len(benchmark_names)):
-            raise ValueError(f"invalid benchmark names for candidate {name}")
+        if excluded:
+            if ("alias_of" in candidate or "benchmark_name" in candidate
+                    or candidate.get("additional_benchmark_names")):
+                raise ValueError(f"excluded source candidate {name} cannot map to a benchmark")
+            benchmark_names = []
+        else:
+            benchmark_name = target.get("benchmark_name", target["candidate_id"])
+            additional_names = target.get("additional_benchmark_names", [])
+            candidate_additional_names = candidate.get("additional_benchmark_names", [])
+            if not isinstance(additional_names, list) or not isinstance(candidate_additional_names, list):
+                raise ValueError(f"additional_benchmark_names must be a list for candidate {name}")
+            if candidate is not target:
+                additional_names = [*additional_names, *candidate_additional_names]
+            benchmark_names = [benchmark_name, *additional_names]
+            if (any(not isinstance(item, str) or not item for item in benchmark_names)
+                    or len(set(benchmark_names)) != len(benchmark_names)):
+                raise ValueError(f"invalid benchmark names for candidate {name}")
         benchmark_details = []
         for algorithm in benchmark_names:
             letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
@@ -71,37 +79,41 @@ def audit() -> dict:
             benchmark_details.append({"algorithm": algorithm, "missing_languages": missing,
                                       "guide_present": guide.is_file(),
                                       "workload_matches": workload_matches})
-            if "alias_of" not in candidate or algorithm in candidate_additional_names:
+            if not excluded and ("alias_of" not in candidate or algorithm in candidate_additional_names):
                 missing_implementations += len(missing)
         missing = sorted({language for detail in benchmark_details
                           for language in detail["missing_languages"]})
         workload_matches = all(detail["workload_matches"] for detail in benchmark_details)
-        reviewed = candidate["review_status"] == "reviewed_algorithm_semantics"
-        complete = (reviewed and target["review_status"] == "reviewed_algorithm_semantics"
+        reviewed = candidate["review_status"] in {
+            "reviewed_algorithm_semantics", "reviewed_excluded_invalid_source"}
+        complete = (not excluded and reviewed and target["review_status"] == "reviewed_algorithm_semantics"
                     and all(not detail["missing_languages"] and detail["guide_present"]
                             and detail["workload_matches"] for detail in benchmark_details))
         if complete:
             complete_algorithms.update(benchmark_names)
         entries.append({"candidate_id": name, "reviewed": reviewed,
+                        "source_excluded": excluded,
                         "alias_of": candidate.get("alias_of"),
-                        "benchmark_algorithm": benchmark_name,
+                        "benchmark_algorithm": benchmark_names[0] if benchmark_names else None,
                         "benchmark_algorithms": benchmark_names,
                         "benchmark_details": benchmark_details,
                         "missing_languages": missing,
-                        "guide_present": all(detail["guide_present"] for detail in benchmark_details),
-                        "workload_matches": workload_matches,
+                        "guide_present": None if excluded else all(detail["guide_present"] for detail in benchmark_details),
+                        "workload_matches": None if excluded else workload_matches,
                         "files_present_and_reviewed": complete})
     summary = {
         "candidate_count": len(entries),
         "reviewed_candidates": sum(entry["reviewed"] for entry in entries),
         "files_present_and_reviewed": sum(entry["files_present_and_reviewed"] for entry in entries),
+        "reviewed_excluded_sources": sum(entry["source_excluded"] for entry in entries),
             "canonical_candidate_count": sum("alias_of" not in candidate for candidate in candidates),
         "unique_benchmarks_complete": len(complete_algorithms),
         "reviewed_aliases": sum(entry["reviewed"] and entry["alias_of"] is not None for entry in entries),
         "missing_implementation_files": missing_implementations,
         "target_language_count": len(LANGUAGES),
     }
-    summary["candidates_remaining"] = len(entries) - summary["files_present_and_reviewed"]
+    summary["candidates_remaining"] = (len(entries) - summary["files_present_and_reviewed"]
+                                        - summary["reviewed_excluded_sources"])
     return {"scope": "Pinned filename candidate review and file presence; runtime correctness is separate",
             "summary": summary, "candidates": entries}
 

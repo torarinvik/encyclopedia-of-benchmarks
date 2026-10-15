@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "strobogrammatic-ascii-string-v1",
+  "algorithm": "strobogrammatic_number",
+  "function_symbol": "strobogrammatic_number",
+  "input": {
+    "kind": "raw_ascii_codepoint_array",
+    "layout": "one signed 64-bit value per character, in string order, with no terminator",
+    "length_range": [0, 64],
+    "value_range": [0, 127],
+    "rotation_mapping": {"0":"0","1":"1","6":"9","8":"8","9":"6"},
+    "result_encoding": {"strobogrammatic": 1, "other": 0},
+    "empty_string_result": 1,
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty_string","input_values":[],"expected_result":1},
+    {"id":"single_zero","input_values":[48],"expected_result":1},
+    {"id":"single_one","input_values":[49],"expected_result":1},
+    {"id":"mirrored_69","input_values":[54,57],"expected_result":1},
+    {"id":"fixed_pair_88","input_values":[56,56],"expected_result":1},
+    {"id":"source_example_818","input_values":[56,49,56],"expected_result":1},
+    {"id":"source_example_101","input_values":[49,48,49],"expected_result":1},
+    {"id":"source_code_accepts_609","input_values":[54,48,57],"expected_result":1},
+    {"id":"leading_zeroes_are_strings","input_values":[48,48,54,57,48,48],"expected_result":1},
+    {"id":"mismatched_pair","input_values":[54,56],"expected_result":0},
+    {"id":"unmapped_digit","input_values":[49,50,49],"expected_result":0},
+    {"id":"invalid_center","input_values":[54,50,57],"expected_result":0},
+    {"id":"whitespace_not_trimmed","input_values":[32,54,57],"expected_result":0},
+    {"id":"maximum_length_fixed_zeroes","input_values":[48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48],"expected_result":1},
+    {"id":"above_length_bound","input_values":[48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48],"expected_result":-1},
+    {"id":"non_ascii_packed_value","input_values":[54,57,233],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

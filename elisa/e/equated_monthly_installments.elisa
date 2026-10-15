@@ -1,0 +1,12 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+
+def equated_monthly_installments_impl(principal: f64, rate_per_annum: f64, years_to_repay: f64) -> f64:
+    if principal != principal or rate_per_annum != rate_per_annum or years_to_repay != years_to_repay or principal <= 0.0 or principal > 1000000.0 or rate_per_annum < 0.0001 or rate_per_annum > 0.2 or years_to_repay < 1.0 or years_to_repay > 30.0 or floor(years_to_repay) != years_to_repay:
+        return -1.0e300
+    monthly_rate: f64 = rate_per_annum / 12.0
+    payments: f64 = years_to_repay * 12.0
+    factor: f64 = pow(1.0 + monthly_rate, payments)
+    principal * monthly_rate * factor / (factor - 1.0)
+
+export fn equated_monthly_installments(principal: f64, rate_per_annum: f64, years_to_repay: f64) -> f64 = equated_monthly_installments_impl

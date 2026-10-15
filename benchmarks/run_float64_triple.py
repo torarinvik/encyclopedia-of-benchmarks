@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "equated_monthly_installments"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -33,6 +33,75 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                 or (t == 0.0 and not 0.0 <= end <= 360.0)
                 or (t == 1.0 and not 0.0 <= end <= 2.0 * math.pi)):
             raise ValueError("arc_length requires a bounded radius, valid angle, and unit 0 or 1")
+    elif algorithm == "bayes_theorem":
+        valid = (0.0 <= start <= 1.0 and 0.0 <= end <= 1.0 and 0.0 <= t <= 1.0
+                 and end > 0.0 and start * t <= end)
+        if valid and (expected < 0.0 or expected > 1.0):
+            raise ValueError("valid Bayes inputs must produce a posterior in [0, 1]")
+        if not valid and expected != -1.0:
+            raise ValueError("invalid Bayes inputs must use the -1 result sentinel")
+        if valid and expected == -1.0:
+            raise ValueError("valid Bayes inputs cannot use the invalid-input sentinel")
+    elif algorithm == "affine_converter":
+        if any(abs(value) > 1000.0 for value in (start, end, t)):
+            raise ValueError("affine_converter operands must be finite and bounded by 1000")
+        if expected != start * end + t:
+            raise ValueError("affine_converter expected result must equal slope * x + intercept")
+    elif algorithm == "brent_method_extrema":
+        low, high = sorted((start, end))
+        valid = (abs(start) <= 10.0 and abs(end) <= 10.0
+                 and high - low > 1.4901161193847656e-8)
+        target = None
+        if valid and t == 0.0 and low < 2.0 < high:
+            target = 2.0
+        elif valid and t == 0.5 and 0.0 <= low and high <= 2.0 * math.pi and low < math.pi < high:
+            target = math.pi
+        elif valid and t == 1.0 and math.pi <= low and high <= 3.0 * math.pi and low < 2.0 * math.pi < high:
+            target = 2.0 * math.pi
+        if target is None:
+            if expected != -1.0:
+                raise ValueError("invalid Brent inputs must use the -1 result sentinel")
+        elif abs(expected - target) > tolerance * max(1.0, abs(start), abs(end)):
+            raise ValueError("valid Brent inputs must expect the bracketed extremum location")
+    elif algorithm == "annuity_due_future_value":
+        valid = (0.0 <= start <= 10000.0 and end.is_integer()
+                 and 1.0 <= end <= 20.0 and 0.0 < t <= 0.5)
+        if not valid:
+            raise ValueError("annuity_due_future_value requires payment in [0, 10000], integral periods in [1, 20], and rate in (0, 0.5]")
+    elif algorithm == "count_numbers_divisible":
+        valid = (start.is_integer() and end.is_integer() and t.is_integer()
+                 and 1.0 <= start <= end <= 2147483647.0
+                 and 1.0 <= t <= 2147483647.0)
+        if not valid:
+            raise ValueError("count_numbers_divisible requires positive int32 endpoints with first <= last and a positive int32 divisor")
+        expected_count = math.floor(end / t) - math.floor((start - 1.0) / t)
+        if expected != expected_count:
+            raise ValueError("count_numbers_divisible expected result must match the inclusive multiple count")
+    elif algorithm == "sum_of_geometric_progression":
+        valid = (abs(start) <= 1000.0 and -2.0 <= end <= 2.0
+                 and (end == 1.0 or end <= 0.9 or end >= 1.1)
+                 and t.is_integer() and 0.0 <= t <= 16.0)
+        if not valid:
+            raise ValueError("sum_of_geometric_progression requires first term in [-1000, 1000], ratio in [-2, 2] outside (0.9, 1.1) except 1, and integral terms in [0, 16]")
+        expected_sum = (t * start if end == 1.0 else
+                        (start / (1.0 - end)) * (1.0 - math.pow(end, int(t))))
+        if abs(expected - expected_sum) > tolerance * max(1.0, abs(start), abs(end)):
+            raise ValueError("sum_of_geometric_progression expected result must match the finite progression sum")
+    elif algorithm == "equated_monthly_installments":
+        valid = (0.0 < start <= 1_000_000.0 and 0.0001 <= end <= 0.2
+                 and t.is_integer() and 1.0 <= t <= 30.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid equated_monthly_installments inputs must use the -1e300 sentinel")
+        else:
+            if expected == -1e300:
+                raise ValueError("valid equated_monthly_installments inputs cannot use the invalid-input sentinel")
+            monthly_rate = end / 12.0
+            monthly_payments = int(t * 12.0)
+            factor = math.pow(1.0 + monthly_rate, monthly_payments)
+            expected_payment = (start * monthly_rate * factor) / (factor - 1.0)
+            if abs(expected - expected_payment) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("equated_monthly_installments expected result must match the bounded EMI formula")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

@@ -31,7 +31,7 @@ This benchmark solves the 0/1 knapsack problem with bottom-up dynamic programmin
 - [R `1_knapsack_problem.r` (nested)](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/0/0/1_knapsack_problem.r)
 - [R `1_knapsack_problem.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/0/1_knapsack_problem.r)
 
-The C++ and Kotlin filename candidates, plus R candidate `1_knapsack_problem`, are aliases of the Java tabulation benchmark. The generic `knapsack` candidate is a mixed filename group: its Go, Java, Python, Ruby, Rust, Solidity, TypeScript, and Zig implementations are 0/1 variants and alias this benchmark; its two C++ implementations are fractional knapsack and are listed in the [fractional-knapsack guide](../f/fractional_knapsack/README.md). The Python `knapsack/knapsack.py` source also exposes an optional unbounded mode. Recursive and memoized knapsack algorithms remain distinct candidates.
+The C++ and Kotlin filename candidates, plus R candidate `1_knapsack_problem`, are aliases of the Java tabulation benchmark. The generic `knapsack` candidate is a mixed filename group: its Go, Java, Python, Ruby, Rust, Solidity, TypeScript, and Zig implementations are 0/1 variants and alias this benchmark; its two C++ implementations are fractional knapsack and are listed in the [fractional-knapsack guide](../../f/fractional_knapsack/README.md). The Python `knapsack/knapsack.py` source also exposes an optional unbounded mode. Recursive and memoized knapsack algorithms remain distinct candidates.
 
 ## Implementations
 

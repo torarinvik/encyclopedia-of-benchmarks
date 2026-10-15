@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-binary-recursion-v1",
+  "algorithm": "decimal_to_binary_recursion",
+  "function_symbol": "decimal_to_binary_recursion",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 1023],
+    "output_encoding": "decimal integer whose decimal digits are the binary representation",
+    "zero_result": 0,
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":10},
+    {"id":"three","input_value":3,"expected_result":11},
+    {"id":"four","input_value":4,"expected_result":100},
+    {"id":"six","input_value":6,"expected_result":110},
+    {"id":"seven","input_value":7,"expected_result":111},
+    {"id":"ten","input_value":10,"expected_result":1010},
+    {"id":"upper_bound","input_value":1023,"expected_result":1111111111},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"above_bound","input_value":1024,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

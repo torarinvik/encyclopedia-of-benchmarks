@@ -1,0 +1,59 @@
+# Case-sensitive Burrows-Wheeler transform over packed ASCII bytes.
+def bwt_rotation_less(values: i64&, n: usize, left: usize, right: usize) -> bool:
+    while offset < n |offset: mutable usize = 0|:
+        a: i64 = values[1 + (left + offset) % n]
+        b: i64 = values[1 + (right + offset) % n]
+        if a < b:
+            return true
+        if a > b:
+            return false
+        offset <- offset + 1
+    left < right
+
+def burrows_wheeler_transform_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or values[0] < 1 or values[0] > 256:
+        return -1
+    n: usize = values[0].usize()
+    if length != n + 1:
+        return -1
+    while index < length |index: mutable usize = 1|:
+        if values[index] < 0 or values[index] > 127:
+            return -1
+        index <- index + 1
+    output_length: usize = n + 4
+    if output_capacity < output_length:
+        return -2
+
+    order: mutable usize[256] = zeroed
+    while index < n |index: mutable usize = 0, order| -> order:
+        order[index] <- index
+        index <- index + 1
+        order
+    while index < n |index: mutable usize = 1, order| -> order:
+        key: usize = order[index]
+        while position > 0 |position: mutable usize = index, order| -> order:
+            if bwt_rotation_less(values, n, key, order[position - 1]):
+                order[position] <- order[position - 1]
+                position <- position - 1
+            else:
+                position <- 0
+            order
+        order[index] <- key
+        index <- index + 1
+        order
+
+    primary_index: mutable usize = 0
+    while row < n |row: mutable usize = 0, primary_index, order|:
+        if order[row] == 0:
+            primary_index <- row
+        row <- row + 1
+    encoded_index: u32 = primary_index.u32()
+    for byte in 0..<4 |byte, output, encoded_index|:
+        output[byte] <- ((encoded_index >> (byte * 8)) & 255.u32()).u8()
+    while row < n |row: mutable usize = 0, output, order| -> output:
+        output[4 + row] <- values[1 + (order[row] + n - 1) % n].u8()
+        row <- row + 1
+        output
+    output_length.i64()
+
+export fn burrows_wheeler_transform(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = burrows_wheeler_transform_impl

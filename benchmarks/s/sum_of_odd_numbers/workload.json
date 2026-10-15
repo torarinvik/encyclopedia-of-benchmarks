@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "sum-first-n-odd-numbers-int32-safe-v1",
+  "algorithm": "sum_of_odd_numbers",
+  "function_symbol": "sum_of_odd_numbers",
+  "input": {
+    "kind": "nonnegative_int_n_in_signed_i64_abi",
+    "minimum_value": 0,
+    "maximum_value": 46340,
+    "result": "n squared, equal to the sum of the first n positive odd integers",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0],"expected_result":0},
+    {"id":"one","input_values":[1],"expected_result":1},
+    {"id":"two","input_values":[2],"expected_result":4},
+    {"id":"ten","input_values":[10],"expected_result":100},
+    {"id":"one_hundred","input_values":[100],"expected_result":10000},
+    {"id":"maximum_safe_int32_result","input_values":[46340],"expected_result":2147395600},
+    {"id":"negative_invalid","input_values":[-1],"expected_result":-1},
+    {"id":"above_safe_domain","input_values":[46341],"expected_result":-1},
+    {"id":"signed_64_minimum_invalid","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed_64_maximum_invalid","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

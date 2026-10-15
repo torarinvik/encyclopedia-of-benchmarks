@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "python-binary-string-to-gray-preserve-width-v1",
+  "algorithm": "binary_to_gray",
+  "function_symbol": "binary_to_gray",
+  "input": {
+    "kind": "ascii_binary_string",
+    "encoding": "one signed 64-bit value per ASCII byte",
+    "minimum_length": 1,
+    "maximum_length": 66,
+    "accepted_bytes": [
+      48,
+      49
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_binary_string",
+    "definition": "equal-width reflected Gray code; first bit is preserved and each later bit is the XOR of adjacent source bits",
+    "maximum_length": 66,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "single_zero",
+      "input_values": [
+        48
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "single_one",
+      "input_values": [
+        49
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "pinned_1101",
+      "input_values": [
+        49,
+        49,
+        48,
+        49
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "31303131"
+    },
+    {
+      "id": "leading_zeroes",
+      "input_values": [
+        48,
+        48,
+        48,
+        49,
+        48,
+        49,
+        49,
+        48
+      ],
+      "input_length": 8,
+      "expected_result": 8,
+      "expected_output_hex": "3030303131313031"
+    },
+    {
+      "id": "pinned_alternating_bits",
+      "input_values": [
+        49,
+        48,
+        49,
+        48,
+        49,
+        48,
+        49,
+        48
+      ],
+      "input_length": 8,
+      "expected_result": 8,
+      "expected_output_hex": "3131313131313131"
+    },
+    {
+      "id": "all_ones",
+      "input_values": [
+        49,
+        49,
+        49,
+        49
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "31303030"
+    },
+    {
+      "id": "all_zeroes",
+      "input_values": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "30303030"
+    },
+    {
+      "id": "leading_zero_then_ones",
+      "input_values": [
+        48,
+        49,
+        49,
+        49
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "30313030"
+    },
+    {
+      "id": "maximum_width",
+      "input_values": [
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49
+      ],
+      "input_length": 66,
+      "expected_result": 66,
+      "expected_output_hex": "313030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030"
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_ascii_character",
+      "input_values": [
+        49,
+        48,
+        120,
+        49
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii_value",
+      "input_values": [
+        49,
+        256
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

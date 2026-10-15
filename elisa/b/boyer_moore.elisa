@@ -1,0 +1,73 @@
+# Return the first ASCII byte match using bad-character and good-suffix shifts.
+def boyer_moore_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 8194:
+        return -1
+    text_length_value: i64 = input_values[0]
+    pattern_length_value: i64 = input_values[1]
+    if text_length_value < 0 or text_length_value > 4096 or pattern_length_value < 0 or pattern_length_value > 4096:
+        return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    index: mutable usize = 0
+    while index < text_length + pattern_length:
+        value: i64 = input_values[2 + index]
+        if value < 0 or value > 126:
+            return -1
+        index <- index + 1
+    if pattern_length == 0:
+        return 0
+    if pattern_length > text_length:
+        return -1
+
+    pattern_start: usize = 2 + text_length
+    last_occurrence: mutable i64[127] = zeroed
+    byte: mutable usize = 0
+    while byte < 127:
+        last_occurrence[byte] <- -1
+        byte <- byte + 1
+    index <- 0
+    while index < pattern_length:
+        last_occurrence[input_values[pattern_start + index].usize()] <- index.i64()
+        index <- index + 1
+
+    good_suffix: mutable usize[4097] = zeroed
+    border_position: mutable usize[4097] = zeroed
+    i: mutable usize = pattern_length
+    j: mutable usize = pattern_length + 1
+    border_position[i] <- j
+    while i > 0:
+        while j <= pattern_length and input_values[pattern_start + i - 1] != input_values[pattern_start + j - 1]:
+            if good_suffix[j] == 0:
+                good_suffix[j] <- j - i
+            j <- border_position[j]
+        i <- i - 1
+        j <- j - 1
+        border_position[i] <- j
+    j <- border_position[0]
+    i <- 0
+    while i <= pattern_length:
+        if good_suffix[i] == 0:
+            good_suffix[i] <- j
+        if i == j:
+            j <- border_position[j]
+        i <- i + 1
+
+    result: i64 = while alignment <= text_length - pattern_length |alignment: mutable usize = 0, result: mutable i64 = -1| -> result:
+        pattern_index: mutable usize = pattern_length
+        while pattern_index > 0 and input_values[pattern_start + pattern_index - 1] == input_values[2 + alignment + pattern_index - 1]:
+            pattern_index <- pattern_index - 1
+        if pattern_index == 0:
+            break alignment.i64()
+        text_byte: usize = input_values[2 + alignment + pattern_index - 1].usize()
+        bad_shift: mutable i64 = (pattern_index - 1).i64() - last_occurrence[text_byte]
+        if bad_shift < 1:
+            bad_shift <- 1
+        good_shift: mutable usize = good_suffix[pattern_index]
+        if good_shift < bad_shift.usize():
+            good_shift <- bad_shift.usize()
+        alignment <- alignment + good_shift
+    result
+
+export fn boyer_moore(input_values: i64&, length: usize) -> i64 = boyer_moore_impl

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "highest-set-bit-rust-zero-based-i64-v1",
+  "algorithm": "highest_set_bit",
+  "function_symbol": "highest_set_bit",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "positive_result": "zero-based index of the most significant set bit",
+    "zero_result": -1,
+    "negative_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "zero_no_set_bit", "input_value": 0, "expected_result": -1},
+    {"id": "one", "input_value": 1, "expected_result": 0},
+    {"id": "two", "input_value": 2, "expected_result": 1},
+    {"id": "three", "input_value": 3, "expected_result": 1},
+    {"id": "eighteen", "input_value": 18, "expected_result": 4},
+    {"id": "power_of_two", "input_value": 1073741824, "expected_result": 30},
+    {"id": "signed_maximum", "input_value": 9223372036854775807, "expected_result": 62}
+  ]
+}

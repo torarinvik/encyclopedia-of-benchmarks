@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "quartile-c-index-selection-v1",
+  "algorithm": "quartile",
+  "input": {
+    "kind": "signed_64_integer_array",
+    "encoding": "[n, values...]",
+    "n_range": [
+      1,
+      10
+    ],
+    "value_range": [
+      0,
+      99
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_integer_array",
+    "encoding": "[n, sorted_values..., q1, q3, iqr]",
+    "q1_index": "floor(n / 4)",
+    "q3_index": "floor(3*n / 4)",
+    "iqr": "q3 - q1",
+    "successful_result": "output byte count",
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        42
+      ],
+      "input_length": 2,
+      "expected_result": 40
+    },
+    {
+      "id": "four_values",
+      "input_values": [
+        4,
+        9,
+        1,
+        7,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 64
+    },
+    {
+      "id": "odd_count_duplicates",
+      "input_values": [
+        5,
+        4,
+        1,
+        2,
+        3,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": 72
+    },
+    {
+      "id": "source_random_example",
+      "input_values": [
+        8,
+        18,
+        2,
+        15,
+        4,
+        30,
+        0,
+        11,
+        12
+      ],
+      "input_length": 9,
+      "expected_result": 96
+    },
+    {
+      "id": "already_sorted",
+      "input_values": [
+        6,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 7,
+      "expected_result": 80
+    },
+    {
+      "id": "reverse_order",
+      "input_values": [
+        7,
+        99,
+        80,
+        60,
+        40,
+        20,
+        10,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 88
+    },
+    {
+      "id": "invalid_empty_dataset",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_count_mismatch",
+      "input_values": [
+        3,
+        10,
+        20
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "value_outside_source_domain",
+      "input_values": [
+        2,
+        1,
+        100
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

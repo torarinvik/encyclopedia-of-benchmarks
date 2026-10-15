@@ -1,0 +1,33 @@
+# Fermat modular division for a bounded prime modulus.
+def modular_division_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    is_prime: bool =
+        while divisor <= value / divisor |divisor: mutable i64 = 2, prime: mutable bool = true| -> prime:
+            if value % divisor == 0:
+                break false
+            divisor <- divisor + 1
+    is_prime
+
+def modular_division_power_impl(base_input: i64, exponent_input: u64, modulus: i64) -> i64:
+    while exponent > 0 |base: mutable i64 = base_input % modulus, exponent: mutable u64 = exponent_input, result: mutable i64 = 1| -> result:
+        if (exponent & 1.u64()) != 0.u64():
+            result <- (result * base) % modulus
+        exponent <- exponent >> 1
+        base <- (base * base) % modulus
+
+
+def modular_division_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    numerator: i64 = values[0]
+    denominator: i64 = values[1]
+    modulus: i64 = values[2]
+    if numerator < 0 or numerator > 1000000000000 or denominator < 0 or denominator > 1000000000000:
+        return -1
+    if modulus < 2 or modulus > 1000000 or not modular_division_is_prime(modulus) or denominator % modulus == 0:
+        return -1
+    inverse: i64 = modular_division_power_impl(denominator, (modulus - 2).u64(), modulus)
+    ((numerator % modulus) * inverse) % modulus
+
+export fn modular_division(values: i64&, length: usize) -> i64 = modular_division_impl

@@ -1,0 +1,162 @@
+const MAX_NODES: usize = 256
+const MAX_QUERIES: usize = 1024
+const MAX_ARCS: usize = 510
+const MAX_QUERY_ARCS: usize = 2048
+
+def lowest_common_ancestor_tarjan_find_root(parent: mutable usize&, value: usize) -> usize:
+    root: mutable usize = value
+    while parent[root] != root:
+        root <- parent[root]
+    current: mutable usize = value
+    while parent[current] != current:
+        next: usize = parent[current]
+        parent[current] <- root
+        current <- next
+    root
+
+def lowest_common_ancestor_tarjan_join(parent: mutable usize&, rank: mutable usize&,
+        left: usize, right: usize) -> void:
+    left_root: usize = lowest_common_ancestor_tarjan_find_root(parent, left)
+    right_root: usize = lowest_common_ancestor_tarjan_find_root(parent, right)
+    if left_root == right_root:
+        return
+    if rank[left_root] < rank[right_root]:
+        parent[left_root] <- right_root
+    elif rank[left_root] > rank[right_root]:
+        parent[right_root] <- left_root
+    else:
+        parent[right_root] <- left_root
+        rank[left_root] <- rank[left_root] + 1
+
+def lowest_common_ancestor_tarjan_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 4 or input[0] < 1 or input[0] > i64(MAX_NODES):
+        return -1
+    node_count: usize = input[0].usize()
+    if (input[1] < 0 or input[1] >= i64(node_count) or input[2] != i64(node_count - 1) or
+            input[3] < 0 or input[3] > i64(MAX_QUERIES)):
+        return -1
+    root: usize = input[1].usize()
+    edge_count: usize = input[2].usize()
+    query_count: usize = input[3].usize()
+    query_offset: usize = 4 + 2 * edge_count
+    if length != query_offset + 2 * query_count:
+        return -1
+
+    validation_parent: mutable usize[MAX_NODES] = zeroed
+    validation_rank: mutable usize[MAX_NODES] = zeroed
+    dsu_parent: mutable usize[MAX_NODES] = zeroed
+    dsu_rank: mutable usize[MAX_NODES] = zeroed
+    ancestor: mutable usize[MAX_NODES] = zeroed
+    edge_head: mutable i64[MAX_NODES] = zeroed
+    edge_to: mutable usize[MAX_ARCS] = zeroed
+    edge_next: mutable i64[MAX_ARCS] = zeroed
+    query_head: mutable i64[MAX_NODES] = zeroed
+    query_to: mutable usize[MAX_QUERY_ARCS] = zeroed
+    query_next: mutable i64[MAX_QUERY_ARCS] = zeroed
+    query_id: mutable usize[MAX_QUERY_ARCS] = zeroed
+    answers: mutable usize[MAX_QUERIES] = zeroed
+    tree_parent: mutable i64[MAX_NODES] = zeroed
+    cursor: mutable i64[MAX_NODES] = zeroed
+    visited: mutable bool[MAX_NODES] = zeroed
+    finished: mutable bool[MAX_NODES] = zeroed
+    dfs_stack: mutable usize[MAX_NODES] = zeroed
+    for node in 0..<node_count |validation_parent, dsu_parent, ancestor, edge_head, query_head, tree_parent|:
+        validation_parent[node] <- node
+        dsu_parent[node] <- node
+        ancestor[node] <- node
+        edge_head[node] <- -1
+        query_head[node] <- -1
+        tree_parent[node] <- -1
+
+    for edge in 0..<edge_count |input, validation_parent, validation_rank, edge_to, edge_next, edge_head|:
+        left_arg: i64 = input[4 + 2 * edge]
+        right_arg: i64 = input[5 + 2 * edge]
+        if (left_arg < 0 or left_arg >= i64(node_count) or right_arg < 0 or
+                right_arg >= i64(node_count) or left_arg == right_arg):
+            return -1
+        left: usize = left_arg.usize()
+        right: usize = right_arg.usize()
+        left_root: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], left)
+        right_root: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], right)
+        if left_root == right_root:
+            return -1
+        lowest_common_ancestor_tarjan_join(&validation_parent[0], &validation_rank[0], left, right)
+        forward: usize = 2 * edge
+        reverse: usize = forward + 1
+        edge_to[forward] <- right
+        edge_next[forward] <- edge_head[left]
+        edge_head[left] <- forward.i64()
+        edge_to[reverse] <- left
+        edge_next[reverse] <- edge_head[right]
+        edge_head[right] <- reverse.i64()
+
+    root_component: usize = lowest_common_ancestor_tarjan_find_root(&validation_parent[0], root)
+    for node in 0..<node_count |validation_parent|:
+        if lowest_common_ancestor_tarjan_find_root(&validation_parent[0], node) != root_component:
+            return -1
+
+    for query in 0..<query_count |input, query_offset, query_head, query_to, query_next, query_id|:
+        left_arg: i64 = input[query_offset + 2 * query]
+        right_arg: i64 = input[query_offset + 2 * query + 1]
+        if left_arg < 0 or left_arg >= i64(node_count) or right_arg < 0 or right_arg >= i64(node_count):
+            return -1
+        left: usize = left_arg.usize()
+        right: usize = right_arg.usize()
+        first: usize = 2 * query
+        second: usize = first + 1
+        query_to[first] <- right
+        query_id[first] <- query
+        query_next[first] <- query_head[left]
+        query_head[left] <- first.i64()
+        query_to[second] <- left
+        query_id[second] <- query
+        query_next[second] <- query_head[right]
+        query_head[right] <- second.i64()
+
+    if output_capacity < query_count:
+        return -2
+
+    top: mutable usize = 1
+    dfs_stack[0] <- root
+    visited[root] <- true
+    cursor[root] <- edge_head[root]
+    while top > 0 |top, dfs_stack, visited, cursor, edge_head, edge_to, edge_next, tree_parent, finished, query_head, query_to, query_next, query_id, answers, dsu_parent, dsu_rank, ancestor|:
+        node: usize = dfs_stack[top - 1]
+        edge: mutable i64 = cursor[node]
+        if edge >= 0:
+            cursor[node] <- edge_next[edge.usize()]
+            child: usize = edge_to[edge.usize()]
+            if child.i64() == tree_parent[node]:
+                continue
+            if visited[child]:
+                return -1
+            visited[child] <- true
+            tree_parent[child] <- node.i64()
+            cursor[child] <- edge_head[child]
+            dfs_stack[top] <- child
+            top <- top + 1
+            continue
+
+        finished[node] <- true
+        item: mutable i64 = query_head[node]
+        while item >= 0 |item, finished, query_to, query_next, query_id, answers, dsu_parent, ancestor|:
+            index: usize = item.usize()
+            other: usize = query_to[index]
+            if finished[other]:
+                component: usize = lowest_common_ancestor_tarjan_find_root(&dsu_parent[0], other)
+                answers[query_id[index]] <- ancestor[component]
+            item <- query_next[index]
+        top <- top - 1
+        if tree_parent[node] >= 0:
+            parent: usize = tree_parent[node].usize()
+            lowest_common_ancestor_tarjan_join(&dsu_parent[0], &dsu_rank[0], parent, node)
+            component: usize = lowest_common_ancestor_tarjan_find_root(&dsu_parent[0], parent)
+            ancestor[component] <- parent
+
+    for query in 0..<query_count |output, answers|:
+        output[query] <- answers[query].u8()
+    query_count.i64()
+
+export fn lowest_common_ancestor_tarjan(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = lowest_common_ancestor_tarjan_impl

@@ -1,0 +1,12 @@
+# Convert a nonnegative reflected Gray-code integer to its binary integer.
+def gray_to_binary_impl(gray_value: i64) -> i64:
+    if gray_value < 0:
+        return -1
+    binary: mutable i64 = gray_value
+    remaining: mutable i64 = gray_value >> 1
+    while remaining != 0:
+        binary <- binary ^ remaining
+        remaining <- remaining >> 1
+    binary
+
+export fn gray_to_binary(gray_value: i64) -> i64 = gray_to_binary_impl

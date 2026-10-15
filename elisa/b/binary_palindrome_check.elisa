@@ -1,0 +1,16 @@
+# Test whether the significant binary digits of an int32 value form a palindrome.
+def binary_palindrome_check_impl(number: i64) -> i64:
+    if number < -2147483648 or number > 2147483647:
+        return -1
+    if number < 0:
+        return 0
+    remaining: mutable i64 = number
+    reversed: mutable i64 = 0
+    while remaining > 0:
+        reversed <- (reversed * 2) + (remaining % 2)
+        remaining <- remaining / 2
+    if reversed == number:
+        return 1
+    return 0
+
+export fn binary_palindrome_check(number: i64) -> i64 = binary_palindrome_check_impl

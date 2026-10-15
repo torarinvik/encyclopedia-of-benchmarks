@@ -1,12 +1,32 @@
 # Bounded Adams-Bashforth methods for y' = x + y on a quarter-step grid.
 def coefficient(order: i64, offset: usize) -> i64:
     if order == 2:
-        return if offset == 0: 3 else: -1
+        if offset == 0:
+            return 3
+        return -1
     if order == 3:
-        return if offset == 0: 23 else: if offset == 1: -16 else: 5
+        if offset == 0:
+            return 23
+        if offset == 1:
+            return -16
+        return 5
     if order == 4:
-        return if offset == 0: 55 else: if offset == 1: -59 else: if offset == 2: 37 else: -9
-    if offset == 0: 1901 else: if offset == 1: -2774 else: if offset == 2: -2616 else: if offset == 3: -1274 else: 251
+        if offset == 0:
+            return 55
+        if offset == 1:
+            return -59
+        if offset == 2:
+            return 37
+        return -9
+    if offset == 0:
+        return 1901
+    if offset == 1:
+        return -2774
+    if offset == 2:
+        return -2616
+    if offset == 3:
+        return -1274
+    return 251
 
 def append_integer(value_input: i64, output: mutable u8&, position_input: usize) -> usize:
     digits: mutable u8[24] = zeroed
@@ -46,7 +66,13 @@ def adams_bashforth_impl(values: i64&, length: usize, output: mutable u8&, outpu
         x[index] <- index.f64() * 0.25
         y[index] <- values[index + 2].f64() / 100000.0
         index <- index + 1
-    denominator: f64 = if order == 2: 2.0 else: if order == 3: 12.0 else: if order == 4: 24.0 else: 720.0
+    denominator: mutable f64 = 720.0
+    if order == 2:
+        denominator <- 2.0
+    elif order == 3:
+        denominator <- 12.0
+    elif order == 4:
+        denominator <- 24.0
     iterations: mutable usize = steps.usize()
     if order == 3 or order == 5:
         iterations <- iterations + 1
@@ -70,7 +96,7 @@ def adams_bashforth_impl(values: i64&, length: usize, output: mutable u8&, outpu
         if index > 0:
             encoded[position] <- 44
             position <- position + 1
-        position <- append_integer((y[index] * 1000000.0).i64(), encoded, position)
+        position <- append_integer((y[index] * 1000000.0).i64(), &encoded[0], position)
         index <- index + 1
     if output_capacity < position:
         return -2

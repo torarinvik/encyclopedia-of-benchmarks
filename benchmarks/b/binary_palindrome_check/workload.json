@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "binary-palindrome-check-int32-v1",
+  "algorithm": "binary_palindrome_check",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "palindrome": 1,
+      "not_palindrome": 0
+    },
+    "definition": "For nonnegative inputs, test whether the binary representation without leading zeroes is a palindrome; zero is true. Negative signed 32-bit inputs are false. Values outside signed 32-bit range return -1."
+  },
+  "cases": [
+    {
+      "id": "signed_minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "below_int32_range",
+      "input_value": -2147483649,
+      "expected_result": -1
+    },
+    {
+      "id": "int32_minimum",
+      "input_value": -2147483648,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_empty_bit_sequence",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "three_11",
+      "input_value": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "five_101",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "six_110",
+      "input_value": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "seven_111",
+      "input_value": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "nine_1001",
+      "input_value": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "ten_1010",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "seventeen_10001",
+      "input_value": 17,
+      "expected_result": 1
+    },
+    {
+      "id": "twenty_one_10101",
+      "input_value": 21,
+      "expected_result": 1
+    },
+    {
+      "id": "forty_five_101101",
+      "input_value": 45,
+      "expected_result": 1
+    },
+    {
+      "id": "forty_six_101110",
+      "input_value": 46,
+      "expected_result": 0
+    },
+    {
+      "id": "eighty_five_1010101",
+      "input_value": 85,
+      "expected_result": 1
+    },
+    {
+      "id": "power_of_two_256",
+      "input_value": 256,
+      "expected_result": 0
+    },
+    {
+      "id": "symmetric_high_bits",
+      "input_value": 1073741825,
+      "expected_result": 1
+    },
+    {
+      "id": "near_int32_max",
+      "input_value": 2147483646,
+      "expected_result": 0
+    },
+    {
+      "id": "int32_maximum_all_ones",
+      "input_value": 2147483647,
+      "expected_result": 1
+    },
+    {
+      "id": "above_int32_range",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

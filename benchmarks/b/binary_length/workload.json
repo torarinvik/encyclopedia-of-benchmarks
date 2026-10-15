@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "binary-length-primary-log2-i64-v1",
+  "algorithm": "binary_length",
+  "function_symbol": "binary_length",
+  "input": {
+    "kind": "positive_bounded_signed_64_integer",
+    "minimum": 1,
+    "maximum": 2147483647,
+    "formula": "floor(log2(n)) + 1",
+    "nonpositive_result": -1,
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":2},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"four","input_value":4,"expected_result":3},
+    {"id":"five","input_value":5,"expected_result":3},
+    {"id":"twelve","input_value":12,"expected_result":4},
+    {"id":"one_below_power_of_two","input_value":1023,"expected_result":10},
+    {"id":"power_of_two","input_value":1024,"expected_result":11},
+    {"id":"one_above_power_of_two","input_value":1025,"expected_result":11},
+    {"id":"upper_power_boundary_below","input_value":2147483647,"expected_result":31},
+    {"id":"zero_source_domain_error","input_value":0,"expected_result":-1},
+    {"id":"negative_source_domain_error","input_value":-1,"expected_result":-1},
+    {"id":"above_benchmark_bound","input_value":2147483648,"expected_result":-1}
+  ]
+}

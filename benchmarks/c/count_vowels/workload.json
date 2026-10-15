@@ -1,0 +1,72 @@
+{
+  "id": "count-vowels-v1",
+  "algorithm": "count_vowels",
+  "contract": {
+    "input": "A nonempty sequence of at most 4,096 ASCII code values in 0..127, excluding comma (44) and the exact one-value string [48].",
+    "output": "The count of ASCII a, e, i, o, and u, case-insensitively.",
+    "invalid_input_result": -2,
+    "input_mutated": false
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "mixed-case-word",
+      "input_values": [72, 101, 108, 108, 111],
+      "input_length": 5,
+      "expected_result": 2
+    },
+    {
+      "id": "phrase",
+      "input_values": [72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100],
+      "input_length": 11,
+      "expected_result": 3
+    },
+    {
+      "id": "all-vowels-mixed-case",
+      "input_values": [97, 69, 105, 79, 117],
+      "input_length": 5,
+      "expected_result": 5
+    },
+    {
+      "id": "no-vowels",
+      "input_values": [114, 104, 121, 116, 104, 109],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "digits-and-punctuation",
+      "input_values": [49, 50, 51, 33, 63],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-exact-zero-string",
+      "input_values": [48],
+      "input_length": 1,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-comma",
+      "input_values": [97, 44, 101],
+      "input_length": 3,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-non-ascii",
+      "input_values": [97, 233],
+      "input_length": 2,
+      "expected_result": -2
+    }
+  ]
+}

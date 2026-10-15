@@ -1,0 +1,25 @@
+const MAX_INPUT_VALUES: usize = 1001
+
+def dna_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_VALUES or values[0] != 0:
+        return -1
+    count: usize = length - 1
+    for index in 1..<length:
+        base: i64 = values[index]
+        if base != 65 and base != 84 and base != 67 and base != 71:
+            return -1
+    if output_capacity < count:
+        return -2
+    for index in 0..<count:
+        base: i64 = values[index + 1]
+        if base == 65:
+            output[index] <- 84.u8()
+        elif base == 84:
+            output[index] <- 65.u8()
+        elif base == 67:
+            output[index] <- 71.u8()
+        else:
+            output[index] <- 67.u8()
+    count.i64()
+
+export fn dna(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dna_impl

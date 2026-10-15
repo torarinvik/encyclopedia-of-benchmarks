@@ -1,0 +1,23 @@
+# Reverse a DNA sequence and complement each base.
+def reverse_complement_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 1000:
+        return -1
+    for index in 0..<length |index, input|:
+        base: i64 = input[index]
+        if base != 65 and base != 67 and base != 71 and base != 84:
+            return -1
+    if output_capacity < length:
+        return -2
+    for index in 0..<length |index, input, output|:
+        base: i64 = input[length - 1 - index]
+        complement: mutable i64 = 67
+        if base == 65:
+            complement <- 84
+        elif base == 84:
+            complement <- 65
+        elif base == 67:
+            complement <- 71
+        output[index] <- complement.u8()
+    length.i64()
+
+export fn reverse_complement(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = reverse_complement_impl

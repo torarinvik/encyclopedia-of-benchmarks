@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "ear-clipping-polygon-triangulation-v1",
+  "algorithm": "ear_clipping_polygon_triangulation",
+  "function_symbol": "ear_clipping_polygon_triangulation",
+  "input": {
+    "kind": "i64_flattened_polygon_coordinates",
+    "encoding": "Flattened x,y coordinate pairs in polygon order; polygon is implicitly closed.",
+    "maximum_values": 128,
+    "coordinate_range": [-10000, 10000],
+    "result": "Return N-2 and write each triangle as three little-endian u32 original vertex indices.",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "triangle_ccw",
+      "input_values": [0, 0, 4, 0, 0, 3],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "000000000100000002000000"
+    },
+    {
+      "id": "square_ccw",
+      "input_values": [0, 0, 4, 0, 4, 4, 0, 4],
+      "input_length": 8,
+      "expected_result": 2,
+      "expected_output_hex": "030000000000000001000000010000000200000003000000"
+    },
+    {
+      "id": "square_cw",
+      "input_values": [0, 0, 0, 4, 4, 4, 4, 0],
+      "input_length": 8,
+      "expected_result": 2,
+      "expected_output_hex": "030000000000000001000000010000000200000003000000"
+    },
+    {
+      "id": "concave_l_shape",
+      "input_values": [0, 0, 4, 0, 4, 1, 1, 1, 1, 4, 0, 4],
+      "input_length": 12,
+      "expected_result": 4,
+      "expected_output_hex": "000000000100000002000000050000000000000002000000030000000400000005000000020000000300000005000000"
+    },
+    {
+      "id": "source_notch_polygon",
+      "input_values": [0, 0, 2, 0, 1, 1, 2, 2, 0, 2],
+      "input_length": 10,
+      "expected_result": 3,
+      "expected_output_hex": "000000000100000002000000040000000000000002000000020000000300000004000000"
+    },
+    {
+      "id": "too_few_vertices",
+      "input_values": [0, 0, 1, 1],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "odd_coordinate_count",
+      "input_values": [0, 0, 1, 0, 0, 1, 5],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [0, 0, 10001, 0, 0, 1],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "repeated_vertex",
+      "input_values": [0, 0, 4, 0, 4, 4, 0, 0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_area_bowtie",
+      "input_values": [0, 0, 4, 4, 0, 4, 4, 0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self_intersection_nonzero_area",
+      "input_values": [0, 3, 2, -3, -3, 1, 3, 1, -2, -3],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "consecutive_collinear_vertices",
+      "input_values": [0, 0, 2, 0, 4, 0, 4, 4, 0, 4],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

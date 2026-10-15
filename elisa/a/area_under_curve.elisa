@@ -18,8 +18,8 @@ def area_under_curve_impl(input: i64&, length: usize) -> i64:
     steps: i64 = input[3]
     if function_id < 0 or function_id > 2 or start_milli < 0 or start_milli > MAX_COORD_MILLI or end_milli < 0 or end_milli > MAX_COORD_MILLI or steps < 1 or steps > MAX_STEPS:
         return -1
-    low_milli: i64 = start_milli
-    high_milli: i64 = end_milli
+    low_milli: mutable i64 = start_milli
+    high_milli: mutable i64 = end_milli
     if start_milli > end_milli:
         low_milli <- end_milli
         high_milli <- start_milli

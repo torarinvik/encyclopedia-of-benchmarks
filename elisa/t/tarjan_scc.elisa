@@ -1,0 +1,105 @@
+# One-pass Tarjan low-link search for directed-graph strongly connected components.
+const MAX_VERTEX_COUNT: usize = 40
+const MAX_EDGE_COUNT: usize = 2047
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
+
+def tarjan_scc_visit(adjacency: u64&, on_stack: mutable u8&, scc_stack: mutable usize&,
+        stack_length: mutable usize&, discovery: mutable i64&, low: mutable i64&,
+        component_id: mutable i64&, vertex_count: usize, vertex: usize,
+        time: mutable usize&, component_count: mutable usize&) -> void:
+    discovery[vertex] <- time.i64()
+    low[vertex] <- time.i64()
+    time <- time + 1
+    on_stack[vertex] <- 1.u8()
+    scc_stack[stack_length] <- vertex
+    stack_length <- stack_length + 1
+    neighbor: mutable usize = 0
+    while neighbor < vertex_count |neighbor, adjacency, on_stack, scc_stack, stack_length, discovery, low, component_id, time, component_count|:
+        if (adjacency[vertex] & (1.u64() << neighbor)) == 0:
+            neighbor <- neighbor + 1
+            continue
+        if discovery[neighbor] == -1:
+            tarjan_scc_visit(adjacency, on_stack, scc_stack, stack_length, discovery, low, component_id,
+                vertex_count, neighbor, time, component_count)
+            if low[neighbor] < low[vertex]:
+                low[vertex] <- low[neighbor]
+        elif on_stack[neighbor] != 0 and discovery[neighbor] < low[vertex]:
+            low[vertex] <- discovery[neighbor]
+        neighbor <- neighbor + 1
+    if low[vertex] == discovery[vertex]:
+        done: mutable bool = false
+        while stack_length > 0 and not done |stack_length, scc_stack, on_stack, component_id, component_count, vertex, done|:
+            stack_length <- stack_length - 1
+            member: usize = scc_stack[stack_length]
+            on_stack[member] <- 0.u8()
+            component_id[member] <- component_count.i64()
+            if member == vertex:
+                done <- true
+        component_count <- component_count + 1
+
+def tarjan_scc_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > i64(MAX_VERTEX_COUNT) or input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT):
+        return -1
+    vertex_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+    adjacency: mutable u64[MAX_VERTEX_COUNT] = zeroed
+    for edge in 0..<edge_count |input, adjacency|:
+        from_value: i64 = input[2 + 2 * edge]
+        to_value: i64 = input[3 + 2 * edge]
+        if from_value < 0 or to_value < 0 or from_value >= vertex_count.i64() or to_value >= vertex_count.i64():
+            return -1
+        from: usize = from_value.usize()
+        destination: usize = to_value.usize()
+        adjacency[from] <- adjacency[from] | (1.u64() << destination)
+    on_stack: mutable u8[MAX_VERTEX_COUNT] = zeroed
+    scc_stack: mutable usize[MAX_VERTEX_COUNT] = zeroed
+    discovery: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    low: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    component_id: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    vertex: mutable usize = 0
+    while vertex < MAX_VERTEX_COUNT |vertex, discovery, component_id|:
+        discovery[vertex] <- -1
+        component_id[vertex] <- -1
+        vertex <- vertex + 1
+    stack_length: mutable usize = 0
+    time: mutable usize = 0
+    component_count: mutable usize = 0
+    vertex <- 0
+    while vertex < vertex_count |vertex, adjacency, on_stack, scc_stack, stack_length, discovery, low, component_id, time, component_count|:
+        if discovery[vertex] == -1:
+            tarjan_scc_visit(&adjacency[0], &on_stack[0], &scc_stack[0], &stack_length,
+                &discovery[0], &low[0], &component_id[0],
+                vertex_count, vertex, time, component_count)
+        vertex <- vertex + 1
+    output_length: usize = 1 + vertex_count + component_count
+    if output_capacity < output_length:
+        return -2
+    output[0] <- component_count.u8()
+    position: mutable usize = 1
+    for first in 0..<vertex_count |first, component_id, position, output|:
+        id: i64 = component_id[first]
+        emitted: mutable bool = false
+        for earlier in 0..<first |earlier, component_id, emitted|:
+            if component_id[earlier] == id:
+                emitted <- true
+        if emitted:
+            continue
+        component_size: mutable usize = 0
+        for member in first..<vertex_count |member, component_id, component_size|:
+            if component_id[member] == id:
+                component_size <- component_size + 1
+        output[position] <- component_size.u8()
+        position <- position + 1
+        for member in first..<vertex_count |member, component_id, position, output|:
+            if component_id[member] == id:
+                output[position] <- member.u8()
+                position <- position + 1
+    output_length.i64()
+
+export fn tarjan_scc(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = tarjan_scc_impl

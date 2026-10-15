@@ -1,0 +1,39 @@
+def decimal_length(value: u64) -> u64:
+    length: mutable u64 = 0
+    remaining: mutable u64 = value
+    while true:
+        length <- length + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    length
+
+def vampire_number_impl(left: u64, right: u64) -> i64:
+    if left < 1.u64() or left > 9999.u64() or right < 1.u64() or right > 9999.u64():
+        return -1
+    if decimal_length(left) != decimal_length(right):
+        return 0
+    counts: mutable i64[10] = zeroed
+    product: mutable u64 = left * right
+    while product != 0:
+        digit: usize = (product % 10).usize()
+        counts[digit] <- counts[digit] + 1
+        product <- product / 10
+    left_digits: mutable u64 = left
+    while left_digits != 0:
+        digit: usize = (left_digits % 10).usize()
+        counts[digit] <- counts[digit] - 1
+        left_digits <- left_digits / 10
+    right_digits: mutable u64 = right
+    while right_digits != 0:
+        digit: usize = (right_digits % 10).usize()
+        counts[digit] <- counts[digit] - 1
+        right_digits <- right_digits / 10
+    index: mutable u64 = 0
+    while index < 10:
+        if counts[index] != 0:
+            return 0
+        index <- index + 1
+    1
+
+export fn vampire_number(left: u64, right: u64) -> i64 = vampire_number_impl

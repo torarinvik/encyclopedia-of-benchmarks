@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "bitwise-addition-binary-scalar-v1",
+  "algorithm": "bitwise_addition",
+  "function_symbol": "bitwise_addition",
+  "input": {
+    "kind": "nonnegative_signed_64_pair",
+    "operand_range": [0, 9223372036854775807],
+    "sum_range": [0, 9223372036854775807],
+    "meaning": "sum of two operands using XOR and shifted AND carry propagation"
+  },
+  "cases": [
+    {"id": "zero_zero", "input_values": [0, 0], "expected_result": 0},
+    {"id": "zero_positive", "input_values": [0, 123456789], "expected_result": 123456789},
+    {"id": "source_example", "input_values": [5, 6], "expected_result": 11},
+    {"id": "source_other_positive", "input_values": [13, 5], "expected_result": 18},
+    {"id": "single_carry", "input_values": [7, 1], "expected_result": 8},
+    {"id": "byte_carry_chain", "input_values": [255, 1], "expected_result": 256},
+    {"id": "word_carry_chain", "input_values": [4294967295, 1], "expected_result": 4294967296},
+    {"id": "long_carry_chain", "input_values": [1152921504606846975, 1], "expected_result": 1152921504606846976},
+    {"id": "high_disjoint_bits", "input_values": [4611686018427387904, 2305843009213693952], "expected_result": 6917529027641081856},
+    {"id": "maximum_signed_sum", "input_values": [4611686018427387904, 4611686018427387903], "expected_result": 9223372036854775807},
+    {"id": "large_no_carry", "input_values": [305419896, 2596069104], "expected_result": 2901489000},
+    {"id": "uneven_carry", "input_values": [1099511627775, 4294967296], "expected_result": 1103806595071}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 64
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "population-standard-deviation-binary64-v1",
+  "algorithm": "standard_deviation",
+  "function_symbol": "standard_deviation",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 1,
+    "maximum_length": 64,
+    "minimum_value": -1000000,
+    "maximum_value": 1000000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sqrt(sum(pow(value - mean(values), 2)) / n), using two passes and input order",
+    "population_denominator": "n",
+    "invalid_input_result": -1e300,
+    "empty_source_behavior": "NaN; empty input is outside this runner's finite-result contract"
+  },
+  "cases": [
+    {"id":"singleton","input_values":[7],"input_length":1,"expected_result":0.0},
+    {"id":"zero_spread","input_values":[-3,-3,-3,-3],"input_length":4,"expected_result":0.0},
+    {"id":"unit_spread_integer_mean","input_values":[0,2],"input_length":2,"expected_result":1.0},
+    {"id":"fractional_mean_half_spread","input_values":[0,0,1,1],"input_length":4,"expected_result":0.5},
+    {"id":"fractional_mean_two_spread","input_values":[0,0,4,4],"input_length":4,"expected_result":2.0},
+    {"id":"negative_values","input_values":[-4,-2,0,2],"input_length":4,"expected_result":2.23606797749979},
+    {"id":"maximum_magnitude_balanced","input_values":[-1000000,1000000,-1000000,1000000],"input_length":4,"expected_result":1000000.0},
+    {"id":"empty_array","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"too_many_values","input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":65,"expected_result":-1e300},
+    {"id":"value_below_minimum","input_values":[-1000001],"input_length":1,"expected_result":-1e300},
+    {"id":"value_above_maximum","input_values":[1000001],"input_length":1,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

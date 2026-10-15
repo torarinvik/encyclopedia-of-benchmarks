@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "sqrt-double-bisection-binary64-v1",
+  "algorithm": "sqrt_double",
+  "function_symbol": "sqrt_double",
+  "input": {
+    "kind": "finite_binary64",
+    "domain": "zero or [1/256, 64]",
+    "out_of_domain_result": -1.0,
+    "method": "bisection on [0, x], returning the lower midpoint when x - midpoint^2 < 1e-12; inputs in (0, 1) recurse through the reciprocal"
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0.0], "expected_result": 0.0},
+    {"id": "minimum_positive", "input_values": [0.00390625], "expected_result": 0.0625},
+    {"id": "reciprocal_branch", "input_values": [0.01], "expected_result": 0.1},
+    {"id": "quarter", "input_values": [0.25], "expected_result": 0.5},
+    {"id": "just_below_one", "input_values": [0.9999999999999999], "expected_result": 0.9999999999999999},
+    {"id": "one", "input_values": [1.0], "expected_result": 1.0},
+    {"id": "two", "input_values": [2.0], "expected_result": 1.4142135623730951},
+    {"id": "ten", "input_values": [10.0], "expected_result": 3.1622776601683795},
+    {"id": "maximum", "input_values": [64.0], "expected_result": 8.0},
+    {"id": "negative", "input_values": [-1.0], "expected_result": -1.0},
+    {"id": "below_positive_bound", "input_values": [0.001], "expected_result": -1.0},
+    {"id": "above_bound", "input_values": [65.0], "expected_result": -1.0}
+  ]
+}

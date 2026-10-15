@@ -1,0 +1,52 @@
+fn decimal_length(mut value: i64) -> usize {
+    let mut length = 1usize;
+    while value >= 10 { value /= 10; length += 1; }
+    length
+}
+
+fn append_decimal(mut value: i64, output: &mut [u8], mut position: usize) -> usize {
+    let mut digits = [0u8; 3];
+    let mut count = 0usize;
+    loop {
+        digits[count] = (value % 10) as u8;
+        count += 1;
+        value /= 10;
+        if value == 0 { break; }
+    }
+    while count > 0 {
+        count -= 1;
+        output[position] = b'0' + digits[count];
+        position += 1;
+    }
+    position
+}
+
+#[no_mangle]
+pub extern "C" fn euler_totient_sequence(n: i64, output: *mut u8, output_capacity: usize) -> i64 {
+    if n < 1 || n > 80 { return -1; }
+    let n = n as usize;
+    let mut phi = [0i64; 81];
+    for value in 1..=n {
+        let mut remaining = value;
+        let mut totient = value as i64;
+        let mut p = 2usize;
+        while p * p <= remaining {
+            if remaining % p == 0 {
+                while remaining % p == 0 { remaining /= p; }
+                totient -= totient / p as i64;
+            }
+            p += 1;
+        }
+        if remaining > 1 { totient -= totient / remaining as i64; }
+        phi[value] = totient;
+    }
+    let required: usize = phi[1..=n].iter().map(|&v| decimal_length(v)).sum::<usize>() + n - 1;
+    if output.is_null() || output_capacity < required { return -2; }
+    let bytes = unsafe { std::slice::from_raw_parts_mut(output, required) };
+    let mut position = 0usize;
+    for i in 1..=n {
+        if i > 1 { bytes[position] = b','; position += 1; }
+        position = append_decimal(phi[i], bytes, position);
+    }
+    position as i64
+}

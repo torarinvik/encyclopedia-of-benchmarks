@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "word-count-literal-space-v1",
+  "algorithm": "word_count",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[text_length, text_ascii_bytes..., query_length, query_ascii_bytes...]",
+    "text_length_range": [
+      0,
+      999
+    ],
+    "query_length_range": [
+      0,
+      49
+    ],
+    "alphabet": "non-NUL ASCII bytes 1..127; only literal ASCII space separates tokens",
+    "maximum_token_count": 20,
+    "maximum_token_length": 49,
+    "invalid_input_results": {
+      "malformed_or_long_word": -1,
+      "too_many_words": -2
+    }
+  },
+  "output": {
+    "kind": "two_signed_64_bit_values_little_endian",
+    "encoding": "[total_space_delimited_token_count, exact_case_sensitive_query_matches]",
+    "successful_result": 16,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "repeated_requested_word",
+      "input_values": [
+        22,
+        114,
+        101,
+        100,
+        32,
+        103,
+        114,
+        101,
+        101,
+        110,
+        32,
+        114,
+        101,
+        100,
+        32,
+        98,
+        108,
+        117,
+        101,
+        32,
+        114,
+        101,
+        100,
+        3,
+        114,
+        101,
+        100
+      ],
+      "input_length": 27,
+      "expected_result": 16
+    },
+    {
+      "id": "empty_text_and_query",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 16
+    },
+    {
+      "id": "leading_trailing_spaces",
+      "input_values": [
+        3,
+        32,
+        97,
+        32,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 16
+    },
+    {
+      "id": "case_sensitive_tokens",
+      "input_values": [
+        3,
+        65,
+        32,
+        97,
+        1,
+        65
+      ],
+      "input_length": 6,
+      "expected_result": 16
+    },
+    {
+      "id": "punctuation_is_part_of_token",
+      "input_values": [
+        7,
+        104,
+        105,
+        44,
+        32,
+        104,
+        105,
+        33,
+        3,
+        104,
+        105,
+        44
+      ],
+      "input_length": 12,
+      "expected_result": 16
+    },
+    {
+      "id": "consecutive_spaces",
+      "input_values": [
+        4,
+        97,
+        32,
+        32,
+        97,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 16
+    },
+    {
+      "id": "overlong_word",
+      "input_values": [
+        50,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        1,
+        120
+      ],
+      "input_length": 53,
+      "expected_result": -1
+    },
+    {
+      "id": "too_many_words",
+      "input_values": [
+        41,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        32,
+        97,
+        1,
+        97
+      ],
+      "input_length": 44,
+      "expected_result": -2
+    },
+    {
+      "id": "malformed_packed_input",
+      "input_values": [
+        3,
+        97,
+        98
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "nul_in_text",
+      "input_values": [
+        3,
+        97,
+        0,
+        98,
+        1,
+        97
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

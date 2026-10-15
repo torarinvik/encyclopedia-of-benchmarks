@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "juggler-sequence-v1",
+  "algorithm": "juggler_sequence",
+  "input": {
+    "minimum": 1,
+    "maximum": 25,
+    "out_of_range_result": -1,
+    "encoding": "juggler_sequence_i32le",
+    "meaning": "complete Juggler sequence through the first 1, as little-endian u32 values"
+  },
+  "cases": [
+    {
+      "id": "case_1",
+      "input_value": 1,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "case_2",
+      "input_value": 2,
+      "expected_result": 8,
+      "expected_output_hex": "0200000001000000"
+    },
+    {
+      "id": "case_3",
+      "input_value": 3,
+      "expected_result": 28,
+      "expected_output_hex": "03000000050000000b00000024000000060000000200000001000000"
+    },
+    {
+      "id": "case_4",
+      "input_value": 5,
+      "expected_result": 24,
+      "expected_output_hex": "050000000b00000024000000060000000200000001000000"
+    },
+    {
+      "id": "case_5",
+      "input_value": 9,
+      "expected_result": 32,
+      "expected_output_hex": "090000001b0000008c0000000b00000024000000060000000200000001000000"
+    },
+    {
+      "id": "case_6",
+      "input_value": 25,
+      "expected_result": 48,
+      "expected_output_hex": "190000007d00000075050000f6cb0000e40000000f0000003a0000000700000012000000040000000200000001000000"
+    },
+    {
+      "id": "case_7",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_8",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_9",
+      "input_value": 26,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_10",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_11",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "logical-right-shift-uint53-v1",
+  "algorithm": "logical_right_shift",
+  "function_symbol": "logical_right_shift",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": ["n", "shift"],
+    "n_minimum": 0,
+    "n_maximum": 9007199254740991,
+    "shift_minimum": 0,
+    "shift_maximum": 53,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "floor(n / 2^shift)",
+    "minimum_valid_result": 0,
+    "maximum_valid_result": 9007199254740991,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"zero_input","input_values":[0,53],"expected_result":0},
+    {"id":"zero_shift","input_values":[13,0],"expected_result":13},
+    {"id":"ordinary_shift","input_values":[13,2],"expected_result":3},
+    {"id":"maximum_value_shift_one","input_values":[9007199254740991,1],"expected_result":4503599627370495},
+    {"id":"top_bit_to_low_bit","input_values":[4503599627370496,52],"expected_result":1},
+    {"id":"top_bit_shift_53","input_values":[4503599627370496,53],"expected_result":0},
+    {"id":"maximum_value_shift_53","input_values":[9007199254740991,53],"expected_result":0},
+    {"id":"number_above_uint53","input_values":[9007199254740992,0],"expected_result":-1},
+    {"id":"shift_above_domain","input_values":[5,54],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

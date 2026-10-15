@@ -1,0 +1,54 @@
+def append_u64(value_input: u64, output: mutable u8&, output_capacity: usize, position: mutable usize&) -> bool:
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    value: mutable u64 = value_input
+    while true:
+        digits[count] <- (48 + (value % 10).i64()).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0:
+            break
+    if count > output_capacity - position:
+        return false
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    true
+
+def allocation_number_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    total_value: i64 = input[0]
+    partitions_value: i64 = input[1]
+    if total_value < 1 or total_value > 1000000 or partitions_value < 1 or partitions_value > 128 or partitions_value > total_value:
+        return -1
+    total: u64 = total_value.u64()
+    partitions: u64 = partitions_value.u64()
+    block: u64 = total / partitions
+    position: mutable usize = 0
+    index: mutable u64 = 0
+    while index < partitions:
+        start: u64 = index * block + 1
+        end: u64 =
+            if index + 1 == partitions:
+                total
+            else:
+                (index + 1) * block
+        if not append_u64(start, output, output_capacity, position):
+            return -2
+        if position >= output_capacity:
+            return -2
+        output[position] <- 45
+        position <- position + 1
+        if not append_u64(end, output, output_capacity, position):
+            return -2
+        if index + 1 != partitions:
+            if position >= output_capacity:
+                return -2
+            output[position] <- 44
+            position <- position + 1
+        index <- index + 1
+    position.i64()
+
+export fn allocation_number(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = allocation_number_impl

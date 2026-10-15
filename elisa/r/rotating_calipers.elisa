@@ -1,0 +1,154 @@
+const MAX_POINTS: usize = 1024
+extern sqrt(value: f64) -> f64
+
+def rotating_calipers_before(left: usize, right: usize, points: i64&) -> bool:
+    if points[2 * left] != points[2 * right]:
+        return points[2 * left] < points[2 * right]
+    points[2 * left + 1] < points[2 * right + 1]
+
+def rotating_calipers_cross(origin: usize, a: usize, b: usize, points: i64&) -> i64:
+    dx1: i64 = points[2 * a] - points[2 * origin]
+    dy1: i64 = points[2 * a + 1] - points[2 * origin + 1]
+    dx2: i64 = points[2 * b] - points[2 * origin]
+    dy2: i64 = points[2 * b + 1] - points[2 * origin + 1]
+    dx1 * dy2 - dy1 * dx2
+
+def rotating_calipers_distance_squared(a: usize, b: usize, points: i64&) -> i64:
+    dx: i64 = points[2 * a] - points[2 * b]
+    dy: i64 = points[2 * a + 1] - points[2 * b + 1]
+    dx * dx + dy * dy
+
+def rotating_calipers_sort(order: mutable usize&, scratch: mutable usize&,
+        begin: usize, end: usize, points: i64&) -> void:
+    if end - begin < 2:
+        return
+    middle: usize = begin + (end - begin) / 2
+    rotating_calipers_sort(order, scratch, begin, middle, points)
+    rotating_calipers_sort(order, scratch, middle, end, points)
+    left: mutable usize = begin
+    right: mutable usize = middle
+    out: mutable usize = begin
+    while left < middle and right < end:
+        if rotating_calipers_before(order[right], order[left], points):
+            scratch[out] <- order[right]
+            right <- right + 1
+        else:
+            scratch[out] <- order[left]
+            left <- left + 1
+        out <- out + 1
+    while left < middle:
+        scratch[out] <- order[left]
+        left <- left + 1
+        out <- out + 1
+    while right < end:
+        scratch[out] <- order[right]
+        right <- right + 1
+        out <- out + 1
+    index: mutable usize = begin
+    while index < end:
+        order[index] <- scratch[index]
+        index <- index + 1
+
+def rotating_calipers_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 2 * MAX_POINTS + 1 or length % 2 == 0:
+        return -1.0e300
+    count_value: i64 = values[0]
+    if count_value < 2 or count_value > 1024 or length != 1 + 2 * count_value.usize():
+        return -1.0e300
+    count: usize = count_value.usize()
+    points: mutable i64[2 * MAX_POINTS] = zeroed
+    order: mutable usize[MAX_POINTS] = zeroed
+    scratch: mutable usize[MAX_POINTS] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        x: i64 = values[1 + 2 * index]
+        y: i64 = values[2 + 2 * index]
+        if x < -1000000000 or x > 1000000000 or y < -1000000000 or y > 1000000000:
+            return -1.0e300
+        points[2 * index] <- x
+        points[2 * index + 1] <- y
+        order[index] <- index
+        index <- index + 1
+
+    rotating_calipers_sort(&order[0], &scratch[0], 0, count, &points[0])
+    unique: mutable usize[MAX_POINTS] = zeroed
+    unique_count: mutable usize = 0
+    index <- 0
+    while index < count:
+        point: usize = order[index]
+        if (unique_count == 0 or points[2 * unique[unique_count - 1]] != points[2 * point] or
+                points[2 * unique[unique_count - 1] + 1] != points[2 * point + 1]):
+            unique[unique_count] <- point
+            unique_count <- unique_count + 1
+        index <- index + 1
+    if unique_count == 1:
+        return 0.0
+
+    lower: mutable usize[MAX_POINTS] = zeroed
+    upper: mutable usize[MAX_POINTS] = zeroed
+    lower_count: mutable usize = 0
+    point: mutable usize = unique[0]
+    index <- 0
+    while index < unique_count:
+        point <- unique[index]
+        while lower_count >= 2 and rotating_calipers_cross(
+                lower[lower_count - 2], lower[lower_count - 1], point, &points[0]) <= 0:
+            lower_count <- lower_count - 1
+        lower[lower_count] <- point
+        lower_count <- lower_count + 1
+        index <- index + 1
+    upper_count: mutable usize = 0
+    index <- unique_count
+    while index > 0:
+        index <- index - 1
+        point <- unique[index]
+        while upper_count >= 2 and rotating_calipers_cross(
+                upper[upper_count - 2], upper[upper_count - 1], point, &points[0]) <= 0:
+            upper_count <- upper_count - 1
+        upper[upper_count] <- point
+        upper_count <- upper_count + 1
+    hull: mutable usize[2 * MAX_POINTS] = zeroed
+    hull_count: mutable usize = 0
+    index <- 0
+    while index + 1 < lower_count:
+        hull[hull_count] <- lower[index]
+        hull_count <- hull_count + 1
+        index <- index + 1
+    index <- 0
+    while index + 1 < upper_count:
+        hull[hull_count] <- upper[index]
+        hull_count <- hull_count + 1
+        index <- index + 1
+    if hull_count == 2:
+        return sqrt(rotating_calipers_distance_squared(hull[0], hull[1], &points[0]).f64())
+
+    antipodal: mutable usize = 1
+    advances: mutable usize = 0
+    while (advances < hull_count and rotating_calipers_cross(hull[0], hull[1],
+            hull[(antipodal + 1) % hull_count], &points[0]) >
+            rotating_calipers_cross(hull[0], hull[1], hull[antipodal], &points[0])):
+        antipodal <- (antipodal + 1) % hull_count
+        advances <- advances + 1
+    maximum_squared: mutable i64 = 0
+    current: mutable usize = 0
+    while current < hull_count:
+        next: usize = (current + 1) % hull_count
+        advances <- 0
+        while (advances < hull_count and rotating_calipers_cross(hull[current], hull[next],
+                hull[(antipodal + 1) % hull_count], &points[0]) >
+                rotating_calipers_cross(hull[current], hull[next], hull[antipodal], &points[0])):
+            antipodal <- (antipodal + 1) % hull_count
+            advances <- advances + 1
+        after: usize = (antipodal + 1) % hull_count
+        candidate: mutable i64 = rotating_calipers_distance_squared(hull[current], hull[antipodal], &points[0])
+        if candidate > maximum_squared: maximum_squared <- candidate
+        candidate <- rotating_calipers_distance_squared(hull[next], hull[antipodal], &points[0])
+        if candidate > maximum_squared: maximum_squared <- candidate
+        candidate <- rotating_calipers_distance_squared(hull[current], hull[after], &points[0])
+        if candidate > maximum_squared: maximum_squared <- candidate
+        candidate <- rotating_calipers_distance_squared(hull[next], hull[after], &points[0])
+        if candidate > maximum_squared: maximum_squared <- candidate
+        current <- current + 1
+    sqrt(maximum_squared.f64())
+
+export fn rotating_calipers(values: i64&, length: usize) -> f64 = rotating_calipers_impl

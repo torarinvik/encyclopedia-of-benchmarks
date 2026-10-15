@@ -14,7 +14,10 @@ def zellers_congruence_impl(values: i64&, length: usize) -> i64:
     if month == 4 or month == 6 or month == 9 or month == 11:
         maximum_day <- 30
     if month == 2:
-        maximum_day <- if is_leap_year(year): 29 else: 28
+        if is_leap_year(year):
+            maximum_day <- 29
+        else:
+            maximum_day <- 28
     if day > maximum_day:
         return -1
 

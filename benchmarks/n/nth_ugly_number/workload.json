@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "nth-ugly-number-5-smooth-zero-based-i64-v1",
+  "algorithm": "nth_ugly_number",
+  "function_symbol": "nth_ugly_number",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 12690,
+    "sequence": "zero-based positive integers with prime factors only from [2, 3, 5]",
+    "out_of_range_result": -1,
+    "maximum_valid_result": 9216000000000000000
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "first_value", "input_value": 0, "expected_result": 1},
+    {"id": "second_value", "input_value": 1, "expected_result": 2},
+    {"id": "early_duplicate_candidates", "input_value": 5, "expected_result": 6},
+    {"id": "source_sequence_example", "input_value": 9, "expected_result": 12},
+    {"id": "middle_index", "input_value": 100, "expected_result": 1600},
+    {"id": "larger_index", "input_value": 1000, "expected_result": 51840000},
+    {"id": "maximum_valid_index", "input_value": 12690, "expected_result": 9216000000000000000},
+    {"id": "negative_index", "input_value": -1, "expected_result": -1},
+    {"id": "above_signed_long_sequence", "input_value": 12691, "expected_result": -1}
+  ]
+}

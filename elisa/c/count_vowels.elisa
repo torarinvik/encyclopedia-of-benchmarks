@@ -1,0 +1,18 @@
+# Count ASCII vowels in a bounded string represented by byte values.
+def count_vowels_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 4096:
+        return -2
+    if length == 1 and values[0] == 48:
+        return -2
+    count: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 127 or value == 44:
+            return -2
+        if value == 97 or value == 101 or value == 105 or value == 111 or value == 117 or value == 65 or value == 69 or value == 73 or value == 79 or value == 85:
+            count <- count + 1
+        index <- index + 1
+    count
+
+export fn count_vowels(values: i64&, length: usize) -> i64 = count_vowels_impl

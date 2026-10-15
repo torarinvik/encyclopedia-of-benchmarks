@@ -26,8 +26,8 @@ def kth_smallest_bst_visit(nodes: i64&, node_count: usize, node: i64,
     kth_smallest_bst_visit(nodes, node_count, right, remaining)
 
 def kth_smallest_bst_impl(nodes: i64&, node_count: usize, root_index: i64, k: i64) -> i64:
-    if node_count == 0 or node_count > MAX_NODE_COUNT or root_index < 0 or
-       root_index.u64() >= node_count.u64() or k < 1 or k.u64() > node_count.u64():
+    if (node_count == 0 or node_count > MAX_NODE_COUNT or root_index < 0 or
+       root_index.u64() >= node_count.u64() or k < 1 or k.u64() > node_count.u64()):
         return -1
     remaining: mutable i64 = k
     result: i64 = kth_smallest_bst_visit(nodes, node_count, root_index, remaining)

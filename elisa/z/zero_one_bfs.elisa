@@ -1,0 +1,83 @@
+# 0-1 BFS over a bounded directed graph encoded as weighted edge triples.
+def zero_one_bfs_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 3 or length > 3075:
+        return -1
+    vertices_value: i64 = values[0]
+    source_value: i64 = values[1]
+    edge_count_value: i64 = values[2]
+    if (vertices_value < 1 or vertices_value > 64 or source_value < 0 or
+        edge_count_value < 0 or edge_count_value > 1024):
+        return -1
+    vertices: usize = vertices_value.usize()
+    source: usize = source_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if source >= vertices or length != 3 + 3 * edge_count:
+        return -1
+
+    zero_edges: mutable u64[64] = zeroed
+    one_edges: mutable u64[64] = zeroed
+    distance: mutable usize[64] = zeroed
+    deque: mutable u8[4097] = zeroed
+    vertex: mutable usize = 0
+    while vertex < 64:
+        distance[vertex] <- 255
+        vertex <- vertex + 1
+
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[3 + 3 * edge]
+        destination_value: i64 = values[4 + 3 * edge]
+        weight: i64 = values[5 + 3 * edge]
+        if (origin_value < 0 or destination_value < 0 or
+            origin_value >= vertices_value or destination_value >= vertices_value or
+            (weight != 0 and weight != 1)):
+            return -1
+        origin: usize = origin_value.usize()
+        destination: usize = destination_value.usize()
+        mask: u64 = 1.u64() << destination
+        if weight == 0:
+            zero_edges[origin] <- zero_edges[origin] | mask
+        else:
+            one_edges[origin] <- one_edges[origin] | mask
+        edge <- edge + 1
+    if output_capacity < vertices:
+        return -2
+
+    head: mutable usize = 0
+    deque_end: mutable usize = 1
+    queued: mutable usize = 1
+    deque[0] <- source.u8()
+    distance[source] <- 0
+    while queued != 0:
+        origin: usize = deque[head].usize()
+        head <- (head + 1) % 4097
+        queued <- queued - 1
+        base: usize = distance[origin]
+        destination: mutable usize = 0
+        while destination < vertices:
+            mask: u64 = 1.u64() << destination
+            if (zero_edges[origin] & mask) != 0 and base < distance[destination]:
+                distance[destination] <- base
+                if head == 0:
+                    head <- 4096
+                else:
+                    head <- head - 1
+                deque[head] <- destination.u8()
+                queued <- queued + 1
+            candidate: usize = base + 1
+            if (one_edges[origin] & mask) != 0 and candidate < distance[destination]:
+                distance[destination] <- candidate
+                deque[deque_end] <- destination.u8()
+                deque_end <- (deque_end + 1) % 4097
+                queued <- queued + 1
+            destination <- destination + 1
+
+    index: mutable usize = 0
+    while index < vertices:
+        output[index] <- distance[index].u8()
+        index <- index + 1
+    vertices.i64()
+
+export fn zero_one_bfs(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = zero_one_bfs_impl

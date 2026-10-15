@@ -1,0 +1,10 @@
+def number_of_boolean_functions_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 5:
+        return -1
+    value: i64 =
+        while step < index |step: mutable i64 = 0, value: mutable i64 = 2| -> value:
+            value <- value * value
+            step <- step + 1
+    value
+
+export fn number_of_boolean_functions_sequence(index: i64) -> i64 = number_of_boolean_functions_sequence_impl

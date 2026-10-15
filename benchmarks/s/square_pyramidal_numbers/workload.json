@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "square-pyramidal-numbers-rust-u64-exact-v1",
+  "algorithm": "square_pyramidal_numbers",
+  "function_symbol": "square_pyramidal_numbers",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 2097151,
+    "formula": "n * (n + 1) * (2 * n + 1) / 6 using exact unsigned 64-bit intermediates",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 5},
+    {"id": "three", "input_value": 3, "expected_result": 14},
+    {"id": "ten", "input_value": 10, "expected_result": 385},
+    {"id": "large", "input_value": 1000000, "expected_result": 333333833333500000},
+    {"id": "maximum", "input_value": 2097151, "expected_result": 3074455146595352576},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "above_maximum", "input_value": 2097152, "expected_result": -1}
+  ]
+}

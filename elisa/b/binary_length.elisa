@@ -1,0 +1,9 @@
+extern log2(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def binary_length_impl(value: i64) -> i64:
+    if value <= 0 or value > 2147483647:
+        return -1
+    (floor(log2(value.f64())).i64() + 1)
+
+export fn binary_length(value: i64) -> i64 = binary_length_impl

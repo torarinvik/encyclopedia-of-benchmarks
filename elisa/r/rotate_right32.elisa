@@ -1,0 +1,12 @@
+# Rotate the low 32 bits of a nonnegative int32 shift right, returning the unsigned word.
+def rotate_right32_impl(value: u64, shift: u64) -> i64:
+    if value > 4294967295 or shift > 2147483647:
+        return -1
+    bits: u32 = value.u32()
+    amount: u32 = (shift % 32).u32()
+    if amount == 0:
+        return bits.i64()
+    rotated: u32 = ((bits >> amount) | (bits << (32 - amount)))
+    rotated.i64()
+
+export fn rotate_right32(value: u64, shift: u64) -> i64 = rotate_right32_impl

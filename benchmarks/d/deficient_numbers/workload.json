@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "deficient-numbers-bounded-i64-v1",
+  "algorithm": "deficient_numbers",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "maximum_positive_input": 100000000,
+    "nonpositive_result": 0,
+    "result": "1 when the sum of positive proper divisors is less than the input, otherwise 0",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"negative","input_value":-1,"expected_result":0},
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"prime","input_value":13,"expected_result":1},
+    {"id":"power_of_two","input_value":64,"expected_result":1},
+    {"id":"deficient_with_square_factor","input_value":16,"expected_result":1},
+    {"id":"abundant","input_value":12,"expected_result":0},
+    {"id":"perfect","input_value":28,"expected_result":0},
+    {"id":"upper_bound_power_of_two","input_value":67108864,"expected_result":1},
+    {"id":"first_above_bound","input_value":100000001,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

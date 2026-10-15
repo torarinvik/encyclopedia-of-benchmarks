@@ -1,0 +1,11 @@
+# Return the next larger positive integer with the same population count.
+def next_higher_number_with_same_number_of_set_bits_impl(input: i64) -> i64:
+    if input < 1 or input > 1073741823:
+        return -1
+    right_one: i64 = input & -input
+    next_higher: i64 = input + right_one
+    packed_ones: mutable i64 = (input ^ next_higher) / right_one
+    packed_ones <- packed_ones >> 2
+    next_higher | packed_ones
+
+export fn next_higher_number_with_same_number_of_set_bits(input: i64) -> i64 = next_higher_number_with_same_number_of_set_bits_impl

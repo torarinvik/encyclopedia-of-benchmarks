@@ -22,7 +22,7 @@ def longest_palindromic_substring_dp_impl(values: i64&, length: usize,
         start: mutable usize = 0
         end: mutable usize = gap
         while end < length:
-            is_palindrome: bool = false
+            is_palindrome: mutable bool = false
             if gap == 0:
                 is_palindrome <- true
             elif gap == 1:

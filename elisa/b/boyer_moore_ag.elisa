@@ -1,0 +1,71 @@
+const MAX_INPUT_VALUES: usize = 512
+
+def collect_matches(values: i64&, text_length: usize, pattern_length: usize, pattern_start: usize, positions: mutable u8&) -> usize:
+    bad_shift: mutable usize[128] = zeroed
+    present: mutable bool[128] = zeroed
+    suffix_skip: mutable usize[256] = zeroed
+    for index in 0..<pattern_length:
+        if index + 1 < pattern_length:
+            byte: usize = values[pattern_start + index].usize()
+            bad_shift[byte] <- pattern_length - index - 1
+            present[byte] <- true
+    for byte in 0..<128:
+        if present[byte]:
+            shift: usize = bad_shift[byte]
+            matched: mutable usize = 0
+            while matched < pattern_length - shift and values[pattern_start + pattern_length - 1 - matched] == values[pattern_start + pattern_length - 1 - shift - matched]:
+                matched <- matched + 1
+            suffix_skip[shift] <- matched
+
+    count: mutable usize = 0
+    start: mutable usize = 0
+    jump: mutable usize = pattern_length
+    while start <= text_length - pattern_length:
+        skip: usize = suffix_skip[jump]
+        index: mutable i64 = pattern_length.i64() - 1
+        while index >= 0:
+            text_index: usize = 2 + start + index.usize()
+            pattern_index: usize = pattern_start + index.usize()
+            if values[text_index] != values[pattern_index]:
+                mismatch: usize = values[text_index].usize()
+                if present[mismatch]:
+                    jump <- bad_shift[mismatch]
+                else:
+                    jump <- pattern_length
+                start <- start + jump
+                break
+            if index.usize() == pattern_length - jump:
+                index <- index - skip.i64()
+            if index == 0:
+                positions[count] <- start.i64().u8()
+                count <- count + 1
+                jump <- 1
+                start <- start + 1
+                break
+            index <- index - 1
+    count
+
+def boyer_moore_ag_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    if values[0] < 0 or values[0] > 255 or values[1] < 1 or values[1] > 255:
+        return -1
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    for index in 0..<(text_length + pattern_length):
+        if values[2 + index] < 0 or values[2 + index] > 127:
+            return -1
+
+    positions: mutable u8[255] = zeroed
+    count: mutable usize = 0
+    if pattern_length <= text_length:
+        count <- collect_matches(values, text_length, pattern_length, 2 + text_length, &positions[0])
+    if output_capacity < count:
+        return -2
+    for index in 0..<count:
+        output[index] <- positions[index]
+    count.i64()
+
+export fn boyer_moore_ag(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = boyer_moore_ag_impl

@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "ascii85-unframed-binary-v1",
+  "algorithm": "base85",
+  "function_symbol": "base85",
+  "input": {
+    "kind": "signed_64_bit_mode_and_byte_array",
+    "minimum_length": 1,
+    "maximum_length": 66,
+    "maximum_payload_bytes": 65,
+    "modes": {
+      "0": "encode bytes as unframed Ascii85",
+      "1": "decode unframed Ascii85 ASCII bytes"
+    },
+    "alphabet": "ASCII ! through u, inclusive",
+    "encode_block": "4 bytes as one big-endian uint32, emitted as five base-85 digits; a partial r-byte block is zero-padded on the right and emits r+1 digits",
+    "decode_groups": "five digits per full block; final groups of two through four digits are padded with u and produce one fewer byte than their digit count",
+    "wrappers_shorthand_and_whitespace": "not accepted; '=' is a regular alphabet symbol, not a padding marker",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding_output": "Ascii85 ASCII bytes",
+    "decoding_output": "arbitrary binary bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "encode_empty",
+      "input_values": [0],
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "decode_empty",
+      "input_values": [1],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "encode_upstream_12345",
+      "input_values": [0, 49, 50, 51, 52, 53],
+      "expected_result": 7,
+      "expected_output": "0etOA2#"
+    },
+    {
+      "id": "decode_upstream_12345",
+      "input_values": [1, 48, 101, 116, 79, 65, 50, 35],
+      "expected_result": 5,
+      "expected_output_hex": "3132333435"
+    },
+    {
+      "id": "encode_upstream_base_85",
+      "input_values": [0, 98, 97, 115, 101, 32, 56, 53],
+      "expected_result": 9,
+      "expected_output": "@UX=h+?24"
+    },
+    {
+      "id": "decode_upstream_base_85",
+      "input_values": [1, 64, 85, 88, 61, 104, 43, 63, 50, 52],
+      "expected_result": 7,
+      "expected_output_hex": "62617365203835"
+    },
+    {
+      "id": "encode_one_zero_byte",
+      "input_values": [0, 0],
+      "expected_result": 2,
+      "expected_output": "!!"
+    },
+    {
+      "id": "encode_zero_block",
+      "input_values": [0, 0, 0, 0, 0],
+      "expected_result": 5,
+      "expected_output": "!!!!!"
+    },
+    {
+      "id": "encode_mixed_binary_block",
+      "input_values": [0, 0, 1, 2, 3],
+      "expected_result": 5,
+      "expected_output": "!!*-'"
+    },
+    {
+      "id": "decode_mixed_binary_block",
+      "input_values": [1, 33, 33, 42, 45, 39],
+      "expected_result": 4,
+      "expected_output_hex": "00010203"
+    },
+    {
+      "id": "decode_partial_high_byte",
+      "input_values": [1, 114, 114],
+      "expected_result": 1,
+      "expected_output_hex": "ff"
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [2],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_input_byte",
+      "input_values": [0, -1],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "input_byte_above_range",
+      "input_values": [0, 256],
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "one_character_final_group",
+      "input_values": [1, 33],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "symbol_above_u",
+      "input_values": [1, 118, 33],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsupported_z_shorthand",
+      "input_values": [1, 122, 33],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overflowing_full_group",
+      "input_values": [1, 117, 117, 117, 117, 117],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "adobe_framing_not_accepted",
+      "input_values": [1, 60, 126, 33, 33, 33, 126, 62],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

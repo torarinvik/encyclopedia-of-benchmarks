@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "smallest-circle-v1",
+  "algorithm": "smallest_circle",
+  "function_symbol": "smallest_circle",
+  "input": {
+    "kind": "i64_flattened_points",
+    "encoding": "Flattened x,y integer coordinates.",
+    "minimum_values": 2,
+    "maximum_values": 24,
+    "coordinate_range": [
+      -100,
+      100
+    ],
+    "result": "Return 1 and write center_x,center_y,radius as three little-endian binary64 values.",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "single_point",
+      "input_values": [
+        3,
+        -4
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "000000000000084000000000000010c00000000000000000"
+    },
+    {
+      "id": "horizontal_pair",
+      "input_values": [
+        0,
+        0,
+        4,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "000000000000004000000000000000000000000000000040"
+    },
+    {
+      "id": "acute_triangle",
+      "input_values": [
+        0,
+        0,
+        4,
+        0,
+        2,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "0000000000000040abaaaaaaaaaaea3f5555555555550140"
+    },
+    {
+      "id": "obtuse_triangle_pair_support",
+      "input_values": [
+        0,
+        0,
+        4,
+        0,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "000000000000004000000000000000000000000000000040"
+    },
+    {
+      "id": "square_equal_radius_ties",
+      "input_values": [
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        -1,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": "00000000000000000000000000000000cd3b7f669ea0f63f"
+    },
+    {
+      "id": "collinear_points",
+      "input_values": [
+        -2,
+        0,
+        0,
+        0,
+        3,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "000000000000e03f00000000000000000000000000000440"
+    },
+    {
+      "id": "duplicate_points",
+      "input_values": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "000000000000104000000000000010400000000000000000"
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "odd_coordinate_count",
+      "input_values": [
+        0,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        101,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_points",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0
+      ],
+      "input_length": 26,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# Bisection square root matching the pinned C++ update and stopping rule.
+def sqrt_double_bisect(value: f64) -> f64:
+    if value > 0.0 and value < 1.0:
+        return 1.0 / sqrt_double_bisect(1.0 / value)
+    result: f64 =
+        while low <= high |low: mutable f64 = 0.0, high: mutable f64 = value, answer: mutable f64 = -1.0| -> answer:
+            mid: f64 = (low + high) / 2.0
+            if mid * mid > value:
+                high <- mid
+            else:
+                if value - mid * mid < 1e-12:
+                    break mid
+                low <- mid
+    result
+
+def sqrt_double_impl(value: f64) -> f64:
+    if value == 0.0:
+        return 0.0
+    if value < 1.0 / 256.0 or value > 64.0:
+        return -1.0
+    sqrt_double_bisect(value)
+
+export fn sqrt_double(value: f64) -> f64 = sqrt_double_impl

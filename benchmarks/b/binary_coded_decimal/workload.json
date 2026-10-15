@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "binary-coded-decimal-i32-v1",
+  "algorithm": "binary_coded_decimal",
+  "function_symbol": "binary_coded_decimal",
+  "input": {
+    "kind": "signed_32_bit_integer",
+    "encoding": "binary_coded_decimal",
+    "accepted_range": [-2147483648, 2147483647],
+    "negative_behavior": "encode as zero",
+    "output_encoding": "ASCII 0b prefix followed by four binary digits per decimal digit",
+    "out_of_range_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":6,"expected_output":"0b0000"},
+    {"id":"single-digit-three","input_value":3,"expected_result":6,"expected_output":"0b0011"},
+    {"id":"single-digit-nine","input_value":9,"expected_result":6,"expected_output":"0b1001"},
+    {"id":"source-example-twelve","input_value":12,"expected_result":10,"expected_output":"0b00010010"},
+    {"id":"source-example-987","input_value":987,"expected_result":14,"expected_output":"0b100110000111"},
+    {"id":"embedded-zero-digit","input_value":305,"expected_result":14,"expected_output":"0b001100000101"},
+    {"id":"maximum-four-digit-value","input_value":9999,"expected_result":18,"expected_output":"0b1001100110011001"},
+    {"id":"signed-32-bit-maximum","input_value":2147483647,"expected_result":42,"expected_output":"0b0010000101000111010010000011011001000111"},
+    {"id":"negative-one-maps-to-zero","input_value":-1,"expected_result":6,"expected_output":"0b0000"},
+    {"id":"signed-32-bit-minimum-maps-to-zero","input_value":-2147483648,"expected_result":6,"expected_output":"0b0000"},
+    {"id":"above-signed-32-bit-range","input_value":2147483648,"expected_result":-1,"expected_output":""},
+    {"id":"below-signed-32-bit-range","input_value":-2147483649,"expected_result":-1,"expected_output":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

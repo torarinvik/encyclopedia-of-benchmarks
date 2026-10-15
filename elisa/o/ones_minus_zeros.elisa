@@ -20,8 +20,8 @@ def ones_minus_zeros_write_i32(output: mutable u8&, cell: usize, value: i64) -> 
     output[position + 3] <- ((encoded / 16777216) & 255).u8()
 
 def ones_minus_zeros_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 2 or values[0] < 1 or values[0] > i64(MAX_DIMENSION) or
-            values[1] < 1 or values[1] > i64(MAX_DIMENSION):
+    if (length < 2 or values[0] < 1 or values[0] > i64(MAX_DIMENSION) or
+            values[1] < 1 or values[1] > i64(MAX_DIMENSION)):
         return -1
     rows: usize = usize(values[0])
     columns: usize = usize(values[1])

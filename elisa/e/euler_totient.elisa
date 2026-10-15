@@ -1,0 +1,18 @@
+# Euler's totient via distinct-prime factorization.
+def euler_totient_impl(n: i64) -> i64:
+    if n < 1 or n > 1000000:
+        return -1
+    result: mutable i64 = n
+    remaining: mutable i64 = n
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+            result <- result - result / factor
+        factor <- factor + 1
+    if remaining > 1:
+        result <- result - result / remaining
+    result
+
+export fn euler_totient(n: i64) -> i64 = euler_totient_impl

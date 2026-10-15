@@ -1,0 +1,12 @@
+# Count repeated decimal digit-sum steps until one digit remains.
+def additive_persistence_impl(input: i64) -> i64:
+    if input < 0:
+        return -1
+    while input >= 10 |input: mutable i64 = input, steps: mutable i64 = 0| -> steps:
+        digit_sum: i64 = while remaining > 0 |remaining: mutable i64 = input, total: mutable i64 = 0| -> total:
+            total <- total + (remaining % 10)
+            remaining <- remaining / 10
+        input <- digit_sum
+        steps <- steps + 1
+
+export fn additive_persistence(input: i64) -> i64 = additive_persistence_impl

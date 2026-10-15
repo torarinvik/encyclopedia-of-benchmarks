@@ -11,7 +11,7 @@ def area_of_island_impl(input: i64&, length: usize) -> i64:
         return -1
 
     visited: mutable bool[MAX_CELLS] = zeroed
-    stack: mutable usize[MAX_CELLS] = zeroed
+    work_stack: mutable usize[MAX_CELLS] = zeroed
     maximum_area: mutable usize = 0
     start: mutable usize = 0
     while start < cells:
@@ -19,11 +19,11 @@ def area_of_island_impl(input: i64&, length: usize) -> i64:
             top: mutable usize = 0
             area: mutable usize = 0
             visited[start] <- true
-            stack[top] <- start
+            work_stack[top] <- start
             top <- top + 1
             while top > 0:
                 top <- top - 1
-                current: usize = stack[top]
+                current: usize = work_stack[top]
                 area <- area + 1
                 row: usize = current / columns
                 column: usize = current % columns
@@ -32,25 +32,25 @@ def area_of_island_impl(input: i64&, length: usize) -> i64:
                     neighbor <- current - columns
                     if not visited[neighbor] and input[2 + neighbor] != 0:
                         visited[neighbor] <- true
-                        stack[top] <- neighbor
+                        work_stack[top] <- neighbor
                         top <- top + 1
                 if column + 1 < columns:
                     neighbor <- current + 1
                     if not visited[neighbor] and input[2 + neighbor] != 0:
                         visited[neighbor] <- true
-                        stack[top] <- neighbor
+                        work_stack[top] <- neighbor
                         top <- top + 1
                 if row + 1 < rows:
                     neighbor <- current + columns
                     if not visited[neighbor] and input[2 + neighbor] != 0:
                         visited[neighbor] <- true
-                        stack[top] <- neighbor
+                        work_stack[top] <- neighbor
                         top <- top + 1
                 if column > 0:
                     neighbor <- current - 1
                     if not visited[neighbor] and input[2 + neighbor] != 0:
                         visited[neighbor] <- true
-                        stack[top] <- neighbor
+                        work_stack[top] <- neighbor
                         top <- top + 1
             if area > maximum_area:
                 maximum_area <- area

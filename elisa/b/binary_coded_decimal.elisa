@@ -1,0 +1,38 @@
+# Write the prefixed four-bit-per-decimal-digit BCD representation.
+def binary_coded_decimal_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < -2147483648 or value > 2147483647:
+        return -1
+    normalized: mutable i64 = value
+    if normalized < 0:
+        normalized <- 0
+    digits: mutable u8[10]
+    digit_count: mutable usize = 0
+    remaining: mutable i64 = normalized
+    while remaining > 0:
+        digits[digit_count] <- (remaining % 10).u8()
+        digit_count <- digit_count + 1
+        remaining <- remaining / 10
+    if digit_count == 0:
+        digits[0] <- 0.u8()
+        digit_count <- 1
+    output_length: usize = 2 + digit_count * 4
+    if output_capacity < output_length:
+        return -2
+    output[0] <- 48.u8()
+    output[1] <- 98.u8()
+    position: mutable usize = 2
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        digit: mutable u8 = digits[digit_count]
+        power: mutable u8 = 8.u8()
+        while power > 0:
+            if digit / power > 0:
+                output[position] <- 49.u8()
+                digit <- digit - power
+            else:
+                output[position] <- 48.u8()
+            position <- position + 1
+            power <- power / 2
+    output_length.i64()
+
+export fn binary_coded_decimal(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = binary_coded_decimal_impl

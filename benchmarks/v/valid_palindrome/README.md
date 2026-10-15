@@ -17,7 +17,7 @@ The benchmark uses an explicit length, so it can represent embedded NUL values c
 
 ## Reviewed TheAlgorithms source
 
-The pinned C [LeetCode 125 implementation](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/125.c) uses inward-moving indices, skips non-alphanumeric characters, and folds ASCII case before comparing. The shared contract makes character classification explicitly ASCII and uses a length-prefixed input array.
+The pinned C [LeetCode 125 implementation](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/125.c) uses inward-moving indices, skips non-alphanumeric characters, and folds ASCII case before comparing. The shared contract makes character classification explicitly ASCII and uses a length-prefixed input array. The F# [`IsPalindrome.fs`](https://github.com/TheAlgorithms/F-Sharp/blob/e5441e8bfd2cda87541634b75f39f0868447ae5f/Algorithms/Strings/IsPalindrome.fs) source lowercases and filters letters/digits; its broader Unicode and current-culture behavior is outside this benchmark’s ASCII contract.
 
 ## Implementations
 

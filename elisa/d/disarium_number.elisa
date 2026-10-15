@@ -1,0 +1,27 @@
+# Sum decimal digits raised to their one-based positions from the left.
+def disarium_number_impl(number: i64) -> i64:
+    if number < 1 or number > 99999999:
+        return -1
+    count: mutable i64 = 0
+    digits: mutable i64 = number
+    while digits > 0:
+        count <- count + 1
+        digits <- digits / 10
+    position: mutable i64 = count
+    remaining: mutable i64 = number
+    sum: mutable i64 = 0
+    while remaining > 0:
+        digit: i64 = remaining % 10
+        power: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < position:
+            power <- power * digit
+            exponent <- exponent + 1
+        sum <- sum + power
+        position <- position - 1
+        remaining <- remaining / 10
+    if sum == number:
+        return 1
+    return 0
+
+export fn disarium_number(number: i64) -> i64 = disarium_number_impl

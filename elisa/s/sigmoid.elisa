@@ -1,0 +1,8 @@
+extern exp(value: f64) -> f64
+
+def sigmoid_impl(x: f64) -> f64:
+    if x != x or x < -20.0 or x > 20.0:
+        return -1.0e300
+    1.0 / (1.0 + exp(-x))
+
+export fn sigmoid(x: f64) -> f64 = sigmoid_impl

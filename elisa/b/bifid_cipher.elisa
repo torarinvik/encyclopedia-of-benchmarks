@@ -1,0 +1,80 @@
+# Fixed 5x5 Bifid square in row-major order, with j merged into i.
+def bifid_letter_index(value: i64, merge_j: bool) -> i64:
+    normalized: mutable i64 = value
+    if normalized >= 97 and normalized <= 122:
+        normalized <- normalized - 32
+    if normalized < 65 or normalized > 90:
+        return -1
+    index: mutable i64 = normalized - 65
+    if index == 9:
+        if not merge_j:
+            return -1
+        index <- 8
+    elif index > 9:
+        index <- index - 1
+    index
+
+def bifid_letter(index: usize) -> u8:
+    value: mutable usize = 97 + index
+    if index >= 9:
+        value <- value + 1
+    value.u8()
+
+# Fractionate a fixed-square Bifid cipher over one complete message block.
+def bifid_cipher_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 2 or length > 258:
+        return -1
+    mode: i64 = input[0]
+    text_length_value: i64 = input[1]
+    if (mode != 0 and mode != 1) or text_length_value < 0 or text_length_value > 256:
+        return -1
+    text_length: usize = text_length_value.usize()
+    if length != text_length + 2:
+        return -1
+
+    rows: mutable u8[256] = zeroed
+    columns: mutable u8[256] = zeroed
+    coordinates: mutable u8[512] = zeroed
+    result: mutable u8[256] = zeroed
+    result_length: mutable usize = 0
+
+    if mode == 0:
+        for index in 0..<text_length:
+            value: i64 = input[index + 2]
+            if value == 32:
+                continue
+            letter_index: i64 = bifid_letter_index(value, true)
+            if letter_index < 0:
+                return -1
+            rows[result_length] <- (letter_index / 5 + 1).u8()
+            columns[result_length] <- (letter_index % 5 + 1).u8()
+            result_length <- result_length + 1
+        for index in 0..<result_length:
+            coordinates[index] <- rows[index]
+            coordinates[result_length + index] <- columns[index]
+        for index in 0..<result_length:
+            row: usize = (coordinates[2 * index] - 1).usize()
+            column: usize = (coordinates[2 * index + 1] - 1).usize()
+            result[index] <- bifid_letter(row * 5 + column)
+    else:
+        result_length <- text_length
+        for index in 0..<text_length:
+            letter_index: i64 = bifid_letter_index(input[index + 2], false)
+            if letter_index < 0:
+                return -1
+            coordinates[2 * index] <- (letter_index / 5 + 1).u8()
+            coordinates[2 * index + 1] <- (letter_index % 5 + 1).u8()
+        for index in 0..<result_length:
+            row: usize = (coordinates[index] - 1).usize()
+            column: usize = (coordinates[result_length + index] - 1).usize()
+            result[index] <- bifid_letter(row * 5 + column)
+
+    if output_capacity < result_length:
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn bifid_cipher(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = bifid_cipher_impl

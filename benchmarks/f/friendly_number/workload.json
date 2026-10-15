@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "friendly-number-exact-positive-int-v1",
+  "algorithm": "friendly_number",
+  "function_symbol": "friendly_number",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": [
+      "a",
+      "b"
+    ],
+    "minimum": 0,
+    "maximum": 1000000,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "values": [
+      0,
+      1
+    ],
+    "definition": "1 iff sigma(a)*b equals sigma(b)*a; zero inputs return 0"
+  },
+  "cases": [
+    {
+      "id": "pinned_friendly_pair_6_28",
+      "input_values": [
+        6,
+        28
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "same_friendly_number_pair",
+      "input_values": [
+        6,
+        6
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "non_friendly_pair",
+      "input_values": [
+        6,
+        8
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "ones",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "zero_first",
+      "input_values": [
+        0,
+        6
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_both",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "another_friendly_pair",
+      "input_values": [
+        30,
+        140
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "lower_positive_bound",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "upper_bound_equal_pair",
+      "input_values": [
+        1000000,
+        1000000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "above_bound",
+      "input_values": [
+        1000001,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_out_of_range",
+      "input_values": [
+        -1,
+        6
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,21 @@
+# Proper-divisor pair scan from the pinned Python source.
+def deficient_numbers_impl(number: i64) -> i64:
+    if number <= 0:
+        return 0
+    if number > 100000000:
+        return -1
+    if number == 1:
+        return 1
+    sum: i64 =
+        while divisor <= number / divisor |divisor: mutable i64 = 2, total: mutable i64 = 1| -> total:
+            if number % divisor == 0:
+                other: i64 = number / divisor
+                total <- total + divisor
+                if other != divisor:
+                    total <- total + other
+            divisor <- divisor + 1
+    if sum < number:
+        return 1
+    0
+
+export fn deficient_numbers(number: i64) -> i64 = deficient_numbers_impl

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "midpoint-circle-v1",
+  "algorithm": "midpoint_circle",
+  "function_symbol": "midpoint_circle",
+  "input": {
+    "kind": "i64_center_x_center_y_radius",
+    "encoding": "Center coordinates and radius.",
+    "maximum_values": 3,
+    "center_coordinate_range": [
+      -10000,
+      10000
+    ],
+    "radius_range": [
+      0,
+      1000
+    ],
+    "result": "Return point count and write ordered x,y pairs as little-endian signed i32 values, preserving generated duplicates.",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "radius_zero",
+      "input_values": [
+        2,
+        -3,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "02000000fdffffff"
+    },
+    {
+      "id": "unit_radius_axis_and_diagonal_duplicates",
+      "input_values": [
+        0,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "0100000000000000ffffffff000000000100000000000000ffffffff000000000000000001000000000000000100000000000000ffffffff00000000ffffffff0100000001000000ffffffff0100000001000000ffffffffffffffffffffffff0100000001000000ffffffff0100000001000000ffffffffffffffffffffffff"
+    },
+    {
+      "id": "radius_two_octant_order",
+      "input_values": [
+        0,
+        0,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 24,
+      "expected_output_hex": "0200000000000000feffffff000000000200000000000000feffffff000000000000000002000000000000000200000000000000feffffff00000000feffffff0200000001000000feffffff0100000002000000fffffffffeffffffffffffff0100000002000000ffffffff0200000001000000fefffffffffffffffeffffff0100000002000000ffffffff0200000001000000fefffffffffffffffeffffff0200000001000000feffffff0100000002000000fffffffffeffffffffffffff"
+    },
+    {
+      "id": "translated_radius_three",
+      "input_values": [
+        3,
+        -2,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 24,
+      "expected_output_hex": "06000000feffffff00000000feffffff06000000feffffff00000000feffffff0300000001000000030000000100000003000000fbffffff03000000fbffffff06000000ffffffff00000000ffffffff06000000fdffffff00000000fdffffff0400000001000000020000000100000004000000fbffffff02000000fbffffff0500000000000000010000000000000005000000fcffffff01000000fcffffff0500000000000000010000000000000005000000fcffffff01000000fcffffff"
+    },
+    {
+      "id": "negative_radius",
+      "input_values": [
+        0,
+        0,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "radius_out_of_range",
+      "input_values": [
+        0,
+        0,
+        1001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "center_out_of_range",
+      "input_values": [
+        10001,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

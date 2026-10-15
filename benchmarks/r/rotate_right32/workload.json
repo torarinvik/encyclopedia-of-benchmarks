@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "rotate-right32-binary-scalar-v1",
+  "algorithm": "rotate_right32",
+  "function_symbol": "rotate_right32",
+  "input": {
+    "kind": "unsigned_32_word_and_nonnegative_int32_shift",
+    "value_range": [
+      0,
+      4294967295
+    ],
+    "shift_range": [
+      0,
+      2147483647
+    ],
+    "shift_normalization": "modulo 32",
+    "result": "unsigned 32-bit rotated word",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0,
+        7
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "identity_shift_zero",
+      "input_values": [
+        2147483649,
+        0
+      ],
+      "expected_result": 2147483649
+    },
+    {
+      "id": "example_high_bit_wrap",
+      "input_values": [
+        3,
+        1
+      ],
+      "expected_result": 2147483649
+    },
+    {
+      "id": "single_high_bit_right_31",
+      "input_values": [
+        2147483648,
+        31
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "shift_32_identity",
+      "input_values": [
+        305419896,
+        32
+      ],
+      "expected_result": 305419896
+    },
+    {
+      "id": "shift_33_normalizes",
+      "input_values": [
+        305419896,
+        33
+      ],
+      "expected_result": 152709948
+    },
+    {
+      "id": "maximum_shift",
+      "input_values": [
+        1,
+        2147483647
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "all_bits_set",
+      "input_values": [
+        4294967295,
+        13
+      ],
+      "expected_result": 4294967295
+    },
+    {
+      "id": "zero_shift_zero_word",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_shift",
+      "input_values": [
+        7,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "shift_above_int32",
+      "input_values": [
+        7,
+        2147483648
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "value_above_uint32",
+      "input_values": [
+        4294967296,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_value",
+      "input_values": [
+        -1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed64_minimum",
+      "input_values": [
+        1,
+        -9223372036854775808
+      ],
+      "expected_result": -1
+    }
+  ]
+}

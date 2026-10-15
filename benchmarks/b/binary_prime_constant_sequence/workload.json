@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "binary-prime-constant-sequence-prefix-v1",
+  "algorithm": "binary_prime_constant_sequence",
+  "function_symbol": "binary_prime_constant_sequence",
+  "input": {
+    "kind": "single_signed_64_bit_sequence_count",
+    "encoding": "[n]",
+    "minimum_count": 0,
+    "maximum_count": 4096,
+    "sequence": "term i is 1 when one-based index i is prime, otherwise 0",
+    "output_encoding": "one byte per term, each byte 0 or 1",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "meaning": "the first n terms of the binary prime characteristic sequence",
+    "element_encoding": "single byte with value 0 or 1",
+    "result": "number of terms written"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty_prefix","input_values":[0],"expected_result":0},
+    {"id":"index_one_is_not_prime","input_values":[1],"expected_result":1},
+    {"id":"through_two","input_values":[2],"expected_result":2},
+    {"id":"first_three_terms","input_values":[3],"expected_result":3},
+    {"id":"first_ten_terms","input_values":[10],"expected_result":10},
+    {"id":"first_hundred_terms","input_values":[100],"expected_result":100},
+    {"id":"maximum_prefix","input_values":[4096],"expected_result":4096},
+    {"id":"negative_count","input_values":[-1],"expected_result":-1},
+    {"id":"count_above_bound","input_values":[4097],"expected_result":-1},
+    {"id":"empty_input_array","input_values":[],"expected_result":-1},
+    {"id":"extra_input_value","input_values":[10,20],"expected_result":-1}
+  ]
+}

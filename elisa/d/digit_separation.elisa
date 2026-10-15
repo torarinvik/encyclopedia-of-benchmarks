@@ -1,0 +1,28 @@
+# Separate signed decimal digits; direction 0 is reverse and 1 is forward.
+def digit_separation_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input_length != 2 or (input[1] != 0 and input[1] != 1):
+        return -1
+    remaining: mutable i64 = input[0]
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    if remaining == 0:
+        digits[0] <- 0.u8()
+        count <- 1
+    while remaining != 0:
+        remainder: i64 = remaining % 10
+        digit_value: mutable i64 = remainder
+        if digit_value < 0:
+            digit_value <- -digit_value
+        digits[count] <- digit_value.u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    if output_capacity < count:
+        return -2
+    for index in 0..<count:
+        source: mutable usize = index
+        if input[1] != 0:
+            source <- count - index - 1
+        output[index] <- digits[source]
+    count.i64()
+
+export fn digit_separation(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = digit_separation_impl

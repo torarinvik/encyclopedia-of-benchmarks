@@ -1,0 +1,35 @@
+const MAX_COUNT: usize = 4096
+
+def binary_prime_constant_is_prime(candidate: i64) -> bool:
+    if candidate < 2:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= candidate / divisor:
+        if candidate % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def binary_prime_constant_sequence_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1 or input[0] < 0 or input[0] > i64(MAX_COUNT):
+        return -1
+    count: usize = input[0].usize()
+    if output_capacity < count:
+        return -2
+
+    next: mutable usize = 1
+    candidate: mutable i64 = 2
+    while candidate <= input[0]:
+        if binary_prime_constant_is_prime(candidate):
+            while next < candidate.usize():
+                output[next - 1] <- u8(0)
+                next <- next + 1
+            output[candidate.usize() - 1] <- u8(1)
+            next <- candidate.usize() + 1
+        candidate <- candidate + 1
+    while next <= count:
+        output[next - 1] <- u8(0)
+        next <- next + 1
+    count.i64()
+
+export fn binary_prime_constant_sequence(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_prime_constant_sequence_impl

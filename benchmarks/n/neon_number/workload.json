@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "neon-number-i64-v1",
+  "algorithm": "neon_number",
+  "input": {
+    "kind": "signed_i64",
+    "nonnegative_valid_range": [
+      0,
+      3000000000
+    ],
+    "negative_result": 0,
+    "out_of_range_result": -1,
+    "result_encoding": {
+      "neon": 1,
+      "not_neon": 0
+    },
+    "definition": "A nonnegative n is neon exactly when the decimal digit sum of n squared equals n."
+  },
+  "cases": [
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "nine",
+      "input_value": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "twelve",
+      "input_value": 12,
+      "expected_result": 0
+    },
+    {
+      "id": "forty_five",
+      "input_value": 45,
+      "expected_result": 0
+    },
+    {
+      "id": "one_hundred",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_positive_example",
+      "input_value": 999999,
+      "expected_result": 0
+    },
+    {
+      "id": "upper_bound",
+      "input_value": 3000000000,
+      "expected_result": 0
+    },
+    {
+      "id": "above_upper_bound",
+      "input_value": 3000000001,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,18 @@
+# Emit the reflected n-bit Gray-code sequence as little-endian u32 values.
+def gray_code_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input_length != 1 or input[0] < 0 or input[0] > 13:
+        return -1
+    bit_count: usize = input[0].usize()
+    count: mutable usize = 0
+    if bit_count > 0:
+        count <- 1.usize() << bit_count
+    required: usize = count * 4
+    if output_capacity < required:
+        return -2
+    for index in 0..<count:
+        gray: usize = index ^ (index >> 1)
+        for byte in 0..<4:
+            output[4 * index + byte] <- ((gray >> (8 * byte)) & 255).u8()
+    count.i64()
+
+export fn gray_code(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = gray_code_impl

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-geometric-progression-float64-triple-v1",
+  "algorithm": "sum_of_geometric_progression",
+  "function_symbol": "sum_of_geometric_progression",
+  "input": {
+    "kind": "finite_float64_triple",
+    "encoding": "[first_term, common_ratio, num_terms]",
+    "first_term_range": [-1000.0, 1000.0],
+    "common_ratio_range": [-2.0, 2.0],
+    "common_ratio_excluded_interval": [0.9, 1.1],
+    "common_ratio_one_is_allowed": true,
+    "num_terms_range": [0, 16],
+    "num_terms_must_be_integral": true
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-9,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "source_example_binary_ratio", "input_values": [1.0, 2.0, 10.0], "expected_result": 1023.0},
+    {"id": "source_example_ratio_ten", "input_values": [1.0, 10.0, 5.0], "expected_result": 11111.0},
+    {"id": "source_example_fractional_ratio", "input_values": [9.0, 2.5, 5.0], "expected_result": 579.9375},
+    {"id": "ratio_one", "input_values": [10.0, 1.0, 3.0], "expected_result": 30.0},
+    {"id": "zero_terms", "input_values": [1.0, 2.0, 0.0], "expected_result": 0.0},
+    {"id": "zero_first_term", "input_values": [0.0, 2.0, 10.0], "expected_result": 0.0},
+    {"id": "zero_ratio", "input_values": [1.0, 0.0, 10.0], "expected_result": 1.0},
+    {"id": "negative_first_term", "input_values": [-1.0, 2.0, 10.0], "expected_result": -1023.0},
+    {"id": "negative_ratio", "input_values": [1.0, -2.0, 10.0], "expected_result": -341.0},
+    {"id": "fractional_ratio", "input_values": [2.0, 0.5, 6.0], "expected_result": 3.9375},
+    {"id": "maximum_terms", "input_values": [1.0, 2.0, 16.0], "expected_result": 65535.0}
+  ]
+}

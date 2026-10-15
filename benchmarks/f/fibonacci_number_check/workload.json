@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-number-check-i64-bounded-v1",
+  "algorithm": "fibonacci_number_check",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      -1300000000,
+      1300000000
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "fibonacci": 1,
+      "not_fibonacci": 0
+    },
+    "definition": "Return 1 exactly when 5*n*n+4 or 5*n*n-4 is a nonnegative perfect square; negative Fibonacci values and zero are included."
+  },
+  "cases": [
+    {
+      "id": "signed_minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "below_benchmark_range",
+      "input_value": -1300000001,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_fibonacci_832040",
+      "input_value": -832040,
+      "expected_result": 1
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 1
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "four_not_fibonacci",
+      "input_value": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "thirteen",
+      "input_value": 13,
+      "expected_result": 1
+    },
+    {
+      "id": "fourteen_not_fibonacci",
+      "input_value": 14,
+      "expected_result": 0
+    },
+    {
+      "id": "fibonacci_30",
+      "input_value": 832040,
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_43",
+      "input_value": 433494437,
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_44",
+      "input_value": 701408733,
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_45",
+      "input_value": 1134903170,
+      "expected_result": 1
+    },
+    {
+      "id": "one_after_fibonacci_45",
+      "input_value": 1134903171,
+      "expected_result": 0
+    },
+    {
+      "id": "bound_nonmember",
+      "input_value": 1300000000,
+      "expected_result": 0
+    },
+    {
+      "id": "above_benchmark_range",
+      "input_value": 1300000001,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

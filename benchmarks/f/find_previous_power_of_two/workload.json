@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "find-previous-power-of-two-i32-v1",
+  "algorithm": "find_previous_power_of_two",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 2147483647],
+    "result": "largest power of two less than or equal to the input; zero maps to zero",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":2},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"exact_power","input_value":1024,"expected_result":1024},
+    {"id":"between_powers","input_value":1535,"expected_result":1024},
+    {"id":"largest_power_in_domain","input_value":1073741824,"expected_result":1073741824},
+    {"id":"signed_i32_maximum","input_value":2147483647,"expected_result":1073741824},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"above_source_domain","input_value":2147483648,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

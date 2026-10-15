@@ -1,0 +1,110 @@
+const MAX_NODES: usize = 256
+const MAX_QUERIES: usize = 1024
+const MAX_ARCS: usize = 510
+const LOG_LEVELS: usize = 9
+
+def lowest_common_ancestor_binary_lifting_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 4 or input[0] < 1 or input[0] > i64(MAX_NODES):
+        return -1
+    node_count: usize = usize(input[0])
+    if input[1] < 0 or input[1] >= i64(node_count) or input[2] != i64(node_count - 1) or input[3] < 0 or input[3] > i64(MAX_QUERIES):
+        return -1
+    edge_count: usize = usize(input[2])
+    query_count: usize = usize(input[3])
+    query_offset: usize = 4 + 2 * edge_count
+    if length != query_offset + 2 * query_count:
+        return -1
+    root: usize = usize(input[1])
+
+    head: mutable i64[MAX_NODES] = zeroed
+    arc_to: mutable usize[MAX_ARCS] = zeroed
+    arc_next: mutable i64[MAX_ARCS] = zeroed
+    parent: mutable i64[MAX_NODES] = zeroed
+    depth: mutable usize[MAX_NODES] = zeroed
+    up: mutable usize[LOG_LEVELS * MAX_NODES] = zeroed
+    traversal_stack: mutable usize[MAX_NODES] = zeroed
+    for node in 0..<node_count |head, parent|:
+        head[node] <- -1
+        parent[node] <- -2
+    arcs: mutable usize = 0
+    for edge in 0..<edge_count |input, head, arc_to, arc_next, arcs|:
+        left: i64 = input[4 + 2 * edge]
+        right: i64 = input[5 + 2 * edge]
+        if left < 0 or left >= i64(node_count) or right < 0 or right >= i64(node_count) or left == right:
+            return -1
+        a: usize = usize(left)
+        b: usize = usize(right)
+        arc_to[arcs] <- b
+        arc_next[arcs] <- head[a]
+        head[a] <- i64(arcs)
+        arcs <- arcs + 1
+        arc_to[arcs] <- a
+        arc_next[arcs] <- head[b]
+        head[b] <- i64(arcs)
+        arcs <- arcs + 1
+    for query in 0..<query_count |input, query_offset|:
+        for side in 0..<2 |input, query_offset, query|:
+            value: i64 = input[query_offset + 2 * query + side]
+            if value < 0 or value >= i64(node_count):
+                return -1
+
+    top: mutable usize = 0
+    reached: mutable usize = 0
+    parent[root] <- -1
+    up[root] <- root
+    traversal_stack[top] <- root
+    top <- top + 1
+    while top > 0 |top, traversal_stack, parent, depth, up, head, arc_to, arc_next, reached|:
+        top <- top - 1
+        node: usize = traversal_stack[top]
+        reached <- reached + 1
+        arc: mutable i64 = head[node]
+        while arc >= 0 |arc, traversal_stack, top, parent, depth, up, arc_to, arc_next, node|:
+            neighbor: usize = arc_to[usize(arc)]
+            if i64(neighbor) != parent[node]:
+                if parent[neighbor] != -2:
+                    return -1
+                parent[neighbor] <- i64(node)
+                depth[neighbor] <- depth[node] + 1
+                up[neighbor] <- node
+                traversal_stack[top] <- neighbor
+                top <- top + 1
+            arc <- arc_next[usize(arc)]
+    if reached != node_count:
+        return -1
+    if output_capacity < query_count:
+        return -2
+    for level in 1..<LOG_LEVELS |up|:
+        for node in 0..<node_count |up, level|:
+            middle: usize = up[(level - 1) * MAX_NODES + node]
+            up[level * MAX_NODES + node] <- up[(level - 1) * MAX_NODES + middle]
+    query: mutable usize = 0
+    while query < query_count |query, input, output, depth, up, query_offset|:
+        u: mutable usize = usize(input[query_offset + 2 * query])
+        v: mutable usize = usize(input[query_offset + 2 * query + 1])
+        if depth[u] < depth[v]:
+            temp: usize = u
+            u <- v
+            v <- temp
+        difference: mutable usize = depth[u] - depth[v]
+        level: mutable usize = 0
+        while level < LOG_LEVELS |level, difference, u, up|:
+            if difference % 2 != 0:
+                u <- up[level * MAX_NODES + u]
+            difference <- difference / 2
+            level <- level + 1
+        if u != v:
+            level <- LOG_LEVELS
+            while level > 0 |level, u, v, up|:
+                level <- level - 1
+                up_u: usize = up[level * MAX_NODES + u]
+                up_v: usize = up[level * MAX_NODES + v]
+                if up_u != up_v:
+                    u <- up_u
+                    v <- up_v
+            u <- up[u]
+        output[query] <- u.u8()
+        query <- query + 1
+    i64(query_count)
+
+export fn lowest_common_ancestor_binary_lifting(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lowest_common_ancestor_binary_lifting_impl

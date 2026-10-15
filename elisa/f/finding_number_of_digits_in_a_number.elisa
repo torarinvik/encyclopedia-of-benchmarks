@@ -1,0 +1,11 @@
+def finding_number_of_digits_in_a_number_impl(value: i64) -> i64:
+    if value < 0:
+        return -1
+    remaining: mutable u64 = value.u64()
+    count: mutable i64 = 0
+    while remaining != 0.u64():
+        remaining <- remaining / 10.u64()
+        count <- count + 1
+    count
+
+export fn finding_number_of_digits_in_a_number(value: i64) -> i64 = finding_number_of_digits_in_a_number_impl

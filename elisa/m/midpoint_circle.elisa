@@ -1,0 +1,88 @@
+# Midpoint circle rasterization with the source's eight-point emission order.
+def midpoint_circle_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def midpoint_circle_count_points(radius: i64) -> usize:
+    if radius == 0:
+        return 1
+    x: mutable i64 = radius
+    y: mutable i64 = 0
+    decision: mutable i64 = 1 - radius
+    count: mutable usize = 8
+    while x > y:
+        y <- y + 1
+        if decision <= 0:
+            decision <- decision + 2 * y + 1
+        else:
+            x <- x - 1
+            decision <- decision + 2 * y - 2 * x + 1
+        count <- count + 8
+    count
+
+def midpoint_circle_write_symmetric(output: mutable u8&, position: mutable usize&,
+        center_x: i64, center_y: i64, x: i64, y: i64) -> void:
+    midpoint_circle_write_i32(output, position, center_x + x)
+    midpoint_circle_write_i32(output, position + 4, center_y + y)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x - x)
+    midpoint_circle_write_i32(output, position + 4, center_y + y)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x + x)
+    midpoint_circle_write_i32(output, position + 4, center_y - y)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x - x)
+    midpoint_circle_write_i32(output, position + 4, center_y - y)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x + y)
+    midpoint_circle_write_i32(output, position + 4, center_y + x)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x - y)
+    midpoint_circle_write_i32(output, position + 4, center_y + x)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x + y)
+    midpoint_circle_write_i32(output, position + 4, center_y - x)
+    position <- position + 8
+    midpoint_circle_write_i32(output, position, center_x - y)
+    midpoint_circle_write_i32(output, position + 4, center_y - x)
+    position <- position + 8
+
+def midpoint_circle_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length != 3:
+        return -1
+    center_x: i64 = input[0]
+    center_y: i64 = input[1]
+    radius: i64 = input[2]
+    if (center_x < -10000 or center_x > 10000 or center_y < -10000 or center_y > 10000 or
+            radius < 0 or radius > 1000):
+        return -1
+    count: usize = midpoint_circle_count_points(radius)
+    required: usize = count * 8
+    if output_capacity < required:
+        return -2
+    if radius == 0:
+        midpoint_circle_write_i32(output, 0, center_x)
+        midpoint_circle_write_i32(output, 4, center_y)
+        return 1
+
+    position: mutable usize = 0
+    x: mutable i64 = radius
+    y: mutable i64 = 0
+    decision: mutable i64 = 1 - radius
+    midpoint_circle_write_symmetric(output, position, center_x, center_y, x, y)
+    while x > y:
+        y <- y + 1
+        if decision <= 0:
+            decision <- decision + 2 * y + 1
+        else:
+            x <- x - 1
+            decision <- decision + 2 * y - 2 * x + 1
+        midpoint_circle_write_symmetric(output, position, center_x, center_y, x, y)
+    count.i64()
+
+export fn midpoint_circle(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = midpoint_circle_impl

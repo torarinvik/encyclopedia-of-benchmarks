@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "hamming-numbers-first-n-list-v1",
+  "algorithm": "hamming_numbers",
+  "function_symbol": "hamming_numbers",
+  "input": {
+    "kind": "single_positive_sequence_count_i64_array",
+    "encoding": "[n]",
+    "minimum_count": 1,
+    "maximum_count": 32,
+    "sequence": "increasing positive integers whose prime factors are limited to 2, 3, and 5",
+    "output_encoding": "n little-endian signed 64-bit values",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "meaning": "the first n 5-smooth numbers in increasing order",
+    "element_encoding": "little-endian signed 64-bit integer",
+    "result": "number of values written"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "first_value", "input_values": [1], "expected_result": 1},
+    {"id": "source_example_five", "input_values": [5], "expected_result": 5},
+    {"id": "source_example_ten", "input_values": [10], "expected_result": 10},
+    {"id": "source_example_fifteen", "input_values": [15], "expected_result": 15},
+    {"id": "maximum_supported_count", "input_values": [32], "expected_result": 32},
+    {"id": "invalid_zero_count", "input_values": [0], "expected_result": -1},
+    {"id": "invalid_negative_count", "input_values": [-1], "expected_result": -1},
+    {"id": "count_above_bound", "input_values": [33], "expected_result": -1},
+    {"id": "invalid_empty_input", "input_values": [], "expected_result": -1},
+    {"id": "invalid_extra_input", "input_values": [5, 10], "expected_result": -1}
+  ]
+}

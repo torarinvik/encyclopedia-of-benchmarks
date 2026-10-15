@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "mersenne-prime-v1",
+  "algorithm": "mersenne_prime",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [1, 2147483647],
+    "zero_result": 0,
+    "negative_result": -1,
+    "out_of_range_result": -1,
+    "result_encoding": {"mersenne_prime": 1, "other": 0}
+  },
+  "cases": [
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"first_mersenne_prime","input_value":3,"expected_result":1},
+    {"id":"mersenne_composite","input_value":15,"expected_result":0},
+    {"id":"mersenne_prime_31","input_value":31,"expected_result":1},
+    {"id":"mersenne_prime_127","input_value":127,"expected_result":1},
+    {"id":"source_example_8191","input_value":8191,"expected_result":1},
+    {"id":"largest_accepted_mersenne_prime","input_value":2147483647,"expected_result":1},
+    {"id":"first_above_bound","input_value":2147483648,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

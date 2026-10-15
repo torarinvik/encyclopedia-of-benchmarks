@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "javascript-friendly-numbers-source-loop-v1",
+  "algorithm": "friendly_numbers",
+  "function_symbol": "friendly_numbers",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": [
+      "first",
+      "second"
+    ],
+    "minimum": 1,
+    "maximum": 1000,
+    "invalid_equal_or_out_of_range_result": -1,
+    "source_guard": "rejects zero and equal values"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "values": [
+      0,
+      1
+    ],
+    "definition": "compare binary64 ratios of source divisor sums, where each sum starts at n and adds divisors i with i >= 1 and 2*i < n",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_loop_cross_parity_quirk_2_1",
+      "input_values": [
+        2,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_loop_cross_parity_quirk_1_2",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "pinned_friendly_pair_6_28",
+      "input_values": [
+        6,
+        28
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "different_source_indexes_6_8",
+      "input_values": [
+        6,
+        8
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "odd_number_proper_divisors",
+      "input_values": [
+        3,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "even_n_half_divisor_omitted",
+      "input_values": [
+        4,
+        2
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_first_rejected",
+      "input_values": [
+        0,
+        6
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "zero_second_rejected",
+      "input_values": [
+        6,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "equal_values_rejected",
+      "input_values": [
+        6,
+        6
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "upper_bound_pair",
+      "input_values": [
+        1000,
+        999
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "above_upper_bound",
+      "input_values": [
+        1001,
+        1
+      ],
+      "expected_result": -1
+    }
+  ]
+}

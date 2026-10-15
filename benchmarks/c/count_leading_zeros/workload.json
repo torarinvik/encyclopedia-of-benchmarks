@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "count-leading-zeros-signed-int32-v1",
+  "algorithm": "count_leading_zeros",
+  "function_symbol": "count_leading_zeros",
+  "input": {
+    "kind": "signed_int32_in_signed_i64_abi",
+    "minimum_value": -2147483648,
+    "maximum_value": 2147483647,
+    "bit_width": 32,
+    "zero_result": 32,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0],"expected_result":32},
+    {"id":"one","input_values":[1],"expected_result":31},
+    {"id":"five","input_values":[5],"expected_result":29},
+    {"id":"bit_30","input_values":[1073741824],"expected_result":1},
+    {"id":"int32_max","input_values":[2147483647],"expected_result":1},
+    {"id":"negative_one","input_values":[-1],"expected_result":0},
+    {"id":"negative_power_of_two","input_values":[-1073741824],"expected_result":0},
+    {"id":"int32_min","input_values":[-2147483648],"expected_result":0},
+    {"id":"positive_middle_bits","input_values":[16777215],"expected_result":8},
+    {"id":"below_int32_invalid","input_values":[-2147483649],"expected_result":-1},
+    {"id":"above_int32_invalid","input_values":[2147483648],"expected_result":-1},
+    {"id":"signed_64_minimum_invalid","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed_64_maximum_invalid","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

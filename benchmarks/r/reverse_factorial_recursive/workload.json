@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "reverse-factorial-recursive-positive-i64-v1",
+  "algorithm": "reverse_factorial_recursive",
+  "function_symbol": "reverse_factorial_recursive",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 1,
+    "maximum": 9223372036854775807,
+    "nonpositive_source_behavior": "raises ValueError; ABI maps these inputs to -1"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "factorial root k when input equals k!, otherwise -1",
+    "input_one_result": 1
+  },
+  "cases": [
+    {"id":"one_special_case","input_value":1,"expected_result":1},
+    {"id":"two_factorial","input_value":2,"expected_result":2},
+    {"id":"three_factorial","input_value":6,"expected_result":3},
+    {"id":"four_factorial","input_value":24,"expected_result":4},
+    {"id":"five_factorial","input_value":120,"expected_result":5},
+    {"id":"nonfactorial","input_value":150,"expected_result":-1},
+    {"id":"twenty_factorial","input_value":2432902008176640000,"expected_result":20},
+    {"id":"maximum_signed_i64_not_factorial","input_value":9223372036854775807,"expected_result":-1},
+    {"id":"zero_invalid","input_value":0,"expected_result":-1},
+    {"id":"negative_invalid","input_value":-7,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

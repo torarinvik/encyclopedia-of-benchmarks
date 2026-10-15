@@ -1,0 +1,13 @@
+# Repeated-doubling search from the pinned source, bounded to its i32 domain.
+def find_previous_power_of_two_impl(number: i64) -> i64:
+    if number < 0 or number > 2147483647:
+        return -1
+    if number == 0:
+        return 0
+    power: i64 = while value <= number |value: mutable i64 = 1| -> value:
+        value <- value << 1
+    if number > 1:
+        return power >> 1
+    1
+
+export fn find_previous_power_of_two(number: i64) -> i64 = find_previous_power_of_two_impl

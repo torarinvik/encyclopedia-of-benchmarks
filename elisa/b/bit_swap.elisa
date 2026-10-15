@@ -1,0 +1,22 @@
+# Swap two 0-based bits in a signed 32-bit value.
+def bit_swap_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -2147483649
+    data: i64 = values[0]
+    pos_a: i64 = values[1]
+    pos_b: i64 = values[2]
+    if data < -2147483648 or data > 2147483647 or pos_a < 0 or pos_a >= 32 or pos_b < 0 or pos_b >= 32:
+        return -2147483649
+    bits: mutable i64 = data & 4294967295
+    mask_a: i64 = 1 << pos_a
+    mask_b: i64 = 1 << pos_b
+    bit_a: i64 = (bits >> pos_a) & 1
+    bit_b: i64 = (bits >> pos_b) & 1
+    if bit_a != bit_b:
+        bits <- bits ^ mask_a ^ mask_b
+    if bits >= 2147483648:
+        bits - 4294967296
+    else:
+        bits
+
+export fn bit_swap(values: i64&, length: usize) -> i64 = bit_swap_impl

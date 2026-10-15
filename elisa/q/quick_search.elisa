@@ -1,0 +1,39 @@
+# Return the first ASCII byte match using a lookahead-byte shift table.
+def quick_search_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 512:
+        return -1
+    if values[0] < 0 or values[0] > 255 or values[1] < 0 or values[1] > 255:
+        return -1
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    for index in 0..<(text_length + pattern_length):
+        if values[2 + index] < 0 or values[2 + index] > 127:
+            return -1
+    if pattern_length == 0:
+        return 0
+    if pattern_length > text_length:
+        return -1
+
+    shift: mutable usize[128] = zeroed
+    for byte in 0..<128:
+        shift[byte] <- pattern_length
+    pattern_start: usize = 2 + text_length
+    for index in 0..<pattern_length:
+        shift[values[pattern_start + index].usize()] <- pattern_length - index
+
+    position: mutable usize = 0
+    while position <= text_length - pattern_length:
+        index: mutable usize = pattern_length
+        while index > 0 and values[2 + position + index - 1] == values[pattern_start + index - 1]:
+            index <- index - 1
+        if index == 0:
+            return position.i64()
+        if position + pattern_length >= text_length:
+            break
+        lookahead: usize = values[2 + position + pattern_length].usize()
+        position <- position + shift[lookahead]
+    -1
+
+export fn quick_search(values: i64&, length: usize) -> i64 = quick_search_impl

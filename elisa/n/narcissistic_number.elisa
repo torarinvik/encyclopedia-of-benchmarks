@@ -1,0 +1,46 @@
+# Enumerate narcissistic numbers below limit, memoizing digit powers.
+def narcissistic_number_impl(limit: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if limit > 100000:
+        return -1
+    if limit <= 0:
+        return 0
+    numbers: mutable i64[32] = zeroed
+    powers: mutable i64[60] = zeroed
+    cached: mutable bool[60] = zeroed
+    count: mutable usize = 0
+    for number in 0..<limit |numbers, count, powers, cached|:
+        digits: usize =
+            while remaining >= 10 |remaining: mutable i64 = number, digits: mutable usize = 1| -> digits:
+                remaining <- remaining / 10
+                digits <- digits + 1
+        digit_sum: i64 =
+            while remaining > 0 |remaining: mutable i64 = number, sum: mutable i64 = 0, powers, cached| -> sum:
+                digit: usize = (remaining % 10).usize()
+                key: usize = digits * 10 + digit
+                if not cached[key]:
+                    power: i64 =
+                        for exponent in 0..<digits |power: mutable i64 = 1| -> power:
+                            power <- power * digit.i64()
+                    powers[key] <- power
+                    cached[key] <- true
+                sum <- sum + powers[key]
+                remaining <- remaining / 10
+        if digit_sum == number:
+            if count == 32:
+                return -1
+            numbers[count] <- number
+            count <- count + 1
+    required: usize = count * 8
+    if required == 0:
+        return 0
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    for item in 0..<count |numbers, output, position|:
+        for byte in 0..<8 |numbers, output, position|:
+            shift: usize = (7 - byte) * 8
+            output[position] <- ((numbers[item].u64() >> shift) & 255.u64()).u8()
+            position <- position + 1
+    position.i64()
+
+export fn narcissistic_number(limit: i64, output: mutable u8&, output_capacity: usize) -> i64 = narcissistic_number_impl

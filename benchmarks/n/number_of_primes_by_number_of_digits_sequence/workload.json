@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "number-of-primes-by-number-of-digits-sequence-v1",
+  "algorithm": "number_of_primes_by_number_of_digits_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_range": [0, 3],
+    "out_of_range_result": -1,
+    "result_encoding": {"prime_count_in_digit_band": "nonnegative integer"}
+  },
+  "cases": [
+    {"id":"source_initial_term","input_value":0,"expected_result":0},
+    {"id":"one_digit_primes","input_value":1,"expected_result":4},
+    {"id":"two_digit_primes","input_value":2,"expected_result":21},
+    {"id":"three_digit_primes","input_value":3,"expected_result":143},
+    {"id":"below_domain","input_value":-1,"expected_result":-1},
+    {"id":"above_domain","input_value":4,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

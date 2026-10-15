@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "bhaskara-cosine-radians-binary64-v1",
+  "algorithm": "cos",
+  "function_symbol": "cos",
+  "input": {
+    "kind": "finite_binary64_radians",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "formula_order": "x *= 1/(2*pi); x -= 0.25 + floor(x+0.25); x *= 16*(abs(x)-0.5); x += 0.225*x*(abs(x)-1)",
+    "invalid_result": -1.0,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0.0],"expected_result":1.0},
+    {"id":"pi_over_three","input_values":[1.0471975511965976],"expected_result":0.5},
+    {"id":"pi_over_two","input_values":[1.5707963267948966],"expected_result":0.0},
+    {"id":"pi","input_values":[3.141592653589793],"expected_result":-1.0},
+    {"id":"negative_pi_over_two","input_values":[-1.5707963267948966],"expected_result":0.0},
+    {"id":"one_radian","input_values":[1.0],"expected_result":0.5404837362694085},
+    {"id":"negative_one_radian","input_values":[-1.0],"expected_result":0.5404837362694083},
+    {"id":"large_positive_range_reduction","input_values":[1000.0],"expected_result":0.5626536669905601},
+    {"id":"large_negative_range_reduction","input_values":[-1000.0],"expected_result":0.5626536669905601},
+    {"id":"upper_bound","input_values":[1000000.0],"expected_result":0.9371288795355526},
+    {"id":"lower_bound","input_values":[-1000000.0],"expected_result":0.9371288795355526},
+    {"id":"below_bound_invalid","input_values":[-1000000.1],"expected_result":-1.0},
+    {"id":"above_bound_invalid","input_values":[1000000.1],"expected_result":-1.0}
+  ]
+}

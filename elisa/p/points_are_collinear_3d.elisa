@@ -1,0 +1,27 @@
+# Check whether three bounded integer points lie on one 3D line.
+def points_are_collinear_3d_impl(values: i64&, length: usize) -> i64:
+    if length != 9:
+        return -1
+    valid: bool =
+        while index < 9 |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < -10000 or value > 10000:
+                valid <- false
+            index <- index + 1
+    if not valid:
+        return -1
+
+    abx: i64 = values[3] - values[0]
+    aby: i64 = values[4] - values[1]
+    abz: i64 = values[5] - values[2]
+    acx: i64 = values[6] - values[0]
+    acy: i64 = values[7] - values[1]
+    acz: i64 = values[8] - values[2]
+    cross_x: i64 = aby * acz - abz * acy
+    cross_y: i64 = abz * acx - abx * acz
+    cross_z: i64 = abx * acy - aby * acx
+    if cross_x == 0 and cross_y == 0 and cross_z == 0:
+        return 1
+    0
+
+export fn points_are_collinear_3d(values: i64&, length: usize) -> i64 = points_are_collinear_3d_impl

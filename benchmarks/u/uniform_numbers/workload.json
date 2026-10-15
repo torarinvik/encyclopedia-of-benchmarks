@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "uniform-numbers-v1",
+  "algorithm": "uniform_numbers",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": 0,
+    "maximum_value": 999999999,
+    "result": "count of positive integers with all equal decimal digits and value at most the input",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"nine","input_value":9,"expected_result":9},
+    {"id":"ten","input_value":10,"expected_result":9},
+    {"id":"eleven","input_value":11,"expected_result":10},
+    {"id":"one_hundred_ten","input_value":110,"expected_result":18},
+    {"id":"one_hundred_eleven","input_value":111,"expected_result":19},
+    {"id":"two_hundred_twenty_two","input_value":222,"expected_result":11},
+    {"id":"one_thousand","input_value":1000,"expected_result":27},
+    {"id":"one_thousand_one_hundred_eleven","input_value":1111,"expected_result":28},
+    {"id":"one_thousand_two_hundred_thirty_four","input_value":1234,"expected_result":28},
+    {"id":"maximum","input_value":999999999,"expected_result":81},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"above_range","input_value":1000000000,"expected_result":-1},
+    {"id":"signed_64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

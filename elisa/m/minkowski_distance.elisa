@@ -1,0 +1,30 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+def minkowski_distance_impl(packed: i64&, length: usize) -> f64:
+    if length < 2 or length > 18:
+        return -1.0e300
+    n: i64 = packed[0]
+    p: i64 = packed[1]
+    if n < 0 or n > 8 or p < 3 or p > 6 or length != (2 + 2 * n).usize():
+        return -1.0e300
+    check_index: mutable i64 = 0
+    while check_index < n:
+        if packed[(2 + check_index).usize()] < -100 or packed[(2 + check_index).usize()] > 100 or packed[(2 + n + check_index).usize()] < -100 or packed[(2 + n + check_index).usize()] > 100:
+            return -1.0e300
+        check_index <- check_index + 1
+    total: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < n:
+        difference: mutable i64 = packed[(2 + index).usize()] - packed[(2 + n + index).usize()]
+        if difference < 0:
+            difference <- -difference
+        term: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < p:
+            term <- term * difference
+            exponent <- exponent + 1
+        total <- total + term
+        index <- index + 1
+    pow(total.f64(), 1.0 / p.f64())
+
+export fn minkowski_distance(packed: i64&, length: usize) -> f64 = minkowski_distance_impl

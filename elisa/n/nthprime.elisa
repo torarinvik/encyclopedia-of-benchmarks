@@ -1,0 +1,46 @@
+# Expanding sieve strategy from the pinned Rust nth-prime routine.
+def nthprime_impl(nth: i64) -> i64:
+    if nth < 1 or nth > 100:
+        return -1
+    sieve: mutable u64[1600] = zeroed
+    total_prime: mutable u64 = 0
+    size_factor: mutable u64 = 2
+    size: mutable usize = (nth * 2).usize()
+    index: mutable usize = 0
+    while total_prime < nth.u64():
+        if size > 1600:
+            return -1
+        index <- 0
+        while index < size:
+            sieve[index] <- 1
+            index <- index + 1
+        index <- 2
+        while index < size:
+            if sieve[index] == 1:
+                multiple: mutable usize = index
+                while multiple < size:
+                    product: usize = index * multiple
+                    if product < size:
+                        sieve[product] <- 0
+                    else:
+                        break
+                    multiple <- multiple + 1
+            index <- index + 1
+        total_prime <- 0
+        index <- 2
+        while index < size:
+            total_prime <- total_prime + sieve[index]
+            index <- index + 1
+        size_factor <- size_factor + 1
+        size <- (nth.u64() * size_factor).usize()
+    count: mutable u64 = 0
+    index <- 2
+    used_size: usize = size - nth.usize()
+    while index < used_size:
+        count <- count + sieve[index]
+        if count == nth.u64():
+            return index.i64()
+        index <- index + 1
+    -1
+
+export fn nthprime(nth: i64) -> i64 = nthprime_impl

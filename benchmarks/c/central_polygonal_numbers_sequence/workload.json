@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "central-polygonal-numbers-sequence-v1",
+  "algorithm": "central_polygonal_numbers_sequence",
+  "function_symbol": "central_polygonal_numbers_sequence",
+  "input": {
+    "kind": "zero_based_position",
+    "minimum": 0,
+    "maximum": 4294967295,
+    "formula": "n*(n+1)/2+1, dividing the even factor before multiplication",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 1},
+    {"id": "one", "input_value": 1, "expected_result": 2},
+    {"id": "two", "input_value": 2, "expected_result": 4},
+    {"id": "three", "input_value": 3, "expected_result": 7},
+    {"id": "ten", "input_value": 10, "expected_result": 56},
+    {"id": "one_thousand", "input_value": 1000, "expected_result": 500501},
+    {"id": "maximum_supported_position", "input_value": 4294967295, "expected_result": 9223372034707292161},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 4294967296, "expected_result": -1},
+    {"id": "minimum_i64", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "maximum_i64", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

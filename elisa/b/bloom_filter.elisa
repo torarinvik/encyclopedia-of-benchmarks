@@ -1,0 +1,37 @@
+def bloom_filter_impl(trace: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 256 or length % 2 != 0:
+        return -1
+    query_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < length:
+        operation: i64 = trace[index]
+        key: i64 = trace[index + 1]
+        if (operation != 1 and operation != 2) or key < 0 or key > 1000000000:
+            return -1
+        if operation == 2:
+            query_count <- query_count + 1
+        index <- index + 2
+    if output_capacity < query_count:
+        return -2
+
+    bits: mutable u64 = 0
+    written: mutable usize = 0
+    index <- 0
+    while index < length:
+        key: i64 = trace[index + 1]
+        first: usize = ((key * 17 + 3) % 64).usize()
+        second: usize = ((key * 31 + 7) % 64).usize()
+        first_mask: u64 = 1.u64() << first
+        second_mask: u64 = 1.u64() << second
+        if trace[index] == 1:
+            bits <- bits | first_mask | second_mask
+        else:
+            if (bits & first_mask) != 0 and (bits & second_mask) != 0:
+                output[written] <- 1
+            else:
+                output[written] <- 0
+            written <- written + 1
+        index <- index + 2
+    written.i64()
+
+export fn bloom_filter(trace: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bloom_filter_impl

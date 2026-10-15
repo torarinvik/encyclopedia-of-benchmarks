@@ -2,7 +2,7 @@ package recursive_binary_search
 
 import "core:c"
 
-recursive_binary_search_range :: proc(values: [^]i64, low, high: c.size_t, target: i64) -> i64 {
+recursive_binary_search_range :: proc "contextless" (values: [^]i64, low, high: c.size_t, target: i64) -> i64 {
 	if low >= high {
 		return -1
 	}

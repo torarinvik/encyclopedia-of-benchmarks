@@ -1,0 +1,11 @@
+# Add nonnegative integers with XOR and shifted AND carry propagation.
+def bitwise_addition_impl(first: u64, second: u64) -> i64:
+    left: mutable u64 = first
+    carry_bits: mutable u64 = second
+    while carry_bits != 0:
+        carry: u64 = left & carry_bits
+        left <- left ^ carry_bits
+        carry_bits <- carry << 1
+    left.i64()
+
+export fn bitwise_addition(first: u64, second: u64) -> i64 = bitwise_addition_impl

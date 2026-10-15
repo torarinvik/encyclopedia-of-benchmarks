@@ -1,0 +1,38 @@
+# Sort up to ten bounded values and encode quartile statistics.
+def quartile_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def quartile_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 11 or input[0] < 1 or input[0] > 10:
+        return -1
+    count: usize = input[0].usize()
+    if length != count + 1:
+        return -1
+    values: mutable i64[10] = zeroed
+    for index in 0..<count:
+        if input[index + 1] < 0 or input[index + 1] > 99:
+            return -1
+        values[index] <- input[index + 1]
+    for i in 0..<count:
+        for j in 0..<count:
+            if values[i] < values[j]:
+                temporary: i64 = values[i]
+                values[i] <- values[j]
+                values[j] <- temporary
+    q1: i64 = values[count / 4]
+    q3: i64 = values[(3 * count) / 4]
+    required: usize = (count + 4) * 8
+    if output_capacity < required:
+        return -2
+    quartile_store_i64(count.i64(), output, 0)
+    for index in 0..<count:
+        quartile_store_i64(values[index], output, 8 * (index + 1))
+    quartile_store_i64(q1, output, 8 * (count + 1))
+    quartile_store_i64(q3, output, 8 * (count + 2))
+    quartile_store_i64(q3 - q1, output, 8 * (count + 3))
+    required.i64()
+
+export fn quartile(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = quartile_impl

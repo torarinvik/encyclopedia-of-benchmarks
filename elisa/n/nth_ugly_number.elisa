@@ -1,0 +1,30 @@
+# Return the zero-based 5-smooth number at index n.
+def nth_ugly_number_impl(n: i64) -> i64:
+    if n < 0 or n > 12690:
+        return -1
+    values: mutable i64[12691] = zeroed
+    values[0] <- 1
+    i2: mutable usize = 0
+    i3: mutable usize = 0
+    i5: mutable usize = 0
+    index: mutable usize = 1
+    while index <= usize(n):
+        c2: i64 = 2 * values[i2]
+        c3: i64 = 3 * values[i3]
+        c5: i64 = 5 * values[i5]
+        next: mutable i64 = c2
+        if c3 < next:
+            next <- c3
+        if c5 < next:
+            next <- c5
+        values[index] <- next
+        if c2 == next:
+            i2 <- i2 + 1
+        if c3 == next:
+            i3 <- i3 + 1
+        if c5 == next:
+            i5 <- i5 + 1
+        index <- index + 1
+    values[usize(n)]
+
+export fn nth_ugly_number(n: i64) -> i64 = nth_ugly_number_impl

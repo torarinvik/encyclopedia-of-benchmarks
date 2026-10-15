@@ -1,0 +1,14 @@
+# Recursive subtraction-based Euclidean GCD on a bounded positive domain.
+def gcd_recursive_euclidean_step(left: u64, right: u64) -> i64:
+    if left == right:
+        return left.i64()
+    if left > right:
+        return gcd_recursive_euclidean_step(left - right, right)
+    return gcd_recursive_euclidean_step(left, right - left)
+
+def gcd_recursive_euclidean_impl(left: u64, right: u64) -> i64:
+    if left == 0 or right == 0 or left > 128 or right > 128:
+        return -1
+    gcd_recursive_euclidean_step(left, right)
+
+export fn gcd_recursive_euclidean(left: u64, right: u64) -> i64 = gcd_recursive_euclidean_impl

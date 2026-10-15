@@ -4,7 +4,7 @@
 
 Input is an array of 0 through 4,096 ASCII byte values, each in `[0, 127]`. Invalid array lengths or byte values return `-2`. Parsing stops at the first NUL byte; later valid ASCII bytes are ignored. Before that terminator, the parser skips the six ASCII whitespace bytes: space and `0x09` through `0x0d`. It then consumes one optional sign and the longest initial run of decimal digits. If no digits follow, return `0`.
 
-Results saturate at the signed 32-bit bounds. The pinned C source returns `int` but accumulates in `long`; its overflow checks do not define portable behavior at the `long` or `int` boundaries. This benchmark specifies saturation so all nine implementations have a stable result. The parser core is related to [`string_to_integer`](../string_to_integer/README.md), but the accepted whitespace and NUL-termination rules make this a separate contract.
+Results saturate at the signed 32-bit bounds. The pinned C source returns `int` but accumulates in `long`; its overflow checks do not define portable behavior at the `long` or `int` boundaries. This benchmark specifies saturation so all nine implementations have a stable result. The parser core is related to [`string_to_integer`](../../s/string_to_integer/README.md), but the accepted whitespace and NUL-termination rules make this a separate contract.
 
 ## Workload and reproduction
 

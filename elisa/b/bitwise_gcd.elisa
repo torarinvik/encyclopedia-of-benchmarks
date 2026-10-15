@@ -1,0 +1,27 @@
+def trailing_zeros(value: u64) -> i64:
+    count: mutable i64 = 0
+    current: mutable u64 = value
+    while (current & 1) == 0:
+        current <- current >> 1
+        count <- count + 1
+    count
+
+def bitwise_gcd_impl(left: u64, right: u64) -> i64:
+    if left == 0:
+        return right.i64()
+    if right == 0:
+        return left.i64()
+
+    common_twos: i64 = trailing_zeros(left | right)
+    a: mutable u64 = left >> trailing_zeros(left)
+    b: mutable u64 = right
+    while b != 0:
+        b <- b >> trailing_zeros(b)
+        if a > b:
+            temp: u64 = a
+            a <- b
+            b <- temp
+        b <- b - a
+    (a << common_twos).i64()
+
+export fn bitwise_gcd(left: u64, right: u64) -> i64 = bitwise_gcd_impl

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "vector-cross-product-i64-bytes-v1",
+  "algorithm": "vector_cross_product",
+  "input": {
+    "kind": "six_signed_64_integers",
+    "layout": "[A.x, A.y, A.z, B.x, B.y, B.z]",
+    "component_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "32_little_endian_bytes",
+    "encoding": "four signed 64-bit integers [cross.x, cross.y, cross.z, magnitude_micro]",
+    "cross_component_order": "A \u00d7 B: [Ay*Bz-Az*By, -(Ax*Bz-Az*Bx), Ax*By-Ay*Bx]",
+    "magnitude_micro": "floor(sqrt(cross.x^2 + cross.y^2 + cross.z^2) * 1000000 + 0.5)"
+  },
+  "cases": [
+    {
+      "id": "source_vectors_1_2_3_and_4_5_6",
+      "input_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "unit_axes",
+      "input_values": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "negative_axis",
+      "input_values": [
+        1,
+        0,
+        0,
+        0,
+        -1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "parallel_vectors",
+      "input_values": [
+        1,
+        2,
+        3,
+        2,
+        4,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "negative_components",
+      "input_values": [
+        2,
+        -3,
+        4,
+        5,
+        6,
+        -7
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "large_bounded_values",
+      "input_values": [
+        1000000,
+        -1000000,
+        500000,
+        -250000,
+        750000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 32
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "input_above_bound",
+      "input_values": [
+        1000001,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

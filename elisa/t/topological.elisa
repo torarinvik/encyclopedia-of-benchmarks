@@ -1,0 +1,70 @@
+# Source-faithful port of TheAlgorithms/Go graph.Topological.
+def topological_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length == 0 or length > 66:
+        return -2
+    vertices_value: i64 = values[0]
+    if vertices_value < 0 or vertices_value > 64 or (length - 1) % 2 != 0:
+        return -2
+    vertices: usize = vertices_value.usize()
+    edge_count: usize = (length - 1) / 2
+    dependencies: mutable u8[64] = zeroed
+    adjacency: mutable u64[64] = zeroed
+    answer: mutable u8[96] = zeroed
+
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[1 + 2 * edge]
+        destination_value: i64 = values[2 + 2 * edge]
+        if origin_value < 0 or destination_value < 0:
+            return -2
+        if origin_value.u64() >= vertices.u64() or destination_value.u64() >= vertices.u64():
+            return -2
+        origin: usize = origin_value.usize()
+        destination: usize = destination_value.usize()
+        dependencies[destination] <- dependencies[destination] + 1
+        adjacency[origin] <- adjacency[origin] | (1.u64() << destination)
+        edge <- edge + 1
+
+    answer_count: mutable usize = 0
+    root: mutable usize = 0
+    while root < vertices:
+        if dependencies[root] == 0:
+            dfs_stack: mutable usize[64] = zeroed
+            top: mutable usize = 0
+            dfs_stack[top] <- root
+            top <- top + 1
+            while top > 0:
+                top <- top - 1
+                origin: usize = dfs_stack[top]
+                answer[answer_count] <- origin.u8()
+                answer_count <- answer_count + 1
+                destination: mutable usize = 0
+                while destination < vertices:
+                    edge_mask: u64 = 1.u64() << destination
+                    if (adjacency[origin] & edge_mask) != 0:
+                        in_stack: mutable bool = false
+                        index: mutable usize = 0
+                        while index < top:
+                            if dfs_stack[index] == destination:
+                                in_stack <- true
+                                break
+                            index <- index + 1
+                        if not in_stack:
+                            dfs_stack[top] <- destination
+                            top <- top + 1
+                    adjacency[origin] <- adjacency[origin] & ~edge_mask
+                    adjacency[destination] <- adjacency[destination] & ~(1.u64() << origin)
+                    destination <- destination + 1
+        root <- root + 1
+
+    if output_capacity < answer_count:
+        return -2
+    index: mutable usize = 0
+    while index < answer_count:
+        output[index] <- answer[index]
+        index <- index + 1
+    answer_count.i64()
+
+export fn topological(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = topological_impl

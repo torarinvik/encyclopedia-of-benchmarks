@@ -1,0 +1,31 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern fabs(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def geometric_mean_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > 6:
+        return -1.0e300
+    product: mutable i64 = 1
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -100 or value > 100:
+            return -1.0e300
+        product <- product * value
+        index <- index + 1
+    if product < 0 and length % 2 == 0:
+        return -1.0e300
+    root: mutable f64 = pow(fabs(product.f64()), 1.0 / length.f64())
+    rounded: f64 = floor(root + 0.5)
+    rounded_power: mutable i64 = 1
+    index <- 0
+    while index < length:
+        rounded_power <- rounded_power * rounded.i64()
+        index <- index + 1
+    if (product >= 0 and rounded_power == product) or (product < 0 and length % 2 == 1 and -rounded_power == product):
+        root <- rounded
+    if product < 0:
+        root <- -root
+    root
+
+export fn geometric_mean(values: i64&, length: usize) -> f64 = geometric_mean_impl

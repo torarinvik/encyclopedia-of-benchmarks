@@ -1,0 +1,20 @@
+# Return the source-compatible derangement count for n in 0..=20.
+def derangement_impl(n: i64) -> i64:
+    if n < 0 or n > 20:
+        return -1
+    if n < 2:
+        return 0
+    if n == 2:
+        return 1
+
+    previous: mutable i64 = 1
+    previous_previous: mutable i64 = 0
+    i: mutable i64 = 3
+    while i <= n:
+        current: i64 = (i - 1) * (previous + previous_previous)
+        previous_previous <- previous
+        previous <- current
+        i <- i + 1
+    return previous
+
+export fn derangement(n: i64) -> i64 = derangement_impl

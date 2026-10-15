@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "jacobsthal-number-v1",
+  "algorithm": "jacobsthal_number",
+  "input": {
+    "kind": "signed_64_bit_integer_index",
+    "tested_range": [0, 64],
+    "out_of_range_result": -1,
+    "sequence_definition": {"J_0": 0, "J_1": 1, "J_n": "J_(n-1) + 2 * J_(n-2)"}
+  },
+  "cases": [
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"jacobsthal_zero","input_value":0,"expected_result":0},
+    {"id":"jacobsthal_one","input_value":1,"expected_result":1},
+    {"id":"jacobsthal_two","input_value":2,"expected_result":1},
+    {"id":"jacobsthal_three","input_value":3,"expected_result":3},
+    {"id":"jacobsthal_five","input_value":5,"expected_result":11},
+    {"id":"jacobsthal_ten","input_value":10,"expected_result":341},
+    {"id":"jacobsthal_twenty","input_value":20,"expected_result":349525},
+    {"id":"largest_signed_64_bit_jacobsthal","input_value":64,"expected_result":6148914691236517205},
+    {"id":"first_value_over_signed_64_bit","input_value":65,"expected_result":-1},
+    {"id":"larger_index","input_value":100,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

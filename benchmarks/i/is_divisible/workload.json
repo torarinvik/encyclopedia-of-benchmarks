@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "is-divisible-positive-i32-pair-v1",
+  "algorithm": "is_divisible",
+  "input": {
+    "kind": "signed_64_bit_pair",
+    "dividend_range": [0, 1000000000],
+    "divisor_range": [1, 1000000000],
+    "result": "1 when dividend modulo divisor is zero, otherwise 0",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"ten_divisible_by_five","input_values":[10,5],"expected_result":1},
+    {"id":"source_example_large","input_values":[123498175,5],"expected_result":1},
+    {"id":"not_divisible","input_values":[99,5],"expected_result":0},
+    {"id":"zero_dividend","input_values":[0,7],"expected_result":1},
+    {"id":"divisor_one","input_values":[987654321,1],"expected_result":1},
+    {"id":"equal_values","input_values":[1000000000,1000000000],"expected_result":1},
+    {"id":"zero_divisor","input_values":[10,0],"expected_result":-1},
+    {"id":"negative_dividend","input_values":[-1,3],"expected_result":-1},
+    {"id":"above_range","input_values":[1000000001,3],"expected_result":-1},
+    {"id":"negative_divisor","input_values":[10,-3],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

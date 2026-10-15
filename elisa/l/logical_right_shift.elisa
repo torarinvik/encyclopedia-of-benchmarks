@@ -1,0 +1,6 @@
+def logical_right_shift_impl(n: u64, shift: u64) -> i64:
+    if n > 9007199254740991 or shift > 53:
+        return -1
+    (n >> shift.usize()).i64()
+
+export fn logical_right_shift(n: u64, shift: u64) -> i64 = logical_right_shift_impl

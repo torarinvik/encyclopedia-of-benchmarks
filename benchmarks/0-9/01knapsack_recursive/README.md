@@ -10,7 +10,7 @@ Solve the 0/1 knapsack problem with the direct recursive include-or-exclude recu
 - Return the greatest total value whose total weight does not exceed capacity.
 - Malformed or out-of-range inputs return -1.
 
-The item-count limit bounds the direct recurrence to at most 2^16 leaves. Weights are positive, matching the source base case at zero capacity. No memoization or machine-specific instructions are used.
+The item-count limit bounds the direct recurrence to at most 2^16 leaves. This benchmark requires positive item weights; the source recurrence also has a zero-capacity base case. No memoization or machine-specific instructions are used.
 
 ## Workload and verification
 

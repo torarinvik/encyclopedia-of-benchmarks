@@ -28,11 +28,11 @@ def prime_factorization_impl(value: i64, output: mutable u8&, output_capacity: u
         return -1
     primes: mutable u32[10]
     exponents: mutable u32[10]
-    count: usize = factor_pairs(value, primes, exponents)
+    count: usize = factor_pairs(value, &primes[0], &exponents[0])
     required: usize = count * 8
     if output_capacity < required:
         return -2
-    for i in 0 .. count:
+    for i in 0 ..< count:
         write_u32le(primes[i], output, 8 * i)
         write_u32le(exponents[i], output, 8 * i + 4)
     required.i64()

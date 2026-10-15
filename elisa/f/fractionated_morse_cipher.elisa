@@ -1,0 +1,189 @@
+# Keyed Morse trigraph fractionation.
+def fractionated_morse_info(letter: usize) -> usize:
+    if letter == 0: return 33
+    if letter == 1: return 72
+    if letter == 2: return 74
+    if letter == 3: return 52
+    if letter == 4: return 16
+    if letter == 5: return 66
+    if letter == 6: return 54
+    if letter == 7: return 64
+    if letter == 8: return 32
+    if letter == 9: return 71
+    if letter == 10: return 53
+    if letter == 11: return 68
+    if letter == 12: return 35
+    if letter == 13: return 34
+    if letter == 14: return 55
+    if letter == 15: return 70
+    if letter == 16: return 77
+    if letter == 17: return 50
+    if letter == 18: return 48
+    if letter == 19: return 17
+    if letter == 20: return 49
+    if letter == 21: return 65
+    if letter == 22: return 51
+    if letter == 23: return 73
+    if letter == 24: return 75
+    if letter == 25: return 76
+    0
+
+def fractionated_morse_trit_symbol(digit: usize) -> u8:
+    if digit == 0:
+        return 46.u8()
+    if digit == 1:
+        return 45.u8()
+    120.u8()
+
+def fractionated_morse_letter(morse: u8&, start: usize, length: usize) -> i64:
+    if length < 1 or length > 4:
+        return -1
+    code: mutable usize = 0
+    for offset in 0..<length:
+        bit: mutable usize = 0
+        if morse[start + offset] == 45.u8():
+            bit <- 1
+        code <- code * 2 + bit
+    letter: mutable usize = 0
+    while letter < 26:
+        info: usize = fractionated_morse_info(letter)
+        if info / 16 == length and info % 16 == code:
+            return letter.i64()
+        letter <- letter + 1
+    -1
+
+def fractionated_morse_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 3 or length > 323:
+        return -1
+    mode: i64 = values[0]
+    text_length_value: i64 = values[1]
+    key_length_value: i64 = values[2]
+    if (mode != 0 and mode != 1) or text_length_value < 0 or text_length_value > 256 or key_length_value < 0 or key_length_value > 64:
+        return -1
+    text_length: usize = text_length_value.usize()
+    key_length: usize = key_length_value.usize()
+    if length != 3 + text_length + key_length:
+        return -1
+    key_start: usize = 3 + text_length
+    for index in 0..<key_length:
+        value: i64 = values[key_start + index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+            return -1
+    for index in 0..<text_length:
+        value: i64 = values[3 + index]
+        if mode == 0:
+            if value != 32 and not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+                return -1
+        elif value < 65 or value > 90:
+            return -1
+    keyed: mutable u8[26] = zeroed
+    seen: mutable bool[26] = zeroed
+    keyed_count: mutable usize = 0
+    for index in 0..<key_length:
+        value: mutable i64 = values[key_start + index]
+        if value >= 97 and value <= 122:
+            value <- value - 32
+        letter: usize = (value - 65).usize()
+        if not seen[letter]:
+            seen[letter] <- true
+            keyed[keyed_count] <- value.u8()
+            keyed_count <- keyed_count + 1
+    for letter in 0..<26:
+        if not seen[letter]:
+            keyed[keyed_count] <- (65 + letter).u8()
+            keyed_count <- keyed_count + 1
+
+    result: mutable u8[800] = zeroed
+    result_length: mutable usize = 0
+    if mode == 0:
+        morse: mutable u8[1300] = zeroed
+        morse_length: mutable usize = 0
+        for index in 0..<text_length:
+            if index != 0:
+                morse[morse_length] <- 120.u8()
+                morse_length <- morse_length + 1
+            value: mutable i64 = values[3 + index]
+            if value == 32:
+                continue
+            if value >= 97 and value <= 122:
+                value <- value - 32
+            info: usize = fractionated_morse_info((value - 65).usize())
+            letter_length: usize = info / 16
+            code: usize = info % 16
+            for bit in 0..<letter_length:
+                mask: usize = 1 << (letter_length - bit - 1)
+                symbol: mutable u8 = 46.u8()
+                if (code & mask) != 0:
+                    symbol <- 45.u8()
+                morse[morse_length] <- symbol
+                morse_length <- morse_length + 1
+        padding: usize = 3 - morse_length % 3
+        for _ in 0..<padding:
+            morse[morse_length] <- 120.u8()
+            morse_length <- morse_length + 1
+        start: mutable usize = 0
+        while start < morse_length:
+            trigram: mutable usize = 0
+            for offset in 0..<3:
+                digit: mutable usize = 2
+                if morse[start + offset] == 46.u8():
+                    digit <- 0
+                elif morse[start + offset] == 45.u8():
+                    digit <- 1
+                trigram <- trigram * 3 + digit
+            if trigram < 26:
+                result[result_length] <- keyed[trigram]
+                result_length <- result_length + 1
+            start <- start + 3
+    else:
+        morse: mutable u8[1300] = zeroed
+        morse_length: mutable usize = 0
+        for index in 0..<text_length:
+            trigram: mutable usize = 0
+            while trigram < 26 and keyed[trigram].i64() != values[3 + index]:
+                trigram <- trigram + 1
+            if trigram == 26:
+                return -1
+            morse[morse_length] <- fractionated_morse_trit_symbol(trigram / 9)
+            morse[morse_length + 1] <- fractionated_morse_trit_symbol((trigram / 3) % 3)
+            morse[morse_length + 2] <- fractionated_morse_trit_symbol(trigram % 3)
+            morse_length <- morse_length + 3
+        segment_start: mutable usize = 0
+        index: mutable usize = 0
+        while index <= morse_length:
+            if index != morse_length and morse[index] != 120.u8():
+                index <- index + 1
+                continue
+            segment_length: usize = index - segment_start
+            if segment_length == 0:
+                result[result_length] <- 32.u8()
+                result_length <- result_length + 1
+            else:
+                letter: i64 = fractionated_morse_letter(&morse[0], segment_start, segment_length)
+                if letter < 0:
+                    return -1
+                result[result_length] <- (65 + letter).u8()
+                result_length <- result_length + 1
+            segment_start <- index + 1
+            index <- index + 1
+        first: mutable usize = 0
+        while first < result_length and result[first] == 32.u8():
+            first <- first + 1
+        while result_length > first and result[result_length - 1] == 32.u8():
+            result_length <- result_length - 1
+        if first > 0:
+            index <- first
+            while index < result_length:
+                result[index - first] <- result[index]
+                index <- index + 1
+            result_length <- result_length - first
+
+    if output_capacity < result_length:
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn fractionated_morse_cipher(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = fractionated_morse_impl

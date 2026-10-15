@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "circular-right-shift-v1",
+  "algorithm": "circular_right_shift",
+  "input": {
+    "kind": "uint53_and_shift",
+    "value_range": [0, 9007199254740991],
+    "shift_range": [0, 53],
+    "out_of_range_result": -1,
+    "meaning": "circular right rotation over a 53-bit unsigned word"
+  },
+  "cases": [
+    {"id":"zero_shift_zero","input_values":[0,0],"expected_result":0},
+    {"id":"zero_shift_middle","input_values":[0,27],"expected_result":0},
+    {"id":"one_shift_zero","input_values":[1,0],"expected_result":1},
+    {"id":"one_shift_one","input_values":[1,1],"expected_result":4503599627370496},
+    {"id":"one_shift_52","input_values":[1,52],"expected_result":2},
+    {"id":"one_full_width_shift","input_values":[1,53],"expected_result":1},
+    {"id":"low_bits_wrap","input_values":[7,1],"expected_result":4503599627370499},
+    {"id":"high_bit_moves_right","input_values":[4503599627370496,1],"expected_result":2251799813685248},
+    {"id":"ordinary_pattern","input_values":[11,1],"expected_result":4503599627370501},
+    {"id":"all_bits_shift_one","input_values":[9007199254740991,1],"expected_result":9007199254740991},
+    {"id":"maximum_full_width_shift","input_values":[9007199254740991,53],"expected_result":9007199254740991},
+    {"id":"value_above_uint53","input_values":[9007199254740992,1],"expected_result":-1},
+    {"id":"shift_above_width","input_values":[1,54],"expected_result":-1},
+    {"id":"uint64_max_value","input_values":[18446744073709551615,0],"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "binary_scalar_call",
+    "repetitions_per_sample": 32,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

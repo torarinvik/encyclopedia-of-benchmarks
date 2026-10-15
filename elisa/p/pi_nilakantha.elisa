@@ -1,0 +1,18 @@
+def pi_nilakantha_impl(input: f64) -> f64:
+    if not (input >= 0.0 and input <= 500.0 and input == i32(input).f64()):
+        return -1.0
+    iterations: i32 = input.i32()
+    pi: mutable f64 = 3.0
+    div_counter: mutable i32 = 2
+    i: mutable i32 = 0
+    while i < iterations:
+        term: f64 = 4.0 / (div_counter * (div_counter + 1) * (div_counter + 2))
+        if i % 2 == 0:
+            pi <- pi + term
+        else:
+            pi <- pi - term
+        div_counter <- div_counter + 2
+        i <- i + 1
+    pi
+
+export fn pi_nilakantha(input: f64) -> f64 = pi_nilakantha_impl

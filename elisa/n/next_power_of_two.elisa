@@ -1,0 +1,15 @@
+# Bit spreading for the pinned positive 32-bit source domain.
+def next_power_of_two_impl(number: i64) -> i64:
+    if number < 1 or number > 1073741824:
+        return -1
+    if (number & (number - 1)) == 0:
+        return number
+    value: mutable i64 = number - 1
+    value <- value | (value >> 1)
+    value <- value | (value >> 2)
+    value <- value | (value >> 4)
+    value <- value | (value >> 8)
+    value <- value | (value >> 16)
+    value + 1
+
+export fn next_power_of_two(number: i64) -> i64 = next_power_of_two_impl

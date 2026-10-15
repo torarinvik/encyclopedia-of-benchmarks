@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-binomial-coefficient-v1",
+  "algorithm": "sum_of_binomial_coefficient",
+  "input": {
+    "minimum": 0,
+    "maximum": 30,
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "row_zero", "input_value": 0, "expected_result": 1},
+    {"id": "row_one", "input_value": 1, "expected_result": 2},
+    {"id": "row_two", "input_value": 2, "expected_result": 4},
+    {"id": "row_three", "input_value": 3, "expected_result": 8},
+    {"id": "row_four", "input_value": 4, "expected_result": 16},
+    {"id": "row_five", "input_value": 5, "expected_result": 32},
+    {"id": "row_seven", "input_value": 7, "expected_result": 128},
+    {"id": "row_ten", "input_value": 10, "expected_result": 1024},
+    {"id": "row_twenty", "input_value": 20, "expected_result": 1048576},
+    {"id": "maximum_row", "input_value": 30, "expected_result": 1073741824},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_undefined_shift", "input_value": 31, "expected_result": -1},
+    {"id": "signed_minimum", "input_value": -9223372036854775808, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

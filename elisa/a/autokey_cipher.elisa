@@ -1,0 +1,57 @@
+# Plaintext-autokey cipher with a selectable output case dialect.
+def uppercase_letter(value: i64) -> i64:
+    if value >= 97 and value <= 122:
+        return value - 32
+    value
+
+def autokey_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 6 or length > 2052:
+        return -1
+    mode: i64 = input[0]
+    dialect: i64 = input[1]
+    text_length_value: i64 = input[2]
+    key_length_value: i64 = input[3]
+    if (mode != 0 and mode != 1) or (dialect != 0 and dialect != 1) or text_length_value < 1 or text_length_value > 1024 or key_length_value < 1 or key_length_value > 1024:
+        return -1
+    text_length: usize = text_length_value.usize()
+    key_length: usize = key_length_value.usize()
+    if length != 4 + text_length + key_length:
+        return -1
+    key_start: usize = 4 + text_length
+    for index in 0..<text_length |index, input|:
+        value: i64 = input[4 + index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+            return -1
+        if dialect == 1 and mode == 1 and value >= 65 and value <= 90:
+            return -1
+    for index in 0..<key_length |index, input, key_start|:
+        value: i64 = input[key_start + index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+            return -1
+    if output_capacity < text_length:
+        return -2
+    for index in 0..<text_length |index, input, output, key_start, key_length, mode, dialect|:
+        plain: i64 = uppercase_letter(input[4 + index]) - 65
+        key_value: i64 =
+            if index < key_length:
+                uppercase_letter(input[key_start + index])
+            elif mode == 0:
+                uppercase_letter(input[4 + index - key_length])
+            else:
+                uppercase_letter(output[index - key_length].i64())
+        shift: i64 = key_value - 65
+        mapped: i64 =
+            if mode == 0:
+                (plain + shift) % 26
+            else:
+                (plain - shift + 26) % 26
+        case_offset: i64 =
+            if dialect == 1:
+                32
+            else:
+                0
+        result: i64 = 65 + mapped + case_offset
+        output[index] <- result.u8()
+    text_length.i64()
+
+export fn autokey_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = autokey_cipher_impl

@@ -1,0 +1,12 @@
+# Multiplicative persistence for nonnegative Java int inputs.
+def number_persistence_impl(input: i64) -> i64:
+    if input < 0 or input > 2147483647:
+        return -1
+    while input >= 10 |input: mutable i64 = input, steps: mutable i64 = 0| -> steps:
+        digit_product: i64 = while remaining > 0 |remaining: mutable i64 = input, product: mutable i64 = 1| -> product:
+            product <- product * (remaining % 10)
+            remaining <- remaining / 10
+        input <- digit_product
+        steps <- steps + 1
+
+export fn number_persistence(input: i64) -> i64 = number_persistence_impl

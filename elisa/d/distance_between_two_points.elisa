@@ -1,0 +1,14 @@
+# Euclidean distance between two bounded 2D integer points.
+extern sqrt(value: f64) -> f64
+
+def distance_between_two_points_impl(values: i64&, length: usize) -> f64:
+    if length != 4:
+        return -1.0e300
+    for index in 0..<4:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1.0e300
+    dx: f64 = (values[2] - values[0]).f64()
+    dy: f64 = (values[3] - values[1]).f64()
+    sqrt(dx * dx + dy * dy)
+
+export fn distance_between_two_points(values: i64&, length: usize) -> f64 = distance_between_two_points_impl

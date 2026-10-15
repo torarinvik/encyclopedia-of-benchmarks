@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "gronsfeld-ascii-key-index-v1",
+  "algorithm": "gronsfeld_cipher",
+  "function_symbol": "gronsfeld_cipher",
+  "input": {
+    "kind": "ascii_text_zero_separator_ascii_digit_key",
+    "minimum_text_length": 0,
+    "maximum_text_length": 256,
+    "text_byte_range": [1, 127],
+    "minimum_key_length": 0,
+    "maximum_key_length": 64,
+    "key_byte_range": [48, 57],
+    "empty_key_rule": "valid only when text has no ASCII letters",
+    "output_encoding": "uppercase ASCII letters shifted by the digit at original text index modulo key length; nonletters copied",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"source_example","input_values":[104,101,108,108,111,0,52,49,50],"expected_result":5,"expected_output_hex":"4c464e5050"},
+    {"id":"key_index_counts_punctuation","input_values":[65,33,66,67,0,49,57],"expected_result":4,"expected_output_hex":"4221434c"},
+    {"id":"spaces_and_lowercase","input_values":[97,32,98,67,0,49,50,51],"expected_result":4,"expected_output_hex":"42204544"},
+    {"id":"nonletters_empty_key","input_values":[33,32,48,57,63,0],"expected_result":5,"expected_output_hex":"212030393f"},
+    {"id":"empty_text_empty_key","input_values":[0],"expected_result":0,"expected_output_hex":""},
+    {"id":"empty_text_with_key","input_values":[0,49,50,51],"expected_result":0,"expected_output_hex":""},
+    {"id":"zero_shift_uppercase","input_values":[97,98,99,0,48],"expected_result":3,"expected_output_hex":"414243"},
+    {"id":"repeating_key","input_values":[65,84,84,65,67,75,0,51,49,52],"expected_result":6,"expected_output_hex":"44555844444f"},
+    {"id":"empty_key_with_letter","input_values":[65,0],"expected_result":-1,"expected_output_hex":""},
+    {"id":"nondigit_key","input_values":[65,0,49,120],"expected_result":-1,"expected_output_hex":""},
+    {"id":"non_ascii_text","input_values":[128,0,49],"expected_result":-1,"expected_output_hex":""},
+    {"id":"missing_separator","input_values":[65,66],"expected_result":-1,"expected_output_hex":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

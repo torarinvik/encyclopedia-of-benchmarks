@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "newton-square-root-bounded-i64-v1",
+  "algorithm": "newton_square_root",
+  "function_symbol": "newton_square_root",
+  "input": {
+    "kind": "nonnegative_bounded_signed_64_integer",
+    "minimum": 0,
+    "maximum": 4611686018427387903,
+    "negative_result": -1,
+    "out_of_range_result": -1,
+    "zero_result": 0,
+    "seed": "1 << (ceil(log2(n)) / 2)",
+    "newton_update": "root = (root + n / root) / 2 using integer division",
+    "stopping_condition": "root*root <= n <= root*root + 2*root"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":1},
+    {"id":"four_square","input_value":4,"expected_result":2},
+    {"id":"eight","input_value":8,"expected_result":2},
+    {"id":"one_below_square","input_value":15,"expected_result":3},
+    {"id":"square","input_value":16,"expected_result":4},
+    {"id":"one_above_square","input_value":17,"expected_result":4},
+    {"id":"large_exact_square","input_value":2147395600,"expected_result":46340},
+    {"id":"signed_i64_safe_upper_bound","input_value":4611686018427387903,"expected_result":2147483647},
+    {"id":"negative_source_exception","input_value":-1,"expected_result":-1},
+    {"id":"above_safe_bound","input_value":4611686018427387904,"expected_result":-1}
+  ]
+}

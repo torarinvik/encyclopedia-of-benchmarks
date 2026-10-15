@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "derangement-count-v1",
+  "algorithm": "derangement",
+  "function_symbol": "derangement",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 20,
+    "out_of_range_result": -1,
+    "recurrence": "D(0)=D(1)=0; D(2)=1; D(n)=(n-1)*(D(n-1)+D(n-2)) for n>=3"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "result": "source-compatible derangement count"
+  },
+  "cases": [
+    {"id":"zero_source_base_case","input_value":0,"expected_result":0},
+    {"id":"one_source_base_case","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":2},
+    {"id":"four","input_value":4,"expected_result":9},
+    {"id":"five_source_example","input_value":5,"expected_result":44},
+    {"id":"ten_source_example","input_value":10,"expected_result":1334961},
+    {"id":"maximum_supported","input_value":20,"expected_result":895014631192902121},
+    {"id":"negative_input","input_value":-1,"expected_result":-1},
+    {"id":"above_supported_bound","input_value":21,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

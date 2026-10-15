@@ -1,0 +1,146 @@
+# Place each word once in a seeded, shuffled compass direction without overwriting cells.
+def word_search_generator_next_random(state: mutable u64&) -> u64:
+    state <- (state * 48271.u64()) % 2147483647.u64()
+    state
+
+def word_search_generator_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length < 4 or length > 4096:
+        return -1
+    width_value: i64 = values[0]
+    height_value: i64 = values[1]
+    seed_value: i64 = values[2]
+    word_count_value: i64 = values[3]
+    if width_value < 1 or width_value > 32 or height_value < 1 or height_value > 32:
+        return -1
+    if seed_value < 1 or seed_value >= 2147483647 or word_count_value < 0 or word_count_value > 96:
+        return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    word_count: usize = word_count_value.usize()
+
+    position: mutable usize = 4
+    word_index: mutable usize = 0
+    while word_index < word_count:
+        if position >= length:
+            return -1
+        word_length_value: i64 = values[position]
+        position <- position + 1
+        if word_length_value < 1 or word_length_value > 32 or word_length_value.usize() > length - position:
+            return -1
+        word_length: usize = word_length_value.usize()
+        offset: mutable usize = 0
+        while offset < word_length:
+            letter: i64 = values[position + offset]
+            if not ((letter >= 65 and letter <= 90) or (letter >= 97 and letter <= 122)):
+                return -1
+            offset <- offset + 1
+        position <- position + word_length
+        word_index <- word_index + 1
+    if position != length:
+        return -1
+
+    cells: usize = width * height
+    if output == null or output_capacity < cells:
+        return -2
+    board: mutable u8[1024] = zeroed
+    rows: mutable usize[32] = zeroed
+    columns: mutable usize[32] = zeroed
+    state: mutable u64 = seed_value.u64()
+    position <- 4
+    word_index <- 0
+    offset: mutable usize = 0
+    while word_index < word_count:
+        word_length: usize = values[position].usize()
+        position <- position + 1
+        word_start: usize = position
+        position <- position + word_length
+        row: mutable usize = 0
+        while row < height:
+            rows[row] <- row
+            row <- row + 1
+        column: mutable usize = 0
+        while column < width:
+            columns[column] <- column
+            column <- column + 1
+
+        remaining: mutable usize = height
+        while remaining > 1:
+            other: usize = (word_search_generator_next_random(state) % remaining.u64()).usize()
+            temporary: usize = rows[remaining - 1]
+            rows[remaining - 1] <- rows[other]
+            rows[other] <- temporary
+            remaining <- remaining - 1
+        remaining <- width
+        while remaining > 1:
+            other: usize = (word_search_generator_next_random(state) % remaining.u64()).usize()
+            temporary: usize = columns[remaining - 1]
+            columns[remaining - 1] <- columns[other]
+            columns[other] <- temporary
+            remaining <- remaining - 1
+
+        direction: usize = (word_search_generator_next_random(state) % 8.u64()).usize()
+        row_delta: mutable i64 = 0
+        column_delta: mutable i64 = 0
+        if direction == 0:
+            row_delta <- -1
+        elif direction == 1:
+            row_delta <- -1
+            column_delta <- 1
+        elif direction == 2:
+            column_delta <- 1
+        elif direction == 3:
+            row_delta <- 1
+            column_delta <- 1
+        elif direction == 4:
+            row_delta <- 1
+        elif direction == 5:
+            row_delta <- 1
+            column_delta <- -1
+        elif direction == 6:
+            column_delta <- -1
+        else:
+            row_delta <- -1
+            column_delta <- -1
+
+        placed: mutable bool = false
+        row_index: mutable usize = 0
+        while row_index < height and not placed:
+            column_index: mutable usize = 0
+            while column_index < width and not placed:
+                start_row: i64 = rows[row_index].i64()
+                start_column: i64 = columns[column_index].i64()
+                last_row: i64 = start_row + (word_length.i64() - 1) * row_delta
+                last_column: i64 = start_column + (word_length.i64() - 1) * column_delta
+                if last_row >= 0 and last_row < height.i64() and last_column >= 0 and last_column < width.i64():
+                    available: mutable bool = true
+                    offset <- 0
+                    while offset < word_length:
+                        current_row: i64 = start_row + offset.i64() * row_delta
+                        current_column: i64 = start_column + offset.i64() * column_delta
+                        cell: usize = current_row.usize() * width + current_column.usize()
+                        if board[cell] != 0.u8():
+                            available <- false
+                            break
+                        offset <- offset + 1
+                    if available:
+                        offset <- 0
+                        while offset < word_length:
+                            current_row: i64 = start_row + offset.i64() * row_delta
+                            current_column: i64 = start_column + offset.i64() * column_delta
+                            cell: usize = current_row.usize() * width + current_column.usize()
+                            board[cell] <- values[word_start + offset].u8()
+                            offset <- offset + 1
+                        placed <- true
+                column_index <- column_index + 1
+            row_index <- row_index + 1
+        word_index <- word_index + 1
+
+    index: mutable usize = 0
+    while index < cells:
+        output[index] <- board[index]
+        index <- index + 1
+    cells.i64()
+
+export fn word_search_generator(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = word_search_generator_impl

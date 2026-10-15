@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "rightmost-set-bit-rust-one-based-i32-v1",
+  "algorithm": "rightmost_set_bit",
+  "function_symbol": "rightmost_set_bit",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 1,
+    "maximum": 2147483647,
+    "positive_result": "one-based position of the least significant set bit",
+    "invalid_result": -1,
+    "invalid_inputs": "zero, negative values, or values greater than INT32_MAX"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "zero_no_set_bit", "input_value": 0, "expected_result": -1},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "odd", "input_value": 31, "expected_result": 1},
+    {"id": "eighteen", "input_value": 18, "expected_result": 2},
+    {"id": "power_of_two", "input_value": 1073741824, "expected_result": 31},
+    {"id": "signed_int32_maximum", "input_value": 2147483647, "expected_result": 1},
+    {"id": "above_source_domain", "input_value": 2147483648, "expected_result": -1}
+  ]
+}

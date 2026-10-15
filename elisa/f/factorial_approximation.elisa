@@ -1,0 +1,9 @@
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def factorial_approximation_impl(x: f64) -> f64:
+    if not (x >= 0.0 and x <= 170.0):
+        return -1.0
+    sqrt(3.141592653589793) * pow(x / 2.718281828459045, x) * pow(8.0 * pow(x, 3.0) + 4.0 * pow(x, 2.0) + x + 1.0 / 30.0, 1.0 / 6.0)
+
+export fn factorial_approximation(x: f64) -> f64 = factorial_approximation_impl

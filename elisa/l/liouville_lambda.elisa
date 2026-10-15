@@ -1,0 +1,20 @@
+# Liouville's function: (-1) raised to the number of prime factors with multiplicity.
+def liouville_lambda_impl(input: i64) -> i64:
+    if input < 1 or input > 2147483647:
+        return -1
+    remaining: mutable u64 = input.u64()
+    sign: mutable i64 = 1
+    factor: mutable u64 = 2
+    while factor <= remaining / factor:
+        while remaining % factor == 0:
+            remaining <- remaining / factor
+            sign <- -sign
+        if factor == 2:
+            factor <- 3
+        else:
+            factor <- factor + 2
+    if remaining > 1:
+        sign <- -sign
+    sign
+
+export fn liouville_lambda(input: i64) -> i64 = liouville_lambda_impl

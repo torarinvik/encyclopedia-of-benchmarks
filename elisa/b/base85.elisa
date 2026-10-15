@@ -1,0 +1,96 @@
+const MAX_INPUT_VALUES: usize = 66
+const MAX_U32: i64 = 4294967295
+
+def decode_group(values: i64&, start: usize, count: usize) -> i64:
+    value: mutable i64 = 0
+    for index in 0..<5:
+        digit: mutable i64 = 84
+        if index < count:
+            byte: i64 = values[start + index]
+            if byte < 33 or byte > 117:
+                return -1
+            digit <- byte - 33
+        value <- value * 85 + digit
+    if value > MAX_U32:
+        return -1
+    value
+
+def base85_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_VALUES:
+        return -1
+    mode: i64 = values[0]
+    payload_length: usize = length - 1
+    output_length: mutable usize = 0
+    if mode == 0:
+        for index in 1..<length:
+            if values[index] < 0 or values[index] > 255:
+                return -1
+        remainder: usize = payload_length % 4
+        output_length <- (payload_length / 4) * 5
+        if remainder > 0:
+            output_length <- output_length + remainder + 1
+    elif mode == 1:
+        if payload_length % 5 == 1:
+            return -1
+        offset: mutable usize = 0
+        while offset < payload_length:
+            count: mutable usize = payload_length - offset
+            if count > 5:
+                count <- 5
+            if decode_group(values, offset + 1, count) < 0:
+                return -1
+            if count == 5:
+                output_length <- output_length + 4
+            else:
+                output_length <- output_length + count - 1
+            offset <- offset + count
+    else:
+        return -1
+    if output_capacity < output_length:
+        return -2
+
+    written: mutable usize = 0
+    if mode == 0:
+        offset: mutable usize = 0
+        while offset < payload_length:
+            count: mutable usize = payload_length - offset
+            if count > 4:
+                count <- 4
+            value: mutable u64 = 0
+            for byte in 0..<4:
+                value <- value << 8
+                if byte < count:
+                    value <- value | values[offset + byte + 1].u64()
+            place: mutable u64 = 52200625
+            for digit in 0..<5:
+                encoded: u8 = (value / place + 33).u8()
+                value <- value % place
+                if count == 4 or digit < count + 1:
+                    output[written] <- encoded
+                    written <- written + 1
+                if digit == 0:
+                    place <- 614125
+                elif digit == 1:
+                    place <- 7225
+                elif digit == 2:
+                    place <- 85
+                else:
+                    place <- 1
+            offset <- offset + 4
+    else:
+        offset: mutable usize = 0
+        while offset < payload_length:
+            count: mutable usize = payload_length - offset
+            if count > 5:
+                count <- 5
+            value: u64 = decode_group(values, offset + 1, count).u64()
+            byte_count: mutable usize = count - 1
+            if count == 5:
+                byte_count <- 4
+            for byte in 0..<byte_count:
+                output[written] <- ((value >> (24 - 8 * byte)) & 255).u8()
+                written <- written + 1
+            offset <- offset + count
+    written.i64()
+
+export fn base85(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = base85_impl

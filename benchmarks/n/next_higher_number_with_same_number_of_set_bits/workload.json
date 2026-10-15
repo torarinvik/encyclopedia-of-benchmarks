@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "next-higher-same-set-bits-i30-v1",
+  "algorithm": "next_higher_number_with_same_number_of_set_bits",
+  "function_symbol": "next_higher_number_with_same_number_of_set_bits",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum_value": 1,
+    "maximum_value": 1073741823,
+    "result": "smallest larger positive integer with the same number of set bits",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 4
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "six",
+      "input_value": 6,
+      "expected_result": 9
+    },
+    {
+      "id": "pinned_cpp_example",
+      "input_value": 12,
+      "expected_result": 17
+    },
+    {
+      "id": "tight_run_of_ones",
+      "input_value": 15,
+      "expected_result": 23
+    },
+    {
+      "id": "five_ones",
+      "input_value": 31,
+      "expected_result": 47
+    },
+    {
+      "id": "single_bit",
+      "input_value": 536870912,
+      "expected_result": 1073741824
+    },
+    {
+      "id": "source_example_97",
+      "input_value": 97,
+      "expected_result": 98
+    },
+    {
+      "id": "upper_boundary",
+      "input_value": 1073741823,
+      "expected_result": 1610612735
+    },
+    {
+      "id": "zero_cpp_returns_zero_java_divides_by_zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_contract",
+      "input_value": 1073741824,
+      "expected_result": -1
+    },
+    {
+      "id": "signed64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

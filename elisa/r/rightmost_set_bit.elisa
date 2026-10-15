@@ -1,0 +1,12 @@
+# Return the one-based position of the least significant set bit.
+def rightmost_set_bit_impl(value: i64) -> i64:
+    if value <= 0 or value > 2147483647:
+        return -1
+    lowest: mutable i64 = value & -value
+    position: mutable i64 = 1
+    while (lowest & 1) == 0:
+        lowest <- lowest >> 1
+        position <- position + 1
+    position
+
+export fn rightmost_set_bit(value: i64) -> i64 = rightmost_set_bit_impl

@@ -1,0 +1,37 @@
+# Encode the Juggler sequence through its first 1 as little-endian u32 values.
+def floor_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = value + 1
+    while high - low > 1:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def juggler_sequence_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 1 or value > 25:
+        return -1
+    sequence: mutable i64[16] = zeroed
+    sequence[0] <- value
+    count: mutable usize = 1
+    while sequence[count - 1] != 1:
+        current: i64 = sequence[count - 1]
+        next: mutable i64 = 0
+        if current % 2 == 0:
+            next <- floor_sqrt(current)
+        else:
+            next <- floor_sqrt(current * current * current)
+        sequence[count] <- next
+        count <- count + 1
+    required: usize = count * 4
+    if output_capacity < required:
+        return -2
+    for index in 0..<count:
+        term: u32 = sequence[index].u32()
+        for byte in 0..<4:
+            output[4 * index + byte] <- ((term >> (8 * byte)) & 255).u8()
+    required.i64()
+
+export fn juggler_sequence(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = juggler_sequence_impl

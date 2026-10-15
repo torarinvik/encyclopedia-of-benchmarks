@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "harshad-number-positive-i32-predicate-v1",
+  "algorithm": "harshad_number",
+  "function_symbol": "harshad_number",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 1,
+    "maximum": 2147483647,
+    "predicate": "n is divisible by the sum of its base-10 digits",
+    "true_result": 1,
+    "false_result": 0,
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "single_digit_one", "input_value": 1, "expected_result": 1},
+    {"id": "source_example_eighteen", "input_value": 18, "expected_result": 1},
+    {"id": "non_harshad_nineteen", "input_value": 19, "expected_result": 0},
+    {"id": "multiple_of_digit_sum", "input_value": 21, "expected_result": 1},
+    {"id": "four_digit_harshad", "input_value": 1728, "expected_result": 1},
+    {"id": "source_example_1729", "input_value": 1729, "expected_result": 1},
+    {"id": "upper_bound", "input_value": 2147483647, "expected_result": 0},
+    {"id": "zero_invalid", "input_value": 0, "expected_result": -1},
+    {"id": "negative_invalid", "input_value": -1, "expected_result": -1},
+    {"id": "above_bound_invalid", "input_value": 2147483648, "expected_result": -1}
+  ]
+}

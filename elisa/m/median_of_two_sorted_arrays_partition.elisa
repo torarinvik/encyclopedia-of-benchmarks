@@ -38,24 +38,41 @@ def median_of_two_sorted_arrays_partition_impl(input: i64&, length: usize) -> i6
     if not valid_second:
         return -2000001
 
-    short_count: usize = first_count < second_count ? first_count : second_count
-    long_count: usize = first_count < second_count ? second_count : first_count
-    first_start: usize = first_count <= second_count ? 2 : second_start
-    long_start: usize = first_count <= second_count ? second_start : 2
+    short_count: mutable usize = first_count
+    long_count: mutable usize = second_count
+    first_start: mutable usize = 2
+    long_start: mutable usize = second_start
+    if first_count > second_count:
+        short_count <- second_count
+        long_count <- first_count
+        first_start <- second_start
+        long_start <- 2
     left_count: usize = (total_count + 1) / 2
     median_twice: i64 =
         while low <= high |low: mutable usize = 0, high: mutable usize = short_count, median: mutable i64 = -2000001, first_cut: mutable usize = 0, second_cut: mutable usize = 0, first_left: mutable i64 = 0, first_right: mutable i64 = 0, second_left: mutable i64 = 0, second_right: mutable i64 = 0, left_max: mutable i64 = 0, right_min: mutable i64 = 0| -> median:
             first_cut <- low + (high - low) / 2
             second_cut <- left_count - first_cut
-            first_left <- first_cut == 0 ? PARTITION_MIN : input[first_start + first_cut - 1]
-            first_right <- first_cut == short_count ? PARTITION_MAX : input[first_start + first_cut]
-            second_left <- second_cut == 0 ? PARTITION_MIN : input[long_start + second_cut - 1]
-            second_right <- second_cut == long_count ? PARTITION_MAX : input[long_start + second_cut]
+            first_left <- PARTITION_MIN
+            if first_cut > 0:
+                first_left <- input[first_start + first_cut - 1]
+            first_right <- PARTITION_MAX
+            if first_cut < short_count:
+                first_right <- input[first_start + first_cut]
+            second_left <- PARTITION_MIN
+            if second_cut > 0:
+                second_left <- input[long_start + second_cut - 1]
+            second_right <- PARTITION_MAX
+            if second_cut < long_count:
+                second_right <- input[long_start + second_cut]
             if first_left <= second_right and second_left <= first_right:
-                left_max <- first_left > second_left ? first_left : second_left
+                left_max <- first_left
+                if second_left > left_max:
+                    left_max <- second_left
                 if total_count % 2 != 0:
                     break left_max * 2
-                right_min <- first_right < second_right ? first_right : second_right
+                right_min <- first_right
+                if second_right < right_min:
+                    right_min <- second_right
                 break left_max + right_min
             if first_left > second_right:
                 if first_cut == 0:

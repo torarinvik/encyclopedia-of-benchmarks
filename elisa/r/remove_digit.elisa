@@ -1,0 +1,32 @@
+def remove_digit_impl(value: i64) -> i64:
+    if value < -9223372036854775807 or value > 9223372036854775807:
+        return -1
+    magnitude: mutable i64 = if value < 0: -value else: value
+    if magnitude < 10:
+        return -1
+    top_place: mutable i64 = 1
+    while top_place <= magnitude / 10:
+        top_place <- top_place * 10
+    digit_count: mutable i64 = 0
+    place: mutable i64 = top_place
+    while place > 0:
+        digit_count <- digit_count + 1
+        place <- place / 10
+    maximum: mutable i64 = 0
+    removed: mutable i64 = 0
+    while removed < digit_count:
+        candidate: mutable i64 = 0
+        position: mutable i64 = 0
+        place <- top_place
+        while place > 0:
+            digit: i64 = (magnitude / place) % 10
+            if position != removed:
+                candidate <- candidate * 10 + digit
+            position <- position + 1
+            place <- place / 10
+        if candidate > maximum:
+            maximum <- candidate
+        removed <- removed + 1
+    maximum
+
+export fn remove_digit(value: i64) -> i64 = remove_digit_impl

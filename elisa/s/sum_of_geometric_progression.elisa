@@ -1,0 +1,9 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+# Sum a finite geometric progression using the pinned closed form.
+def sum_of_geometric_progression_impl(first_term: f64, common_ratio: f64, num_terms: f64) -> f64:
+    if common_ratio == 1.0:
+        return num_terms * first_term
+    (first_term / (1.0 - common_ratio)) * (1.0 - pow(common_ratio, num_terms))
+
+export fn sum_of_geometric_progression(first_term: f64, common_ratio: f64, num_terms: f64) -> f64 = sum_of_geometric_progression_impl

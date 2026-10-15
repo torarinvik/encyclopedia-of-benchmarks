@@ -1,0 +1,15 @@
+def reverse_factorial_recursive_inner(value: i64, divisor: i64) -> i64:
+    if value == 1:
+        if divisor == 1:
+            return 1
+        return divisor - 1
+    if value % divisor != 0:
+        return -1
+    reverse_factorial_recursive_inner(value / divisor, divisor + 1)
+
+def reverse_factorial_recursive_impl(value: i64) -> i64:
+    if value < 1:
+        return -1
+    reverse_factorial_recursive_inner(value, 1)
+
+export fn reverse_factorial_recursive(value: i64) -> i64 = reverse_factorial_recursive_impl

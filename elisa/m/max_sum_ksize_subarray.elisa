@@ -1,0 +1,32 @@
+# Maximum sum of a fixed-size window; the final packed value is k.
+def max_sum_ksize_subarray_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 64:
+        return -1
+    array_length: usize = length - 1
+    k_value: i64 = values[length - 1]
+    if k_value < 0 or k_value > i64(array_length):
+        return -1
+    index: mutable usize = 0
+    while index < array_length:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1
+        index <- index + 1
+    if k_value == 0:
+        return 0
+
+    k: usize = usize(k_value)
+    window_sum: mutable i64 = 0
+    index <- 0
+    while index < k:
+        window_sum <- window_sum + values[index]
+        index <- index + 1
+    maximum_sum: mutable i64 = window_sum
+    index <- k
+    while index < array_length:
+        window_sum <- window_sum + values[index] - values[index - k]
+        if window_sum > maximum_sum:
+            maximum_sum <- window_sum
+        index <- index + 1
+    maximum_sum
+
+export fn max_sum_ksize_subarray(values: i64&, length: usize) -> i64 = max_sum_ksize_subarray_impl

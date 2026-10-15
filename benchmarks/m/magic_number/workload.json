@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "magic-number-v1",
+  "algorithm": "magic_number",
+  "input": {
+    "kind": "signed_64",
+    "positive_rule": "n % 9 == 1",
+    "nonpositive_result": 0
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "negative_dart_remainder_one", "input_value": -35, "expected_result": 0},
+    {"id": "negative_minimum", "input_value": -9223372036854775808, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "ten", "input_value": 10, "expected_result": 1},
+    {"id": "sixty", "input_value": 60, "expected_result": 0},
+    {"id": "nineteen", "input_value": 19, "expected_result": 1},
+    {"id": "twenty", "input_value": 20, "expected_result": 0},
+    {"id": "seventy_three", "input_value": 73, "expected_result": 1},
+    {"id": "seventy_four", "input_value": 74, "expected_result": 0},
+    {"id": "large_positive_magic", "input_value": 9000000000000000001, "expected_result": 1},
+    {"id": "signed_maximum", "input_value": 9223372036854775807, "expected_result": 0}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,16 @@
+def sock_merchant_impl(colors: i64&, length: usize) -> i64:
+    if length > 512:
+        return -1
+    counts: mutable usize[4096] = zeroed
+    for index in 0..<length:
+        value: i64 = colors[index]
+        if value < 0 or value > 4095:
+            return -1
+        color: usize = value.usize()
+        counts[color] <- counts[color] + 1
+    pairs: mutable usize = 0
+    for color in 0..<4096:
+        pairs <- pairs + counts[color] / 2
+    pairs.i64()
+
+export fn sock_merchant(colors: i64&, length: usize) -> i64 = sock_merchant_impl

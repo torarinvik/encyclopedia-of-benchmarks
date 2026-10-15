@@ -1,0 +1,44 @@
+def is_prime(value: u32) -> bool:
+    if value < 2:
+        return false
+    divisor: mutable u32 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def reverse_decimal(value: u32) -> u32:
+    remaining: mutable u32 = value
+    reversed: mutable u32 = 0
+    while remaining > 0:
+        reversed <- reversed * 10 + remaining % 10
+        remaining <- remaining / 10
+    reversed
+
+def write_u32_le(output: mutable u8&, position: usize, value: u32):
+    output[position] <- u8(value & 255)
+    output[position + 1] <- u8((value >> 8) & 255)
+    output[position + 2] <- u8((value >> 16) & 255)
+    output[position + 3] <- u8((value >> 24) & 255)
+
+# Encode the first n palindrome primes as little-endian u32 values.
+def palindrome_prime_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if n > 16:
+        return -1
+    if n <= 0:
+        return 0
+    required: usize = usize(n) * 4
+    if output == null or output_capacity < required:
+        return -2
+    write_u32_le(output, 0, 2)
+    count: mutable usize = 1
+    candidate: mutable u32 = 3
+    while count < required / 4:
+        if candidate == reverse_decimal(candidate) and is_prime(candidate):
+            write_u32_le(output, count * 4, candidate)
+            count <- count + 1
+        candidate <- candidate + 2
+    i64(required)
+
+export fn palindrome_prime(n: i64, output: mutable u8&, output_capacity: usize) -> i64 = palindrome_prime_impl

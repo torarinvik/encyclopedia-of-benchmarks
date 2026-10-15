@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "van-ecks-sequence-i64-v1",
+  "algorithm": "van_ecks_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 16],
+    "indexing": "one_based",
+    "sequence_definition": "term[1]=0; for position p>=2, term[p]=0 if term[p-1] is unseen, otherwise p minus its most recent one-based position",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero_position","input_value":0,"expected_result":-1},
+    {"id":"first_term","input_value":1,"expected_result":0},
+    {"id":"second_term","input_value":2,"expected_result":0},
+    {"id":"first_nonzero_term","input_value":3,"expected_result":1},
+    {"id":"repeated_zero_gap","input_value":5,"expected_result":2},
+    {"id":"larger_gap","input_value":10,"expected_result":6},
+    {"id":"position_fifteen","input_value":15,"expected_result":6},
+    {"id":"last_supported_term","input_value":16,"expected_result":5},
+    {"id":"first_unsupported_position","input_value":17,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

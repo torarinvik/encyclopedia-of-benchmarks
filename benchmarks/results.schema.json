@@ -519,11 +519,11 @@
               "input_length": {
                 "type": "integer",
                 "minimum": 0,
-                "maximum": 6
+                "maximum": 4096
               },
               "input_values": {
                 "minItems": 0,
-                "maxItems": 6,
+                "maxItems": 4096,
                 "items": {
                   "type": "integer",
                   "minimum": -9223372036854775808,

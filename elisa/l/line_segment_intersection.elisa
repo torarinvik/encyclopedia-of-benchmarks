@@ -1,0 +1,49 @@
+# Closed finite-segment intersection using exact integer orientation tests.
+def line_segment_intersection_orientation(ax: i64, ay: i64, bx: i64, by: i64,
+        cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def line_segment_intersection_on_segment(ax: i64, ay: i64, bx: i64, by: i64,
+        px: i64, py: i64) -> bool:
+    (line_segment_intersection_orientation(ax, ay, bx, by, px, py) == 0 and
+        ((ax <= px and px <= bx) or (bx <= px and px <= ax)) and
+        ((ay <= py and py <= by) or (by <= py and py <= ay)))
+
+def line_segment_intersection_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 8:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -10000 or values[index] > 10000:
+            return -1
+        index <- index + 1
+
+    ax: i64 = values[0]
+    ay: i64 = values[1]
+    bx: i64 = values[2]
+    by: i64 = values[3]
+    cx: i64 = values[4]
+    cy: i64 = values[5]
+    dx: i64 = values[6]
+    dy: i64 = values[7]
+    ab_c: i64 = line_segment_intersection_orientation(ax, ay, bx, by, cx, cy)
+    ab_d: i64 = line_segment_intersection_orientation(ax, ay, bx, by, dx, dy)
+    cd_a: i64 = line_segment_intersection_orientation(cx, cy, dx, dy, ax, ay)
+    cd_b: i64 = line_segment_intersection_orientation(cx, cy, dx, dy, bx, by)
+
+    if ab_c == 0 and line_segment_intersection_on_segment(ax, ay, bx, by, cx, cy):
+        return 1
+    if ab_d == 0 and line_segment_intersection_on_segment(ax, ay, bx, by, dx, dy):
+        return 1
+    if cd_a == 0 and line_segment_intersection_on_segment(cx, cy, dx, dy, ax, ay):
+        return 1
+    if cd_b == 0 and line_segment_intersection_on_segment(cx, cy, dx, dy, bx, by):
+        return 1
+    if ((ab_c < 0 and ab_d > 0 or ab_c > 0 and ab_d < 0) and
+            (cd_a < 0 and cd_b > 0 or cd_a > 0 and cd_b < 0)):
+        return 1
+    0
+
+export fn line_segment_intersection(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = line_segment_intersection_impl

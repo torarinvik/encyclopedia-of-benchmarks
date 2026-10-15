@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "burrows-wheeler-transform-ascii-v1",
+  "algorithm": "burrows_wheeler_transform",
+  "function_symbol": "burrows_wheeler_transform",
+  "input": {
+    "kind": "packed_ascii_byte_sequence",
+    "encoding": "[length, byte_0, ..., byte_(length-1)]",
+    "length_range": [
+      1,
+      256
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "output_encoding": "four-byte unsigned little-endian primary row index followed by transformed bytes",
+    "periodic_rotation_tie_break": "ascending starting offset",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source_banana_sentinel",
+      "input_values": [
+        7,
+        94,
+        66,
+        65,
+        78,
+        65,
+        78,
+        65
+      ],
+      "input_length": 8,
+      "expected_result": 11,
+      "expected_output_hex": "06000000424e4e5e414141"
+    },
+    {
+      "id": "source_panama",
+      "input_values": [
+        12,
+        112,
+        97,
+        110,
+        97,
+        109,
+        97,
+        98,
+        97,
+        110,
+        97,
+        110,
+        97
+      ],
+      "input_length": 13,
+      "expected_result": 16,
+      "expected_output_hex": "0b0000006d6e70626e6e616161616161"
+    },
+    {
+      "id": "source_underscores",
+      "input_values": [
+        13,
+        97,
+        95,
+        97,
+        115,
+        97,
+        95,
+        100,
+        97,
+        95,
+        99,
+        97,
+        115,
+        97
+      ],
+      "input_length": 14,
+      "expected_result": 17,
+      "expected_output_hex": "03000000616161616473735f635f5f6161"
+    },
+    {
+      "id": "single_byte",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": 5,
+      "expected_output_hex": "0000000041"
+    },
+    {
+      "id": "repeated_byte",
+      "input_values": [
+        4,
+        65,
+        65,
+        65,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "0000000041414141"
+    },
+    {
+      "id": "periodic_tie_order",
+      "input_values": [
+        4,
+        65,
+        66,
+        65,
+        66
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "0000000042424141"
+    },
+    {
+      "id": "mixed_case_sensitive_order",
+      "input_values": [
+        3,
+        97,
+        65,
+        97
+      ],
+      "input_length": 4,
+      "expected_result": 7,
+      "expected_output_hex": "01000000616141"
+    },
+    {
+      "id": "source_punctuation",
+      "input_values": [
+        11,
+        33,
+        46,
+        33,
+        46,
+        33,
+        63,
+        63,
+        46,
+        61,
+        58,
+        58
+      ],
+      "input_length": 12,
+      "expected_result": 15,
+      "expected_output_hex": "000000003a2e2e21213f3a3d2e3f21"
+    },
+    {
+      "id": "mississippi",
+      "input_values": [
+        11,
+        77,
+        73,
+        83,
+        83,
+        73,
+        83,
+        83,
+        73,
+        80,
+        80,
+        73
+      ],
+      "input_length": 12,
+      "expected_result": 15,
+      "expected_output_hex": "040000005053534d49504953534949"
+    },
+    {
+      "id": "ascii_boundaries_and_nul",
+      "input_values": [
+        4,
+        0,
+        127,
+        32,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "00000000417f2000"
+    },
+    {
+      "id": "empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "declared_empty",
+      "input_values": [
+        0,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_sequence",
+      "input_values": [
+        3,
+        65,
+        66
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "declared_over_limit",
+      "input_values": [
+        257,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_byte",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_ascii_byte",
+      "input_values": [
+        1,
+        128
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_value",
+      "input_values": [
+        1,
+        65,
+        66
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

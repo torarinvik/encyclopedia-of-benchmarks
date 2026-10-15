@@ -93,6 +93,35 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
             pairs.extend(struct.pack("<II", remaining, 1))
         output = bytes(pairs)
         return len(output), output
+    if encoding == "juggler_sequence_i32le":
+        if not 1 <= value <= 25:
+            return -1, b""
+        sequence = [value]
+        while sequence[-1] != 1:
+            current = sequence[-1]
+            next_value = (math.isqrt(current) if current % 2 == 0
+                          else math.isqrt(current * current * current))
+            sequence.append(next_value)
+        output = b"".join(struct.pack("<I", term) for term in sequence)
+        return len(output), output
+    if encoding == "narcissistic_numbers_be_i64":
+        if value <= 0:
+            return 0, b""
+        if value > 100000:
+            return -1, b""
+        results = []
+        for number in range(value):
+            digits = str(number)
+            if sum(int(digit) ** len(digits) for digit in digits) == number:
+                results.append(number)
+        output = b"".join(struct.pack(">q", number) for number in results)
+        return len(output), output
+    if encoding == "binary_coded_decimal":
+        if not -(2**31) <= value <= 2**31 - 1:
+            return -1, b""
+        digits = str(max(0, value))
+        output = ("0b" + "".join(f"{int(digit):04b}" for digit in digits)).encode("ascii")
+        return len(output), output
     if encoding == "prime_numbers":
         if not 0 <= value <= 80:
             return -1, b""
@@ -123,6 +152,40 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
             candidate += 1
         output = ",".join(primes).encode("ascii")
         return len(output), output
+    if encoding == "palindrome_primes_i32le":
+        if value > 16:
+            return -1, b""
+        if value <= 0:
+            return 0, b""
+
+        def is_prime(candidate: int) -> bool:
+            if candidate < 2:
+                return False
+            divisor = 2
+            while divisor <= candidate // divisor:
+                if candidate % divisor == 0:
+                    return False
+                divisor += 1
+            return True
+
+        def is_palindrome(candidate: int) -> bool:
+            original = candidate
+            reversed_value = 0
+            while candidate > 0:
+                reversed_value = reversed_value * 10 + candidate % 10
+                candidate //= 10
+            return original == reversed_value
+
+        output = bytearray(struct.pack("<I", 2))
+        count = 1
+        candidate = 3
+        while count < value:
+            if is_palindrome(candidate) and is_prime(candidate):
+                output.extend(struct.pack("<I", candidate))
+                count += 1
+            candidate += 2
+        result = bytes(output)
+        return len(result), result
     if value < 0:
         return -1, b""
     formats = {2: "b", 8: "o", 16: "x"}

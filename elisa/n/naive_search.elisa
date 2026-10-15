@@ -1,0 +1,45 @@
+const MAX_INPUT_VALUES: usize = 512
+
+def naive_search_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    if values[0] < 0 or values[0] > 255 or values[1] < 0 or values[1] > 255:
+        return -1
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    pattern_start: usize = 2 + text_length
+    for index in 0..<text_length:
+        if values[2 + index] < 1 or values[2 + index] > 127:
+            return -1
+    for index in 0..<pattern_length:
+        if values[pattern_start + index] < 1 or values[pattern_start + index] > 127:
+            return -1
+
+    match_count: mutable usize = 0
+    if pattern_length <= text_length:
+        start: mutable usize = 0
+        while start <= text_length - pattern_length:
+            offset: mutable usize = 0
+            while offset < pattern_length and values[2 + start + offset] == values[pattern_start + offset]:
+                offset <- offset + 1
+            if offset == pattern_length:
+                match_count <- match_count + 1
+            start <- start + 1
+    if output_capacity < match_count:
+        return -2
+    written: mutable usize = 0
+    if pattern_length <= text_length:
+        start: mutable usize = 0
+        while start <= text_length - pattern_length:
+            offset: mutable usize = 0
+            while offset < pattern_length and values[2 + start + offset] == values[pattern_start + offset]:
+                offset <- offset + 1
+            if offset == pattern_length:
+                output[written] <- start.i64().u8()
+                written <- written + 1
+            start <- start + 1
+    written.i64()
+
+export fn naive_search(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = naive_search_impl

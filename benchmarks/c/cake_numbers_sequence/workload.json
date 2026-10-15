@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "cake-numbers-sequence-i64-v1",
+  "algorithm": "cake_numbers_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 2000000],
+    "formula": "(n^3 + 5*n + 6) / 6",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"zero_index","input_value":0,"expected_result":1},
+    {"id":"one_cut","input_value":1,"expected_result":2},
+    {"id":"two_cuts","input_value":2,"expected_result":4},
+    {"id":"three_cuts","input_value":3,"expected_result":8},
+    {"id":"four_cuts","input_value":4,"expected_result":15},
+    {"id":"larger_term","input_value":100,"expected_result":166751},
+    {"id":"largest_supported_index","input_value":2000000,"expected_result":1333333333335001},
+    {"id":"first_unsupported_index","input_value":2000001,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

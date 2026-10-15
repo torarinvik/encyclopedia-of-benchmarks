@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "kth-factor-linear-i32-domain-v1",
+  "algorithm": "kth_factor",
+  "function_symbol": "kth_factor",
+  "input": {
+    "kind": "pair_of_signed_64_integers",
+    "input_values": ["n", "k"],
+    "n_range": [1, 10000],
+    "k_range": [1, "n"],
+    "scan_order": "ascending divisors from 1 through n inclusive",
+    "unavailable_rank_result": -1,
+    "invalid_abi_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one_first_factor","input_values":[1,1],"expected_result":1},
+    {"id":"two_first_factor","input_values":[2,1],"expected_result":1},
+    {"id":"two_second_factor","input_values":[2,2],"expected_result":2},
+    {"id":"twelve_third_factor","input_values":[12,3],"expected_result":3},
+    {"id":"prime_second_rank_unavailable","input_values":[997,2],"expected_result":-1},
+    {"id":"fourth_rank_unavailable","input_values":[4,4],"expected_result":-1},
+    {"id":"source_example_950","input_values":[950,5],"expected_result":19},
+    {"id":"largest_input_last_factor","input_values":[10000,1],"expected_result":1},
+    {"id":"invalid_zero_n","input_values":[0,1],"expected_result":-1},
+    {"id":"invalid_zero_k","input_values":[12,0],"expected_result":-1},
+    {"id":"invalid_negative_k","input_values":[12,-1],"expected_result":-1},
+    {"id":"above_bounded_domain","input_values":[10001,1],"expected_result":-1}
+  ]
+}

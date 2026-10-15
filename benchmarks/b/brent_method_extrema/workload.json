@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "brent-method-bounded-univariate-extrema-v1",
+  "algorithm": "brent_method_extrema",
+  "function_symbol": "brent_method_extrema",
+  "input": {
+    "kind": "binary64_left_right_objective_id",
+    "endpoint_range": [
+      -10.0,
+      10.0
+    ],
+    "maximum_iterations": 256,
+    "minimum_interval_width_exclusive": 1.4901161193847656e-8,
+    "objective_ids": {
+      "0.0": "(x - 2)^2; minimum at 2",
+      "0.5": "cos(x) on [0, 2*pi]; minimum at pi",
+      "1.0": "-cos(x) on [pi, 3*pi]; minimum at 2*pi, the maximum of cos(x)"
+    },
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_extremum_location",
+    "definition": "x coordinate returned by the bounded Brent search",
+    "comparison": "absolute error <= input_scaled_tolerance * max(1, abs(left), abs(right))"
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 5e-8,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "quadratic_source_example",
+      "input_values": [-1.0, 5.0, 0.0],
+      "expected_result": 2.0
+    },
+    {
+      "id": "cosine_minimum",
+      "input_values": [2.0, 4.0, 0.5],
+      "expected_result": 3.141592653589793
+    },
+    {
+      "id": "cosine_maximum_via_negation",
+      "input_values": [5.0, 7.0, 1.0],
+      "expected_result": 6.283185307179586
+    },
+    {
+      "id": "reversed_endpoints",
+      "input_values": [4.0, 2.0, 0.5],
+      "expected_result": 3.141592653589793
+    },
+    {
+      "id": "narrow_quadratic_bracket",
+      "input_values": [1.999, 2.001, 0.0],
+      "expected_result": 2.0
+    },
+    {
+      "id": "full_cosine_minimum_bracket",
+      "input_values": [0.0, 6.283185307179586, 0.5],
+      "expected_result": 3.141592653589793
+    },
+    {
+      "id": "full_negated_cosine_maximum_bracket",
+      "input_values": [3.141592653589793, 9.42477796076938, 1.0],
+      "expected_result": 6.283185307179586
+    },
+    {
+      "id": "unsupported_objective_id",
+      "input_values": [0.0, 4.0, 0.25],
+      "expected_result": -1.0
+    },
+    {
+      "id": "bracket_does_not_contain_minimum",
+      "input_values": [0.0, 2.0, 0.5],
+      "expected_result": -1.0
+    },
+    {
+      "id": "interval_too_narrow",
+      "input_values": [2.0, 2.0, 0.0],
+      "expected_result": -1.0
+    },
+    {
+      "id": "endpoint_out_of_range",
+      "input_values": [0.0, 11.0, 0.0],
+      "expected_result": -1.0
+    }
+  ]
+}

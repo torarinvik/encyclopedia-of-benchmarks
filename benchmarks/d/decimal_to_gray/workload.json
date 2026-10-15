@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-gray-i64-scalar-bytes-v1",
+  "algorithm": "decimal_to_gray",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "negative_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "ascii_binary_string",
+    "encoding": "minimal-width most-significant-first ASCII bits without a prefix",
+    "minimum_length": 1,
+    "maximum_length": 63
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1,
+      "expected_output": "0"
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1,
+      "expected_output": "1"
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 2,
+      "expected_output": "11"
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 2,
+      "expected_output": "10"
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 3,
+      "expected_output": "110"
+    },
+    {
+      "id": "seven",
+      "input_value": 7,
+      "expected_result": 3,
+      "expected_output": "100"
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 4,
+      "expected_output": "1111"
+    },
+    {
+      "id": "fifteen",
+      "input_value": 15,
+      "expected_result": 4,
+      "expected_output": "1000"
+    },
+    {
+      "id": "sixteen_width_boundary",
+      "input_value": 16,
+      "expected_result": 5,
+      "expected_output": "11000"
+    },
+    {
+      "id": "byte_width_boundary",
+      "input_value": 255,
+      "expected_result": 8,
+      "expected_output": "10000000"
+    },
+    {
+      "id": "signed_32_bit_max",
+      "input_value": 2147483647,
+      "expected_result": 31,
+      "expected_output": "1000000000000000000000000000000"
+    },
+    {
+      "id": "top_two_bits",
+      "input_value": 4611686018427387904,
+      "expected_result": 63,
+      "expected_output": "110000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "signed_64_bit_max_minus_one",
+      "input_value": 9223372036854775806,
+      "expected_result": 63,
+      "expected_output": "100000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "id": "signed_64_bit_max",
+      "input_value": 9223372036854775807,
+      "expected_result": 63,
+      "expected_output": "100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_bit_min",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

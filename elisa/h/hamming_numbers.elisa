@@ -1,0 +1,37 @@
+const MAX_COUNT: usize = 32
+
+def hamming_numbers_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1 or input[0] < 1 or input[0] > i64(MAX_COUNT):
+        return -1
+    count: usize = input[0].usize()
+    output_bytes: usize = count * 8
+    if output_capacity < output_bytes:
+        return -2
+
+    values: mutable i64[32] = zeroed
+    values[0] <- 1
+    i2: mutable usize = 0
+    i3: mutable usize = 0
+    i5: mutable usize = 0
+    for index in 1..<count |values, i2, i3, i5|:
+        c2: i64 = values[i2] * 2
+        c3: i64 = values[i3] * 3
+        c5: i64 = values[i5] * 5
+        next: mutable i64 = c2
+        if c3 < next:
+            next <- c3
+        if c5 < next:
+            next <- c5
+        values[index] <- next
+        if c2 == next:
+            i2 <- i2 + 1
+        if c3 == next:
+            i3 <- i3 + 1
+        if c5 == next:
+            i5 <- i5 + 1
+    for index in 0..<count |values, output|:
+        for byte in 0..<8 |output|:
+            output[index * 8 + byte] <- u8((values[index] >> (byte * 8)) & 255)
+    count.i64()
+
+export fn hamming_numbers(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = hamming_numbers_impl

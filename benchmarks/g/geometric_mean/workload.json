@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "geometric-mean-python-integer-product-binary64-v1",
+  "algorithm": "geometric_mean",
+  "function_symbol": "geometric_mean",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "values passed as variadic source arguments; array length is n",
+    "n_minimum": 1,
+    "n_maximum": 6,
+    "value_minimum": -100,
+    "value_maximum": 100,
+    "maximum_absolute_product": 1000000000000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "signed nth root of the product, with the source's exact rounded perfect-root correction for positive and negative odd roots",
+    "negative_product_even_n_result": -1e300,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"single_value","input_values":[7],"input_length":1,"expected_result":7.0},
+    {"id":"two_value_perfect_power","input_values":[2,8],"input_length":2,"expected_result":4.0},
+    {"id":"two_value_nonperfect_root","input_values":[2,3],"input_length":2,"expected_result":2.449489742783178},
+    {"id":"three_value_perfect_power_correction","input_values":[2,4,8],"input_length":3,"expected_result":4.0},
+    {"id":"four_value_perfect_power","input_values":[2,2,2,2],"input_length":4,"expected_result":2.0},
+    {"id":"five_value_perfect_power","input_values":[2,2,2,2,2],"input_length":5,"expected_result":2.0},
+    {"id":"six_value_perfect_power","input_values":[2,2,2,2,2,2],"input_length":6,"expected_result":2.0},
+    {"id":"zero_product","input_values":[0,-7,8],"input_length":3,"expected_result":0.0},
+    {"id":"negative_product_odd_root","input_values":[-1,2,4],"input_length":3,"expected_result":-2.0},
+    {"id":"negative_prefix_even_final_positive","input_values":[-2,-2],"input_length":2,"expected_result":2.0},
+    {"id":"zero_before_negative_final_zero","input_values":[0,-1],"input_length":2,"expected_result":0.0},
+    {"id":"negative_prefix_before_zero_final_zero","input_values":[-1,0],"input_length":2,"expected_result":0.0},
+    {"id":"empty_source_arguments","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"negative_product_even_length","input_values":[-1,2],"input_length":2,"expected_result":-1e300},
+    {"id":"value_out_of_range","input_values":[101],"input_length":1,"expected_result":-1e300},
+    {"id":"length_above_bound","input_values":[2,2,2,2,2,2,2],"input_length":7,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

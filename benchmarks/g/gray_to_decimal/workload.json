@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "id": "gray-to-decimal-i64-array-scalar-v1",
+  "algorithm": "gray_to_decimal",
+  "function_symbol": "gray_to_decimal",
+  "input": {
+    "kind": "length_prefixed_ascii_gray_bit_string",
+    "encoding": "[length, ASCII code for each Gray bit] as signed 64-bit values",
+    "minimum_bit_length": 1,
+    "maximum_bit_length": 63,
+    "accepted_ascii_codes": [
+      48,
+      49
+    ],
+    "invalid_result": -1,
+    "output": "decoded nonnegative binary integer"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        1,
+        48
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "gray_three_source_example",
+      "input_values": [
+        2,
+        49,
+        49
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "gray_two_source_example",
+      "input_values": [
+        2,
+        49,
+        48
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "gray_four_source_example",
+      "input_values": [
+        3,
+        49,
+        49,
+        48
+      ],
+      "input_length": 4,
+      "expected_result": 4
+    },
+    {
+      "id": "gray_ten_source_example",
+      "input_values": [
+        4,
+        49,
+        49,
+        49,
+        49
+      ],
+      "input_length": 5,
+      "expected_result": 10
+    },
+    {
+      "id": "gray_fifteen_source_example",
+      "input_values": [
+        4,
+        49,
+        48,
+        48,
+        48
+      ],
+      "input_length": 5,
+      "expected_result": 15
+    },
+    {
+      "id": "leading_zeroes",
+      "input_values": [
+        4,
+        48,
+        48,
+        49,
+        49
+      ],
+      "input_length": 5,
+      "expected_result": 2
+    },
+    {
+      "id": "maximum_signed_result",
+      "input_values": [
+        63,
+        49,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 64,
+      "expected_result": 9223372036854775807
+    },
+    {
+      "id": "alternating_decoded_bits_at_signed_boundary",
+      "input_values": [
+        63,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49
+      ],
+      "input_length": 64,
+      "expected_result": 6148914691236517205
+    },
+    {
+      "id": "empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_bit_string",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_array",
+      "input_values": [
+        2,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_array_element",
+      "input_values": [
+        1,
+        49,
+        48
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_character",
+      "input_values": [
+        1,
+        50
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "non_ascii_character",
+      "input_values": [
+        1,
+        256
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_declared_length",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "overlength_bit_string",
+      "input_values": [
+        64,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 65,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

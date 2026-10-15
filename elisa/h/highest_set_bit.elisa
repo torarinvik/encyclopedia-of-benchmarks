@@ -1,0 +1,12 @@
+# Return the zero-based index of the most significant set bit.
+def highest_set_bit_impl(value: i64) -> i64:
+    if value <= 0:
+        return -1
+    position: mutable i64 = -1
+    remaining: mutable i64 = value
+    while remaining > 0:
+        position <- position + 1
+        remaining <- remaining >> 1
+    position
+
+export fn highest_set_bit(value: i64) -> i64 = highest_set_bit_impl

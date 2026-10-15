@@ -1,0 +1,9 @@
+# Exact square-pyramidal sum within the pinned u64 intermediate range.
+def square_pyramidal_numbers_impl(n: i64) -> i64:
+    if n < 0 or n > 2097151:
+        return -1
+    value: u64 = n.u64()
+    numerator: u64 = value * (value + 1.u64()) * (2.u64() * value + 1.u64())
+    (numerator / 6.u64()).i64()
+
+export fn square_pyramidal_numbers(n: i64) -> i64 = square_pyramidal_numbers_impl

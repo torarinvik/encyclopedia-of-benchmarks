@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "palindrome-primes-first-n-u32le-v1",
+  "algorithm": "palindrome_prime",
+  "function_symbol": "palindrome_prime",
+  "input": {
+    "kind": "signed_64_integer",
+    "maximum": 16,
+    "encoding": "palindrome_primes_i32le",
+    "meaning": "first n palindromic primes in ascending order",
+    "nonpositive_result": "empty sequence",
+    "above_bound_result": -1,
+    "output_value_encoding": "unsigned_32_le"
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "zero_count", "input_value": 0, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "negative_count_source_empty", "input_value": -1, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "first_prime", "input_value": 1, "expected_result": 4, "expected_output_hex": "02000000"},
+    {"id": "first_two", "input_value": 2, "expected_result": 8, "expected_output_hex": "0200000003000000"},
+    {"id": "initial_five", "input_value": 5, "expected_result": 20, "expected_output_hex": "020000000300000005000000070000000b000000"},
+    {"id": "first_ten", "input_value": 10, "expected_result": 40, "expected_output_hex": "020000000300000005000000070000000b000000650000008300000097000000b5000000bf000000"},
+    {"id": "maximum_count", "input_value": 16, "expected_result": 64, "expected_output_hex": "020000000300000005000000070000000b000000650000008300000097000000b5000000bf0000003901000061010000750100007f010000d7020000f5020000"},
+    {"id": "above_bound", "input_value": 17, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

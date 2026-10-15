@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "kaprekar-number-i64-v1",
+  "algorithm": "kaprekar_number",
+  "input": {
+    "kind": "signed_i64",
+    "positive_valid_range": [
+      1,
+      2000000000
+    ],
+    "nonpositive_result": 0,
+    "out_of_range_result": -1,
+    "result_encoding": {
+      "kaprekar": 1,
+      "not_kaprekar": 0
+    },
+    "definition": "A positive n is Kaprekar when a decimal split of n squared has a nonzero right part and left plus right equals n; n=1 is included."
+  },
+  "cases": [
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one_special_case",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "classic_9",
+      "input_value": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_45",
+      "input_value": 45,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_55",
+      "input_value": 55,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_99",
+      "input_value": 99,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_297",
+      "input_value": 297,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_703",
+      "input_value": 703,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_999",
+      "input_value": 999,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_2223",
+      "input_value": 2223,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_4950",
+      "input_value": 4950,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_5050",
+      "input_value": 5050,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_7272",
+      "input_value": 7272,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_9999",
+      "input_value": 9999,
+      "expected_result": 1
+    },
+    {
+      "id": "non_kaprekar_10",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "non_kaprekar_25",
+      "input_value": 25,
+      "expected_result": 0
+    },
+    {
+      "id": "upper_bound",
+      "input_value": 2000000000,
+      "expected_result": 0
+    },
+    {
+      "id": "above_upper_bound",
+      "input_value": 2000000001,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

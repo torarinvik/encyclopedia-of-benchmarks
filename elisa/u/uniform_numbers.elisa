@@ -1,0 +1,24 @@
+# Count positive repdigits up to the input using the pinned prefix formula.
+def uniform_numbers_impl(value: i64) -> i64:
+    if value < 0 or value > 999999999:
+        return -1
+    remaining: mutable i64 = value
+    first_digit: mutable i64 = 0
+    digits: mutable i64 = 0
+    while true:
+        first_digit <- remaining % 10
+        remaining <- remaining / 10
+        digits <- digits + 1
+        if remaining == 0:
+            break
+    repeated: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < digits:
+        repeated <- repeated * 10 + first_digit
+        index <- index + 1
+    count: i64 = (digits - 1) * 9
+    if repeated <= value:
+        return count + first_digit
+    count + first_digit - 1
+
+export fn uniform_numbers(value: i64) -> i64 = uniform_numbers_impl

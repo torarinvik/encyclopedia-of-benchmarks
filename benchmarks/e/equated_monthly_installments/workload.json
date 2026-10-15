@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "equated-monthly-installments-float64-triple-v1",
+  "algorithm": "equated_monthly_installments",
+  "function_symbol": "equated_monthly_installments",
+  "input": {
+    "kind": "three_binary64_values",
+    "layout": ["principal", "rate_per_annum", "years_to_repay"],
+    "principal_minimum_exclusive": 0.0,
+    "principal_maximum": 1000000.0,
+    "rate_per_annum_minimum": 0.0001,
+    "rate_per_annum_maximum": 0.2,
+    "years_to_repay_integral": true,
+    "years_to_repay_minimum": 1,
+    "years_to_repay_maximum": 30,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "principal * monthly_rate * (1 + monthly_rate)^monthly_payments / ((1 + monthly_rate)^monthly_payments - 1)",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"pinned_three_year_example","input_values":[25000.0,0.12,3.0],"expected_result":830.3577453212793},
+    {"id":"pinned_ten_year_example","input_values":[25000.0,0.12,10.0],"expected_result":358.67737100646826},
+    {"id":"low_positive_rate","input_values":[12000.0,0.01,1.0],"expected_result":1005.4249386696634},
+    {"id":"maximum_rate_and_term","input_values":[1000000.0,0.2,30.0],"expected_result":16710.186862473027},
+    {"id":"zero_principal","input_values":[0.0,0.12,3.0],"expected_result":-1e300},
+    {"id":"negative_annual_rate","input_values":[25000.0,-0.01,3.0],"expected_result":-1e300},
+    {"id":"zero_rate_source_edge","input_values":[25000.0,0.0,3.0],"expected_result":-1e300},
+    {"id":"fractional_year_count","input_values":[25000.0,0.12,3.5],"expected_result":-1e300},
+    {"id":"zero_year_count","input_values":[25000.0,0.12,0.0],"expected_result":-1e300},
+    {"id":"principal_above_bound","input_values":[1000001.0,0.12,3.0],"expected_result":-1e300},
+    {"id":"rate_above_bound","input_values":[25000.0,0.2001,3.0],"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-10,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

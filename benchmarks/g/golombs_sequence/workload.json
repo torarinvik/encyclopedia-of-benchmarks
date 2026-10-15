@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "golombs-sequence-i64-v1",
+  "algorithm": "golombs_sequence",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 64],
+    "indexing": "zero_based",
+    "sequence_definition": "source queue generator: emit 1,2,2; then for increasing i dequeue a repetition count and enqueue and emit i that many times",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"first_term","input_value":0,"expected_result":1},
+    {"id":"second_term","input_value":1,"expected_result":2},
+    {"id":"third_term","input_value":2,"expected_result":2},
+    {"id":"first_generated_group","input_value":3,"expected_result":3},
+    {"id":"next_repetition","input_value":4,"expected_result":3},
+    {"id":"index_ten","input_value":10,"expected_result":5},
+    {"id":"index_thirty_two","input_value":32,"expected_result":10},
+    {"id":"largest_supported_index","input_value":64,"expected_result":16},
+    {"id":"first_unsupported_index","input_value":65,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

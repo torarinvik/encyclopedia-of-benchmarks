@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "gray-to-binary-scalar-v1",
+  "algorithm": "gray_to_binary",
+  "function_symbol": "gray_to_binary",
+  "input": {
+    "kind": "nonnegative_signed_64_bit_gray_code",
+    "accepted_range": [0, 9223372036854775807],
+    "negative_result": -1,
+    "output": "decoded binary integer"
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"gray_two","input_value":2,"expected_result":3},
+    {"id":"gray_three_source_example","input_value":3,"expected_result":2},
+    {"id":"gray_four","input_value":4,"expected_result":7},
+    {"id":"gray_six_source_example","input_value":6,"expected_result":4},
+    {"id":"gray_eight_source_example","input_value":8,"expected_result":15},
+    {"id":"gray_fifteen_source_example","input_value":15,"expected_result":10},
+    {"id":"highest_single_bit","input_value":4611686018427387904,"expected_result":9223372036854775807},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":6148914691236517205},
+    {"id":"negative_one","input_value":-1,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

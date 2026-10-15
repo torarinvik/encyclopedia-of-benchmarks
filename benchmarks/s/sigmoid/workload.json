@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "sigmoid-scalar-binary64-v1",
+  "algorithm": "sigmoid",
+  "function_symbol": "sigmoid",
+  "input": {
+    "kind": "binary64_scalar",
+    "minimum": -20.0,
+    "maximum": 20.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "1 / (1 + exp(-x))",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"zero","input_values":[0.0],"expected_result":0.5},
+    {"id":"positive_one","input_values":[1.0],"expected_result":0.7310585786300049},
+    {"id":"negative_one","input_values":[-1.0],"expected_result":0.2689414213699951},
+    {"id":"positive_two","input_values":[2.0],"expected_result":0.8807970779778823},
+    {"id":"negative_domain_endpoint","input_values":[-20.0],"expected_result":2.0611536181902037e-9},
+    {"id":"positive_domain_endpoint","input_values":[20.0],"expected_result":0.9999999979388463},
+    {"id":"below_domain","input_values":[-20.0001],"expected_result":-1e300},
+    {"id":"above_domain","input_values":[20.0001],"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-7,
+    "absolute_tolerance": 1e-8,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

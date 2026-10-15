@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "remove-digit-python-magnitude-decimal-v1",
+  "algorithm": "remove_digit",
+  "function_symbol": "remove_digit",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775807,
+    "maximum": 9223372036854775807,
+    "minimum_absolute_value": 10,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "maximum integer after deleting exactly one decimal digit from the input magnitude",
+    "negative_input_sign": "discarded",
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"delete_leading_digit","input_value":152,"expected_result":52},
+    {"id":"maximize_remaining_prefix","input_value":6385,"expected_result":685},
+    {"id":"negative_sign_discarded","input_value":-11,"expected_result":1},
+    {"id":"repeated_digits","input_value":2222222,"expected_result":222222},
+    {"id":"two_digit_input","input_value":10,"expected_result":1},
+    {"id":"zeroes_after_deletion","input_value":1000,"expected_result":100},
+    {"id":"zeroes_inside_number","input_value":101,"expected_result":11},
+    {"id":"negative_zeroes_after_deletion","input_value":-1000,"expected_result":100},
+    {"id":"maximum_signed_i64","input_value":9223372036854775807,"expected_result":923372036854775807},
+    {"id":"zero_source_error","input_value":0,"expected_result":-1},
+    {"id":"one_digit_source_error","input_value":7,"expected_result":-1},
+    {"id":"negative_one_digit_source_error","input_value":-9,"expected_result":-1},
+    {"id":"minimum_signed_i64_excluded","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

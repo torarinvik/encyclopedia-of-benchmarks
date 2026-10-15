@@ -1,0 +1,23 @@
+extern sqrt(value: f64) -> f64
+
+def arithmetic_geometric_mean_impl(first: f64, second: f64) -> f64:
+    if first != first or second != second or first < 0.0 or second < 0.0 or
+        first > 1000000.0 or second > 1000000.0:
+        return -1.0
+    if first == second:
+        return first
+
+    arithmetic: mutable f64 = first
+    geometric: mutable f64 = second
+    previous: mutable f64 = arithmetic
+    while true:
+        previous <- arithmetic
+        next_arithmetic: f64 = (arithmetic + geometric) / 2.0
+        next_geometric: f64 = sqrt(arithmetic * geometric)
+        arithmetic <- next_arithmetic
+        geometric <- next_geometric
+        if arithmetic == previous:
+            break
+    arithmetic
+
+export fn arithmetic_geometric_mean(first: f64, second: f64) -> f64 = arithmetic_geometric_mean_impl

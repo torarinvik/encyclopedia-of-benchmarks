@@ -1,0 +1,41 @@
+def is_composite(n: i64) -> bool:
+    if n < 4:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= n / divisor:
+        if n % divisor == 0:
+            return true
+        divisor <- divisor + 1
+    false
+
+def modular_power(base: i64, exponent: i64, modulus: i64) -> i64:
+    if exponent == 0:
+        return 1
+    half: i64 = modular_power(base, exponent / 2, modulus) % modulus
+    result: mutable i64 = (half * half) % modulus
+    if exponent % 2 != 0:
+        result <- (result * base) % modulus
+    result
+
+def gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def carmichael_number_impl(value: i64) -> i64:
+    if value < 1 or value > 10000:
+        return -1
+    if value < 3 or not is_composite(value):
+        return 0
+    base: mutable i64 = 2
+    while base < value:
+        if gcd(base, value) == 1 and modular_power(base, value - 1, value) != 1:
+            return 0
+        base <- base + 1
+    1
+
+export fn carmichael_number(value: i64) -> i64 = carmichael_number_impl

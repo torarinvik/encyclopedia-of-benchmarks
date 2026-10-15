@@ -1,0 +1,43 @@
+const MAX_INPUT_LENGTH: usize = 32
+
+def is_ip_v4_address_valid_impl(bytes: i64&, length: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if bytes[index] < 0 or bytes[index] > 127:
+            return -1
+        index <- index + 1
+    segment_count: mutable usize = 0
+    digit_count: mutable usize = 0
+    octet: mutable i64 = 0
+    leading_zero: mutable bool = false
+    index <- 0
+    while index < length:
+        value: i64 = bytes[index]
+        if value == 46:
+            if digit_count == 0 or octet > 255 or segment_count >= 3:
+                return 0
+            segment_count <- segment_count + 1
+            digit_count <- 0
+            octet <- 0
+            leading_zero <- false
+        else:
+            if value < 48 or value > 57:
+                return 0
+            if digit_count == 0:
+                leading_zero <- value == 48
+            elif leading_zero:
+                return 0
+            octet <- octet * 10 + value - 48
+            if octet > 255:
+                return 0
+            digit_count <- digit_count + 1
+            if digit_count > 3:
+                return 0
+        index <- index + 1
+    if segment_count == 3 and digit_count > 0 and octet <= 255:
+        return 1
+    0
+
+export fn is_ip_v4_address_valid(bytes: i64&, length: usize) -> i64 = is_ip_v4_address_valid_impl

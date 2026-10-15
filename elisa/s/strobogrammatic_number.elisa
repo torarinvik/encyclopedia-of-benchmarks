@@ -1,0 +1,33 @@
+const MAX_INPUT_LENGTH: usize = 64
+
+def rotated_digit(value: i64) -> i64:
+    if value == 48:
+        return 48
+    if value == 49:
+        return 49
+    if value == 54:
+        return 57
+    if value == 56:
+        return 56
+    if value == 57:
+        return 54
+    -1
+
+def strobogrammatic_number_impl(bytes: i64&, length: usize) -> i64:
+    if length > MAX_INPUT_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if bytes[index] < 0 or bytes[index] > 127:
+            return -1
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = length
+    while left < right:
+        right <- right - 1
+        if rotated_digit(bytes[left]) != bytes[right]:
+            return 0
+        left <- left + 1
+    1
+
+export fn strobogrammatic_number(bytes: i64&, length: usize) -> i64 = strobogrammatic_number_impl

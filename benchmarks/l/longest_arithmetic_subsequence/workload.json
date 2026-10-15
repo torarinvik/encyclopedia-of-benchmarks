@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "longest-arithmetic-subsequence-i64-array-v1",
+  "algorithm": "longest_arithmetic_subsequence",
+  "function_symbol": "longest_arithmetic_subsequence",
+  "input": {
+    "kind": "signed_64_integer_array",
+    "element_minimum": -1000000,
+    "element_maximum": 1000000,
+    "minimum_length": 0,
+    "maximum_length": 64,
+    "result": "length of longest arithmetic subsequence",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": 0
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        42
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "constant_values",
+      "input_values": [
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "strictly_increasing_arithmetic",
+      "input_values": [
+        -9,
+        -6,
+        -3,
+        0,
+        3
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "non_contiguous_subsequence",
+      "input_values": [
+        1,
+        7,
+        10,
+        13
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "longest_is_decreasing",
+      "input_values": [
+        20,
+        1,
+        15,
+        3,
+        10,
+        5,
+        8
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "mixed_negative_and_positive",
+      "input_values": [
+        -8,
+        -1,
+        -5,
+        2,
+        -2,
+        5
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "maximum_supported_length",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "expected_result": 64
+    },
+    {
+      "id": "too_many_values",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "value_below_supported_range",
+      "input_values": [
+        -1000001,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "value_above_supported_range",
+      "input_values": [
+        0,
+        1000001
+      ],
+      "expected_result": -1
+    }
+  ]
+}

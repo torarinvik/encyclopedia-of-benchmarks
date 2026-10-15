@@ -14,6 +14,8 @@ The pinned [C LeetCode 234 source](https://github.com/TheAlgorithms/C/blob/e5dad
 
 ## Workload and verification
 
+The pinned Python [`is_palindrome.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/is_palindrome.py) also checks linked-list values by reversing the second half in place; this benchmark preserves its result while representing the list as a read-only array.
+
 [`workload.json`](workload.json) includes even and odd lists, the digit bounds, an empty sequence, and a 100,000-value palindrome. [`benchmarks/verify_palindrome_linked_list.py`](../../verify_palindrome_linked_list.py) compares the ports with direct reversal across exhaustive short sequences and deterministic random inputs.
 
 Build with the shared `i64_array_scalar` ABI and record with `benchmarks/run_i64_array_scalar.py`.

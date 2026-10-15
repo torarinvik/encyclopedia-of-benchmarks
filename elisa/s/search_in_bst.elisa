@@ -7,8 +7,8 @@ def search_in_bst_impl(input: i64&, length: usize) -> i64:
     count_value: i64 = input[0]
     root: i64 = input[1]
     target: i64 = input[2]
-    if count_value < 0 or count_value > MAX_NODE_COUNT or
-       length != 3 + 3 * count_value.usize() or target < 1 or target > MAX_VALUE:
+    if (count_value < 0 or count_value > MAX_NODE_COUNT or
+       length != 3 + 3 * count_value.usize() or target < 1 or target > MAX_VALUE):
         return -1
     count: usize = count_value.usize()
     if count == 0:

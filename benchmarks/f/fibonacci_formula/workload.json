@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci-formula-binet-f32-truncate-v1",
+  "algorithm": "fibonacci_formula",
+  "function_symbol": "fibonacci_formula",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 35,
+    "result": "source Binet calculation rounded to binary32 then truncated, equal to F(n+1) on this bounded domain",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero_source_index", "input_value": 0, "expected_result": 1},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "ten", "input_value": 10, "expected_result": 89},
+    {"id": "twenty", "input_value": 20, "expected_result": 10946},
+    {"id": "thirty_four", "input_value": 34, "expected_result": 9227465},
+    {"id": "maximum", "input_value": 35, "expected_result": 14930352},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "first_out_of_range", "input_value": 36, "expected_result": -1}
+  ]
+}

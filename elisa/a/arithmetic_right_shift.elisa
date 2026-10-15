@@ -1,0 +1,12 @@
+def arithmetic_right_shift_impl(n: u64, shift: u64) -> i64:
+    if n > 9007199254740991 or shift > 53:
+        return -1
+    count: usize = shift.usize()
+    low_mask: u64 = (1.u64() << (53 - count)) - 1.u64()
+    shifted: u64 = n >> count
+    if (n >> 52) != 0.u64():
+        ((9007199254740991.u64() ^ low_mask) | shifted).i64()
+    else:
+        shifted.i64()
+
+export fn arithmetic_right_shift(n: u64, shift: u64) -> i64 = arithmetic_right_shift_impl

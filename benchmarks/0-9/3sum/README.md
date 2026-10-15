@@ -1,6 +1,6 @@
 # 3Sum
 
-This benchmark returns every unique value triplet whose sum is zero. It is kept under the numeric algorithm name 3sum in the 0-9 bucket; compiler-facing module and function symbols use the valid identifier three_sum.
+This benchmark returns every unique value triplet whose sum is zero. Its algorithm name and source filename retain the numeric-leading name `3sum` in the `0-9` bucket. Elisa identifiers cannot start with a digit, so the exported function uses the valid identifier `three_sum`; the file has no explicit Elisa module declaration.
 
 ## Contract
 

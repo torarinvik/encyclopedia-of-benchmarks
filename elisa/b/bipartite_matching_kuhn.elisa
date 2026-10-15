@@ -1,0 +1,52 @@
+# Kuhn DFS augmenting-path maximum matching for a bounded bipartite graph.
+const MAX_SIDE: usize = 64
+const MAX_EDGES: usize = 4096
+
+def try_augment(left: usize, right_count: usize, adjacency: i64&, seen_right: mutable i64&,
+    pair_right: mutable i64&) -> bool:
+    right: mutable usize = 0
+    while right < right_count:
+        if adjacency[left * MAX_SIDE + right] != 0 and seen_right[right] == 0:
+            seen_right[right] <- 1
+            mate: i64 = pair_right[right]
+            if mate < 0 or try_augment(mate.usize(), right_count, adjacency, seen_right, pair_right):
+                pair_right[right] <- left.i64()
+                return true
+        right <- right + 1
+    false
+
+export fn bipartite_matching_kuhn(input: i64&, length: usize) -> i64:
+    if length < 3:
+        return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    edge_value: i64 = input[2]
+    if left_value < 0 or left_value > 64 or right_value < 0 or right_value > 64 or edge_value < 0 or edge_value > 4096:
+        return -1
+    left_count: usize = left_value.usize()
+    right_count: usize = right_value.usize()
+    edge_count: usize = edge_value.usize()
+    if length != 3 + 2 * edge_count:
+        return -1
+    adjacency: mutable i64[4096] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left: i64 = input[3 + 2 * edge]
+        right: i64 = input[4 + 2 * edge]
+        if left < 0 or left >= left_value or right < 0 or right >= right_value:
+            return -1
+        adjacency[left.usize() * MAX_SIDE + right.usize()] <- 1
+        edge <- edge + 1
+    pair_right: mutable i64[64] = zeroed
+    right: mutable usize = 0
+    while right < right_count:
+        pair_right[right] <- -1
+        right <- right + 1
+    matching: mutable i64 = 0
+    left: mutable usize = 0
+    while left < left_count:
+        seen_right: mutable i64[64] = zeroed
+        if try_augment(left, right_count, adjacency, seen_right, pair_right):
+            matching <- matching + 1
+        left <- left + 1
+    matching

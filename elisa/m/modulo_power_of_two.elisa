@@ -1,0 +1,12 @@
+# Java-compatible low-bit mask for a signed 32-bit input and exponent 1..31.
+def modulo_power_of_two_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    x: i64 = values[0]
+    exponent: i64 = values[1]
+    if x < -2147483648 or x > 2147483647 or exponent < 1 or exponent > 31:
+        return -1
+    mask: i64 = (1 << exponent) - 1
+    x & mask
+
+export fn modulo_power_of_two(values: i64&, length: usize) -> i64 = modulo_power_of_two_impl

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "next-power-of-two-positive-i32-v1",
+  "algorithm": "next_power_of_two",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 1073741824],
+    "result": "smallest power of two greater than or equal to the input",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":-1},
+    {"id":"one","input_value":1,"expected_result":1},
+    {"id":"two","input_value":2,"expected_result":2},
+    {"id":"three","input_value":3,"expected_result":4},
+    {"id":"exact_power","input_value":1024,"expected_result":1024},
+    {"id":"between_powers","input_value":1535,"expected_result":2048},
+    {"id":"near_upper_power_below","input_value":1073741823,"expected_result":1073741824},
+    {"id":"largest_supported_power","input_value":1073741824,"expected_result":1073741824},
+    {"id":"above_supported_range","input_value":1073741825,"expected_result":-1},
+    {"id":"signed64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

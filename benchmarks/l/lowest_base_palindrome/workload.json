@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "lowest-base-palindrome-scalar-v1",
+  "algorithm": "lowest_base_palindrome",
+  "function_symbol": "lowest_base_palindrome",
+  "input": {
+    "minimum": 0,
+    "maximum": 64,
+    "invalid_result": -1,
+    "meaning": "smallest base >= 2 in which the input's digits form a palindrome"
+  },
+  "cases": [
+    {
+      "id": "zero_empty_digit_sequence",
+      "input_value": 0,
+      "expected_result": 2
+    },
+    {
+      "id": "one_single_digit",
+      "input_value": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "two_searches_past_n_minus_one",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "three_binary_palindrome",
+      "input_value": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "four_base_three_palindrome",
+      "input_value": 4,
+      "expected_result": 3
+    },
+    {
+      "id": "ten_base_three_palindrome",
+      "input_value": 10,
+      "expected_result": 3
+    },
+    {
+      "id": "eleven_decimal_palindrome",
+      "input_value": 11,
+      "expected_result": 10
+    },
+    {
+      "id": "fifteen_binary_palindrome",
+      "input_value": 15,
+      "expected_result": 2
+    },
+    {
+      "id": "sixteen_base_three_palindrome",
+      "input_value": 16,
+      "expected_result": 3
+    },
+    {
+      "id": "maximum_supported_input",
+      "input_value": 64,
+      "expected_result": 7
+    },
+    {
+      "id": "negative_input",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_above_benchmark_bound",
+      "input_value": 65,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,107 @@
+# Count Julia-regex words after ASCII lowercasing.
+def word_count_julia_lower(value: i64) -> u8:
+    byte: u8 = value.u8()
+    if byte >= 65.u8() and byte <= 90.u8():
+        return byte + 32.u8()
+    return byte
+
+def word_count_julia_is_word(value: i64) -> bool:
+    byte: u8 = word_count_julia_lower(value)
+    (byte >= 97.u8() and byte <= 122.u8()) or (byte >= 48.u8() and byte <= 57.u8()) or byte == 95.u8()
+
+def word_count_julia_compare(input: i64&, start: usize, length: usize,
+        starts: mutable usize&, lengths: mutable usize&, slot: usize) -> i64:
+    shared: mutable usize = lengths[slot]
+    if length < lengths[slot]:
+        shared <- length
+    for offset in 0..<shared:
+        left: u8 = word_count_julia_lower(input[start + offset])
+        right: u8 = word_count_julia_lower(input[starts[slot] + offset])
+        if left < right:
+            return -1
+        if left > right:
+            return 1
+    if length < lengths[slot]:
+        return -1
+    if length > lengths[slot]:
+        return 1
+    0
+
+def word_count_julia_write_count(count: usize, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[4]
+    digit_count: mutable usize = 0
+    remaining: mutable usize = count
+    while true:
+        digits[digit_count] <- (48 + (remaining % 10)).u8()
+        digit_count <- digit_count + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    output[position_value] <- 61.u8()
+    position: mutable usize = position_value + 1
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        output[position] <- digits[digit_count]
+        position <- position + 1
+    output[position] <- 10.u8()
+    position + 1
+
+def word_count_julia_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length > 1000:
+        return -1
+    for index in 0..<length:
+        if values[index] < 0 or values[index] > 127:
+            return -1
+    starts: mutable usize[1000] = zeroed
+    lengths: mutable usize[1000] = zeroed
+    counts: mutable usize[1000] = zeroed
+    unique_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < length:
+        if not word_count_julia_is_word(values[index]):
+            index <- index + 1
+            continue
+        start: usize = index
+        while index < length and word_count_julia_is_word(values[index]):
+            index <- index + 1
+        token_length: mutable usize = index - start
+        if index + 1 < length and values[index] == 39 and word_count_julia_is_word(values[index + 1]):
+            token_length <- token_length + 2
+            index <- index + 2
+        position: mutable usize = 0
+        while position < unique_count and word_count_julia_compare(values, start, token_length, &starts[0], &lengths[0], position) > 0:
+            position <- position + 1
+        if position < unique_count and word_count_julia_compare(values, start, token_length, &starts[0], &lengths[0], position) == 0:
+            counts[position] <- counts[position] + 1
+        else:
+            shift_index: mutable usize = unique_count
+            while shift_index > position:
+                starts[shift_index] <- starts[shift_index - 1]
+                lengths[shift_index] <- lengths[shift_index - 1]
+                counts[shift_index] <- counts[shift_index - 1]
+                shift_index <- shift_index - 1
+            starts[position] <- start
+            lengths[position] <- token_length
+            counts[position] <- 1
+            unique_count <- unique_count + 1
+
+    required: mutable usize = 0
+    for item in 0..<unique_count:
+        digits: mutable usize = 1
+        value: mutable usize = counts[item]
+        while value >= 10:
+            value <- value / 10
+            digits <- digits + 1
+        required <- required + lengths[item] + digits + 2
+    if output_capacity < required:
+        return -2
+    written: mutable usize = 0
+    for item in 0..<unique_count:
+        for offset in 0..<lengths[item]:
+            output[written] <- word_count_julia_lower(values[starts[item] + offset])
+            written <- written + 1
+        written <- word_count_julia_write_count(counts[item], output, written)
+    written.i64()
+
+export fn word_count_julia(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_count_julia_impl

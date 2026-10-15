@@ -1,0 +1,11 @@
+# Rotate an unsigned 53-bit integer left by 0 through 53 positions.
+def circular_left_shift_impl(value: u64, shift: u64) -> i64:
+    mask: u64 = 9007199254740991
+    if value > mask or shift > 53:
+        return -1
+    amount: u64 = shift
+    low: u64 = (value & (mask >> amount)) << amount
+    high: u64 = value >> (53 - amount)
+    (low | high)
+
+export fn circular_left_shift(value: u64, shift: u64) -> i64 = circular_left_shift_impl

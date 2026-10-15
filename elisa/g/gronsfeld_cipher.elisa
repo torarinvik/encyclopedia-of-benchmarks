@@ -1,0 +1,61 @@
+# Encrypt 7-bit ASCII with a repeating decimal-digit Gronsfeld key.
+def gronsfeld_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 321:
+        return -1
+    separator: usize =
+        while index < length |index: mutable usize = 0, found: mutable usize = length| -> found:
+            if input[index] == 0:
+                break index
+            index <- index + 1
+            found
+    if separator == length:
+        return -1
+    text_length: usize = separator
+    key_length: usize = length - separator - 1
+    if text_length > 256 or key_length > 64:
+        return -1
+    valid_text: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 1 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_text:
+        return -1
+    valid_key: bool =
+        while index < key_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[separator + 1 + index]
+            if value < 48 or value > 57:
+                break false
+            index <- index + 1
+            valid
+    if not valid_key:
+        return -1
+    if key_length == 0:
+        has_letters: bool =
+            while index < text_length |index: mutable usize = 0, found: mutable bool = false| -> found:
+                value: i64 = input[index]
+                if (value >= 65 and value <= 90) or (value >= 97 and value <= 122):
+                    break true
+                index <- index + 1
+                found
+        if has_letters:
+            return -1
+    if output_capacity < text_length:
+        return -2
+    while index < text_length |index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        mapped: mutable i64 = value
+        if value >= 65 and value <= 90:
+            shift: i64 = input[separator + 1 + index % key_length] - 48
+            mapped <- 65 + (value - 65 + shift) % 26
+        elif value >= 97 and value <= 122:
+            shift: i64 = input[separator + 1 + index % key_length] - 48
+            mapped <- 65 + (value - 97 + shift) % 26
+        output[index] <- mapped.u8()
+        index <- index + 1
+        output
+    text_length.i64()
+
+export fn gronsfeld_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = gronsfeld_cipher_impl

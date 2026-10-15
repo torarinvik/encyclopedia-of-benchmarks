@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "nthprime-expanding-sieve-v1",
+  "algorithm": "nthprime",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [1, 100],
+    "result": "the one-based nth prime",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"zero_source_panic","input_value":0,"expected_result":-1},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"first_prime","input_value":1,"expected_result":2},
+    {"id":"second_prime","input_value":2,"expected_result":3},
+    {"id":"tenth_prime","input_value":10,"expected_result":29},
+    {"id":"twenty_fifth_prime","input_value":25,"expected_result":97},
+    {"id":"hundredth_prime","input_value":100,"expected_result":541},
+    {"id":"above_bound","input_value":101,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

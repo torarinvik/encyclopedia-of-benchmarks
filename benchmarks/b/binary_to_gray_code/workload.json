@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "python-binary-integer-to-gray-signed64-v1",
+  "algorithm": "binary_to_gray_code",
+  "function_symbol": "binary_to_gray_code",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "binary-reflected Gray-code integer value ^ (value >> 1)",
+    "maximum": 9223372036854775807
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "value_0",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "value_1",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "value_2",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "value_3",
+      "input_value": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "value_4",
+      "input_value": 4,
+      "expected_result": 6
+    },
+    {
+      "id": "value_7",
+      "input_value": 7,
+      "expected_result": 4
+    },
+    {
+      "id": "value_10",
+      "input_value": 10,
+      "expected_result": 15
+    },
+    {
+      "id": "value_15",
+      "input_value": 15,
+      "expected_result": 8
+    },
+    {
+      "id": "value_255",
+      "input_value": 255,
+      "expected_result": 128
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": 4611686018427387904
+    },
+    {
+      "id": "negative_1",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    }
+  ]
+}

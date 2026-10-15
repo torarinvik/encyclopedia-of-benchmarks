@@ -44,6 +44,7 @@ The Python `armstrong_numbers.py` file defines an `armstrong_number` predicate u
 
 - [C `math/armstrong_number.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/armstrong_number.c)
 - [C++ `math/armstrong_number.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/armstrong_number.cpp)
+- [C++ `dynamic_programming/armstrong_number_templated.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/armstrong_number_templated.cpp) uses the same digit-power predicate with a templated input type; the filename is cataloged as an alias. Its `int` accumulators are narrower than this benchmark's signed 64-bit contract.
 - [Rust `src/math/armstrong_number.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/armstrong_number.rs)
 
 - [Python `maths/special_numbers/armstrong_numbers.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/armstrong_numbers.py) is reviewed as an alias of this predicate.

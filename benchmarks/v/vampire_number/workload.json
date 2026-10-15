@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "vampire-number-v1",
+  "algorithm": "vampire_number",
+  "input": {
+    "kind": "pair_of_unsigned_64_bit_integers",
+    "range": [[1, 9999], [1, 9999]],
+    "pseudo_vampire_numbers_ignored": true,
+    "result": "1 when equal-length factors' combined decimal digits match the product digits, otherwise 0",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id":"first_vampire_number","input_values":[21,60],"expected_result":1},
+    {"id":"second_vampire_number","input_values":[30,51],"expected_result":1},
+    {"id":"factors_reversed","input_values":[60,21],"expected_result":1},
+    {"id":"no_digit_match","input_values":[12,34],"expected_result":0},
+    {"id":"prime_factors","input_values":[23,47],"expected_result":0},
+    {"id":"different_factor_lengths","input_values":[6,21],"expected_result":0},
+    {"id":"same_digits_different_product","input_values":[12,21],"expected_result":0},
+    {"id":"single_digit_factors","input_values":[1,2],"expected_result":0},
+    {"id":"smallest_factors","input_values":[1,1],"expected_result":0},
+    {"id":"maximum_factors","input_values":[9999,9999],"expected_result":0},
+    {"id":"zero_left","input_values":[0,21],"expected_result":-1},
+    {"id":"above_factor_range","input_values":[10000,21],"expected_result":-1},
+    {"id":"unsigned_64_maximum","input_values":[18446744073709551615,21],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

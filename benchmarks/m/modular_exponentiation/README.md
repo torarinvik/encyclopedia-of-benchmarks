@@ -1,6 +1,6 @@
 # Modular exponentiation
 
-Modular exponentiation computes `base^exponent mod modulus` using repeated squaring. The pinned C++ and R sources use binary exponentiation; C# uses repeated multiplication. This benchmark standardizes their result and input domain and uses binary exponentiation in each portable port.
+Modular exponentiation computes `base^exponent mod modulus` using repeated squaring. The pinned C++ and R sources use binary exponentiation; C# uses repeated multiplication. Rust `fast_power` is a modular binary-exponentiation alias. This benchmark standardizes their result and input domain and uses binary exponentiation in each portable port.
 
 ## Contract
 
@@ -18,4 +18,4 @@ python3 benchmarks/verify_modular_exponentiation.py --elisa-compiler ../Elisa-co
 
 The verifier uses Python’s three-argument `pow` as an independent oracle across exhaustive small combinations, random values, signed boundaries, malformed inputs, and the published workload. The pinned C++ implementation does not validate a zero modulus, and the C# implementation iterates once per exponent; the shared contract rejects nonpositive moduli and fixes the algorithm to binary exponentiation for comparable scaling.
 
-Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/modular_exponentiation.cpp), [C#](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/ModularExponentiation.cs), and [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/modular_exponentiation.r).
+Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/modular_exponentiation.cpp), [C#](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/ModularExponentiation.cs), and [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/modular_exponentiation.r). Rust [`fast_power`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_power.rs) is cataloged here as a semantic alias.

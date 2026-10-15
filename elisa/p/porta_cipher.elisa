@@ -1,0 +1,39 @@
+# Reciprocal Porta tableau cipher.
+def porta_cipher_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length < 3 or length > 1091:
+        return -1
+    mode: i64 = values[0]
+    text_length_value: i64 = values[1]
+    key_length_value: i64 = values[2]
+    if (mode != 0 and mode != 1) or text_length_value < 0 or text_length_value > 1024 or key_length_value < 0 or key_length_value > 64:
+        return -1
+    text_length: usize = text_length_value.usize()
+    key_length: usize = key_length_value.usize()
+    if length != 3 + text_length + key_length or (text_length > 0 and key_length == 0):
+        return -1
+    key_start: usize = 3 + text_length
+    for index in 3..<length:
+        value: i64 = values[index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+            return -1
+    if output_capacity < text_length:
+        return -2
+    for index in 0..<text_length:
+        letter: mutable i64 = values[3 + index]
+        key_letter: mutable i64 = values[key_start + index % key_length]
+        if letter >= 97:
+            letter <- letter - 32
+        if key_letter >= 97:
+            key_letter <- key_letter - 32
+        letter_index: i64 = letter - 65
+        group: i64 = (key_letter - 65) / 2
+        mapped: mutable i64 = 0
+        if letter_index < 13:
+            mapped <- 13 + (letter_index + 13 - group) % 13
+        else:
+            mapped <- (letter_index - 13 + group) % 13
+        output[index] <- (65 + mapped).u8()
+    text_length.i64()
+
+export fn porta_cipher(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = porta_cipher_impl

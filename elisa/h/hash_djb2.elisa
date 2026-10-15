@@ -1,0 +1,18 @@
+const MAX_BYTES: usize = 3
+
+def hash_djb2_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > MAX_BYTES + 1:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 3 or length != count_value.usize() + 1:
+        return -1
+    hash: mutable u64 = 5381
+    count: usize = count_value.usize()
+    for index in 0..<count |input, hash|:
+        byte: i64 = input[index + 1]
+        if byte < 1 or byte > 127:
+            return -1
+        hash <- hash * 33 + byte.u64()
+    hash.i64()
+
+export fn hash_djb2(input: i64&, length: usize) -> i64 = hash_djb2_impl

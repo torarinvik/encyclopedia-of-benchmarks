@@ -1,0 +1,49 @@
+const MAX_VALUES: usize = 100000
+
+def sift_down(values: mutable i64&, root_start: usize, end: usize) -> void:
+    root: mutable usize = root_start
+    while root < end / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: i64 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+def heap_sort(values: mutable i64&, length: usize) -> void:
+    start: mutable usize = length / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(values, start, length)
+    ending: mutable usize = length
+    while ending > 1:
+        ending <- ending - 1
+        temporary: i64 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        sift_down(values, 0, ending)
+
+def mex_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > MAX_VALUES + 1:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 100000 or length != count_value.usize() + 1:
+        return -1
+    count: usize = count_value.usize()
+    values: mutable i64[MAX_VALUES] = zeroed
+    for index in 0..<count |input, values|:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+    heap_sort(&values[0], count)
+    candidate: mutable i64 = 0
+    for index in 0..<count |values, candidate|:
+        if values[index] == candidate:
+            candidate <- candidate + 1
+    candidate
+
+export fn mex(input: i64&, length: usize) -> i64 = mex_impl

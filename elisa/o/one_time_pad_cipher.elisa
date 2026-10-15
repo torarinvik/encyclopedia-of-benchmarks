@@ -1,0 +1,22 @@
+# Bytewise one-time-pad XOR; encrypt and decrypt use the same operation.
+def one_time_pad_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 2050:
+        return -1
+    mode: i64 = input[0]
+    count_value: i64 = input[1]
+    if (mode != 0 and mode != 1) or count_value < 0 or count_value > 1024:
+        return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count:
+        return -1
+    if output_capacity < count:
+        return -2
+    for index in 0..<count |index, input, output, count|:
+        data: i64 = input[2 + index]
+        key: i64 = input[2 + count + index]
+        if data < 0 or data > 255 or key < 0 or key > 255:
+            return -1
+        output[index] <- (data ^ key).u8()
+    count.i64()
+
+export fn one_time_pad_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = one_time_pad_cipher_impl

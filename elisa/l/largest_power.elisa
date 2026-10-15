@@ -1,0 +1,16 @@
+# Legendre's formula for the exponent of prime p in n!.
+def largest_power_impl(n: u64, p: u64) -> i64:
+    if n > 4294967295 or p > 65535 or p < 2:
+        return -1
+    prime: bool =
+        while divisor <= p / divisor |divisor: mutable u64 = 2, prime: mutable bool = true| -> prime:
+            if p % divisor == 0:
+                break false
+            divisor <- divisor + 1
+    if not prime:
+        return -1
+    while quotient > 0 |quotient: mutable u64 = n, total: mutable i64 = 0| -> total:
+        quotient <- quotient / p
+        total <- total + quotient.i64()
+
+export fn largest_power(n: u64, p: u64) -> i64 = largest_power_impl

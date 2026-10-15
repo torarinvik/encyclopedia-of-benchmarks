@@ -1,0 +1,7 @@
+# Return the isolated least significant set bit.
+def lowest_set_bit_impl(value: i64) -> i64:
+    if value < 0 or value > 2147483647:
+        return -1
+    value & -value
+
+export fn lowest_set_bit(value: i64) -> i64 = lowest_set_bit_impl

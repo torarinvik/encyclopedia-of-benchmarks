@@ -1,0 +1,7 @@
+# Convert a nonnegative integer to its binary-reflected Gray code.
+def binary_to_gray_code_impl(value: i64) -> i64:
+    if value < 0:
+        return -1
+    value ^ (value >> 1)
+
+export fn binary_to_gray_code(value: i64) -> i64 = binary_to_gray_code_impl

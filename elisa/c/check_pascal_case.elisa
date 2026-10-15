@@ -1,0 +1,21 @@
+# Check the bounded ASCII Pascal-case predicate.
+def check_pascal_case_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -2
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 32 or value > 126:
+            return -2
+        index <- index + 1
+    if length == 0 or values[0] < 65 or values[0] > 90:
+        return 0
+    index <- 0
+    while index < length:
+        value: i64 = values[index]
+        if not ((value >= 97 and value <= 122) or (value >= 65 and value <= 90)):
+            return 0
+        index <- index + 1
+    1
+
+export fn check_pascal_case(values: i64&, length: usize) -> i64 = check_pascal_case_impl

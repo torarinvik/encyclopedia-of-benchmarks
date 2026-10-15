@@ -1,0 +1,14 @@
+def bcd_conversion_impl(decimal: i64) -> i64:
+    if decimal < 0 or decimal > 9999:
+        return -1
+    value: mutable i64 = decimal
+    bcd: mutable i64 = 0
+    shift: mutable i64 = 0
+    while value > 0:
+        digit: i64 = value % 10
+        bcd <- bcd | (digit << (shift * 4))
+        value <- value / 10
+        shift <- shift + 1
+    bcd
+
+export fn bcd_conversion(decimal: i64) -> i64 = bcd_conversion_impl

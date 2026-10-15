@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "strong-number-i32-v1",
+  "algorithm": "strong_number",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "strong": 1,
+      "not_strong": 0
+    },
+    "definition": "For nonnegative n, the factorials of its decimal digits sum to n; negative inputs return 0. The decimal representation of zero contains one zero digit."
+  },
+  "cases": [
+    {
+      "id": "signed_minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "below_i32_range",
+      "input_value": -2147483649,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_int32_minimum",
+      "input_value": -2147483648,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_digit_sum",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "classic_145",
+      "input_value": 145,
+      "expected_result": 1
+    },
+    {
+      "id": "contains_zero_40585",
+      "input_value": 40585,
+      "expected_result": 1
+    },
+    {
+      "id": "neighbor_40584",
+      "input_value": 40584,
+      "expected_result": 0
+    },
+    {
+      "id": "digit_zero_changes_sum_10",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "all_digit_ones_111",
+      "input_value": 111,
+      "expected_result": 0
+    },
+    {
+      "id": "non_strong_146",
+      "input_value": 146,
+      "expected_result": 0
+    },
+    {
+      "id": "int32_maximum",
+      "input_value": 2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "above_i32_range",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

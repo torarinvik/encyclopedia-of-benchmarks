@@ -1,0 +1,21 @@
+def alaw_encode_impl(input: i64) -> i64:
+    if input < -32768 or input > 32767:
+        return -1
+    sample: i64 = input
+    sign: mutable i64 = 0
+    magnitude: mutable i64 = sample
+    if sample < 0:
+        sign <- 0x80
+        magnitude <- -sample - 1
+    segment: mutable i64 = 7
+    mask: mutable i64 = 0x4000
+    while (magnitude & mask) == 0 and segment > 0:
+        segment <- segment - 1
+        mask <- mask >> 1
+    shift: mutable i64 = segment + 3
+    if segment == 0:
+        shift <- 4
+    quantization: i64 = (magnitude >> shift) & 0x0f
+    (sign | (segment << 4) | quantization) ^ 0xD5
+
+export fn alaw_encode(input: i64) -> i64 = alaw_encode_impl

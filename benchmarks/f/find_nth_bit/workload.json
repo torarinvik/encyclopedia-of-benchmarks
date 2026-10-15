@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "find-nth-bit-1-based-positive-int32-v1",
+  "algorithm": "find_nth_bit",
+  "function_symbol": "find_nth_bit",
+  "input": {
+    "kind": "two_unsigned_64_bit_integers",
+    "layout": ["num", "n"],
+    "num_minimum": 0,
+    "num_maximum": 2147483647,
+    "position_minimum": 1,
+    "position_maximum": 31,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "(num & (1 << (n - 1))) >> (n - 1), with Java signed-int shift semantics on valid inputs",
+    "valid_values": [0, 1],
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"least_significant_set","input_values":[5,1],"expected_result":1},
+    {"id":"second_position_clear","input_values":[5,2],"expected_result":0},
+    {"id":"third_position_set","input_values":[5,3],"expected_result":1},
+    {"id":"zero_number","input_values":[0,31],"expected_result":0},
+    {"id":"maximum_supported_bit_set","input_values":[2147483647,31],"expected_result":1},
+    {"id":"maximum_number_low_bit","input_values":[2147483647,1],"expected_result":1},
+    {"id":"position_zero","input_values":[5,0],"expected_result":-1},
+    {"id":"position_above_contract","input_values":[5,32],"expected_result":-1},
+    {"id":"number_above_positive_int32","input_values":[2147483648,1],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

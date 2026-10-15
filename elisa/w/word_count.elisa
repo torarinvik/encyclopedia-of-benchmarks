@@ -1,0 +1,48 @@
+# Count literal-space-delimited words and requested-word matches.
+def word_count_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def word_count_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 1050 or values[0] < 0 or values[0] > 999:
+        return -1
+    text_length: usize = values[0].usize()
+    query_index: usize = 1 + text_length
+    if query_index >= length or values[query_index] < 0 or values[query_index] > 49:
+        return -1
+    query_length: usize = values[query_index].usize()
+    if length != query_index + 1 + query_length:
+        return -1
+    for index in 1..<query_index:
+        if values[index] < 1 or values[index] > 127:
+            return -1
+    for index in (query_index + 1)..<length:
+        if values[index] < 1 or values[index] > 127:
+            return -1
+    total: mutable usize = 0
+    matches: mutable usize = 0
+    start: mutable usize = 0
+    for end in 0..<(text_length + 1):
+        if end == text_length or values[1 + end] == 32:
+            token_length: usize = end - start
+            if token_length > 49:
+                return -1
+            if total >= 20:
+                return -2
+            if token_length == query_length:
+                offset: mutable usize = 0
+                while offset < token_length and values[1 + start + offset] == values[query_index + 1 + offset]:
+                    offset <- offset + 1
+                if offset == token_length:
+                    matches <- matches + 1
+            total <- total + 1
+            start <- end + 1
+    if output_capacity < 16:
+        return -2
+    word_count_store_i64(total.i64(), output, 0)
+    word_count_store_i64(matches.i64(), output, 8)
+    16.i64()
+
+export fn word_count(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_count_impl

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "prime-factorization-sieve-v1",
+  "algorithm": "prime_factorization_sieve",
+  "input": {
+    "minimum": 1,
+    "maximum": 1000005,
+    "out_of_range_result": -1,
+    "encoding": "prime_factorization_pairs_u32le",
+    "meaning": "ascending (prime, exponent) pairs, each pair two little-endian u32 values"
+  },
+  "cases": [
+    {
+      "id": "case_1",
+      "input_value": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_2",
+      "input_value": 2,
+      "expected_result": 8,
+      "expected_output_hex": "0200000001000000"
+    },
+    {
+      "id": "case_3",
+      "input_value": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0200000002000000"
+    },
+    {
+      "id": "case_4",
+      "input_value": 12,
+      "expected_result": 16,
+      "expected_output_hex": "02000000020000000300000001000000"
+    },
+    {
+      "id": "case_5",
+      "input_value": 100,
+      "expected_result": 16,
+      "expected_output_hex": "02000000020000000500000002000000"
+    },
+    {
+      "id": "case_6",
+      "input_value": 65535,
+      "expected_result": 32,
+      "expected_output_hex": "0300000001000000050000000100000011000000010000000101000001000000"
+    },
+    {
+      "id": "case_7",
+      "input_value": 999983,
+      "expected_result": 8,
+      "expected_output_hex": "2f420f0001000000"
+    },
+    {
+      "id": "case_8",
+      "input_value": 1000000,
+      "expected_result": 16,
+      "expected_output_hex": "02000000060000000500000006000000"
+    },
+    {
+      "id": "case_9",
+      "input_value": 1000005,
+      "expected_result": 32,
+      "expected_output_hex": "03000000010000000500000001000000a3000000010000009901000001000000"
+    },
+    {
+      "id": "case_10",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_11",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_12",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "case_13",
+      "input_value": 1000006,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

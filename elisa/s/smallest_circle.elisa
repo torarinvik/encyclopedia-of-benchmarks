@@ -1,0 +1,94 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def smallest_circle_contains_all(cx: f64, cy: f64, radius: f64,
+        values: i64&, count: usize) -> bool:
+    radius_squared: f64 = radius * radius
+    for index in 0..<count:
+        dx: f64 = values[2 * index].f64() - cx
+        dy: f64 = values[2 * index + 1].f64() - cy
+        if dx * dx + dy * dy > radius_squared + 1e-12:
+            return false
+    true
+
+def smallest_circle_consider(cx: f64, cy: f64, radius: f64,
+        values: i64&, count: usize, best_x: mutable f64&, best_y: mutable f64&,
+        best_radius: mutable f64&, best_valid: mutable u8&) -> void:
+    if (smallest_circle_contains_all(cx, cy, radius, values, count) and
+            (best_valid[0] == 0 or radius <= best_radius[0])):
+        best_x <- cx
+        best_y <- cy
+        best_radius[0] <- radius
+        best_valid[0] <- 1.u8()
+
+def smallest_circle_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def smallest_circle_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > 24 or length % 2 != 0:
+        return -1
+    count: usize = length / 2
+    for index in 0..<length:
+        if values[index] < -100 or values[index] > 100:
+            return -1
+
+    best_x: mutable f64 = 0.0
+    best_y: mutable f64 = 0.0
+    best_radius: mutable f64 = 0.0
+    best_valid: mutable u8 = 0.u8()
+    if count == 1:
+        best_x <- values[0].f64()
+        best_y <- values[1].f64()
+        best_valid <- 1.u8()
+    else:
+        for i in 0..<count:
+            ax: f64 = values[2 * i].f64()
+            ay: f64 = values[2 * i + 1].f64()
+            for j in (i + 1)..<count:
+                bx: f64 = values[2 * j].f64()
+                by: f64 = values[2 * j + 1].f64()
+                for k in (j + 1)..<count:
+                    cx: f64 = values[2 * k].f64()
+                    cy: f64 = values[2 * k + 1].f64()
+                    denominator: f64 = 2.0 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+                    if denominator == 0.0:
+                        continue
+                    a_squared: f64 = ax * ax + ay * ay
+                    b_squared: f64 = bx * bx + by * by
+                    c_squared: f64 = cx * cx + cy * cy
+                    center_x: f64 = (a_squared * (by - cy) + b_squared * (cy - ay) +
+                            c_squared * (ay - by)) / denominator
+                    center_y: f64 = (a_squared * (cx - bx) + b_squared * (ax - cx) +
+                            c_squared * (bx - ax)) / denominator
+                    dx: f64 = center_x - ax
+                    dy: f64 = center_y - ay
+                    smallest_circle_consider(center_x, center_y, sqrt(dx * dx + dy * dy), values,
+                            count, best_x, best_y, best_radius, best_valid)
+        for i in 0..<count:
+            ax: f64 = values[2 * i].f64()
+            ay: f64 = values[2 * i + 1].f64()
+            for j in (i + 1)..<count:
+                bx: f64 = values[2 * j].f64()
+                by: f64 = values[2 * j + 1].f64()
+                center_x: f64 = (ax + bx) / 2.0
+                center_y: f64 = (ay + by) / 2.0
+                dx: f64 = bx - ax
+                dy: f64 = by - ay
+                smallest_circle_consider(center_x, center_y, sqrt(dx * dx + dy * dy) / 2.0,
+                        values, count, best_x, best_y, best_radius, best_valid)
+
+    if best_valid == 0:
+        return -1
+    if output == null or output_capacity < 24:
+        return -2
+    smallest_circle_write_f64(output, 0, best_x)
+    smallest_circle_write_f64(output, 8, best_y)
+    smallest_circle_write_f64(output, 16, best_radius)
+    1
+
+export fn smallest_circle(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = smallest_circle_impl

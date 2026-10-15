@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "liouville-lambda-v1",
+  "algorithm": "liouville_lambda",
+  "input": {
+    "minimum": 1,
+    "maximum": 2147483647,
+    "out_of_range_result": -1,
+    "encoding": "integer",
+    "meaning": "Liouville function lambda(n) = (-1)^Omega(n), with prime factors counted with multiplicity"
+  },
+  "cases": [
+    { "id": "case_1", "input_value": 1, "expected_result": 1 },
+    { "id": "case_2", "input_value": 2, "expected_result": -1 },
+    { "id": "case_3", "input_value": 3, "expected_result": -1 },
+    { "id": "case_4", "input_value": 4, "expected_result": 1 },
+    { "id": "case_5", "input_value": 8, "expected_result": -1 },
+    { "id": "case_6", "input_value": 9, "expected_result": 1 },
+    { "id": "case_7", "input_value": 12, "expected_result": -1 },
+    { "id": "case_8", "input_value": 30, "expected_result": -1 },
+    { "id": "case_9", "input_value": 36, "expected_result": 1 },
+    { "id": "case_10", "input_value": 100, "expected_result": 1 },
+    { "id": "case_11", "input_value": 999983, "expected_result": -1 },
+    { "id": "case_12", "input_value": 2147483646, "expected_result": 1 },
+    { "id": "case_13", "input_value": 2147483647, "expected_result": -1 },
+    { "id": "case_14", "input_value": 0, "expected_result": -1 },
+    { "id": "case_15", "input_value": -1, "expected_result": -1 },
+    { "id": "case_16", "input_value": 2147483648, "expected_result": -1 },
+    { "id": "case_17", "input_value": -9223372036854775808, "expected_result": -1 },
+    { "id": "case_18", "input_value": 9223372036854775807, "expected_result": -1 }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_i64_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

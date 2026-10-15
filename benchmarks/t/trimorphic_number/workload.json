@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "trimorphic-number-i64-v1",
+  "algorithm": "trimorphic_number",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      0,
+      2000000
+    ],
+    "invalid_result": -1,
+    "result_encoding": {
+      "trimorphic": 1,
+      "not_trimorphic": 0
+    },
+    "definition": "For n in the valid range, n is trimorphic when n cubed modulo 10^d equals n, where d is the number of decimal digits; zero has one digit."
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "five",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "seven",
+      "input_value": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "twenty_four",
+      "input_value": 24,
+      "expected_result": 1
+    },
+    {
+      "id": "twenty_five",
+      "input_value": 25,
+      "expected_result": 1
+    },
+    {
+      "id": "two_hundred_forty_nine",
+      "input_value": 249,
+      "expected_result": 1
+    },
+    {
+      "id": "one_hundred",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "six_hundred_twenty_five",
+      "input_value": 625,
+      "expected_result": 1
+    },
+    {
+      "id": "one_million",
+      "input_value": 1000000,
+      "expected_result": 0
+    },
+    {
+      "id": "upper_bound",
+      "input_value": 2000000,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_upper_bound",
+      "input_value": 2000001,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

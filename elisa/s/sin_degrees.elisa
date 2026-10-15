@@ -1,0 +1,27 @@
+extern floor(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+extern round(value: f64) -> f64
+
+def sin_degrees_impl(angle_value: f64) -> f64:
+    if not (angle_value >= -1000000.0 and angle_value <= 1000000.0):
+        return -1.0
+
+    angle: mutable f64 = angle_value - floor(angle_value / 360.0) * 360.0
+    radians: f64 = angle * (3.141592653589793 / 180.0)
+    result: mutable f64 = radians
+    sign: mutable f64 = -1.0
+    exponent: mutable i64 = 3
+    term: mutable i64 = 0
+    while term < 18:
+        factorial: mutable f64 = 1.0
+        factor: mutable i64 = 2
+        while factor <= exponent:
+            factorial <- factorial * factor.f64()
+            factor <- factor + 1
+        result <- result + sign * pow(radians, exponent.f64()) / factorial
+        sign <- -sign
+        exponent <- exponent + 2
+        term <- term + 1
+    round(result * 10000000000.0) / 10000000000.0
+
+export fn sin_degrees(angle: f64) -> f64 = sin_degrees_impl

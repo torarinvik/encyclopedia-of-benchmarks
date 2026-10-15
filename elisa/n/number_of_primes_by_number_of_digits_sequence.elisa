@@ -1,0 +1,28 @@
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    composite: bool =
+        while factor <= value / factor |factor: mutable i64 = 2, found: bool = false| -> found:
+            if value % factor == 0:
+                break true
+            factor <- factor + 1
+    not composite
+
+def number_of_primes_by_number_of_digits_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 3:
+        return -1
+    if index == 0:
+        return 0
+    lower: i64 =
+        while power_index < index - 1 |power_index: mutable i64 = 0, power: mutable i64 = 1| -> power:
+            power <- power * 10
+            power_index <- power_index + 1
+    upper: i64 = lower * 10
+    count: i64 =
+        while value <= upper |value: mutable i64 = lower + 1, total: mutable i64 = 0| -> total:
+            if is_prime(value):
+                total <- total + 1
+            value <- value + 1
+    count
+
+export fn number_of_primes_by_number_of_digits_sequence(index: i64) -> i64 = number_of_primes_by_number_of_digits_sequence_impl

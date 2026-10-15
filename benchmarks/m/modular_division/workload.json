@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "modular-division-v1",
+  "algorithm": "modular_division",
+  "input": {
+    "kind": "three_element_signed_64_array",
+    "encoding": "[numerator, denominator, prime_modulus]",
+    "numerator_range": [
+      0,
+      1000000000000
+    ],
+    "denominator_range": [
+      0,
+      1000000000000
+    ],
+    "prime_modulus_range": [
+      2,
+      1000000
+    ],
+    "denominator_must_be_coprime_to_modulus": true,
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "source_15_over_3_mod_7",
+      "input_values": [
+        15,
+        3,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": 5
+    },
+    {
+      "id": "source_81_over_3_mod_5",
+      "input_values": [
+        81,
+        3,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "source_12848_over_73_mod_29",
+      "input_values": [
+        12848,
+        73,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "python_8_over_4_mod_5",
+      "input_values": [
+        8,
+        4,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "python_8_over_3_mod_5",
+      "input_values": [
+        8,
+        3,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_numerator",
+      "input_values": [
+        0,
+        5,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "denominator_greater_than_modulus",
+      "input_values": [
+        24,
+        8,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "large_operands",
+      "input_values": [
+        999999999999,
+        999999999998,
+        999983
+      ],
+      "input_length": 3,
+      "expected_result": 306616
+    },
+    {
+      "id": "prime_two",
+      "input_values": [
+        15,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_denominator",
+      "input_values": [
+        8,
+        0,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "denominator_not_invertible",
+      "input_values": [
+        8,
+        14,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "composite_modulus",
+      "input_values": [
+        8,
+        3,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "modulus_below_two",
+      "input_values": [
+        8,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "modulus_above_bound",
+      "input_values": [
+        8,
+        3,
+        1000003
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "operand_above_bound",
+      "input_values": [
+        1000000000001,
+        3,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

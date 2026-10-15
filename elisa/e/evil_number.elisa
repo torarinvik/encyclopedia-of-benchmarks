@@ -1,0 +1,14 @@
+# Return 1 when a nonnegative integer has an even popcount.
+def evil_number_impl(value: i64) -> i64:
+    if value < 0:
+        return -1
+    count: mutable i64 = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        count <- count + (remaining & 1)
+        remaining <- remaining >> 1
+    if count % 2 == 0:
+        return 1
+    0
+
+export fn evil_number(value: i64) -> i64 = evil_number_impl

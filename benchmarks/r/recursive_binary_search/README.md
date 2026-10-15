@@ -37,3 +37,5 @@ All ports use portable recursion and integer index arithmetic; none use CPU-spec
 ## TheAlgorithms reference
 
 - [Java `RecursiveBinarySearch.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/searches/RecursiveBinarySearch.java)
+- [Dart `binary_search_recursion.dart`](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/search/binary_search_recursion.dart)
+- [C# `RecursiveBinarySearcher.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Search/RecursiveBinarySearcher.cs)

@@ -1,0 +1,12 @@
+# Recursively encode binary digits as a decimal integer, for inputs 0..1023.
+def encode_binary_digits(value: i64) -> i64:
+    if value == 0:
+        return 0
+    (value % 2) + 10 * encode_binary_digits(value / 2)
+
+def decimal_to_binary_recursion_impl(value: i64) -> i64:
+    if value < 0 or value > 1023:
+        return -1
+    encode_binary_digits(value)
+
+export fn decimal_to_binary_recursion(value: i64) -> i64 = decimal_to_binary_recursion_impl

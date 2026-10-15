@@ -1,0 +1,16 @@
+def pell_number_impl(index: i64) -> i64:
+    if index < 0 or index > 50:
+        return -1
+    if index == 0:
+        return 0
+    previous: mutable i64 = 0
+    current: mutable i64 = 1
+    i: mutable i64 = 2
+    while i <= index:
+        next: i64 = 2 * current + previous
+        previous <- current
+        current <- next
+        i <- i + 1
+    current
+
+export fn pell_number(index: i64) -> i64 = pell_number_impl

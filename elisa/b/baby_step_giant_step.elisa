@@ -1,0 +1,72 @@
+const TABLE_SIZE: usize = 65536
+const TABLE_MASK: usize = TABLE_SIZE - 1
+const MAX_MODULUS: u64 = 1000000007
+
+def baby_step_giant_step_gcd(left: u64, right: u64) -> u64:
+    a: mutable u64 = left
+    b: mutable u64 = right
+    while b != 0:
+        remainder: u64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def baby_step_giant_step_ceil_sqrt(value: u64) -> usize:
+    low: mutable usize = 1
+    high: mutable usize = 31624
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if middle.u64() * middle.u64() >= value:
+            high <- middle
+        else:
+            low <- middle + 1
+    low
+
+def baby_step_giant_step_insert(keys: mutable u64&, encoded_steps: mutable u32&,
+        key: u64, step: usize) -> void:
+    slot: mutable usize = (key & TABLE_MASK.u64()).usize()
+    while encoded_steps[slot] != 0 and keys[slot] != key:
+        slot <- (slot + 1) & TABLE_MASK
+    keys[slot] <- key
+    encoded_steps[slot] <- step.u32() + 1
+
+def baby_step_giant_step_find(keys: u64&, encoded_steps: u32&, key: u64) -> usize:
+    slot: mutable usize = (key & TABLE_MASK.u64()).usize()
+    while encoded_steps[slot] != 0:
+        if keys[slot] == key:
+            return (encoded_steps[slot] - 1).usize()
+        slot <- (slot + 1) & TABLE_MASK
+    TABLE_SIZE
+
+def baby_step_giant_step_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    if (values[0] < 0 or values[1] < 0 or values[2] < 1 or
+        values[2].u64() > MAX_MODULUS or values[0] >= values[2] or values[1] >= values[2]):
+        return -1
+    a: u64 = values[0].u64()
+    b: u64 = values[1].u64()
+    modulus: u64 = values[2].u64()
+    if baby_step_giant_step_gcd(a, modulus) != 1:
+        return -1
+
+    m: usize = baby_step_giant_step_ceil_sqrt(modulus)
+    keys: mutable u64[TABLE_SIZE] = zeroed
+    encoded_steps: mutable u32[TABLE_SIZE] = zeroed
+    step: mutable u64 = 1
+    index: mutable usize = 0
+    while index < m:
+        baby_step_giant_step_insert(&keys[0], &encoded_steps[0], (step * b) % modulus, index)
+        step <- (step * a) % modulus
+        index <- index + 1
+    giant_step: u64 = step
+    index <- m
+    while index.u64() <= modulus:
+        baby_index: usize = baby_step_giant_step_find(&keys[0], &encoded_steps[0], step)
+        if baby_index != TABLE_SIZE:
+            return (index - baby_index).i64()
+        step <- (step * giant_step) % modulus
+        index <- index + m
+    -1
+
+export fn baby_step_giant_step(values: i64&, length: usize) -> i64 = baby_step_giant_step_impl

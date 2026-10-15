@@ -1,0 +1,22 @@
+# Convert an ASCII binary string to equal-width ASCII Gray code.
+def binary_to_gray_impl(bits: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length == 0 or length > 66:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if bits[index] != 48 and bits[index] != 49:
+            return -1
+        index <- index + 1
+    if output_capacity < length:
+        return -2
+    index <- 0
+    while index < length:
+        current: i64 = bits[index] - 48
+        previous: i64 = if index == 0: 0 else: bits[index - 1] - 48
+        output[index] <- (48 + (current ^ previous)).u8()
+        index <- index + 1
+    length.i64()
+
+export fn binary_to_gray(bits: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = binary_to_gray_impl

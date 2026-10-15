@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "finding-number-of-digits-unsigned-division-loop-i64-v1",
+  "algorithm": "finding_number_of_digits_in_a_number",
+  "function_symbol": "finding_number_of_digits_in_a_number",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 9223372036854775807,
+    "invalid_input_result": -1,
+    "source_domain": "unsigned 64-bit integer; this workload uses the nonnegative signed-64 subset",
+    "zero_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "number of times repeated division by 10 takes the value to zero",
+    "maximum_valid_value": 19
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one_digit","input_value":7,"expected_result":1},
+    {"id":"two_digits","input_value":13,"expected_result":2},
+    {"id":"three_digits","input_value":564,"expected_result":3},
+    {"id":"below_four_digit_boundary","input_value":999,"expected_result":3},
+    {"id":"four_digit_boundary","input_value":1000,"expected_result":4},
+    {"id":"source_example","input_value":5492,"expected_result":4},
+    {"id":"five_digit_boundary","input_value":10000,"expected_result":5},
+    {"id":"six_digit_boundary","input_value":100000,"expected_result":6},
+    {"id":"maximum_signed_64_bit","input_value":9223372036854775807,"expected_result":19},
+    {"id":"negative_one","input_value":-1,"expected_result":-1},
+    {"id":"minimum_signed_64_bit","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

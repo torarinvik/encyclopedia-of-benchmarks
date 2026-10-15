@@ -1,0 +1,23 @@
+def check_polygon_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 256:
+        return -1
+
+    total: mutable i64 = 0
+    largest: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        side: i64 = values[index]
+        if side < 1 or side > 1000000000:
+            return -1
+        total <- total + side
+        if side > largest:
+            largest <- side
+        index <- index + 1
+    if largest < total - largest:
+        1
+    else:
+        0
+
+export fn check_polygon(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = check_polygon_impl

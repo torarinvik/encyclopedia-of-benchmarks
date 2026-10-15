@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "onepad-cipher-v1",
+  "algorithm": "onepad_cipher",
+  "function_symbol": "onepad_cipher",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mode, length, data[length], key[length]]",
+    "mode_values": {
+      "0": "encrypt",
+      "1": "decrypt"
+    },
+    "maximum_length": 1024,
+    "plaintext_codepoint_range": [
+      32,
+      126
+    ],
+    "key_minimum": 1,
+    "key_maximum": 300,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "encryption_output_encoding": "each ciphertext integer as signed 64-bit little-endian bytes",
+    "decryption_output_encoding": "printable ASCII bytes"
+  },
+  "output": {
+    "kind": "byte_array",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_encrypt",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_decrypt",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pinned_hello_encrypt",
+      "input_values": [
+        0,
+        5,
+        72,
+        101,
+        108,
+        108,
+        111,
+        69,
+        292,
+        33,
+        131,
+        61
+      ],
+      "input_length": 12,
+      "expected_result": 40,
+      "expected_output_hex": "012600000000000044c00100000000002d120000000000004d7a000000000000fc28000000000000"
+    },
+    {
+      "id": "pinned_hello_decrypt",
+      "input_values": [
+        1,
+        5,
+        9729,
+        114756,
+        4653,
+        31309,
+        10492,
+        69,
+        292,
+        33,
+        131,
+        61
+      ],
+      "input_length": 12,
+      "expected_result": 5,
+      "expected_output_hex": "48656c6c6f"
+    },
+    {
+      "id": "punctuation_and_key_bounds",
+      "input_values": [
+        0,
+        4,
+        32,
+        33,
+        126,
+        65,
+        1,
+        2,
+        299,
+        300
+      ],
+      "input_length": 10,
+      "expected_result": 32,
+      "expected_output_hex": "2100000000000000460000000000000063f0010000000000bcab010000000000"
+    },
+    {
+      "id": "punctuation_and_key_bounds_decrypt",
+      "input_values": [
+        1,
+        4,
+        33,
+        70,
+        127075,
+        109500,
+        1,
+        2,
+        299,
+        300
+      ],
+      "input_length": 10,
+      "expected_result": 4,
+      "expected_output_hex": "20217e41"
+    },
+    {
+      "id": "single_character",
+      "input_values": [
+        0,
+        1,
+        65,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "4200000000000000"
+    },
+    {
+      "id": "missing_key_value",
+      "input_values": [
+        0,
+        1,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_array_value",
+      "input_values": [
+        0,
+        1,
+        65,
+        1,
+        9
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_below_range",
+      "input_values": [
+        0,
+        1,
+        65,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_above_range",
+      "input_values": [
+        0,
+        1,
+        65,
+        301
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_printable_plaintext",
+      "input_values": [
+        0,
+        1,
+        31,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2,
+        1,
+        65,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_ciphertext_remainder",
+      "input_values": [
+        1,
+        1,
+        7,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

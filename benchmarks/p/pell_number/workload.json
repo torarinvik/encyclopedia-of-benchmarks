@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "pell-number-index-signed-i64-v1",
+  "algorithm": "pell_number",
+  "function_symbol": "pell_number",
+  "input": {
+    "kind": "signed_integer_index",
+    "minimum_value": 0,
+    "maximum_value": 50,
+    "recurrence": "P(0)=0, P(1)=1, P(n)=2*P(n-1)+P(n-2)",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_values":[0],"expected_result":0},
+    {"id":"one","input_values":[1],"expected_result":1},
+    {"id":"two","input_values":[2],"expected_result":2},
+    {"id":"five","input_values":[5],"expected_result":29},
+    {"id":"ten","input_values":[10],"expected_result":2378},
+    {"id":"twelve","input_values":[12],"expected_result":13860},
+    {"id":"twenty","input_values":[20],"expected_result":15994428},
+    {"id":"twenty_five","input_values":[25],"expected_result":1311738121},
+    {"id":"thirty","input_values":[30],"expected_result":107578520350},
+    {"id":"forty","input_values":[40],"expected_result":723573111879672},
+    {"id":"forty_nine","input_values":[49],"expected_result":2015874949414289041},
+    {"id":"maximum_valid","input_values":[50],"expected_result":4866752642924153522},
+    {"id":"negative_invalid","input_values":[-1],"expected_result":-1},
+    {"id":"above_bound_invalid","input_values":[51],"expected_result":-1},
+    {"id":"signed_64_minimum_invalid","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"signed_64_maximum_invalid","input_values":[9223372036854775807],"expected_result":-1}
+  ]
+}

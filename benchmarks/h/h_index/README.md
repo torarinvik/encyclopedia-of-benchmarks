@@ -11,7 +11,7 @@ Return the greatest integer `h` for which at least `h` papers each have at least
 
 ## Reviewed source
 
-The pinned [C LeetCode 274 source](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/274.c) sorts the citation array with `qsort` and scans from the largest value. The shared benchmark ABI supplies read-only input, so these ports use binary search over the same H-index definition rather than mutating the array. The published LeetCode bounds are 1 to 5,000 papers and 0 to 1,000 citations; this benchmark additionally defines empty input as 0 and invalid values as -1 ([problem statement](https://leetcode.com/problems/h-index/)).
+The pinned [C LeetCode 274 source](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/274.c) sorts the citation array with `qsort` and scans from the largest value. The pinned [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/h_index.py) also sorts in place and scans from largest to smallest, after checking citations are nonnegative. Both compute the same H-index definition. The shared benchmark ABI supplies read-only input, so these ports use binary search and do not reproduce either source's in-place sort. The published LeetCode bounds are 1 to 5,000 papers and 0 to 1,000 citations; this benchmark additionally defines empty input as 0 and invalid values as -1 ([problem statement](https://leetcode.com/problems/h-index/)).
 
 ## Workload and verification
 

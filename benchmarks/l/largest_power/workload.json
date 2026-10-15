@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "largest_power-v1",
+  "algorithm": "largest_power",
+  "input": {
+    "kind": "unsigned_64_pair",
+    "n_maximum": 4294967295,
+    "p_minimum": 2,
+    "p_maximum": 65535,
+    "p_must_be_prime": true,
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "n0_p2",
+      "input_values": [
+        0,
+        2
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "n1_p2",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "n5_p2",
+      "input_values": [
+        5,
+        2
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "n10_p3",
+      "input_values": [
+        10,
+        3
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "n25_p5",
+      "input_values": [
+        25,
+        5
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "n27_p2",
+      "input_values": [
+        27,
+        2
+      ],
+      "expected_result": 23
+    },
+    {
+      "id": "n7_p3",
+      "input_values": [
+        7,
+        3
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "n1000_p7",
+      "input_values": [
+        1000,
+        7
+      ],
+      "expected_result": 164
+    },
+    {
+      "id": "n4294967295_p2",
+      "input_values": [
+        4294967295,
+        2
+      ],
+      "expected_result": 4294967263
+    },
+    {
+      "id": "n4294967295_p3",
+      "input_values": [
+        4294967295,
+        3
+      ],
+      "expected_result": 2147483636
+    },
+    {
+      "id": "n4294967295_p65521",
+      "input_values": [
+        4294967295,
+        65521
+      ],
+      "expected_result": 65552
+    },
+    {
+      "id": "n10_p1",
+      "input_values": [
+        10,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "n10_p4",
+      "input_values": [
+        10,
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "n10_p65536",
+      "input_values": [
+        10,
+        65536
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "n4294967296_p2",
+      "input_values": [
+        4294967296,
+        2
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

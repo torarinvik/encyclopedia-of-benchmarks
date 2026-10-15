@@ -6,12 +6,12 @@ def word_search_is_letter(value: i64) -> bool:
 
 def word_search_visit(input: i64&, columns: usize, rows: usize, word_start: usize,
                       word_length: usize, position: usize, word_index: usize,
-                      visited: mutable bool&) -> bool:
-    if visited[position] or input[2 + position] != input[word_start + word_index]:
+                      visited: mutable u8&) -> bool:
+    if visited[position] != 0 or input[2 + position] != input[word_start + word_index]:
         return false
-    visited[position] <- true
+    visited[position] <- 1.u8()
     if word_index + 1 == word_length:
-        visited[position] <- false
+        visited[position] <- 0.u8()
         return true
     row: usize = position / columns
     column: usize = position % columns
@@ -28,7 +28,7 @@ def word_search_visit(input: i64&, columns: usize, rows: usize, word_start: usiz
     if not found and column + 1 < columns:
         found <- word_search_visit(input, columns, rows, word_start, word_length,
                                    position + 1, word_index + 1, visited)
-    visited[position] <- false
+    visited[position] <- 0.u8()
     found
 
 def word_search_impl(input: i64&, length: usize) -> i64:
@@ -41,8 +41,8 @@ def word_search_impl(input: i64&, length: usize) -> i64:
     if length <= word_length_index:
         return -1
     word_length_value: i64 = input[word_length_index]
-    if word_length_value < 1 or word_length_value > 15 or
-       length != word_length_index + 1 + word_length_value.usize():
+    if (word_length_value < 1 or word_length_value > 15 or
+       length != word_length_index + 1 + word_length_value.usize()):
         return -1
     word_length: usize = word_length_value.usize()
     index: mutable usize = 0
@@ -58,7 +58,7 @@ def word_search_impl(input: i64&, length: usize) -> i64:
         index <- index + 1
     if word_length > cells:
         return 0
-    visited: mutable bool[36] = zeroed
+    visited: mutable u8[36] = zeroed
     index <- 0
     while index < cells:
         if word_search_visit(input, columns, rows, word_start, word_length,

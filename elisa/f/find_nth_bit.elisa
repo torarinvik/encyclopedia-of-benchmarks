@@ -1,0 +1,8 @@
+def find_nth_bit_impl(num: u64, n: u64) -> i64:
+    if num > 2147483647 or n < 1 or n > 31:
+        return -1
+    value: i32 = num.i32()
+    shift: i32 = (n - 1).i32()
+    ((value & (1 << shift)) >> shift).i64()
+
+export fn find_nth_bit(num: u64, n: u64) -> i64 = find_nth_bit_impl

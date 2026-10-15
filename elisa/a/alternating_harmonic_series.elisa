@@ -18,7 +18,7 @@ def alternating_harmonic_series_impl(values: i64&, length: usize) -> i64:
         denominator: i64 = values[2 + 2 * index]
         if numerator < -1000 or numerator > 1000 or denominator < 1 or denominator > 1000:
             return -1
-        signed_denominator: i64 = denominator
+        signed_denominator: mutable i64 = denominator
         if index % 2 == 1:
             signed_denominator <- -denominator
         difference: mutable i64 = numerator * (index + 1).i64() - signed_denominator

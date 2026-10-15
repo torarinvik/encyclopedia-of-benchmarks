@@ -1,0 +1,16 @@
+# Sum base powers at the set-bit positions of n.
+def frizzy_number_impl(base: i64, n: i64) -> i64:
+    if base < 2 or base > 10 or n < 0 or n > 1023:
+        return -1
+    result: mutable i64 = 0
+    power: mutable i64 = 1
+    remaining: mutable i64 = n
+    while remaining > 0:
+        if remaining % 2 == 1:
+            result <- result + power
+        remaining <- remaining / 2
+        if remaining > 0:
+            power <- power * base
+    result
+
+export fn frizzy_number(base: i64, n: i64) -> i64 = frizzy_number_impl

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "wave_sort_greedy-bounded-i32-array-v1",
+  "algorithm": "wave_sort_greedy",
+  "function_symbol": "wave_sort_greedy",
+  "input": {
+    "kind": "signed_i64_array_with_signed_i32_values",
+    "array_length_range": [
+      0,
+      4096
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "signed 32-bit little-endian wave array; return output element count"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "single",
+      "input_values": [
+        7
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "cpp_rust_example",
+      "input_values": [
+        10,
+        90,
+        49,
+        2,
+        1,
+        5,
+        23
+      ],
+      "input_length": 7,
+      "expected_result": 7
+    },
+    {
+      "id": "even_length_example",
+      "input_values": [
+        1,
+        3,
+        4,
+        2,
+        7,
+        8
+      ],
+      "input_length": 6,
+      "expected_result": 6
+    },
+    {
+      "id": "duplicates",
+      "input_values": [
+        3,
+        3,
+        2,
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 8
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        -5,
+        -1,
+        -8,
+        -3,
+        0,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": 6
+    },
+    {
+      "id": "signed_i32_edges",
+      "input_values": [
+        -2147483648,
+        2147483647,
+        0,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": 4
+    },
+    {
+      "id": "outside_i32_range",
+      "input_values": [
+        2147483648
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

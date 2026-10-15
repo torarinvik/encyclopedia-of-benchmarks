@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "one-time-pad-byte-xor-v1",
+  "algorithm": "one_time_pad_cipher",
+  "function_symbol": "one_time_pad_cipher",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mode, length, data[length], key[length]]",
+    "mode_values": {
+      "0": "encrypt",
+      "1": "decrypt"
+    },
+    "maximum_length": 1024,
+    "byte_minimum": 0,
+    "byte_maximum": 255,
+    "equal_data_key_lengths": true,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "raw_byte_array",
+    "definition": "data[i] XOR key[i]",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_encrypt",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_decrypt",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "hello_encrypt",
+      "input_values": [
+        0,
+        5,
+        72,
+        101,
+        108,
+        108,
+        111,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 12,
+      "expected_result": 5,
+      "expected_output_hex": "49676f686a"
+    },
+    {
+      "id": "hello_decrypt",
+      "input_values": [
+        1,
+        5,
+        73,
+        103,
+        111,
+        104,
+        106,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 12,
+      "expected_result": 5,
+      "expected_output_hex": "48656c6c6f"
+    },
+    {
+      "id": "all_byte_boundaries",
+      "input_values": [
+        0,
+        5,
+        0,
+        127,
+        128,
+        255,
+        34,
+        255,
+        128,
+        127,
+        1,
+        34
+      ],
+      "input_length": 12,
+      "expected_result": 5,
+      "expected_output_hex": "fffffffe00"
+    },
+    {
+      "id": "zero_key_is_identity",
+      "input_values": [
+        1,
+        5,
+        0,
+        1,
+        127,
+        128,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 12,
+      "expected_result": 5,
+      "expected_output_hex": "00017f80ff"
+    },
+    {
+      "id": "mismatched_key_length",
+      "input_values": [
+        0,
+        2,
+        65,
+        66,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "data_below_byte_range",
+      "input_values": [
+        0,
+        1,
+        -1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "data_above_byte_range",
+      "input_values": [
+        0,
+        1,
+        256,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_below_byte_range",
+      "input_values": [
+        1,
+        1,
+        65,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_above_byte_range",
+      "input_values": [
+        1,
+        1,
+        65,
+        256
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2,
+        1,
+        65,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+# Sum an inclusive arithmetic progression from packed [from, to, step].
+def arithmetic_progression_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    start_value: i64 = values[0]
+    finish_value: i64 = values[1]
+    step: i64 = values[2]
+    if start_value < -1000000 or start_value > 1000000 or finish_value < -1000000 or finish_value > 1000000:
+        return -1
+    if step < -1000000 or step > 1000000 or step == 0:
+        return -1
+    if (start_value < finish_value and step < 0) or (start_value > finish_value and step > 0):
+        return -1
+    count: i64 = (finish_value - start_value) / step
+    last: i64 = start_value + count * step
+    ((count + 1) * (start_value + last)) / 2
+
+export fn arithmetic_progression(values: i64&, length: usize) -> i64 = arithmetic_progression_impl

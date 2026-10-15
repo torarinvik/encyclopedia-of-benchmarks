@@ -37,3 +37,4 @@ The local implementations scan all 32 bit positions. This matches the C LeetCode
 - [C LeetCode 191 `hammingWeight`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/191.c)
 - [C++ `count_of_set_bits`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2849e8d1a8d926e171cc5b39f97759/bit_manipulation/count_of_set_bits.cpp)
 - [JavaScript `BinaryCountSetBits`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/BinaryCountSetBits.js)
+- [Rust `counting_bits.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/bit_manipulation/counting_bits.rs) also counts set bits in one unsigned value, so it maps to this benchmark on the shared 32-bit input domain.

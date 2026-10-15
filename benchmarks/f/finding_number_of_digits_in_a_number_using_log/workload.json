@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "finding-number-of-digits-log10-bounded-integer-v1",
+  "algorithm": "finding_number_of_digits_in_a_number_using_log",
+  "function_symbol": "finding_number_of_digits_in_a_number_using_log",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -1000000,
+    "maximum": 1000000,
+    "invalid_input_result": -1,
+    "source_input_type": "double",
+    "result_encoding": "integer-valued floor(log10(abs(n)) + 1), with zero mapped to 0"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "0 for zero; otherwise floor(log10(abs(n)) + 1)",
+    "maximum_valid_value": 7
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one_digit_positive","input_value":9,"expected_result":1},
+    {"id":"one_digit_negative","input_value":-9,"expected_result":1},
+    {"id":"two_digit_boundary","input_value":10,"expected_result":2},
+    {"id":"source_example","input_value":5492,"expected_result":4},
+    {"id":"negative_source_example","input_value":-5492,"expected_result":4},
+    {"id":"four_digit_power","input_value":10000,"expected_result":5},
+    {"id":"six_digit_maximum_below_boundary","input_value":999999,"expected_result":6},
+    {"id":"seven_digit_boundary","input_value":1000000,"expected_result":7},
+    {"id":"negative_seven_digit_boundary","input_value":-1000000,"expected_result":7},
+    {"id":"below_contract","input_value":-1000001,"expected_result":-1},
+    {"id":"above_contract","input_value":1000001,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

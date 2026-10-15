@@ -1,0 +1,170 @@
+const MAX_POINTS: usize = 1024
+
+def convex_hull_cross(a: usize, b: usize, c: usize, values: i64&) -> i64:
+    dx1: i64 = values[2 * b] - values[2 * a]
+    dy1: i64 = values[2 * b + 1] - values[2 * a + 1]
+    dx2: i64 = values[2 * c] - values[2 * a]
+    dy2: i64 = values[2 * c + 1] - values[2 * a + 1]
+    dx1 * dy2 - dy1 * dx2
+
+def convex_hull_radius_squared(pivot: usize, point: usize, values: i64&) -> i64:
+    dx: i64 = values[2 * point] - values[2 * pivot]
+    dy: i64 = values[2 * point + 1] - values[2 * pivot + 1]
+    dx * dx + dy * dy
+
+def convex_hull_before_x(left: usize, right: usize, values: i64&) -> bool:
+    if values[2 * left] != values[2 * right]:
+        return values[2 * left] < values[2 * right]
+    if values[2 * left + 1] != values[2 * right + 1]:
+        return values[2 * left + 1] < values[2 * right + 1]
+    left < right
+
+def convex_hull_before_angle(left_position: usize, right_position: usize,
+        unique_ids: usize&, pivot_position: usize, values: i64&) -> bool:
+    pivot: usize = unique_ids[pivot_position]
+    left: usize = unique_ids[left_position]
+    right: usize = unique_ids[right_position]
+    turn: i64 = convex_hull_cross(pivot, left, right, values)
+    if turn != 0:
+        return turn > 0
+    left_radius: i64 = convex_hull_radius_squared(pivot, left, values)
+    right_radius: i64 = convex_hull_radius_squared(pivot, right, values)
+    if left_radius != right_radius:
+        return left_radius < right_radius
+    left < right
+
+def convex_hull_sort(indices: mutable usize&, scratch: mutable usize&,
+        begin: usize, end: usize, unique_ids: usize&, values: i64&,
+        pivot_position: usize, by_angle: bool) -> void:
+    if end - begin < 2:
+        return
+    middle: usize = begin + (end - begin) / 2
+    convex_hull_sort(indices, scratch, begin, middle, unique_ids, values, pivot_position, by_angle)
+    convex_hull_sort(indices, scratch, middle, end, unique_ids, values, pivot_position, by_angle)
+    left: mutable usize = begin
+    right: mutable usize = middle
+    out: mutable usize = begin
+    while left < middle and right < end:
+        right_first: mutable bool = false
+        if by_angle:
+            right_first <- convex_hull_before_angle(indices[right], indices[left], unique_ids, pivot_position, values)
+        else:
+            right_first <- convex_hull_before_x(indices[right], indices[left], values)
+        if right_first:
+            scratch[out] <- indices[right]
+            right <- right + 1
+        else:
+            scratch[out] <- indices[left]
+            left <- left + 1
+        out <- out + 1
+    while left < middle:
+        scratch[out] <- indices[left]
+        left <- left + 1
+        out <- out + 1
+    while right < end:
+        scratch[out] <- indices[right]
+        right <- right + 1
+        out <- out + 1
+    index: mutable usize = begin
+    while index < end:
+        indices[index] <- scratch[index]
+        index <- index + 1
+
+def convex_hull_write_index(output: mutable u8&, position: usize, id: usize) -> void:
+    value: u32 = id.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[4 * position + byte] <- ((value >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def convex_hull_graham_scan_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 2 * MAX_POINTS or length % 2 != 0:
+        return -1
+    point_count: usize = length / 2
+    index: mutable usize = 0
+    while index < point_count:
+        x: i64 = values[2 * index]
+        y: i64 = values[2 * index + 1]
+        if x < -1000000000 or x > 1000000000 or y < -1000000000 or y > 1000000000:
+            return -1
+        index <- index + 1
+    if point_count == 0:
+        return 0
+
+    order: mutable usize[MAX_POINTS] = zeroed
+    scratch: mutable usize[MAX_POINTS] = zeroed
+    unique_ids: mutable usize[MAX_POINTS] = zeroed
+    hull: mutable usize[MAX_POINTS] = zeroed
+    index <- 0
+    while index < point_count:
+        order[index] <- index
+        index <- index + 1
+    convex_hull_sort(&order[0], &scratch[0], 0, point_count, &unique_ids[0], values, 0, false)
+    unique_count: mutable usize = 0
+    index <- 0
+    while index < point_count:
+        id: usize = order[index]
+        if (unique_count == 0 or values[2 * unique_ids[unique_count - 1]] != values[2 * id] or
+                values[2 * unique_ids[unique_count - 1] + 1] != values[2 * id + 1]):
+            unique_ids[unique_count] <- id
+            unique_count <- unique_count + 1
+        index <- index + 1
+    if unique_count == 1:
+        if output_capacity < 4:
+            return -2
+        convex_hull_write_index(output, 0, unique_ids[0])
+        return 1
+
+    pivot_position: mutable usize = 0
+    index <- 1
+    while index < unique_count:
+        current_id: usize = unique_ids[index]
+        pivot_id: usize = unique_ids[pivot_position]
+        if (values[2 * current_id + 1] < values[2 * pivot_id + 1] or
+                (values[2 * current_id + 1] == values[2 * pivot_id + 1] and values[2 * current_id] < values[2 * pivot_id])):
+            pivot_position <- index
+        order[index] <- index
+        index <- index + 1
+    order[0] <- 0
+    convex_hull_sort(&order[0], &scratch[0], 0, unique_count, &unique_ids[0], values, pivot_position, true)
+    all_collinear: mutable bool = true
+    index <- 2
+    while index < unique_count:
+        if convex_hull_cross(unique_ids[pivot_position], unique_ids[order[1]], unique_ids[order[index]], values) != 0:
+            all_collinear <- false
+        index <- index + 1
+    if not all_collinear:
+        ray_begin: mutable usize = unique_count - 1
+        last_id: usize = unique_ids[order[unique_count - 1]]
+        while ray_begin > 1 and convex_hull_cross(unique_ids[pivot_position],
+                unique_ids[order[ray_begin - 1]], last_id, values) == 0:
+            ray_begin <- ray_begin - 1
+        left: mutable usize = ray_begin
+        right: mutable usize = unique_count - 1
+        while left < right:
+            temporary: usize = order[left]
+            order[left] <- order[right]
+            order[right] <- temporary
+            left <- left + 1
+            right <- right - 1
+    hull_count: mutable usize = 0
+    index <- 0
+    while index < unique_count:
+        point_position: usize = order[index]
+        while hull_count >= 2 and convex_hull_cross(unique_ids[hull[hull_count - 2]],
+                unique_ids[hull[hull_count - 1]], unique_ids[point_position], values) < 0:
+            hull_count <- hull_count - 1
+        hull[hull_count] <- point_position
+        hull_count <- hull_count + 1
+        index <- index + 1
+    if output_capacity < 4 * hull_count:
+        return -2
+    index <- 0
+    while index < hull_count:
+        convex_hull_write_index(output, index, unique_ids[hull[index]])
+        index <- index + 1
+    hull_count.i64()
+
+export fn convex_hull_graham_scan(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = convex_hull_graham_scan_impl

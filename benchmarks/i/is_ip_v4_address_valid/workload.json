@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "ipv4-canonical-ascii-validation-v1",
+  "algorithm": "is_ip_v4_address_valid",
+  "function_symbol": "is_ip_v4_address_valid",
+  "input": {
+    "kind": "raw_ascii_codepoint_array",
+    "layout": "one signed 64-bit value per byte, in string order, with no terminator",
+    "length_range": [0, 32],
+    "value_range": [0, 127],
+    "valid_address": "exactly four decimal octets from 0 through 255, with no leading zeroes except the single digit 0",
+    "whitespace_policy": "not trimmed",
+    "result_encoding": {"valid": 1, "invalid_address": 0},
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"rfc_example","input_values":[49,57,50,46,49,54,56,46,48,46,50,51],"expected_result":1},
+    {"id":"all_zero_octets","input_values":[48,46,48,46,48,46,48],"expected_result":1},
+    {"id":"maximum_octets","input_values":[50,53,53,46,50,53,53,46,50,53,53,46,50,53,53],"expected_result":1},
+    {"id":"zero_leading_octet","input_values":[48,49,46,50,46,51,46,52],"expected_result":0},
+    {"id":"whitespace_prefix_not_trimmed","input_values":[32,49,46,50,46,51,46,52],"expected_result":0},
+    {"id":"whitespace_suffix_not_trimmed","input_values":[49,46,50,46,51,46,52,32],"expected_result":0},
+    {"id":"octet_above_range","input_values":[50,53,54,46,49,57,50,46,51,46,49,50,49],"expected_result":0},
+    {"id":"too_few_octets","input_values":[49,46,50,46,51],"expected_result":0},
+    {"id":"too_many_octets","input_values":[49,46,50,46,51,46,52,46,53],"expected_result":0},
+    {"id":"empty_component","input_values":[49,46,46,51,46,52],"expected_result":0},
+    {"id":"nondigit_component","input_values":[49,46,50,46,65,46,52],"expected_result":0},
+    {"id":"negative_component","input_values":[49,46,50,46,45,51,46,52],"expected_result":0},
+    {"id":"empty_input","input_values":[],"expected_result":0},
+    {"id":"long_malformed_within_bound","input_values":[49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49],"expected_result":0},
+    {"id":"above_length_bound","input_values":[49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49],"expected_result":-1},
+    {"id":"non_ascii_packed_value","input_values":[49,46,50,46,51,46,52,233],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  }
+}

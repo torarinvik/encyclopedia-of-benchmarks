@@ -1,0 +1,20 @@
+# Inclusive Fibonacci range sum for unsigned 64-bit endpoints.
+def fibonacci_sum_impl(start: u64, end: u64) -> i64:
+    if end > 90 or start > end:
+        return -1
+    initial_state: mutable i64[4] = zeroed
+    initial_state[1] <- 1
+    initial_state[3] <- 1
+    final_state: i64[4] = while index < end + 2 |index: mutable u64 = 0, state: mutable i64[4] = initial_state| -> state:
+        if index > 0:
+            upper_value: i64 = state[0] + state[1]
+            state[0] <- state[1]
+            state[1] <- upper_value
+        if index > 0 and index < start + 1:
+            lower_value: i64 = state[2] + state[3]
+            state[2] <- state[3]
+            state[3] <- lower_value
+        index <- index + 1
+    final_state[1] - final_state[3]
+
+export fn fibonacci_sum(start: u64, end: u64) -> i64 = fibonacci_sum_impl

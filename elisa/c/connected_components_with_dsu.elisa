@@ -1,0 +1,45 @@
+const MAX_NODE_COUNT: usize = 256
+const MAX_EDGE_COUNT: usize = 2047
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGE_COUNT
+
+def connected_components_with_dsu_find_root(parent: mutable usize&, node: usize) -> usize:
+    current: mutable usize = node
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def connected_components_with_dsu_impl(input: i64&, length: usize) -> i64:
+    if (length < 2 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > i64(MAX_NODE_COUNT) or
+            input[1] < 0 or input[1] > i64(MAX_EDGE_COUNT)):
+        return -1
+    node_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    parent: mutable usize[MAX_NODE_COUNT + 1] = zeroed
+    set_size: mutable usize[MAX_NODE_COUNT + 1] = zeroed
+    for node in 1..<(node_count + 1) |parent, set_size|:
+        parent[node] <- node
+        set_size[node] <- 1
+    component_count: mutable usize = node_count
+    for edge in 0..<edge_count |input, parent, set_size, component_count|:
+        left_arg: i64 = input[2 + 2 * edge]
+        right_arg: i64 = input[3 + 2 * edge]
+        if left_arg < 1 or left_arg > node_count.i64() or right_arg < 1 or right_arg > node_count.i64():
+            return -1
+        left: mutable usize = connected_components_with_dsu_find_root(&parent[0], left_arg.usize())
+        right: mutable usize = connected_components_with_dsu_find_root(&parent[0], right_arg.usize())
+        if left == right:
+            continue
+        if set_size[left] < set_size[right]:
+            temporary: usize = left
+            left <- right
+            right <- temporary
+        parent[right] <- left
+        set_size[left] <- set_size[left] + set_size[right]
+        component_count <- component_count - 1
+    component_count.i64()
+
+export fn connected_components_with_dsu(input: i64&, length: usize) -> i64 = connected_components_with_dsu_impl

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "allocation-number-v1",
+  "algorithm": "allocation_number",
+  "function_symbol": "allocation_number",
+  "input": {
+    "kind": "two_signed_64_bit_integers",
+    "shape": ["number_of_bytes", "partitions"],
+    "number_of_bytes_range": [1, 1000000],
+    "partitions_range": [1, 128],
+    "partitions_must_not_exceed_bytes": true,
+    "partition_policy": "floor-sized contiguous ranges except the final range, which receives the remainder",
+    "output_encoding": "comma-separated one-based inclusive start-end ASCII ranges, no spaces or terminator",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"published_example","input_values":[16647,4],"input_length":2,"expected_result":39,"expected_output_hex":"312d343136312c343136322d383332322c383332332d31323438332c31323438342d3136363437"},
+    {"id":"published_even_partition","input_values":[50000,5],"input_length":2,"expected_result":55,"expected_output_hex":"312d31303030302c31303030312d32303030302c32303030312d33303030302c33303030312d34303030302c34303030312d3530303030"},
+    {"id":"remainder_to_last","input_values":[10,3],"input_length":2,"expected_result":12,"expected_output_hex":"312d332c342d362c372d3130"},
+    {"id":"single_partition","input_values":[8,1],"input_length":2,"expected_result":3,"expected_output_hex":"312d38"},
+    {"id":"one_byte_partitions","input_values":[4,4],"input_length":2,"expected_result":15,"expected_output_hex":"312d312c322d322c332d332c342d34"},
+    {"id":"small_remainder","input_values":[11,3],"input_length":2,"expected_result":12,"expected_output_hex":"312d332c342d362c372d3131"},
+    {"id":"empty_input","input_values":[],"input_length":0,"expected_result":-1,"expected_output_hex":""},
+    {"id":"one_value","input_values":[100],"input_length":1,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero_bytes","input_values":[0,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"zero_partitions","input_values":[10,0],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"too_many_partitions","input_values":[2,3],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative_bytes","input_values":[-1,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"above_byte_limit","input_values":[1000001,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"above_partition_limit","input_values":[1000,129],"input_length":2,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

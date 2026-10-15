@@ -25,10 +25,10 @@ def alternate_harmonic_series_impl(values: i64&, length: usize) -> i64:
     if count < 3:
         return 1
 
-    first_numerator: i64 = values[1]
+    first_numerator: mutable i64 = values[1]
     if first_numerator < 0:
         first_numerator <- -first_numerator
-    second_numerator: i64 = values[3]
+    second_numerator: mutable i64 = values[3]
     if second_numerator < 0:
         second_numerator <- -second_numerator
     base_difference_numerator: i64 = values[4] * first_numerator - values[2] * second_numerator

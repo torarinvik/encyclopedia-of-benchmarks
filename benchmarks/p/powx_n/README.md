@@ -17,6 +17,9 @@ The ports scan exponent bits from most significant to least significant and squa
 The pinned C source uses recursive repeated squaring, computes reciprocals for negative exponents, and has a special case for `INT_MIN`.
 
 - [TheAlgorithms/C `50.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/50.c)
+- [TheAlgorithms/C-Plus-Plus `fast_power.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/fast_power.cpp)
+
+The C++ `fast_power.cpp` source also provides recursive and iterative repeated-squaring variants; its nonmodular signed-exponent operation maps to this benchmark.
 
 ## Workload and recording
 

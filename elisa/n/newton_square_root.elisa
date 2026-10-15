@@ -1,0 +1,17 @@
+extern log2(value: f64) -> f64
+extern ceil(value: f64) -> f64
+
+def newton_square_root_impl(value: i64) -> i64:
+    if value < 0 or value > 4611686018427387903:
+        return -1
+    if value == 0:
+        return 0
+
+    bit_length: i32 = ceil(log2(value.f64())).i32()
+    root: mutable i64 = (i64(1) << (bit_length / 2))
+    while not (value >= root * root and value <= root * root + root + root):
+        root <- root + value / root
+        root <- root / 2
+    root
+
+export fn newton_square_root(value: i64) -> i64 = newton_square_root_impl

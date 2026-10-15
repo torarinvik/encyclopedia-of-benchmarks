@@ -1,0 +1,79 @@
+const MAX_VERTEX_COUNT: usize = 64
+const MAX_EDGE_COUNT: usize = 2046
+const MAX_INPUT_LENGTH: usize = 4 + 2 * MAX_EDGE_COUNT
+
+def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if (length < 4 or length > MAX_INPUT_LENGTH or input[0] < 1 or input[0] > i64(MAX_VERTEX_COUNT) or
+            input[3] < 0 or input[3] > i64(MAX_EDGE_COUNT)):
+        return -1
+    vertex_count: usize = input[0].usize()
+    source_arg: i64 = input[1]
+    target_arg: i64 = input[2]
+    edge_count: usize = input[3].usize()
+    if (source_arg < 0 or source_arg >= vertex_count.i64() or target_arg < 0 or
+            target_arg >= vertex_count.i64() or length != 4 + 2 * edge_count):
+        return -1
+
+    adjacency: mutable usize[MAX_VERTEX_COUNT] = zeroed
+    for edge in 0..<edge_count |input, adjacency|:
+        left_arg: i64 = input[4 + 2 * edge]
+        right_arg: i64 = input[5 + 2 * edge]
+        if left_arg < 0 or left_arg >= vertex_count.i64() or right_arg < 0 or right_arg >= vertex_count.i64():
+            return -1
+        left: usize = left_arg.usize()
+        right: usize = right_arg.usize()
+        adjacency[left] <- adjacency[left] | (1usize << right)
+        adjacency[right] <- adjacency[right] | (1usize << left)
+
+    source: usize = source_arg.usize()
+    target: usize = target_arg.usize()
+    predecessor: mutable i64[MAX_VERTEX_COUNT] = zeroed
+    visited: mutable bool[MAX_VERTEX_COUNT] = zeroed
+    queue: mutable usize[MAX_VERTEX_COUNT] = zeroed
+    for vertex in 0..<vertex_count |predecessor|:
+        predecessor[vertex] <- -1
+    predecessor[source] <- source.i64()
+    visited[source] <- true
+    head: mutable usize = 0
+    queue_end: mutable usize = 1
+    queue[0] <- source
+    found: mutable bool = source == target
+    while head < queue_end and not found |head, queue_end, queue, found, adjacency, visited, predecessor|:
+        current: usize = queue[head]
+        head <- head + 1
+        neighbor: mutable usize = 0
+        while neighbor < vertex_count |neighbor, adjacency, visited, predecessor, found, queue, queue_end, current|:
+            if (adjacency[current] & (1usize << neighbor)) == 0 or visited[neighbor]:
+                neighbor <- neighbor + 1
+                continue
+            visited[neighbor] <- true
+            predecessor[neighbor] <- current.i64()
+            if neighbor == target:
+                found <- true
+                break
+            queue[queue_end] <- neighbor
+            queue_end <- queue_end + 1
+            neighbor <- neighbor + 1
+    if not found:
+        if output_capacity < 1:
+            return -2
+        output[0] <- 0
+        return 1
+
+    path: mutable u8[MAX_VERTEX_COUNT] = zeroed
+    path_length: mutable usize = 0
+    current: mutable usize = target
+    while current != source |current, path, path_length, predecessor|:
+        path[path_length] <- current.u8()
+        path_length <- path_length + 1
+        current <- predecessor[current].usize()
+    path[path_length] <- source.u8()
+    path_length <- path_length + 1
+    if output_capacity < path_length + 1:
+        return -2
+    output[0] <- 1
+    for index in 0..<path_length |output, path|:
+        output[index + 1] <- path[index]
+    (path_length + 1).i64()
+
+export fn bfs_queue(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bfs_queue_impl

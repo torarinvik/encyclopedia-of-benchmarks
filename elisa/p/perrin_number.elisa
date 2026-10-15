@@ -1,0 +1,23 @@
+def perrin_number_impl(index: i64) -> i64:
+    if index < 0 or index > 155:
+        return -1
+    if index == 0:
+        return 3
+    if index == 1:
+        return 0
+    if index == 2:
+        return 2
+    a: mutable i64 = 3
+    b: mutable i64 = 0
+    c: mutable i64 = 2
+    result: mutable i64 = 0
+    i: mutable i64 = 3
+    while i <= index:
+        result <- a + b
+        a <- b
+        b <- c
+        c <- result
+        i <- i + 1
+    result
+
+export fn perrin_number(index: i64) -> i64 = perrin_number_impl

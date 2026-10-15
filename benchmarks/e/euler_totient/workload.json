@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "euler-totient-positive-i64-v1",
+  "algorithm": "euler_totient",
+  "function_symbol": "euler_totient",
+  "input": {
+    "kind": "signed_i64",
+    "minimum": 1,
+    "maximum": 1000000,
+    "out_of_range_result": -1,
+    "meaning": "count of integers k in 1..=n with gcd(k,n)=1"
+  },
+  "cases": [
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "prime_two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "prime_97",
+      "input_value": 97,
+      "expected_result": 96
+    },
+    {
+      "id": "prime_power",
+      "input_value": 81,
+      "expected_result": 54
+    },
+    {
+      "id": "two_distinct_prime_factors",
+      "input_value": 30,
+      "expected_result": 8
+    },
+    {
+      "id": "many_distinct_prime_factors",
+      "input_value": 210,
+      "expected_result": 48
+    },
+    {
+      "id": "square_of_two_primes",
+      "input_value": 10000,
+      "expected_result": 4000
+    },
+    {
+      "id": "maximum_input",
+      "input_value": 1000000,
+      "expected_result": 400000
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,13 @@
+# Tabulated Fibonacci for the bounded signed 64-bit benchmark contract.
+def fibonacci_dp_impl(n: i64) -> i64:
+    if n < 0 or n > 46:
+        return -1
+    initial_table: i64[47] = zeroed
+    initial_table[0] <- 0
+    initial_table[1] <- 1
+    table: i64[47] = while index <= n |index: mutable i64 = 2, values: mutable i64[47] = initial_table| -> values:
+        values[index.usize()] <- values[(index - 1).usize()] + values[(index - 2).usize()]
+        index <- index + 1
+    table[n.usize()]
+
+export fn fibonacci_dp(n: i64) -> i64 = fibonacci_dp_impl

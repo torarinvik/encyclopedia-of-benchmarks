@@ -1,0 +1,18 @@
+# Preserve the pinned JavaScript FriendlyNumbers divisor-loop behavior.
+def abundancy_index(number: u64) -> f64:
+    sum: mutable u64 = number
+    divisor: mutable u64 = 1
+    while divisor * 2 < number:
+        if number % divisor == 0:
+            sum <- sum + divisor
+        divisor <- divisor + 1
+    sum.f64() / number.f64()
+
+def friendly_numbers_impl(first: u64, second: u64) -> i64:
+    if first == 0 or second == 0 or first == second or first > 1000 or second > 1000:
+        return -1
+    if abundancy_index(first) == abundancy_index(second):
+        return 1
+    0
+
+export fn friendly_numbers(first: u64, second: u64) -> i64 = friendly_numbers_impl

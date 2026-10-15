@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "fibonacci_sum-v1",
+  "algorithm": "fibonacci_sum",
+  "input": {
+    "kind": "unsigned_64_pair",
+    "valid_start_minimum": 0,
+    "valid_end_maximum": 90,
+    "condition": "start <= end",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id": "zero_singleton", "input_values": [0, 0], "expected_result": 0},
+    {"id": "one_singleton", "input_values": [1, 1], "expected_result": 1},
+    {"id": "zero_through_three", "input_values": [0, 3], "expected_result": 4},
+    {"id": "three_through_five", "input_values": [3, 5], "expected_result": 10},
+    {"id": "five_through_seven", "input_values": [5, 7], "expected_result": 26},
+    {"id": "nine_through_twelve", "input_values": [9, 12], "expected_result": 322},
+    {"id": "twenty_through_thirty", "input_values": [20, 30], "expected_result": 2178307},
+    {"id": "eighty_nine_through_ninety", "input_values": [89, 90], "expected_result": 4660046610375530309},
+    {"id": "maximum_singleton", "input_values": [90, 90], "expected_result": 2880067194370816120},
+    {"id": "reversed_range", "input_values": [5, 4], "expected_result": -1},
+    {"id": "end_above_bound", "input_values": [0, 91], "expected_result": -1},
+    {"id": "large_start", "input_values": [18446744073709551615, 18446744073709551615], "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

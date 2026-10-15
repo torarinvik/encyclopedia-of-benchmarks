@@ -1,0 +1,57 @@
+# Incremental floating-point DDA points encoded as little-endian i32 pairs.
+def round_ties_to_even(value: f64) -> i64:
+    lower: mutable i64 = value.i64()
+    if lower.f64() > value:
+        lower <- lower - 1
+    fraction: f64 = value - lower.f64()
+    if fraction > 0.5 or (fraction == 0.5 and lower % 2 != 0):
+        return lower + 1
+    lower
+
+def write_i32_le(value: i64, output: mutable u8&, position: mutable usize&) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+    position <- position + 4
+
+def digital_differential_analyzer_line_impl(values: i64&, length: usize,
+                                             output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 4:
+        return -1
+    for index in 0..<4:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1
+    dx: i64 = values[2] - values[0]
+    dy: i64 = values[3] - values[1]
+    abs_dx: mutable i64 = dx
+    abs_dy: mutable i64 = dy
+    if abs_dx < 0:
+        abs_dx <- -abs_dx
+    if abs_dy < 0:
+        abs_dy <- -abs_dy
+    steps: mutable i64 = abs_dx
+    if abs_dy > steps:
+        steps <- abs_dy
+    if steps == 0 or steps > 4096:
+        return -1
+    output_bytes: usize = steps.usize() * 8
+    if output_capacity < output_bytes:
+        return -2
+    x_increment: f64 = dx.f64() / steps.f64()
+    y_increment: f64 = dy.f64() / steps.f64()
+    x: mutable f64 = values[0].f64()
+    y: mutable f64 = values[1].f64()
+    position: mutable usize = 0
+    step: mutable usize = 0
+    while step < steps.usize():
+        x <- x + x_increment
+        y <- y + y_increment
+        write_i32_le(round_ties_to_even(x), output, position)
+        write_i32_le(round_ties_to_even(y), output, position)
+        step <- step + 1
+    output_bytes.i64()
+
+export fn digital_differential_analyzer_line(values: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = digital_differential_analyzer_line_impl

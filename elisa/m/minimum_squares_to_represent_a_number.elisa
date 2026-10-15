@@ -1,0 +1,27 @@
+# Bottom-up minimum-square-count dynamic programming, bounded to 4096.
+def minimum_squares_to_represent_a_number_impl(input: i64) -> i64:
+    if input < 0 or input > 4096:
+        return -1
+    if input == 0:
+        return 1
+
+    answers: mutable i64[4097] = zeroed
+    index: mutable i64 = 0
+    while index <= input:
+        answers[index.usize()] <- -1
+        index <- index + 1
+    answers[0] <- 0
+    value: mutable i64 = 1
+    while value <= input:
+        best: mutable i64 = 9223372036854775807
+        root: mutable i64 = 1
+        while root <= value / root:
+            candidate: i64 = 1 + answers[(value - root * root).usize()]
+            if candidate < best:
+                best <- candidate
+            root <- root + 1
+        answers[value.usize()] <- best
+        value <- value + 1
+    answers[input.usize()]
+
+export fn minimum_squares_to_represent_a_number(input: i64) -> i64 = minimum_squares_to_represent_a_number_impl

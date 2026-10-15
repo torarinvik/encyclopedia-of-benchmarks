@@ -1,0 +1,6 @@
+def cubes_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 2097151:
+        return -1
+    index * index * index
+
+export fn cubes_sequence(index: i64) -> i64 = cubes_sequence_impl

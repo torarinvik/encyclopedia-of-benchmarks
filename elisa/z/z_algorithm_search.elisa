@@ -8,12 +8,10 @@ def z_algorithm_search_impl(values: i64&, length: usize, output: mutable u8&, ou
     pattern_length: usize = values[1].usize()
     if length != 2 + text_length + pattern_length:
         return -1
-    index: usize = 2
-    while index < length |index, values|:
+    valid: bool = while index < length |index: mutable usize = 2, valid: mutable bool = true| -> valid:
         if values[index] < 0 or values[index] > 127:
             break false
         index <- index + 1
-        true
     if not valid:
         return -1
 
@@ -33,7 +31,7 @@ def z_algorithm_search_impl(values: i64&, length: usize, output: mutable u8&, ou
     z: mutable usize[4095] = zeroed
     total: usize = pattern_length + 1 + text_length
     while index < pattern_length |index: mutable usize = 0, sequence, values, text_length|:
-        value: i64 = values[2 + text_length + index]
+        value: mutable i64 = values[2 + text_length + index]
         if value >= 65 and value <= 90:
             value <- value + 32
         sequence[index] <- value.u32()
@@ -41,7 +39,7 @@ def z_algorithm_search_impl(values: i64&, length: usize, output: mutable u8&, ou
         sequence
     sequence[pattern_length] <- 256.u32()
     while index < text_length |index: mutable usize = 0, sequence, values|:
-        value: i64 = values[2 + index]
+        value: mutable i64 = values[2 + index]
         if value >= 65 and value <= 90:
             value <- value + 32
         sequence[pattern_length + 1 + index] <- value.u32()
@@ -65,8 +63,7 @@ def z_algorithm_search_impl(values: i64&, length: usize, output: mutable u8&, ou
         index <- index + 1
         z
 
-    count: usize = 0
-    while index < total |index: mutable usize = pattern_length + 1, count, z|:
+    count: usize = while index < total |index: mutable usize = pattern_length + 1, count: mutable usize = 0, z| -> count:
         if z[index] >= pattern_length:
             count <- count + 1
         index <- index + 1

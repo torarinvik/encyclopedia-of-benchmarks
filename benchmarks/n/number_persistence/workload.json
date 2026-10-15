@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "number-persistence-multiplicative-i32-v1",
+  "algorithm": "number_persistence",
+  "function_symbol": "number_persistence",
+  "input": {
+    "minimum": 0,
+    "maximum": 2147483647,
+    "operation": "multiplicative persistence: repeatedly multiply decimal digits while the value is at least 10",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "single_digit",
+      "input_value": 9,
+      "expected_result": 0
+    },
+    {
+      "id": "one_step",
+      "input_value": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "digit_product_reduces_to_zero",
+      "input_value": 102,
+      "expected_result": 1
+    },
+    {
+      "id": "classic_39",
+      "input_value": 39,
+      "expected_result": 3
+    },
+    {
+      "id": "classic_77",
+      "input_value": 77,
+      "expected_result": 4
+    },
+    {
+      "id": "persistence_five",
+      "input_value": 679,
+      "expected_result": 5
+    },
+    {
+      "id": "largest_supported_java_int",
+      "input_value": 2147483647,
+      "expected_result": 2
+    },
+    {
+      "id": "negative_input",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_value_above_java_int",
+      "input_value": 2147483648,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

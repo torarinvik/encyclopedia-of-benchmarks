@@ -1,0 +1,73 @@
+{
+  "id": "check-flat-case-v1",
+  "algorithm": "check_flat_case",
+  "contract": {
+    "input": "A sequence of zero through 4,096 printable ASCII code values in 32..126.",
+    "output": "1 if every value is a lowercase ASCII letter, including the empty sequence; otherwise 0.",
+    "invalid_input_result": -2,
+    "empty_sequence_result": 1,
+    "input_mutated": false
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "lowercase-word",
+      "input_values": [102, 108, 97, 116, 99, 97, 115, 101],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "multiple-lowercase-letters",
+      "input_values": [97, 98, 99, 120, 121, 122],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "uppercase-letter",
+      "input_values": [97, 98, 67],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "space",
+      "input_values": [97, 32, 98],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "digit",
+      "input_values": [97, 49, 98],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "punctuation",
+      "input_values": [97, 95, 98],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid-line-feed",
+      "input_values": [97, 10],
+      "input_length": 2,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-non-ascii-value",
+      "input_values": [97, 233],
+      "input_length": 2,
+      "expected_result": -2
+    }
+  ]
+}

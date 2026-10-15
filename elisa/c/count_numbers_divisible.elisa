@@ -1,0 +1,9 @@
+# Count multiples of divisor in the inclusive positive integer interval [first, last].
+def count_numbers_divisible_impl(first: f64, last: f64, divisor: f64) -> f64:
+    a: i64 = first.i64()
+    b: i64 = last.i64()
+    m: i64 = divisor.i64()
+    result: i64 = b / m - (a - 1) / m
+    return result.f64()
+
+export fn count_numbers_divisible(first: f64, last: f64, divisor: f64) -> f64 = count_numbers_divisible_impl

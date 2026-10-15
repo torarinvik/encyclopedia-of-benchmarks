@@ -1,0 +1,6 @@
+def clear_lowest_set_bit_impl(value: i64) -> i64:
+    if value < 0 or value > 2147483647:
+        return -1
+    value & (value - 1)
+
+export fn clear_lowest_set_bit(value: i64) -> i64 = clear_lowest_set_bit_impl

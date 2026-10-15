@@ -1,0 +1,13 @@
+def square_root_with_babylonian_method_impl(input: f64) -> f64:
+    if not (input >= 1.0 and input <= 1000000.0):
+        return -1.0
+    num: f32 = input.f32()
+    a: mutable f32 = num
+    b: mutable f32 = 1.0
+    epsilon: f64 = 0.000001
+    while (a - b).f64() > epsilon:
+        a <- (a + b) / 2.0
+        b <- num / a
+    a.f64()
+
+export fn square_root_with_babylonian_method(input: f64) -> f64 = square_root_with_babylonian_method_impl

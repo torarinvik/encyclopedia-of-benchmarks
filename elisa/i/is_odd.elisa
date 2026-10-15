@@ -1,0 +1,7 @@
+# Return 1 for an odd signed 64-bit integer and 0 for an even one.
+def is_odd_impl(value: i64) -> i64:
+    if value % 2 != 0:
+        return 1
+    0
+
+export fn is_odd(value: i64) -> i64 = is_odd_impl

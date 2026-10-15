@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "proth-number-v1",
+  "algorithm": "proth_number",
+  "function_symbol": "is_proth_number",
+  "input": {
+    "kind": "positive_signed_64_integer",
+    "minimum": 1,
+    "maximum": 9223372036854775807,
+    "valid_result": "1 if number - 1 = k * 2^m for odd k with 0 < k < 2^m, otherwise 0",
+    "out_of_range_result": -1
+  },
+  "cases": [
+    {"id": "one_source_false_base_case", "input_value": 1, "expected_result": 0},
+    {"id": "two", "input_value": 2, "expected_result": 0},
+    {"id": "first_proth_number", "input_value": 3, "expected_result": 1},
+    {"id": "second_proth_number", "input_value": 5, "expected_result": 1},
+    {"id": "nine", "input_value": 9, "expected_result": 1},
+    {"id": "thirteen", "input_value": 13, "expected_result": 1},
+    {"id": "fifteen_not_proth", "input_value": 15, "expected_result": 0},
+    {"id": "forty_nine", "input_value": 49, "expected_result": 1},
+    {"id": "large_proth_number", "input_value": 4294967297, "expected_result": 1},
+    {"id": "large_power_of_two_factor", "input_value": 4611686018427387905, "expected_result": 1},
+    {"id": "maximum_i64", "input_value": 9223372036854775807, "expected_result": 0},
+    {"id": "zero_invalid", "input_value": 0, "expected_result": -1},
+    {"id": "negative_invalid", "input_value": -1, "expected_result": -1},
+    {"id": "minimum_i64_invalid", "input_value": -9223372036854775808, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

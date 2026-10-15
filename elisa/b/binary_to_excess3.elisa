@@ -1,0 +1,101 @@
+# Parse an ASCII base-2 integer, add three, and format with minimum width four.
+def is_ascii_space(value: i64) -> bool = value == 32 or (value >= 9 and value <= 13)
+def is_binary_digit(value: i64) -> bool = value == 48 or value == 49
+
+# The input array contains one ASCII code point per byte.
+def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 128:
+        return -1
+    start: mutable usize = 0
+    end: mutable usize = length
+    while start < end:
+        if is_ascii_space(values[start]):
+            start <- start + 1
+        else:
+            break
+    while end > start:
+        if is_ascii_space(values[end - 1]):
+            end <- end - 1
+        else:
+            break
+    if start == end:
+        return -1
+
+    negative: mutable bool = false
+    if values[start] == 43 or values[start] == 45:
+        negative <- values[start] == 45
+        start <- start + 1
+        if start == end:
+            return -1
+    prefixed: bool = end - start >= 2 and values[start] == 48 and (values[start + 1] == 98 or values[start + 1] == 66)
+    if prefixed:
+        start <- start + 2
+    if start == end:
+        return -1
+
+    digit_start: usize = start
+    allow_prefix_underscore: mutable bool = prefixed
+    have_digit: mutable bool = false
+    last_was_digit: mutable bool = false
+    magnitude: mutable i64 = 0
+    index: mutable usize = start
+    while index < end:
+        value: i64 = values[index]
+        if is_binary_digit(value):
+            digit: i64 = value - 48
+            if magnitude > (4611686018427387904 - digit) / 2:
+                return -1
+            magnitude <- magnitude * 2 + digit
+            have_digit <- true
+            last_was_digit <- true
+            allow_prefix_underscore <- false
+        else if value == 95:
+            if last_was_digit and index + 1 < end and is_binary_digit(values[index + 1]):
+                last_was_digit <- false
+            else if allow_prefix_underscore and not have_digit and index == digit_start and index + 1 < end and is_binary_digit(values[index + 1]):
+                allow_prefix_underscore <- false
+            else:
+                return -1
+        else:
+            return -1
+        index <- index + 1
+    if not have_digit or not last_was_digit:
+        return -1
+
+    result: i64 = (if negative: -magnitude else: magnitude) + 3
+    result_is_negative: bool = result < 0
+    remaining: mutable i64 = result
+    if result_is_negative:
+        remaining <- -result
+    reversed: mutable u8[64]
+    digit_count: mutable usize = 0
+    while true:
+        reversed[digit_count] <- (48 + remaining % 2).u8()
+        digit_count <- digit_count + 1
+        remaining <- remaining / 2
+        if remaining == 0:
+            break
+
+    sign_length: usize = if result_is_negative: 1 else: 0
+    output_length: mutable usize = sign_length + digit_count
+    if output_length < 4:
+        output_length <- 4
+    if output_capacity < output_length:
+        return -2
+    position: mutable usize = 0
+    if result_is_negative:
+        output[position] <- 45.u8()
+        position <- position + 1
+    digit_width: usize = output_length - sign_length
+    pad: mutable usize = digit_count
+    while pad < digit_width:
+        output[position] <- 48.u8()
+        position <- position + 1
+        pad <- pad + 1
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        output[position] <- reversed[digit_count]
+        position <- position + 1
+    output_length.i64()
+
+export fn binary_to_excess3(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_to_excess3_impl

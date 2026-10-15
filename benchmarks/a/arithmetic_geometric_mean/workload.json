@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "id": "arithmetic-geometric-mean-js-bounded-f64-pair-v1",
+  "algorithm": "arithmetic_geometric_mean",
+  "function_symbol": "arithmetic_geometric_mean",
+  "description": "Iteratively converge the arithmetic and geometric means of two nonnegative binary64 inputs.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["a", "g"],
+    "minimum": 0.0,
+    "maximum": 1000000.0,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "limit of repeated arithmetic/geometric mean updates until the arithmetic mean stops changing",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"equal_values","input_values":[7.0,7.0],"expected_result":7.0},
+    {"id":"equal_fractional_values","input_values":[0.5,0.5],"expected_result":0.5},
+    {"id":"both_zero","input_values":[0.0,0.0],"expected_result":0.0},
+    {"id":"zero_first_converges","input_values":[0.0,1.0],"expected_result":0.0},
+    {"id":"zero_second_converges","input_values":[1.0,0.0],"expected_result":0.0},
+    {"id":"nontrivial_pair","input_values":[1.0,2.0],"expected_result":1.4567910310469068},
+    {"id":"maximum_equal_values","input_values":[1000000.0,1000000.0],"expected_result":1000000.0},
+    {"id":"negative_first","input_values":[-1.0,1.0],"expected_result":-1.0},
+    {"id":"negative_second","input_values":[1.0,-1.0],"expected_result":-1.0},
+    {"id":"first_above_bound","input_values":[1000001.0,1.0],"expected_result":-1.0},
+    {"id":"second_above_bound","input_values":[1.0,1000001.0],"expected_result":-1.0}
+  ]
+}

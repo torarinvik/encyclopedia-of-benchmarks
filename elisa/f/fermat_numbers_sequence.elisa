@@ -1,0 +1,10 @@
+def fermat_numbers_sequence_impl(index: i64) -> i64:
+    if index < 0 or index > 5:
+        return -1
+    value: i64 =
+        while iteration < index |iteration: mutable i64 = 0, current: mutable i64 = 2| -> current:
+            current <- current * current
+            iteration <- iteration + 1
+    value + 1
+
+export fn fermat_numbers_sequence(index: i64) -> i64 = fermat_numbers_sequence_impl

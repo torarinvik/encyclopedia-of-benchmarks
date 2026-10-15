@@ -1,0 +1,29 @@
+# Check three signed integers with Java-compatible int-safe bounds.
+def pythagorean_triple_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -1
+    a: mutable i64 = values[0]
+    b: mutable i64 = values[1]
+    c: mutable i64 = values[2]
+    if a < -32768 or a > 32767 or b < -32768 or b > 32767 or c < -32768 or c > 32767:
+        return -1
+    if a <= 0 or b <= 0 or c <= 0:
+        return 0
+    if a > b:
+        temp: i64 = a
+        a <- b
+        b <- temp
+    if b > c:
+        temp: i64 = b
+        b <- c
+        c <- temp
+    if a > b:
+        temp: i64 = a
+        a <- b
+        b <- temp
+    if a * a + b * b == c * c:
+        1
+    else:
+        0
+
+export fn pythagorean_triple(values: i64&, length: usize) -> i64 = pythagorean_triple_impl

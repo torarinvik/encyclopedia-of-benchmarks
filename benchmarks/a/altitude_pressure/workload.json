@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "altitude-pressure-binary64-v1",
+  "algorithm": "altitude_pressure",
+  "function_symbol": "altitude_pressure",
+  "input": {
+    "kind": "finite_binary64_pressure_pa",
+    "minimum": 0.0,
+    "maximum": 101325.0,
+    "formula": "44330 * (1 - (pressure / 101325) ** (1 / 5.5255))",
+    "invalid_result": -1.0,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "zero_pressure",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": 44330.0
+    },
+    {
+      "id": "one_pascal",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 38824.86898122417
+    },
+    {
+      "id": "low_pressure",
+      "input_values": [
+        1000.0
+      ],
+      "expected_result": 25112.143325563564
+    },
+    {
+      "id": "ten_kilopascals",
+      "input_values": [
+        10000.0
+      ],
+      "expected_result": 15176.946673535993
+    },
+    {
+      "id": "fifty_kilopascals",
+      "input_values": [
+        50000.0
+      ],
+      "expected_result": 5319.366119107633
+    },
+    {
+      "id": "eighty_kilopascals",
+      "input_values": [
+        80000.0
+      ],
+      "expected_result": 1855.873388064995
+    },
+    {
+      "id": "ninety_kilopascals",
+      "input_values": [
+        90000.0
+      ],
+      "expected_result": 940.7648479540883
+    },
+    {
+      "id": "source_example_100000",
+      "input_values": [
+        100000.0
+      ],
+      "expected_result": 105.47836610778828
+    },
+    {
+      "id": "near_sea_level",
+      "input_values": [
+        101000.0
+      ],
+      "expected_result": 25.767013249039756
+    },
+    {
+      "id": "one_pascal_below_reference",
+      "input_values": [
+        101324.0
+      ],
+      "expected_result": 0.07917923307453445
+    },
+    {
+      "id": "sea_level_reference",
+      "input_values": [
+        101325.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_reference_invalid",
+      "input_values": [
+        101325.00000000001
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

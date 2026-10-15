@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "line-segment-intersection-v1",
+  "algorithm": "line_segment_intersection",
+  "function_symbol": "line_segment_intersection",
+  "input": {
+    "kind": "i64_array",
+    "encoding": "Eight flattened endpoint coordinates for two closed segments.",
+    "minimum_values": 8,
+    "maximum_values": 8,
+    "coordinate_range": [-10000, 10000],
+    "result": "Return 1 if the closed segments intersect, otherwise 0; output bytes are empty.",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "proper_crossing",
+      "input_values": [0, 0, 4, 4, 0, 4, 4, 0],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint_touch",
+      "input_values": [0, 0, 2, 0, 2, 0, 2, 3],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "t_junction",
+      "input_values": [0, 0, 4, 0, 2, -2, 2, 0],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "collinear_overlap",
+      "input_values": [0, 0, 5, 0, 2, 0, 8, 0],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "collinear_touch",
+      "input_values": [0, 0, 2, 0, 2, 0, 5, 0],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "collinear_disjoint",
+      "input_values": [0, 0, 1, 0, 2, 0, 3, 0],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "parallel_disjoint",
+      "input_values": [0, 0, 4, 0, 0, 1, 4, 1],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_length_point_on_segment",
+      "input_values": [2, 0, 2, 0, 0, 0, 4, 0],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_length_point_off_segment",
+      "input_values": [2, 1, 2, 1, 0, 0, 4, 0],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "equal_zero_length_segments",
+      "input_values": [3, -2, 3, -2, 3, -2, 3, -2],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unequal_zero_length_segments",
+      "input_values": [3, -2, 3, -2, 3, -1, 3, -1],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "large_coordinate_crossing",
+      "input_values": [-10000, -10000, 10000, 10000, -10000, 10000, 10000, -10000],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [0, 0, 1, 1, 0, 1, 1],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [10001, 0, 0, 0, 0, 1, 1, 1],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

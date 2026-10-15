@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "boyer-moore-horspool-all-matches-v1",
+  "algorithm": "boyer_moore_horspool",
+  "function_symbol": "boyer_moore_horspool",
+  "input": {
+    "kind": "signed_64_bit_text_pattern_byte_arrays",
+    "minimum_length": 2,
+    "maximum_length": 512,
+    "maximum_text_bytes": 255,
+    "maximum_pattern_bytes": 255,
+    "byte_range": "ASCII values 0 through 127",
+    "empty_pattern": "matches every boundary from 0 through text_length",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding_output": "ascending zero-based match positions, one unsigned byte per match"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_text_and_pattern",
+      "input_values": [0, 0],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "empty_pattern_at_every_boundary",
+      "input_values": [3, 0, 65, 66, 67],
+      "expected_result": 4,
+      "expected_output_hex": "00010203"
+    },
+    {
+      "id": "pattern_longer_than_text",
+      "input_values": [2, 3, 65, 66, 65, 66, 67],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlapping_matches",
+      "input_values": [5, 2, 65, 65, 65, 65, 65, 65, 65],
+      "expected_result": 4,
+      "expected_output_hex": "00010203"
+    },
+    {
+      "id": "python_source_example",
+      "input_values": [8, 3, 65, 66, 65, 65, 65, 66, 67, 68, 65, 66, 67],
+      "expected_result": 1,
+      "expected_output_hex": "04"
+    },
+    {
+      "id": "world_in_hello_world",
+      "input_values": [11, 5, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 119, 111, 114, 108, 100],
+      "expected_result": 1,
+      "expected_output_hex": "06"
+    },
+    {
+      "id": "absent_pattern",
+      "input_values": [11, 6, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 80, 121, 116, 104, 111, 110],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "embedded_nul",
+      "input_values": [3, 1, 65, 0, 66, 0],
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "ascii_boundary_byte",
+      "input_values": [3, 1, 32, 127, 32, 127],
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "non_ascii_byte_rejected",
+      "input_values": [1, 1, 128, 65],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_packed_input",
+      "input_values": [3, 1, 65, 66],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_bound",
+      "input_values": [256, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}
