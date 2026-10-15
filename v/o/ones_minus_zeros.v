@@ -5,18 +5,22 @@ const max_dimension = 100_000
 
 fn read_count(output &u8, cell int) i64 {
 	position := 4 * cell
-	return i64(output[position]) | (i64(output[position + 1]) << 8) |
-		(i64(output[position + 2]) << 16) | (i64(output[position + 3]) << 24)
+	return unsafe {
+		i64(output[position]) | (i64(output[position + 1]) << 8) |
+			(i64(output[position + 2]) << 16) | (i64(output[position + 3]) << 24)
+	}
 }
 
-fn write_i32_le(output &u8, cell int, value i64) {
+fn write_i32_le(mut output &u8, cell int, value i64) {
 	mut encoded := value
 	if encoded < 0 { encoded += 4_294_967_296 }
 	position := 4 * cell
-	output[position] = u8(encoded & 255)
-	output[position + 1] = u8((encoded >> 8) & 255)
-	output[position + 2] = u8((encoded >> 16) & 255)
-	output[position + 3] = u8((encoded >> 24) & 255)
+	unsafe {
+		output[position] = u8(encoded & 255)
+		output[position + 1] = u8((encoded >> 8) & 255)
+		output[position + 2] = u8((encoded >> 16) & 255)
+		output[position + 3] = u8((encoded >> 24) & 255)
+	}
 }
 
 @[export: 'ones_minus_zeros']
@@ -36,7 +40,9 @@ pub fn ones_minus_zeros(values &i64, length usize, output &u8, output_capacity u
 		}
 		required := usize(4 * cells)
 		if output_capacity < required { return -2 }
-		for byte in 0 .. 4 * cells { output[byte] = 0 }
+		for output_index in 0 .. 4 * cells {
+			output[output_index] = u8(0)
+		}
 
 		mut row_zero_ones := i64(0)
 		mut column_zero_ones := i64(0)
@@ -47,29 +53,30 @@ pub fn ones_minus_zeros(values &i64, length usize, output &u8, output_capacity u
 					row_zero_ones++
 				} else {
 					slot := row * columns
-					write_i32_le(output, slot, read_count(output, slot) + 1)
+					write_i32_le(mut output, slot, read_count(output, slot) + 1)
 				}
-			if column == 0 {
-				column_zero_ones++
-			} else {
-				write_i32_le(output, column, read_count(output, column) + 1)
+				if column == 0 {
+					column_zero_ones++
+				} else {
+					write_i32_le(mut output, column, read_count(output, column) + 1)
+				}
 			}
 		}
-		for row := rows - 1; row > 0; row-- {
-			row_slot := row * columns
+		for output_row := rows - 1; output_row > 0; output_row-- {
+			row_slot := output_row * columns
 			row_ones := read_count(output, row_slot)
 			for column in 0 .. columns {
 				mut column_ones := column_zero_ones
 				if column != 0 { column_ones = read_count(output, column) }
 				difference := 2 * row_ones + 2 * column_ones - i64(rows) - i64(columns)
-				write_i32_le(output, row_slot + column, difference)
+				write_i32_le(mut output, row_slot + column, difference)
 			}
 		}
 		for column in 0 .. columns {
 			mut column_ones := column_zero_ones
 			if column != 0 { column_ones = read_count(output, column) }
 			difference := 2 * row_zero_ones + 2 * column_ones - i64(rows) - i64(columns)
-			write_i32_le(output, column, difference)
+			write_i32_le(mut output, column, difference)
 		}
 		return i64(cells)
 	}

@@ -19,6 +19,8 @@ from build_abi import ROOT, sha256_file
 
 MAX_INPUT_LENGTH = 4096
 MAX_MATRIX_INPUT_LENGTH = 100002
+MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
+MAX_OUTPUT_CAPACITY = 400004
 MAX_SMALL_INPUT_LENGTH = 66
 KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
           7: b"pqrs", 8: b"tuv", 9: b"wxyz"}
@@ -129,6 +131,25 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             for row in range(rows) for column in range(columns)
         )
         return cells, output
+
+    if algorithm == "longest_square_streak":
+        if (not 3 <= len(values) <= MAX_SQUARE_STREAK_INPUT_LENGTH
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        count, numbers = values[0], values[1:]
+        if (count != len(numbers) or not 2 <= count <= 100000
+                or any(not 2 <= number <= 100000 for number in numbers)):
+            return -1, b""
+        present = set(numbers)
+        longest = 0
+        for number in present:
+            length = 1
+            square = number * number
+            while square in present:
+                length += 1
+                square *= square
+            longest = max(longest, length)
+        return (longest if longest >= 2 else -1), b""
 
     if algorithm == "amicable_pairs_below":
         if (len(values) != 1 or type(values[0]) is not int
@@ -1090,7 +1111,9 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = case.get("input_values")
-        max_input_length = MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else MAX_INPUT_LENGTH
+        max_input_length = (MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else
+                            MAX_SQUARE_STREAK_INPUT_LENGTH if algorithm == "longest_square_streak" else
+                            MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
             raise ValueError(f"invalid signed 64-bit digit array in {case['id']}")
@@ -1100,8 +1123,12 @@ def main() -> int:
         if case.get("expected_result") != expected_count:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
         output_hex = expected.hex() if expected else "-"
+        output_capacity = case.get("workspace_bytes", len(expected))
+        if (type(output_capacity) is not int or output_capacity < len(expected)
+                or output_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError(f"invalid output capacity in {case['id']}")
         command = [str(executable), "--stdin", str(samples), str(warmups), str(repetitions)]
-        runner_input = (f"{len(values)} {expected_count} {len(expected)} "
+        runner_input = (f"{len(values)} {expected_count} {len(expected)} {output_capacity} "
                         + " ".join(map(str, values)) + " " + output_hex + "\n")
         completed = subprocess.run(command, input=runner_input, capture_output=True,
                                    text=True, check=False)

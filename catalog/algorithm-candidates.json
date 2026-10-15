@@ -2368,7 +2368,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+    "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2377,7 +2377,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2501.c",
           "local_folder_source": "c"
         }
-      ]
+    ],
+    "benchmark_name": "longest_square_streak",
+    "benchmark_contract": "benchmarks/l/longest_square_streak/README.md",
+    "review_notes": "The pinned C LeetCode 2501 source marks values present in a set, memoizes square-chain lengths, and takes the maximum chain with at least two values. The shared contract accepts 2 through 100,000 values in 2..100,000 and uses a 400,004-byte caller workspace for portable presence and memo states, avoiding large stack arrays and per-language allocation differences. All nine ports use the same O(n + maxValue) recurrence and leave input unchanged."
     },
     {
       "candidate_id": "26",

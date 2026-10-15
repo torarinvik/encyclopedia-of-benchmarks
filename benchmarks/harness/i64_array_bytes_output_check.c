@@ -10,7 +10,7 @@
 #endif
 
 #define MAX_INPUT_LENGTH 100002
-#define MAX_OUTPUT_BYTES 400000
+#define MAX_OUTPUT_BYTES 400004
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
                                  uint8_t *output, size_t output_capacity);
 
@@ -30,18 +30,20 @@ int main(void)
         return 2;
     }
     while (checked < case_count) {
-        uint64_t length, output_bytes;
+        uint64_t length, expected_bytes, output_capacity;
         int64_t expected_count;
         if (scanf("%" SCNu64 " %" SCNd64 " %" SCNu64,
-                  &length, &expected_count, &output_bytes) != 3 ||
-            length > MAX_INPUT_LENGTH || output_bytes > MAX_OUTPUT_BYTES ||
+                  &length, &expected_count, &expected_bytes) != 3 ||
+            scanf("%" SCNu64, &output_capacity) != 1 ||
+            length > MAX_INPUT_LENGTH || expected_bytes > output_capacity ||
+            output_capacity > MAX_OUTPUT_BYTES ||
             expected_count < -2 || expected_count > 100000) {
             fprintf(stderr, "invalid output-array case header\n");
             return 2;
         }
         int64_t *values = length == 0 ? NULL : malloc((size_t)length * sizeof(*values));
-        uint8_t *expected = malloc(output_bytes == 0 ? 1 : (size_t)output_bytes);
-        uint8_t *observed = malloc(output_bytes == 0 ? 1 : (size_t)output_bytes);
+        uint8_t *expected = malloc(expected_bytes == 0 ? 1 : (size_t)expected_bytes);
+        uint8_t *observed = malloc(output_capacity == 0 ? 1 : (size_t)output_capacity);
         if ((length != 0 && values == NULL) || expected == NULL || observed == NULL) {
             free(values); free(expected); free(observed);
             fprintf(stderr, "unable to allocate case buffers\n");
@@ -61,7 +63,7 @@ int main(void)
             free(values); free(expected); free(observed);
             fprintf(stderr, "missing expected output encoding\n"); return 2;
         }
-        if (output_bytes == 0) {
+        if (expected_bytes == 0) {
             if (character != '-') {
                 free(values); free(expected); free(observed);
                 fprintf(stderr, "empty output must use the '-' marker\n");
@@ -74,7 +76,7 @@ int main(void)
                 fprintf(stderr, "empty output marker has trailing characters\n"); return 2;
             }
         } else {
-            for (size_t index = 0; index < (size_t)output_bytes; ++index) {
+            for (size_t index = 0; index < (size_t)expected_bytes; ++index) {
                 const int high = hex_value((char)character);
                 const int low_char = getchar();
                 const int low = hex_value((char)low_char);
@@ -84,7 +86,7 @@ int main(void)
                     return 2;
                 }
                 expected[index] = (uint8_t)((high << 4) | low);
-                character = index + 1 == (size_t)output_bytes ? getchar() : getchar();
+                character = getchar();
             }
             if (character != EOF && character != ' ' && character != '\t' &&
                 character != '\n' && character != '\r') {
@@ -94,13 +96,14 @@ int main(void)
         }
         observed[0] = UINT8_C(0xA5);
         const int64_t result = BENCHMARK_FUNCTION(values, (size_t)length, observed,
-                                                   (size_t)output_bytes);
+                                                   (size_t)output_capacity);
         if (result != expected_count ||
-            (output_bytes != 0 && memcmp(observed, expected, (size_t)output_bytes) != 0) ||
-            (output_bytes == 0 && observed[0] != UINT8_C(0xA5))) {
+            (expected_bytes != 0 && memcmp(observed, expected, (size_t)expected_bytes) != 0) ||
+            (output_capacity == 0 && observed[0] != UINT8_C(0xA5))) {
             fprintf(stderr, "case=%" PRIu64 ": expected count=%" PRId64
-                    " bytes=%" PRIu64 ", observed count=%" PRId64 "\n",
-                    checked, expected_count, output_bytes, result);
+                    " output-bytes=%" PRIu64 ", capacity=%" PRIu64
+                    ", observed count=%" PRId64 "\n",
+                    checked, expected_count, expected_bytes, output_capacity, result);
             free(values); free(expected); free(observed);
             return 3;
         }

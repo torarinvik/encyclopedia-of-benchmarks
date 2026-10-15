@@ -12,7 +12,7 @@
 #endif
 
 #define MAX_INPUT_LENGTH 100002
-#define MAX_OUTPUT_BYTES 400000
+#define MAX_OUTPUT_BYTES 400004
 typedef int64_t (*output_fn)(const int64_t *, size_t, uint8_t *, size_t);
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
                                  uint8_t *output, size_t output_capacity);
@@ -105,15 +105,16 @@ static int output_matches(const int64_t *values, size_t length, uint8_t *output,
 }
 
 static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
-                         const uint8_t *expected, size_t output_length,
+                         const uint8_t *expected, size_t expected_length, size_t output_capacity,
                          uint64_t samples_arg, uint64_t warmups_arg, uint64_t repetitions_arg)
 {
     if (expected_count < -2 || expected_count > 100000 ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
-        repetitions_arg == 0 || repetitions_arg > 1000000000 || output_length > MAX_OUTPUT_BYTES) {
+        repetitions_arg == 0 || repetitions_arg > 1000000000 ||
+        expected_length > output_capacity || output_capacity > MAX_OUTPUT_BYTES) {
         fprintf(stderr, "invalid expected result, output, or timing settings\n"); free(values); return 2;
     }
-    uint8_t *output = malloc(output_length == 0 ? 1 : output_length);
+    uint8_t *output = malloc(output_capacity == 0 ? 1 : output_capacity);
     if (output == NULL) {
         fprintf(stderr, "unable to allocate output buffer\n"); free(values); return 2;
     }
@@ -125,7 +126,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
         fprintf(stderr, "unable to allocate sample data\n");
         free(values); free(output); return 2;
     }
-    if (!output_matches(values, length, output, output_length, expected_count, expected, output_length)) {
+    if (!output_matches(values, length, output, output_capacity, expected_count, expected, expected_length)) {
         fprintf(stderr, "correctness mismatch for input array\n");
         free(values); free(output); free(sample_ns); return 3;
     }
@@ -133,13 +134,13 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
     for (size_t warmup = 0; warmup < warmup_count; ++warmup) {
         int64_t observed_count = 0;
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
-            observed_count = run_algorithm(values, length, output, output_length);
+            observed_count = run_algorithm(values, length, output, output_capacity);
         if (observed_count != expected_count ||
-            (output_length != 0 && memcmp(output, expected, output_length) != 0)) {
+            (expected_length != 0 && memcmp(output, expected, expected_length) != 0)) {
             fprintf(stderr, "output changed during warmup\n");
             free(values); free(output); free(sample_ns); return 3;
         }
-        warmup_observer ^= hash_output(output, output_length);
+        warmup_observer ^= hash_output(output, expected_length);
     }
     uint64_t total_checksum = 0;
     int64_t observed_count = expected_count;
@@ -150,14 +151,14 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
             free(values); free(expected); free(output); free(sample_ns); return 4;
         }
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
-            observed_count = run_algorithm(values, length, output, output_length);
+            observed_count = run_algorithm(values, length, output, output_capacity);
         const clock_t after = clock();
         if (after == (clock_t)-1 || after < before || observed_count != expected_count ||
-            (output_length != 0 && memcmp(output, expected, output_length) != 0)) {
+            (expected_length != 0 && memcmp(output, expected, expected_length) != 0)) {
             fprintf(stderr, "clock() or output check failed during a sample\n");
             free(values); free(output); free(sample_ns); return 4;
         }
-        total_checksum += hash_output(output, output_length) * repetitions;
+        total_checksum += hash_output(output, expected_length) * repetitions;
         const long double elapsed_ns =
             ((long double)(after - before) * 1000000000.0L) / (long double)CLOCKS_PER_SEC;
         sample_ns[sample] = (uint64_t)(elapsed_ns + 0.5L);
@@ -176,18 +177,20 @@ int main(int argc, char **argv)
 {
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
     if (argc == 5 && strcmp(argv[1], "--stdin") == 0) {
-        uint64_t output_arg;
+        uint64_t expected_arg, capacity_arg;
         int64_t expected_count;
         if (!parse_u64(argv[2], &samples_arg) || !parse_u64(argv[3], &warmups_arg) ||
             !parse_u64(argv[4], &repetitions_arg) ||
-            scanf("%" SCNu64 " %" SCNd64 " %" SCNu64, &length_arg, &expected_count, &output_arg) != 3 ||
-            length_arg > MAX_INPUT_LENGTH || output_arg > MAX_OUTPUT_BYTES) {
+            scanf("%" SCNu64 " %" SCNd64 " %" SCNu64 " %" SCNu64,
+                  &length_arg, &expected_count, &expected_arg, &capacity_arg) != 4 ||
+            length_arg > MAX_INPUT_LENGTH || expected_arg > capacity_arg || capacity_arg > MAX_OUTPUT_BYTES) {
             fprintf(stderr, "invalid streaming byte-output input header\n"); return 2;
         }
         const size_t length = (size_t)length_arg;
-        const size_t output_length = (size_t)output_arg;
+        const size_t expected_length = (size_t)expected_arg;
+        const size_t output_capacity = (size_t)capacity_arg;
         int64_t *values = length == 0 ? NULL : malloc(length * sizeof(*values));
-        uint8_t *expected = malloc(output_length == 0 ? 1 : output_length);
+        uint8_t *expected = malloc(expected_length == 0 ? 1 : expected_length);
         if ((length != 0 && values == NULL) || expected == NULL) {
             fprintf(stderr, "unable to allocate streaming buffers\n"); free(values); free(expected); return 2;
         }
@@ -196,10 +199,11 @@ int main(int argc, char **argv)
                 fprintf(stderr, "truncated streaming input values\n"); free(values); free(expected); return 2;
             }
         }
-        if (!read_expected_from_stdin(expected, output_length)) {
+        if (!read_expected_from_stdin(expected, expected_length)) {
             fprintf(stderr, "invalid streaming expected output encoding\n"); free(values); free(expected); return 2;
         }
-        const int status = run_benchmark(values, length, expected_count, expected, output_length,
+        const int status = run_benchmark(values, length, expected_count, expected,
+                                         expected_length, output_capacity,
                                          samples_arg, warmups_arg, repetitions_arg);
         free(expected);
         return status;
@@ -237,7 +241,8 @@ int main(int argc, char **argv)
         !decode_hex(argv[expected_hex_index], expected, output_length)) {
         fprintf(stderr, "invalid expected output encoding\n"); free(values); free(expected); return 2;
     }
-    const int status = run_benchmark(values, length, expected_count, expected, output_length,
+    const int status = run_benchmark(values, length, expected_count, expected,
+                                     output_length, output_length,
                                      samples_arg, warmups_arg, repetitions_arg);
     free(expected);
     return status;

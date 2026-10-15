@@ -51,11 +51,12 @@ def oracle(values: list[int]) -> tuple[int, bytes]:
 
 
 def corpus(workload: dict) -> tuple[str, int]:
-    cases: dict[tuple[int, ...], tuple[int, bytes]] = {}
+    cases: dict[tuple[int, ...], tuple[int, bytes, int]] = {}
 
-    def add(values: tuple[int, ...] | list[int]) -> None:
+    def add(values: tuple[int, ...] | list[int], capacity: int | None = None) -> None:
         key = tuple(values)
-        cases[key] = oracle(list(key))
+        count, output = oracle(list(key))
+        cases[key] = count, output, len(output) if capacity is None else capacity
 
     for case in workload["cases"]:
         values = tuple(case["input_values"])
@@ -63,7 +64,7 @@ def corpus(workload: dict) -> tuple[str, int]:
         recorder_expected = recorder_oracle(list(values), ALGORITHM)
         if (expected != recorder_expected or expected[0] != case["expected_result"]):
             raise ValueError(f"published workload disagrees with oracle: {case['id']}")
-        add(values)
+        add(values, case.get("workspace_bytes", len(expected[1])))
 
     for columns in range(1, 7):
         for grid in product((0, 1), repeat=columns):
@@ -93,13 +94,14 @@ def corpus(workload: dict) -> tuple[str, int]:
     for values in malformed:
         add(values)
 
-    records = [(values, count, output) for values, (count, output) in sorted(cases.items())]
+    records = [(values, count, output, capacity)
+               for values, (count, output, capacity) in sorted(cases.items())]
     # A valid matrix with no output space must fail before writing any bytes.
-    records.append(((1, 1, 0), -2, b""))
+    records.append(((1, 1, 0), -2, b"", 0))
     lines = [f"{len(records)}\n"]
-    for values, count, output in records:
+    for values, count, output, capacity in records:
         suffix = "" if not values else " " + " ".join(map(str, values))
-        lines.append(f"{len(values)} {count} {len(output)}{suffix} "
+        lines.append(f"{len(values)} {count} {len(output)} {capacity}{suffix} "
                      f"{output.hex() if output else '-'}\n")
     return "".join(lines), len(records)
 
