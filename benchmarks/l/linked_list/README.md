@@ -13,12 +13,13 @@ The `i64_array_scalar` function accepts zero to 1,024 signed 64-bit values encod
 - `4`: remove the first matching value; the observed result is `1` when found and `0` otherwise
 - `5`: report whether a value is present, returning `1` or `0`
 - `6`: report the list length, with payload zero
+- `7`: reverse the links in-place, with payload zero
 
-The list capacity is 256. Odd-length input, an unknown operation, an out-of-range value, a nonzero payload for operations 2, 3, or 6, a pop from an empty list, overflow, or input longer than 1,024 values returns `-1`. Empty input is valid. Nodes store a value and an integer index for the next node. A free list reuses nodes after removal. Removing the tail walks the forward links to find its predecessor, as required by the singly linked representation.
+The list capacity is 256. Odd-length input, an unknown operation, an out-of-range value, a nonzero payload for operations 2, 3, 6, or 7, a pop from an empty list, overflow, or input longer than 1,024 values returns `-1`. Empty input is valid. Nodes store a value and an integer index for the next node. A free list reuses nodes after removal. Removing the tail walks the forward links to find its predecessor, as required by the singly linked representation. Reversal walks the list once, redirecting each next link and updating both endpoints.
 
 Each observed result from pop, remove, contains, or length contributes `(operation_index + 1) * (observed_value + 1,000,000)` to the checksum. The remaining values are then included from head to tail with one-based weights. Valid checksums are nonnegative and fit in signed 64-bit.
 
-[`workload.json`](workload.json) contains 21 cases, including duplicate removal, both ends, empty-list errors, maximum capacity, and node reuse. The independent verifier checks 4,902 traces per implementation: every operation sequence through length three over representative payloads, seeded randomized valid and malformed traces, capacity boundaries, and all workload records.
+[`workload.json`](workload.json) contains 27 cases, including duplicate removal, both ends, empty-list errors, list reversal, maximum capacity, and node reuse. The independent verifier checks every operation sequence through length three over representative payloads, seeded randomized valid and malformed traces, capacity boundaries, and all workload records.
 
 ## Implementations
 

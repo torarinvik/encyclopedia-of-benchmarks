@@ -1,0 +1,53 @@
+const MAX_LENGTH: usize = 512
+
+# Descending Lomuto quickselect with the final element as pivot.
+def kth_largest_element_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_LENGTH + 1:
+        return -1
+    count: usize = length - 1
+    k_value: i64 = input[0]
+    if k_value < 1 or k_value > count.i64():
+        return -1
+    valid_values: bool =
+        while index < count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 1]
+            if value < -2147483648 or value > 2147483647:
+                break false
+            index <- index + 1
+            valid
+    if not valid_values:
+        return -1
+    values: mutable i64[512] = zeroed
+    copied: usize =
+        while index < count |index: mutable usize = 0, values| -> index:
+            values[index] <- input[index + 1]
+            index <- index + 1
+            index
+
+    target: usize = k_value.usize() - 1
+    selected: i64 =
+        while low <= high |low: mutable usize = 0, high: mutable usize = count - 1, selected: mutable i64 = -1, values| -> selected:
+            pivot: i64 = values[high]
+            boundary: usize =
+                while scan < high |scan: mutable usize = low, boundary: mutable usize = low, values| -> boundary:
+                    if values[scan] >= pivot:
+                        temporary: i64 = values[boundary]
+                        values[boundary] <- values[scan]
+                        values[scan] <- temporary
+                        boundary <- boundary + 1
+                    scan <- scan + 1
+                    boundary
+            temporary: i64 = values[boundary]
+            values[boundary] <- values[high]
+            values[high] <- temporary
+            if boundary == target:
+                selected <- values[boundary]
+                low <- high + 1
+            elif boundary > target:
+                high <- boundary - 1
+            else:
+                low <- boundary + 1
+            selected
+    selected
+
+export fn kth_largest_element(input: i64&, length: usize) -> i64 = kth_largest_element_impl

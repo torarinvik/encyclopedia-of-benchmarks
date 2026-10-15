@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "range-bitwise-and-v1",
+  "algorithm": "range_bitwise_and",
+  "function_symbol": "range_bitwise_and",
+  "input": {
+    "kind": "unsigned_inclusive_range",
+    "valid_range": "0 <= left <= right <= 2147483647",
+    "result": "Bitwise AND of every integer in the inclusive range, computed by clearing low set bits from right until right equals left.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "same_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "adjacent_zero_to_one",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "single_value",
+      "input_values": [
+        42,
+        42
+      ],
+      "expected_result": 42
+    },
+    {
+      "id": "clear_lowest_bit_5_to_7",
+      "input_values": [
+        5,
+        7
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "unmatched_prefix_9_to_12",
+      "input_values": [
+        9,
+        12
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "range_26_to_30",
+      "input_values": [
+        26,
+        30
+      ],
+      "expected_result": 24
+    },
+    {
+      "id": "power_of_two_window",
+      "input_values": [
+        4096,
+        8191
+      ],
+      "expected_result": 4096
+    },
+    {
+      "id": "cross_power_boundary",
+      "input_values": [
+        1073741823,
+        1073741824
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "upper_two_values",
+      "input_values": [
+        2147483646,
+        2147483647
+      ],
+      "expected_result": 2147483646
+    },
+    {
+      "id": "full_nonnegative_domain",
+      "input_values": [
+        0,
+        2147483647
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "small_shared_prefix",
+      "input_values": [
+        123456,
+        123999
+      ],
+      "expected_result": 122880
+    },
+    {
+      "id": "all_bits_below_boundary",
+      "input_values": [
+        1,
+        1073741823
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_reversed_bounds",
+      "input_values": [
+        8,
+        7
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_upper_bound",
+      "input_values": [
+        0,
+        2147483648
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_both_above_domain",
+      "input_values": [
+        2147483648,
+        2147483648
+      ],
+      "expected_result": -1
+    }
+  ]
+}

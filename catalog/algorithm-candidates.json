@@ -890,7 +890,7 @@
         }
       ],
       "alias_of": "pascal_triangle",
-      "review_notes": "The pinned C LeetCode 118 source generates the first numRows rows of Pascal’s triangle, matching the canonical coefficient sequence.",
+      "review_notes": "The pinned C LeetCode 118 source generates the first numRows rows of Pascal\u2019s triangle, matching the canonical coefficient sequence.",
       "benchmark_contract": "benchmarks/p/pascal_triangle/README.md"
     },
     {
@@ -1237,7 +1237,7 @@
         }
       ],
       "benchmark_name": "linked_list_has_cycle",
-      "review_notes": "The pinned C LeetCode 141 source uses Floyd’s tortoise and hare pointers to report whether the list reachable from the head contains a cycle. The portable contract represents each next pointer as a signed node index, uses -1 for null and node 0 as the head, and returns 1 for a cycle, 0 for an acyclic path, or -1 for malformed input.",
+      "review_notes": "The pinned C LeetCode 141 source uses Floyd\u2019s tortoise and hare pointers to report whether the list reachable from the head contains a cycle. The portable contract represents each next pointer as a signed node index, uses -1 for null and node 0 as the head, and returns 1 for a cycle, 0 for an acyclic path, or -1 for malformed input.",
       "benchmark_contract": "benchmarks/l/linked_list_has_cycle/README.md"
     },
     {
@@ -1349,7 +1349,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1358,7 +1358,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/160.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "intersection_of_two_linked_lists",
+      "benchmark_contract": "benchmarks/i/intersection_of_two_linked_lists/README.md",
+      "review_notes": "The pinned C LeetCode 160 source advances two pointers and switches each to the other list head after reaching the end, returning the shared node pointer or null. The shared contract encodes pointer identity as nonnegative node IDs in two acyclic lists with aligned shared suffixes; nine portable ports preserve the O(m+n) head-switching traversal."
     },
     {
       "candidate_id": "1653",
@@ -1472,7 +1475,7 @@
         }
       ],
       "alias_of": "letter_combinations_of_phone_number",
-      "review_notes": "The pinned C LeetCode 17 source emits the standard 2–9 keypad Cartesian product in the same order as the canonical phone-letter-combinations benchmark.",
+      "review_notes": "The pinned C LeetCode 17 source emits the standard 2\u20139 keypad Cartesian product in the same order as the canonical phone-letter-combinations benchmark.",
       "benchmark_contract": "benchmarks/l/letter_combinations_of_phone_number/README.md"
     },
     {
@@ -1507,7 +1510,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1516,7 +1519,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/173.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "bst_iterator",
+      "benchmark_contract": "benchmarks/b/bst_iterator/README.md",
+      "review_notes": "The pinned C LeetCode 173 source counts BST nodes, recursively materializes an in-order values array, then implements next by advancing an index and hasNext by checking whether a value remains. The shared indexed-tree contract returns an order-sensitive checksum for the full iterator trace; nine portable ports preserve eager materialization and sequential consumption."
     },
     {
       "candidate_id": "1752",
@@ -1619,7 +1625,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1628,7 +1634,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/189.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "rotate_array",
+      "benchmark_contract": "benchmarks/r/rotate_array/README.md",
+      "review_notes": "The pinned C LeetCode 189 source performs k right rotations by moving the last array value to index zero and shifting all preceding values one place on each pass. The shared contract defines signed 32-bit values, k from 0 through 1,024, and separate little-endian output; nine portable ports preserve the repeated-shift method."
     },
     {
       "candidate_id": "19",
@@ -1639,7 +1648,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1648,7 +1657,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/19.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "remove_nth_node_from_end_of_list",
+      "review_notes": "The pinned C LeetCode 19 source counts nodes, walks to the predecessor of the one-based position from the tail, unlinks that node, and returns the updated head. It assumes the position is valid; this candidate aliases the Python remove_nth_node_from_end_of_list candidate under the shared bounded-list contract.",
+      "benchmark_contract": "benchmarks/r/remove_nth_node_from_end_of_list/README.md"
     },
     {
       "candidate_id": "190",
@@ -1702,7 +1714,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "R",
@@ -1718,7 +1730,10 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/0/1_knapsack_problem.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "knapsack_zero_one_tabulation",
+      "benchmark_contract": "benchmarks/k/knapsack_zero_one_tabulation/README.md",
+      "review_notes": "Both pinned R files implement bottom-up 0/1 knapsack dynamic programming: one exposes a full table with item backtracking and a descending one-row space-optimized form, and the other also includes the same full-table and optimized recurrence. Their maximum-value result matches the shared 0/1 tabulation benchmark, so this candidate is an alias rather than a new algorithm."
     },
     {
       "candidate_id": "2",
@@ -1729,7 +1744,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1738,7 +1753,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "add_two_numbers",
+      "review_notes": "The pinned C LeetCode 2 source adds the two least-significant-first digit lists node by node, propagates carry, and allocates one result node per processed digit including a final carry. The shared byte-output contract encodes both lists in one packed input and serializes result digits least-significant first.",
+      "benchmark_contract": "benchmarks/a/add_two_numbers/README.md"
     },
     {
       "candidate_id": "20",
@@ -1772,7 +1790,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1781,7 +1799,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/201.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "range_bitwise_and",
+      "benchmark_contract": "benchmarks/r/range_bitwise_and/README.md",
+      "review_notes": "The pinned C LeetCode 201 source clears the least significant set bit of the upper endpoint with n &= n - 1 until it equals the lower endpoint. The shared contract accepts inclusive nonnegative ranges through INT32_MAX and returns -1 for invalid bounds. Nine portable ports preserve the endpoint bit-clearing algorithm."
     },
     {
       "candidate_id": "2024",
@@ -1823,7 +1844,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1832,7 +1853,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/203.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "remove_linked_list_elements",
+      "review_notes": "The pinned C LeetCode 203 source recursively removes every node matching the target and returns the possibly changed head. The shared benchmark builds an index-based link chain, recursively rewrites retained-node links, and serializes surviving signed 32-bit values in list order.",
+      "benchmark_contract": "benchmarks/r/remove_linked_list_elements/README.md"
     },
     {
       "candidate_id": "2048",
@@ -1862,7 +1886,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1871,7 +1895,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/206.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/l/linked_list/README.md",
+      "review_notes": "The pinned C LeetCode 206 source iteratively reverses a singly linked list by redirecting each next pointer to the previous node. The linked-list operation trace now includes opcode 7 for this in-place reversal; all nine ports pass the extended trace oracle.",
+      "alias_of": "linked_list"
     },
     {
       "candidate_id": "2095",
@@ -1882,7 +1909,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1891,7 +1918,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2095.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "delete_middle_node",
+      "review_notes": "The pinned C LeetCode 2095 source counts the list, then uses fast and slow pointers plus the node-count parity to unlink the floor(n / 2)-indexed node; empty and singleton lists return an empty list. The shared indexed-link benchmark preserves the count pass, fast/slow traversal, unlink, and ordered signed 32-bit serialization.",
+      "benchmark_contract": "benchmarks/d/delete_middle_node/README.md"
     },
     {
       "candidate_id": "21",
@@ -1902,7 +1932,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1911,7 +1941,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/21.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "merge_two_sorted_lists",
+      "review_notes": "The pinned C LeetCode 21 file contains iterative and recursive definitions of the same function; the benchmark selects its iterative linear two-pointer merge. The shared contract bounds both inputs to a combined 1,024 signed 32-bit values, validates sorted order, and serializes the merged ascending result.",
+      "benchmark_contract": "benchmarks/m/merge_two_sorted_lists/README.md"
     },
     {
       "candidate_id": "2125",
@@ -1922,7 +1955,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1931,7 +1964,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2125.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "number_of_laser_beams",
+      "benchmark_contract": "benchmarks/n/number_of_laser_beams/README.md",
+      "review_notes": "The pinned C LeetCode 2125 source counts devices in each row, skips empty rows without resetting the previous nonempty count, and adds the product for every adjacent pair of nonempty rows. No existing benchmark has this grid-counting contract. The nine portable ports use a fixed-width row-major ASCII encoding."
     },
     {
       "candidate_id": "2130",
@@ -1942,7 +1978,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1951,7 +1987,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2130.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "maximum_twin_sum_of_linked_list",
+      "benchmark_contract": "benchmarks/m/maximum_twin_sum_of_linked_list/README.md",
+      "review_notes": "The pinned C LeetCode 2130 source first copies linked-list values into an array, then scans mirrored indices in the first half and returns the largest pair sum. The contract preserves the source problem\u2019s even list length and positive values from 1 through 100,000. No existing benchmark covers maximum mirrored-pair sums."
     },
     {
       "candidate_id": "215",
@@ -1962,7 +2001,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1971,7 +2010,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/215.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "kth_largest_by_sort",
+      "benchmark_contract": "benchmarks/k/kth_largest_by_sort/README.md",
+      "review_notes": "The pinned C LeetCode 215 source sorts the complete array in descending order with qsort and returns rank k - 1. This full-sort strategy is distinct from the Python candidate kth_largest_element, which uses iterative Lomuto quickselect, and is benchmarked separately."
     },
     {
       "candidate_id": "217",
@@ -2013,7 +2055,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2022,7 +2064,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2222.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "number_of_ways_to_select_buildings",
+      "benchmark_contract": "benchmarks/n/number_of_ways_to_select_buildings/README.md",
+      "review_notes": "The pinned C LeetCode 2222 source counts 010 and 101 subsequences with two linear passes. The shared contract represents the binary string as ASCII values, bounds its length to 4096, and the nine portable ports count both patterns in O(n) time and O(1) space."
     },
     {
       "candidate_id": "223",
@@ -2033,7 +2078,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2042,7 +2087,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/223.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "rectangle_union_area",
+      "benchmark_contract": "benchmarks/r/rectangle_union_area/README.md",
+      "review_notes": "The pinned C LeetCode 223 source computes the sum of two rectangle areas minus their positive-area intersection. The shared contract uses eight bounded signed coordinates and valid nonempty rectangles. The nine portable ports use integer clipping and return a signed 64-bit union area in O(1) time and space."
     },
     {
       "candidate_id": "2256",
@@ -2053,7 +2101,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2062,7 +2110,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2256.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "minimum_average_difference",
+      "benchmark_contract": "benchmarks/m/minimum_average_difference/README.md",
+      "review_notes": "The pinned C LeetCode 2256 source sums the array, then scans all prefixes and compares truncated integer averages for the prefix and remaining suffix; a missing suffix average is zero. The shared contract bounds nonnegative values to 0..100000 and length to 100000, preserving integer division and first-index tie behavior. All nine ports use two linear scans and constant auxiliary space."
     },
     {
       "candidate_id": "226",
@@ -2236,7 +2287,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2245,7 +2296,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/24.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "swap_pairs",
+      "review_notes": "The pinned C LeetCode 24 source recursively rewires adjacent linked-list nodes and leaves an unpaired final node in place. The shared bounded array contract serializes the same pairwise order transformation as signed 32-bit values.",
+      "benchmark_contract": "benchmarks/s/swap_pairs/README.md"
     },
     {
       "candidate_id": "242",
@@ -2319,7 +2373,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2328,7 +2382,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/26.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "remove_duplicates_from_sorted_array",
+      "review_notes": "The pinned C LeetCode 26 source uses a write index to compact an ascending array in place and returns the unique-prefix length. The shared bounded contract serializes that prefix as signed 32-bit values and leaves the input buffer unchanged.",
+      "benchmark_contract": "benchmarks/r/remove_duplicates_from_sorted_array/README.md"
     },
     {
       "candidate_id": "268",
@@ -2362,7 +2419,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2371,7 +2428,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/27.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "remove_element",
+      "review_notes": "The pinned C LeetCode 27 source uses a write index to remove every matching target in place and returns the survivor count. The shared contract accepts a target followed by signed 32-bit values and serializes stable survivors to a separate output buffer.",
+      "benchmark_contract": "benchmarks/r/remove_element/README.md"
     },
     {
       "candidate_id": "274",
@@ -2422,7 +2482,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2431,6 +2491,15 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/28.c",
           "local_folder_source": "c"
         }
+      ],
+      "alias_of": "knuth_morris_pratt",
+      "review_notes": "The pinned C LeetCode 28 file defines strStr twice: an initial direct character scan with O(mn) worst-case work, followed by a KMP implementation with O(m+n) work. The KMP implementation aliases the existing KMP benchmark, and the direct scan is recorded separately as str_str_brute_force.",
+      "benchmark_contract": "benchmarks/k/knuth_morris_pratt/README.md",
+      "additional_benchmark_names": [
+        "str_str_brute_force"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/s/str_str_brute_force/README.md"
       ]
     },
     {
@@ -2442,7 +2511,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2451,7 +2520,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/283.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "move_zeroes",
+      "review_notes": "The pinned C LeetCode 283 source stably compacts nonzero values toward the front, then fills the remaining positions with zero. The shared contract keeps the input read-only to the caller and returns the same-length result in a separate little-endian signed 32-bit buffer.",
+      "benchmark_contract": "benchmarks/m/move_zeroes/README.md"
     },
     {
       "candidate_id": "287",
@@ -2482,7 +2554,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2491,7 +2563,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/29.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "divide_two_integers",
+      "review_notes": "The pinned C LeetCode 29 source doubles the divisor to subtract large multiples while keeping working values nonpositive. The shared contract widens signed 32-bit values, truncates toward zero, and saturates the quotient to the signed 32-bit range.",
+      "benchmark_contract": "benchmarks/d/divide_two_integers/README.md"
     },
     {
       "candidate_id": "3",
@@ -2526,7 +2601,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2535,7 +2610,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/32.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "longest_valid_parentheses",
+      "benchmark_contract": "benchmarks/l/longest_valid_parentheses/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 32 implementation. It uses a memoized endpoint recurrence to find the longest well-formed contiguous parenthesis substring. The shared contract encodes parentheses as ASCII values in a bounded signed 64-bit array; the nine portable ports evaluate the recurrence bottom-up to avoid recursion-depth dependence."
     },
     {
       "candidate_id": "344",
@@ -2546,7 +2624,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2555,7 +2633,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/344.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "reverse_string_in_place",
+      "review_notes": "The pinned C LeetCode 344 source reverses a char array in place by swapping its left and right endpoints while moving inward. The shared byte-array contract validates values 0..255 and adapts mutation to a separate output buffer while preserving the same two-pointer swaps.",
+      "benchmark_contract": "benchmarks/r/reverse_string_in_place/README.md"
     },
     {
       "candidate_id": "35",
@@ -2675,7 +2756,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2684,7 +2765,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/389.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "find_the_difference",
+      "benchmark_contract": "benchmarks/f/find_the_difference/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 389 implementation. It sums the character codes in both lowercase strings and returns target sum minus source sum; correctness relies on the target being a permutation with one extra character. The shared contract packs both explicit lengths and byte arrays into the scalar-array ABI, then uses the same sum method in nine portable ports."
     },
     {
       "candidate_id": "3n_plus1",
@@ -2731,7 +2815,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2740,7 +2824,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/4.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "median_of_two_sorted_arrays",
+      "benchmark_contract": "benchmarks/m/median_of_two_sorted_arrays/README.md",
+      "review_notes": "The pinned C LeetCode 4 source merges two already sorted arrays before selecting the median. This is algorithmically distinct from the one-array median benchmark, which insertion-sorts a single unsorted array. The cross-language contract packs two sorted signed-32-bit arrays and returns twice their exact statistical median."
     },
     {
       "candidate_id": "404",
@@ -2782,7 +2869,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2791,7 +2878,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/42.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "trapped_rainwater",
+      "benchmark_contract": "benchmarks/t/trapped_rainwater/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 42 implementation. It computes suffix maximum heights and a running prefix maximum, then sums trapped water, matching trapped_rainwater. Its source assumes a nonempty array; the shared benchmark contract defines empty input as zero and handles it safely."
     },
     {
       "candidate_id": "434",
@@ -2802,7 +2892,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2811,7 +2901,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/434.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "count_segments",
+      "benchmark_contract": "benchmarks/c/count_segments/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 434 source. It counts transitions from ASCII space to non-space, treating only space as a delimiter. The shared contract uses an explicit-length nonzero ASCII byte array; all nine portable ports preserve the transition-count algorithm."
     },
     {
       "candidate_id": "442",
@@ -2842,7 +2935,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2851,7 +2944,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/45.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "jump_game_ii",
+      "benchmark_contract": "benchmarks/j/jump_game_ii/README.md",
+      "review_notes": "The pinned C LeetCode 45 source explores reachable array indices in breadth-first layers, deduplicating enqueued positions with a visited array, and returns the first layer reaching the last index. The portable benchmark preserves BFS using one FIFO queue, visited flags, and per-index distances."
     },
     {
       "candidate_id": "461",
@@ -2994,7 +3090,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3003,7 +3099,13 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/520.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "detect_capital_usage",
+      "additional_benchmark_names": [
+        "detect_capital_usage_scan"
+      ],
+      "benchmark_contract": "benchmarks/d/detect_capital_usage/README.md",
+      "review_notes": "Inspected both detectCapitalUse definitions in the pinned C LeetCode 520 source. The first counts uppercase letters in O(n); the second invokes an all-uppercase scan for every uppercase byte after the first, giving O(n^2) worst-case work. The original file repeats the function definition, so each approach is cataloged separately with matching semantics and portable nine-language ports."
     },
     {
       "candidate_id": "53",
@@ -3024,7 +3126,7 @@
           "local_folder_source": "c"
         }
       ],
-      "review_notes": "The pinned C LeetCode 53 source uses Kadane’s recurrence for the maximum sum of a nonempty contiguous subarray. It has the same objective as maximum_subarray and is recorded as an alias.",
+      "review_notes": "The pinned C LeetCode 53 source uses Kadane\u2019s recurrence for the maximum sum of a nonempty contiguous subarray. It has the same objective as maximum_subarray and is recorded as an alias.",
       "alias_of": "maximum_subarray",
       "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
@@ -3060,7 +3162,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3069,7 +3171,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/561.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "array_pair_sum",
+      "benchmark_contract": "benchmarks/a/array_pair_sum/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 561 implementation. It sorts the input with qsort and sums every even-positioned value. The shared contract bounds values to signed 32-bit integers and requires an even length; nine portable ports use the same in-place heapsort procedure on a local copy."
     },
     {
       "candidate_id": "567",
@@ -3080,7 +3185,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3089,7 +3194,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/567.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "permutation_in_string",
+      "benchmark_contract": "benchmarks/p/permutation_in_string/README.md",
+      "review_notes": "The pinned C LeetCode 567 source maintains pattern-versus-window letter-count differences and a mismatch count while sliding across the text. The pinned JavaScript PermutationinString source also compares 26-letter frequency windows. The shared contract packs lowercase ASCII strings, limits each to 1,024 characters, and returns whether a permutation occurs as a contiguous substring; all nine ports use a fixed 26-entry table and portable integer operations."
     },
     {
       "candidate_id": "6",
@@ -3306,7 +3414,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3315,7 +3423,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/7.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "reverse_integer",
+      "benchmark_contract": "benchmarks/r/reverse_integer/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 7 implementation. It pops signed decimal digits, checks signed 32-bit bounds before multiply-and-add, and returns zero on overflow. The shared contract adds a distinct invalid-input sentinel for i64 values outside the source domain; nine portable ports use the same digit-by-digit algorithm."
     },
     {
       "candidate_id": "700",
@@ -3389,7 +3500,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3398,7 +3509,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/709.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "to_lower_case",
+      "review_notes": "The pinned C LeetCode 709 source calls locale-sensitive tolower over a NUL-terminated string and modifies it in place. The shared contract uses explicit non-NUL 7-bit ASCII values, maps only A-Z to a-z, preserves all other values, writes into a separate output buffer, and defines malformed input and insufficient capacity results.",
+      "benchmark_contract": "benchmarks/t/to_lower_case/README.md"
     },
     {
       "candidate_id": "75",
@@ -3409,7 +3523,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3418,7 +3532,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/75.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/d/dutch_national_flag_sort/README.md",
+      "alias_of": "dutch_national_flag_sort",
+      "review_notes": "The pinned C LeetCode 75 source sorts only the values 0, 1, and 2 with the Dutch national flag three-way partition. Its start, middle, and end indices and swaps implement the same in-place contract as the existing portable dutch_national_flag_sort benchmark, so this filename candidate aliases it."
     },
     {
       "candidate_id": "771",
@@ -3429,7 +3546,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3438,7 +3555,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/771.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "jewels_and_stones",
+      "benchmark_contract": "benchmarks/j/jewels_and_stones/README.md",
+      "review_notes": "Inspected the pinned C LeetCode 771 implementation. It fills a character-frequency table from the jewel string and sums table entries for the stone string. The shared contract makes the source constraints explicit: unique nonzero ASCII jewel bytes, bounded stones, and a packed pair of explicit-length sequences; the nine ports preserve the lookup-table method."
     },
     {
       "candidate_id": "79",
@@ -3509,7 +3629,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3518,7 +3638,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/82.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "remove_all_duplicates_from_sorted_list",
+      "benchmark_contract": "benchmarks/r/remove_all_duplicates_from_sorted_list/README.md",
+      "review_notes": "The pinned C LeetCode 82 source recursively skips each run of repeated values and recursively relinks singleton nodes to the processed suffix. The portable benchmark builds an index-based chain and preserves this recursive behavior for non-decreasing signed 32-bit input."
     },
     {
       "candidate_id": "83",
@@ -3529,7 +3652,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3538,7 +3661,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/83.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "remove_duplicates_from_sorted_list",
+      "benchmark_contract": "benchmarks/r/remove_duplicates_from_sorted_list/README.md",
+      "review_notes": "The pinned C LeetCode 83 source assumes a sorted linked list and traverses it with current and next pointers, bypassing each later node when its value equals the current value. The portable benchmark builds an index-based chain and preserves that unlinking algorithm for non-decreasing signed 32-bit input."
     },
     {
       "candidate_id": "841",
@@ -4591,7 +4717,7 @@
         }
       ],
       "alias_of": "gale_shapley",
-      "review_notes": "The pinned C# Accepter class stores one participant’s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
+      "review_notes": "The pinned C# Accepter class stores one participant\u2019s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
       "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
@@ -4936,7 +5062,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -4945,7 +5071,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Linked-List/AddTwoNumbers.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "2",
+      "review_notes": "The pinned JavaScript AddTwoNumbers source uses a dummy head, advances both reverse-order digit lists, propagates carry, and appends a final carry node. It implements the same digit-list semantics as C LeetCode 2 and aliases the shared benchmark.",
+      "benchmark_contract": "benchmarks/a/add_two_numbers/README.md"
     },
     {
       "candidate_id": "addition_rule",
@@ -16248,7 +16377,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned C++ copies and PHP source named check_prime all implement scalar primality by trial division. They share prime_check’s explicit signed 32-bit positive input range and result contract.",
+      "review_notes": "The pinned C++ copies and PHP source named check_prime all implement scalar primality by trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -28909,7 +29038,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned C source computes the zero-based Fibonacci sequence by recursive fast doubling. The C++ copies with the same filename instead use a stateful linear recurrence and treat indices 0 through 2 identically. The benchmark selects the C source’s exact zero-based fast-doubling behavior with an input bound of 0 through 92 and ports that method to all target languages using fixed-width 64-bit intermediates.",
+      "review_notes": "The pinned C source computes the zero-based Fibonacci sequence by recursive fast doubling. The C++ copies with the same filename instead use a stateful linear recurrence and treat indices 0 through 2 identically. The benchmark selects the C source\u2019s exact zero-based fast-doubling behavior with an input bound of 0 through 92 and ports that method to all target languages using fixed-width 64-bit intermediates.",
       "benchmark_contract": "benchmarks/f/fibonacci_fast/README.md"
     },
     {
@@ -30970,7 +31099,7 @@
         }
       ],
       "alias_of": "fractional_knapsack",
-      "review_notes": "This second Python source uses the fractional knapsack greedy strategy: it orders by value-to-weight ratio, takes whole items while they fit, and takes a fraction of the next item. Its fractional selection semantics match the shared fractional_knapsack contract on the benchmark’s bounded positive-weight integer input domain.",
+      "review_notes": "This second Python source uses the fractional knapsack greedy strategy: it orders by value-to-weight ratio, takes whole items while they fit, and takes a fraction of the next item. Its fractional selection semantics match the shared fractional_knapsack contract on the benchmark\u2019s bounded positive-weight integer input domain.",
       "benchmark_contract": "benchmarks/f/fractional_knapsack/README.md"
     },
     {
@@ -31993,7 +32122,7 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned C++ source folds pairwise Euclidean GCD, and the Rust source recursively folds the same operation. The Python source instead intersects prime-factor counts. The shared benchmark uses a nonempty array of positive signed 32-bit values, which avoids the source variants’ different zero, negative, and empty-input conventions, and standardizes the pairwise Euclidean fold.",
+      "review_notes": "The pinned C++ source folds pairwise Euclidean GCD, and the Rust source recursively folds the same operation. The Python source instead intersects prime-factor counts. The shared benchmark uses a nonempty array of positive signed 32-bit values, which avoids the source variants\u2019 different zero, negative, and empty-input conventions, and standardizes the pairwise Euclidean fold.",
       "benchmark_contract": "benchmarks/g/gcd_of_n_numbers/README.md"
     },
     {
@@ -40046,7 +40175,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned Kotlin and Lua sources named is_prime test the same mathematical primality predicate. They share prime_check’s explicit signed 32-bit positive input range and result contract, including negative inputs returning false.",
+      "review_notes": "The pinned Kotlin and Lua sources named is_prime test the same mathematical primality predicate. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract, including negative inputs returning false.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -43804,7 +43933,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -43813,7 +43942,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/arrays/kth_largest_element.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "kth_largest_element",
+      "benchmark_contract": "benchmarks/k/kth_largest_element/README.md",
+      "review_notes": "The pinned Python source uses descending Lomuto partitioning with the final element as pivot, then iteratively narrows the range to rank k - 1. The nine ports preserve that quickselect strategy on a private copy, with a shared signed-32-bit array contract."
     },
     {
       "candidate_id": "kth_lexicographic_permutation",
@@ -48502,7 +48634,7 @@
       "additional_benchmark_names": [
         "lucas_series_recursive"
       ],
-      "review_notes": "The pinned Java, JavaScript, Python, Ruby, Rust, and Solidity files all concern the Lucas sequence, but use different index conventions and methods. The benchmark uses exact zero-based recurrence with L(0)=2 and L(1)=1; Java’s one-based entry point is normalized, and the Ruby floating-point formula is known to disagree at indices 0 and 1. Recursive and iterative methods are tracked as separate benchmarks.",
+      "review_notes": "The pinned Java, JavaScript, Python, Ruby, Rust, and Solidity files all concern the Lucas sequence, but use different index conventions and methods. The benchmark uses exact zero-based recurrence with L(0)=2 and L(1)=1; Java\u2019s one-based entry point is normalized, and the Ruby floating-point formula is known to disagree at indices 0 and 1. Recursive and iterative methods are tracked as separate benchmarks.",
       "benchmark_contract": "benchmarks/l/lucas_series/README.md",
       "additional_benchmark_contracts": [
         "benchmarks/l/lucas_series_recursive/README.md"
@@ -50432,7 +50564,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python implementation defaults to allow_empty_subarrays=False and uses Kadane’s recurrence, matching the nonempty maximum-subarray contract.",
+      "review_notes": "The pinned Python implementation defaults to allow_empty_subarrays=False and uses Kadane\u2019s recurrence, matching the nonempty maximum-subarray contract.",
       "alias_of": "maximum_subarray",
       "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
@@ -50681,7 +50813,7 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned Ruby and Rust implementations compute the greatest sum of a nonempty contiguous subarray with Kadane’s recurrence. The Ruby source uses an Integer array and Rust uses an i64 slice; both have the same objective and empty-subarray behavior.",
+      "review_notes": "The pinned Ruby and Rust implementations compute the greatest sum of a nonempty contiguous subarray with Kadane\u2019s recurrence. The Ruby source uses an Integer array and Rust uses an i64 slice; both have the same objective and empty-subarray behavior.",
       "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
     {
@@ -52092,7 +52224,7 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -52101,7 +52233,10 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/data_structures/linked_list/merge_sorted_list.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "21",
+      "review_notes": "The pinned Dart source compares the current nodes from both ascending lists and links the lower value into the result. It implements the same merged-value semantics as C LeetCode 21.",
+      "benchmark_contract": "benchmarks/m/merge_two_sorted_lists/README.md"
     },
     {
       "candidate_id": "merge_sorted_singly_linked_list",
@@ -52176,7 +52311,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -52185,7 +52320,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/merge_two_lists.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "21",
+      "review_notes": "The pinned Python helper constructs a sorted result from both input lists rather than using the linear two-cursor merge. Its output semantics match C LeetCode 21 on the shared sorted-input domain; the method difference is documented in the benchmark guide.",
+      "benchmark_contract": "benchmarks/m/merge_two_sorted_lists/README.md"
     },
     {
       "candidate_id": "merge_two_sorted_linked_lists",
@@ -52194,7 +52332,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -52203,7 +52341,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Linked-List/MergeTwoSortedLinkedLists.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "21",
+      "review_notes": "The pinned JavaScript source walks both sorted lists and appends the lower current value to a new list. Its output semantics match C LeetCode 21 on the shared sorted-input domain.",
+      "benchmark_contract": "benchmarks/m/merge_two_sorted_lists/README.md"
     },
     {
       "candidate_id": "mergesort",
@@ -54757,7 +54898,7 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -54766,7 +54907,10 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/array/move_zeroes.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "283",
+      "review_notes": "The pinned Dart move_zeroes source performs the same stable nonzero compaction and zero-fill passes as C LeetCode 283, returning the mutated list. It is reviewed as a semantic alias of the shared benchmark.",
+      "benchmark_contract": "benchmarks/m/move_zeroes/README.md"
     },
     {
       "candidate_id": "movie_recommendation_sentance_embedding",
@@ -56527,7 +56671,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k±1 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload. The C# PrimeNumber.NextPrime method has the same strictly-greater result when its optional factor is 1 and descending mode is false; those are the benchmark defaults.",
+      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k\u00b11 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload. The C# PrimeNumber.NextPrime method has the same strictly-greater result when its optional factor is 1 and descending mode is false; those are the benchmark defaults.",
       "benchmark_contract": "benchmarks/n/next_prime_number/README.md"
     },
     {
@@ -59879,7 +60023,7 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The seven pinned implementations generate the first N rows of Pascal’s triangle; the C++ copies render a centered triangle, while Java, JavaScript, Python, R, and Rust return or construct row values. The shared benchmark hashes coefficients in row-major order and limits input to 0 through 30 rows so coefficients and the Rust reference’s 32-bit recurrence intermediates remain representable.",
+      "review_notes": "The seven pinned implementations generate the first N rows of Pascal\u2019s triangle; the C++ copies render a centered triangle, while Java, JavaScript, Python, R, and Rust return or construct row values. The shared benchmark hashes coefficients in row-major order and limits input to 0 through 30 rows so coefficients and the Rust reference\u2019s 32-bit recurrence intermediates remain representable.",
       "benchmark_contract": "benchmarks/p/pascal_triangle/README.md"
     },
     {
@@ -60422,7 +60566,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned implementations test whether a signed integer is a perfect cube, and Rust explicitly accepts negative perfect cubes. The Python source includes both a floating cube-root method and an exact binary-search method; the Rust search negates signed values and multiplies midpoint cubes directly, which can overflow on wider inputs. The local contract bounds inputs to ±1,000,000,000,000 and uses exact integer binary search over root magnitudes 0..10000, returning 1 for a cube, 0 otherwise, and -1 outside the supported range.",
+      "review_notes": "The pinned implementations test whether a signed integer is a perfect cube, and Rust explicitly accepts negative perfect cubes. The Python source includes both a floating cube-root method and an exact binary-search method; the Rust search negates signed values and multiplies midpoint cubes directly, which can overflow on wider inputs. The local contract bounds inputs to \u00b11,000,000,000,000 and uses exact integer binary search over root magnitudes 0..10000, returning 1 for a cube, 0 otherwise, and -1 outside the supported range.",
       "benchmark_contract": "benchmarks/p/perfect_cube/README.md"
     },
     {
@@ -60929,7 +61073,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -60938,7 +61082,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/PermutationinString.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript PermutationinString source builds frequency counts for the pattern and current text window, then slides by one character. It solves the same lowercase ASCII substring-permutation problem as C LeetCode 567 and is recorded as an alias.",
+      "benchmark_contract": "benchmarks/p/permutation_in_string/README.md",
+      "alias_of": "567"
     },
     {
       "candidate_id": "permutations",
@@ -63215,7 +63362,7 @@
         }
       ],
       "alias_of": "prime_check",
-      "review_notes": "The pinned C, F-Sharp, and R sources named prime each expose a scalar primality predicate using trial division. They share prime_check’s explicit signed 32-bit positive input range and result contract.",
+      "review_notes": "The pinned C, F-Sharp, and R sources named prime each expose a scalar primality predicate using trial division. They share prime_check\u2019s explicit signed 32-bit positive input range and result contract.",
       "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
@@ -69780,7 +69927,7 @@
         }
       ],
       "alias_of": "gale_shapley",
-      "review_notes": "The pinned C# Proposer class stores one participant’s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
+      "review_notes": "The pinned C# Proposer class stores one participant\u2019s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
       "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
@@ -73568,7 +73715,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -73577,7 +73724,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/remove_elements.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "27",
+      "review_notes": "The pinned Ruby remove_elements source removes every occurrence of a selected value and allows survivors to be reordered. It has the same removal semantics as C LeetCode 27; the shared benchmark chooses a stable survivor order for deterministic cross-language output.",
+      "benchmark_contract": "benchmarks/r/remove_element/README.md"
     },
     {
       "candidate_id": "remove_nth_node_from_end_of_list",
@@ -73586,7 +73736,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -73595,7 +73745,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/remove_nth_node_from_end_of_list.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source validates a one-based position from the tail, advances one pointer by that distance, then advances two pointers together to unlink the target. Its removal semantics match C LeetCode 19. The shared contract bounds lists to 1,024 signed 32-bit values and serializes the remaining list as little-endian values.",
+      "benchmark_contract": "benchmarks/r/remove_nth_node_from_end_of_list/README.md"
     },
     {
       "candidate_id": "remove_stars",
@@ -75176,7 +75328,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -75185,7 +75337,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/arrays/rotate_array.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "rotate_array_reversal",
+      "benchmark_contract": "benchmarks/r/rotate_array_reversal/README.md",
+      "review_notes": "The pinned Python source normalizes the signed step count modulo the list length, reverses the entire array, then reverses the rotated prefix and remaining suffix. This is a linear-time reversal algorithm distinct from C LeetCode 189 repeated shifts. The shared contract preserves signed-step left and right rotation semantics with a bounded signed 32-bit input domain."
     },
     {
       "candidate_id": "rotate_bits",
@@ -85613,7 +85768,7 @@
         {
           "repository": "Jupyter",
           "language": "Jupyter Notebook",
-          "path": "numerical_methods/the_Simpson’s_method.ipynb",
+          "path": "numerical_methods/the_Simpson\u2019s_method.ipynb",
           "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/numerical_methods/the_Simpson%E2%80%99s_method.ipynb",
           "local_folder_source": null
         }
@@ -90885,7 +91040,7 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned C++ implementation memoizes suffix results and checks growing prefixes. Python’s dynamic-programming source traverses a trie with cached suffix checks, and its backtracking source explores dictionary-word choices. The sources agree that words may be reused. The shared contract standardizes lowercase ASCII, fixed-width packed word slots, and treats the empty string as segmentable, although Python rejects empty text as input. The cataloged Rust blob path returned 404 at its pinned commit and was not used for the semantic review.",
+      "review_notes": "The pinned C++ implementation memoizes suffix results and checks growing prefixes. Python\u2019s dynamic-programming source traverses a trie with cached suffix checks, and its backtracking source explores dictionary-word choices. The sources agree that words may be reused. The shared contract standardizes lowercase ASCII, fixed-width packed word slots, and treats the empty string as segmentable, although Python rejects empty text as input. The cataloged Rust blob path returned 404 at its pinned commit and was not used for the semantic review.",
       "benchmark_contract": "benchmarks/w/word_break/README.md"
     },
     {

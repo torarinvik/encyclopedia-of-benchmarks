@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "reverse-integer-v1",
+  "algorithm": "reverse_integer",
+  "input": {
+    "minimum": -2147483648,
+    "maximum": 2147483647,
+    "out_of_range_result": -2147483649,
+    "operation": "reverse decimal digits while preserving sign; return zero when the reversed signed 32-bit result overflows"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "positive_single_digit",
+      "input_value": 7,
+      "expected_result": 7
+    },
+    {
+      "id": "negative_single_digit",
+      "input_value": -7,
+      "expected_result": -7
+    },
+    {
+      "id": "positive_trailing_zero",
+      "input_value": 120,
+      "expected_result": 21
+    },
+    {
+      "id": "negative_trailing_zero",
+      "input_value": -120,
+      "expected_result": -21
+    },
+    {
+      "id": "positive_multi_digit",
+      "input_value": 123,
+      "expected_result": 321
+    },
+    {
+      "id": "negative_multi_digit",
+      "input_value": -123,
+      "expected_result": -321
+    },
+    {
+      "id": "reversed_value_at_upper_boundary",
+      "input_value": 1463847412,
+      "expected_result": 2147483641
+    },
+    {
+      "id": "reversed_value_over_upper_boundary",
+      "input_value": 1563847412,
+      "expected_result": 0
+    },
+    {
+      "id": "positive_overflow",
+      "input_value": 1534236469,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_overflow",
+      "input_value": -1563847412,
+      "expected_result": 0
+    },
+    {
+      "id": "signed_minimum_overflow",
+      "input_value": -2147483648,
+      "expected_result": 0
+    },
+    {
+      "id": "signed_maximum_overflow",
+      "input_value": 2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_value_reverses_within_range",
+      "input_value": -2147483412,
+      "expected_result": -2143847412
+    },
+    {
+      "id": "below_int32_domain",
+      "input_value": -2147483649,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "above_int32_domain",
+      "input_value": 2147483648,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "signed_64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "signed_64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -2147483649
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

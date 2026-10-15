@@ -78,6 +78,19 @@ pub fn linked_list_benchmark(values &i64, length usize) i64 {
         } else if opcode == 6 {
             if payload != 0 { return -1 }
             observed = i64(count)
+        } else if opcode == 7 {
+            if payload != 0 { return -1 }
+            mut previous := 256
+            mut node := head
+            tail = head
+            for node != 256 {
+                next := next_node[node]
+                next_node[node] = previous
+                previous = node
+                node = next
+            }
+            head = previous
+            returns_value = false
         } else { return -1 }
         if returns_value { checksum += i64(operation + 1) * (observed + 1000000) }
     }

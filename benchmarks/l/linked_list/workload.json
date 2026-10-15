@@ -13,7 +13,8 @@
       "3": "pop_back with payload 0",
       "4": "remove first matching value",
       "5": "contains value",
-      "6": "length with payload 0"
+      "6": "length with payload 0",
+      "7": "reverse links with payload 0"
     },
     "value_range": [
       -1000000,
@@ -214,7 +215,7 @@
     {
       "id": "invalid_opcode",
       "input_values": [
-        7,
+        8,
         0
       ],
       "input_length": 2,
@@ -2326,6 +2327,86 @@
       ],
       "input_length": 1024,
       "expected_result": 98445948160
+    },
+    {
+      "id": "reverse_empty",
+      "input_values": [
+        7,
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 2
+    },
+    {
+      "id": "reverse_single",
+      "input_values": [
+        0,
+        5,
+        7,
+        0
+      ],
+      "expected_result": 3000015,
+      "input_length": 4
+    },
+    {
+      "id": "reverse_multiple",
+      "input_values": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        7,
+        0
+      ],
+      "expected_result": 18000034,
+      "input_length": 8
+    },
+    {
+      "id": "reverse_twice_restores_order",
+      "input_values": [
+        0,
+        10,
+        0,
+        20,
+        7,
+        0,
+        7,
+        0
+      ],
+      "expected_result": 11000170,
+      "input_length": 8
+    },
+    {
+      "id": "reverse_then_continue_operations",
+      "input_values": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        7,
+        0,
+        1,
+        4,
+        4,
+        2,
+        2,
+        0
+      ],
+      "expected_result": 30000067,
+      "input_length": 14
+    },
+    {
+      "id": "invalid_reverse_control_payload",
+      "input_values": [
+        7,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 2
     }
   ],
   "measurement": {

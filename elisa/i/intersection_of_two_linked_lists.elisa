@@ -1,0 +1,59 @@
+const MAX_LIST_LENGTH: usize = 1024
+const MAX_INPUT_LENGTH: usize = 2050
+
+# Find the first shared node identity by switching traversal heads.
+def intersection_of_two_linked_lists_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -2
+    first_length_value: i64 = input[0]
+    second_length_value: i64 = input[1]
+    if first_length_value < 0 or first_length_value > 1024 or second_length_value < 0 or second_length_value > 1024:
+        return -2
+    first_length: usize = first_length_value.usize()
+    second_length: usize = second_length_value.usize()
+    if length != 2 + first_length + second_length:
+        return -2
+    index: mutable usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] > 2147483647:
+            return -2
+        index <- index + 1
+    if first_length == 0 or second_length == 0:
+        return -1
+
+    first_position: mutable usize = 0
+    second_position: mutable usize = 0
+    first_on_first_list: mutable bool = true
+    second_on_first_list: mutable bool = false
+    step: mutable usize = 0
+    while step <= first_length + second_length:
+        first_base: mutable usize = 2
+        first_source_length: mutable usize = first_length
+        if not first_on_first_list:
+            first_base <- 2 + first_length
+            first_source_length <- second_length
+        second_base: mutable usize = 2 + first_length
+        second_source_length: mutable usize = second_length
+        if second_on_first_list:
+            second_base <- 2
+            second_source_length <- first_length
+        first_node: i64 = input[first_base + first_position]
+        second_node: i64 = input[second_base + second_position]
+        if first_node == second_node:
+            return first_node
+        first_position <- first_position + 1
+        second_position <- second_position + 1
+        first_is_null: bool = first_position == first_source_length
+        second_is_null: bool = second_position == second_source_length
+        if first_is_null and second_is_null:
+            return -1
+        if first_is_null:
+            first_on_first_list <- not first_on_first_list
+            first_position <- 0
+        if second_is_null:
+            second_on_first_list <- not second_on_first_list
+            second_position <- 0
+        step <- step + 1
+    -1
+
+export fn intersection_of_two_linked_lists(input: i64&, length: usize) -> i64 = intersection_of_two_linked_lists_impl

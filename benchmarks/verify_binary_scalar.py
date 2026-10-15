@@ -21,7 +21,7 @@ from run_binary_scalar import encode_values
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann")
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and")
 
 
 def oracle(left: int, right: int) -> int:
@@ -70,6 +70,18 @@ def addition_without_arithmetic_oracle(left: int, right: int) -> int:
         return -1
     total = left + right
     return total if I32_MIN <= total <= I32_MAX else -1
+
+
+def range_bitwise_and_oracle(left: int, right: int) -> int:
+    if (type(left) is not int or type(right) is not int
+            or not 0 <= left <= right <= I32_MAX):
+        return -1
+    shift = 0
+    while left != right:
+        left >>= 1
+        right >>= 1
+        shift += 1
+    return left << shift
 
 
 @lru_cache(maxsize=None)
@@ -133,6 +145,8 @@ def result(algorithm: str, left: int, right: int) -> int:
         return amicable_number_oracle(left, right)
     if algorithm == "ackermann":
         return ackermann_oracle(left, right)
+    if algorithm == "range_bitwise_and":
+        return range_bitwise_and_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")
 
 
@@ -145,10 +159,27 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         pairs.update((left, right) for left in left_edges for right in right_edges)
         rng = random.Random(20261014)
         pairs.update((rng.randrange(-1, 5), rng.randrange(-1, 7)) for _ in range(512))
+    elif algorithm == "range_bitwise_and":
+        pairs.update((left, right) for left in range(256) for right in range(256))
+        edge_values = sorted({0, 1, 2, 3, 7, 8, 15, 16, 31, 32, 63, 64,
+                              127, 128, 255, 256, 1023, 1024,
+                              *(2**bit + delta for bit in range(1, 31) for delta in (-1, 0, 1)),
+                              I32_MAX - 2, I32_MAX - 1, I32_MAX, I32_MAX + 1})
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261015)
+        for _ in range(1024):
+            left = rng.randrange(0, I32_MAX + 2)
+            right = rng.randrange(0, I32_MAX + 2)
+            pairs.add((min(left, right), max(left, right)))
+            pairs.add((left, right))
     else:
         pairs.update((left, right) for left in range(256) for right in range(256))
     if algorithm != "ackermann":
-        if algorithm == "hamming_distance":
+        if algorithm == "range_bitwise_and":
+            edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
+                           I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
+            random_bits = 32
+        elif algorithm == "hamming_distance":
             edge_values = [0, 1, 2**63, U64_MAX, 0xAAAAAAAAAAAAAAAA, 0x5555555555555555]
             random_bits = 64
         elif algorithm == "addition_without_arithmetic":
@@ -166,7 +197,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             random_bits = 63
         pairs.update((left, right) for left in edge_values for right in edge_values)
         rng = random.Random(20261014)
-        if algorithm == "addition_without_arithmetic":
+        if algorithm == "range_bitwise_and":
+            pairs.update((left, right) for left, right in ((I32_MAX + 1, I32_MAX + 1),
+                                                            (0, U64_MAX), (I32_MAX, 0)))
+        elif algorithm == "addition_without_arithmetic":
             pairs.update((rng.randrange(I32_MIN - 1, I32_MAX + 2),
                           rng.randrange(I32_MIN - 1, I32_MAX + 2)) for _ in range(512))
         elif algorithm == "amicable_number":

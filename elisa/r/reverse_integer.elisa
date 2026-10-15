@@ -1,0 +1,19 @@
+const INVALID_RESULT: i64 = -2147483649
+
+# Reverse a signed 32-bit decimal integer, returning zero on overflow.
+def reverse_integer_impl(input: i64) -> i64:
+    if input < -2147483648 or input > 2147483647:
+        return INVALID_RESULT
+    reversed: i64 =
+        while input != 0 |input: mutable i64 = input, reversed: mutable i64 = 0| -> reversed:
+            digit: i64 = input % 10
+            input <- input / 10
+            if reversed > 214748364 or (reversed == 214748364 and digit > 7):
+                break 0
+            if reversed < -214748364 or (reversed == -214748364 and digit < -8):
+                break 0
+            reversed <- reversed * 10 + digit
+            reversed
+    reversed
+
+export fn reverse_integer(input: i64) -> i64 = reverse_integer_impl

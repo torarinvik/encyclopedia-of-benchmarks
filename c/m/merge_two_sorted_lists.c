@@ -1,0 +1,44 @@
+/* Linear merge over two packed ascending i32 sequences. */
+#include <stddef.h>
+#include <stdint.h>
+
+#define MAX_TOTAL_LENGTH 1024
+
+int64_t merge_two_sorted_lists(const int64_t *input, size_t length,
+                               uint8_t *output, size_t output_capacity)
+{
+    if (input == NULL || length < 2 || length > MAX_TOTAL_LENGTH + 2) return -1;
+    if (input[0] < 0 || input[0] > MAX_TOTAL_LENGTH ||
+        input[1] < 0 || input[1] > MAX_TOTAL_LENGTH) return -1;
+    const size_t first_count = (size_t)input[0], second_count = (size_t)input[1];
+    if (first_count + second_count > MAX_TOTAL_LENGTH ||
+        length != first_count + second_count + 2) return -1;
+    for (size_t index = 0; index < first_count; ++index) {
+        const int64_t value = input[index + 2];
+        if (value < INT32_MIN || value > INT32_MAX ||
+            (index != 0 && input[index + 1] > value)) return -1;
+    }
+    const size_t second_start = first_count + 2;
+    for (size_t index = 0; index < second_count; ++index) {
+        const int64_t value = input[second_start + index];
+        if (value < INT32_MIN || value > INT32_MAX ||
+            (index != 0 && input[second_start + index - 1] > value)) return -1;
+    }
+
+    const size_t total_count = first_count + second_count;
+    const size_t output_bytes = total_count * 4;
+    if (output_capacity < output_bytes || (output_bytes != 0 && output == NULL)) return -2;
+    size_t first_index = 0, second_index = 0;
+    for (size_t written = 0; written < total_count; ++written) {
+        int64_t value;
+        if (first_index == first_count) value = input[second_start + second_index++];
+        else if (second_index == second_count) value = input[first_index++ + 2];
+        else if (input[first_index + 2] <= input[second_start + second_index])
+            value = input[first_index++ + 2];
+        else value = input[second_start + second_index++];
+        const uint32_t bits = (uint32_t)(int32_t)value;
+        for (size_t byte = 0; byte < 4; ++byte)
+            output[written * 4 + byte] = (uint8_t)(bits >> (byte * 8));
+    }
+    return (int64_t)total_count;
+}

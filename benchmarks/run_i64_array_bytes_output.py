@@ -59,6 +59,51 @@ def amicable_proper_divisor_sum(number: int) -> int:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "invert_binary_tree":
+        import struct
+
+        max_nodes, max_height = 1023, 512
+        if (not 1 <= len(values) <= 1 + 3 * max_nodes
+                or any(type(value) is not int for value in values)
+                or (len(values) - 1) % 3 != 0):
+            return -1, b""
+        node_count = (len(values) - 1) // 3
+        root = values[0]
+        if node_count == 0:
+            return (0, b"") if root == -1 else (-1, b"")
+        if not 0 <= root < node_count:
+            return -1, b""
+        nodes = [list(values[offset:offset + 3])
+                 for offset in range(1, len(values), 3)]
+        visited: set[int] = set()
+
+        def validate(index: int, depth: int) -> bool:
+            if index == -1:
+                return True
+            if not 0 <= index < node_count or depth > max_height or index in visited:
+                return False
+            visited.add(index)
+            value, left, right = nodes[index]
+            if (not -(2**31) <= value < 2**31
+                    or left < -1 or right < -1
+                    or left >= node_count or right >= node_count):
+                return False
+            return validate(left, depth + 1) and validate(right, depth + 1)
+
+        if not validate(root, 1) or len(visited) != node_count:
+            return -1, b""
+
+        def invert(index: int) -> None:
+            if index == -1:
+                return
+            nodes[index][1], nodes[index][2] = nodes[index][2], nodes[index][1]
+            invert(nodes[index][1])
+            invert(nodes[index][2])
+
+        invert(root)
+        flattened = [value for node in nodes for value in node]
+        return node_count, struct.pack("<" + "q" * len(flattened), *flattened)
+
     if algorithm == "amicable_pairs_below":
         if (len(values) != 1 or type(values[0]) is not int
                 or not 1 <= values[0] <= 8_000):
@@ -346,6 +391,236 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             output.append(values[index])
             index = end
         return len(output), bytes(output)
+
+    if algorithm == "to_lower_case":
+        if (len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytes(value + 32 if 65 <= value <= 90 else value for value in values)
+        return len(output), output
+
+    if algorithm == "merge_two_sorted_lists":
+        import struct
+
+        if len(values) < 2 or len(values) > 1026:
+            return -1, b""
+        first_count, second_count = values[0], values[1]
+        if (type(first_count) is not int or type(second_count) is not int
+                or not 0 <= first_count <= 1024 or not 0 <= second_count <= 1024
+                or first_count + second_count > 1024
+                or len(values) != first_count + second_count + 2):
+            return -1, b""
+        first = values[2:2 + first_count]
+        second = values[2 + first_count:]
+        if any(type(value) is not int or not -(2**31) <= value < 2**31
+               for value in (*first, *second)):
+            return -1, b""
+        if (any(first[index - 1] > first[index] for index in range(1, len(first)))
+                or any(second[index - 1] > second[index] for index in range(1, len(second)))):
+            return -1, b""
+        merged = []
+        first_index = second_index = 0
+        while first_index < first_count and second_index < second_count:
+            if first[first_index] <= second[second_index]:
+                merged.append(first[first_index])
+                first_index += 1
+            else:
+                merged.append(second[second_index])
+                second_index += 1
+        merged.extend(first[first_index:])
+        merged.extend(second[second_index:])
+        output = struct.pack("<" + "i" * len(merged), *merged) if merged else b""
+        return len(merged), output
+
+    if algorithm == "remove_duplicates_from_sorted_array":
+        import struct
+
+        if (len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)
+                or any(values[index - 1] > values[index] for index in range(1, len(values)))):
+            return -1, b""
+        unique = [value for index, value in enumerate(values)
+                  if index == 0 or value != values[index - 1]]
+        output = struct.pack("<" + "i" * len(unique), *unique) if unique else b""
+        return len(unique), output
+
+    if algorithm == "remove_duplicates_from_sorted_list":
+        import struct
+
+        if (len(values) > 1024
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)
+                or any(values[index - 1] > values[index] for index in range(1, len(values)))):
+            return -1, b""
+        unique = []
+        for value in values:
+            if not unique or unique[-1] != value:
+                unique.append(value)
+        output = struct.pack("<" + "i" * len(unique), *unique) if unique else b""
+        return len(unique), output
+
+    if algorithm == "remove_all_duplicates_from_sorted_list":
+        import struct
+
+        if (len(values) > 1024
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)
+                or any(values[index - 1] > values[index] for index in range(1, len(values)))):
+            return -1, b""
+        unique = []
+        index = 0
+        while index < len(values):
+            end = index + 1
+            while end < len(values) and values[end] == values[index]:
+                end += 1
+            if end == index + 1:
+                unique.append(values[index])
+            index = end
+        output = struct.pack("<" + "i" * len(unique), *unique) if unique else b""
+        return len(unique), output
+
+    if algorithm == "remove_element":
+        import struct
+
+        if (not 1 <= len(values) <= MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)):
+            return -1, b""
+        target, items = values[0], values[1:]
+        survivors = [value for value in items if value != target]
+        output = struct.pack("<" + "i" * len(survivors), *survivors) if survivors else b""
+        return len(survivors), output
+
+    if algorithm == "remove_linked_list_elements":
+        import struct
+
+        if (not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)):
+            return -1, b""
+        target, *nodes = values
+        survivors = [value for value in nodes if value != target]
+        output = struct.pack("<" + "i" * len(survivors), *survivors) if survivors else b""
+        return len(survivors), output
+
+    if algorithm == "delete_middle_node":
+        import struct
+
+        if (len(values) > 1024
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)):
+            return -1, b""
+        survivors = values[:len(values) // 2] + values[len(values) // 2 + 1:]
+        output = struct.pack("<" + "i" * len(survivors), *survivors) if survivors else b""
+        return len(survivors), output
+
+    if algorithm == "move_zeroes":
+        import struct
+
+        if (len(values) > 4096
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)):
+            return -1, b""
+        nonzero = [value for value in values if value != 0]
+        moved = nonzero + [0] * (len(values) - len(nonzero))
+        output = struct.pack("<" + "i" * len(moved), *moved) if moved else b""
+        return len(moved), output
+
+    if algorithm == "add_two_numbers":
+        if (len(values) < 2 or len(values) > 2050
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        first_length, second_length = values[:2]
+        if (not 0 <= first_length <= 1024 or not 0 <= second_length <= 1024
+                or len(values) != first_length + second_length + 2):
+            return -1, b""
+        first = values[2:2 + first_length]
+        second = values[2 + first_length:]
+        if any(not 0 <= digit <= 9 for digit in (*first, *second)):
+            return -1, b""
+        result = []
+        carry = 0
+        for index in range(max(first_length, second_length)):
+            digit_sum = carry
+            if index < first_length:
+                digit_sum += first[index]
+            if index < second_length:
+                digit_sum += second[index]
+            result.append(digit_sum % 10)
+            carry = digit_sum // 10
+        while carry:
+            result.append(carry % 10)
+            carry //= 10
+        return len(result), bytes(result)
+
+    if algorithm == "reverse_string_in_place":
+        if (len(values) > 4096
+                or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
+            return -1, b""
+        return len(values), bytes(reversed(values))
+
+    if algorithm == "rotate_array":
+        import struct
+
+        if (not 1 <= len(values) <= 1025
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        rotations, *items = values
+        if not 0 <= rotations <= 1024 or len(items) > 1024:
+            return -1, b""
+        if any(not -(2**31) <= value < 2**31 for value in items):
+            return -1, b""
+        shift = rotations % len(items) if items else 0
+        rotated = items[-shift:] + items[:-shift] if shift else items[:]
+        output = struct.pack("<" + "i" * len(rotated), *rotated) if rotated else b""
+        return len(rotated), output
+
+    if algorithm == "rotate_array_reversal":
+        import struct
+
+        if (not 1 <= len(values) <= 1025
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        steps, *items = values
+        if not -(2**31) <= steps < 2**31 or len(items) > 1024:
+            return -1, b""
+        if any(not -(2**31) <= value < 2**31 for value in items):
+            return -1, b""
+        shift = steps % len(items) if items else 0
+        rotated = items[-shift:] + items[:-shift] if shift else items[:]
+        output = struct.pack("<" + "i" * len(rotated), *rotated) if rotated else b""
+        return len(rotated), output
+
+    if algorithm == "swap_pairs":
+        import struct
+
+        if (len(values) > 1024
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
+            return -1, b""
+        swapped = []
+        for index in range(0, len(values), 2):
+            if index + 1 < len(values):
+                swapped.extend((values[index + 1], values[index]))
+            else:
+                swapped.append(values[index])
+        output = struct.pack("<" + "i" * len(swapped), *swapped) if swapped else b""
+        return len(swapped), output
+
+    if algorithm == "remove_nth_node_from_end_of_list":
+        import struct
+
+        if (not 2 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**31) <= value < 2**31
+                       for value in values)):
+            return -1, b""
+        list_length = len(values) - 1
+        position = values[0]
+        if not 1 <= position <= list_length:
+            return -1, b""
+        removed_index = list_length - position + 1
+        remaining = values[1:removed_index] + values[removed_index + 1:]
+        output = struct.pack("<" + "i" * len(remaining), *remaining) if remaining else b""
+        return len(remaining), output
 
     if algorithm == "caesar_cipher":
         if (not 1 <= len(values) <= MAX_SMALL_INPUT_LENGTH

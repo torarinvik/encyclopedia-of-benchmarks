@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "delete-middle-node-i32-v1",
+  "algorithm": "delete_middle_node",
+  "function_symbol": "delete_middle_node",
+  "input": {
+    "kind": "i32_linked_list_values",
+    "encoding": "list values in node order",
+    "maximum_nodes": 1024,
+    "value_range": [-2147483648, 2147483647],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "values after deleting node floor(length / 2), serialized as little-endian signed 32-bit integers; result is remaining node count"
+  },
+  "cases": [
+    {"id": "empty_list", "input_values": [], "input_length": 0, "expected_result": 0},
+    {"id": "singleton", "input_values": [42], "input_length": 1, "expected_result": 0},
+    {"id": "two_nodes_deletes_second", "input_values": [1, 2], "input_length": 2, "expected_result": 1},
+    {"id": "odd_length", "input_values": [1, 2, 3], "input_length": 3, "expected_result": 2},
+    {"id": "even_length", "input_values": [1, 2, 3, 4], "input_length": 4, "expected_result": 3},
+    {"id": "negative_values", "input_values": [-8, -4, -2, 0, 3, 9], "input_length": 6, "expected_result": 5},
+    {"id": "signed_boundaries", "input_values": [-2147483648, 0, 2147483647, -1], "input_length": 4, "expected_result": 3},
+    {"id": "duplicate_values", "input_values": [5, 5, 5, 5, 5], "input_length": 5, "expected_result": 4},
+    {"id": "ordered_values", "input_values": [10, 20, 30, 40, 50, 60, 70], "input_length": 7, "expected_result": 6}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

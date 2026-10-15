@@ -261,6 +261,47 @@ def binary_tree_maximum_path_sum_oracle(nodes: list[list[int]], root_index: int)
     return best_path if len(seen) == count and best_path is not None else -1
 
 
+def bst_iterator_oracle(nodes: list[list[int]], root_index: int) -> int:
+    count = len(nodes)
+    if not 0 <= count <= MAX_NODE_COUNT or type(root_index) is not int:
+        return -1
+    if count == 0:
+        return 0 if root_index == -1 else -1
+    if not 0 <= root_index < count:
+        return -1
+    parents = [0] * count
+    for row in nodes:
+        if (not isinstance(row, list) or len(row) != 3 or any(type(value) is not int for value in row)
+                or not VALUE_MIN <= row[0] <= VALUE_MAX):
+            return -1
+        for child in row[1:]:
+            if child < -1 or child >= count:
+                return -1
+            if child >= 0:
+                parents[child] += 1
+    if parents[root_index] != 0 or any(parents[index] != 1 for index in range(count)
+                                       if index != root_index):
+        return -1
+    ordered: list[int] = []
+    stack: list[int] = []
+    current = root_index
+    seen: set[int] = set()
+    while current != -1 or stack:
+        while current != -1:
+            if current in seen:
+                return -1
+            seen.add(current)
+            stack.append(current)
+            current = nodes[current][1]
+        current = stack.pop()
+        ordered.append(nodes[current][0])
+        current = nodes[current][2]
+    if len(seen) != count or any(ordered[index - 1] >= ordered[index]
+                                 for index in range(1, count)):
+        return -1
+    return sum((index + 1) * (value + 100_001) for index, value in enumerate(ordered))
+
+
 def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
     if algorithm == "max_ancestor_diff":
         return max_ancestor_diff_oracle(nodes, root_index)
@@ -274,6 +315,8 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return univalued_binary_tree_oracle(nodes, root_index)
     if algorithm == "binary_tree_maximum_path_sum":
         return binary_tree_maximum_path_sum_oracle(nodes, root_index)
+    if algorithm == "bst_iterator":
+        return bst_iterator_oracle(nodes, root_index)
     raise ValueError(f"no tree scalar oracle for {algorithm}")
 
 

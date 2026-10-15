@@ -1,0 +1,32 @@
+const MAX_LENGTH: usize = 4096
+
+def write_i32_le(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[position * 4] <- (bits & 255).u8()
+    output[position * 4 + 1] <- ((bits >> 8) & 255).u8()
+    output[position * 4 + 2] <- ((bits >> 16) & 255).u8()
+    output[position * 4 + 3] <- ((bits >> 24) & 255).u8()
+
+# Stable nonzero compaction followed by a zero-fill pass.
+def move_zeroes_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for index in 0..<length |input|:
+        value: i64 = input[index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+    output_bytes: usize = length * 4
+    if output_capacity < output_bytes:
+        return -2
+    write_index: mutable usize = 0
+    for index in 0..<length |input, output, write_index|:
+        value: i64 = input[index]
+        if value != 0:
+            write_i32_le(output, write_index, value)
+            write_index <- write_index + 1
+    while write_index < length |write_index, output|:
+        write_i32_le(output, write_index, 0)
+        write_index <- write_index + 1
+    length.i64()
+
+export fn move_zeroes(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = move_zeroes_impl

@@ -1,0 +1,59 @@
+const MAX_TOTAL_LENGTH: usize = 1024
+
+# Merge two ascending i32 arrays and return twice their exact median.
+def median_of_two_sorted_arrays_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > MAX_TOTAL_LENGTH + 2:
+        return -1
+    first_count_value: i64 = input[0]
+    second_count_value: i64 = input[1]
+    if first_count_value < 0 or first_count_value > MAX_TOTAL_LENGTH.i64() or second_count_value < 0 or second_count_value > MAX_TOTAL_LENGTH.i64():
+        return -1
+    first_count: usize = first_count_value.usize()
+    second_count: usize = second_count_value.usize()
+    total_count: usize = first_count + second_count
+    if total_count == 0 or total_count > MAX_TOTAL_LENGTH or length != total_count + 2:
+        return -1
+    second_start: usize = first_count + 2
+
+    valid_first: bool =
+        while index < first_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 2]
+            if value < -2147483648 or value > 2147483647 or (index > 0 and input[index + 1] > value):
+                break false
+            index <- index + 1
+            valid
+    if not valid_first:
+        return -1
+    valid_second: bool =
+        while index < second_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[second_start + index]
+            if value < -2147483648 or value > 2147483647 or (index > 0 and input[second_start + index - 1] > value):
+                break false
+            index <- index + 1
+            valid
+    if not valid_second:
+        return -1
+
+    merged: mutable i64[1024] = zeroed
+    written: usize =
+        while first_index < first_count or second_index < second_count |first_index: mutable usize = 0, second_index: mutable usize = 0, written: mutable usize = 0, selected_value: mutable i64 = 0, merged| -> written:
+            if first_index == first_count:
+                selected_value <- input[second_start + second_index]
+                second_index <- second_index + 1
+            elif second_index == second_count:
+                selected_value <- input[first_index + 2]
+                first_index <- first_index + 1
+            elif input[first_index + 2] <= input[second_start + second_index]:
+                selected_value <- input[first_index + 2]
+                first_index <- first_index + 1
+            else:
+                selected_value <- input[second_start + second_index]
+                second_index <- second_index + 1
+            merged[written] <- selected_value
+            written <- written + 1
+            merged
+    if total_count % 2 != 0:
+        return merged[total_count / 2] * 2
+    merged[total_count / 2 - 1] + merged[total_count / 2]
+
+export fn median_of_two_sorted_arrays(input: i64&, length: usize) -> i64 = median_of_two_sorted_arrays_impl

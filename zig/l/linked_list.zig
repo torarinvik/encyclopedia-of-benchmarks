@@ -55,6 +55,19 @@ export fn linked_list_benchmark(values: [*]const i64, length: usize) i64 {
         } else if (opcode == 6) {
             if (payload != 0) return -1;
             observed = @intCast(count);
+        } else if (opcode == 7) {
+            if (payload != 0) return -1;
+            var previous: usize = none;
+            var node = head;
+            tail = head;
+            while (node != none) {
+                const next = next_node[node];
+                next_node[node] = previous;
+                previous = node;
+                node = next;
+            }
+            head = previous;
+            returns_value = false;
         } else return -1;
         if (returns_value) checksum += (@as(i64, @intCast(operation)) + 1) * (observed + 1_000_000);
     }

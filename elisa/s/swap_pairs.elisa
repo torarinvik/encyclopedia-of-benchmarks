@@ -1,0 +1,35 @@
+const MAX_LENGTH: usize = 1024
+
+# Swap adjacent node values in a bounded array representation of a list.
+def swap_pairs_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < -2147483648 or value > 2147483647:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    output_bytes: usize = length * 4
+    if output_capacity < output_bytes:
+        return -2
+
+    while index < length |index: mutable usize = 0, pair_start: mutable usize = 0, source_index: mutable usize = 0, selected_value: mutable i64 = 0, output|:
+        pair_start <- (index / 2) * 2
+        source_index <- pair_start
+        if index % 2 == 0 and pair_start + 1 < length:
+            source_index <- pair_start + 1
+        selected_value <- input[source_index]
+        bits: u32 = selected_value.u32()
+        output[index * 4] <- (bits & 255).u8()
+        output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+        output
+    length.i64()
+
+export fn swap_pairs(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = swap_pairs_impl

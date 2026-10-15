@@ -1,0 +1,46 @@
+const MAX_LENGTH: usize = 4096
+
+# Compact each value in an ascending array to its first occurrence.
+def remove_duplicates_from_sorted_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < -2147483648 or value > 2147483647:
+                break false
+            if index > 0 and input[index - 1] > value:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    unique_count: usize =
+        for index in 0..<length |count: mutable usize = 0| -> count:
+            if index == 0:
+                count <- count + 1
+            elif input[index - 1] != input[index]:
+                count <- count + 1
+    output_bytes: usize = unique_count * 4
+    if output_capacity < output_bytes:
+        return -2
+    while index < length |index: mutable usize = 0, written: mutable usize = 0, selected_value: mutable i64 = 0, should_write: mutable bool = false, output|:
+        should_write <- false
+        if index == 0:
+            selected_value <- input[index]
+            should_write <- true
+        elif input[index - 1] != input[index]:
+            selected_value <- input[index]
+            should_write <- true
+        if should_write:
+            bits: u32 = selected_value.u32()
+            output[written * 4] <- (bits & 255).u8()
+            output[written * 4 + 1] <- ((bits >> 8) & 255).u8()
+            output[written * 4 + 2] <- ((bits >> 16) & 255).u8()
+            output[written * 4 + 3] <- ((bits >> 24) & 255).u8()
+            written <- written + 1
+        index <- index + 1
+        output
+    unique_count.i64()
+
+export fn remove_duplicates_from_sorted_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_duplicates_from_sorted_array_impl

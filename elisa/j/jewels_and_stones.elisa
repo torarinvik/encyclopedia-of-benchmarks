@@ -1,0 +1,36 @@
+const MAX_JEWELS_LENGTH: usize = 127
+const MAX_STONES_LENGTH: usize = 4096
+const MAX_PACKED_LENGTH: usize = 4225
+
+# Count stones whose ASCII byte appears in the unique-jewel set.
+def jewels_and_stones_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_PACKED_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > 127 or input[1] < 0 or input[1] > 4096:
+        return -1
+    jewel_count: usize = input[0].usize()
+    stone_count: usize = input[1].usize()
+    if length != 2 + jewel_count + stone_count:
+        return -1
+    counts: mutable i64[128] = zeroed
+    jewel_index: mutable usize = 0
+    while jewel_index < jewel_count:
+        value: i64 = input[2 + jewel_index]
+        if value < 1 or value > 127:
+            return -1
+        if counts[value.usize()] != 0:
+            return -1
+        counts[value.usize()] <- 1
+        jewel_index <- jewel_index + 1
+    total: mutable i64 = 0
+    stone_index: mutable usize = 0
+    stone_start: usize = 2 + jewel_count
+    while stone_index < stone_count:
+        value: i64 = input[stone_start + stone_index]
+        if value < 1 or value > 127:
+            return -1
+        total <- total + counts[value.usize()]
+        stone_index <- stone_index + 1
+    total
+
+export fn jewels_and_stones(input: i64&, length: usize) -> i64 = jewels_and_stones_impl

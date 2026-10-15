@@ -55,6 +55,16 @@ extern "C" std::int64_t linked_list_benchmark(const std::int64_t *values, std::s
         } else if (opcode == 6) {
             if (payload != 0) return invalid_result;
             observed = static_cast<std::int64_t>(count);
+        } else if (opcode == 7) {
+            if (payload != 0) return invalid_result;
+            auto previous = none, node = head;
+            tail = head;
+            while (node != none) {
+                const auto next = next_node[node];
+                next_node[node] = previous; previous = node; node = next;
+            }
+            head = previous;
+            returns_value = false;
         } else return invalid_result;
         if (returns_value) checksum += (static_cast<std::int64_t>(operation) + 1) * (observed + 1000000);
     }

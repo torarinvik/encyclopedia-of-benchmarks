@@ -1,0 +1,29 @@
+const MAX_LENGTH: usize = 1024
+
+# Copy positive list values, then scan each mirrored twin pair.
+def maximum_twin_sum_of_linked_list_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_LENGTH or length % 2 != 0:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < 1 or value > 100000:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    copied: mutable i64[1024] = zeroed
+    index: usize =
+        while index < length |index: mutable usize = 0, copied| -> index:
+            copied[index] <- values[index]
+            index <- index + 1
+            index
+    maximum: i64 =
+        for index in 0..<length / 2 |maximum: mutable i64 = 0| -> maximum:
+            twin_sum: i64 = copied[index] + copied[length - index - 1]
+            if twin_sum > maximum:
+                maximum <- twin_sum
+    maximum
+
+export fn maximum_twin_sum_of_linked_list(values: i64&, length: usize) -> i64 = maximum_twin_sum_of_linked_list_impl

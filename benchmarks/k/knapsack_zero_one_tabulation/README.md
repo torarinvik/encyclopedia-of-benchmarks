@@ -28,8 +28,10 @@ This benchmark solves the 0/1 knapsack problem with bottom-up dynamic programmin
 - [Solidity `Knapsack.sol`](https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/DynamicProgramming/Knapsack.sol)
 - [TypeScript `knapsack.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/dynamic_programming/knapsack.ts)
 - [Zig `knapsack.zig`](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dynamicProgramming/knapsack.zig)
+- [R `1_knapsack_problem.r` (nested)](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/0/0/1_knapsack_problem.r)
+- [R `1_knapsack_problem.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/0/1_knapsack_problem.r)
 
-The C++ and Kotlin filename candidates are aliases of the Java tabulation benchmark. The generic `knapsack` candidate is a mixed filename group: its Go, Java, Python, Ruby, Rust, Solidity, TypeScript, and Zig implementations are 0/1 variants and alias this benchmark; its two C++ implementations are fractional knapsack and are listed in the [fractional-knapsack guide](../f/fractional_knapsack/README.md). The Python `knapsack/knapsack.py` source also exposes an optional unbounded mode. Recursive and memoized knapsack algorithms remain distinct candidates.
+The C++ and Kotlin filename candidates, plus R candidate `1_knapsack_problem`, are aliases of the Java tabulation benchmark. The generic `knapsack` candidate is a mixed filename group: its Go, Java, Python, Ruby, Rust, Solidity, TypeScript, and Zig implementations are 0/1 variants and alias this benchmark; its two C++ implementations are fractional knapsack and are listed in the [fractional-knapsack guide](../f/fractional_knapsack/README.md). The Python `knapsack/knapsack.py` source also exposes an optional unbounded mode. Recursive and memoized knapsack algorithms remain distinct candidates.
 
 ## Implementations
 

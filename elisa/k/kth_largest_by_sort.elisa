@@ -1,0 +1,53 @@
+const MAX_LENGTH: usize = 512
+
+def kth_largest_sift_down(values: mutable i64&, root_value: usize, heap_length: usize) -> void:
+    root: mutable usize = root_value
+    while root < heap_length / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < heap_length and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: i64 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+# Sort a local copy with portable heapsort, then index from the end.
+def kth_largest_by_sort_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_LENGTH + 1:
+        return -1
+    count: usize = length - 1
+    k_value: i64 = input[0]
+    if k_value < 1 or k_value > count.i64():
+        return -1
+    valid_values: bool =
+        while index < count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 1]
+            if value < -2147483648 or value > 2147483647:
+                break false
+            index <- index + 1
+            valid
+    if not valid_values:
+        return -1
+    values: mutable i64[512] = zeroed
+    copied: usize =
+        while index < count |index: mutable usize = 0, values| -> index:
+            values[index] <- input[index + 1]
+            index <- index + 1
+            index
+
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        kth_largest_sift_down(&values[0], start, count)
+    heap_length: mutable usize = count
+    while heap_length > 1:
+        temporary: i64 = values[0]
+        values[0] <- values[heap_length - 1]
+        values[heap_length - 1] <- temporary
+        heap_length <- heap_length - 1
+        kth_largest_sift_down(&values[0], 0, heap_length)
+    values[count - k_value.usize()]
+
+export fn kth_largest_by_sort(input: i64&, length: usize) -> i64 = kth_largest_by_sort_impl

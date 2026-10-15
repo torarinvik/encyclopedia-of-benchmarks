@@ -1,0 +1,10 @@
+# Clear low set bits from the upper endpoint until it meets the lower endpoint.
+def range_bitwise_and_impl(left: u64, right: u64) -> i64:
+    if left > right or right > 2147483647:
+        return -1
+    upper: mutable u64 = right
+    while left < upper:
+        upper <- upper & (upper - 1)
+    upper.i64()
+
+export fn range_bitwise_and(left: u64, right: u64) -> i64 = range_bitwise_and_impl

@@ -1,0 +1,50 @@
+const MAX_NODES: usize = 1024
+
+def remove_chain_impl(input: i64&, next_node: mutable usize&, node: usize, none: usize, target: i64) -> usize:
+    if node == none:
+        return none
+    next: usize = next_node[node]
+    if input[node + 1] == target:
+        return remove_chain_impl(input, next_node, next, none, target)
+    next_node[node] <- remove_chain_impl(input, next_node, next, none, target)
+    node
+
+def remove_linked_list_elements_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > MAX_NODES + 1:
+        return -1
+    target: i64 = input[0]
+    if target < -2147483648 or target > 2147483647:
+        return -1
+    node_count: usize = length - 1
+    next_node: mutable usize[1025] = zeroed
+    for index in 0..<node_count |next_node, input|:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        next_node[index] <- index + 1
+    next_node[node_count] <- node_count
+    head: mutable usize = 0
+    if node_count == 0:
+        head <- node_count
+    head <- remove_chain_impl(input, &next_node[0], head, node_count, target)
+    survivor_count: mutable usize = 0
+    node: mutable usize = head
+    while node != node_count |node, survivor_count, next_node|:
+        survivor_count <- survivor_count + 1
+        node <- next_node[node]
+    output_bytes: usize = survivor_count * 4
+    if output_capacity < output_bytes:
+        return -2
+    node <- head
+    written: mutable usize = 0
+    while node != node_count |node, written, next_node, input, output|:
+        bits: u32 = input[node + 1].u32()
+        output[written * 4] <- (bits & 255).u8()
+        output[written * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[written * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[written * 4 + 3] <- ((bits >> 24) & 255).u8()
+        written <- written + 1
+        node <- next_node[node]
+    written.i64()
+
+export fn remove_linked_list_elements(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_linked_list_elements_impl

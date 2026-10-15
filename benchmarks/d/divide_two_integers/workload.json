@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "divide-two-integers-signed-i32-v1",
+  "algorithm": "divide_two_integers",
+  "function_symbol": "divide_two_integers",
+  "input": {
+    "kind": "signed_i32_dividend_divisor",
+    "encoding": "[dividend, divisor]",
+    "valid_input_length": 2,
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "division_by_zero_result": -2147483649,
+    "invalid_input_result": -2147483649,
+    "rounding": "truncate toward zero",
+    "overflow": "saturate to signed 32-bit range",
+    "output": "signed 32-bit quotient as the scalar return value"
+  },
+  "cases": [
+    {
+      "id": "positive_truncates",
+      "input_values": [
+        10,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "negative_dividend",
+      "input_values": [
+        -10,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -3
+    },
+    {
+      "id": "negative_divisor",
+      "input_values": [
+        10,
+        -3
+      ],
+      "input_length": 2,
+      "expected_result": -3
+    },
+    {
+      "id": "both_negative",
+      "input_values": [
+        -10,
+        -3
+      ],
+      "input_length": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "dividend_smaller",
+      "input_values": [
+        2,
+        5
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "minimum_over_negative_one_saturates",
+      "input_values": [
+        -2147483648,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": 2147483647
+    },
+    {
+      "id": "minimum_over_one",
+      "input_values": [
+        -2147483648,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -2147483648
+    },
+    {
+      "id": "maximum_over_one",
+      "input_values": [
+        2147483647,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 2147483647
+    },
+    {
+      "id": "minimum_over_minimum",
+      "input_values": [
+        -2147483648,
+        -2147483648
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "divide_by_zero",
+      "input_values": [
+        17,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "invalid_length",
+      "input_values": [
+        17
+      ],
+      "input_length": 1,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "invalid_i32_input",
+      "input_values": [
+        2147483648,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -2147483649
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  }
+}

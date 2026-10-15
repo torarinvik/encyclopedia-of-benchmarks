@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "remove-all-duplicates-from-sorted-list-i32-v1",
+  "algorithm": "remove_all_duplicates_from_sorted_list",
+  "function_symbol": "remove_all_duplicates_from_sorted_list",
+  "input": {
+    "kind": "sorted_i32_linked_list",
+    "encoding": "one signed 32-bit list value per input element",
+    "maximum_nodes": 1024,
+    "value_range": [-2147483648, 2147483647],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "values occurring exactly once in list order as little-endian signed 32-bit integers; result is node count"
+  },
+  "cases": [
+    {"id": "empty_list", "input_values": [], "input_length": 0, "expected_result": 0},
+    {"id": "singleton", "input_values": [7], "input_length": 1, "expected_result": 1},
+    {"id": "all_values_duplicated", "input_values": [4, 4, 4, 4, 4], "input_length": 5, "expected_result": 0},
+    {"id": "already_unique", "input_values": [-3, -1, 0, 4, 9], "input_length": 5, "expected_result": 5},
+    {"id": "duplicate_run_at_head", "input_values": [1, 1, 2, 3], "input_length": 4, "expected_result": 2},
+    {"id": "duplicate_run_in_middle", "input_values": [-2, -1, -1, 0, 2], "input_length": 5, "expected_result": 3},
+    {"id": "duplicate_run_at_tail", "input_values": [-5, -3, 0, 0], "input_length": 4, "expected_result": 2},
+    {"id": "several_duplicate_runs", "input_values": [-3, -3, -1, 0, 0, 2, 4, 4], "input_length": 8, "expected_result": 2},
+    {"id": "signed_boundaries", "input_values": [-2147483648, -2147483648, 0, 2147483647, 2147483647], "input_length": 5, "expected_result": 1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

@@ -75,6 +75,18 @@ proc linked_list_benchmark*(values: ptr UncheckedArray[int64], length: csize_t):
     elif opcode == 6:
       if payload != 0: return -1
       observed = int64(count)
+    elif opcode == 7:
+      if payload != 0: return -1
+      var previous = capacity
+      var node = head
+      tail = head
+      while node != capacity:
+        let next = nextNode[node]
+        nextNode[node] = previous
+        previous = node
+        node = next
+      head = previous
+      returnsValue = false
     else: return -1
     if returnsValue: checksum += int64(operation + 1) * (observed + 1000000)
   var node = head

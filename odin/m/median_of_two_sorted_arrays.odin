@@ -1,0 +1,52 @@
+package median_of_two_sorted_arrays
+
+import "core:c"
+
+MAX_TOTAL_LENGTH :: 1024
+
+// Merge two ascending i32 arrays and return twice their exact median.
+@(export)
+median_of_two_sorted_arrays :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
+	if input == nil || length < 3 || length > MAX_TOTAL_LENGTH + 2 do return -1
+	if input[0] < 0 || input[0] > MAX_TOTAL_LENGTH || input[1] < 0 || input[1] > MAX_TOTAL_LENGTH do return -1
+	first_count := int(input[0])
+	second_count := int(input[1])
+	total_count := first_count + second_count
+	if total_count == 0 || total_count > MAX_TOTAL_LENGTH || length != c.size_t(total_count + 2) do return -1
+	second_start := first_count + 2
+	for index := 0; index < first_count; index += 1 {
+		value := input[index + 2]
+		if value < -2147483648 || value > 2147483647 || (index > 0 && input[index + 1] > value) do return -1
+	}
+	for index := 0; index < second_count; index += 1 {
+		value := input[second_start + index]
+		if value < -2147483648 || value > 2147483647 || (index > 0 && input[second_start + index - 1] > value) do return -1
+	}
+
+	merged: [MAX_TOTAL_LENGTH]i32
+	first_index := 0
+	second_index := 0
+	written := 0
+	for first_index < first_count && second_index < second_count {
+		if input[first_index + 2] <= input[second_start + second_index] {
+			merged[written] = i32(input[first_index + 2])
+			first_index += 1
+		} else {
+			merged[written] = i32(input[second_start + second_index])
+			second_index += 1
+		}
+		written += 1
+	}
+	for first_index < first_count {
+		merged[written] = i32(input[first_index + 2])
+		first_index += 1
+		written += 1
+	}
+	for second_index < second_count {
+		merged[written] = i32(input[second_start + second_index])
+		second_index += 1
+		written += 1
+	}
+	if total_count % 2 != 0 do return i64(merged[total_count / 2]) * 2
+	return i64(merged[total_count / 2 - 1]) + i64(merged[total_count / 2])
+}

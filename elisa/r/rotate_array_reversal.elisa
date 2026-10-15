@@ -1,0 +1,69 @@
+const MAX_ARRAY_LENGTH: usize = 1024
+const MAX_INPUT_LENGTH: usize = 1025
+
+# Rotate by reversing the whole array, then each side of the rotation.
+def rotate_array_reversal_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    steps: i64 = input[0]
+    if steps < -2147483648 or steps > 2147483647:
+        return -1
+    count: usize = length - 1
+    values: mutable i64[1024] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    output_bytes: usize = count * 4
+    if output_capacity < output_bytes:
+        return -2
+    shift: mutable usize = 0
+    if count != 0:
+        remainder: mutable i64 = steps % count.i64()
+        if remainder < 0:
+            remainder <- remainder + count.i64()
+        shift <- remainder.usize()
+    left: mutable usize = 0
+    right: mutable usize = count
+    while left < right:
+        right <- right - 1
+        if left >= right:
+            break
+        temporary: i64 = values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+    left <- 0
+    right <- shift
+    while left < right:
+        right <- right - 1
+        if left >= right:
+            break
+        temporary: i64 = values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+    left <- shift
+    right <- count
+    while left < right:
+        right <- right - 1
+        if left >= right:
+            break
+        temporary: i64 = values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+    index <- 0
+    while index < count:
+        bits: u32 = values[index].u32()
+        output[index * 4] <- (bits & 255).u8()
+        output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    count.i64()
+
+export fn rotate_array_reversal(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rotate_array_reversal_impl

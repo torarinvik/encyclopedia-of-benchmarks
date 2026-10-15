@@ -1,0 +1,62 @@
+const MAX_LIST_LENGTH: usize = 1024
+const NONE: usize = 1024
+
+# Remove a node by one-based distance from the tail in an index-based list.
+def remove_nth_node_from_end_of_list_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > MAX_LIST_LENGTH + 1:
+        return -1
+    list_length: usize = length - 1
+    valid_values: bool =
+        while index < list_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 1]
+            if value < -2147483648 or value > 2147483647:
+                break false
+            index <- index + 1
+            valid
+    if not valid_values:
+        return -1
+    position: i64 = input[0]
+    if position < 1 or position > list_length.i64():
+        return -1
+
+    next_nodes: usize[1024] =
+        for index in 0..<list_length |links: mutable usize[1024] = zeroed| -> links:
+            if index + 1 < list_length:
+                links[index] <- index + 1
+            else:
+                links[index] <- NONE
+            links
+    counted: usize =
+        while node != NONE |node: mutable usize = 0, total: mutable usize = 0| -> total:
+            node <- next_nodes[node]
+            total <- total + 1
+    if counted != list_length:
+        return -1
+    steps_to_target: usize = counted - position.usize()
+    target: usize =
+        while step < steps_to_target |step: mutable usize = 0, node: mutable usize = 0| -> node:
+            node <- next_nodes[node]
+            step <- step + 1
+
+    output_count: usize = counted - 1
+    output_bytes: usize = output_count * 4
+    if output_capacity < output_bytes:
+        return -2
+    while node != NONE |node: mutable usize = 0, previous: mutable usize = NONE, links: mutable usize[1024] = next_nodes, written: mutable usize = 0, output|:
+            if node == target:
+                if previous != NONE:
+                    links[previous] <- links[node]
+                node <- links[node]
+            else:
+                bits: u32 = input[node + 1].u32()
+                output[written * 4] <- (bits & 255).u8()
+                output[written * 4 + 1] <- ((bits >> 8) & 255).u8()
+                output[written * 4 + 2] <- ((bits >> 16) & 255).u8()
+                output[written * 4 + 3] <- ((bits >> 24) & 255).u8()
+                previous <- node
+                node <- links[node]
+                written <- written + 1
+            output
+    output_count.i64()
+
+export fn remove_nth_node_from_end_of_list(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_nth_node_from_end_of_list_impl

@@ -1,0 +1,41 @@
+const MAX_DIMENSION: usize = 64
+const MAX_CELLS: usize = 4096
+
+# Count adjacent nonempty-row device pairs in a fixed-width binary bank.
+def number_of_laser_beams_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_CELLS + 2:
+        return -1
+    row_count_value: i64 = input[0]
+    column_count_value: i64 = input[1]
+    if row_count_value < 1 or row_count_value > MAX_DIMENSION.i64() or column_count_value < 1 or column_count_value > MAX_DIMENSION.i64():
+        return -1
+    rows: usize = row_count_value.usize()
+    columns: usize = column_count_value.usize()
+    if length != rows * columns + 2:
+        return -1
+    valid_cells: bool =
+        while index < rows * columns |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index + 2]
+            if value != 48 and value != 49:
+                break false
+            index <- index + 1
+            valid
+    if not valid_cells:
+        return -1
+
+    beams: i64 =
+        while row < rows |row: mutable usize = 0, previous_devices: mutable i64 = 0, beams: mutable i64 = 0| -> beams:
+            devices: i64 =
+                while column < columns |column: mutable usize = 0, devices: mutable i64 = 0| -> devices:
+                    if input[2 + row * columns + column] == 49:
+                        devices <- devices + 1
+                    column <- column + 1
+                    devices
+            if devices != 0:
+                beams <- beams + devices * previous_devices
+                previous_devices <- devices
+            row <- row + 1
+            beams
+    beams
+
+export fn number_of_laser_beams(input: i64&, length: usize) -> i64 = number_of_laser_beams_impl

@@ -80,6 +80,19 @@ fn long linked_list_benchmark(long* values, usz length) @export("linked_list_ben
         } else if (opcode == 6) {
             if (payload != 0) return -1;
             observed = (long)count;
+        } else if (opcode == 7) {
+            if (payload != 0) return -1;
+            usz previous = 256;
+            usz node = head;
+            tail = head;
+            while (node != 256) {
+                usz next = next_node[node];
+                next_node[node] = previous;
+                previous = node;
+                node = next;
+            }
+            head = previous;
+            returns_value = false;
         } else {
             return -1;
         }

@@ -1,0 +1,43 @@
+const MAX_ARRAY_LENGTH: usize = 1024
+const MAX_INPUT_LENGTH: usize = 1025
+const MAX_ROTATIONS: i64 = 1024
+
+# Rotate an array right by repeating a one-place shift.
+def rotate_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    rotations: i64 = input[0]
+    if rotations < 0 or rotations > MAX_ROTATIONS:
+        return -1
+    count: usize = length - 1
+    values: mutable i64[1024] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    output_bytes: usize = count * 4
+    if output_capacity < output_bytes:
+        return -2
+    step: mutable i64 = 0
+    while step < rotations and count > 1:
+        last: i64 = values[count - 1]
+        index <- count - 1
+        while index > 0:
+            values[index] <- values[index - 1]
+            index <- index - 1
+        values[0] <- last
+        step <- step + 1
+    index <- 0
+    while index < count:
+        bits: u32 = values[index].u32()
+        output[index * 4] <- (bits & 255).u8()
+        output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    count.i64()
+
+export fn rotate_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rotate_array_impl

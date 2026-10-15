@@ -1,0 +1,27 @@
+const MAX_LENGTH: usize = 4096
+
+# Reverse bytes by swapping inward from both ends.
+def reverse_string_in_place_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for index in 0..<length |input|:
+        value: i64 = input[index]
+        if value < 0 or value > 255:
+            return -1
+    if output_capacity < length:
+        return -2
+    for index in 0..<length |input, output|:
+        output[index] <- input[index].u8()
+    left: mutable usize = 0
+    right: mutable usize = length
+    while left < right |left, right, output|:
+        right <- right - 1
+        if left >= right:
+            break
+        temporary: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temporary
+        left <- left + 1
+    length.i64()
+
+export fn reverse_string_in_place(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = reverse_string_in_place_impl

@@ -29,7 +29,7 @@ def oracle(values: list[int]) -> int:
             if opcode==0: items.append(payload)
             else: items.insert(0,payload)
             continue
-        if opcode in (2,3,6) and payload!=0: return INVALID
+        if opcode in (2,3,6,7) and payload!=0: return INVALID
         if opcode in (4,5) and not -1_000_000<=payload<=1_000_000: return INVALID
         if opcode==2:
             if not items: return INVALID
@@ -42,6 +42,9 @@ def oracle(values: list[int]) -> int:
             if observed: items.remove(payload)
         elif opcode==5: observed=int(payload in items)
         elif opcode==6: observed=len(items)
+        elif opcode==7:
+            items.reverse()
+            continue
         else: return INVALID
         checksum+=(operation+1)*(observed+1_000_000)
     for index,value in enumerate(items):
@@ -78,7 +81,7 @@ def main()->int:
     directory=args.build_dir.resolve();directory.mkdir(parents=True,exist_ok=True)
     workload=json.loads((ROOT/'benchmarks/l/linked_list/workload.json').read_text())
     cases:dict[tuple[int,...],int]={}
-    token_types=((0,-1),(0,0),(0,1),(1,-1),(1,0),(1,1),(2,0),(3,0),(4,-1),(4,0),(4,1),(5,-1),(5,0),(5,1),(6,0))
+    token_types=((0,-1),(0,0),(0,1),(1,-1),(1,0),(1,1),(2,0),(3,0),(4,-1),(4,0),(4,1),(5,-1),(5,0),(5,1),(6,0),(7,0))
     for n in range(4):
         for sequence in itertools.product(token_types,repeat=n):
             packed=tuple(value for pair in sequence for value in pair);cases[packed]=oracle(list(packed))
@@ -86,7 +89,7 @@ def main()->int:
     for _ in range(768):
         op_count=rng.randrange(MAX_OPERATIONS+1);items=[];packed=[]
         for _step in range(op_count):
-            choices=[4,5,6]
+            choices=[4,5,6,7]
             if len(items)<CAPACITY: choices.extend((0,1))
             if items: choices.extend((2,3))
             op=rng.choice(choices)
@@ -101,6 +104,7 @@ def main()->int:
                 packed.extend((op,0))
                 if op==2: items.pop(0)
                 elif op==3: items.pop()
+                elif op==7: items.reverse()
         key=tuple(packed);cases[key]=oracle(list(key))
     for _ in range(512):
         length=rng.randrange(65);key=tuple(rng.choice((-1,0,1,2,3,4,5,6,7,1_000_001)) for _ in range(length));cases[key]=oracle(list(key))

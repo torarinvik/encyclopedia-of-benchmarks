@@ -1,0 +1,36 @@
+const INVALID_RESULT: i64 = -2147483649
+
+# Truncate signed 32-bit division toward zero using doubled divisor chunks.
+def divide_two_integers_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return INVALID_RESULT
+    dividend: i64 = values[0]
+    divisor: i64 = values[1]
+    if dividend < -2147483648 or dividend > 2147483647:
+        return INVALID_RESULT
+    if divisor < -2147483648 or divisor > 2147483647 or divisor == 0:
+        return INVALID_RESULT
+
+    dividend_magnitude: mutable i64 = dividend
+    if dividend_magnitude < 0:
+        dividend_magnitude <- 0 - dividend_magnitude
+    divisor_magnitude: mutable i64 = divisor
+    if divisor_magnitude < 0:
+        divisor_magnitude <- 0 - divisor_magnitude
+
+    quotient: i64 =
+        for step in 0..<32 |remaining: mutable i64 = dividend_magnitude, quotient: mutable i64 = 0| -> quotient:
+            shift: usize = 31 - step
+            if divisor_magnitude <= (remaining >> shift):
+                remaining <- remaining - (divisor_magnitude << shift)
+                quotient <- quotient + (1 << shift)
+    negative: bool = (dividend < 0) != (divisor < 0)
+    if negative:
+        if quotient == 2147483648:
+            return -2147483648
+        return 0 - quotient
+    if quotient > 2147483647:
+        return 2147483647
+    quotient
+
+export fn divide_two_integers(values: i64&, length: usize) -> i64 = divide_two_integers_impl

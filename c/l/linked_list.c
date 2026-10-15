@@ -78,6 +78,18 @@ int64_t linked_list_benchmark(const int64_t *values, size_t length)
         } else if (opcode == 6) {
             if (payload != 0) return -1;
             observed = (int64_t)count;
+        } else if (opcode == 7) {
+            if (payload != 0) return -1;
+            size_t previous = NONE, node = head;
+            tail = head;
+            while (node != NONE) {
+                const size_t next = next_node[node];
+                next_node[node] = previous;
+                previous = node;
+                node = next;
+            }
+            head = previous;
+            returns_value = 0;
         } else return -1;
         if (returns_value) checksum += ((int64_t)operation + 1) * (observed + VALUE_OFFSET);
     }

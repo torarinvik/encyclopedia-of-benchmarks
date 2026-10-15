@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "number-of-ways-to-select-buildings-v1",
+  "algorithm": "number_of_ways_to_select_buildings",
+  "function_symbol": "number_of_ways_to_select_buildings",
+  "input": {
+    "kind": "ascii_binary_string",
+    "encoding": "ASCII values 48 for 0 and 49 for 1",
+    "length": [
+      0,
+      4096
+    ],
+    "input_modified": false,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": 0
+    },
+    {
+      "id": "single_character",
+      "input_values": [
+        48
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "short_non_alternating",
+      "input_values": [
+        48,
+        49
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "one_zero_one",
+      "input_values": [
+        48,
+        49,
+        48
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "one_one_zero_one",
+      "input_values": [
+        49,
+        48,
+        49
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "uniform_zeros",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "mixed_subsequences",
+      "input_values": [
+        48,
+        48,
+        49,
+        49,
+        48,
+        49
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "alternating_six",
+      "input_values": [
+        48,
+        49,
+        48,
+        49,
+        48,
+        49
+      ],
+      "expected_result": 8
+    }
+  ]
+}

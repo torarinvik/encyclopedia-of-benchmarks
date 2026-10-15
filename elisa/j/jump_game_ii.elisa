@@ -1,0 +1,48 @@
+const MAX_LENGTH: usize = 1024
+
+# Breadth-first search over forward-reachable indices, returning the first shortest distance.
+def jump_game_ii_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_LENGTH:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 0 or value > length.i64():
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if length == 1:
+        return 0
+
+    queue: mutable usize[1024] = zeroed
+    distance: mutable usize[1024] = zeroed
+    visited: mutable bool[1024] = zeroed
+    queue[0] <- 0
+    visited[0] <- true
+    head: mutable usize = 0
+    queue_end: mutable usize = 1
+    answer: mutable i64 = -1
+    jumps: i64 =
+        while head < queue_end |head, queue_end, answer, queue, distance, visited| -> answer:
+            cell: usize = queue[head]
+            head <- head + 1
+            farthest: usize = cell + input[cell].usize()
+            if farthest >= length - 1:
+                answer <- distance[cell].i64() + 1
+                head <- queue_end
+            else:
+                next_cell: mutable usize = cell + 1
+                queue_end <- while next_cell <= farthest |next_cell, queue_end, queue, distance, visited| -> queue_end:
+                    if not visited[next_cell]:
+                        visited[next_cell] <- true
+                        distance[next_cell] <- distance[cell] + 1
+                        queue[queue_end] <- next_cell
+                        queue_end <- queue_end + 1
+                    next_cell <- next_cell + 1
+                    queue_end
+            answer
+    jumps
+
+export fn jump_game_ii(input: i64&, length: usize) -> i64 = jump_game_ii_impl

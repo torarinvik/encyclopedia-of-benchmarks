@@ -1,0 +1,48 @@
+const COORDINATE_LIMIT: i64 = 1000000000
+
+def rectangle_union_area_impl(coordinates: i64&, length: usize) -> i64:
+    if length != 8:
+        return -1
+    valid_coordinates: bool =
+        while index < 8 |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            coordinate: i64 = coordinates[index]
+            if coordinate < -COORDINATE_LIMIT or coordinate > COORDINATE_LIMIT:
+                break false
+            index <- index + 1
+            valid
+    if not valid_coordinates:
+        return -1
+    ax1: i64 = coordinates[0]
+    ay1: i64 = coordinates[1]
+    ax2: i64 = coordinates[2]
+    ay2: i64 = coordinates[3]
+    bx1: i64 = coordinates[4]
+    by1: i64 = coordinates[5]
+    bx2: i64 = coordinates[6]
+    by2: i64 = coordinates[7]
+    if ax1 >= ax2 or ay1 >= ay2 or bx1 >= bx2 or by1 >= by2:
+        return -1
+    area_a: i64 = (ax2 - ax1) * (ay2 - ay1)
+    area_b: i64 = (bx2 - bx1) * (by2 - by1)
+    overlap_left: mutable i64 = ax1
+    if bx1 > overlap_left:
+        overlap_left <- bx1
+    overlap_right: mutable i64 = ax2
+    if bx2 < overlap_right:
+        overlap_right <- bx2
+    overlap_bottom: mutable i64 = ay1
+    if by1 > overlap_bottom:
+        overlap_bottom <- by1
+    overlap_top: mutable i64 = ay2
+    if by2 < overlap_top:
+        overlap_top <- by2
+    overlap_width: i64 = overlap_right - overlap_left
+    overlap_height: i64 = overlap_top - overlap_bottom
+    overlap: i64 =
+        if overlap_width > 0 and overlap_height > 0:
+            overlap_width * overlap_height
+        else:
+            0
+    area_a + area_b - overlap
+
+export fn rectangle_union_area(coordinates: i64&, length: usize) -> i64 = rectangle_union_area_impl

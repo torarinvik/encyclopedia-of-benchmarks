@@ -55,6 +55,16 @@ pub unsafe extern "C" fn linked_list_benchmark(values: *const i64, length: usize
         } else if opcode == 6 {
             if payload != 0 { return -1; }
             observed = count as i64;
+        } else if opcode == 7 {
+            if payload != 0 { return -1; }
+            let mut previous = 256; let mut node = head;
+            tail = head;
+            while node != 256 {
+                let next = next_node[node];
+                next_node[node] = previous; previous = node; node = next;
+            }
+            head = previous;
+            returns_value = false;
         } else { return -1; }
         if returns_value { checksum += (operation as i64 + 1) * (observed + 1_000_000); }
     }

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "move-zeroes-stable-i32-v1",
+  "algorithm": "move_zeroes",
+  "function_symbol": "move_zeroes",
+  "input": {
+    "kind": "i32_array",
+    "maximum_length": 4096,
+    "value_range": [-2147483648, 2147483647],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "same-length array with nonzero values stably compacted before trailing zeroes, as little-endian signed 32-bit integers"
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "input_length": 0, "expected_result": 0},
+    {"id": "no_zeroes", "input_values": [1, -2, 3, 4], "input_length": 4, "expected_result": 4},
+    {"id": "all_zeroes", "input_values": [0, 0, 0, 0], "input_length": 4, "expected_result": 4},
+    {"id": "zeros_at_front", "input_values": [0, 0, 3, 1], "input_length": 4, "expected_result": 4},
+    {"id": "zeros_at_end", "input_values": [1, 2, 0, 0], "input_length": 4, "expected_result": 4},
+    {"id": "interleaved", "input_values": [0, 1, 0, 3, 12], "input_length": 5, "expected_result": 5},
+    {"id": "negative_nonzero_values", "input_values": [-1, 0, -3, 0, 2], "input_length": 5, "expected_result": 5},
+    {"id": "signed_boundaries", "input_values": [-2147483648, 0, 2147483647], "input_length": 3, "expected_result": 3},
+    {"id": "repeated_values_keep_order", "input_values": [2, 0, -2, 2, 0, -2], "input_length": 6, "expected_result": 6}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

@@ -1,0 +1,37 @@
+const MAX_LENGTH: usize = 4096
+
+# Memoized endpoint recurrence, evaluated bottom-up from right to left.
+def longest_valid_parentheses_impl(input: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value != 40 and value != 41:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+
+    best: usize =
+        for step in 0..<length |end_exclusive: mutable usize[4096] = zeroed, best: mutable usize = 0| -> best:
+            index: usize = length - 1 - step
+            if input[index] == 40:
+                if index + 1 < length and input[index + 1] == 41:
+                    endpoint: mutable usize = index + 2
+                    if index + 2 < length and end_exclusive[index + 2] > endpoint:
+                        endpoint <- end_exclusive[index + 2]
+                    end_exclusive[index] <- endpoint
+                elif index + 1 < length:
+                    nested_end: usize = end_exclusive[index + 1]
+                    if nested_end > 0 and nested_end < length and input[nested_end] == 41:
+                        endpoint: mutable usize = nested_end + 1
+                        if nested_end + 1 < length and end_exclusive[nested_end + 1] > endpoint:
+                            endpoint <- end_exclusive[nested_end + 1]
+                        end_exclusive[index] <- endpoint
+            if end_exclusive[index] > index and end_exclusive[index] - index > best:
+                best <- end_exclusive[index] - index
+    best.i64()
+
+export fn longest_valid_parentheses(input: i64&, length: usize) -> i64 = longest_valid_parentheses_impl

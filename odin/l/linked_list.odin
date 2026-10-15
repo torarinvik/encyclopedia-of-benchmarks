@@ -82,6 +82,19 @@ linked_list_benchmark :: proc "c" (values: [^]i64, length: c.size_t) -> i64 {
         } else if opcode == 6 {
             if payload != 0 do return -1
             observed = i64(count)
+        } else if opcode == 7 {
+            if payload != 0 do return -1
+            previous := c.size_t(256)
+            node := head
+            tail = head
+            for node != 256 {
+                next := next_node[node]
+                next_node[node] = previous
+                previous = node
+                node = next
+            }
+            head = previous
+            returns_value = false
         } else {
             return -1
         }

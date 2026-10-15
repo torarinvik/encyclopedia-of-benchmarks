@@ -1,0 +1,57 @@
+const MAX_NODES: usize = 1024
+
+# Validate the source list before constructing and unlinking indexed nodes.
+def remove_duplicates_from_sorted_list_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_NODES:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < -2147483648 or value > 2147483647 or (index > 0 and input[index - 1] > value):
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+
+    next_node: mutable usize[1025] = zeroed
+    for index in 0..<length |next_node|:
+        next_node[index] <- index + 1
+    next_node[length] <- length
+
+    dedup_last: usize =
+        while current != length and next_node[current] != length |current: mutable usize = 0, next_node| -> current:
+            next: usize = next_node[current]
+            if input[current] == input[next]:
+                next_node[current] <- next_node[next]
+            else:
+                current <- next
+            current
+
+    survivor_count: usize =
+        while node != length |node: mutable usize = 0, count: mutable usize = 0, next_node| -> count:
+            count <- count + 1
+            node <- next_node[node]
+            count
+    output_bytes: usize = survivor_count * 4
+    if output_capacity < output_bytes:
+        return -2
+    written: usize =
+        while node != length |node: mutable usize = 0, written: mutable usize = 0, next_node, output| -> written:
+            bits: u32 = input[node].u32()
+            output[written * 4] <- (bits & 255).u8()
+            output[written * 4 + 1] <- ((bits >> 8) & 255).u8()
+            output[written * 4 + 2] <- ((bits >> 16) & 255).u8()
+            output[written * 4 + 3] <- ((bits >> 24) & 255).u8()
+            written <- written + 1
+            node <- next_node[node]
+            written
+    if dedup_last > length:
+        return -1
+    if dedup_last != length and next_node[dedup_last] != length:
+        return -1
+    if written != survivor_count:
+        return -1
+    written.i64()
+
+export fn remove_duplicates_from_sorted_list(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_duplicates_from_sorted_list_impl
