@@ -47,6 +47,40 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 raise ValueError("invalid binary_step inputs must use the -1e300 result sentinel")
         elif expected_value != float(value >= 0.0):
             raise ValueError("binary_step expected result must be 1 when x >= 0 and 0 otherwise")
+    elif algorithm == "gaussian_error_linear_unit":
+        valid = -100.0 <= value <= 100.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid gaussian_error_linear_unit inputs must use the -1e300 result sentinel")
+        else:
+            source_result = value * (1.0 / (1.0 + math.exp(-1.702 * value)))
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("gaussian_error_linear_unit expected result must match the pinned Python operation order")
+    elif algorithm == "gaussian_error_linear_unit_tanh":
+        valid = -100.0 <= value <= 100.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid gaussian_error_linear_unit_tanh inputs must use the -1e300 result sentinel")
+        else:
+            z = math.sqrt(2.0 / math.pi) * (value + 0.044715 * (value ** 3))
+            if z < -350.0:
+                tangent = -1.0
+            elif z > 350.0:
+                tangent = 1.0
+            else:
+                tangent = 2.0 / (1.0 + math.exp(-2.0 * z)) - 1.0
+            source_result = value * 0.5 * (1.0 + tangent)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("gaussian_error_linear_unit_tanh expected result must match the pinned Rust expression")
+    elif algorithm == "swish":
+        valid = -100.0 <= value <= 100.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid swish inputs must use the -1e300 result sentinel")
+        else:
+            source_result = value * (1.0 / (1.0 + math.exp(-(1.0 * value))))
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("swish expected result must match the pinned Python operation order")
     elif algorithm == "square_root_with_newton_raphson_method":
         valid = value.is_integer() and 1.0 <= value <= 2_147_483_647.0
         if not valid:

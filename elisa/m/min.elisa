@@ -1,0 +1,23 @@
+const MAX_VALUES: usize = 256
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def min_values_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > MAX_VALUES + 1:
+        return INVALID_RESULT
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > i64(MAX_VALUES) or length != count_value.usize() + 1:
+        return INVALID_RESULT
+    result: mutable i64 = input[1]
+    if result < -2147483648 or result > 2147483647:
+        return INVALID_RESULT
+    index: mutable usize = 2
+    while index < length:
+        value: i64 = input[index]
+        if value < -2147483648 or value > 2147483647:
+            return INVALID_RESULT
+        if value < result:
+            result <- value
+        index <- index + 1
+    result
+
+export fn min_values(input: i64&, length: usize) -> i64 = min_values_impl

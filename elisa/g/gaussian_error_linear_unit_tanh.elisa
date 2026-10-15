@@ -1,0 +1,14 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+const E_VALUE: f64 = 2.71828182845904523536028747135266250
+
+def gaussian_error_linear_unit_tanh_impl(x: f64) -> f64:
+    if x != x or x < -100.0 or x > 100.0:
+        return -1.0e300
+    scale: f64 = pow(2.0 / PI_VALUE, 0.5)
+    z: f64 = scale * (x + 0.044715 * pow(x, 3.0))
+    tanh_value: f64 = 2.0 / (1.0 + pow(E_VALUE, -2.0 * z)) - 1.0
+    x * 0.5 * (1.0 + tanh_value)
+
+export fn gaussian_error_linear_unit_tanh(x: f64) -> f64 = gaussian_error_linear_unit_tanh_impl

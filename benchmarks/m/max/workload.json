@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "max-variadic-i32-array-v1",
+  "algorithm": "max",
+  "function_symbol": "max_values",
+  "input": {
+    "kind": "length_prefixed_signed_i32_array",
+    "encoding": "[n, values...]",
+    "length_range": [
+      1,
+      256
+    ],
+    "invalid_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        7
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "mixed_positive",
+      "input_values": [
+        5,
+        3,
+        10,
+        2,
+        8,
+        4
+      ],
+      "expected_result": 10
+    },
+    {
+      "id": "all_negative",
+      "input_values": [
+        4,
+        -5,
+        -10,
+        -2,
+        -8
+      ],
+      "expected_result": -2
+    },
+    {
+      "id": "mixed_sign",
+      "input_values": [
+        5,
+        -9,
+        4,
+        -2,
+        7,
+        0
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "duplicate_extreme",
+      "input_values": [
+        5,
+        8,
+        8,
+        3,
+        8,
+        2
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "zero_in_sequence",
+      "input_values": [
+        4,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "minimum_i32",
+      "input_values": [
+        3,
+        0,
+        -2147483648,
+        7
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "maximum_i32",
+      "input_values": [
+        3,
+        2147483647,
+        0,
+        -1
+      ],
+      "expected_result": 2147483647
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [
+        3,
+        2,
+        1
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "invalid_count_above_bound",
+      "input_values": [
+        257
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "invalid_value_above_i32",
+      "input_values": [
+        2,
+        1,
+        2147483648
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "invalid_value_below_i32",
+      "input_values": [
+        2,
+        -2147483649,
+        1
+      ],
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

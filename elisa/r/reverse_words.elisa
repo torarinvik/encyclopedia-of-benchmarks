@@ -1,0 +1,37 @@
+def reverse_words_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 256:
+        return -1
+    byte_length: usize = input[0].usize()
+    if length != byte_length + 1:
+        return -1
+    if output_capacity < byte_length + 1:
+        return -2
+    index: usize = 0
+    while index < byte_length:
+        value: i64 = input[index + 1]
+        if not (value == 32 or (value >= 33 and value <= 126)):
+            return -1
+        if value == 32 and (index == 0 or index + 1 == byte_length or input[index] == 32):
+            return -1
+        index <- index + 1
+    written: mutable usize = 0
+    ending: mutable usize = byte_length
+    while ending > 0:
+        start: mutable usize = ending
+        while start > 0 and input[start] != 32:
+            start <- start - 1
+        word_start: usize = start
+        index <- word_start
+        while index < ending:
+            output[written] <- input[index + 1].u8()
+            written <- written + 1
+            index <- index + 1
+        if word_start == 0:
+            break
+        output[written] <- 32
+        written <- written + 1
+        ending <- start - 1
+    output[written] <- 0
+    written.i64()
+
+export fn reverse_words(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = reverse_words_impl

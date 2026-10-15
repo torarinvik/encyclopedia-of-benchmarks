@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "trapped-rainwater-two-pointer-v1",
+  "algorithm": "trapped_rainwater_two_pointer",
+  "input": {"kind": "array_of_bounded_nonnegative_heights", "length_range": [0, 4096], "height_range": [0, 1000000], "invalid_result": -1},
+  "cases": [
+    {"id": "empty", "input_values": [], "expected_result": 0},
+    {"id": "short", "input_values": [7, 2], "expected_result": 0},
+    {"id": "canonical", "input_values": [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1], "expected_result": 6},
+    {"id": "equal-boundaries", "input_values": [5, 1, 5], "expected_result": 4},
+    {"id": "unequal-boundaries", "input_values": [4, 1, 5], "expected_result": 3},
+    {"id": "invalid-height", "input_values": [4, -1, 4], "expected_result": -1}
+  ]
+}

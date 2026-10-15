@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import platform
 import shlex
+import struct
 import subprocess
 import sys
 from functools import lru_cache
@@ -19,13 +20,99 @@ from build_abi import ROOT, sha256_file
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
+def same_trees_expected(values: list[int]) -> int:
+    """Return the indexed-tree equality result for the packed pair input."""
+    if len(values) < 4:
+        return -1
+
+    def parse_tree(offset: int) -> tuple[dict[str, object] | None, int]:
+        if offset + 2 > len(values):
+            return None, offset
+        count, root = values[offset], values[offset + 1]
+        if not 0 <= count <= 1023:
+            return None, offset
+        end = offset + 2 + 3 * count
+        if end > len(values):
+            return None, offset
+        rows = [values[index:index + 3] for index in range(offset + 2, end, 3)]
+        if count == 0:
+            return ({"count": 0, "root": root, "rows": rows} if root == -1 else None), end
+        if not 0 <= root < count:
+            return None, end
+        parents = [0] * count
+        for value, left, right in rows:
+            if not -(2**31) <= value <= 2**31 - 1:
+                return None, end
+            for child in (left, right):
+                if child < -1 or child >= count:
+                    return None, end
+                if child >= 0:
+                    parents[child] += 1
+                    if parents[child] > 1:
+                        return None, end
+        if any(parent != (0 if index == root else 1) for index, parent in enumerate(parents)):
+            return None, end
+        seen: set[int] = set()
+        queue = [root]
+        for index in queue:
+            if index in seen:
+                return None, end
+            seen.add(index)
+            _, left, right = rows[index]
+            if left >= 0:
+                queue.append(left)
+            if right >= 0:
+                queue.append(right)
+        if len(seen) != count:
+            return None, end
+        return {"count": count, "root": root, "rows": rows}, end
+
+    first, offset = parse_tree(0)
+    second, offset = parse_tree(offset)
+    if first is None or second is None or offset != len(values):
+        return -1
+    if first["count"] + second["count"] > 1023:
+        return -1
+    root1, root2 = first["root"], second["root"]
+    if root1 == -1 or root2 == -1:
+        return int(root1 == root2)
+    rows1, rows2 = first["rows"], second["rows"]
+    pending = [(root1, root2)]
+    for index1, index2 in pending:
+        value1, left1, right1 = rows1[index1]
+        value2, left2, right2 = rows2[index2]
+        if value1 != value2 or (left1 == -1) != (left2 == -1) or (right1 == -1) != (right2 == -1):
+            return 0
+        if left1 >= 0:
+            pending.append((left1, left2))
+        if right1 >= 0:
+            pending.append((right1, right2))
+    return 1
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) > 100001
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("array scalar cases require up to 100001 signed 64-bit values")
-    if algorithm == "count_vowels_consonants":
+    if algorithm == "rod_cutting":
+        valid = (1 <= len(values) - 1 <= 30 and values[0] == len(values) - 1
+                 and all(1 <= value <= 1000 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            length, prices = values[0], values[1:]
+            profit = [0] * (length + 1)
+            for rod_length in range(1, length + 1):
+                best = I64_MIN
+                for first_cut in range(1, rod_length + 1):
+                    best = max(best, prices[first_cut - 1] + profit[rod_length - first_cut])
+                profit[rod_length] = best
+            expected_from_source = profit[length]
+        if expected != expected_from_source:
+            raise ValueError("rod_cutting expected_result must match the bounded bottom-up first-cut recurrence")
+    elif algorithm == "count_vowels_consonants":
         if len(values) > 100_000 or any(not 0 <= value <= 127 for value in values):
             raise ValueError("count_vowels_consonants requires at most 100000 ASCII code points")
         vowels = consonants = 0
@@ -294,6 +381,36 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = 100 * matches // (len(values) - 1)
         if expected != expected_from_source:
             raise ValueError("percentage_of_letters expected_result must match the floored ASCII percentage")
+    elif algorithm == "trapped_rainwater_two_pointer":
+        valid = len(values) <= 4096 and all(0 <= value <= 1_000_000 for value in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            left, right = 0, len(values) - 1
+            left_maximum = right_maximum = water = 0
+            while left < right:
+                if values[left] < values[right]:
+                    left_maximum = max(left_maximum, values[left])
+                    water += left_maximum - values[left]
+                    left += 1
+                else:
+                    right_maximum = max(right_maximum, values[right])
+                    water += right_maximum - values[right]
+                    right -= 1
+            expected_from_source = water
+        if expected != expected_from_source:
+            raise ValueError("trapped_rainwater_two_pointer expected_result must match the bounded two-pointer sum")
+    elif algorithm in {"max", "min"}:
+        valid = (len(values) >= 2 and 1 <= values[0] <= 256 and len(values) == values[0] + 1
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
+        if not valid:
+            expected_from_source = I64_MIN
+        elif algorithm == "max":
+            expected_from_source = max(values[1:])
+        else:
+            expected_from_source = min(values[1:])
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result must match the nonempty signed-i32 extrema")
     elif algorithm == "count_sentences":
         valid = (len(values) >= 1 and 0 <= values[0] <= 4096
                  and len(values) == 1 + values[0]
@@ -319,6 +436,24 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = sentence_count
         if expected != expected_from_source:
             raise ValueError("count_sentences expected_result must match the trimmed ASCII regex count")
+    elif algorithm == "validate_email":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 1024
+                 and len(values) == 1 + values[0]
+                 and all(0 <= value <= 127 for value in values[1:]))
+        if not valid or values[0] == 0:
+            expected_from_source = -1
+        else:
+            text = bytes(values[1:])
+            whitespace = {9, 10, 11, 12, 13, 32}
+            at = text.find(b"@")
+            allowed = all(byte not in whitespace for byte in text)
+            domain = text[at + 1:] if at >= 0 else b""
+            has_domain_dot = any(0 < index < len(domain) - 1 and byte == ord(".")
+                                 for index, byte in enumerate(domain))
+            expected_from_source = int(allowed and text.count(b"@") == 1
+                                       and at > 0 and has_domain_dot)
+        if expected != expected_from_source:
+            raise ValueError("validate_email expected_result must match the bounded JavaScript regex")
     elif algorithm == "is_sorted":
         valid = len(values) <= 4096 and all(-(2**31) <= value <= 2**31 - 1 for value in values)
         if not valid:
@@ -361,6 +496,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = int(values[1:] == sequence[1:])
         if expected != expected_from_source:
             raise ValueError("golomb_sequence_validator expected_result must match the generated Golomb prefix")
+    elif algorithm == "sum_of_two_integers":
+        valid = (len(values) == 2
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        expected_from_source = sum(values) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("sum_of_two_integers expected_result must match the signed-i32 pair sum")
     elif algorithm == "validate_subsequence":
         valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 4096
                  and len(values) == 2 + values[0] + values[1]
@@ -545,6 +686,50 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = hash_value if hash_value < 2**63 else hash_value - 2**64
         if expected != expected_from_source:
             raise ValueError("hash_sdbm expected_result must be the signed i64 interpretation of the SDBM hash")
+    elif algorithm == "rotated_binary_search":
+        valid_shape = (
+            2 <= len(values) <= 258
+            and 0 <= values[0] <= 256
+            and len(values) == values[0] + 2
+        )
+        if not valid_shape:
+            expected_from_source = -2
+        elif values[0] == 0:
+            expected_from_source = -1
+        else:
+            count = values[0]
+            items = values[1:1 + count]
+            key = values[-1]
+            if (any(not -(2**31) <= value <= 2**31 - 1 for value in (*items, key))):
+                expected_from_source = -2
+            else:
+                drops = sum(items[index - 1] > items[index] for index in range(1, count))
+                if drops > 1 or (drops == 1 and items[-1] > items[0]):
+                    expected_from_source = -2
+                else:
+                    left, right = 0, count - 1
+                    expected_from_source = -1
+                    while left <= right:
+                        middle = left + (right - left) // 2
+                        middle_value = items[middle]
+                        if key == middle_value:
+                            expected_from_source = middle
+                            break
+                        if items[left] == middle_value == items[right]:
+                            left += 1
+                            right -= 1
+                            continue
+                        if items[left] <= middle_value:
+                            if items[left] <= key < middle_value:
+                                right = middle - 1
+                            else:
+                                left = middle + 1
+                        elif middle_value < key <= items[right]:
+                            left = middle + 1
+                        else:
+                            right = middle - 1
+        if expected != expected_from_source:
+            raise ValueError("rotated_binary_search expected_result must match the duplicate-aware rotated search")
     elif algorithm == "average_mode":
         valid = 1 <= len(values) <= 64 and all(0 <= value <= 1000 for value in values)
         if not valid:
@@ -558,6 +743,104 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = leaders[0] if len(leaders) == 1 else -1
         if expected != expected_from_source:
             raise ValueError("average_mode expected_result must match the unique mode in the bounded input")
+    elif algorithm == "same_trees_check":
+        expected_from_source = same_trees_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("same_trees_check expected_result must match BFS structural/value equality")
+    elif algorithm == "characters_same":
+        valid = len(values) <= 256 and all(0 <= value <= 127 for value in values)
+        expected_from_source = -1 if not valid else int(not values or all(value == values[0] for value in values))
+        if expected != expected_from_source:
+            raise ValueError("characters_same expected_result must match the ASCII all-equal predicate")
+    elif algorithm == "barcode_validator":
+        if len(values) != 2 or values[0] not in (0, 1) or values[1] < 0:
+            expected_from_source = -1
+        else:
+            operation, barcode = values
+            remaining = barcode // 10
+            weight, total = 3, 0
+            while remaining:
+                total += (remaining % 10) * weight
+                weight = 1 if weight == 3 else 3
+                remaining //= 10
+            check_digit = (10 - total % 10) % 10
+            expected_from_source = (check_digit if operation == 0 else
+                                    int(len(str(barcode)) == 13 and barcode % 10 == check_digit))
+        if expected != expected_from_source:
+            raise ValueError("barcode_validator expected_result must match the alternating 3/1 checksum")
+    elif algorithm == "max_product_subarray":
+        valid = len(values) <= 9 and all(-10 <= value <= 10 for value in values)
+        if not valid:
+            expected_from_source = I64_MIN
+        elif not values:
+            expected_from_source = 0
+        else:
+            maximum_ending = minimum_ending = best = values[0]
+            for value in values[1:]:
+                candidates = (value, maximum_ending * value, minimum_ending * value)
+                maximum_ending, minimum_ending = max(candidates), min(candidates)
+                best = max(best, maximum_ending)
+            expected_from_source = best
+        if expected != expected_from_source:
+            raise ValueError("max_product_subarray expected_result must match the bounded max/min recurrence")
+    elif algorithm == "prefix_sum2_d":
+        invalid = I64_MIN
+        if len(values) < 7 or not (1 <= values[0] <= 16 and 1 <= values[1] <= 16):
+            expected_from_source = invalid
+        else:
+            rows, columns = values[0], values[1]
+            query = 2 + rows * columns
+            if len(values) != query + 4:
+                expected_from_source = invalid
+            else:
+                row1, col1, row2, col2 = values[query:query + 4]
+                cells = values[2:query]
+                valid = (all(-1000 <= value <= 1000 for value in cells)
+                         and 0 <= row1 <= row2 < rows
+                         and 0 <= col1 <= col2 < columns)
+                if not valid:
+                    expected_from_source = invalid
+                else:
+                    prefix = [[0] * (columns + 1) for _ in range(rows + 1)]
+                    for row in range(rows):
+                        for column in range(columns):
+                            value = cells[row * columns + column]
+                            prefix[row + 1][column + 1] = (value + prefix[row][column + 1]
+                                                            + prefix[row + 1][column] - prefix[row][column])
+                    expected_from_source = (prefix[row2 + 1][col2 + 1] - prefix[row1][col2 + 1]
+                                            - prefix[row2 + 1][col1] + prefix[row1][col1])
+        if expected != expected_from_source:
+            raise ValueError("prefix_sum2_d expected_result must match the bounded padded prefix-table recurrence")
+    elif algorithm == "adtfraction":
+        if len(values) != 5 or any(not -100000 <= value <= 100000 for value in values):
+            raise ValueError("adtfraction requires five values in [-100000, 100000]")
+        operation, numerator, denominator, other_numerator, other_denominator = values
+        def i32(value: int) -> int:
+            value &= 0xFFFFFFFF
+            return value - 0x100000000 if value >= 0x80000000 else value
+        def packed_fraction(n: int, d: int) -> int:
+            return i32(n) * 0x100000000 + (i32(d) & 0xFFFFFFFF)
+        if operation == 0 and denominator != 0 and other_denominator != 0:
+            result_denominator = i32(denominator * other_denominator)
+            expected_from_source = (-1 if result_denominator == 0 else packed_fraction(
+                i32(denominator * other_numerator + numerator * other_denominator), result_denominator))
+        elif operation == 1 and denominator != 0:
+            expected_from_source = packed_fraction(i32(numerator * other_numerator), denominator)
+        elif operation == 2 and denominator != 0 and other_denominator != 0:
+            result_denominator = i32(denominator * other_denominator)
+            expected_from_source = (-1 if result_denominator == 0 else
+                                    packed_fraction(i32(numerator * other_numerator), result_denominator))
+        elif operation == 3 and numerator != 0:
+            expected_from_source = packed_fraction(denominator, numerator)
+        elif operation == 4 and denominator != 0:
+            left = struct.unpack("<f", struct.pack("<f", float(numerator)))[0]
+            right = struct.unpack("<f", struct.pack("<f", float(denominator)))[0]
+            value = struct.unpack("<f", struct.pack("<f", left / right))[0]
+            expected_from_source = struct.unpack("<I", struct.pack("<f", value))[0]
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("adtfraction expected_result must match Java i32 arithmetic and binary32 value semantics")
     return values
 
 

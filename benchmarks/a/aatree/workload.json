@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "aatree-v1",
+  "algorithm": "aatree",
+  "function_symbol": "aatree",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[operation_count, then operation_count (opcode, key) pairs]",
+    "maximum_operations": 256,
+    "key_range": "Signed 32-bit integer keys; duplicate inserts and missing removes are invalid.",
+    "opcodes": {
+      "0": "insert key",
+      "1": "remove key",
+      "2": "contains key",
+      "3": "minimum (key slot must be 0)",
+      "4": "maximum (key slot must be 0)"
+    },
+    "result": "One little-endian signed-i32 result per operation: current count after insert/remove, 0/1 for contains, or the requested key for min/max.",
+    "invalid_result": -1,
+    "capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "ascending_inserts_and_queries",
+      "input_values": [
+        14,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        2,
+        6,
+        2,
+        99,
+        3,
+        0,
+        4,
+        0
+      ],
+      "expected_result": 56,
+      "expected_output_hex": "0100000002000000030000000400000005000000060000000700000008000000090000000a0000000100000000000000010000000a000000"
+    },
+    {
+      "id": "two_child_deletes_and_rebalance",
+      "input_values": [
+        15,
+        0,
+        4,
+        0,
+        2,
+        0,
+        6,
+        0,
+        1,
+        0,
+        3,
+        0,
+        5,
+        0,
+        7,
+        3,
+        0,
+        4,
+        0,
+        1,
+        4,
+        1,
+        1,
+        2,
+        4,
+        2,
+        5,
+        3,
+        0,
+        4,
+        0
+      ],
+      "expected_result": 60,
+      "expected_output_hex": "010000000200000003000000040000000500000006000000070000000100000007000000060000000500000000000000010000000200000007000000"
+    },
+    {
+      "id": "signed_i32_boundaries",
+      "input_values": [
+        9,
+        0,
+        -2147483648,
+        0,
+        0,
+        0,
+        2147483647,
+        3,
+        0,
+        4,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0
+      ],
+      "expected_result": 36,
+      "expected_output_hex": "01000000020000000300000000000080ffffff7f020000000000000000000080ffffff7f"
+    },
+    {
+      "id": "empty_operation_stream",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_duplicate_insert",
+      "input_values": [
+        2,
+        0,
+        7,
+        0,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_missing_remove",
+      "input_values": [
+        1,
+        1,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_minimum_on_empty_tree",
+      "input_values": [
+        1,
+        3,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

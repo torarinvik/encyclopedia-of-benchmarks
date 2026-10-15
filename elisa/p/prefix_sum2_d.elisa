@@ -1,0 +1,40 @@
+const MAX_DIMENSION: usize = 16
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def prefix_sum2_d_impl(input: i64&, length: usize) -> i64:
+    if length < 7:
+        return INVALID_RESULT
+    raw_rows: i64 = input[0]
+    raw_cols: i64 = input[1]
+    if raw_rows < 1 or raw_rows > MAX_DIMENSION.i64() or raw_cols < 1 or raw_cols > MAX_DIMENSION.i64():
+        return INVALID_RESULT
+    rows: usize = raw_rows.usize()
+    cols: usize = raw_cols.usize()
+    if length != 2 + rows * cols + 4:
+        return INVALID_RESULT
+    query: usize = 2 + rows * cols
+    row1v: i64 = input[query]
+    col1v: i64 = input[query + 1]
+    row2v: i64 = input[query + 2]
+    col2v: i64 = input[query + 3]
+    if row1v < 0 or col1v < 0 or row2v < row1v or col2v < col1v or
+        row2v.u64() >= rows.u64() or col2v.u64() >= cols.u64():
+        return INVALID_RESULT
+    prefix: mutable i64[289]
+    for i in 0..<289:
+        prefix[i] <- 0
+    for i in 0..<rows:
+        for j in 0..<cols:
+            value: i64 = input[2 + i * cols + j]
+            if value < -1000 or value > 1000:
+                return INVALID_RESULT
+            at: usize = (i + 1) * 17 + j + 1
+            prefix[at] <- value + prefix[i * 17 + j + 1] + prefix[(i + 1) * 17 + j] - prefix[i * 17 + j]
+    row1: usize = row1v.usize()
+    col1: usize = col1v.usize()
+    row2: usize = row2v.usize()
+    col2: usize = col2v.usize()
+    prefix[(row2 + 1) * 17 + col2 + 1] - prefix[row1 * 17 + col2 + 1] -
+        prefix[(row2 + 1) * 17 + col1] + prefix[row1 * 17 + col1]
+
+export fn prefix_sum2_d(input: i64&, length: usize) -> i64 = prefix_sum2_d_impl

@@ -1,0 +1,50 @@
+def store_i32_le(value: u32, output: mutable u8&, position: usize) -> void:
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def matrix_addition_u32_bits(value: i64) -> u32:
+    if value < 0:
+        return (value + 4_294_967_296).u32()
+    value.u32()
+
+def matrix_addition_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 4 or input[0] < 0 or input[0] > 16 or input[1] < 0 or input[1] > 16:
+        return -2
+    rows_a: usize = input[0].usize()
+    columns_a: usize = input[1].usize()
+    if rows_a == 0 and columns_a != 0:
+        return -2
+    cells_a: usize = rows_a * columns_a
+    b_dimensions: usize = 2 + cells_a
+    if b_dimensions + 2 > length or input[b_dimensions] < 0 or input[b_dimensions] > 16 or input[b_dimensions + 1] < 0 or input[b_dimensions + 1] > 16:
+        return -2
+    rows_b: usize = input[b_dimensions].usize()
+    columns_b: usize = input[b_dimensions + 1].usize()
+    if rows_b == 0 and columns_b != 0:
+        return -2
+    cells_b: usize = rows_b * columns_b
+    if length != b_dimensions + 2 + cells_b:
+        return -2
+    if rows_a != rows_b or columns_a != columns_b:
+        return -1
+    index: usize = 0
+    while index < cells_a:
+        if input[index + 2] < -2_147_483_648 or input[index + 2] > 2_147_483_647 or input[b_dimensions + 2 + index] < -2_147_483_648 or input[b_dimensions + 2 + index] > 2_147_483_647:
+            return -2
+        index <- index + 1
+    if cells_a == 0:
+        return 0
+    if output_capacity < cells_a * 4:
+        return -3
+    index <- 0
+    while index < cells_a:
+        left: u32 = matrix_addition_u32_bits(input[index + 2])
+        right: u32 = matrix_addition_u32_bits(input[b_dimensions + 2 + index])
+        sum: u64 = left.u64() + right.u64()
+        store_i32_le((sum & 4_294_967_295.u64()).u32(), output, index * 4)
+        index <- index + 1
+    cells_a.i64()
+
+export fn matrix_addition(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = matrix_addition_impl

@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0.0",
+  "id": "matrix-addition-go-i32-v1",
+  "algorithm": "matrix_addition",
+  "function_symbol": "matrix_addition",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "signed-i64 slots [rows_a, columns_a, A row-major..., rows_b, columns_b, B row-major...]"
+  },
+  "output": {
+    "kind": "row_major_little_endian_signed_i32",
+    "description": "row-major little-endian signed-i32 values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "two_by_two",
+      "input_values": [
+        2,
+        2,
+        1,
+        2,
+        3,
+        4,
+        2,
+        2,
+        4,
+        3,
+        2,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "05000000050000000500000005000000"
+    },
+    {
+      "id": "two_by_three_negative",
+      "input_values": [
+        2,
+        3,
+        -1,
+        2,
+        3,
+        4,
+        -5,
+        6,
+        2,
+        3,
+        1,
+        -2,
+        7,
+        -4,
+        5,
+        -6
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "00000000000000000a000000000000000000000000000000"
+    },
+    {
+      "id": "signed_i32_wrap",
+      "input_values": [
+        1,
+        2,
+        2147483647,
+        -2147483648,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "00000080ffffff7f"
+    },
+    {
+      "id": "empty_matrices",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "positive_rows_zero_columns",
+      "input_values": [
+        2,
+        0,
+        2,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_mismatch",
+      "input_values": [
+        1,
+        1,
+        5,
+        1,
+        2,
+        6,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_i32",
+      "input_values": [
+        1,
+        1,
+        2147483648,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": -3,
+      "expected_output_hex": "",
+      "workspace_bytes": 4,
+      "capacity_error_result": -3
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+def print_multiplication_table_decimal_length(value: i64) -> usize:
+    magnitude: mutable i64 = value
+    if magnitude < 0:
+        magnitude <- -magnitude
+    digits: mutable usize = 1
+    while magnitude >= 10:
+        magnitude <- magnitude / 10
+        digits <- digits + 1
+    digits
+
+def print_multiplication_table_append_decimal(value: i64, output: mutable u8&,
+        position: mutable usize&) -> void:
+    magnitude: mutable i64 = value
+    if magnitude < 0:
+        output[position] <- 45
+        position <- position + 1
+        magnitude <- -magnitude
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    while magnitude > 0:
+        digits[count] <- (48 + magnitude % 10).u8()
+        count <- count + 1
+        magnitude <- magnitude / 10
+    if count == 0:
+        digits[0] <- 48
+        count <- 1
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+
+def print_multiplication_table_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length != 2:
+        return -1
+    number: i64 = input[0]
+    terms: i64 = input[1]
+    if number < -1000000 or number > 1000000 or terms < -20 or terms > 20:
+        return -1
+    required: mutable usize = 0
+    if terms > 0:
+        required <- (terms - 1).usize()
+    multiplier: mutable i64 = 1
+    while multiplier <= terms:
+        product: i64 = number * multiplier
+        required <- required + print_multiplication_table_decimal_length(number) + 3
+            + print_multiplication_table_decimal_length(multiplier) + 3
+            + print_multiplication_table_decimal_length(product)
+        multiplier <- multiplier + 1
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    multiplier <- 1
+    while multiplier <= terms:
+        if multiplier > 1:
+            output[position] <- 10
+            position <- position + 1
+        print_multiplication_table_append_decimal(number, output, position)
+        output[position] <- 32
+        output[position + 1] <- 42
+        output[position + 2] <- 32
+        position <- position + 3
+        print_multiplication_table_append_decimal(multiplier, output, position)
+        output[position] <- 32
+        output[position + 1] <- 61
+        output[position + 2] <- 32
+        position <- position + 3
+        print_multiplication_table_append_decimal(number * multiplier, output, position)
+        multiplier <- multiplier + 1
+    position.i64()
+
+export fn print_multiplication_table(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = print_multiplication_table_impl

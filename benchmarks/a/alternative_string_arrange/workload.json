@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "alternative-string-arrange-ascii-bytes-v1",
+  "algorithm": "alternative_string_arrange",
+  "function_symbol": "alternative_string_arrange",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": [
+      "length_a",
+      "length_b",
+      "string_a_ascii...",
+      "string_b_ascii..."
+    ],
+    "each_string_length_range": [
+      0,
+      64
+    ],
+    "ascii_codepoint_range": [
+      0,
+      127
+    ],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "semantics": "alternate by character index, taking from string A before string B and preserving the remaining suffix",
+    "comparison": "exact bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "java-example-first-longer",
+      "input_values": [
+        3,
+        5,
+        97,
+        98,
+        99,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "6131623263333435"
+    },
+    {
+      "id": "java-example-second-shorter",
+      "input_values": [
+        4,
+        2,
+        97,
+        98,
+        99,
+        100,
+        49,
+        50
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "613162326364"
+    },
+    {
+      "id": "equal-length",
+      "input_values": [
+        3,
+        3,
+        65,
+        66,
+        67,
+        88,
+        89,
+        90
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "41584259435a"
+    },
+    {
+      "id": "empty-first",
+      "input_values": [
+        0,
+        3,
+        120,
+        121,
+        122
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output_hex": "78797a"
+    },
+    {
+      "id": "empty-second",
+      "input_values": [
+        3,
+        0,
+        65,
+        66,
+        67
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output_hex": "414243"
+    },
+    {
+      "id": "both-empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii-nul-byte",
+      "input_values": [
+        2,
+        1,
+        0,
+        65,
+        66
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output_hex": "004142"
+    },
+    {
+      "id": "malformed-packed-length",
+      "input_values": [
+        2,
+        1,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non-ascii-codepoint",
+      "input_values": [
+        1,
+        0,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "string-length-above-bound",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

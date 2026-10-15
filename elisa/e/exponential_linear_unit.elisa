@@ -1,0 +1,10 @@
+extern exp(value: f64) -> f64
+
+def exponential_linear_unit_impl(x: f64, alpha: f64) -> f64:
+    if x != x or alpha != alpha or x < -100.0 or x > 100.0 or alpha < -1000000.0 or alpha > 1000000.0:
+        return -1.0e300
+    if x < 0.0:
+        return x * (alpha * (exp(x) - 1.0))
+    x
+
+export fn exponential_linear_unit(x: f64, alpha: f64) -> f64 = exponential_linear_unit_impl

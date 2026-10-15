@@ -1,0 +1,31 @@
+# Return the first source-ordered Goldbach pair as two little-endian i32 values.
+def goldbach_is_prime(value: i64) -> bool:
+    if value == 2:
+        return true
+    if value < 2 or value % 2 == 0:
+        return false
+    divisor: mutable i64 = 3
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 2
+    true
+
+def goldbach_conjecture_impl(number: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if number < 4 or number > 4096 or number % 2 != 0:
+        return -1
+    if output_capacity < 8:
+        return -2
+    first: mutable i64 = 0
+    while first <= number / 2:
+        second: i64 = number - first
+        if goldbach_is_prime(first) and goldbach_is_prime(second):
+            for index in 0..<8:
+                shift: i64 = (index % 4) * 8
+                value: i64 = if index < 4 then first else second
+                output[index] <- ((value >> shift) & 255).u8()
+            return 8
+        first <- first + 1
+    -1
+
+export fn goldbach_conjecture(number: i64, output: mutable u8&, output_capacity: usize) -> i64 = goldbach_conjecture_impl

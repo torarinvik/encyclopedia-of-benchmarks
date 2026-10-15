@@ -1,0 +1,25 @@
+const MAX_LENGTH: usize = 1024
+const BYTES_PER_VALUE: usize = 8
+
+def hexagonal_numbers_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < BYTES_PER_VALUE:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def hexagonal_numbers_impl(length: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > i64(MAX_LENGTH):
+        return -1
+    n: usize = length.usize()
+    required: usize = n * BYTES_PER_VALUE
+    if output_capacity < required:
+        return -2
+    index: mutable usize = 0
+    while index < n:
+        i: i64 = index.i64()
+        hexagonal_numbers_store_i64(i * (2 * i - 1), output, index * BYTES_PER_VALUE)
+        index <- index + 1
+    length
+
+export fn hexagonal_numbers(length: i64, output: mutable u8&, output_capacity: usize) -> i64 = hexagonal_numbers_impl

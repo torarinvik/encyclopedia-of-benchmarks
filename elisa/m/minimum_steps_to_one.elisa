@@ -1,0 +1,22 @@
+def minimum_steps_to_one_impl(n: i64) -> i64:
+    if n < 1 or n > 10000:
+        return -1
+    table: mutable i64[10001] = zeroed
+    index: mutable usize = 0
+    while index <= n.usize():
+        table[index] <- n + 1
+        index <- index + 1
+    table[1] <- 0
+    i: mutable i64 = 1
+    while i < n:
+        candidate: mutable i64 = table[i.usize()] + 1
+        if table[(i + 1).usize()] > candidate:
+            table[(i + 1).usize()] <- candidate
+        if i * 2 <= n and table[(i * 2).usize()] > candidate:
+            table[(i * 2).usize()] <- candidate
+        if i * 3 <= n and table[(i * 3).usize()] > candidate:
+            table[(i * 3).usize()] <- candidate
+        i <- i + 1
+    table[n.usize()]
+
+export fn minimum_steps_to_one(n: i64) -> i64 = minimum_steps_to_one_impl

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "id": "minimum-steps-to-one-python-tabulation-i64-v1",
+  "algorithm": "minimum_steps_to_one",
+  "function_symbol": "minimum_steps_to_one",
+  "description": "Return the minimum step count from 1 to n using forward tabulation.",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 1,
+    "maximum": 10000,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "minimum number of +1, *2, and *3 operations from 1 to n",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"three","input_value":3,"expected_result":1},
+    {"id":"six_source_example","input_value":6,"expected_result":2},
+    {"id":"ten_source_example","input_value":10,"expected_result":3},
+    {"id":"fifteen_source_example","input_value":15,"expected_result":4},
+    {"id":"maximum_supported","input_value":10000,"expected_result":14},
+    {"id":"zero_invalid","input_value":0,"expected_result":-1},
+    {"id":"negative_invalid","input_value":-1,"expected_result":-1},
+    {"id":"above_bound_invalid","input_value":10001,"expected_result":-1}
+  ]
+}

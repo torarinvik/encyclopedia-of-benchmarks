@@ -132,6 +132,29 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             if expected == -1e300 or not math.isclose(
                     expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
                 raise ValueError("distance_formula expected_result must match the pinned Java expression")
+    elif algorithm == "thin_lens":
+        valid = (len(values) == 3 and values[0] in (0, 1, 2)
+                 and all(-1000 <= value <= 1000 for value in values[1:]))
+        if valid:
+            operation, first, second = values
+            if operation == 0:
+                valid = first != 0 and second != 0 and first != second
+                if valid:
+                    source_result = 1.0 / ((1.0 / first) - (1.0 / second))
+            elif operation == 1:
+                valid = second != 0
+                if valid:
+                    source_result = first / second
+            else:
+                valid = second == 0
+                if valid:
+                    source_result = float(first > 0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid thin_lens inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("thin_lens expected_result must match the selected pinned Java operation")
     return values, float(expected)
 
 

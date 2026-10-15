@@ -1,0 +1,40 @@
+# Append two bounded printable ASCII strings.
+def string_append_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    first_value: i64 = input[0]
+    if first_value < 0 or first_value > 64:
+        return -1
+    first_length: usize = first_value.usize()
+    if first_length + 1 >= length:
+        return -1
+    second_value: i64 = input[first_length + 1]
+    if second_value < 0 or second_value > 64:
+        return -1
+    second_length: usize = second_value.usize()
+    if length != 2 + first_length + second_length:
+        return -1
+    i: mutable usize = 0
+    while i < first_length:
+        if input[2 + i] < 32 or input[2 + i] > 126:
+            return -1
+        i <- i + 1
+    i <- 0
+    while i < second_length:
+        if input[2 + first_length + i] < 32 or input[2 + first_length + i] > 126:
+            return -1
+        i <- i + 1
+    count: usize = first_length + second_length
+    if output_capacity < count:
+        return -2
+    i <- 0
+    while i < first_length:
+        output[i] <- input[2 + i].u8()
+        i <- i + 1
+    i <- 0
+    while i < second_length:
+        output[first_length + i] <- input[2 + first_length + i].u8()
+        i <- i + 1
+    count.i64()
+
+export fn string_append(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = string_append_impl

@@ -1,0 +1,109 @@
+def all_construct_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > 6:
+        return -1
+    target_length: usize = input[0].usize()
+    index: usize = 0
+    while index < target_length:
+        if input[index + 1] < 97 or input[index + 1] > 122:
+            return -1
+        index <- index + 1
+    word_count_slot: usize = target_length + 1
+    if word_count_slot >= length or input[word_count_slot] < 0 or input[word_count_slot] > 4:
+        return -1
+    word_count: usize = input[word_count_slot].usize()
+    starts: mutable usize[4] = zeroed
+    word_lengths: mutable usize[4] = zeroed
+    cursor: mutable usize = word_count_slot + 1
+    word: mutable usize = 0
+    while word < word_count:
+        if cursor >= length or input[cursor] < 1 or input[cursor] > 6:
+            return -1
+        word_length: usize = input[cursor].usize()
+        cursor <- cursor + 1
+        if cursor + word_length > length:
+            return -1
+        starts[word] <- cursor
+        word_lengths[word] <- word_length
+        index <- 0
+        while index < word_length:
+            if input[cursor + index] < 97 or input[cursor + index] > 122:
+                return -1
+            index <- index + 1
+        cursor <- cursor + word_length
+        word <- word + 1
+    if cursor != length:
+        return -1
+    paths: mutable u8[172032] = zeroed
+    path_lengths: mutable u8[28672] = zeroed
+    counts: mutable usize[7] = zeroed
+    counts[0] <- 1
+    position: mutable usize = 0
+    while position < target_length:
+        word <- 0
+        while word < word_count:
+            word_length: usize = word_lengths[word]
+            if word_length <= target_length - position:
+                matched: mutable bool = true
+                index <- 0
+                while index < word_length:
+                    if input[position + 1 + index] != input[starts[word] + index]:
+                        matched <- false
+                    index <- index + 1
+                if matched:
+                    ending: usize = position + word_length
+                    row: mutable usize = 0
+                    while row < counts[position]:
+                        destination: usize = counts[ending]
+                        if destination >= 4096:
+                            return -1
+                        counts[ending] <- destination + 1
+                        source_base: usize = (position * 4096 + row) * 6
+                        destination_base: usize = (ending * 4096 + destination) * 6
+                        path_length: usize = path_lengths[position * 4096 + row].usize()
+                        index <- 0
+                        while index < path_length:
+                            paths[destination_base + index] <- paths[source_base + index]
+                            index <- index + 1
+                        paths[destination_base + path_length] <- word.u8()
+                        path_lengths[ending * 4096 + destination] <- (path_length + 1).u8()
+                        row <- row + 1
+            word <- word + 1
+        position <- position + 1
+    required: mutable usize = 0
+    row: mutable usize = 0
+    while row < counts[target_length]:
+        path_length: usize = path_lengths[target_length * 4096 + row].usize()
+        required <- required + 1
+        index <- 0
+        while index < path_length:
+            word_index: usize = paths[(target_length * 4096 + row) * 6 + index].usize()
+            required <- required + 1 + word_lengths[word_index]
+            index <- index + 1
+        row <- row + 1
+    if required > output_capacity:
+        return -2
+    if counts[target_length] == 0:
+        return 0
+    written: mutable usize = 0
+    row <- 0
+    while row < counts[target_length]:
+        path_base: usize = (target_length * 4096 + row) * 6
+        path_length: usize = path_lengths[target_length * 4096 + row].usize()
+        output[written] <- path_length.u8()
+        written <- written + 1
+        path_index: mutable usize = 0
+        while path_index < path_length:
+            word_index: usize = paths[path_base + path_index].usize()
+            word_length: usize = word_lengths[word_index]
+            output[written] <- word_length.u8()
+            written <- written + 1
+            byte_index: mutable usize = 0
+            while byte_index < word_length:
+                output[written] <- input[starts[word_index] + byte_index].u8()
+                written <- written + 1
+                byte_index <- byte_index + 1
+            path_index <- path_index + 1
+        row <- row + 1
+    counts[target_length].i64()
+
+export fn all_construct(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = all_construct_impl

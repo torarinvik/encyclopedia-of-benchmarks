@@ -17,11 +17,14 @@ def push(register: u32, width: usize, bit: u32) -> u32:
     ((register << 1) | bit) & ((1.u32() << width) - 1)
 
 def initialize(key: u64, frame: u32, r1: mutable u32&, r2: mutable u32&, r3: mutable u32&) -> void:
-    r1 <- 0; r2 <- 0; r3 <- 0
+    r1 <- 0
+    r2 <- 0
+    r3 <- 0
     i: mutable usize = 64
+    bit: mutable u32 = 0
     while i > 0:
         i <- i - 1
-        bit: u32 = ((key >> i) & 1).u32()
+        bit <- ((key >> i) & 1).u32()
         r1 <- push(r1, 19, bit ^ feedback1(r1))
         r2 <- push(r2, 22, bit ^ feedback2(r2))
         r3 <- push(r3, 23, bit ^ feedback3(r3))
@@ -37,7 +40,7 @@ def tick(r1: mutable u32&, r2: mutable u32&, r3: mutable u32&) -> u32:
     c1: u32 = (r1 >> 8) & 1
     c2: u32 = (r2 >> 10) & 1
     c3: u32 = (r3 >> 10) & 1
-    majority: u32 = 0
+    majority: mutable u32 = 0
     if c1 + c2 + c3 >= 2:
         majority <- 1
     result: u32 = ((r1 >> 18) ^ (r2 >> 21) ^ (r3 >> 22)) & 1
@@ -54,7 +57,7 @@ def next_frame(frame: u32) -> u32:
         mask: u32 = 1.u32() << i
         if (result & mask) == 0:
             return result | mask
-        result <- result & (not mask)
+        result <- result & ~mask
     result
 
 def store_bit(output: mutable u8&, block_offset: usize, bit: usize, value: u32) -> void:
@@ -74,7 +77,9 @@ def a5_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capac
     frame: mutable u32 = (input[1].u64() & 0x3fffff).u32()
     block: mutable usize = 0
     while block < blocks:
-        r1: mutable u32 = 0; r2: mutable u32 = 0; r3: mutable u32 = 0
+        r1: mutable u32 = 0
+        r2: mutable u32 = 0
+        r3: mutable u32 = 0
         initialize(key, frame, r1, r2, r3)
         cycle: mutable usize = 0
         ignored: mutable u32 = 0

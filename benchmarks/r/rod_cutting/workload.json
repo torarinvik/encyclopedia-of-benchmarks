@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "rod-cutting-bottom-up-i64-array-scalar-v1",
+  "algorithm": "rod_cutting",
+  "function_symbol": "rod_cutting",
+  "description": "Maximize rod-sale revenue by choosing any sequence of positive-length cuts.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rod_length, price_for_length_1, ..., price_for_length_n]",
+    "rod_length_range": [1, 30],
+    "price_count": "Exactly rod_length prices.",
+    "price_range": [1, 1000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Maximum sum of prices for cuts whose lengths sum to rod_length; each piece length is in 1..rod_length.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single_length","input_values":[1,5],"expected_result":5},
+    {"id":"classic_four_lengths","input_values":[4,1,5,8,9],"expected_result":10},
+    {"id":"source_example_eight_lengths","input_values":[8,1,2,4,6,8,45,21,9],"expected_result":47},
+    {"id":"source_example_thirty_lengths","input_values":[30,1,5,8,9,10,17,17,20,24,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50],"expected_result":90},
+    {"id":"cutting_beats_uncut_rod","input_values":[4,2,5,7,8],"expected_result":10},
+    {"id":"all_equal_prices","input_values":[6,13,13,13,13,13,13],"expected_result":78},
+    {"id":"maximum_length_and_price","input_values":[30,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000],"expected_result":30000},
+    {"id":"invalid_zero_rod_length","input_values":[0],"expected_result":-1},
+    {"id":"invalid_length_above_bound","input_values":[31],"expected_result":-1},
+    {"id":"invalid_missing_price","input_values":[2,4],"expected_result":-1},
+    {"id":"invalid_extra_price","input_values":[1,4,5],"expected_result":-1},
+    {"id":"invalid_zero_price","input_values":[2,0,5],"expected_result":-1},
+    {"id":"invalid_price_above_bound","input_values":[1,1001],"expected_result":-1}
+  ]
+}

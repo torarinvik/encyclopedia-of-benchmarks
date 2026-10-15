@@ -45,17 +45,17 @@ proc a5_cipher*(input: ptr UncheckedArray[int64], length: csize_t,
   if output.isNil or outputCapacity < csize_t(byteCount): return -2
   let key = cast[uint64](input[0])
   var frame = uint32(cast[uint64](input[1]) and 0x3fffff'u64)
-  for block in 0 ..< blocks:
+  for block_index in 0 ..< blocks:
     var state = initialize(key, frame)
     for _ in 0 ..< 100: discard tick(state)
-    for i in 0 ..< 32: output[block * 32 + i] = 0
+    for i in 0 ..< 32: output[block_index * 32 + i] = 0
     for bit in 0 ..< 228:
-      let plain = cast[uint64](input[3 + 4 * block + bit div 64])
+      let plain = cast[uint64](input[3 + 4 * block_index + bit div 64])
       let value = uint8((plain shr (bit mod 64)) and 1) xor uint8(tick(state))
-      output[block * 32 + bit div 8] = output[block * 32 + bit div 8] or (value shl (bit mod 8))
+      output[block_index * 32 + bit div 8] = output[block_index * 32 + bit div 8] or (value shl (bit mod 8))
     for bit in 228 ..< 256:
-      let plain = cast[uint64](input[3 + 4 * block + bit div 64])
+      let plain = cast[uint64](input[3 + 4 * block_index + bit div 64])
       let value = uint8((plain shr (bit mod 64)) and 1)
-      output[block * 32 + bit div 8] = output[block * 32 + bit div 8] or (value shl (bit mod 8))
+      output[block_index * 32 + bit div 8] = output[block_index * 32 + bit div 8] or (value shl (bit mod 8))
     frame = nextFrame(frame)
   int64(byteCount)

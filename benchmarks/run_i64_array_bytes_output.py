@@ -643,6 +643,674 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "shortest_coprime_segment":
+        if (not isinstance(values, list) or len(values) > 128
+                or any(type(value) is not int or not 1 <= value <= 1000 for value in values)):
+            return -1, b""
+        best_start = -1
+        best_length = len(values) + 1
+        for end in range(len(values)):
+            segment_gcd = 0
+            for start in range(end, -1, -1):
+                segment_gcd = math.gcd(segment_gcd, values[start])
+                if segment_gcd == 1:
+                    length = end - start + 1
+                    if length < best_length:
+                        best_start = start
+                        best_length = length
+                    break
+        if best_start < 0:
+            return 0, b""
+        result = values[best_start:best_start + best_length]
+        output = struct.pack("<" + "q" * len(result), *result)
+        return len(output), output
+
+    if algorithm == "reverse_string":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        text_values = values[1:]
+        if (not 0 <= byte_length <= 256 or len(text_values) != byte_length
+                or any(not 0x21 <= byte <= 0x7E for byte in text_values)):
+            return -1, b""
+        output = bytes(reversed(text_values)) + b"\0"
+        return byte_length, output
+
+    if algorithm == "title_case_conversion":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        text_values = values[1:]
+        if not 0 <= byte_length <= 256 or len(text_values) != byte_length:
+            return -1, b""
+
+        output = bytearray()
+        at_word_start = True
+        for index, value in enumerate(text_values):
+            if 65 <= value <= 90 or 97 <= value <= 122:
+                if at_word_start:
+                    output.append(value - 32 if 97 <= value <= 122 else value)
+                    at_word_start = False
+                else:
+                    output.append(value + 32 if 65 <= value <= 90 else value)
+                continue
+            if (value == 32 and index > 0 and index + 1 < byte_length
+                    and text_values[index - 1] != 32):
+                output.append(32)
+                at_word_start = True
+                continue
+            return -1, b""
+
+        output.append(0)
+        return byte_length, bytes(output)
+
+    if algorithm == "aatree":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 513
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 256 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        contents: set[int] = set()
+        answers: list[int] = []
+        for operation in range(operation_count):
+            opcode, raw_key = values[1 + 2 * operation:3 + 2 * operation]
+            if not 0 <= opcode <= 4:
+                return -1, b""
+            if opcode <= 2 and not -(2**31) <= raw_key <= 2**31 - 1:
+                return -1, b""
+            if opcode >= 3 and raw_key != 0:
+                return -1, b""
+            if opcode == 0:
+                if raw_key in contents:
+                    return -1, b""
+                contents.add(raw_key)
+                answers.append(len(contents))
+            elif opcode == 1:
+                if raw_key not in contents:
+                    return -1, b""
+                contents.remove(raw_key)
+                answers.append(len(contents))
+            elif opcode == 2:
+                answers.append(int(raw_key in contents))
+            elif not contents:
+                return -1, b""
+            elif opcode == 3:
+                answers.append(min(contents))
+            else:
+                answers.append(max(contents))
+        output = b"".join(answer.to_bytes(4, "little", signed=True) for answer in answers)
+        return len(output), output
+
+    if algorithm == "adaline_learning":
+        if (not isinstance(values, list) or not 5 <= len(values) <= 293
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        sample_count, feature_count, eta_numerator, eta_shift, max_iterations = values[:5]
+        if (not 1 <= sample_count <= 32 or not 1 <= feature_count <= 8
+                or eta_numerator < 1 or not 1 <= eta_shift <= 12
+                or not 1 <= max_iterations <= 500
+                or eta_numerator >= 1 << eta_shift
+                or len(values) != 5 + sample_count * (feature_count + 1)):
+            return -1, b""
+        rows = []
+        for sample in range(sample_count):
+            row = values[5 + sample * (feature_count + 1):
+                         5 + (sample + 1) * (feature_count + 1)]
+            features, label = row[:-1], row[-1]
+            if any(not -16 <= feature <= 16 for feature in features) or label not in (-1, 1):
+                return -1, b""
+            rows.append((features, label))
+
+        scale = 1 << eta_shift
+        weights = [scale] * feature_count
+        bias = scale
+        iterations = 0
+        for _ in range(max_iterations):
+            mistakes = 0
+            for features, label in rows:
+                score = bias + sum(feature * weight for feature, weight in zip(features, weights))
+                prediction = 1 if score > 0 else -1
+                error = label - prediction
+                if error:
+                    mistakes += 1
+                    correction = eta_numerator * error
+                    weights = [weight + correction * feature
+                               for weight, feature in zip(weights, features)]
+                    bias += correction
+            iterations += 1
+            if mistakes == 0:
+                break
+
+        results = [iterations, *weights, bias]
+        for features, _ in rows:
+            score = bias + sum(feature * weight for feature, weight in zip(features, weights))
+            results.append(1 if score > 0 else -1)
+        output = b"".join(result.to_bytes(4, "little", signed=True) for result in results)
+        return len(output), output
+
+    if algorithm == "adfgvxcipher":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        mode, text_length, key_length = values[:3]
+        if mode not in (0, 1) or not 1 <= key_length <= 16:
+            return -1, b""
+        if (not 0 <= text_length <= (256 if mode == 0 else 512)
+                or len(values) != 3 + text_length + key_length):
+            return -1, b""
+        text_values = values[3:3 + text_length]
+        key_values = values[3 + text_length:]
+        if (any(not 0 <= byte <= 127 for byte in [*text_values, *key_values])
+                or any(not 65 <= byte <= 90 for byte in key_values)
+                or len(set(key_values)) != key_length):
+            return -1, b""
+        key = bytes(key_values).decode("ascii")
+        square = (b"NA1C3H", b"8TB2OM", b"E5WRPD", b"4F67GI", b"9J0KLQ", b"SUVXYZ")
+        labels = "ADFGVX"
+        if mode == 0:
+            plaintext = bytes(byte - 32 if 97 <= byte <= 122 else byte for byte in text_values)
+            clean = bytes(byte for byte in plaintext if 65 <= byte <= 90 or 48 <= byte <= 57)
+            reverse_square = {square[row][column]: labels[row] + labels[column]
+                              for row in range(6) for column in range(6)}
+            fractionated = "".join(reverse_square[byte] for byte in clean)
+            rows = (len(fractionated) + key_length - 1) // key_length
+            table = [["_"] * key_length for _ in range(rows)]
+            for index, character in enumerate(fractionated):
+                table[index // key_length][index % key_length] = character
+            output_text = "".join(
+                table[row][key.index(character)]
+                for character in sorted(key) for row in range(rows)
+                if table[row][key.index(character)] != "_")
+        else:
+            ciphertext = bytes(text_values).decode("ascii")
+            if len(ciphertext) % 2 or any(character not in labels for character in ciphertext):
+                return -1, b""
+            rows = (len(ciphertext) + key_length - 1) // key_length
+            table = [["_"] * key_length for _ in range(rows)]
+            source_index = 0
+            for character in sorted(key):
+                column = key.index(character)
+                for row in range(rows):
+                    if source_index < len(ciphertext):
+                        table[row][column] = ciphertext[source_index]
+                        source_index += 1
+            fractionated = "".join(character for row in table for character in row if character != "_")
+            square_lookup = {labels[row] + labels[column]: square[row][column]
+                             for row in range(6) for column in range(6)}
+            output_text = "".join(chr(square_lookup[fractionated[index:index + 2]])
+                                  for index in range(0, len(fractionated), 2))
+        output = output_text.encode("ascii")
+        return len(output), output
+
+    if algorithm == "all_construct":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 36
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        target_length = values[0]
+        if not 0 <= target_length <= 6 or len(values) < 2 + target_length:
+            return -1, b""
+        target_values = values[1:1 + target_length]
+        if any(not 97 <= value <= 122 for value in target_values):
+            return -1, b""
+        target = bytes(target_values)
+        position = 1 + target_length
+        if position >= len(values) or not 0 <= values[position] <= 4:
+            return -1, b""
+        word_count = values[position]
+        position += 1
+        words: list[bytes] = []
+        for _ in range(word_count):
+            if position >= len(values) or not 1 <= values[position] <= 6:
+                return -1, b""
+            word_length = values[position]
+            position += 1
+            if word_length > len(values) - position:
+                return -1, b""
+            word_values = values[position:position + word_length]
+            if any(not 97 <= value <= 122 for value in word_values):
+                return -1, b""
+            words.append(bytes(word_values))
+            position += word_length
+        if position != len(values):
+            return -1, b""
+
+        constructions: list[list[list[bytes]]] = [[] for _ in range(target_length + 1)]
+        constructions[0] = [[]]
+        for start in range(target_length + 1):
+            for word in words:
+                if target.startswith(word, start):
+                    end = start + len(word)
+                    if end <= target_length:
+                        for prefix in constructions[start]:
+                            constructions[end].append([*prefix, word])
+        rows = constructions[target_length]
+        output = bytearray()
+        for row in rows:
+            output.append(len(row))
+            for word in row:
+                output.append(len(word))
+                output.extend(word)
+        return len(rows), bytes(output)
+
+    if algorithm in {"a5_cipher", "a5_key_stream_generator"}:
+        is_cipher = algorithm == "a5_cipher"
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        block_count = values[2]
+        expected_length = 3 + 4 * block_count if is_cipher else 3
+        if not 1 <= block_count <= 4 or len(values) != expected_length:
+            return -1, b""
+
+        def parity(number: int) -> int:
+            return bin(number).count("1") & 1
+
+        def push(register: int, width: int, bit: int) -> int:
+            return ((register << 1) | bit) & ((1 << width) - 1)
+
+        def initialize(key: int, frame: int) -> list[int]:
+            registers = [0, 0, 0]
+            widths = (19, 22, 23)
+            tap_masks = ((1 << 13) | (1 << 16) | (1 << 17) | (1 << 18),
+                         (1 << 20) | (1 << 21),
+                         (1 << 7) | (1 << 20) | (1 << 21) | (1 << 22))
+            for key_bit in range(63, -1, -1):
+                bit = (key >> key_bit) & 1
+                for index in range(3):
+                    registers[index] = push(registers[index], widths[index],
+                                            bit ^ parity(registers[index] & tap_masks[index]))
+            for frame_bit in range(21, -1, -1):
+                bit = (frame >> frame_bit) & 1
+                for index in range(3):
+                    registers[index] = push(registers[index], widths[index],
+                                            bit ^ parity(registers[index] & tap_masks[index]))
+            return registers
+
+        def clock(registers: list[int]) -> int:
+            widths = (19, 22, 23)
+            clock_positions = (8, 10, 10)
+            tap_masks = ((1 << 13) | (1 << 16) | (1 << 17) | (1 << 18),
+                         (1 << 20) | (1 << 21),
+                         (1 << 7) | (1 << 20) | (1 << 21) | (1 << 22))
+            clock_bits = [(registers[index] >> clock_positions[index]) & 1 for index in range(3)]
+            majority = int(sum(clock_bits) >= 2)
+            output_bit = ((registers[0] >> 18) ^ (registers[1] >> 21) ^ (registers[2] >> 22)) & 1
+            for index in range(3):
+                if clock_bits[index] == majority:
+                    feedback = parity(registers[index] & tap_masks[index])
+                    registers[index] = push(registers[index], widths[index], feedback)
+            return output_bit
+
+        key = values[0] & ((1 << 64) - 1)
+        frame = values[1] & ((1 << 22) - 1)
+        bytes_per_block = 32 if is_cipher else 29
+        output = bytearray(bytes_per_block * block_count)
+        for block in range(block_count):
+            registers = initialize(key, frame)
+            for _ in range(100):
+                clock(registers)
+            base = bytes_per_block * block
+            words = ([values[3 + 4 * block + index] & ((1 << 64) - 1) for index in range(4)]
+                     if is_cipher else [])
+            for bit_index in range(228):
+                stream_bit = clock(registers)
+                if is_cipher:
+                    plaintext_bit = (words[bit_index // 64] >> (bit_index % 64)) & 1
+                    stream_bit ^= plaintext_bit
+                output[base + bit_index // 8] |= stream_bit << (bit_index % 8)
+            if is_cipher:
+                for bit_index in range(228, 256):
+                    plaintext_bit = (words[bit_index // 64] >> (bit_index % 64)) & 1
+                    output[base + bit_index // 8] |= plaintext_bit << (bit_index % 8)
+            for frame_bit in range(21, -1, -1):
+                mask = 1 << frame_bit
+                if frame & mask:
+                    frame &= ~mask
+                else:
+                    frame |= mask
+                    break
+        return len(output), bytes(output)
+
+    if algorithm == "binary_shifts":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, number, shift = values
+        if (operation not in (0, 1, 2) or not -(2**31) < number <= 2**31 - 1
+                or not 0 <= shift <= 31 or (operation < 2 and number < 0)):
+            return -1, b""
+        if operation == 0:
+            result = bin(number) + "0" * shift
+        elif operation == 1:
+            result = bin(number >> shift)
+        else:
+            if number >= 0:
+                bits = "0" + bin(number)[2:]
+            else:
+                bit_length = len(bin(number)[3:])
+                complement_text = bin(abs(number) - (1 << bit_length))[3:]
+                bits = "1" + "0" * max(0, bit_length - len(complement_text)) + complement_text
+            if shift >= len(bits):
+                shifted = bits[0] * len(bits)
+            else:
+                shifted = bits[0] * shift + bits[:len(bits) - shift]
+            result = "0b" + shifted
+        output = result.encode("ascii")
+        return len(output), output
+
+    if algorithm == "matrix_addition":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        rows_a, columns_a = values[:2]
+        if (not 0 <= rows_a <= 16 or not 0 <= columns_a <= 16
+                or (rows_a == 0 and columns_a != 0)):
+            return -2, b""
+        cells_a = rows_a * columns_a
+        second_header = 2 + cells_a
+        if second_header + 2 > len(values):
+            return -2, b""
+        rows_b, columns_b = values[second_header:second_header + 2]
+        if (not 0 <= rows_b <= 16 or not 0 <= columns_b <= 16
+                or (rows_b == 0 and columns_b != 0)):
+            return -2, b""
+        cells_b = rows_b * columns_b
+        if len(values) != second_header + 2 + cells_b:
+            return -2, b""
+        if rows_a != rows_b or columns_a != columns_b:
+            return -1, b""
+        first = values[2:second_header]
+        second = values[second_header + 2:]
+        if any(not -(2**31) <= value <= 2**31 - 1 for value in [*first, *second]):
+            return -2, b""
+        sums = [((left + right + 2**31) & 0xFFFFFFFF) - 2**31
+                for left, right in zip(first, second)]
+        output = b"".join(struct.pack("<i", value) for value in sums)
+        return len(sums), output
+
+    if algorithm == "binary_tree_to_string":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count, root = values[:2]
+        if not 0 <= count <= 127 or len(values) != 2 + 3 * count:
+            return -1, b""
+        nodes = [values[index:index + 3] for index in range(2, len(values), 3)]
+        if count == 0:
+            return (0, b"") if root == -1 else (-1, b"")
+        if not 0 <= root < count:
+            return -1, b""
+        parents = [0] * count
+        for value, left, right in nodes:
+            if not -(2**31) <= value <= 2**31 - 1:
+                return -1, b""
+            for child in (left, right):
+                if child < -1 or child >= count:
+                    return -1, b""
+                if child >= 0:
+                    parents[child] += 1
+                    if parents[child] > 1:
+                        return -1, b""
+        if parents[root] != 0 or any(parents[index] != 1 for index in range(count) if index != root):
+            return -1, b""
+        reachable: set[int] = set()
+        pending = [root]
+        for node in pending:
+            if node in reachable:
+                return -1, b""
+            reachable.add(node)
+            _value, left, right = nodes[node]
+            if left >= 0:
+                pending.append(left)
+            if right >= 0:
+                pending.append(right)
+        if len(reachable) != count:
+            return -1, b""
+
+        def serialize(node: int) -> str:
+            value, left, right = nodes[node]
+            result = str(value)
+            if left >= 0:
+                result += "(" + serialize(left) + ")"
+            elif right >= 0:
+                result += "()"
+            if right >= 0:
+                result += "(" + serialize(right) + ")"
+            return result
+
+        output = serialize(root).encode("ascii")
+        return len(output), output
+
+    if algorithm == "print_multiplication_table":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        number, terms = values
+        if not -1_000_000 <= number <= 1_000_000 or not -20 <= terms <= 20:
+            return -1, b""
+        output = "\n".join(f"{number} * {index} = {number * index}"
+                            for index in range(1, terms + 1)).encode("ascii")
+        return len(output), output
+
+    if algorithm == "create_binary_tree_from_inorder_preorder":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 127
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        if (not 0 <= count <= 63 or len(values) != 1 + 2 * count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in values[1:])):
+            return -1, b""
+        preorder = values[1:1 + count]
+        inorder = values[1 + count:]
+        if len(set(preorder)) != count or len(set(inorder)) != count or set(preorder) != set(inorder):
+            return -1, b""
+        preorder_index = 0
+
+        def serialize_tree(start: int, end: int) -> bytes:
+            nonlocal preorder_index
+            if start == end:
+                return b"\0"
+            if preorder_index >= count:
+                raise ValueError("preorder ended before the inorder interval")
+            root_value = preorder[preorder_index]
+            preorder_index += 1
+            try:
+                root_position = inorder.index(root_value, start, end)
+            except ValueError as error:
+                raise ValueError("preorder root is absent from the current inorder interval") from error
+            return (b"\1" + struct.pack("<i", root_value)
+                    + serialize_tree(start, root_position)
+                    + serialize_tree(root_position + 1, end))
+
+        try:
+            output = serialize_tree(0, count)
+        except ValueError:
+            return -1, b""
+        if preorder_index != count:
+            return -1, b""
+        return count, output
+
+    if algorithm == "unique_permutation":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 7
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count, items = values[0], values[1:]
+        if (not 0 <= count <= 6 or len(items) != count
+                or any(not 0 <= value <= 127 for value in items)):
+            return -1, b""
+        rows = sorted(set(permutations(items)))
+        output = b"".join(bytes(row) for row in rows)
+        return len(rows), output
+
+    if algorithm == "arrays_intersection":
+        if (not isinstance(values, list) or not 3 <= len(values) <= 195
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        arrays = []
+        position = 0
+        for _ in range(3):
+            if position >= len(values) or not 0 <= values[position] <= 64:
+                return -1, b""
+            count = values[position]
+            position += 1
+            if count > len(values) - position:
+                return -1, b""
+            array = values[position:position + count]
+            if any(not -(2**31) <= value <= 2**31 - 1 for value in array):
+                return -1, b""
+            arrays.append(array)
+            position += count
+        if position != len(values):
+            return -1, b""
+        frequencies: dict[int, int] = {}
+        for array in arrays:
+            for value in array:
+                frequencies[value] = frequencies.get(value, 0) + 1
+        matches = [value for value, frequency in frequencies.items() if frequency == 3]
+        output = b"".join(struct.pack("<i", value) for value in matches)
+        return len(matches), output
+
+    if algorithm == "flatten_binarytree_to_linkedlist":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1 + 3 * 1023
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        root = values[0]
+        if len(values) == 1:
+            return (0, b"") if root == -1 else (-1, b"")
+        if (len(values) < 4 or (len(values) - 1) % 3 != 0
+                or not -(2**31) <= root <= 2**31 - 1):
+            return -1, b""
+        nodes = [values[index:index + 3] for index in range(1, len(values), 3)]
+        count = len(nodes)
+        if (count > 1023 or not 0 <= root < count
+                or any(not -(2**31) <= row[0] <= 2**31 - 1
+                       or any(child < -1 or child >= count for child in row[1:]) for row in nodes)):
+            return -1, b""
+        parents = [0] * count
+        for _value, left, right in nodes:
+            for child in (left, right):
+                if child >= 0:
+                    parents[child] += 1
+        if parents[root] != 0 or any(parents[index] != 1 for index in range(count) if index != root):
+            return -1, b""
+        preorder: list[int] = []
+        stack = [(root, 1)]
+        seen: set[int] = set()
+        maximum_depth = 0
+        while stack:
+            node, depth = stack.pop()
+            if node in seen:
+                return -1, b""
+            seen.add(node)
+            preorder.append(node)
+            maximum_depth = max(maximum_depth, depth)
+            _value, left, right = nodes[node]
+            if right >= 0:
+                stack.append((right, depth + 1))
+            if left >= 0:
+                stack.append((left, depth + 1))
+        if len(seen) != count or maximum_depth > 512:
+            return -1, b""
+        next_node = {node: preorder[index + 1] if index + 1 < count else -1
+                     for index, node in enumerate(preorder)}
+        output = b"".join(struct.pack("<qqq", value, -1, next_node[index])
+                           for index, (value, _left, _right) in enumerate(nodes))
+        return count, output
+
+    if algorithm == "reverse_words":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        if (not 0 <= byte_length <= 256 or len(values) != byte_length + 1
+                or any(not (value == 32 or 33 <= value <= 126) for value in values[1:])):
+            return -1, b""
+        text = bytes(values[1:])
+        if text and (text[0] == 32 or text[-1] == 32 or b"  " in text):
+            return -1, b""
+        words = text.split(b" ") if text else []
+        output = b" ".join(reversed(words)) + b"\0"
+        return len(output) - 1, output
+
+    if algorithm == "serialize_deserialize_binary_tree":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 2200
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        tokens = bytes(values).split(b",")
+        if not tokens or any(token == b"" for token in tokens):
+            return -1, b""
+        slots = 1
+        node_count = 0
+        canonical: list[bytes] = []
+        whitespace = {9, 10, 11, 12, 13, 32}
+        for token in tokens:
+            if slots == 0:
+                return -1, b""
+            slots -= 1
+            if token == b"null":
+                canonical.append(b"null")
+                continue
+            start, end = 0, len(token)
+            while start < end and token[start] in whitespace:
+                start += 1
+            while end > start and token[end - 1] in whitespace:
+                end -= 1
+            if start == end:
+                return -1, b""
+            negative = token[start] == ord("-")
+            if token[start] in (ord("+"), ord("-")):
+                start += 1
+            if start == end or any(not 48 <= byte <= 57 for byte in token[start:end]):
+                return -1, b""
+            limit = 2**31 if negative else 2**31 - 1
+            number = 0
+            for byte in token[start:end]:
+                digit = byte - 48
+                if number > (limit - digit) // 10:
+                    return -1, b""
+                number = number * 10 + digit
+            number = -number if negative else number
+            node_count += 1
+            if node_count > 127:
+                return -1, b""
+            canonical.append(str(number).encode("ascii"))
+            slots += 2
+        if slots != 0:
+            return -1, b""
+        output = b",".join(canonical)
+        return len(output), output
+
+    if algorithm == "all_subsequences":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 9
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        items = values[1:]
+        if (not 0 <= count <= 8 or len(items) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in items)):
+            return -1, b""
+        rows: list[list[int]] = []
+        current: list[int] = []
+
+        def enumerate_rows(index: int) -> None:
+            if index == count:
+                rows.append(current.copy())
+                return
+            enumerate_rows(index + 1)
+            current.append(items[index])
+            enumerate_rows(index + 1)
+            current.pop()
+
+        enumerate_rows(0)
+        output = bytearray()
+        for row in rows:
+            output.extend(struct.pack("<I", len(row)))
+            output.extend(b"".join(struct.pack("<i", value) for value in row))
+        return len(rows), bytes(output)
+
     if algorithm == "all_paths_from_source_to_target":
         if (not isinstance(values, list) or not 4 <= len(values) <= 52
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -934,6 +1602,29 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         output = b"\n".join(matches) + b"\0"
         return len(matches), output
+
+    if algorithm == "next_permutation":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 129
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        items = values[1:]
+        if (not 0 <= count <= 128 or len(items) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in items)):
+            return -1, b""
+        pivot = count - 2
+        while pivot >= 0 and items[pivot] >= items[pivot + 1]:
+            pivot -= 1
+        if pivot < 0:
+            items.reverse()
+        else:
+            successor = count - 1
+            while items[successor] <= items[pivot]:
+                successor -= 1
+            items[pivot], items[successor] = items[successor], items[pivot]
+            items[pivot + 1:] = reversed(items[pivot + 1:])
+        output = b"".join(struct.pack("<i", value) for value in items)
+        return count, output
 
     if algorithm == "all_permutations":
         if (not isinstance(values, list) or not 1 <= len(values) <= 7
@@ -4195,14 +4886,23 @@ def main() -> int:
             raise ValueError(f"invalid signed 64-bit digit array in {case['id']}")
         if case.get("input_length") not in (None, len(values)):
             raise ValueError(f"declared input length differs for {case['id']}")
-        expected_count, expected = expected_output(values, algorithm)
+        required_count, required_output = expected_output(values, algorithm)
+        output_capacity = case.get("workspace_bytes", len(required_output))
+        if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
+            raise ValueError(f"invalid output capacity in {case['id']}")
+        if output_capacity < len(required_output):
+            expected_count = case.get("capacity_error_result", -2)
+            expected = b""
+        else:
+            expected_count, expected = required_count, required_output
         if case.get("expected_result") != expected_count:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
+        if ("expected_output_hex" in case and case["expected_output_hex"].lower() != expected.hex()):
+            raise ValueError(f"workload output bytes disagree with the oracle for {case['id']}")
+        if ("expected_output" in case
+                and case["expected_output"].encode("utf-8") != expected):
+            raise ValueError(f"workload output text disagrees with the oracle for {case['id']}")
         output_hex = expected.hex() if expected else "-"
-        output_capacity = case.get("workspace_bytes", len(expected))
-        if (type(output_capacity) is not int or output_capacity < len(expected)
-                or output_capacity > MAX_OUTPUT_CAPACITY):
-            raise ValueError(f"invalid output capacity in {case['id']}")
         command = [str(executable), "--stdin", str(samples), str(warmups), str(repetitions)]
         runner_input = (f"{len(values)} {expected_count} {len(expected)} {output_capacity} "
                         + " ".join(map(str, values)) + " " + output_hex + "\n")
@@ -4220,6 +4920,7 @@ def main() -> int:
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
                                      "input_length": len(values), "input_values": values,
                                      "case": case["id"], "target": None,
+                                     "output_capacity": output_capacity,
                                      "expected_result": expected_count},
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],

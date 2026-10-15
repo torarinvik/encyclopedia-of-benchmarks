@@ -17,10 +17,42 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-MAX_OUTPUT_BYTES = 256
+MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "goldbach_pair_i32le":
+        if not 4 <= value <= 4096 or value % 2 != 0:
+            return -1, b""
+
+        def is_prime(candidate: int) -> bool:
+            if candidate < 2:
+                return False
+            if candidate % 2 == 0:
+                return candidate == 2
+            divisor = 3
+            while divisor <= candidate // divisor:
+                if candidate % divisor == 0:
+                    return False
+                divisor += 2
+            return True
+
+        for first in range(value // 2 + 1):
+            second = value - first
+            if is_prime(first) and is_prime(second):
+                output = struct.pack("<ii", first, second)
+                return len(output), output
+        raise ValueError("the bounded even Goldbach input has no prime pair")
+
+    if encoding in {"hexagonal_numbers", "hexagonal_numbers_one_based"}:
+        zero_based = encoding == "hexagonal_numbers"
+        lower_bound = 1 if zero_based else 0
+        if not lower_bound <= value <= 1024:
+            return -1, b""
+        first_index = 0 if zero_based else 1
+        output = b"".join(struct.pack("<q", index * (2 * index - 1))
+                           for index in range(first_index, first_index + value))
+        return value, output
     if encoding == "int_to_string_packed":
         if value < 0:
             return -1, b""
@@ -273,7 +305,8 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"):
         parser.error("workload does not match the built scalar byte-output algorithm")
-    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
+    encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based"}
+                else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -297,14 +330,22 @@ def main() -> int:
         value = case.get("input_value")
         if type(value) is not int or not -(2**63) <= value < 2**63:
             raise ValueError(f"invalid signed 64-bit scalar in {case['id']}")
-        expected_result, expected = expected_output(value, encoding)
+        required_result, required_output = expected_output(value, encoding)
+        output_capacity = case.get("output_capacity", len(required_output) or MAX_OUTPUT_BYTES)
+        if type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_BYTES:
+            raise ValueError(f"invalid output capacity in {case['id']}")
+        if output_capacity < len(required_output):
+            expected_result = case.get("capacity_error_result", -2)
+            expected = b""
+        else:
+            expected_result, expected = required_result, required_output
         expected_matches = (case.get("expected_output_hex") == expected.hex()
                             if "expected_output_hex" in case
                             else case.get("expected_output") == expected.decode("ascii"))
         if case.get("expected_result") != expected_result or not expected_matches:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
         encoded = expected.hex() if expected else "-"
-        command = [str(executable), str(value), str(expected_result), encoded,
+        command = [str(executable), str(value), str(expected_result), encoded, str(output_capacity),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:
@@ -318,7 +359,7 @@ def main() -> int:
                         "implementation": implementation, "environment": environment,
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
                                      "input_length": None, "input_value": value,
-                                     "case": case["id"], "target": None,
+                                     "case": case["id"], "target": None, "output_capacity": output_capacity,
                                      "expected_result": expected_result},
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],

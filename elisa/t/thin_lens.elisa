@@ -1,0 +1,25 @@
+def thin_lens_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    operation: i64 = values[0]
+    a: i64 = values[1]
+    b: i64 = values[2]
+    if a < -1000 or a > 1000 or b < -1000 or b > 1000:
+        return -1.0e300
+    if operation == 0:
+        if a == 0 or b == 0 or a == b:
+            return -1.0e300
+        f: f64 = a.f64()
+        u: f64 = b.f64()
+        return 1.0 / ((1.0 / f) - (1.0 / u))
+    if operation == 1:
+        if b == 0:
+            return -1.0e300
+        return a.f64() / b.f64()
+    if operation == 2:
+        if b != 0:
+            return -1.0e300
+        return if a > 0: 1.0 else: 0.0
+    -1.0e300
+
+export fn thin_lens(values: i64&, length: usize) -> f64 = thin_lens_impl

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "adfgvx-cipher-ascii-polybius-columnar-v1",
+  "algorithm": "adfgvxcipher",
+  "function_symbol": "adfgvxcipher",
+  "input": {
+    "kind": "mode_text_and_key_ascii_bytes",
+    "encoding": "[mode, text_length, key_length, text bytes..., key bytes...]",
+    "modes": {"0": "encrypt", "1": "decrypt"},
+    "plaintext_length_range": [0, 256],
+    "ciphertext_length_range": [0, 512],
+    "key_length_range": [1, 16],
+    "key_domain": "distinct uppercase ASCII letters A-Z",
+    "text_byte_range": [0, 127],
+    "polybius_labels": "ADFGVX",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "ASCII bytes without NUL terminator"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned_encrypt_example",
+      "input_values": [0, 16, 7, 97, 116, 116, 97, 99, 107, 32, 97, 116, 32, 49, 50, 48, 48, 97, 109, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 26,
+      "expected_result": 28,
+      "expected_output_hex": "44474444444147444447414641444446444144564456464141445658"
+    },
+    {
+      "id": "pinned_decrypt_example",
+      "input_values": [1, 28, 7, 68, 71, 68, 68, 68, 65, 71, 68, 68, 71, 65, 70, 65, 68, 68, 70, 68, 65, 68, 86, 68, 86, 70, 65, 65, 68, 86, 88, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 38,
+      "expected_result": 14,
+      "expected_output_hex": "41545441434b415431323030414d"
+    },
+    {
+      "id": "ascii_normalization_and_partial_rows",
+      "input_values": [0, 12, 5, 77, 101, 101, 116, 32, 109, 101, 32, 64, 32, 57, 33, 90, 69, 66, 82, 65],
+      "input_length": 20,
+      "expected_result": 14,
+      "expected_output_hex": "4658464456584441414441444146"
+    },
+    {
+      "id": "empty_plaintext",
+      "input_values": [0, 0, 7, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 10,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_ciphertext",
+      "input_values": [1, 0, 7, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 10,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_key_invalid",
+      "input_values": [0, 1, 6, 65, 76, 69, 84, 84, 69, 82],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "odd_ciphertext_invalid",
+      "input_values": [1, 3, 7, 65, 68, 71, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_cipher_label",
+      "input_values": [1, 2, 7, 65, 66, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [2, 1, 7, 65, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_ascii_text_invalid",
+      "input_values": [0, 1, 7, 128, 80, 82, 73, 86, 65, 67, 89],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

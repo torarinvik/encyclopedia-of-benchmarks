@@ -1,0 +1,8 @@
+extern exp(value: f64) -> f64
+
+def gaussian_error_linear_unit_impl(x: f64) -> f64:
+    if x != x or x < -100.0 or x > 100.0:
+        return -1.0e300
+    x * (1.0 / (1.0 + exp(-1.702 * x)))
+
+export fn gaussian_error_linear_unit(x: f64) -> f64 = gaussian_error_linear_unit_impl

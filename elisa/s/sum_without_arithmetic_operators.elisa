@@ -1,0 +1,15 @@
+# Preserve Java int wraparound using a 32-bit encoded XOR/carry recurrence.
+def add_recursive(a: u32, b: u32) -> u32:
+    if b == 0:
+        return a
+    add_recursive(a ^ b, (a & b) << 1)
+
+def sum_without_arithmetic_operators_impl(a: i64, b: i64) -> i64:
+    if a < -2147483648 or a > 2147483647 or b < -2147483648 or b > 2147483647:
+        return -2147483649
+    bits: u32 = add_recursive(a.u32(), b.u32())
+    if bits <= 2147483647:
+        return bits.i64()
+    bits.i64() - 4294967296
+
+export fn sum_without_arithmetic_operators(a: i64, b: i64) -> i64 = sum_without_arithmetic_operators_impl

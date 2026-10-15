@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "id": "decimal-to-fraction-exact-binary-fixed-decimal-v1",
+  "algorithm": "decimal_to_fraction",
+  "function_symbol": "decimal_to_fraction",
+  "description": "Reduce an exactly binary-representable bounded decimal to a signed numerator and positive denominator.",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[mantissa, decimal_places], representing mantissa / 10^decimal_places",
+    "decimal_places_range": [
+      0,
+      4
+    ],
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "validity": "mantissa must be divisible by 5^decimal_places so the decimal is exactly representable as binary64",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_pair_little_endian_bytes",
+    "encoding": "16 bytes: reduced numerator followed by reduced positive denominator, each little-endian signed i64",
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0,
+        4
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "integer",
+      "input_values": [
+        67,
+        0
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "43000000000000000100000000000000"
+    },
+    {
+      "id": "positive-half",
+      "input_values": [
+        15,
+        1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000200000000000000"
+    },
+    {
+      "id": "six-and-a-quarter",
+      "input_values": [
+        625,
+        2
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "19000000000000000400000000000000"
+    },
+    {
+      "id": "negative-half",
+      "input_values": [
+        -25,
+        1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "fbffffffffffffff0200000000000000"
+    },
+    {
+      "id": "one-eighth",
+      "input_values": [
+        125,
+        3
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000800000000000000"
+    },
+    {
+      "id": "trailing-decimal-zeroes",
+      "input_values": [
+        12500,
+        4
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "05000000000000000400000000000000"
+    },
+    {
+      "id": "one-sixteenth",
+      "input_values": [
+        625,
+        4
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000001000000000000000"
+    },
+    {
+      "id": "negative-integer",
+      "input_values": [
+        -12300,
+        2
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "85ffffffffffffff0100000000000000"
+    },
+    {
+      "id": "large-exact-binary-decimal",
+      "input_values": [
+        100000025,
+        2
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "01093d00000000000400000000000000"
+    },
+    {
+      "id": "maximum-bounded-integer",
+      "input_values": [
+        10000000000,
+        4
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "40420f00000000000100000000000000"
+    },
+    {
+      "id": "minimum-bounded-integer",
+      "input_values": [
+        -10000000000,
+        4
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "c0bdf0ffffffffff0100000000000000"
+    },
+    {
+      "id": "malformed-missing-scale",
+      "input_values": [
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative-scale",
+      "input_values": [
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-scale-above-bound",
+      "input_values": [
+        625,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non-binary-decimal-excluded",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value-above-bound",
+      "input_values": [
+        10000001,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "mantissa-above-scale-bound",
+      "input_values": [
+        10000000001,
+        4
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

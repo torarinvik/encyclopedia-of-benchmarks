@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "barcode-check-digit-numeric-i64-v1",
+  "algorithm": "barcode_validator",
+  "function_symbol": "barcode_validator",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation, barcode]",
+    "operations": {
+      "0": "return source get_check_digit result",
+      "1": "return source is_valid as 1 or 0"
+    },
+    "barcode_range": [0, 9223372036854775807],
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"check-digit-source-example","input_values":[0,8718452538119],"expected_result":9},
+    {"id":"check-digit-short-source-example","input_values":[0,87184523],"expected_result":5},
+    {"id":"check-digit-single-digit","input_values":[0,9],"expected_result":0},
+    {"id":"check-digit-zero","input_values":[0,0],"expected_result":0},
+    {"id":"valid-source-example","input_values":[1,8718452538119],"expected_result":1},
+    {"id":"invalid-check-digit","input_values":[1,8718452538118],"expected_result":0},
+    {"id":"wrong-length-twelve-digits","input_values":[1,871845253811],"expected_result":0},
+    {"id":"wrong-length-nineteen-digits","input_values":[1,9223372036854775807],"expected_result":0},
+    {"id":"zero-is-not-thirteen-digits","input_values":[1,0],"expected_result":0},
+    {"id":"invalid-operation","input_values":[2,8718452538119],"expected_result":-1},
+    {"id":"invalid-negative-barcode","input_values":[0,-1],"expected_result":-1},
+    {"id":"invalid-packing-short","input_values":[0],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

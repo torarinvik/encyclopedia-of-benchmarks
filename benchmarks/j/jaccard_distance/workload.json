@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "jaccard-distance-i64-array-float64-v1",
+  "algorithm": "jaccard_distance",
+  "function_symbol": "jaccard_distance",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": [
+      "length_a",
+      "length_b",
+      "string_a_ascii...",
+      "string_b_ascii..."
+    ],
+    "each_string_length_range": [
+      0,
+      64
+    ],
+    "ascii_codepoint_range": [
+      32,
+      126
+    ],
+    "repeated_characters_allowed": true,
+    "repeated_characters_count_once": true,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "formula": "1 - intersection_size / union_size, with distance 0 for two empty sets",
+    "range": [
+      0.0,
+      1.0
+    ],
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "partial-overlap-source-example",
+      "input_values": [
+        4,
+        4,
+        97,
+        98,
+        99,
+        100,
+        98,
+        99,
+        101,
+        102
+      ],
+      "input_length": 10,
+      "expected_result": 0.6666666666666666
+    },
+    {
+      "id": "identical-with-repeats",
+      "input_values": [
+        3,
+        2,
+        97,
+        97,
+        98,
+        98,
+        97
+      ],
+      "input_length": 7,
+      "expected_result": 0.0
+    },
+    {
+      "id": "disjoint",
+      "input_values": [
+        2,
+        1,
+        120,
+        121,
+        122
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "empty-left",
+      "input_values": [
+        0,
+        2,
+        97,
+        98
+      ],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "empty-right",
+      "input_values": [
+        2,
+        0,
+        97,
+        98
+      ],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "both-empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "duplicate-heavy-partial-overlap",
+      "input_values": [
+        3,
+        3,
+        97,
+        97,
+        98,
+        98,
+        99,
+        99
+      ],
+      "input_length": 8,
+      "expected_result": 0.6666666666666666
+    },
+    {
+      "id": "malformed-header-length",
+      "input_values": [
+        2,
+        1,
+        97
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-control-code",
+      "input_values": [
+        1,
+        0,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-non-ascii-code",
+      "input_values": [
+        1,
+        0,
+        127
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "string-length-above-bound",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

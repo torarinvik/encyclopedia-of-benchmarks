@@ -10,8 +10,6 @@ def validate_email_impl(values: i64&, length: usize) -> i64:
         if values[index + 1] < 0 or values[index + 1] > 127:
             return -1
         index <- index + 1
-    if finish > 0 and (values[finish] == 10 or values[finish] == 13):
-        finish <- finish - 1
     at: mutable usize = finish
     index <- 0
     while index < finish:

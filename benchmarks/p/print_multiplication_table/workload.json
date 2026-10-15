@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "multiplication-table-ascii-i32-bounded-v1",
+  "algorithm": "print_multiplication_table",
+  "function_symbol": "print_multiplication_table",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[number, number_of_terms]",
+    "number_range": [
+      -1000000,
+      1000000
+    ],
+    "term_count_range": [
+      -20,
+      20
+    ],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output": "ASCII lines `number * i = number*i` for i=1..number_of_terms, joined by LF without a trailing LF; nonpositive term count gives empty bytes"
+  },
+  "cases": [
+    {
+      "id": "zero_terms_empty",
+      "input_values": [
+        7,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_terms_empty",
+      "input_values": [
+        7,
+        -3
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source_example",
+      "input_values": [
+        3,
+        5
+      ],
+      "expected_result": 51,
+      "expected_output_hex": "33202a2031203d20330a33202a2032203d20360a33202a2033203d20390a33202a2034203d2031320a33202a2035203d203135"
+    },
+    {
+      "id": "negative_multiplicand",
+      "input_values": [
+        -4,
+        6
+      ],
+      "expected_result": 75,
+      "expected_output_hex": "2d34202a2031203d202d340a2d34202a2032203d202d380a2d34202a2033203d202d31320a2d34202a2034203d202d31360a2d34202a2035203d202d32300a2d34202a2036203d202d3234"
+    },
+    {
+      "id": "zero_multiplicand",
+      "input_values": [
+        0,
+        3
+      ],
+      "expected_result": 29,
+      "expected_output_hex": "30202a2031203d20300a30202a2032203d20300a30202a2033203d2030"
+    },
+    {
+      "id": "maximum_supported_inputs",
+      "input_values": [
+        1000000,
+        20
+      ],
+      "expected_result": 461,
+      "expected_output_hex": "31303030303030202a2031203d20313030303030300a31303030303030202a2032203d20323030303030300a31303030303030202a2033203d20333030303030300a31303030303030202a2034203d20343030303030300a31303030303030202a2035203d20353030303030300a31303030303030202a2036203d20363030303030300a31303030303030202a2037203d20373030303030300a31303030303030202a2038203d20383030303030300a31303030303030202a2039203d20393030303030300a31303030303030202a203130203d2031303030303030300a31303030303030202a203131203d2031313030303030300a31303030303030202a203132203d2031323030303030300a31303030303030202a203133203d2031333030303030300a31303030303030202a203134203d2031343030303030300a31303030303030202a203135203d2031353030303030300a31303030303030202a203136203d2031363030303030300a31303030303030202a203137203d2031373030303030300a31303030303030202a203138203d2031383030303030300a31303030303030202a203139203d2031393030303030300a31303030303030202a203230203d203230303030303030"
+    },
+    {
+      "id": "invalid_number_above_bound",
+      "input_values": [
+        1000001,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_terms_above_bound",
+      "input_values": [
+        2,
+        21
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_missing_term",
+      "input_values": [
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_extra_value",
+      "input_values": [
+        3,
+        2,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

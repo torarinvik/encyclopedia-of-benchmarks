@@ -1,0 +1,146 @@
+# Fixed-point form of the pinned deterministic ADALINE update loop.
+const MAX_SAMPLES: usize = 32
+const MAX_FEATURES: usize = 8
+
+def store_i32_le(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def adaline_feature_value(input: i64&, row: usize, feature_count: usize, feature: usize) -> i64:
+    if feature < feature_count:
+        return input[row + feature]
+    0
+
+def adaline_prediction(score: i64) -> i64:
+    if score > 0:
+        return 1
+    -1
+
+def adaline_has_mistakes(mistake_count: i64) -> i64:
+    if mistake_count != 0:
+        return 1
+    0
+
+def adaline_mistake_count(difference: i64) -> i64:
+    if difference != 0:
+        return 1
+    0
+
+def adaline_learning_impl(input: i64&, length: usize, output: mutable u8&,
+                          output_capacity: usize) -> i64:
+    if length < 5:
+        return -1
+    if (input[0] < 1 or input[0] > 32 or input[1] < 1 or input[1] > 8 or
+        input[2] < 1 or input[3] < 1 or input[3] > 12 or
+        input[4] < 1 or input[4] > 500):
+        return -1
+
+    sample_count: usize = input[0].usize()
+    feature_count: usize = input[1].usize()
+    eta_numerator: i64 = input[2]
+    eta_shift: usize = input[3].usize()
+    max_iterations: usize = input[4].usize()
+    scale: i64 = for bit in 0..<eta_shift |value: mutable i64 = 1| -> value:
+        value <- value * 2
+        value
+    if eta_numerator >= scale or length != 5 + sample_count * (feature_count + 1):
+        return -1
+
+    valid_samples: bool = for sample in 0..<sample_count |valid: mutable bool = true| -> valid:
+        row: usize = 5 + sample * (feature_count + 1)
+        if feature_count > 0 and (input[row] < -16 or input[row] > 16):
+            valid <- false
+        if feature_count > 1 and (input[row + 1] < -16 or input[row + 1] > 16):
+            valid <- false
+        if feature_count > 2 and (input[row + 2] < -16 or input[row + 2] > 16):
+            valid <- false
+        if feature_count > 3 and (input[row + 3] < -16 or input[row + 3] > 16):
+            valid <- false
+        if feature_count > 4 and (input[row + 4] < -16 or input[row + 4] > 16):
+            valid <- false
+        if feature_count > 5 and (input[row + 5] < -16 or input[row + 5] > 16):
+            valid <- false
+        if feature_count > 6 and (input[row + 6] < -16 or input[row + 6] > 16):
+            valid <- false
+        if feature_count > 7 and (input[row + 7] < -16 or input[row + 7] > 16):
+            valid <- false
+        label: i64 = input[row + feature_count]
+        if label != -1 and label != 1:
+            valid <- false
+        valid
+    if not valid_samples:
+        return -1
+
+    byte_count: usize = 4 * (1 + feature_count + 1 + sample_count)
+    if output_capacity < byte_count:
+        return -2
+
+    model: mutable i64[12] = for feature in 0..<feature_count |weights: mutable i64[12] = zeroed| -> weights:
+        weights[feature] <- scale
+        weights
+    model[8] <- scale
+    model[11] <- 1
+    model <- for tick in 0..<(max_iterations * sample_count) |weights: mutable i64[12] = model| -> weights:
+        if weights[11] == 0:
+            break weights
+        sample: usize = tick % sample_count
+        row: usize = 5 + sample * (feature_count + 1)
+        score: i64 = (weights[8] +
+            adaline_feature_value(input, row, feature_count, 0) * weights[0] +
+            adaline_feature_value(input, row, feature_count, 1) * weights[1] +
+            adaline_feature_value(input, row, feature_count, 2) * weights[2] +
+            adaline_feature_value(input, row, feature_count, 3) * weights[3] +
+            adaline_feature_value(input, row, feature_count, 4) * weights[4] +
+            adaline_feature_value(input, row, feature_count, 5) * weights[5] +
+            adaline_feature_value(input, row, feature_count, 6) * weights[6] +
+            adaline_feature_value(input, row, feature_count, 7) * weights[7])
+        prediction: i64 = adaline_prediction(score)
+        difference: i64 = input[row + feature_count] - prediction
+        weights[10] <- weights[10] + adaline_mistake_count(difference)
+        correction: i64 = eta_numerator * difference
+        weights[0] <- weights[0] + correction * adaline_feature_value(input, row, feature_count, 0)
+        weights[1] <- weights[1] + correction * adaline_feature_value(input, row, feature_count, 1)
+        weights[2] <- weights[2] + correction * adaline_feature_value(input, row, feature_count, 2)
+        weights[3] <- weights[3] + correction * adaline_feature_value(input, row, feature_count, 3)
+        weights[4] <- weights[4] + correction * adaline_feature_value(input, row, feature_count, 4)
+        weights[5] <- weights[5] + correction * adaline_feature_value(input, row, feature_count, 5)
+        weights[6] <- weights[6] + correction * adaline_feature_value(input, row, feature_count, 6)
+        weights[7] <- weights[7] + correction * adaline_feature_value(input, row, feature_count, 7)
+        weights[8] <- weights[8] + correction
+        if (tick + 1) % sample_count == 0:
+            weights[9] <- (tick / sample_count + 1).i64()
+            weights[11] <- adaline_has_mistakes(weights[10])
+            weights[10] <- 0
+        weights
+
+    position: mutable usize = 0
+    store_i32_le(output, position, model[9])
+    position <- position + 4
+    position <- for feature in 0..<feature_count |output, model, position| -> position:
+        store_i32_le(output, position, model[feature])
+        position <- position + 4
+        position
+    store_i32_le(output, position, model[8])
+    position <- position + 4
+    position <- for sample in 0..<sample_count |output, model, position| -> position:
+        row: usize = 5 + sample * (feature_count + 1)
+        score: i64 = (model[8] +
+            adaline_feature_value(input, row, feature_count, 0) * model[0] +
+            adaline_feature_value(input, row, feature_count, 1) * model[1] +
+            adaline_feature_value(input, row, feature_count, 2) * model[2] +
+            adaline_feature_value(input, row, feature_count, 3) * model[3] +
+            adaline_feature_value(input, row, feature_count, 4) * model[4] +
+            adaline_feature_value(input, row, feature_count, 5) * model[5] +
+            adaline_feature_value(input, row, feature_count, 6) * model[6] +
+            adaline_feature_value(input, row, feature_count, 7) * model[7])
+        prediction: i64 = adaline_prediction(score)
+        store_i32_le(output, position, prediction)
+        position <- position + 4
+        position
+    byte_count.i64()
+
+export fn adaline_learning(input: i64&, length: usize, output: mutable u8&,
+                           output_capacity: usize) -> i64 = adaline_learning_impl

@@ -1,0 +1,62 @@
+const MAX_LENGTH: usize = 128
+
+def next_permutation_reverse(values: mutable i64&, left: usize, right: usize) -> void:
+    low: mutable usize = left
+    high: mutable usize = right
+    while low < high:
+        temporary: i64 = values[low]
+        values[low] <- values[high]
+        values[high] <- temporary
+        low <- low + 1
+        high <- high - 1
+
+def next_permutation_store(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def next_permutation_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_LENGTH + 1:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > i64(MAX_LENGTH) or length != usize(n_value) + 1:
+        return -1
+    n: usize = n_value.usize()
+    values: mutable i64[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    required: usize = n * 4
+    if output_capacity < required:
+        return -2
+    pivot: mutable usize = n
+    index <- n
+    while index > 1:
+        index <- index - 1
+        if values[index - 1] < values[index]:
+            pivot <- index - 1
+            break
+    if pivot == n:
+        if n > 1:
+            next_permutation_reverse(&values[0], 0, n - 1)
+    else:
+        successor: mutable usize = n - 1
+        while values[successor] <= values[pivot]:
+            successor <- successor - 1
+        temporary: i64 = values[pivot]
+        values[pivot] <- values[successor]
+        values[successor] <- temporary
+        next_permutation_reverse(&values[0], pivot + 1, n - 1)
+    index <- 0
+    while index < n:
+        next_permutation_store(values[index], output, index * 4)
+        index <- index + 1
+    n.i64()
+
+export fn next_permutation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = next_permutation_impl

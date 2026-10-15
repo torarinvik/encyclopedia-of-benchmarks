@@ -12,7 +12,7 @@ This predicate differs from `binary_tree_node_sum`, which returns one total, and
 
 ## Workload and implementations
 
-[`workload.json`](workload.json) covers the pinned valid and invalid tree examples, leaf behavior, negative values, arbitrary roots, and malformed structure. The `tree_scalar` runner needs an `is_sum_tree` oracle case before these workload entries can use the standard recording path; runner and aggregate files are left unchanged here.
+[`workload.json`](workload.json) covers the pinned valid and invalid tree examples, leaf behavior, negative values, arbitrary roots, and malformed structure.
 
 | Language | Source |
 | --- | --- |

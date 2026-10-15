@@ -1,0 +1,16 @@
+# Match Java's positive-only bit-count loop for signed i32 values.
+def parity_check_impl(value: i64) -> i64:
+    if value < -2147483648 or value > 2147483647:
+        return -1
+    if value <= 0:
+        return 1
+    number: mutable i64 = value
+    parity: mutable i64 = 0
+    while number > 0:
+        parity <- parity ^ (number & 1)
+        number <- number / 2
+    if parity == 0:
+        return 1
+    0
+
+export fn parity_check(value: i64) -> i64 = parity_check_impl

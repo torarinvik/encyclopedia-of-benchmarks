@@ -1,0 +1,65 @@
+const MAX_LENGTH: usize = 128
+
+def gcd_positive(a: i64, b: i64) -> i64:
+    left: mutable i64 = a
+    right: mutable i64 = b
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def shortest_coprime_segment_impl(input: i64&, length: usize,
+                                  output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    for i in 0..<length:
+        if input[i] < 1 or input[i] > 1000:
+            return -1
+    front: mutable i64[MAX_LENGTH]
+    front_gcd: mutable i64[MAX_LENGTH]
+    back: mutable i64[MAX_LENGTH]
+    back_gcd: mutable i64[MAX_LENGTH]
+    front_length: mutable usize = 0
+    back_length: mutable usize = 0
+    left: mutable usize = 0
+    best_start: mutable usize = 0
+    best_length: mutable usize = length + 1
+    for right in 0..<length:
+        value: i64 = input[right]
+        back[back_length] <- value
+        back_gcd[back_length] <- (if back_length == 0: value else: gcd_positive(back_gcd[back_length - 1], value))
+        back_length <- back_length + 1
+        window_gcd: mutable i64 = gcd_positive(
+            if front_length == 0: 0 else: front_gcd[front_length - 1],
+            if back_length == 0: 0 else: back_gcd[back_length - 1])
+        while window_gcd == 1:
+            current_length: usize = right - left + 1
+            if current_length < best_length:
+                best_length <- current_length
+                best_start <- left
+            if front_length == 0:
+                while back_length > 0:
+                    back_length <- back_length - 1
+                    transferred: i64 = back[back_length]
+                    front[front_length] <- transferred
+                    front_gcd[front_length] <- (if front_length == 0: transferred else: gcd_positive(front_gcd[front_length - 1], transferred))
+                    front_length <- front_length + 1
+            front_length <- front_length - 1
+            left <- left + 1
+            window_gcd <- gcd_positive(
+                if front_length == 0: 0 else: front_gcd[front_length - 1],
+                if back_length == 0: 0 else: back_gcd[back_length - 1])
+    if best_length > length:
+        return 0
+    byte_count: usize = best_length * 8
+    if output_capacity < byte_count:
+        return -2
+    for i in 0..<best_length:
+        bits: u64 = input[best_start + i].u64()
+        for byte in 0..<8:
+            output[i * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+    byte_count.i64()
+
+export fn shortest_coprime_segment(input: i64&, length: usize,
+                                   output: mutable u8&, output_capacity: usize) -> i64 = shortest_coprime_segment_impl

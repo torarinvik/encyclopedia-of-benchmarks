@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "java-unique-permutation-ascii-lexicographic-v1",
+  "algorithm": "unique_permutation",
+  "function_symbol": "unique_permutation",
+  "input": {
+    "kind": "length_prefixed_ascii_codepoint_array",
+    "encoding": "[n, ASCII_codepoints...]",
+    "length_range": [0, 6],
+    "codepoint_range": [0, 127],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_encoding": "Distinct permutations as lexicographically ordered fixed-width rows of n raw ASCII bytes; repeated input values yield no duplicate rows; empty input yields one empty row"
+  },
+  "output": {
+    "kind": "signed_64_bit_row_count_and_byte_buffer",
+    "maximum_rows": 720,
+    "maximum_output_bytes": 4320
+  },
+  "cases": [
+    {"id":"empty_has_one_empty_permutation","input_values":[0],"expected_result":1,"expected_output_hex":""},
+    {"id":"singleton","input_values":[1,90],"expected_result":1,"expected_output_hex":"5a"},
+    {"id":"source_duplicate_example_aab","input_values":[3,65,65,66],"expected_result":3,"expected_output_hex":"414142414241424141"},
+    {"id":"unsorted_distinct_values_sort_first","input_values":[3,67,66,65],"expected_result":6,"expected_output_hex":"414243414342424143424341434142434241"},
+    {"id":"all_equal","input_values":[3,66,66,66],"expected_result":1,"expected_output_hex":"424242"},
+    {"id":"embedded_nul","input_values":[2,0,65],"expected_result":2,"expected_output_hex":"00414100"},
+    {"id":"maximum_length_repeated","input_values":[6,65,65,65,65,65,65],"expected_result":1,"expected_output_hex":"414141414141"},
+    {"id":"length_mismatch","input_values":[2,65],"expected_result":-1,"expected_output_hex":""},
+    {"id":"codepoint_outside_ascii","input_values":[1,128],"expected_result":-1,"expected_output_hex":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

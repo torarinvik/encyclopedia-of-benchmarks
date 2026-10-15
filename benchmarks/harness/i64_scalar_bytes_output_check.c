@@ -9,7 +9,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_OUTPUT_BYTES 256
+#define MAX_OUTPUT_BYTES 8192
 extern int64_t BENCHMARK_FUNCTION(int64_t value, uint8_t *output, size_t output_capacity);
 
 static int hex_value(char value)
@@ -32,7 +32,7 @@ int main(void)
         int64_t input, expected_result;
         uint64_t capacity, output_length;
         char encoded[MAX_OUTPUT_BYTES * 2 + 2];
-        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %" SCNu64 " %512s",
+        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %" SCNu64 " %16384s",
                   &input, &expected_result, &capacity, &output_length, encoded) != 5 ||
             capacity > MAX_OUTPUT_BYTES || output_length > MAX_OUTPUT_BYTES ||
             expected_result < -2 || expected_result > MAX_OUTPUT_BYTES) {
@@ -48,7 +48,7 @@ int main(void)
                 return 2;
             }
         } else {
-            if (strlen(encoded) != output_length * 2 || expected_result != (int64_t)output_length) {
+            if (strlen(encoded) != output_length * 2) {
                 fprintf(stderr, "expected output encoding has the wrong length\n");
                 return 2;
             }
@@ -70,7 +70,7 @@ int main(void)
                     ", observed=%" PRId64 "\n", checked, expected_result, result);
             return 3;
         }
-        const size_t written = expected_result >= 0 ? (size_t)expected_result : 0;
+        const size_t written = expected_result >= 0 ? (size_t)output_length : 0;
         for (size_t index = written; index < sizeof(observed); ++index) {
             if (observed[index] != UINT8_C(0xA5)) {
                 fprintf(stderr, "case=%" PRIu64 ": output buffer was written past result\n", checked);

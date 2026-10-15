@@ -8,7 +8,7 @@ Return the values shared by three strictly increasing integer arrays, in ascendi
 - Each array must be strictly increasing. Values must fit the signed 32-bit range.
 - The output contains each common value once, in ascending order, as little-endian signed 32-bit integers. The return value is the number of values written. Empty intersections return 0 and write zero bytes.
 - Malformed input returns `-1`; insufficient output capacity returns `-2`. The maximum output is 64 values (256 bytes).
-- The three arrays have no duplicates, so the intersection is unique. This is distinct from the hash-based two-array intersection candidate named `arrays_intersection`.
+- The three arrays have no duplicates, so the intersection is unique. This benchmark is distinct from the hash-based three-array [`arrays_intersection`](../../a/arrays_intersection/README.md), which counts occurrences and preserves first-seen order.
 
 The algorithm uses constant auxiliary state and advances a cursor in the source arrays, taking O(n1 + n2 + n3) time in the worst case.
 

@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "serialize-deserialize-binary-tree-v1",
+  "algorithm": "serialize_deserialize_binary_tree",
+  "function_symbol": "serialize_deserialize_binary_tree",
+  "input": {
+    "kind": "ascii_byte_array",
+    "encoding": "ASCII comma-separated preorder tree tokens with explicit null children",
+    "minimum_length": 1,
+    "maximum_length": 2200,
+    "maximum_nodes": 127,
+    "integer_domain": "Signed i32 decimal tokens; optional sign and surrounding ASCII whitespace accepted; output canonicalizes integer spelling.",
+    "output_encoding": "Canonical ASCII preorder serialization with explicit null child tokens",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "source_five_node_tree",
+      "input_values": [
+        49,
+        44,
+        50,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        51,
+        44,
+        52,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        53,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108
+      ],
+      "input_length": 39,
+      "expected_result": 39,
+      "expected_output_hex": "312c322c6e756c6c2c6e756c6c2c332c342c6e756c6c2c6e756c6c2c352c6e756c6c2c6e756c6c"
+    },
+    {
+      "id": "normalizes_integer_spelling",
+      "input_values": [
+        48,
+        48,
+        49,
+        44,
+        43,
+        48,
+        50,
+        32,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        45,
+        48,
+        48,
+        48,
+        51,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108
+      ],
+      "input_length": 34,
+      "expected_result": 26,
+      "expected_output_hex": "312c322c6e756c6c2c6e756c6c2c2d332c6e756c6c2c6e756c6c"
+    },
+    {
+      "id": "null_root",
+      "input_values": [
+        110,
+        117,
+        108,
+        108
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "6e756c6c"
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "incomplete_tree",
+      "input_values": [
+        49,
+        44,
+        110,
+        117,
+        108,
+        108
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_token_rejected",
+      "input_values": [
+        49,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        55
+      ],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_ascii_byte",
+      "input_values": [
+        49,
+        44,
+        50,
+        44,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

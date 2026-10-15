@@ -39,7 +39,7 @@ fn nextFrame(frame_in: u32) u32 {
 }
 
 export fn a5_cipher(input: ?[*]const i64, length: usize, output: ?[*]u8, capacity: usize) i64 {
-    if (input==null || length<3) return -1;
+    if (input == null or length < 3) return -1;
     const data=input.?[0..length]; if (data[2]<1 or data[2]>4) return -1;
     const blocks: usize=@intCast(data[2]); if(length!=3+4*blocks)return -1;
     const bytes=32*blocks; if(output==null or capacity<bytes)return -2;

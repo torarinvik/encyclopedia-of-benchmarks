@@ -1,0 +1,95 @@
+def unsigned_bits(value: u64, bits: mutable u8&) -> usize:
+    remaining: mutable u64 = value
+    length: mutable usize = 0
+    while true:
+        bits[length] <- (48 + (remaining & 1)).u8()
+        length <- length + 1
+        remaining <- remaining >> 1
+        if remaining == 0:
+            break
+    left: mutable usize = 0
+    while left < length / 2:
+        right: usize = length - left - 1
+        temporary: u8 = bits[left]
+        bits[left] <- bits[right]
+        bits[right] <- temporary
+        left <- left + 1
+    length
+
+def binary_shifts_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 3:
+        return -1
+    operation: i64 = values[0]
+    number: i64 = values[1]
+    shift: i64 = values[2]
+    if operation < 0 or operation > 2 or number < -2147483647 or number > 2147483647 or shift < 0 or shift > 31 or (operation < 2 and number < 0):
+        return -1
+
+    bits: mutable u8[80]
+    result: mutable u8[82]
+    bits_length: mutable usize = 0
+    result_length: mutable usize = 0
+    if operation == 0 or operation == 1:
+        bits_length <- unsigned_bits(number.u64(), bits)
+        result[0] <- 48.u8()
+        result[1] <- 98.u8()
+        result_length <- 2
+        if operation == 0:
+            for index in 0..<bits_length:
+                result[result_length] <- bits[index]
+                result_length <- result_length + 1
+            for index in 0..<shift.usize():
+                result[result_length] <- 48.u8()
+                result_length <- result_length + 1
+        elif shift.usize() >= bits_length:
+            result[result_length] <- 48.u8()
+            result_length <- result_length + 1
+        else:
+            for index in 0..<(bits_length - shift.usize()):
+                result[result_length] <- bits[index]
+                result_length <- result_length + 1
+    else:
+        if number >= 0:
+            bits[0] <- 48.u8()
+            ordinary: mutable u8[80]
+            ordinary_length: usize = unsigned_bits(number.u64(), ordinary)
+            for index in 0..<ordinary_length:
+                bits[index + 1] <- ordinary[index]
+            bits_length <- ordinary_length + 1
+        else:
+            magnitude: u64 = (-number).u64()
+            magnitude_length: usize = unsigned_bits(magnitude, bits)
+            complement: u64 = (1.u64() << magnitude_length) - magnitude
+            complement_bits: mutable u8[40]
+            complement_length: usize = unsigned_bits(complement, complement_bits)
+            bits[0] <- 49.u8()
+            position: mutable usize = 1
+            for index in complement_length..<magnitude_length:
+                bits[position] <- 48.u8()
+                position <- position + 1
+            for index in 0..<complement_length:
+                bits[position] <- complement_bits[index]
+                position <- position + 1
+            bits_length <- position
+        result[0] <- 48.u8()
+        result[1] <- 98.u8()
+        result_length <- 2
+        sign: u8 = bits[0]
+        if shift.usize() >= bits_length:
+            for index in 0..<bits_length:
+                result[result_length] <- sign
+                result_length <- result_length + 1
+        else:
+            for index in 0..<shift.usize():
+                result[result_length] <- sign
+                result_length <- result_length + 1
+            for index in 0..<(bits_length - shift.usize()):
+                result[result_length] <- bits[index]
+                result_length <- result_length + 1
+    if output_capacity < result_length:
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn binary_shifts(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = binary_shifts_impl

@@ -1,0 +1,19 @@
+# Add two signed i32 operands with XOR and shifted carry in a 64-bit word.
+def sum_of_two_integers_bits(a: i64, b: i64) -> i64:
+    left: mutable u64 = a.u64()
+    right: mutable u64 = b.u64()
+    while right != 0.u64():
+        partial: u64 = left ^ right
+        right <- (left & right) << 1
+        left <- partial
+    if left <= 9223372036854775807.u64():
+        return left.i64()
+    -1 - ((~left).i64())
+
+def sum_of_two_integers_impl(values: i64&, length: usize) -> i64:
+    if length != 2 or values[0] < -2147483648 or values[0] > 2147483647 or
+            values[1] < -2147483648 or values[1] > 2147483647:
+        return -1
+    sum_of_two_integers_bits(values[0], values[1])
+
+export fn sum_of_two_integers(values: i64&, length: usize) -> i64 = sum_of_two_integers_impl

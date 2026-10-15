@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "id": "swish-python-beta-one-f64-unary-v1",
+  "algorithm": "swish",
+  "function_symbol": "swish",
+  "description": "Apply the pinned Python Swish source with trainable_parameter fixed to 1.",
+  "input": {
+    "kind": "one_finite_binary64_value",
+    "layout": ["x"],
+    "minimum": -100.0,
+    "maximum": 100.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "x * (1 / (1 + exp(-(1 * x))))",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-15,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"negative_one","input_values":[-1.0],"expected_result":-0.2689414213699951},
+    {"id":"negative_two","input_values":[-2.0],"expected_result":-0.2384058440442351},
+    {"id":"negative_large","input_values":[-10.0],"expected_result":-0.00045397868702434397},
+    {"id":"zero","input_values":[0.0],"expected_result":0.0},
+    {"id":"positive_half","input_values":[0.5],"expected_result":0.3112296656009273},
+    {"id":"positive_one","input_values":[1.0],"expected_result":0.7310585786300049},
+    {"id":"positive_two","input_values":[2.0],"expected_result":1.7615941559557649},
+    {"id":"lower_bound","input_values":[-100.0],"expected_result":-3.720075976020836e-42},
+    {"id":"upper_bound","input_values":[100.0],"expected_result":100.0},
+    {"id":"below_bound","input_values":[-100.0001],"expected_result":-1e300},
+    {"id":"above_bound","input_values":[100.0001],"expected_result":-1e300}
+  ]
+}

@@ -45,9 +45,9 @@
       "expected_result": 0
     },
     {
-      "id": "one_final_lf_matches_end_anchor",
+      "id": "final_lf_is_rejected_as_whitespace",
       "input_values": [6, 97, 64, 98, 46, 99, 10],
-      "expected_result": 1
+      "expected_result": 0
     },
     {
       "id": "final_crlf_does_not_match",

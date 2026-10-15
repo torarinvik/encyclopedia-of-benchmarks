@@ -15,7 +15,8 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "leaky_relu"}
+SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions",
+                       "leaky_relu", "exponential_linear_unit", "composite_simpson_rule"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -85,6 +86,51 @@ def encode_case(case: dict, tolerance: float,
             scale = max(1.0, abs(first), abs(second))
             if abs(expected - expected_value) > tolerance * scale:
                 raise ValueError("leaky_relu expected result must match x < 0 ? x * alpha : x")
+    elif algorithm == "exponential_linear_unit":
+        valid = (-100.0 <= first <= 100.0 and -1_000_000.0 <= second <= 1_000_000.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid exponential_linear_unit inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = first * (second * (math.exp(first) - 1.0)) if first < 0.0 else first
+            scale = max(1.0, abs(first), abs(second))
+            if abs(expected - expected_value) > tolerance * scale:
+                raise ValueError("exponential_linear_unit expected result must match the pinned Rust expression")
+    elif algorithm == "composite_simpson_rule":
+        valid = (2.0 <= first <= 128.0 and first.is_integer() and int(first) % 2 == 0
+                 and 0.0 <= second <= 3.0 and second.is_integer())
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid composite_simpson_rule inputs must use the -1 result sentinel")
+        else:
+            interval_count = int(first)
+            function_selector = int(second)
+            step = (3.0 - 1.0) / interval_count
+
+            def integrand(x: float) -> float:
+                if function_selector == 0:
+                    return math.sqrt(x) + math.log(x)
+                if function_selector == 1:
+                    return math.exp(-x) * (4.0 - math.pow(x, 2.0))
+                if function_selector == 2:
+                    return math.sqrt(2.0 * math.pow(x, 3.0) + 3.0)
+                return x + math.log(2.0 * x + 1.0)
+
+            source_sum = 0.0
+            x = 1.0
+            for index in range(interval_count + 1):
+                sample = integrand(x)
+                if index == 0 or index == interval_count:
+                    source_sum += sample
+                elif index % 2 == 1:
+                    source_sum += 4.0 * sample
+                else:
+                    source_sum += 2.0 * sample
+                x += step
+            expected_value = source_sum * (step / 3.0)
+            scale = max(1.0, abs(first), abs(second))
+            if expected == -1.0 or abs(expected - expected_value) > tolerance * scale:
+                raise ValueError("composite_simpson_rule expected result must match the pinned weighted sum")
     else:
         raise ValueError(f"unsupported float64_pair algorithm: {algorithm}")
     return first, second, float(expected)

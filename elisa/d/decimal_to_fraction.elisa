@@ -1,0 +1,51 @@
+def gcd_positive(a: i64, b: i64) -> i64:
+    left: mutable i64 = a
+    right: mutable i64 = b
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    for byte in 0..<8:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def decimal_to_fraction_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    powers10: i64[5] = [1, 10, 100, 1000, 10000]
+    powers5: i64[5] = [1, 5, 25, 125, 625]
+    if length != 2:
+        return -1
+    mantissa: i64 = values[0]
+    places_value: i64 = values[1]
+    if places_value < 0 or places_value > 4:
+        return -1
+    places: usize = places_value.usize()
+    scale: i64 = powers10[places]
+    maximum_mantissa: i64 = 1000000 * scale
+    if mantissa < -maximum_mantissa or mantissa > maximum_mantissa or mantissa % powers5[places] != 0:
+        return -1
+    if capacity < 16:
+        return -2
+
+    decimal: f64 = mantissa.f64() / scale.f64()
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 1
+    if decimal - decimal.i64().f64() == 0.0:
+        numerator <- decimal.i64()
+    else:
+        digits: mutable usize = places
+        magnitude: mutable i64 = if mantissa < 0: -mantissa else: mantissa
+        while digits > 0 and magnitude % 10 == 0:
+            magnitude <- magnitude / 10
+            digits <- digits - 1
+        numerator <- (decimal * powers10[digits].f64()).i64()
+        denominator <- powers10[digits]
+        gcd: i64 = gcd_positive(if numerator < 0: -numerator else: numerator, denominator)
+        numerator <- numerator / gcd
+        denominator <- denominator / gcd
+    store_i64_le(output, 0, numerator)
+    store_i64_le(output, 8, denominator)
+    16
+
+export fn decimal_to_fraction(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = decimal_to_fraction_impl

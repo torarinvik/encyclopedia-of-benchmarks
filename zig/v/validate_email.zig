@@ -4,7 +4,6 @@ export fn validate_email(values: [*c]const i64, length: usize) i64 {
     if (values == null or length < 2 or length > MAX_LENGTH + 1 or values[0] < 1 or values[0] > MAX_LENGTH or @as(usize,@intCast(values[0])) + 1 != length) return -1;
     var finish: usize = @intCast(values[0]);
     for (0..finish) |i| if (values[i+1] < 0 or values[i+1] > 127) return -1;
-    if (finish > 0 and (values[finish] == 10 or values[finish] == 13)) finish -= 1;
     var at = finish;
     for (0..finish) |i| {
         const c = values[i+1];

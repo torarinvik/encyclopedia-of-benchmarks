@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "parity-check-java-i32-v1",
+  "algorithm": "parity_check",
+  "function_symbol": "parity_check",
+  "input": {
+    "kind": "signed_i32_integer",
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "source_behavior": "Counts bits only while input is positive; negative values skip the loop and return 1.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "one_odd_popcount",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "two_odd_popcount",
+      "input_values": [
+        2
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "three_even_popcount",
+      "input_values": [
+        3
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_five",
+      "input_values": [
+        5
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_six",
+      "input_values": [
+        6
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_seven",
+      "input_values": [
+        7
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "alternating_bits_even_popcount",
+      "input_values": [
+        1431655765
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_i32_odd_popcount",
+      "input_values": [
+        2147483647
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one_source_loop_skips",
+      "input_values": [
+        -1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "minimum_i32_source_loop_skips",
+      "input_values": [
+        -2147483648
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "invalid_above_i32",
+      "input_values": [
+        2147483648
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_below_i32",
+      "input_values": [
+        -2147483649
+      ],
+      "expected_result": -1
+    }
+  ]
+}

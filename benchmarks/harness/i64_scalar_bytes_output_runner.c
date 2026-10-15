@@ -11,7 +11,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_OUTPUT_BYTES 256
+#define MAX_OUTPUT_BYTES 8192
 typedef int64_t (*output_fn)(int64_t, uint8_t *, size_t);
 extern int64_t BENCHMARK_FUNCTION(int64_t value, uint8_t *output, size_t output_capacity);
 static output_fn volatile run_algorithm = BENCHMARK_FUNCTION;
@@ -59,12 +59,13 @@ static uint64_t hash_output(const uint8_t *output, size_t length)
 int main(int argc, char **argv)
 {
     int64_t input, expected_result;
-    uint64_t samples_arg, warmups_arg, repetitions_arg;
-    if (argc != 7 || !parse_i64(argv[1], &input) || !parse_i64(argv[2], &expected_result) ||
-        !parse_u64(argv[4], &samples_arg) || !parse_u64(argv[5], &warmups_arg) ||
-        !parse_u64(argv[6], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
+    uint64_t capacity_arg, samples_arg, warmups_arg, repetitions_arg;
+    if (argc != 8 || !parse_i64(argv[1], &input) || !parse_i64(argv[2], &expected_result) ||
+        !parse_u64(argv[4], &capacity_arg) || capacity_arg > MAX_OUTPUT_BYTES ||
+        !parse_u64(argv[5], &samples_arg) || !parse_u64(argv[6], &warmups_arg) ||
+        !parse_u64(argv[7], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
         warmups_arg > 100000 || repetitions_arg == 0 || repetitions_arg > 1000000000) {
-        fprintf(stderr, "usage: i64_scalar_bytes_output_runner INPUT RESULT OUTPUT_HEX SAMPLES WARMUPS REPETITIONS\n");
+        fprintf(stderr, "usage: i64_scalar_bytes_output_runner INPUT RESULT OUTPUT_HEX CAPACITY SAMPLES WARMUPS REPETITIONS\n");
         return 2;
     }
 
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
     uint8_t expected[MAX_OUTPUT_BYTES], output[MAX_OUTPUT_BYTES];
     if (output_length > MAX_OUTPUT_BYTES ||
         (output_length == 0 && !(encoded_length == 1 && argv[3][0] == '-')) ||
-        (output_length > 0 && (encoded_length % 2 != 0 || expected_result != (int64_t)output_length))) {
+        (output_length > 0 && encoded_length % 2 != 0)) {
         fprintf(stderr, "invalid expected output encoding\n");
         return 2;
     }
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
     }
 
     memset(output, UINT8_C(0xA5), sizeof(output));
-    const size_t capacity = output_length == 0 ? MAX_OUTPUT_BYTES : output_length;
+    const size_t capacity = (size_t)capacity_arg;
     const int64_t initial = run_algorithm(input, output, capacity);
     if (initial != expected_result ||
         (output_length > 0 && memcmp(output, expected, output_length) != 0)) {

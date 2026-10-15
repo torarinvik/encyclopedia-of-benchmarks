@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "id": "min_value-signed-i32-pair-v1",
+  "algorithm": "min_value",
+  "function_symbol": "min_value",
+  "input": {
+    "kind": "signed_i32_pair",
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "equal_positive",
+      "input_values": [
+        7,
+        7
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "positive_order",
+      "input_values": [
+        3,
+        5
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "reversed_positive",
+      "input_values": [
+        100,
+        42
+      ],
+      "expected_result": 42
+    },
+    {
+      "id": "negative_order",
+      "input_values": [
+        -50,
+        -30
+      ],
+      "expected_result": -50
+    },
+    {
+      "id": "reversed_negative",
+      "input_values": [
+        -10,
+        -40
+      ],
+      "expected_result": -40
+    },
+    {
+      "id": "mixed_sign",
+      "input_values": [
+        -1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i32",
+      "input_values": [
+        -2147483648,
+        0
+      ],
+      "expected_result": -2147483648
+    },
+    {
+      "id": "maximum_i32",
+      "input_values": [
+        2147483647,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "adjacent_signed_endpoints",
+      "input_values": [
+        -2147483648,
+        2147483647
+      ],
+      "expected_result": -2147483648
+    },
+    {
+      "id": "invalid_first_above_i32",
+      "input_values": [
+        2147483648,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_second_below_i32",
+      "input_values": [
+        0,
+        -2147483649
+      ],
+      "expected_result": -1
+    }
+  ]
+}

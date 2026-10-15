@@ -1,0 +1,22 @@
+def reverse_string_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 256:
+        return -1
+    byte_length: usize = input[0].usize()
+    if length != byte_length + 1:
+        return -1
+    index: usize = 0
+    while index < byte_length:
+        value: i64 = input[index + 1]
+        if value < 33 or value > 126:
+            return -1
+        index <- index + 1
+    if output_capacity < byte_length + 1:
+        return -2
+    index <- 0
+    while index < byte_length:
+        output[index] <- input[byte_length - index].u8()
+        index <- index + 1
+    output[byte_length] <- 0
+    byte_length.i64()
+
+export fn reverse_string(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = reverse_string_impl

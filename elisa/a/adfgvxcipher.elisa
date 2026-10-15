@@ -1,0 +1,142 @@
+# Bounded ADFGVX cipher using the pinned 6x6 square and keyed transposition.
+const ADFGVX_MAX_PLAINTEXT = 256
+const ADFGVX_MAX_CIPHERTEXT = 512
+const ADFGVX_MAX_KEY = 16
+const ADFGVX_MAX_ROWS = 512
+
+def adfgvxcipher_cell(value: i64) -> usize:
+    square: u8[36] = [78,65,49,67,51,72,56,84,66,50,79,77,69,53,87,82,80,68,52,70,54,71,55,73,57,74,48,75,76,81,83,85,86,88,89,90]
+    for index in 0..<36:
+        if square[index].i64() == value:
+            return index
+    36
+
+def adfgvxcipher_label_index(value: i64) -> i64:
+    if value == 65: return 0
+    if value == 68: return 1
+    if value == 70: return 2
+    if value == 71: return 3
+    if value == 86: return 4
+    if value == 88: return 5
+    -1
+
+def adfgvxcipher_label(index: usize) -> u8:
+    if index == 0: return 65.u8()
+    if index == 1: return 68.u8()
+    if index == 2: return 70.u8()
+    if index == 3: return 71.u8()
+    if index == 4: return 86.u8()
+    88.u8()
+
+def adfgvxcipher_square_value(index: usize) -> u8:
+    square: u8[36] = [78,65,49,67,51,72,56,84,66,50,79,77,69,53,87,82,80,68,52,70,54,71,55,73,57,74,48,75,76,81,83,85,86,88,89,90]
+    square[index]
+
+def adfgvxcipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3:
+        return -1
+    mode: i64 = input[0]
+    text_length_value: i64 = input[1]
+    key_length_value: i64 = input[2]
+    if (mode != 0 and mode != 1) or text_length_value < 0 or key_length_value < 1 or key_length_value > ADFGVX_MAX_KEY:
+        return -1
+    text_length: usize = text_length_value.usize()
+    key_length: usize = key_length_value.usize()
+    if (mode == 0 and text_length > ADFGVX_MAX_PLAINTEXT) or
+            (mode == 1 and text_length > ADFGVX_MAX_CIPHERTEXT) or
+            length != 3 + text_length + key_length:
+        return -1
+    for index in 0..<text_length:
+        if input[3 + index] < 0 or input[3 + index] > 127:
+            return -1
+        if mode == 1 and adfgvxcipher_label_index(input[3 + index]) < 0:
+            return -1
+    if mode == 1 and text_length % 2 != 0:
+        return -1
+    key_start: usize = 3 + text_length
+    for index in 0..<key_length:
+        if input[key_start + index] < 65 or input[key_start + index] > 90:
+            return -1
+        for previous in 0..<index:
+            if input[key_start + index] == input[key_start + previous]:
+                return -1
+
+    order: mutable usize[16] = zeroed
+    for index in 0..<key_length:
+        order[index] <- index
+    index: mutable usize = 1
+    while index < key_length:
+        current: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and input[key_start + order[position - 1]] > input[key_start + current]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- current
+        index <- index + 1
+
+    result: mutable u8[512] = zeroed
+    result_length: mutable usize = 0
+    if mode == 0:
+        fractionated: mutable u8[512] = zeroed
+        fractionated_length: mutable usize = 0
+        for index in 0..<text_length:
+            value: mutable i64 = input[3 + index]
+            if value >= 97 and value <= 122:
+                value <- value - 32
+            if not ((value >= 65 and value <= 90) or (value >= 48 and value <= 57)):
+                continue
+            cell: usize = adfgvxcipher_cell(value)
+            if cell >= 36:
+                return -1
+            fractionated[fractionated_length] <- adfgvxcipher_label(cell / 6)
+            fractionated[fractionated_length + 1] <- adfgvxcipher_label(cell % 6)
+            fractionated_length <- fractionated_length + 2
+        rows: usize = (fractionated_length + key_length - 1) / key_length
+        table: mutable u8[8192] = zeroed
+        for row in 0..<rows:
+            for column in 0..<key_length:
+                table[row * 16 + column] <- 95.u8()
+        for index in 0..<fractionated_length:
+            table[(index / key_length) * 16 + index % key_length] <- fractionated[index]
+        for position in 0..<key_length:
+            column: usize = order[position]
+            for row in 0..<rows:
+                value: u8 = table[row * 16 + column]
+                if value != 95.u8():
+                    result[result_length] <- value
+                    result_length <- result_length + 1
+    else:
+        rows: usize = (text_length + key_length - 1) / key_length
+        table: mutable u8[8192] = zeroed
+        source_index: mutable usize = 0
+        for position in 0..<key_length:
+            column: usize = order[position]
+            for row in 0..<rows:
+                if source_index < text_length:
+                    table[row * 16 + column] <- input[3 + source_index].u8()
+                    source_index <- source_index + 1
+                else:
+                    table[row * 16 + column] <- 95.u8()
+        fractionated: mutable u8[512] = zeroed
+        fractionated_length: mutable usize = 0
+        for row in 0..<rows:
+            for column in 0..<key_length:
+                value: u8 = table[row * 16 + column]
+                if value != 95.u8():
+                    fractionated[fractionated_length] <- value
+                    fractionated_length <- fractionated_length + 1
+        for index in 0..<fractionated_length/2:
+            row: i64 = adfgvxcipher_label_index(fractionated[index * 2].i64())
+            column: i64 = adfgvxcipher_label_index(fractionated[index * 2 + 1].i64())
+            if row < 0 or column < 0:
+                return -1
+            result[result_length] <- adfgvxcipher_square_value((row * 6 + column).usize())
+            result_length <- result_length + 1
+
+    if output_capacity < result_length:
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn adfgvxcipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = adfgvxcipher_impl

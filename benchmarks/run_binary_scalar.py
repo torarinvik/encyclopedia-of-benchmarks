@@ -73,6 +73,46 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
         expected_from_source = math.gcd(left, right) if valid else -1
         if expected != expected_from_source:
             raise ValueError("highest_common_factor expected_result must match bounded subtractive GCD")
+    elif algorithm in {"max_value", "min_value"}:
+        first, second = values
+        valid = (-(2**31) <= first <= 2**31 - 1
+                 and -(2**31) <= second <= 2**31 - 1)
+        if not valid:
+            expected_from_source = -1
+        else:
+            expected_from_source = (max(first, second) if algorithm == "max_value"
+                                    else min(first, second))
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result must match the signed-i32 comparison")
+    elif algorithm == "sum_without_arithmetic_operators":
+        first, second = values
+        valid = (-(2**31) <= first <= 2**31 - 1
+                 and -(2**31) <= second <= 2**31 - 1)
+        if valid:
+            wrapped = (first + second) & 0xFFFFFFFF
+            expected_from_source = wrapped - 0x100000000 if wrapped >= 0x80000000 else wrapped
+        else:
+            expected_from_source = -2_147_483_649
+        if expected != expected_from_source:
+            raise ValueError("sum_without_arithmetic_operators expected_result must match Java i32 wraparound")
+    elif algorithm == "binary_pow":
+        base, exponent = values
+        valid = (-(2**31) <= base <= 2**31 - 1
+                 and -(2**31) <= exponent <= 2**31 - 1)
+        if not valid:
+            expected_from_source = -2_147_483_649
+        elif exponent <= 0:
+            expected_from_source = 1
+        else:
+            result, wrapped_base, remaining = 1, base & 0xFFFFFFFF, exponent
+            while remaining:
+                if remaining & 1:
+                    result = (result * wrapped_base) & 0xFFFFFFFF
+                wrapped_base = (wrapped_base * wrapped_base) & 0xFFFFFFFF
+                remaining >>= 1
+            expected_from_source = result - 0x100000000 if result >= 0x80000000 else result
+        if expected != expected_from_source:
+            raise ValueError("binary_pow expected_result must match Java int exponentiation by squaring")
     return values[0], values[1], expected
 
 

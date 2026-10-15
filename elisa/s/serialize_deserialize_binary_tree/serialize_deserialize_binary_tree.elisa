@@ -1,0 +1,96 @@
+const MAX_INPUT: usize = 2200
+const MAX_NODES: usize = 127
+
+def serialize_deserialize_binary_tree_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > MAX_INPUT:
+        return -1
+    for index in 0..<length |values|:
+        if values[index] < 0 or values[index] > 127:
+            return -1
+    encoded: mutable u8[MAX_INPUT] = zeroed
+    position: mutable usize = 0
+    slots: mutable usize = 1
+    nodes: mutable usize = 0
+    written: mutable usize = 0
+    while position < length |position, slots, nodes, written, values, encoded|:
+        if slots == 0:
+            return -1
+        start: usize = position
+        while position < length and values[position] != 44:
+            position <- position + 1
+        finish: usize = position
+        if start == finish:
+            return -1
+        is_null: bool = finish - start == 4 and values[start] == 110 and values[start + 1] == 117 and values[start + 2] == 108 and values[start + 3] == 108
+        if written > 0:
+            encoded[written] <- 44
+            written <- written + 1
+        if is_null:
+            encoded[written] <- 110
+            encoded[written + 1] <- 117
+            encoded[written + 2] <- 108
+            encoded[written + 3] <- 108
+            written <- written + 4
+        else:
+            first: mutable usize = start
+            last: mutable usize = finish
+            while first < last and (values[first] == 32 or (values[first] >= 9 and values[first] <= 13)):
+                first <- first + 1
+            while last > first and (values[last - 1] == 32 or (values[last - 1] >= 9 and values[last - 1] <= 13)):
+                last <- last - 1
+            if first == last:
+                return -1
+            negative: mutable bool = false
+            if values[first] == 45 or values[first] == 43:
+                negative <- values[first] == 45
+                first <- first + 1
+            if first == last:
+                return -1
+            limit: i64 = 2147483647
+            if negative:
+                limit <- 2147483648
+            magnitude: mutable i64 = 0
+            for index in first..<last |values, magnitude|:
+                if values[index] < 48 or values[index] > 57:
+                    return -1
+                digit: i64 = values[index] - 48
+                if magnitude > (limit - digit) / 10:
+                    return -1
+                magnitude <- magnitude * 10 + digit
+            nodes <- nodes + 1
+            if nodes > MAX_NODES:
+                return -1
+            if negative and magnitude != 0:
+                encoded[written] <- 45
+                written <- written + 1
+            digits: mutable u8[10] = zeroed
+            digit_count: mutable usize = 0
+            if magnitude == 0:
+                digits[0] <- 48
+                digit_count <- 1
+            while magnitude > 0 |magnitude, digits, digit_count|:
+                digits[digit_count] <- (48 + magnitude % 10).u8()
+                digit_count <- digit_count + 1
+                magnitude <- magnitude / 10
+            while digit_count > 0 |digit_count, written, digits, encoded|:
+                digit_count <- digit_count - 1
+                encoded[written] <- digits[digit_count]
+                written <- written + 1
+        slots <- slots - 1
+        if not is_null:
+            slots <- slots + 2
+        if position < length:
+            position <- position + 1
+            if position == length:
+                return -1
+    if slots != 0:
+        return -1
+    if output_capacity < written:
+        return -2
+    for index in 0..<written |output, encoded|:
+        output[index] <- encoded[index]
+    written.i64()
+
+export fn serialize_deserialize_binary_tree(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = serialize_deserialize_binary_tree_impl

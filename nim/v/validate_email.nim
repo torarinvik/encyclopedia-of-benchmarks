@@ -5,7 +5,6 @@ proc validate_email*(values:ptr UncheckedArray[int64],length:csize_t):int64 {.cd
   var finish=int(values[0])
   for i in 0..<finish:
     if values[i+1]<0 or values[i+1]>127:return -1
-  if finish>0 and (values[finish]==10 or values[finish]==13):dec finish
   var at=finish
   for i in 0..<finish:
     let c=values[i+1]

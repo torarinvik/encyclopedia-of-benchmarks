@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "binary-tree-postorder-traversal-v1",
+  "algorithm": "binary_tree_postorder_traversal",
+  "function_symbol": "binary_tree_postorder_traversal",
+  "input": {
+    "kind": "indexed_binary_tree_with_caller_output",
+    "encoding": "Each node is [signed i64 value, left child index, right child index]; -1 means absent. Root index and output buffer/capacity are passed separately.",
+    "maximum_node_count": 100,
+    "root_index": "Any valid node-table index; empty trees are outside the source contract.",
+    "tree_requirement": "A valid nonempty rooted binary tree; each node is reachable exactly once.",
+    "node_value_range": [
+      -9223372036854775808,
+      9223372036854775807
+    ],
+    "result": "Number of values written in the requested traversal order; output values are signed 64-bit elements.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "tree_value_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "branching",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          3,
+          4
+        ],
+        [
+          3,
+          -1,
+          5
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ],
+        [
+          6,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 6,
+      "expected_output_values": [
+        4,
+        5,
+        2,
+        6,
+        3,
+        1
+      ]
+    },
+    {
+      "id": "nonzero_root",
+      "nodes": [
+        [
+          -9,
+          -1,
+          -1
+        ],
+        [
+          8,
+          0,
+          2
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "expected_result": 3,
+      "expected_output_values": [
+        -9,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "single",
+      "nodes": [
+        [
+          -7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 1,
+      "expected_output_values": [
+        -7
+      ]
+    },
+    {
+      "id": "i64_boundaries",
+      "nodes": [
+        [
+          -9223372036854775808,
+          1,
+          2
+        ],
+        [
+          9223372036854775807,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        9223372036854775807,
+        0,
+        -9223372036854775808
+      ]
+    },
+    {
+      "id": "left_chain",
+      "nodes": [
+        [
+          10,
+          1,
+          -1
+        ],
+        [
+          20,
+          2,
+          -1
+        ],
+        [
+          30,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 3,
+      "expected_output_values": [
+        30,
+        20,
+        10
+      ]
+    },
+    {
+      "id": "invalid_root_child_index",
+      "nodes": [
+        [
+          1,
+          9,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1,
+      "expected_output_values": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "nodes": [
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1,
+      "expected_output_values": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "disconnected_node",
+      "nodes": [
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          2,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1,
+      "expected_output_values": []
+    }
+  ]
+}

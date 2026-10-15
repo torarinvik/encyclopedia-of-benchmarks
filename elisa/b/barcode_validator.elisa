@@ -1,0 +1,37 @@
+# Compute the source's alternating 3/1 check digit for a nonnegative integer.
+def barcode_validator_get_check_digit(input: i64) -> i64:
+    barcode: mutable i64 = input / 10
+    checker: mutable bool = false
+    total: mutable i64 = 0
+    while barcode != 0:
+        multiplier: mutable i64 = 3
+        if checker:
+            multiplier <- 1
+        total <- total + multiplier * (barcode % 10)
+        barcode <- barcode / 10
+        checker <- not checker
+    (10 - total % 10) % 10
+
+def barcode_validator_decimal_length(input: i64) -> usize:
+    value: mutable i64 = input
+    length: mutable usize = 1
+    while value >= 10:
+        value <- value / 10
+        length <- length + 1
+    length
+
+def barcode_validator_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    if values[0] < 0 or values[0] > 1 or values[1] < 0:
+        return -1
+    operation: i64 = values[0]
+    barcode: i64 = values[1]
+    if operation == 0:
+        return barcode_validator_get_check_digit(barcode)
+    if barcode_validator_decimal_length(barcode) == 13 and
+            barcode_validator_get_check_digit(barcode) == barcode % 10:
+        return 1
+    0
+
+export fn barcode_validator(values: i64&, length: usize) -> i64 = barcode_validator_impl

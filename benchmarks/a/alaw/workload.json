@@ -5,21 +5,68 @@
   "function_symbol": "alaw_encode",
   "input": {
     "kind": "signed_i64",
-    "sample_range": [-32768, 32767],
-    "result_range": [0, 255],
+    "sample_range": [
+      -32768,
+      32767
+    ],
+    "result_range": [
+      0,
+      255
+    ],
     "out_of_range_result": -1,
     "operation": "encode one signed 16-bit linear PCM sample as an 8-bit A-law codeword"
   },
   "cases": [
-    {"id": "silence", "input_value": 0, "expected_result": 213},
-    {"id": "positive_reference_sample", "input_value": 1000, "expected_result": 250},
-    {"id": "negative_reference_sample", "input_value": -1000, "expected_result": 122},
-    {"id": "positive_second_reference_sample", "input_value": 1234, "expected_result": 230},
-    {"id": "negative_second_reference_sample", "input_value": -1314, "expected_result": 97},
-    {"id": "largest_positive_sample", "input_value": 32767, "expected_result": 170},
-    {"id": "smallest_negative_sample", "input_value": -32768, "expected_result": 42},
-    {"id": "above_pcm_range", "input_value": 32768, "expected_result": -1},
-    {"id": "below_pcm_range", "input_value": -32769, "expected_result": -1}
+    {
+      "id": "silence",
+      "input_value": 0,
+      "expected_result": 213
+    },
+    {
+      "id": "positive_reference_sample",
+      "input_value": 1000,
+      "expected_result": 250
+    },
+    {
+      "id": "negative_reference_sample",
+      "input_value": -1000,
+      "expected_result": 122
+    },
+    {
+      "id": "positive_second_reference_sample",
+      "input_value": 1234,
+      "expected_result": 230
+    },
+    {
+      "id": "negative_second_reference_sample",
+      "input_value": -1314,
+      "expected_result": 97
+    },
+    {
+      "id": "largest_positive_sample",
+      "input_value": 32767,
+      "expected_result": 170
+    },
+    {
+      "id": "smallest_negative_sample",
+      "input_value": -32768,
+      "expected_result": 42
+    },
+    {
+      "id": "above_pcm_range",
+      "input_value": 32768,
+      "expected_result": -1
+    },
+    {
+      "id": "below_pcm_range",
+      "input_value": -32769,
+      "expected_result": -1
+    }
   ],
-  "measurement": {"comparison_model": "scalar_call"}
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  }
 }

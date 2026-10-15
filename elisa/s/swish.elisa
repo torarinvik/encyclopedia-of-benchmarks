@@ -1,0 +1,9 @@
+extern exp(value: f64) -> f64
+
+def swish_impl(x: f64) -> f64:
+    if x != x or x < -100.0 or x > 100.0:
+        return -1.0e300
+    let scaled = 1.0 * x
+    x * (1.0 / (1.0 + exp(-scaled)))
+
+export fn swish(x: f64) -> f64 = swish_impl

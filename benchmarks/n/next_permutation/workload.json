@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "go-next-permutation-i32-v1",
+  "algorithm": "next_permutation",
+  "function_symbol": "next_permutation",
+  "input": {
+    "kind": "length_prefixed_signed_32_bit_array",
+    "encoding": "[n, values...]",
+    "length_range": [0, 128],
+    "value_range": [-2147483648, 2147483647],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_result_and_byte_buffer",
+    "result": "n, the number of transformed values",
+    "encoding": "n little-endian signed 32-bit values",
+    "empty_input": "return 0 and write zero bytes"
+  },
+  "cases": [
+    {"id":"empty_noop","input_values":[0],"expected_result":0,"expected_output_hex":""},
+    {"id":"singleton_noop","input_values":[1,4],"expected_result":1,"expected_output_hex":"04000000"},
+    {"id":"source_style_successor","input_values":[3,1,2,3],"expected_result":3,"expected_output_hex":"010000000300000002000000"},
+    {"id":"classic_successor","input_values":[4,1,2,3,4],"expected_result":4,"expected_output_hex":"01000000020000000400000003000000"},
+    {"id":"duplicate_values","input_values":[3,1,1,5],"expected_result":3,"expected_output_hex":"010000000500000001000000"},
+    {"id":"descending_wraps_to_minimum","input_values":[3,3,2,1],"expected_result":3,"expected_output_hex":"010000000200000003000000"},
+    {"id":"all_equal","input_values":[4,2,2,2,2],"expected_result":4,"expected_output_hex":"02000000020000000200000002000000"},
+    {"id":"signed_values","input_values":[2,-1,0],"expected_result":2,"expected_output_hex":"00000000ffffffff"},
+    {"id":"length_mismatch","input_values":[2,7],"expected_result":-1,"expected_output_hex":""},
+    {"id":"value_outside_i32","input_values":[1,2147483648],"expected_result":-1,"expected_output_hex":""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

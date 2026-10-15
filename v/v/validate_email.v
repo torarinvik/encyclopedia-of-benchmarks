@@ -6,7 +6,6 @@ pub fn validate_email(values &i64,length usize) i64 {
 	if unsafe { values[0]<1||values[0]>max_length||usize(values[0])+1!=length } {return -1}
 	mut finish:=int(unsafe { values[0] })
 	for i in 0 .. finish {c:=unsafe { values[i+1] };if c<0||c>127{return -1}}
-	if finish>0&&(unsafe { values[finish]==10||values[finish]==13 }) {finish--}
 	mut at:=finish
 	for i in 0 .. finish {c:=unsafe { values[i+1] };if ascii_space(c){return 0};if c==64 {if at!=finish{return 0};at=i}}
 	if at==0||at>=finish-1{return 0}

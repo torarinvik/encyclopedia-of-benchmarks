@@ -5,24 +5,83 @@
   "function_symbol": "alaw_decode",
   "input": {
     "kind": "signed_i64",
-    "codeword_range": [0, 255],
-    "result_range": [-32256, 32256],
+    "codeword_range": [
+      0,
+      255
+    ],
+    "result_range": [
+      -32256,
+      32256
+    ],
     "out_of_range_result": -1,
     "operation": "decode one 8-bit A-law codeword into a signed 16-bit linear PCM sample"
   },
   "cases": [
-    {"id":"lowest_octet","input_value":0,"expected_result":-5504},
-    {"id":"negative_reference_sample","input_value":122,"expected_result":-1008},
-    {"id":"negative_quantization_boundary","input_value":97,"expected_result":-1312},
-    {"id":"negative_peak","input_value":42,"expected_result":-32256},
-    {"id":"positive_quantization_boundary","input_value":156,"expected_result":3264},
-    {"id":"positive_reference_sample","input_value":250,"expected_result":1008},
-    {"id":"positive_second_reference_sample","input_value":230,"expected_result":1248},
-    {"id":"encoded_silence","input_value":213,"expected_result":8},
-    {"id":"positive_peak","input_value":170,"expected_result":32256},
-    {"id":"highest_octet","input_value":255,"expected_result":848},
-    {"id":"below_octet_range","input_value":-1,"expected_result":-1},
-    {"id":"above_octet_range","input_value":256,"expected_result":-1}
+    {
+      "id": "lowest_octet",
+      "input_value": 0,
+      "expected_result": -5504
+    },
+    {
+      "id": "negative_reference_sample",
+      "input_value": 122,
+      "expected_result": -1008
+    },
+    {
+      "id": "negative_quantization_boundary",
+      "input_value": 97,
+      "expected_result": -1312
+    },
+    {
+      "id": "negative_peak",
+      "input_value": 42,
+      "expected_result": -32256
+    },
+    {
+      "id": "positive_quantization_boundary",
+      "input_value": 156,
+      "expected_result": 3264
+    },
+    {
+      "id": "positive_reference_sample",
+      "input_value": 250,
+      "expected_result": 1008
+    },
+    {
+      "id": "positive_second_reference_sample",
+      "input_value": 230,
+      "expected_result": 1248
+    },
+    {
+      "id": "encoded_silence",
+      "input_value": 213,
+      "expected_result": 8
+    },
+    {
+      "id": "positive_peak",
+      "input_value": 170,
+      "expected_result": 32256
+    },
+    {
+      "id": "highest_octet",
+      "input_value": 255,
+      "expected_result": 848
+    },
+    {
+      "id": "below_octet_range",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_octet_range",
+      "input_value": 256,
+      "expected_result": -1
+    }
   ],
-  "measurement": {"comparison_model":"scalar_call"}
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  }
 }

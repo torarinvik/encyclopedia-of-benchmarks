@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "goldbach-conjecture-v1",
+  "algorithm": "goldbach_conjecture",
+  "input": {
+    "minimum": 4,
+    "maximum": 4096,
+    "parity": "even",
+    "out_of_range_result": -1,
+    "encoding": "goldbach_pair_i32le",
+    "meaning": "first source-ordered prime pair (p, n-p), each signed i32 little-endian"
+  },
+  "output": {
+    "encoding": "goldbach_pair_i32le",
+    "successful_result": 8,
+    "buffer_requirement_bytes": 8
+  },
+  "cases": [
+    {
+      "id": "four_equal",
+      "input_value": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0200000002000000"
+    },
+    {
+      "id": "six_equal",
+      "input_value": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0300000003000000"
+    },
+    {
+      "id": "eight_first_unequal",
+      "input_value": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0300000005000000"
+    },
+    {
+      "id": "twenty_smallest_pair",
+      "input_value": 20,
+      "expected_result": 8,
+      "expected_output_hex": "0300000011000000"
+    },
+    {
+      "id": "one_hundred",
+      "input_value": 100,
+      "expected_result": 8,
+      "expected_output_hex": "0300000061000000"
+    },
+    {
+      "id": "upper_bound",
+      "input_value": 4096,
+      "expected_result": 8,
+      "expected_output_hex": "03000000fd0f0000"
+    },
+    {
+      "id": "below_domain",
+      "input_value": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "odd_input",
+      "input_value": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_bound",
+      "input_value": 4098,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_i64_min",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_i64_max",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_value": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 7
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

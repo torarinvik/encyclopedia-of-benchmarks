@@ -14,7 +14,7 @@ The benchmark uses a bounded lowercase-ASCII word domain and a fixed-width count
 
 ## Workload and implementation
 
-[`workload.json`](workload.json) includes source examples, equal-frequency heap-order ties, `k=0`, clamping, empty input, and malformed packing. The `i64_array_bytes_output` runner will need an oracle/shape entry for `top_k_frequent_words` before these cases can be run through the standard harness; this package does not modify runner files.
+[`workload.json`](workload.json) includes source examples, equal-frequency heap-order ties, `k=0`, clamping, empty input, and malformed packing.
 
 | Language | Source |
 | --- | --- |

@@ -1,0 +1,40 @@
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def sample(function_id: i32, x: f64) -> f64:
+    if function_id == 0:
+        return sqrt(x) + log(x)
+    if function_id == 1:
+        return exp(-x) * (4.0 - pow(x, 2.0))
+    if function_id == 2:
+        return sqrt(2.0 * pow(x, 3.0) + 3.0)
+    x + log(2.0 * x + 1.0)
+
+def composite_simpson_rule_impl(intervals_input: f64, function_id_input: f64) -> f64:
+    if intervals_input != intervals_input or function_id_input != function_id_input or
+        intervals_input < 2.0 or intervals_input > 128.0 or
+        function_id_input < 0.0 or function_id_input > 3.0 or
+        intervals_input != intervals_input.i32().f64() or
+        function_id_input != function_id_input.i32().f64():
+        return -1.0
+    intervals: i32 = intervals_input.i32()
+    if intervals % 2 != 0:
+        return -1.0
+    function_id: i32 = function_id_input.i32()
+    h: f64 = 2.0 / intervals.f64()
+    x: mutable f64 = 1.0
+    sum: mutable f64 = 0.0
+    i: mutable i32 = 0
+    while i <= intervals:
+        y: f64 = sample(function_id, x)
+        weight: f64 = 1.0
+        if i != 0 and i != intervals:
+            weight = if i % 2 == 1: 4.0 else: 2.0
+        sum <- sum + weight * y
+        x <- x + h
+        i <- i + 1
+    sum * (h / 3.0)
+
+export fn composite_simpson_rule(intervals_input: f64, function_id_input: f64) -> f64 = composite_simpson_rule_impl

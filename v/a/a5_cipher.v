@@ -1,6 +1,11 @@
 module a5_cipher
 
-struct State { r1 u32; r2 u32; r3 u32 }
+struct State {
+	mut:
+	r1 u32
+	r2 u32
+	r3 u32
+}
 
 fn parity(value u32) u32 {
 	mut x := value
@@ -38,7 +43,8 @@ fn tick(mut s State) u32 {
 	return result
 }
 
-fn next_frame(mut frame u32) u32 {
+fn next_frame(frame_input u32) u32 {
+	mut frame := frame_input
 	for n in 0 .. 22 {
 		i := 21 - n; mask := u32(1) << u32(i)
 		if frame & mask == 0 { return frame | mask }
@@ -72,7 +78,7 @@ pub fn a5_cipher(input &i64, length usize, mut output &u8, output_capacity usize
 				plain := u64(input[3 + 4 * block + bit / 64]); value := u8((plain >> u32(bit % 64)) & 1)
 				store_bit(mut output, block * 32, bit, value)
 			}
-			frame = next_frame(mut frame)
+			frame = next_frame(frame)
 		}
 		return i64(byte_count)
 	}

@@ -1,0 +1,30 @@
+def rod_cutting_impl(values: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 30:
+        return -1
+    n: usize = n_value.usize()
+    if length != n + 1:
+        return -1
+    index: mutable usize = 0
+    while index < n:
+        price: i64 = values[index + 1]
+        if price < 1 or price > 1000:
+            return -1
+        index <- index + 1
+    profit: mutable i64[31] = zeroed
+    rod: mutable usize = 1
+    while rod <= n:
+        best: mutable i64 = 0
+        cut: mutable usize = 1
+        while cut <= rod:
+            candidate: i64 = values[cut] + profit[rod - cut]
+            if candidate > best:
+                best <- candidate
+            cut <- cut + 1
+        profit[rod] <- best
+        rod <- rod + 1
+    profit[n]
+
+export fn rod_cutting(values: i64&, length: usize) -> i64 = rod_cutting_impl

@@ -1,0 +1,43 @@
+const MAX_NODE_COUNT: usize = 100
+
+def binary_tree_preorder_visit(nodes: i64&, node_count: usize, node: i64,
+                              output: mutable i64&, capacity: usize,
+                              used: mutable usize&) -> bool:
+    if node == -1:
+        return true
+    if node < 0 or node.u64() >= node_count.u64():
+        return false
+    index: usize = node.usize()
+    value: i64 = nodes[3 * index]
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    if left < -1 or right < -1:
+        return false
+    if (left >= 0 and left.u64() >= node_count.u64()) or (right >= 0 and right.u64() >= node_count.u64()):
+        return false
+    if used >= capacity:
+        return false
+    position: usize = used
+    output[position] <- value
+    used <- position + 1
+    if not binary_tree_preorder_visit(nodes, node_count, left, output, capacity, used):
+        return false
+    binary_tree_preorder_visit(nodes, node_count, right, output, capacity, used)
+
+def binary_tree_preorder_impl(nodes: i64&, node_count: usize, root_index: i64,
+                             output: mutable i64&, output_capacity: usize) -> i64:
+    if node_count > MAX_NODE_COUNT or output_capacity < node_count:
+        return -1
+    if node_count == 0:
+        return 0 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    used: mutable usize = 0
+    if not binary_tree_preorder_visit(nodes, node_count, root_index, output, output_capacity, used):
+        return -1
+    if used != node_count:
+        return -1
+    used.i64()
+
+export fn binary_tree_preorder_traversal(nodes: i64&, node_count: usize, root_index: i64,
+                                       output: mutable i64&, output_capacity: usize) -> i64 = binary_tree_preorder_impl

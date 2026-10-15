@@ -1,0 +1,29 @@
+# Integer binary exponentiation with Java int wraparound semantics.
+def binary_pow_mul32(x: i64, y: i64) -> i64:
+    x_low: i64 = x % 65536
+    x_high: i64 = x / 65536
+    y_low: i64 = y % 65536
+    y_high: i64 = y / 65536
+    cross: i64 = (x_low * y_high + x_high * y_low) % 65536
+    (x_low * y_low + cross * 65536) % 4294967296
+
+def binary_pow_impl(first: i64, second: i64) -> i64:
+    if first < -2147483648 or first > 2147483647 or second < -2147483648 or second > 2147483647:
+        return -2147483649
+    if second <= 0:
+        return 1
+    base: mutable i64 = first
+    if base < 0:
+        base <- base + 4294967296
+    exponent: mutable i64 = second
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 == 1:
+            result <- binary_pow_mul32(result, base)
+        base <- binary_pow_mul32(base, base)
+        exponent <- exponent / 2
+    if result >= 2147483648:
+        return result - 4294967296
+    result
+
+export fn binary_pow(first: i64, second: i64) -> i64 = binary_pow_impl

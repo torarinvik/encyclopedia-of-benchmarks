@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "annuity_due_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion"}
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -223,6 +223,19 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
             if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
                     1.0, abs(start), abs(end)):
                 raise ValueError("first_law_of_thermodynamics expected result must match its selected source formula")
+    elif algorithm == "length_conversion":
+        factors = (0.001, 0.01, 1.0, 1000.0)
+        valid = (-1_000_000.0 <= start <= 1_000_000.0
+                 and end in (0.0, 1.0, 2.0, 3.0)
+                 and t in (0.0, 1.0, 2.0, 3.0))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid length_conversion inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (start * factors[int(end)]) / factors[int(t)]
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("length_conversion expected result must match the selected metric-unit conversion")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

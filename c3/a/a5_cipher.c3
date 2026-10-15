@@ -11,7 +11,10 @@ fn void initialize(ulong key,uint frame,uint* r1,uint* r2,uint* r3) {
     for(int i=21;i>=0;i--){uint bit=(frame>>(usz)i)&1;*r1=push(*r1,19,bit^fb1(*r1));*r2=push(*r2,22,bit^fb2(*r2));*r3=push(*r3,23,bit^fb3(*r3));}
 }
 fn uint tick(uint* r1,uint* r2,uint* r3) {
-    uint c1=(*r1>>8)&1,c2=(*r2>>10)&1,c3=(*r3>>10)&1;uint majority=(c1+c2+c3>=2)?1u:0u;
+    uint c1=(*r1>>8)&1;
+    uint c2=(*r2>>10)&1;
+    uint c3=(*r3>>10)&1;
+    uint majority=(c1+c2+c3>=2)?1u:0u;
     uint out=((*r1>>18)^(*r2>>21)^(*r3>>22))&1;
     if(c1==majority)*r1=push(*r1,19,fb1(*r1));if(c2==majority)*r2=push(*r2,22,fb2(*r2));if(c3==majority)*r3=push(*r3,23,fb3(*r3));return out;
 }

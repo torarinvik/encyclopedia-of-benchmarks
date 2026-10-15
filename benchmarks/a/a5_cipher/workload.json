@@ -1,12 +1,124 @@
 {
+  "schema_version": 1,
+  "id": "a5-cipher-v1",
   "algorithm": "a5_cipher",
-  "input_encoding": "signed-i64 slots [session_key_bits, initial_frame_bits, block_count, then four little-endian plaintext words per block]",
-  "output_encoding": "32 little-endian bytes per ciphertext block",
+  "function_symbol": "a5_cipher",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[session_key_bits, initial_frame_bits, block_count, then four little-endian plaintext i64 words per block]",
+    "maximum_length": 19,
+    "block_count_range": [
+      1,
+      4
+    ],
+    "frame_counter": "Low 22 bits; bit index i maps directly to source BitSet index i.",
+    "plaintext": "Each i64 is interpreted as a raw two's-complement bit pattern.",
+    "output": "32 bytes per block, low bit first; return value is output byte count.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
   "cases": [
-    {"name": "zero-key-zero-frame", "input": [0, 0, 1, 0, 0, 0, 0]},
-    {"name": "single-key-bit", "input": [1, 0, 1, 0, 0, 0, 0]},
-    {"name": "frame-counter-high-bit", "input": [0, 2097152, 1, 0, 0, 0, 0]},
-    {"name": "plaintext-low-and-high", "input": [81985529216486895, 17, 1, 1, 0, 0, -9223372036854775808]},
-    {"name": "sequential-frame-advance", "input": [-81985529216486896, 2097151, 2, 0, 0, 0, 0, 1, 0, 0, 0]}
+    {
+      "id": "zero_key_zero_frame",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "single_session_key_bit",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "d5d6f5142eff1fb75e17f67e06f0de17a14339ef48ae914f1b8728b60b000000"
+    },
+    {
+      "id": "frame_counter_high_bit",
+      "input_values": [
+        0,
+        2097152,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "abadeb295cfe3f6ebd2eecfd0ce0bd2f428772de915c239f360e516c07000000"
+    },
+    {
+      "id": "plaintext_low_and_high_bits",
+      "input_values": [
+        81985529216486895,
+        17,
+        1,
+        1,
+        0,
+        0,
+        -9223372036854775808
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "e2c0f3793f0af5b5dee8b973313079682532d8f0c8554ad5562712ad02000080"
+    },
+    {
+      "id": "sequential_frame_wrap",
+      "input_values": [
+        -81985529216486896,
+        4194303,
+        2,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "a8ae8740d18f600a940f6b88cfb6a1f3ad3f8682dd18512c2f9687470000000001e9bed05be2b4b6592fbdadcd63dfa7773bb39a03229081961325020c000000"
+    },
+    {
+      "id": "invalid_zero_blocks",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
   ]
 }

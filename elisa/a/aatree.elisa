@@ -1,0 +1,187 @@
+const MAX_OPERATIONS: usize = 256
+
+def aa_level(levels: i64&, node: i64) -> i64:
+    if node < 0:
+        return 0
+    levels[node.usize()]
+
+def aa_skew(keys: i64&, left: mutable i64&, right: mutable i64&, levels: mutable i64&, root_value: i64) -> i64:
+    if root_value < 0:
+        return root_value
+    root: mutable usize = root_value.usize()
+    child: i64 = left[root]
+    if child < 0 or levels[child.usize()] != levels[root]:
+        return root_value
+    child_index: usize = child.usize()
+    left[root] <- right[child_index]
+    right[child_index] <- root_value
+    child
+
+def aa_split(keys: i64&, left: mutable i64&, right: mutable i64&, levels: mutable i64&, root_value: i64) -> i64:
+    if root_value < 0:
+        return root_value
+    root: usize = root_value.usize()
+    right_child: mutable i64 = right[root]
+    if right_child < 0:
+        return root_value
+    right_index: usize = right_child.usize()
+    right_right: i64 = right[right_index]
+    if right_right < 0 or levels[root] != levels[right_right.usize()]:
+        return root_value
+    left[root] <- left[right_index]
+    left[right_index] <- root_value
+    levels[right_index] <- levels[right_index] + 1
+    right_child
+
+def aa_contains(keys: i64&, left: i64&, right: i64&, root_value: i64, key: i64) -> bool:
+    root: mutable i64 = root_value
+    while root >= 0:
+        index: usize = root.usize()
+        if key < keys[index]:
+            root <- left[index]
+        elif key > keys[index]:
+            root <- right[index]
+        else:
+            return true
+    false
+
+def aa_insert(keys: mutable i64&, left: mutable i64&, right: mutable i64&, levels: mutable i64&, used: mutable usize&, root_value: i64, key: i64) -> i64:
+    if root_value < 0:
+        fresh: usize = used
+        keys[fresh] <- key
+        left[fresh] <- -1
+        right[fresh] <- -1
+        levels[fresh] <- 1
+        used <- used + 1
+        return fresh.i64()
+    root: usize = root_value.usize()
+    if key < keys[root]:
+        left[root] <- aa_insert(keys, left, right, levels, used, left[root], key)
+    else:
+        right[root] <- aa_insert(keys, left, right, levels, used, right[root], key)
+    aa_split(keys, left, right, levels, aa_skew(keys, left, right, levels, root_value))
+
+def aa_minimum(keys: i64&, left: i64&, root_value: i64) -> i64:
+    root: mutable i64 = root_value
+    while left[root.usize()] >= 0:
+        root <- left[root.usize()]
+    root
+
+def aa_maximum(keys: i64&, right: i64&, root_value: i64) -> i64:
+    root: mutable i64 = root_value
+    while right[root.usize()] >= 0:
+        root <- right[root.usize()]
+    root
+
+def aa_decrease_level(left: i64&, right: mutable i64&, levels: mutable i64&, root_value: i64) -> i64:
+    root: usize = root_value.usize()
+    left_level: i64 = aa_level(levels, left[root])
+    right_level: i64 = aa_level(levels, right[root])
+    new_level: mutable i64 = left_level + 1
+    if right_level < left_level:
+        new_level <- right_level + 1
+    if new_level < levels[root]:
+        levels[root] <- new_level
+        right_child: i64 = right[root]
+        if right_child >= 0 and new_level < levels[right_child.usize()]:
+            levels[right_child.usize()] <- new_level
+    root_value
+
+def aa_remove(keys: mutable i64&, left: mutable i64&, right: mutable i64&, levels: mutable i64&, root_value: i64, key: i64) -> i64:
+    root: mutable usize = root_value.usize()
+    if key < keys[root]:
+        left[root] <- aa_remove(keys, left, right, levels, left[root], key)
+    elif key > keys[root]:
+        right[root] <- aa_remove(keys, left, right, levels, right[root], key)
+    elif left[root] < 0 and right[root] < 0:
+        return -1
+    elif left[root] < 0:
+        successor: i64 = aa_minimum(keys, left, right[root])
+        successor_index: usize = successor.usize()
+        keys[root] <- keys[successor_index]
+        right[root] <- aa_remove(keys, left, right, levels, right[root], keys[successor_index])
+    else:
+        predecessor: i64 = aa_maximum(keys, right, left[root])
+        predecessor_index: usize = predecessor.usize()
+        keys[root] <- keys[predecessor_index]
+        left[root] <- aa_remove(keys, left, right, levels, left[root], keys[predecessor_index])
+    current_root: mutable i64 = aa_decrease_level(left, right, levels, root_value)
+    current_root <- aa_skew(keys, left, right, levels, current_root)
+    root <- current_root.usize()
+    right_child: mutable i64 = right[root]
+    if right_child >= 0:
+        right_child <- aa_skew(keys, left, right, levels, right_child)
+        right_index: usize = right_child.usize()
+        right_right: i64 = right[right_index]
+        if right_right >= 0:
+            right[right_index] <- aa_skew(keys, left, right, levels, right_right)
+        right[root] <- right_child
+    current_root <- aa_split(keys, left, right, levels, current_root)
+    root <- current_root.usize()
+    right_child <- right[root]
+    if right_child >= 0:
+        right[root] <- aa_split(keys, left, right, levels, right_child)
+    current_root
+
+def aa_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def aatree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > MAX_OPERATIONS.i64():
+        return -1
+    operation_count: usize = input[0].usize()
+    if length != 1 + 2 * operation_count:
+        return -1
+    output_bytes: usize = 4 * operation_count
+    if output_bytes > 0 and output_capacity < output_bytes:
+        return -2
+    keys: mutable i64[MAX_OPERATIONS] = zeroed
+    left: mutable i64[MAX_OPERATIONS] = zeroed
+    right: mutable i64[MAX_OPERATIONS] = zeroed
+    levels: mutable i64[MAX_OPERATIONS] = zeroed
+    used: mutable usize = 0
+    root: mutable i64 = -1
+    size: mutable i64 = 0
+    operation: mutable usize = 0
+    while operation < operation_count:
+        opcode: i64 = input[1 + 2 * operation]
+        raw_key: i64 = input[2 + 2 * operation]
+        if opcode < 0 or opcode > 4:
+            return -1
+        if opcode <= 2 and (raw_key < -2147483648 or raw_key > 2147483647):
+            return -1
+        if opcode >= 3 and raw_key != 0:
+            return -1
+        result: mutable i64 = 0
+        if opcode == 0:
+            if aa_contains(&keys[0], &left[0], &right[0], root, raw_key):
+                return -1
+            root <- aa_insert(&keys[0], &left[0], &right[0], &levels[0], used, root, raw_key)
+            size <- size + 1
+            result <- size
+        elif opcode == 1:
+            if not aa_contains(&keys[0], &left[0], &right[0], root, raw_key):
+                return -1
+            root <- aa_remove(&keys[0], &left[0], &right[0], &levels[0], root, raw_key)
+            size <- size - 1
+            result <- size
+        elif opcode == 2:
+            if aa_contains(&keys[0], &left[0], &right[0], root, raw_key):
+                result <- 1
+        elif root < 0:
+            return -1
+        elif opcode == 3:
+            minimum: i64 = aa_minimum(&keys[0], &left[0], root)
+            result <- keys[minimum.usize()]
+        else:
+            maximum: i64 = aa_maximum(&keys[0], &right[0], root)
+            result <- keys[maximum.usize()]
+        aa_write_i32(output, operation * 4, result)
+        operation <- operation + 1
+    output_bytes.i64()
+
+export fn aatree(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = aatree_impl

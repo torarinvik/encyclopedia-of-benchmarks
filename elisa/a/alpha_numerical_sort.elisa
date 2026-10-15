@@ -1,0 +1,73 @@
+# Compare lowercase ASCII alphanumeric strings in natural order.
+def is_digit(value: i64) -> bool:
+    value >= 48 and value <= 57
+
+def valid_string(input: i64&, start: usize, count: usize) -> bool:
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = input[start + i]
+        if not is_digit(value) and (value < 97 or value > 122):
+            return false
+        if value == 48 and i > 0 and is_digit(input[start + i - 1]):
+            return false
+        i <- i + 1
+    true
+
+def alpha_numerical_sort_impl(input: i64&, length: usize) -> i64:
+    if length < 2:
+        return -2
+    first_value: i64 = input[0]
+    if first_value < 0 or first_value > 64:
+        return -2
+    first_length: usize = first_value.usize()
+    if first_length + 1 >= length:
+        return -2
+    second_value: i64 = input[first_length + 1]
+    if second_value < 0 or second_value > 64:
+        return -2
+    second_length: usize = second_value.usize()
+    if length != 2 + first_length + second_length:
+        return -2
+    if not valid_string(input, 2, first_length) or not valid_string(input, 2 + first_length, second_length):
+        return -2
+    i: mutable usize = 0
+    j: mutable usize = 0
+    while i < first_length and j < second_length:
+        a: i64 = input[2 + i]
+        b: i64 = input[2 + first_length + j]
+        if is_digit(a) and is_digit(b):
+            end_a: mutable usize = i
+            end_b: mutable usize = j
+            while end_a < first_length and is_digit(input[2 + end_a]): end_a <- end_a + 1
+            while end_b < second_length and is_digit(input[2 + first_length + end_b]): end_b <- end_b + 1
+            digits_a: usize = end_a - i
+            digits_b: usize = end_b - j
+            if digits_a != digits_b:
+                if digits_a < digits_b:
+                    return -1
+                return 1
+            k: mutable usize = 0
+            while k < digits_a:
+                ca: i64 = input[2 + i + k]
+                cb: i64 = input[2 + first_length + j + k]
+                if ca != cb:
+                    if ca < cb:
+                        return -1
+                    return 1
+                k <- k + 1
+            i <- end_a
+            j <- end_b
+        else:
+            if a != b:
+                if a < b:
+                    return -1
+                return 1
+            i <- i + 1
+            j <- j + 1
+    if i == first_length and j == second_length:
+        return 0
+    if i == first_length:
+        return -1
+    1
+
+export fn alpha_numerical_sort(input: i64&, length: usize) -> i64 = alpha_numerical_sort_impl

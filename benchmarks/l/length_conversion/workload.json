@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "length-conversion-metric-f64-triple-v1",
+  "algorithm": "length_conversion",
+  "function_symbol": "length_conversion",
+  "input": {
+    "kind": "binary64_triple",
+    "layout": ["value", "from_unit", "to_unit"],
+    "unit_selectors": {"0":"mm", "1":"cm", "2":"m", "3":"km"},
+    "value_range": [-1000000.0, 1000000.0],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(value * meters_per_from_unit) / meters_per_to_unit",
+    "meters_per_unit": [0.001, 0.01, 1.0, 1000.0],
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"millimeters-to-meters", "input_values":[1000.0,0.0,2.0], "expected_result":1.0},
+    {"id":"kilometers-to-meters", "input_values":[2.5,3.0,2.0], "expected_result":2500.0},
+    {"id":"meters-to-centimeters", "input_values":[1.0,2.0,1.0], "expected_result":100.0},
+    {"id":"centimeters-to-kilometers", "input_values":[1.0,1.0,3.0], "expected_result":0.00001},
+    {"id":"negative-centimeters-to-meters", "input_values":[-250.0,1.0,2.0], "expected_result":-2.5},
+    {"id":"fractional-millimeters-to-kilometers", "input_values":[0.125,0.0,3.0], "expected_result":1.25e-7},
+    {"id":"zero-length", "input_values":[0.0,3.0,1.0], "expected_result":0.0},
+    {"id":"same-unit", "input_values":[7.25,0.0,0.0], "expected_result":7.25},
+    {"id":"maximum-kilometers-to-millimeters", "input_values":[1000000.0,3.0,0.0], "expected_result":1000000000000.0},
+    {"id":"below-value-bound", "input_values":[-1000001.0,2.0,1.0], "expected_result":-1e300},
+    {"id":"above-value-bound", "input_values":[1000001.0,2.0,1.0], "expected_result":-1e300},
+    {"id":"invalid-from-unit", "input_values":[1.0,4.0,0.0], "expected_result":-1e300},
+    {"id":"fractional-from-unit", "input_values":[1.0,1.5,2.0], "expected_result":-1e300},
+    {"id":"invalid-to-unit", "input_values":[1.0,0.0,-1.0], "expected_result":-1e300},
+    {"id":"fractional-to-unit", "input_values":[1.0,2.0,0.5], "expected_result":-1e300}
+  ]
+}

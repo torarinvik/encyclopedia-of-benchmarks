@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "binary-pow-java-i32-wrap-v1",
+  "algorithm": "binary_pow",
+  "function_symbol": "binary_pow",
+  "input": {
+    "kind": "signed_64_bit_integer_pair",
+    "argument_order": ["base", "exponent"],
+    "source_integer_range": [-2147483648, 2147483647],
+    "invalid_result": -2147483649,
+    "recurrence": "result starts at 1; for each positive exponent bit, multiply result by base when set, square base, then shift exponent right; products wrap modulo 2^32"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_range": [-2147483648, 2147483647],
+    "invalid_input_result": -2147483649
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"zero-to-zero", "input_values":[0,0], "expected_result":1},
+    {"id":"zero-positive", "input_values":[0,17], "expected_result":0},
+    {"id":"one-large-exponent", "input_values":[1,2147483647], "expected_result":1},
+    {"id":"negative-exponent", "input_values":[7,-3], "expected_result":1},
+    {"id":"classic-power", "input_values":[2,10], "expected_result":1024},
+    {"id":"negative-base-odd", "input_values":[-2,3], "expected_result":-8},
+    {"id":"negative-base-even", "input_values":[-2,4], "expected_result":16},
+    {"id":"negative-one-maximum-exponent", "input_values":[-1,2147483647], "expected_result":-1},
+    {"id":"negative-one-even-exponent", "input_values":[-1,2147483646], "expected_result":1},
+    {"id":"signed-overflow-square", "input_values":[46341,2], "expected_result":-2147479015},
+    {"id":"power-wraps-to-zero", "input_values":[2,32], "expected_result":0},
+    {"id":"large-wrapped-power", "input_values":[3,20], "expected_result":-808182895},
+    {"id":"minimum-base-first-power", "input_values":[-2147483648,1], "expected_result":-2147483648},
+    {"id":"minimum-base-square", "input_values":[-2147483648,2], "expected_result":0},
+    {"id":"below-source-range", "input_values":[-2147483649,1], "expected_result":-2147483649},
+    {"id":"above-source-range", "input_values":[2147483648,1], "expected_result":-2147483649}
+  ]
+}

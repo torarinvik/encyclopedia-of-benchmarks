@@ -1,0 +1,106 @@
+const MAX_NODES: usize = 63
+const MAX_OUTPUT: usize = 6 * MAX_NODES + 1
+
+def create_binary_tree_from_inorder_preorder_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or values[0] < 0 or values[0] > MAX_NODES.i64():
+        return -1
+    count: usize = values[0].usize()
+    if length != 1 + 2 * count:
+        return -1
+    for index in 0..<count |values|:
+        pre: i64 = values[1 + index]
+        inorder: i64 = values[1 + count + index]
+        if pre < -2147483648 or pre > 2147483647 or inorder < -2147483648 or inorder > 2147483647:
+            return -1
+        for previous in 0..<index |values|:
+            if pre == values[1 + previous] or inorder == values[1 + count + previous]:
+                return -1
+        matches: mutable usize = 0
+        for other in 0..<count |values, matches|:
+            if pre == values[1 + count + other]:
+                matches <- matches + 1
+        if matches != 1:
+            return -1
+    left_child: mutable i64[MAX_NODES] = zeroed
+    right_child: mutable i64[MAX_NODES] = zeroed
+    for index in 0..<MAX_NODES |left_child, right_child|:
+        left_child[index] <- -1
+        right_child[index] <- -1
+    task_pre: mutable usize[MAX_NODES] = zeroed
+    task_in: mutable usize[MAX_NODES] = zeroed
+    task_size: mutable usize[MAX_NODES] = zeroed
+    task_count: mutable usize = 0
+    if count > 0:
+        task_pre[0] <- 0
+        task_in[0] <- 0
+        task_size[0] <- count
+        task_count <- 1
+    while task_count > 0 |task_count, task_pre, task_in, task_size, left_child, right_child, values|:
+        task_count <- task_count - 1
+        pre_start: usize = task_pre[task_count]
+        in_start: usize = task_in[task_count]
+        size: usize = task_size[task_count]
+        if size == 0 or pre_start + size > count or in_start + size > count:
+            return -1
+        root_position: mutable usize = count
+        for current in in_start..<(in_start + size) |root_position, values|:
+            if values[1 + current] == values[1 + count + pre_start]:
+                root_position <- current
+                break
+        if root_position == count:
+            return -1
+        left_size: usize = root_position - in_start
+        right_size: usize = size - left_size - 1
+        if left_size > 0:
+            left_child[pre_start] <- (pre_start + 1).i64()
+        if right_size > 0:
+            right_child[pre_start] <- (pre_start + left_size + 1).i64()
+        if right_size > 0:
+            task_pre[task_count] <- pre_start + left_size + 1
+            task_in[task_count] <- root_position + 1
+            task_size[task_count] <- right_size
+            task_count <- task_count + 1
+        if left_size > 0:
+            task_pre[task_count] <- pre_start + 1
+            task_in[task_count] <- in_start
+            task_size[task_count] <- left_size
+            task_count <- task_count + 1
+    required: usize = 6 * count + 1
+    if output_capacity < required:
+        return -2
+    encoded: mutable u8[MAX_OUTPUT] = zeroed
+    pending: mutable i64[2 * MAX_NODES + 1] = zeroed
+    top: mutable usize = 1
+    if count == 0:
+        pending[0] <- -1
+    else:
+        pending[0] <- 0
+    written: mutable usize = 0
+    while top > 0 |top, pending, written, encoded, values, right_child, left_child|:
+        top <- top - 1
+        node: i64 = pending[top]
+        if node < 0:
+            encoded[written] <- 0u8
+            written <- written + 1
+        else:
+            value: mutable i64 = values[1 + node.usize()]
+            encoded[written] <- 1u8
+            written <- written + 1
+            for byte in 0..<4 |value, written, encoded|:
+                remainder: mutable i64 = value % 256
+                if remainder < 0:
+                    remainder <- remainder + 256
+                encoded[written] <- remainder.u8()
+                written <- written + 1
+                value <- (value - remainder) / 256
+            pending[top] <- right_child[node.usize()]
+            top <- top + 1
+            pending[top] <- left_child[node.usize()]
+            top <- top + 1
+    for index in 0..<written |output, encoded|:
+        output[index] <- encoded[index]
+    count.i64()
+
+export fn create_binary_tree_from_inorder_preorder(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = create_binary_tree_from_inorder_preorder_impl

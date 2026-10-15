@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "prefix-sum-2d-java-inclusive-region-i32-v1",
+  "algorithm": "prefix_sum2_d",
+  "function_symbol": "prefix_sum2_d",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[rows,cols,row_major_matrix_entries,row1,col1,row2,col2]",
+    "minimum_rows": 1,
+    "maximum_rows": 16,
+    "minimum_columns": 1,
+    "maximum_columns": 16,
+    "matrix_value_range": [-1000, 1000],
+    "query_coordinates": "zero-based inclusive; ordered endpoints within matrix bounds",
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "inclusive rectangular sum via padded 2D prefix table",
+    "invalid_input_result": -9223372036854775808
+  },
+  "cases": [
+    {"id":"source-style-inner-region","input_values":[3,3,1,2,3,4,5,6,7,8,9,0,0,1,1],"expected_result":12},
+    {"id":"full-matrix","input_values":[3,3,1,2,3,4,5,6,7,8,9,0,0,2,2],"expected_result":45},
+    {"id":"single-negative-cell-valid-minus-one","input_values":[1,1,-1,0,0,0,0],"expected_result":-1},
+    {"id":"negative-mixed-region","input_values":[2,3,-1,2,-3,4,-5,6,0,1,1,2],"expected_result":0},
+    {"id":"single-cell","input_values":[2,2,10,-4,7,3,1,0,1,0],"expected_result":7},
+    {"id":"invalid-zero-rows","input_values":[0,2,4,5,0,0,0,1],"expected_result":-9223372036854775808},
+    {"id":"invalid-reversed-row-range","input_values":[2,2,1,2,3,4,1,0,0,1],"expected_result":-9223372036854775808},
+    {"id":"invalid-column-out-of-bounds","input_values":[1,2,3,4,0,0,0,2],"expected_result":-9223372036854775808},
+    {"id":"invalid-packed-length","input_values":[1,1,9,0,0,0],"expected_result":-9223372036854775808}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

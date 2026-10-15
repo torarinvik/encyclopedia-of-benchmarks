@@ -49,6 +49,14 @@ def audit() -> dict:
     entries = []
     missing_implementations = 0
     complete_algorithms = set()
+
+    def has_implementation(language: str, letter: str, algorithm: str, extension: str) -> bool:
+        language_root = ROOT / language / letter
+        return any(path.is_file() for path in (
+            language_root / f"{algorithm}.{extension}",
+            language_root / algorithm / f"{algorithm}.{extension}",
+        ))
+
     for candidate in candidates:
         name = candidate["candidate_id"]
         excluded = candidate["review_status"] in EXCLUDED_STATUSES
@@ -76,7 +84,7 @@ def audit() -> dict:
             guide = ROOT / "benchmarks" / letter / algorithm / "README.md"
             workload = guide.with_name("workload.json")
             missing = [language for language, extension in LANGUAGES.items()
-                       if not (ROOT / language / letter / f"{algorithm}.{extension}").is_file()]
+                       if not has_implementation(language, letter, algorithm, extension)]
             workload_matches = False
             if workload.is_file():
                 spec = json.loads(workload.read_text(encoding="utf-8"))

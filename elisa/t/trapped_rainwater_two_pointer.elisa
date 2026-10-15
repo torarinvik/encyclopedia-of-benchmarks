@@ -1,0 +1,35 @@
+# Sum trapped water by advancing the side with the smaller current boundary.
+def trapped_rainwater_two_pointer_impl(heights: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if heights[index] < 0 or heights[index] > 1000000:
+            return -1
+        index <- index + 1
+    if length <= 2:
+        return 0
+
+    left: mutable usize = 0
+    right: mutable usize = length - 1
+    left_max: mutable u32 = 0
+    right_max: mutable u32 = 0
+    trapped: mutable u32 = 0
+    while left < right:
+        if heights[left] < heights[right]:
+            height: u32 = heights[left].u32()
+            if height >= left_max:
+                left_max <- height
+            else:
+                trapped <- trapped + left_max - height
+            left <- left + 1
+        else:
+            height: u32 = heights[right].u32()
+            if height >= right_max:
+                right_max <- height
+            else:
+                trapped <- trapped + right_max - height
+            right <- right - 1
+    trapped.i64()
+
+export fn trapped_rainwater_two_pointer(heights: i64&, length: usize) -> i64 = trapped_rainwater_two_pointer_impl

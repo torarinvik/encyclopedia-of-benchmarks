@@ -1,0 +1,50 @@
+def rotated_binary_search_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > 256:
+        return -2
+    count: usize = input[0].usize()
+    if length != count + 2:
+        return -2
+    if count == 0:
+        return -1
+    key: i64 = input[count + 1]
+    if key < -2_147_483_648 or key > 2_147_483_647:
+        return -2
+    drops: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        if input[index + 1] < -2_147_483_648 or input[index + 1] > 2_147_483_647:
+            return -2
+        if index > 0 and input[index] > input[index + 1]:
+            drops <- drops + 1
+        index <- index + 1
+    if drops > 1 or (drops == 1 and input[count] > input[1]):
+        return -2
+    left: mutable usize = 0
+    right: mutable usize = count - 1
+    while left <= right:
+        middle: usize = left + (right - left) / 2
+        mid_value: i64 = input[middle + 1]
+        if key == mid_value:
+            return middle.i64()
+        if input[left + 1] == mid_value and mid_value == input[right + 1]:
+            left <- left + 1
+            if right == 0:
+                break
+            right <- right - 1
+            continue
+        if input[left + 1] <= mid_value:
+            if input[left + 1] <= key and key < mid_value:
+                if middle == 0:
+                    break
+                right <- middle - 1
+            else:
+                left <- middle + 1
+        elif mid_value < key and key <= input[right + 1]:
+            left <- middle + 1
+        else:
+            if middle == 0:
+                break
+            right <- middle - 1
+    -1
+
+export fn rotated_binary_search(input: i64&, length: usize) -> i64 = rotated_binary_search_impl

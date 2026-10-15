@@ -67,6 +67,64 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != expected_from_source:
             raise ValueError("fast_factorial expected_result must match the exact factorial on 0..20")
         return
+    if algorithm == "alaw":
+        if not -32768 <= input_value <= 32767:
+            expected_from_source = -1
+        else:
+            sign = 0x80 if input_value < 0 else 0
+            magnitude = -input_value - 1 if input_value < 0 else input_value
+            segment, mask = 7, 0x4000
+            while (magnitude & mask) == 0 and segment > 0:
+                segment -= 1
+                mask >>= 1
+            shift = segment + 3 if segment != 0 else 4
+            quantization = (magnitude >> shift) & 0x0F
+            expected_from_source = (sign | (segment << 4) | quantization) ^ 0xD5
+        if expected_result != expected_from_source:
+            raise ValueError("alaw expected_result must match the bounded A-law encoder")
+        return
+    if algorithm == "alaw_decode":
+        if not 0 <= input_value <= 255:
+            expected_from_source = -1
+        else:
+            codeword = input_value ^ 0xD5
+            magnitude = ((codeword & 0x0F) << 4) | 8
+            segment = (codeword & 0x70) >> 4
+            if segment != 0:
+                magnitude += 0x100
+            shift = segment - 1 if segment > 1 else 0
+            magnitude <<= shift
+            expected_from_source = -magnitude if codeword & 0x80 else magnitude
+        if expected_result != expected_from_source:
+            raise ValueError("alaw_decode expected_result must match the bounded A-law decoder")
+        return
+    if algorithm == "parity_check":
+        if not -(2**31) <= input_value <= 2**31 - 1:
+            expected_from_source = -1
+        elif input_value < 0:
+            expected_from_source = 1
+        else:
+            expected_from_source = int(input_value.bit_count() % 2 == 0)
+        if expected_result != expected_from_source:
+            raise ValueError("parity_check expected_result must match the pinned positive-only bit loop")
+        return
+    if algorithm == "minimum_steps_to_one":
+        if not 1 <= input_value <= 10_000:
+            expected_from_source = -1
+        else:
+            table = [input_value + 1] * (input_value + 1)
+            table[1] = 0
+            for index in range(1, input_value):
+                next_value = index + 1
+                table[next_value] = min(table[next_value], table[index] + 1)
+                if index * 2 <= input_value:
+                    table[index * 2] = min(table[index * 2], table[index] + 1)
+                if index * 3 <= input_value:
+                    table[index * 3] = min(table[index * 3], table[index] + 1)
+            expected_from_source = table[input_value]
+        if expected_result != expected_from_source:
+            raise ValueError("minimum_steps_to_one expected_result must match pinned forward tabulation")
+        return
     if algorithm != "fibonacci_number_golden_ration":
         return
     if not 0 <= input_value <= 70:

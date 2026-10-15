@@ -1,0 +1,69 @@
+# Return one minus character-set Jaccard similarity for two ASCII strings.
+def jaccard_distance_impl(values: i64&, length: usize) -> f64:
+    if length < 2:
+        return -1.0e300
+    left_value: i64 = values[0]
+    right_value: i64 = values[1]
+    if left_value < 0 or left_value > 64 or right_value < 0 or right_value > 64:
+        return -1.0e300
+    left_length: usize = left_value.usize()
+    right_length: usize = right_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1.0e300
+    i: mutable usize = 0
+    k: mutable usize = 0
+    while i < left_length:
+        if values[2 + i] < 32 or values[2 + i] > 126:
+            return -1.0e300
+        i <- i + 1
+    i <- 0
+    while i < right_length:
+        if values[2 + left_length + i] < 32 or values[2 + left_length + i] > 126:
+            return -1.0e300
+        i <- i + 1
+
+    intersection: mutable usize = 0
+    union_length: mutable usize = 0
+    i <- 0
+    while i < left_length:
+        seen_before: mutable bool = false
+        k <- 0
+        while k < i:
+            if values[2 + k] == values[2 + i]:
+                seen_before <- true
+                break
+            k <- k + 1
+        if not seen_before:
+            union_length <- union_length + 1
+            j: mutable usize = 0
+            while j < right_length:
+                if values[2 + i] == values[2 + left_length + j]:
+                    intersection <- intersection + 1
+                    break
+                j <- j + 1
+        i <- i + 1
+    j: mutable usize = 0
+    while j < right_length:
+        seen_before: mutable bool = false
+        k <- 0
+        while k < j:
+            if values[2 + left_length + k] == values[2 + left_length + j]:
+                seen_before <- true
+                break
+            k <- k + 1
+        if not seen_before:
+            in_left: mutable bool = false
+            i <- 0
+            while i < left_length:
+                if values[2 + i] == values[2 + left_length + j]:
+                    in_left <- true
+                    break
+                i <- i + 1
+            if not in_left:
+                union_length <- union_length + 1
+        j <- j + 1
+    if union_length == 0:
+        return 0.0
+    1.0 - intersection.f64() / union_length.f64()
+
+export fn jaccard_distance(values: i64&, length: usize) -> f64 = jaccard_distance_impl

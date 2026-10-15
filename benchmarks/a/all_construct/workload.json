@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "all-construct-lowercase-ascii-v1",
+  "algorithm": "all_construct",
+  "function_symbol": "all_construct",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[target_length, target lowercase ASCII codepoints..., word_count, then (word_length, word lowercase ASCII codepoints...)*]",
+    "maximum_length": 36,
+    "target_length_range": [
+      0,
+      6
+    ],
+    "word_count_range": [
+      0,
+      4
+    ],
+    "word_length_range": [
+      1,
+      6
+    ],
+    "allowed_characters": "lowercase ASCII letters a-z",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "variable_length_bytes",
+    "encoding": "Each row starts with a one-byte word count, followed by each source word as a one-byte length and its ASCII bytes.",
+    "result": "number of construction rows; rows follow target-position, word-bank, then partial-construction traversal order; duplicate bank entries preserve duplicate rows.",
+    "empty_target": "one empty construction encoded as one zero byte",
+    "no_construction": "zero rows and zero output bytes",
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-target",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "purple",
+      "input_values": [
+        6,
+        112,
+        117,
+        114,
+        112,
+        108,
+        101,
+        5,
+        4,
+        112,
+        117,
+        114,
+        112,
+        1,
+        112,
+        2,
+        117,
+        114,
+        2,
+        108,
+        101,
+        5,
+        112,
+        117,
+        114,
+        112,
+        108
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "020470757270026c650401700275720170026c65"
+    },
+    {
+      "id": "hello",
+      "input_values": [
+        5,
+        104,
+        101,
+        108,
+        108,
+        111,
+        3,
+        2,
+        104,
+        101,
+        1,
+        108,
+        1,
+        111
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "04026865016c016c016f"
+    },
+    {
+      "id": "duplicate-bank-entries",
+      "input_values": [
+        2,
+        97,
+        97,
+        2,
+        1,
+        97,
+        1,
+        97
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0201610161020161016102016101610201610161"
+    },
+    {
+      "id": "no-construction",
+      "input_values": [
+        3,
+        97,
+        98,
+        99,
+        2,
+        2,
+        97,
+        98,
+        2,
+        100,
+        101
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 0,
+      "capacity_error_result": -2
+    }
+  ]
+}

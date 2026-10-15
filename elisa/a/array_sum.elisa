@@ -1,0 +1,21 @@
+# Sum a bounded array of nonnegative signed integers.
+def array_sum_impl(values: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 1024:
+        return -1
+    count: usize = count_value.usize()
+    if length != count + 1:
+        return -1
+    sum: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = values[i + 1]
+        if value < 0 or value > 1000000000:
+            return -1
+        sum <- sum + value
+        i <- i + 1
+    sum
+
+export fn array_sum(values: i64&, length: usize) -> i64 = array_sum_impl

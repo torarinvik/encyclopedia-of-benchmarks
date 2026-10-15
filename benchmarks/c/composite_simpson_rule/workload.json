@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "id": "composite-simpson-rule-cpp-bounded-f64-pair-v1",
+  "algorithm": "composite_simpson_rule",
+  "function_symbol": "composite_simpson_rule",
+  "description": "Apply composite Simpson quadrature on [1, 3] to one of the four sample functions in the pinned C++ source.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["interval_count", "function_selector"],
+    "interval_count": "Exact even integer from 2 through 128.",
+    "function_selector": {
+      "0": "sqrt(x) + log(x)",
+      "1": "exp(-x) * (4 - x^2)",
+      "2": "sqrt(2*x^3 + 3)",
+      "3": "x + log(2*x + 1)"
+    },
+    "interval": [1.0, 3.0],
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Composite Simpson weighted sum with h=2/interval_count: h/3 * (f(x0) + 4*f(x1) + 2*f(x2) + ... + 4*f(xN-1) + f(xN)).",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"source_default_f_sqrt_log","input_values":[16.0,0.0],"expected_result":4.093268791737583},
+    {"id":"source_default_g_exp_quadratic","input_values":[16.0,1.0],"expected_result":0.2793534789079481},
+    {"id":"source_default_k_sqrt_cubic","input_values":[16.0,2.0],"expected_result":9.066849087404949},
+    {"id":"source_default_l_linear_log","input_values":[16.0,3.0],"expected_result":7.162766355896682},
+    {"id":"two_intervals_f","input_values":[2.0,0.0],"expected_result":4.086702022656382},
+    {"id":"two_intervals_g","input_values":[2.0,1.0],"expected_result":0.28490099389166906},
+    {"id":"two_intervals_k","input_values":[2.0,2.0],"expected_result":9.073832728977745},
+    {"id":"two_intervals_l","input_values":[2.0,3.0],"expected_result":7.160758029153276},
+    {"id":"maximum_intervals_f","input_values":[128.0,0.0],"expected_result":4.093271813721724},
+    {"id":"maximum_intervals_g","input_values":[128.0,1.0],"expected_result":0.27935244786086705},
+    {"id":"maximum_intervals_k","input_values":[128.0,2.0],"expected_result":9.066848354227414},
+    {"id":"maximum_intervals_l","input_values":[128.0,3.0],"expected_result":7.162767088510678},
+    {"id":"odd_interval_count","input_values":[3.0,0.0],"expected_result":-1.0},
+    {"id":"interval_count_below_minimum","input_values":[0.0,1.0],"expected_result":-1.0},
+    {"id":"interval_count_above_maximum","input_values":[130.0,2.0],"expected_result":-1.0},
+    {"id":"fractional_interval_count","input_values":[16.5,3.0],"expected_result":-1.0},
+    {"id":"unknown_function_selector","input_values":[16.0,4.0],"expected_result":-1.0},
+    {"id":"fractional_function_selector","input_values":[16.0,1.5],"expected_result":-1.0}
+  ]
+}
