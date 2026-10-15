@@ -1,0 +1,73 @@
+const MAX_INPUT: usize = 4096
+const MAX_PADDED: usize = 4160
+
+def rol(value: u32, shift: u32) -> u32:
+    ((value << shift) | (value >> (32 - shift))).u32()
+
+def sha1_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_INPUT or (length > 0 and input.is_null()):
+        return -1
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    padded: mutable u8[MAX_PADDED] = zeroed
+    for index in 0..<length:
+        padded[index] <- input[index].u8()
+    padded[length] <- 128
+    blocks: usize = (length + 9 + 63) / 64
+    padded_length: usize = blocks * 64
+    bit_length: u64 = (length.u64() * 8)
+    for index in 0..<8:
+        padded[padded_length - 1 - index] <- ((bit_length >> (8 * index)) & 255).u8()
+    h0: mutable u32 = 0x67452301
+    h1: mutable u32 = 0xEFCDAB89
+    h2: mutable u32 = 0x98BADCFE
+    h3: mutable u32 = 0x10325476
+    h4: mutable u32 = 0xC3D2E1F0
+    for block in 0..<blocks:
+        words: mutable u32[80] = zeroed
+        for index in 0..<16:
+            position: usize = block * 64 + index * 4
+            words[index] <- (padded[position].u32() << 24) | (padded[position + 1].u32() << 16) | (padded[position + 2].u32() << 8) | padded[position + 3].u32()
+        for index in 16..<80:
+            words[index] <- rol(words[index - 3] ^ words[index - 8] ^ words[index - 14] ^ words[index - 16], 1)
+        a: mutable u32 = h0
+        b: mutable u32 = h1
+        c: mutable u32 = h2
+        d: mutable u32 = h3
+        e: mutable u32 = h4
+        for index in 0..<80:
+            f: mutable u32 = 0
+            k: mutable u32 = 0
+            if index < 20:
+                f <- (b & c) | ((~b) & d)
+                k <- 0x5A827999
+            elif index < 40:
+                f <- b ^ c ^ d
+                k <- 0x6ED9EBA1
+            elif index < 60:
+                f <- (b & c) | (b & d) | (c & d)
+                k <- 0x8F1BBCDC
+            else:
+                f <- b ^ c ^ d
+                k <- 0xCA62C1D6
+            temporary: u32 = ((rol(a, 5).u64() + f.u64() + e.u64() + k.u64() + words[index].u64()) & 0xFFFFFFFF).u32()
+            e <- d
+            d <- c
+            c <- rol(b, 30)
+            b <- a
+            a <- temporary
+        h0 <- ((h0.u64() + a.u64()) & 0xFFFFFFFF).u32()
+        h1 <- ((h1.u64() + b.u64()) & 0xFFFFFFFF).u32()
+        h2 <- ((h2.u64() + c.u64()) & 0xFFFFFFFF).u32()
+        h3 <- ((h3.u64() + d.u64()) & 0xFFFFFFFF).u32()
+        h4 <- ((h4.u64() + e.u64()) & 0xFFFFFFFF).u32()
+    if output.is_null() or capacity < 20:
+        return -2
+    digest: u32[5] = [h0, h1, h2, h3, h4]
+    for index in 0..<5:
+        for byte in 0..<4:
+            output[index * 4 + byte] <- ((digest[index] >> (24 - 8 * byte)) & 255).u8()
+    20
+
+export fn sha1(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sha1_impl

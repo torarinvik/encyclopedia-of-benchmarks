@@ -17,7 +17,7 @@ fn transform(real: *[64]f64, imag: *[64]f64, n: usize) void {
     var block: usize = 2;
     while (block <= n) : (block *= 2) {
         const angle = 6.283185307179586476925286766559 / @as(f64, @floatFromInt(block));
-        const step_real, const step_imag = @cos(angle), -@sin(angle);
+        const step_real, const step_imag = .{@cos(angle), -@sin(angle)};
         var start: usize = 0;
         while (start < n) : (start += block) {
             var weight_real: f64 = 1.0; var weight_imag: f64 = 0.0;

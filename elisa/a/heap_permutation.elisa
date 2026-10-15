@@ -1,0 +1,39 @@
+def put_i32(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    for byte in 0..<4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def generate(values: mutable i32&, n: usize, k: usize, output: mutable u8&, rows: mutable usize&) -> void:
+    if k == 1:
+        start: usize = rows * n * 4
+        for index in 0..<n: put_i32(output, start + index * 4, values[index])
+        rows <- rows + 1
+        return
+    for index in 0..<k:
+        swap_index: usize = if k % 2 == 0 then index else 0
+        temporary: i32 = values[swap_index]
+        values[swap_index] <- values[k - 1]
+        values[k - 1] <- temporary
+        generate(values, n, k - 1, output, rows)
+
+def heap_permutation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 8: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 7 or length != (n_value + 1).usize(): return -1
+    n: usize = n_value.usize()
+    values: mutable i32[7] = zeroed
+    for index in 0..<n:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647: return -1
+        values[index] <- value.i32()
+    permutations: mutable usize = 1
+    for factor in 2..<n + 1: permutations <- permutations * factor
+    required: usize = permutations * n * 4
+    if capacity < required or (required != 0 and output.is_null()): return -2
+    if n == 0: return 1
+    rows: mutable usize = 0
+    generate(values, n, n, output, rows)
+    rows.i64()
+
+export fn heap_permutation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heap_permutation_impl

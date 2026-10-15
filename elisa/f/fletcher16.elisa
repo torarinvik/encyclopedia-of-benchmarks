@@ -1,0 +1,19 @@
+# Fletcher-16 checksum for bounded ASCII byte arrays.
+const MAX_BYTES: usize = 4096
+
+def fletcher16_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_BYTES:
+        return -1
+    sum1: mutable i64 = 0
+    sum2: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        byte: i64 = values[index]
+        if byte < 0 or byte > 127:
+            return -1
+        sum1 <- (sum1 + byte) % 255
+        sum2 <- (sum2 + sum1) % 255
+        index <- index + 1
+    (sum2 << 8) | sum1
+
+export fn fletcher16(values: i64&, length: usize) -> i64 = fletcher16_impl

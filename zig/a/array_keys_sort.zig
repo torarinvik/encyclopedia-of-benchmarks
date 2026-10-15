@@ -13,7 +13,7 @@ fn compareRows(left: *[4]i64, right: *[4]i64, keys: *[4]i64, key_count: usize, a
 export fn array_keys_sort(values: ?[*]const i64, length: usize, output: ?[*]u8, output_capacity: usize) i64 {
     if (values == null or length < 8 or length > 263) return -1;
     const input = values.?[0..length];
-    const raw_count, const raw_key_count, const order = input[0], input[1], input[2];
+    const raw_count = input[0]; const raw_key_count = input[1]; const order = input[2];
     if (raw_count < 1 or raw_count > 64 or raw_key_count < 1 or raw_key_count > 4 or (order != 0 and order != 1)) return -1;
     const count: usize = @intCast(raw_count); const key_count: usize = @intCast(raw_key_count);
     if (length != 3 + key_count + 4 * count) return -1;
@@ -31,9 +31,11 @@ export fn array_keys_sort(values: ?[*]const i64, length: usize, output: ?[*]u8, 
         if (value < -1000 or value > 1000) return -1;
         rows[index] = value;
     }
-    for (0..count) |left| for (left + 1..count) |right| {
-        if (compareRows(@ptrCast(&rows[left * 4]), @ptrCast(&rows[right * 4]), &keys, key_count, true) == 0) return -1;
-    };
+    for (0..count) |left| {
+        for (left + 1..count) |right| {
+            if (compareRows(@ptrCast(&rows[left * 4]), @ptrCast(&rows[right * 4]), &keys, key_count, true) == 0) return -1;
+        }
+    }
     const byte_count = 32 * count;
     if (output == null or output_capacity < byte_count) return -2;
     for (1..count) |index| {

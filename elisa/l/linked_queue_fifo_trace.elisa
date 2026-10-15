@@ -1,0 +1,56 @@
+def linked_queue_fifo_trace_put_i32(output: mutable u8&, index: usize, value: i64) -> void:
+    bits: u32 = value.i32().u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[index * 4 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def linked_queue_fifo_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 127: return -1
+    operations: usize = input[0].usize()
+    if length != 1 + 2 * operations: return -1
+    values: mutable i64[127] = zeroed
+    next: mutable i64[127] = zeroed
+    result: mutable i64[127] = zeroed
+    index: mutable usize = 0
+    while index < 127:
+        next[index] <- -1
+        index <- index + 1
+    head: mutable i64 = -1
+    rear: mutable i64 = -1
+    nodes: mutable usize = 0
+    count: mutable usize = 0
+    closed: mutable bool = false
+    index <- 0
+    while index < operations:
+        operation: i64 = input[1 + 2 * index]
+        value: i64 = input[2 + 2 * index]
+        if operation == 0:
+            if closed or value < -2147483648 or value > 2147483647 or nodes >= 127: return -1
+            node: i64 = nodes.i64()
+            nodes <- nodes + 1
+            values[node.usize()] <- value
+            next[node.usize()] <- -1
+            if head < 0: head <- node
+            else: next[rear.usize()] <- node
+            rear <- node
+        else if operation == 1:
+            if value != 0 or head < 0: return -1
+            result[count] <- values[head.usize()]
+            count <- count + 1
+            head <- next[head.usize()]
+            if head < 0: rear <- -1; closed <- true
+        else:
+            return -1
+        index <- index + 1
+    while head >= 0:
+        result[count] <- values[head.usize()]
+        count <- count + 1
+        head <- next[head.usize()]
+    bytes: usize = count * 4
+    if bytes > 0 and (output.is_null() or capacity < bytes): return -2
+    index <- 0
+    while index < count:
+        linked_queue_fifo_trace_put_i32(output, index, result[index])
+        index <- index + 1
+    bytes.i64()

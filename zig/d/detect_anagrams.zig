@@ -21,6 +21,7 @@ export fn detect_anagrams(
     const subject_length_value = values[0];
     if (subject_length_value < 0 or subject_length_value > MAX_STRING_LENGTH) return -1;
     const subject_length: usize = @intCast(subject_length_value);
+    if (subject_length + 1 >= length) return -1;
     var position: usize = 1;
     var subject_counts: [26]usize = @splat(0);
     for (0..subject_length) |index| {

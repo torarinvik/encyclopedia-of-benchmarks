@@ -1,0 +1,60 @@
+def hill_cipher_mod36_symbol(value: i64) -> i64:
+    code: i64 = value
+    if code >= 97 and code <= 122:
+        code <- code - 32
+    if code >= 65 and code <= 90:
+        return code - 65
+    if code >= 48 and code <= 57:
+        return code - 48 + 26
+    -1
+
+def hill_cipher_mod36_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or input[0] < 0 or input[0] > 1:
+        return -1
+    raw_length: i64 = input[1]
+    if raw_length < 1 or raw_length > 256 or length != (raw_length + 2).usize():
+        return -1
+    values: mutable i64[256] = zeroed
+    count: mutable usize = 0
+    index: mutable usize = 0
+    while index < raw_length.usize():
+        byte: i64 = input[2 + index]
+        if byte < 0 or byte > 127:
+            return -1
+        value: i64 = hill_cipher_mod36_symbol(byte)
+        if value >= 0:
+            values[count] <- value
+            count <- count + 1
+        index <- index + 1
+    if count == 0:
+        return -1
+    if count % 2 != 0:
+        values[count] <- values[count - 1]
+        count <- count + 1
+    if output.is_null() or capacity < count:
+        return -2
+    decrypt: bool = input[0] == 1
+    index <- 0
+    while index < count:
+        a: i64 = values[index]
+        b: i64 = values[index + 1]
+        first: i64 = 0
+        second: i64 = 0
+        if decrypt:
+            first <- (6 * a + 25 * b) % 36
+            second <- (5 * a + 26 * b) % 36
+        else:
+            first <- (2 * a + 5 * b) % 36
+            second <- (a + 6 * b) % 36
+        if first < 26:
+            output[index] <- (65 + first).u8()
+        else:
+            output[index] <- (48 + first - 26).u8()
+        if second < 26:
+            output[index + 1] <- (65 + second).u8()
+        else:
+            output[index + 1] <- (48 + second - 26).u8()
+        index <- index + 2
+    count.i64()
+
+export fn hill_cipher_mod36(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hill_cipher_mod36_impl

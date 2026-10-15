@@ -16,6 +16,7 @@ proc detect_anagrams*(input: ptr UncheckedArray[int64], length: csize_t,
   let subjectLengthValue = input[0]
   if subjectLengthValue < 0 or subjectLengthValue > MaxStringLength: return -1
   let subjectLength = int(subjectLengthValue)
+  if subjectLength + 1 >= count: return -1
   var position = 1
   var subjectCounts: array[26, int]
   for index in 0 ..< subjectLength:

@@ -1,0 +1,46 @@
+const ALPHABET_VALUES: i64[97] = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 126, 33, 64, 35, 36, 37, 94, 38, 42, 40, 41, 95, 43, 96, 45, 61, 91, 93, 123, 125, 124, 59, 39, 34, 58, 44, 46, 47, 60, 62, 63, 92, 13, 10, 32]
+
+def alphabet_index(value: i64, alphabet: i64&) -> i64:
+    index: usize = 0
+    while index < 97:
+        if alphabet[index] == value:
+            return index.i64()
+        index <- index + 1
+    -1
+
+def hill_cipher_mod97_cpp_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > 258:
+        return -1
+    operation: i64 = values[0]
+    raw_length: i64 = values[1]
+    if (operation != 0 and operation != 1) or raw_length < 1 or raw_length > 256 or length != raw_length.usize() + 2:
+        return -1
+    text_length: usize = raw_length.usize()
+    alphabet: mutable i64[97] = ALPHABET_VALUES
+    indices: mutable i64[256] = zeroed
+    index: usize = 0
+    while index < text_length:
+        mapped: i64 = alphabet_index(values[index + 2], alphabet[0])
+        if mapped < 0:
+            return -1
+        indices[index] <- mapped
+        index <- index + 1
+    output_length: usize = text_length + text_length % 2
+    if output.is_null() or capacity < output_length:
+        return -2
+    key0: i64 = if operation == 0: 2 else: 84
+    key1: i64 = if operation == 0: 5 else: 27
+    key2: i64 = if operation == 0: 1 else: 83
+    key3: i64 = if operation == 0: 6 else: 28
+    offset: usize = 0
+    while offset < output_length:
+        first: i64 = indices[offset]
+        second: i64 = if offset + 1 < text_length: indices[offset + 1] else: 0
+        row0: usize = ((key0 * first + key1 * second) % 97).usize()
+        row1: usize = ((key2 * first + key3 * second) % 97).usize()
+        output[offset] <- alphabet[row0].u8()
+        output[offset + 1] <- alphabet[row1].u8()
+        offset <- offset + 2
+    output_length.i64()
+
+export fn hill_cipher_mod97_cpp(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hill_cipher_mod97_cpp_impl

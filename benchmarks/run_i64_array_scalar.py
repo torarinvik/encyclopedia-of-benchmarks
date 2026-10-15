@@ -104,7 +104,60 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "fast_inverse_sqrt_java_check":
+    if algorithm == "hopcroft_karp_cardinality":
+        valid = (
+            len(values) >= 3
+            and 0 <= values[0] <= 64
+            and 0 <= values[1] <= 64
+            and 0 <= values[2] <= 4096
+            and len(values) == 3 + 2 * values[2]
+        )
+        if valid:
+            left_count, right_count, edge_count = values[:3]
+            adjacency = [set() for _ in range(left_count)]
+            for offset in range(3, len(values), 2):
+                left, right = values[offset:offset + 2]
+                if not 0 <= left < left_count or not 0 <= right < right_count:
+                    valid = False
+                    break
+                adjacency[left].add(right)
+        if not valid:
+            expected_from_source = -1
+        else:
+            matched_left = [-1] * right_count
+
+            def augment(left: int, seen_right: set[int]) -> bool:
+                for right in sorted(adjacency[left]):
+                    if right in seen_right:
+                        continue
+                    seen_right.add(right)
+                    if matched_left[right] == -1 or augment(matched_left[right], seen_right):
+                        matched_left[right] = left
+                        return True
+                return False
+
+            expected_from_source = sum(
+                1 for left in range(left_count) if augment(left, set())
+            )
+        if expected != expected_from_source:
+            raise ValueError("hopcroft_karp_cardinality expected_result must match maximum bipartite matching cardinality")
+    elif algorithm == "faraday_lenz_law":
+        valid = (len(values) == 3 and -1_000_000_000 <= values[0] <= 1_000_000_000
+                 and -1_000_000_000 <= values[1] <= 1_000_000_000
+                 and 1 <= values[2] <= 1_000_000_000)
+        if valid:
+            numerator = -(values[0] - values[1]) * 10
+            sign = -1 if numerator < 0 else 1
+            quotient, remainder = divmod(abs(numerator), values[2])
+            twice_remainder = 2 * remainder
+            if twice_remainder > values[2] or (twice_remainder == values[2] and quotient % 2 == 1):
+                quotient += 1
+            expected_from_source = sign * quotient
+        else:
+            expected_from_source = I64_MIN
+        if expected != expected_from_source:
+            raise ValueError("faraday_lenz_law expected_result must match signed ties-to-even rounding in decivolts")
+    elif algorithm == "fast_inverse_sqrt_java_check":
         valid = len(values) == 2
         expected_from_source = -1
         if valid:
@@ -995,6 +1048,17 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = hash_value if hash_value < 2**63 else hash_value - 2**64
         if expected != expected_from_source:
             raise ValueError("hash_sdbm expected_result must be the signed i64 interpretation of the SDBM hash")
+    elif algorithm == "fletcher16":
+        valid = len(values) <= 4096 and all(0 <= byte <= 127 for byte in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            sum1 = sum(values) % 255
+            sum2 = sum((len(values) - index) * byte
+                       for index, byte in enumerate(values)) % 255
+            expected_from_source = (sum2 << 8) | sum1
+        if expected != expected_from_source:
+            raise ValueError("fletcher16 expected_result must match the bounded ASCII Fletcher-16 checksum")
     elif algorithm == "rotated_binary_search":
         valid_shape = (
             2 <= len(values) <= 258

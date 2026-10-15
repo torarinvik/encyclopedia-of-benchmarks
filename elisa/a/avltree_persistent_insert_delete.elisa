@@ -1,0 +1,174 @@
+def node_height(heights: i64&, id: usize) -> i64:
+    if id == 0: return -1
+    heights[id]
+
+def make_node(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, value: i64, left: usize, right: usize) -> usize:
+    id: usize = next
+    next <- next + 1
+    values[id] <- value
+    lefts[id] <- left
+    rights[id] <- right
+    left_height: i64 = node_height(heights, left)
+    right_height: i64 = node_height(heights, right)
+    heights[id] <- 1 + (left_height if left_height > right_height else right_height)
+    id
+
+def node_balance(lefts: usize&, rights: usize&, heights: i64&, id: usize) -> i64:
+    node_height(heights, rights[id]) - node_height(heights, lefts[id])
+
+def rotate_right(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize) -> usize:
+    left: usize = lefts[root]
+    root_value: i64 = values[root]
+    left_value: i64 = values[left]
+    left_left: usize = lefts[left]
+    moved: usize = make_node(values, lefts, rights, heights, next, root_value, rights[left], rights[root])
+    make_node(values, lefts, rights, heights, next, left_value, left_left, moved)
+
+def rotate_left(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize) -> usize:
+    right: usize = rights[root]
+    root_value: i64 = values[root]
+    right_value: i64 = values[right]
+    right_right: usize = rights[right]
+    moved: usize = make_node(values, lefts, rights, heights, next, root_value, lefts[root], lefts[right])
+    make_node(values, lefts, rights, heights, next, right_value, moved, right_right)
+
+def rebalance(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize) -> usize:
+    balance: i64 = node_balance(lefts, rights, heights, root)
+    if balance > 1:
+        if node_balance(lefts, rights, heights, rights[root]) < 0:
+            rotated: usize = rotate_right(values, lefts, rights, heights, next, rights[root])
+            root <- make_node(values, lefts, rights, heights, next, values[root], lefts[root], rotated)
+        return rotate_left(values, lefts, rights, heights, next, root)
+    if balance < -1:
+        if node_balance(lefts, rights, heights, lefts[root]) > 0:
+            rotated: usize = rotate_left(values, lefts, rights, heights, next, lefts[root])
+            root <- make_node(values, lefts, rights, heights, next, values[root], rotated, rights[root])
+        return rotate_right(values, lefts, rights, heights, next, root)
+    root
+
+def insert_node(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize, value: i64) -> usize:
+    if root == 0: return make_node(values, lefts, rights, heights, next, value, 0, 0)
+    if value == values[root]: return root
+    if value < values[root]:
+        left: usize = insert_node(values, lefts, rights, heights, next, lefts[root], value)
+        return rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, values[root], left, rights[root]))
+    right: usize = insert_node(values, lefts, rights, heights, next, rights[root], value)
+    rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, values[root], lefts[root], right))
+
+def delete_min(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize, minimum: mutable i64&) -> usize:
+    if lefts[root] == 0:
+        minimum <- values[root]
+        return rights[root]
+    left: usize = delete_min(values, lefts, rights, heights, next, lefts[root], minimum)
+    rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, values[root], left, rights[root]))
+
+def delete_node(values: mutable i64&, lefts: mutable usize&, rights: mutable usize&, heights: mutable i64&, next: mutable usize&, root: usize, value: i64) -> usize:
+    if root == 0: return 0
+    if value < values[root]:
+        left: usize = delete_node(values, lefts, rights, heights, next, lefts[root], value)
+        return rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, values[root], left, rights[root]))
+    if value > values[root]:
+        right: usize = delete_node(values, lefts, rights, heights, next, rights[root], value)
+        return rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, values[root], lefts[root], right))
+    if lefts[root] == 0: return rights[root]
+    if rights[root] == 0: return lefts[root]
+    successor: mutable i64 = 0
+    right: usize = delete_min(values, lefts, rights, heights, next, rights[root], &successor)
+    rebalance(values, lefts, rights, heights, next, make_node(values, lefts, rights, heights, next, successor, lefts[root], right))
+
+def put_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position] <- (bits & 255).u8()
+        bits <- bits >> 8
+        position <- position + 1
+        byte <- byte + 1
+    position
+
+def avltree_persistent_insert_delete_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 0 or input[0] > 32 or length != (1 + 3 * input[0]).usize(): return -1
+    operations: usize = input[0].usize()
+    index: mutable usize = 0
+    while index < operations:
+        parent: i64 = input[1 + 3 * index]
+        operation: i64 = input[2 + 3 * index]
+        value: i64 = input[3 + 3 * index]
+        if parent < 0 or parent > index.i64() or (operation != 0 and operation != 1) or value < -1000 or value > 1000: return -1
+        index <- index + 1
+    values: mutable i64[8192] = zeroed
+    lefts: mutable usize[8192] = zeroed
+    rights: mutable usize[8192] = zeroed
+    heights: mutable i64[8192] = zeroed
+    heights[0] <- -1
+    roots: mutable usize[33] = zeroed
+    next: mutable usize = 1
+    index <- 0
+    while index < operations:
+        parent_version: usize = input[1 + 3 * index].usize()
+        value: i64 = input[3 + 3 * index]
+        if input[2 + 3 * index] == 0:
+            roots[index + 1] <- insert_node(values, lefts, rights, heights, &next, roots[parent_version], value)
+        else:
+            roots[index + 1] <- delete_node(values, lefts, rights, heights, &next, roots[parent_version], value)
+        if next >= 8128: return -1
+        index <- index + 1
+    packed: mutable i64[5000] = zeroed
+    used: mutable usize = 0
+    packed[used] <- (operations + 1).i64()
+    used <- used + 1
+    version: mutable usize = 0
+    while version <= operations:
+        root: usize = roots[version]
+        queue: mutable usize[33] = zeroed
+        local: mutable i64[8192] = zeroed
+        left_ids: mutable i64[33] = zeroed
+        right_ids: mutable i64[33] = zeroed
+        slot: mutable usize = 0
+        while slot < 8192:
+            local[slot] <- -1
+            slot <- slot + 1
+        tail: mutable usize = 0
+        if root != 0:
+            queue[0] <- root
+            local[root] <- 0
+            tail <- 1
+        head: mutable usize = 0
+        while head < tail:
+            left_ids[head] <- -1
+            right_ids[head] <- -1
+            child_side: mutable usize = 0
+            while child_side < 2:
+                child: usize = lefts[queue[head]]
+                if child_side == 1: child <- rights[queue[head]]
+                if child != 0:
+                    if local[child] < 0:
+                        local[child] <- tail.i64()
+                        queue[tail] <- child
+                        tail <- tail + 1
+                    if child_side == 0: left_ids[head] <- local[child]
+                    else: right_ids[head] <- local[child]
+                child_side <- child_side + 1
+            head <- head + 1
+        packed[used] <- tail.i64()
+        used <- used + 1
+        packed[used] <- node_height(heights, root)
+        used <- used + 1
+        head <- 0
+        while head < tail:
+            node: usize = queue[head]
+            packed[used] <- values[node]
+            packed[used + 1] <- heights[node]
+            packed[used + 2] <- left_ids[head]
+            packed[used + 3] <- right_ids[head]
+            used <- used + 4
+            head <- head + 1
+        version <- version + 1
+    required: usize = used * 8
+    if output.is_null() or capacity < required: return -2
+    index <- 0
+    while index < used:
+        put_i64(output, &index, packed[index])
+    required.i64()
+
+export fn avltree_persistent_insert_delete(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = avltree_persistent_insert_delete_impl

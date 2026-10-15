@@ -1,0 +1,23 @@
+# Return induced electromotive force in tenths of a volt using milli-units.
+def faraday_lenz_law_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -9223372036854775807 - 1
+    final_flux: i64 = values[0]
+    initial_flux: i64 = values[1]
+    interval: i64 = values[2]
+    if (final_flux < -1000000000 or final_flux > 1000000000 or
+        initial_flux < -1000000000 or initial_flux > 1000000000 or interval < 1 or interval > 1000000000):
+        return -9223372036854775807 - 1
+    numerator: i64 = -(final_flux - initial_flux) * 10
+    magnitude: mutable i64 = numerator
+    if magnitude < 0:
+        magnitude <- -magnitude
+    quotient: mutable i64 = magnitude / interval
+    remainder: i64 = magnitude % interval
+    if 2 * remainder > interval or (2 * remainder == interval and quotient % 2 != 0):
+        quotient <- quotient + 1
+    if numerator < 0:
+        return -quotient
+    quotient
+
+export fn faraday_lenz_law(values: i64&, length: usize) -> i64 = faraday_lenz_law_impl

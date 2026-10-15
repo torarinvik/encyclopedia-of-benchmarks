@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "id": "faraday-lenz-law-python-bounded-fixed-point-v1",
+  "algorithm": "faraday_lenz_law",
+  "function_symbol": "faraday_lenz_law",
+  "description": "Compute the negative magnetic-flux change per time interval and round the induced electromotive force to one decimal place.",
+  "input": {
+    "kind": "fixed_point_flux_interval",
+    "encoding": "[final_flux_milliweber, initial_flux_milliweber, interval_milliseconds]",
+    "flux_range_milliweber": [
+      -1000000000,
+      1000000000
+    ],
+    "interval_range_milliseconds": [
+      1,
+      1000000000
+    ],
+    "flux_units": "Each flux integer is in 0.001 weber increments.",
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_integer",
+    "definition": "Induced electromotive force in decivolts, rounded to nearest with ties to even; invalid inputs return the signed 64-bit minimum sentinel.",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example_negative_emf",
+      "input_values": [
+        50000,
+        20000,
+        3000
+      ],
+      "expected_result": -100
+    },
+    {
+      "id": "source_example_one_volt",
+      "input_values": [
+        40000,
+        30000,
+        10000
+      ],
+      "expected_result": -10
+    },
+    {
+      "id": "source_example_positive_emf",
+      "input_values": [
+        30000,
+        50000,
+        10000
+      ],
+      "expected_result": 20
+    },
+    {
+      "id": "unchanged_flux",
+      "input_values": [
+        100000,
+        100000,
+        20000
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_half_tie_rounds_to_zero",
+      "input_values": [
+        1,
+        0,
+        20
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one_and_a_half_tie_rounds_even",
+      "input_values": [
+        3,
+        0,
+        20
+      ],
+      "expected_result": -2
+    },
+    {
+      "id": "negative_two_and_a_half_tie_rounds_even",
+      "input_values": [
+        5,
+        0,
+        20
+      ],
+      "expected_result": -2
+    },
+    {
+      "id": "negative_three_and_a_half_tie_rounds_even",
+      "input_values": [
+        7,
+        0,
+        20
+      ],
+      "expected_result": -4
+    },
+    {
+      "id": "positive_half_even_tie",
+      "input_values": [
+        0,
+        3,
+        20
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "minimum_interval",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "expected_result": -10
+    },
+    {
+      "id": "maximum_interval",
+      "input_values": [
+        1000000000,
+        -1000000000,
+        1000000000
+      ],
+      "expected_result": -20
+    },
+    {
+      "id": "maximum_flux_magnitude",
+      "input_values": [
+        1000000000,
+        -1000000000,
+        1
+      ],
+      "expected_result": -20000000000
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "zero_interval",
+      "input_values": [
+        0,
+        1,
+        0
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "negative_interval",
+      "input_values": [
+        0,
+        1,
+        -1
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "flux_out_of_range",
+      "input_values": [
+        1000000001,
+        0,
+        1
+      ],
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

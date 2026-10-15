@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "hill-cipher-mod36-fixed-key-ascii-v1",
+  "algorithm": "hill_cipher_mod36",
+  "function_symbol": "hill_cipher_mod36",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": [
+      "operation (0=encrypt, 1=decrypt)",
+      "raw_length",
+      "ASCII bytes[0..raw_length]"
+    ],
+    "raw_length_range": [1, 256],
+    "ascii_byte_range": [0, 127],
+    "fixed_key_row_major": [2, 5, 1, 6],
+    "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    "processing": "uppercase ASCII, filter to alphabet, repeat final retained symbol until length is a multiple of 2; filtered input must be nonempty",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "ascii_byte_vector",
+    "description": "uppercase ASCII ciphertext or plaintext",
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "upstream_encrypt_example",
+      "input_values": [0, 19, 84, 101, 115, 116, 105, 110, 103, 32, 72, 105, 108, 108, 32, 67, 105, 112, 104, 101, 114],
+      "expected_result": 18,
+      "expected_output_hex": "574858594a4f4c4d39433658543038354c4c"
+    },
+    {
+      "id": "lowercase_filter_and_repeat_pad",
+      "input_values": [0, 6, 104, 101, 108, 108, 111, 33],
+      "expected_result": 6,
+      "expected_output_hex": "383546463030"
+    },
+    {
+      "id": "upstream_decrypt_example",
+      "input_values": [1, 6, 56, 53, 70, 70, 48, 48],
+      "expected_result": 6,
+      "expected_output_hex": "48454c4c4f4f"
+    },
+    {
+      "id": "alphanumeric_filter",
+      "input_values": [0, 4, 97, 49, 45, 122],
+      "expected_result": 4,
+      "expected_output_hex": "31533535"
+    },
+    {
+      "id": "filtered_input_is_empty",
+      "input_values": [0, 3, 33, 32, 63],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [2, 1, 65],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [0, 2, 65],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [0, 5, 104, 101, 108, 108, 111],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 0,
+      "capacity_error_result": -2
+    }
+  ]
+}

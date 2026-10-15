@@ -16,7 +16,8 @@ import subprocess
 from build_abi import ROOT, sha256_file
 
 SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions",
-                       "leaky_relu", "exponential_linear_unit", "composite_simpson_rule"}
+                       "leaky_relu", "exponential_linear_unit", "composite_simpson_rule",
+                       "false_position"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -131,6 +132,19 @@ def encode_case(case: dict, tolerance: float,
             scale = max(1.0, abs(first), abs(second))
             if expected == -1.0 or abs(expected - expected_value) > tolerance * scale:
                 raise ValueError("composite_simpson_rule expected result must match the pinned weighted sum")
+    elif algorithm == "false_position":
+        first_value = first * first - first
+        second_value = second * second - second
+        valid = (0.125 <= first <= 0.875 and
+                 ((-2.0 <= second <= -0.125) or (1.125 <= second <= 3.0)) and
+                 first_value < 0.0 and second_value > 0.0)
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid false_position inputs must use the -1 result sentinel")
+        else:
+            root = 0.0 if second < 0.0 else 1.0
+            if expected == -1.0 or abs(expected - root) > tolerance * max(1.0, abs(first), abs(second)):
+                raise ValueError("false_position expected result must match the uniquely bracketed root")
     else:
         raise ValueError(f"unsupported float64_pair algorithm: {algorithm}")
     return first, second, float(expected)

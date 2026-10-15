@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "linked-queue-fifo-trace-v1",
+  "algorithm": "linked_queue_fifo_trace",
+  "function_symbol": "linked_queue_fifo_trace",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[operation_count, (operation,value)...]",
+    "operation_count_range": [
+      0,
+      127
+    ],
+    "operation_codes": {
+      "0": "enqueue a non-null signed i32 value",
+      "1": "dequeue; the paired value must be zero"
+    },
+    "queue_rules": [
+      "dequeue only when the queue is nonempty",
+      "do not enqueue after a dequeue empties the queue"
+    ],
+    "finish": "drain all remaining queue elements after the explicit trace",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i32_vector",
+    "meaning": "values returned by explicit dequeues followed by the final drain",
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "alternating_then_drain",
+      "input_values": [
+        5,
+        0,
+        10,
+        0,
+        -2,
+        1,
+        0,
+        0,
+        7,
+        1,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": 12,
+      "expected_output_hex": "0a000000feffffff07000000"
+    },
+    {
+      "id": "batch_dequeues_then_drain",
+      "input_values": [
+        7,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        1,
+        0,
+        1,
+        0,
+        0,
+        4,
+        0,
+        5
+      ],
+      "input_length": 15,
+      "expected_result": 20,
+      "expected_output_hex": "0100000002000000030000000400000005000000"
+    },
+    {
+      "id": "repeated_and_negative_values",
+      "input_values": [
+        4,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        -1,
+        1,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 12,
+      "expected_output_hex": "ffffffff00000000ffffffff"
+    },
+    {
+      "id": "empty_trace",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "minimum_i32_value",
+      "input_values": [
+        1,
+        0,
+        -2147483648
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000080"
+    },
+    {
+      "id": "dequeue_underflow",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "enqueue_after_queue_becomes_empty",
+      "input_values": [
+        3,
+        0,
+        5,
+        1,
+        0,
+        0,
+        6
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dequeue_payload_must_be_zero",
+      "input_values": [
+        2,
+        0,
+        5,
+        1,
+        9
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "enqueue_outside_i32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_operation_pairs",
+      "input_values": [
+        2,
+        0,
+        5,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

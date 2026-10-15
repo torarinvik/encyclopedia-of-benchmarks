@@ -1,0 +1,65 @@
+# Traverse a connected undirected graph from vertex zero in sorted-neighbor BFS order.
+const MAX_VERTICES: usize = 40
+const MAX_EDGES: usize = 780
+
+def bfs_connected_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[slot * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bfs_connected_undirected_visit_order_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3:
+        return -1
+    vertex_count_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    start_value: i64 = input[2]
+    if vertex_count_value < 1 or vertex_count_value > 40 or edge_count_value < 0 or edge_count_value > 780 or start_value != 0:
+        return -1
+    vertices: usize = vertex_count_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if length != 3 + 2 * edge_count:
+        return -1
+
+    adjacency: mutable u64[MAX_VERTICES] = zeroed
+    for edge in 0..<edge_count:
+        left_value: i64 = input[3 + 2 * edge]
+        right_value: i64 = input[4 + 2 * edge]
+        if left_value < 0 or right_value < 0 or left_value.u64() >= vertices.u64() or right_value.u64() >= vertices.u64():
+            return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        adjacency[left] <- adjacency[left] | (1.u64() << right)
+        adjacency[right] <- adjacency[right] | (1.u64() << left)
+
+    visited: mutable bool[MAX_VERTICES] = zeroed
+    queue: mutable usize[MAX_VERTICES] = zeroed
+    order: mutable usize[MAX_VERTICES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    count: mutable usize = 0
+    visited[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        vertex: usize = queue[head]
+        head <- head + 1
+        order[count] <- vertex
+        count <- count + 1
+        neighbor: mutable usize = 0
+        while neighbor < vertices:
+            if (adjacency[vertex] & (1.u64() << neighbor)) != 0 and not visited[neighbor]:
+                visited[neighbor] <- true
+                queue[tail] <- neighbor
+                tail <- tail + 1
+            neighbor <- neighbor + 1
+    if count != vertices:
+        return -1
+    if output.is_null() or capacity < vertices * 8:
+        return -2
+    for index in 0..<count:
+        bfs_connected_put_i64(output, index, order[index].i64())
+    count.i64()
+
+export fn bfs_connected_undirected_visit_order(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = bfs_connected_undirected_visit_order_impl

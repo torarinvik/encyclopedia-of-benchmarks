@@ -1,0 +1,71 @@
+# Schedule processes non-preemptively by arrival time, then process ID.
+def fcfs_scheduling_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 193:
+        return -2
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 64:
+        return -2
+    count: usize = count_value.usize()
+    if length != 1 + 3 * count:
+        return -2
+
+    ids: mutable i64[64] = zeroed
+    arrivals: mutable i64[64] = zeroed
+    bursts: mutable i64[64] = zeroed
+    order: mutable usize[64] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        id: i64 = values[1 + 3 * index]
+        arrival: i64 = values[2 + 3 * index]
+        burst: i64 = values[3 + 3 * index]
+        if id < 0 or id > 63 or arrival < 0 or arrival > 1000000 or burst < 1 or burst > 1000000:
+            return -2
+        previous: mutable usize = 0
+        while previous < index:
+            if ids[previous] == id:
+                return -2
+            previous <- previous + 1
+        ids[index] <- id
+        arrivals[index] <- arrival
+        bursts[index] <- burst
+        order[index] <- index
+        index <- index + 1
+
+    index <- 1
+    while index < count:
+        key: usize = order[index]
+        cursor: mutable usize = index
+        while cursor > 0 and (arrivals[order[cursor - 1]] > arrivals[key] or
+                (arrivals[order[cursor - 1]] == arrivals[key] and ids[order[cursor - 1]] > ids[key])):
+            order[cursor] <- order[cursor - 1]
+            cursor <- cursor - 1
+        order[cursor] <- key
+        index <- index + 1
+
+    required: usize = count * 48
+    if output_capacity < required:
+        return -2
+    elapsed: mutable i64 = 0
+    position: mutable usize = 0
+    while position < count:
+        process_index: usize = order[position]
+        if elapsed < arrivals[process_index]:
+            elapsed <- arrivals[process_index]
+        completion: i64 = elapsed + bursts[process_index]
+        turnaround: i64 = completion - arrivals[process_index]
+        waiting: i64 = turnaround - bursts[process_index]
+        fields: i64[6] = [ids[process_index], arrivals[process_index], bursts[process_index], completion, turnaround, waiting]
+        field: mutable usize = 0
+        while field < 6:
+            bits: u64 = fields[field].u64()
+            byte: mutable usize = 0
+            while byte < 8:
+                output[position * 48 + field * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+                byte <- byte + 1
+            field <- field + 1
+        elapsed <- completion
+        position <- position + 1
+    count.i64()
+
+export fn fcfs_scheduling(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = fcfs_scheduling_impl

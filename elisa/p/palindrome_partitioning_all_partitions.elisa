@@ -1,0 +1,61 @@
+const MAX_LENGTH: usize = 12
+const OUT_I64_CAP: usize = 16000
+
+def is_palindrome(input: i64&, start: usize, end: usize) -> bool:
+    left: mutable usize = start
+    right: mutable usize = end
+    while left < right:
+        if input[left + 1] != input[right]:
+            return false
+        left <- left + 1
+        right <- right - 1
+    true
+
+def enumerate_partitions(input: i64&, length: usize, start: usize, depth: usize,
+                         ends: mutable usize&, packed: mutable i64&, used: mutable usize&,
+                         partitions: mutable usize&) -> void:
+    if start == length:
+        partitions <- partitions + 1
+        packed[used] <- depth.i64()
+        used <- used + 1
+        for index in 0..<depth:
+            packed[used] <- ends[index].i64()
+            used <- used + 1
+        return
+    end: mutable usize = start + 1
+    while end <= length:
+        if is_palindrome(input, start, end):
+            ends[depth] <- end
+            enumerate_partitions(input, length, end, depth + 1, ends, packed, used, partitions)
+        end <- end + 1
+
+def palindrome_partitioning_all_partitions_impl(input: i64&, length: usize,
+                                                 output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_LENGTH.i64():
+        return -1
+    text_length: usize = input[0].usize()
+    if length != text_length + 1:
+        return -1
+    for index in 0..<text_length:
+        if input[index + 1] < 0 or input[index + 1] > 127:
+            return -1
+    ends: mutable usize[MAX_LENGTH] = zeroed
+    packed: mutable i64[OUT_I64_CAP] = zeroed
+    used: mutable usize = 1
+    partitions: mutable usize = 0
+    enumerate_partitions(input, text_length, 0, 0, ends, packed, used, partitions)
+    packed[0] <- partitions.i64()
+    required: usize = used * 8
+    if output == null or capacity < required:
+        return -2
+    index: mutable usize = 0
+    while index < used:
+        bits: mutable u64 = packed[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+        index <- index + 1
+    required.i64()
+
+export fn palindrome_partitioning_all_partitions(input: i64&, length: usize,
+                                                  output: mutable u8&, capacity: usize) -> i64 = palindrome_partitioning_all_partitions_impl

@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "id": "huffman-weighted-code-cost-i64-v1",
+  "algorithm": "huffman_weighted_cost",
+  "function_symbol": "huffman_weighted_cost",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[symbol_count, symbol_id, frequency, ...]",
+    "symbol_count_range": [
+      2,
+      26
+    ],
+    "symbol_id_range": [
+      97,
+      122
+    ],
+    "symbol_domain": "distinct lowercase ASCII letters a-z, encoded by their ASCII values",
+    "frequency_range": [
+      1,
+      2147483647
+    ],
+    "frequency_sum_maximum": 2147483647,
+    "maximum_input_length": 53,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_little_endian_scalar",
+    "encoding": "one little-endian signed 64-bit weighted bit cost",
+    "return_value": "weighted bit cost",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_bytes": 8
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "textbook_six_symbols",
+      "input_values": [
+        6,
+        97,
+        5,
+        98,
+        9,
+        99,
+        12,
+        100,
+        13,
+        101,
+        16,
+        102,
+        45
+      ],
+      "input_length": 13,
+      "expected_result": 224,
+      "expected_output_hex": "e000000000000000"
+    },
+    {
+      "id": "two_symbols",
+      "input_values": [
+        2,
+        97,
+        1,
+        122,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "four_equal_frequencies",
+      "input_values": [
+        4,
+        97,
+        1,
+        98,
+        1,
+        99,
+        1,
+        100,
+        1
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0800000000000000"
+    },
+    {
+      "id": "three_way_tie",
+      "input_values": [
+        3,
+        97,
+        1,
+        98,
+        1,
+        99,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 5,
+      "expected_output_hex": "0500000000000000"
+    },
+    {
+      "id": "skewed_frequencies",
+      "input_values": [
+        5,
+        97,
+        1,
+        98,
+        1,
+        99,
+        2,
+        100,
+        4,
+        101,
+        8
+      ],
+      "input_length": 11,
+      "expected_result": 30,
+      "expected_output_hex": "1e00000000000000"
+    },
+    {
+      "id": "all_lowercase_symbols",
+      "input_values": [
+        26,
+        97,
+        1,
+        98,
+        2,
+        99,
+        3,
+        100,
+        4,
+        101,
+        5,
+        102,
+        6,
+        103,
+        7,
+        104,
+        8,
+        105,
+        9,
+        106,
+        10,
+        107,
+        11,
+        108,
+        12,
+        109,
+        13,
+        110,
+        14,
+        111,
+        15,
+        112,
+        16,
+        113,
+        17,
+        114,
+        18,
+        115,
+        19,
+        116,
+        20,
+        117,
+        21,
+        118,
+        22,
+        119,
+        23,
+        120,
+        24,
+        121,
+        25,
+        122,
+        26
+      ],
+      "input_length": 53,
+      "expected_result": 1569,
+      "expected_output_hex": "2106000000000000"
+    },
+    {
+      "id": "maximum_signed_32_bit_total",
+      "input_values": [
+        2,
+        97,
+        1,
+        122,
+        2147483646
+      ],
+      "input_length": 5,
+      "expected_result": 2147483647,
+      "expected_output_hex": "ffffff7f00000000"
+    },
+    {
+      "id": "single_symbol_excluded",
+      "input_values": [
+        1,
+        97,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_symbol",
+      "input_values": [
+        2,
+        97,
+        3,
+        97,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "uppercase_symbol",
+      "input_values": [
+        2,
+        65,
+        3,
+        98,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_frequency",
+      "input_values": [
+        2,
+        97,
+        0,
+        98,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_frequency",
+      "input_values": [
+        2,
+        97,
+        -1,
+        98,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "frequency_sum_over_limit",
+      "input_values": [
+        2,
+        97,
+        1073741824,
+        98,
+        1073741824
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        2,
+        97,
+        3,
+        98
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        2,
+        97,
+        3,
+        98,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    }
+  ]
+}

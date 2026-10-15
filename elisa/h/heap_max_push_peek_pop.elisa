@@ -1,0 +1,64 @@
+def heap_max_push_peek_pop_sift_down(heap: mutable i64&, count: usize, start: usize) -> void:
+    index: mutable usize = start
+    while true:
+        largest: mutable usize = index
+        left: usize = index * 2 + 1
+        right: usize = left + 1
+        if left < count and heap[left] > heap[largest]:
+            largest <- left
+        if right < count and heap[right] > heap[largest]:
+            largest <- right
+        if largest == index:
+            return
+        temporary: mutable i64 = heap[index]
+        heap[index] <- heap[largest]
+        heap[largest] <- temporary
+        index <- largest
+
+def heap_max_push_peek_pop_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def heap_max_push_peek_pop_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 257:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 1 or raw_count > 256 or length != raw_count.usize() + 1:
+        return -1
+    count: usize = raw_count.usize()
+    heap: mutable i64[256] = zeroed
+    index: usize = 0
+    while index < count:
+        value: i64 = values[index + 1]
+        if value < 1 or value > 1000000000:
+            return -1
+        position: mutable usize = index
+        heap[position] <- value
+        while position > 0:
+            parent: usize = (position - 1) / 2
+            if heap[parent] >= heap[position]:
+                break
+            temporary: mutable i64 = heap[parent]
+            heap[parent] <- heap[position]
+            heap[position] <- temporary
+            position <- parent
+        index <- index + 1
+    output_bytes: usize = 8 * count
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    remaining: mutable usize = count
+    index <- 0
+    while index < count:
+        heap_max_push_peek_pop_store(heap[0], output, 8 * index)
+        remaining <- remaining - 1
+        if remaining > 0:
+            heap[0] <- heap[remaining]
+            heap_max_push_peek_pop_sift_down(heap[0], remaining, 0)
+        index <- index + 1
+    output_bytes.i64()
+
+export fn heap_max_push_peek_pop(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heap_max_push_peek_pop_impl

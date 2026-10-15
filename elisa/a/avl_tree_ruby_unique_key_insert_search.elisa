@@ -1,0 +1,161 @@
+def avl_tree_height(node: i64, left: i64&, right: i64&, heights: i64&) -> i64:
+    if node < 0:
+        return 0
+    heights[node.usize()]
+
+def avl_tree_update(node: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> void:
+    left_height: i64 = avl_tree_height(left[node], left, right, heights)
+    right_height: i64 = avl_tree_height(right[node], left, right, heights)
+    if left_height > right_height:
+        heights[node] <- left_height + 1
+    else:
+        heights[node] <- right_height + 1
+
+def avl_tree_rotate_right(root: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> usize:
+    pivot: usize = left[root].usize()
+    middle: i64 = right[pivot]
+    right[pivot] <- root.i64()
+    left[root] <- middle
+    avl_tree_update(root, left, right, heights)
+    avl_tree_update(pivot, left, right, heights)
+    pivot
+
+def avl_tree_rotate_left(root: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> usize:
+    pivot: usize = right[root].usize()
+    middle: i64 = left[pivot]
+    left[pivot] <- root.i64()
+    right[root] <- middle
+    avl_tree_update(root, left, right, heights)
+    avl_tree_update(pivot, left, right, heights)
+    pivot
+
+def avl_tree_insert(root: i64, key: i64, keys: mutable i64&, left: mutable i64&,
+        right: mutable i64&, heights: mutable i64&, next: mutable usize&) -> i64:
+    if root < 0:
+        index: usize = next
+        next <- next + 1
+        keys[index] <- key
+        left[index] <- -1
+        right[index] <- -1
+        heights[index] <- 1
+        return index.i64()
+    node: usize = root.usize()
+    if key < keys[node]:
+        left[node] <- avl_tree_insert(left[node], key, keys, left, right, heights, next)
+    else:
+        right[node] <- avl_tree_insert(right[node], key, keys, left, right, heights, next)
+    avl_tree_update(node, left, right, heights)
+    balance: i64 = avl_tree_height(left[node], left, right, heights) - avl_tree_height(right[node], left, right, heights)
+    if balance > 1:
+        left_node: usize = left[node].usize()
+        if key > keys[left_node]:
+            left[node] <- avl_tree_rotate_left(left_node, left, right, heights).i64()
+        return avl_tree_rotate_right(node, left, right, heights).i64()
+    if balance < -1:
+        right_node: usize = right[node].usize()
+        if key < keys[right_node]:
+            right[node] <- avl_tree_rotate_right(right_node, left, right, heights).i64()
+        return avl_tree_rotate_left(node, left, right, heights).i64()
+    root
+
+def avl_tree_contains(root: i64, key: i64, keys: i64&, left: i64&, right: i64&) -> bool:
+    cursor: mutable i64 = root
+    while cursor >= 0:
+        node: usize = cursor.usize()
+        if keys[node] == key:
+            return true
+        if key < keys[node]:
+            cursor <- left[node]
+        else:
+            cursor <- right[node]
+    false
+
+def avl_tree_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    index: mutable usize = 0
+    while index < 8:
+        output[offset + index] <- ((value >> (index * 8)) & 255).u8()
+        index <- index + 1
+
+def avl_tree_ruby_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1:
+        return -1
+    op_count_value: i64 = input[0]
+    if op_count_value < 0 or op_count_value > 128 or length != (1 + 2 * op_count_value).usize():
+        return -1
+    op_count: usize = op_count_value.usize()
+    inserted: mutable i64[64] = zeroed
+    insert_count: mutable usize = 0
+    search_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < op_count:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if (operation != 0 and operation != 1) or key < -1000000 or key > 1000000:
+            return -1
+        if operation == 0:
+            if insert_count >= 64:
+                return -1
+            cursor: mutable usize = 0
+            while cursor < insert_count:
+                if inserted[cursor] == key:
+                    return -1
+                cursor <- cursor + 1
+            inserted[insert_count] <- key
+            insert_count <- insert_count + 1
+        else:
+            search_count <- search_count + 1
+        index <- index + 1
+    keys: mutable i64[64] = zeroed
+    left: mutable i64[64] = zeroed
+    right: mutable i64[64] = zeroed
+    heights: mutable i64[64] = zeroed
+    index <- 0
+    while index < 64:
+        left[index] <- -1
+        right[index] <- -1
+        index <- index + 1
+    root: mutable i64 = -1
+    next: mutable usize = 0
+    results: mutable i64[128] = zeroed
+    result_count: mutable usize = 0
+    index <- 0
+    while index < op_count:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if operation == 0:
+            root <- avl_tree_insert(root, key, keys, left, right, heights, next)
+        else:
+            if avl_tree_contains(root, key, keys, left, right):
+                results[result_count] <- 1
+            else:
+                results[result_count] <- 0
+            result_count <- result_count + 1
+        index <- index + 1
+    output_bytes: usize = (2 + insert_count + search_count) * 8
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    avl_tree_put_i64(output, 0, insert_count.i64())
+    stack: mutable usize[64] = zeroed
+    top: mutable usize = 0
+    cursor: mutable i64 = root
+    output_index: mutable usize = 1
+    while cursor >= 0 or top > 0:
+        while cursor >= 0:
+            stack[top] <- cursor.usize()
+            top <- top + 1
+            cursor <- left[cursor.usize()]
+        top <- top - 1
+        cursor <- stack[top].i64()
+        avl_tree_put_i64(output, output_index * 8, keys[cursor.usize()])
+        output_index <- output_index + 1
+        cursor <- right[cursor.usize()]
+    avl_tree_put_i64(output, output_index * 8, search_count.i64())
+    output_index <- output_index + 1
+    index <- 0
+    while index < search_count:
+        avl_tree_put_i64(output, output_index * 8, results[index])
+        output_index <- output_index + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn avl_tree_ruby_unique_key_insert_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = avl_tree_ruby_impl

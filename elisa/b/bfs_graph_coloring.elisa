@@ -1,0 +1,77 @@
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bfs_graph_coloring_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2: return -1
+    vertex_count_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    if vertex_count_value < 0 or vertex_count_value > 64 or edge_count_value < 0 or edge_count_value > 2016: return -1
+    vertex_count: usize = vertex_count_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if length != 2 + 2 * edge_count: return -1
+    adjacency: mutable bool[4096] = zeroed
+    degrees: mutable usize[64] = zeroed
+    for edge in 0..<edge_count:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or u_value >= vertex_count_value or v_value < 0 or v_value >= vertex_count_value or u_value == v_value: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if adjacency[u * 64 + v]: return -1
+        adjacency[u * 64 + v] <- true
+        adjacency[v * 64 + u] <- true
+        degrees[u] <- degrees[u] + 1
+        degrees[v] <- degrees[v] + 1
+    visited: mutable bool[64] = zeroed
+    queue: mutable usize[64] = zeroed
+    for start in 0..<vertex_count:
+        if visited[start]: continue
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        high_degree: mutable usize = 0
+        visited[start] <- true
+        queue[0] <- start
+        while head < tail:
+            vertex: usize = queue[head]
+            head <- head + 1
+            if degrees[vertex] > 1: high_degree <- high_degree + 1
+            for neighbor in 0..<vertex_count:
+                if adjacency[vertex * 64 + neighbor] and not visited[neighbor]:
+                    visited[neighbor] <- true
+                    queue[tail] <- neighbor
+                    tail <- tail + 1
+        if high_degree > 1: return -1
+    colors: mutable i64[64] = zeroed
+    for vertex in 0..<vertex_count: colors[vertex] <- 1
+    for vertex in 0..<64: visited[vertex] <- false
+    for start in 0..<vertex_count:
+        if visited[start]: continue
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        visited[start] <- true
+        queue[0] <- start
+        while head < tail:
+            front: usize = queue[head]
+            head <- head + 1
+            for neighbor in 0..<vertex_count:
+                if not adjacency[front * 64 + neighbor]: continue
+                if colors[neighbor] == colors[front]: colors[neighbor] <- colors[neighbor] + 1
+                if not visited[neighbor]:
+                    visited[neighbor] <- true
+                    queue[tail] <- neighbor
+                    tail <- tail + 1
+    colors_used: mutable i64 = 0
+    for vertex in 0..<vertex_count:
+        if colors[vertex] > colors_used: colors_used <- colors[vertex]
+    used: usize = vertex_count + 2
+    required: usize = used * 8
+    if output.is_null() or capacity < required: return -2
+    put_i64(output, 0, vertex_count.i64())
+    for vertex in 0..<vertex_count: put_i64(output, (vertex + 1) * 8, colors[vertex])
+    put_i64(output, (vertex_count + 1) * 8, colors_used)
+    required.i64()
+
+export fn bfs_graph_coloring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bfs_graph_coloring_impl

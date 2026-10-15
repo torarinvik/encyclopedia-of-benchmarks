@@ -1,0 +1,31 @@
+# Validate Sudoku row, column, and 3x3 box constraints without solving.
+def validate_sudoku_board_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 81: return -1
+    index: mutable usize = 0
+    while index < 81:
+        value: i64 = input[index]
+        if value != 46 and (value < 49 or value > 57): return -1
+        index <- index + 1
+    if output.is_null() or capacity < 1: return -2
+    rows: i64[9] = [0; 9]
+    columns: i64[9] = [0; 9]
+    boxes: i64[9] = [0; 9]
+    valid: mutable bool = true
+    index <- 0
+    while index < 81:
+        value: i64 = input[index]
+        if value != 46:
+            row: usize = index / 9
+            col: usize = index % 9
+            box_index: usize = (row / 3) * 3 + col / 3
+            bit: i64 = 1 << (value - 48)
+            if (rows[row] & bit) != 0 or (columns[col] & bit) != 0 or (boxes[box_index] & bit) != 0:
+                valid <- false
+            rows[row] <- rows[row] | bit
+            columns[col] <- columns[col] | bit
+            boxes[box_index] <- boxes[box_index] | bit
+        index <- index + 1
+    output[0] <- if valid: 1 else: 0
+    1
+
+export fn validate_sudoku_board(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = validate_sudoku_board_impl

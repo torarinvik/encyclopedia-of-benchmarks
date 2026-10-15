@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "id": "go-bfs-graph-coloring-star-forest-v1",
+  "algorithm": "bfs_graph_coloring",
+  "function_symbol": "bfs_graph_coloring",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[vertex_count, edge_count, (u,v)*]",
+    "vertex_count_range": [
+      0,
+      64
+    ],
+    "edge_count_range": "0 through vertex_count*(vertex_count-1)/2",
+    "vertex_ids": "dense labels 0 through vertex_count-1; all vertices are present before edges are added",
+    "edges": "simple undirected edges with distinct in-range endpoints",
+    "graph_requirement": "each connected component is a star or an isolated vertex (at most one vertex has degree greater than one)",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[vertex_count, color_0, ..., color_(vertex_count-1), colors_used]",
+    "colors": "Go ColorUsingBFS increments an adjacent vertex color when it equals the current vertex color",
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_graph",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "isolated_vertices",
+      "input_values": [
+        4,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 48,
+      "expected_output_hex": "040000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "single_edge",
+      "input_values": [
+        2,
+        1,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "center_is_first_vertex",
+      "input_values": [
+        5,
+        4,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 56,
+      "expected_output_hex": "0500000000000000010000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "center_is_last_vertex",
+      "input_values": [
+        5,
+        4,
+        4,
+        0,
+        4,
+        1,
+        4,
+        2,
+        4,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": 56,
+      "expected_output_hex": "0500000000000000010000000000000001000000000000000100000000000000010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "disjoint_stars_and_isolated_vertex",
+      "input_values": [
+        7,
+        4,
+        0,
+        1,
+        0,
+        2,
+        5,
+        3,
+        5,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output_hex": "070000000000000001000000000000000200000000000000020000000000000001000000000000000100000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "edge_input_order_does_not_change_star_colors",
+      "input_values": [
+        6,
+        5,
+        5,
+        2,
+        5,
+        0,
+        5,
+        4,
+        5,
+        1,
+        5,
+        3
+      ],
+      "input_length": 12,
+      "expected_result": 64,
+      "expected_output_hex": "06000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "maximum_64_vertex_star",
+      "input_values": [
+        64,
+        63,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        0,
+        17,
+        0,
+        18,
+        0,
+        19,
+        0,
+        20,
+        0,
+        21,
+        0,
+        22,
+        0,
+        23,
+        0,
+        24,
+        0,
+        25,
+        0,
+        26,
+        0,
+        27,
+        0,
+        28,
+        0,
+        29,
+        0,
+        30,
+        0,
+        31,
+        0,
+        32,
+        0,
+        33,
+        0,
+        34,
+        0,
+        35,
+        0,
+        36,
+        0,
+        37,
+        0,
+        38,
+        0,
+        39,
+        0,
+        40,
+        0,
+        41,
+        0,
+        42,
+        0,
+        43,
+        0,
+        44,
+        0,
+        45,
+        0,
+        46,
+        0,
+        47,
+        0,
+        48,
+        0,
+        49,
+        0,
+        50,
+        0,
+        51,
+        0,
+        52,
+        0,
+        53,
+        0,
+        54,
+        0,
+        55,
+        0,
+        56,
+        0,
+        57,
+        0,
+        58,
+        0,
+        59,
+        0,
+        60,
+        0,
+        61,
+        0,
+        62,
+        0,
+        63
+      ],
+      "input_length": 128,
+      "expected_result": 528,
+      "expected_output_hex": "400000000000000001000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000020000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "negative_vertex_count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "vertex_count_above_limit",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_edge_count",
+      "input_values": [
+        3,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "endpoint_out_of_range",
+      "input_values": [
+        3,
+        1,
+        0,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self_loop",
+      "input_values": [
+        3,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_undirected_edge",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "path_is_not_a_star_forest",
+      "input_values": [
+        4,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cycle_is_not_a_star_forest",
+      "input_values": [
+        3,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 39,
+      "capacity_error_result": -2
+    }
+  ]
+}

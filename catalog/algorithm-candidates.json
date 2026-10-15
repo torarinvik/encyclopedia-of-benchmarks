@@ -7647,7 +7647,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -7656,7 +7656,9 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Sorting/ArrayKeysSort.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/array_keys_sort/README.md",
+      "review_notes": "The pinned PHP ArrayKeysSort source sorts rows by selected fields in the provided priority order, with ascending or descending direction. The benchmark restricts values to bounded integers, making PHP numeric-string comparisons equivalent to integer order, and excludes equal selected-key tuples so output does not depend on runtime sort stability."
     },
     {
       "candidate_id": "array_left_rotation",
@@ -8013,7 +8015,7 @@
         "benchmarks/a/astar_rust_directed_graph/README.md",
         "benchmarks/a/astar_csharp_spatial/README.md"
       ],
-      "review_notes": "The pinned Python source is an open 8-neighbor grid search with squared-distance heuristic and is mapped to the primary `astar` contract. Java uses a simple undirected weighted graph, caller-provided per-node heuristics, and path-simple expansion; its package preserves heap tie behavior and returns distance, target heuristic, and path. Rust uses directed weighted edges, relaxes only a strictly lower g score, and returns cost plus source-to-target path with deterministic tie ordering specified by its package. C# uses spatial nodes, traversal multipliers, and Euclidean heuristic with source-specific path behavior. These are separate contracts; the Python, Java, and Rust packages are complete, while C# remains in progress."
+      "review_notes": "The pinned Python source is an open 8-neighbor grid search with squared-distance heuristic and is mapped to the primary `astar` contract. Java uses a simple undirected weighted graph, caller-provided per-node heuristics, and path-simple expansion; its package preserves heap tie behavior and returns distance, target heuristic, and path. Rust uses directed weighted edges, relaxes only a strictly lower g score, and returns cost plus source-to-target path with deterministic tie ordering specified by its package. C# uses spatial nodes, traversal multipliers, and Euclidean heuristic, preserving its root-parent omission and start-equals-target empty path. All four source-specific packages are now complete."
     },
     {
       "candidate_id": "astronomical_length_scale_conversion",
@@ -8595,7 +8597,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -8625,7 +8627,16 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/avl_tree.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/avltree_unique_key_ops/README.md",
+      "additional_benchmark_names": [
+        "avl_tree_ruby_unique_key_insert_search"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/a/avl_tree_ruby_unique_key_insert_search/README.md"
+      ],
+      "review_notes": "The pinned C, Python, and Rust sources share unique-key AVL insert, search, and delete behavior under the existing `avltree_unique_key_ops` contract; compare normalized key-set contents and membership, not tree heights or shapes. The Ruby source is tracked separately as `avl_tree_ruby_unique_key_insert_search`: use unique keys and insert/search/in-order traversal only because its delete path can fail to rebalance and can raise when deleting the last root leaf.",
+      "benchmark_name": "avltree_unique_key_ops"
     },
     {
       "candidate_id": "avlsimple",
@@ -8660,7 +8671,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -8711,7 +8722,18 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/DataStructures/AVLTree/AVLTree.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/avltree_unique_key_ops/README.md",
+      "additional_benchmark_names": [
+        "avltree_cpp_insert_only",
+        "avltree_persistent_insert_delete"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/a/avltree_cpp_insert_only/README.md",
+        "benchmarks/a/avltree_persistent_insert_delete/README.md"
+      ],
+      "review_notes": "The pinned Java, C#, and JavaScript sources support unique-key insert/search/delete with rotations and deletion rebalancing; PHP can join on fresh integer keys with value=key and deletes of present keys. C++ and its mirror are insert-only for a faithful benchmark because deletion does not rebalance. F# is immutable integer insert/delete without search and is tracked separately. The three source families use separate contracts.",
+      "benchmark_name": "avltree_unique_key_ops"
     },
     {
       "candidate_id": "avltree_node",
@@ -10200,7 +10222,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -10237,7 +10259,18 @@
           "url": "https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/graph/BFS/BFS.swift",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "bfs_connected_undirected_visit_order",
+      "benchmark_contract": "benchmarks/b/bfs_connected_undirected_visit_order/README.md",
+      "additional_benchmark_names": [
+        "bfs_result_tree",
+        "bfs_graph_coloring"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/b/bfs_result_tree/README.md",
+        "benchmarks/b/bfs_graph_coloring/README.md"
+      ],
+      "review_notes": "The C, Julia, and Swift sources map to connected undirected BFS visitation order with normalized dense labels and sorted neighbors. Ruby returns a separate reachable result tree containing parents and hop distances. The Go path `graph/coloring/bfs.go` implements greedy coloring using BFS, not generic traversal; it is tracked separately as `bfs_graph_coloring` on a bounded star-forest domain to avoid nondeterminism from Go map iteration."
     },
     {
       "candidate_id": "bfs_queue",
@@ -10840,7 +10873,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -10870,7 +10903,10 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/data_structures/binary_heap.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binary_heap_min_push_peek_pop",
+      "benchmark_contract": "benchmarks/b/binary_heap_min_push_peek_pop/README.md",
+      "review_notes": "The pinned C#, JavaScript, Julia, and R sources provide min-heap push, peek, and pop behavior. The contract inserts all bounded signed 32-bit values, including duplicates, into an empty heap, then peeks/extracts exactly n times and compares only ascending output values. R push/pop adapters must retain returned heap vectors."
     },
     {
       "candidate_id": "binary_indexed_tree",
@@ -22078,7 +22114,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -22087,7 +22123,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Linked-List/CycleDetection.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "141",
+      "review_notes": "The pinned JavaScript `detectCycle` function uses two references that advance one and two nodes and reports whether the reachable linked list contains a cycle. It matches the shared `linked_list_has_cycle` contract; starting the fast reference at `head.next` changes iteration count but not the result.",
+      "benchmark_contract": "benchmarks/l/linked_list_has_cycle/README.md"
     },
     {
       "candidate_id": "cycle_detection_ii",
@@ -24617,7 +24656,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -24640,7 +24679,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/dijkstra_algorithm.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "dijkstra_positive_connected",
+      "benchmark_contract": "benchmarks/d/dijkstra_positive_connected/README.md",
+      "review_notes": "The pinned C#, Java, and Python sources compute single-source shortest paths; the benchmark uses connected undirected simple graphs on at most four dense vertices, source 0, and positive bounded weights. The bound keeps Python’s custom decrease-key priority queue from reaching the incorrect-parent region, avoids its zero-initialized distances for unrepresented vertices, and satisfies C#’s initial queue assumption that the source has index 0."
     },
     {
       "candidate_id": "dijkstra_alternate",
@@ -27828,7 +27870,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -27865,7 +27907,15 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/euler_method.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/euler_method/README.md",
+      "additional_benchmark_names": [
+        "euler_method_julia"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/e/euler_method_julia/README.md"
+      ],
+      "review_notes": "The pinned C#, Java, JavaScript, and Python sources share forward Euler updates for y' = x+y. The package uses a binary-exact dyadic grid and normalizes output to the y trajectory; Julia uses a distinct span/time API, floor step count, and state/time vector behavior, tracked as `euler_method_julia`."
     },
     {
       "candidate_id": "euler_method_for_the_cauchy_problem",
@@ -29407,7 +29457,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -29416,7 +29466,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/FairShareScheduling.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fair_share_scheduling/README.md",
+      "review_notes": "The Java source aggregates task weights for each named user, divides each user weight by the total weight, multiplies by total resources, and casts to int. It assigns each user independently, so fractional resource remainders are not distributed. The shared contract bounds total aggregate weight to prevent Java int overflow, ignores tasks for unknown user IDs as addTask does, maps zero total weight to zero allocations (Java casts NaN to zero), and sorts output IDs for determinism."
     },
     {
       "candidate_id": "false_position",
@@ -29429,7 +29481,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -29452,7 +29504,9 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/arithmetic_analysis/false_position.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/false_position/README.md",
+      "review_notes": "The pinned MATLAB implementation uses the bracket-preserving regula-falsi update for f(a)<0 and f(b)>0. The mirrored C++ helpers interpolate but always recurse on the previous second endpoint and the new point without preserving the sign-changing bracket; the default x^2-x scan with a 0.5 step lands exactly on roots 0 and 1 and does not exercise that helper. The shared benchmark follows the intended bracket-preserving method, standardizes the callback to x^2-x, isolates one root with bounded endpoints, and returns -1 for invalid pairs."
     },
     {
       "candidate_id": "faraday_lenz_law",
@@ -29461,7 +29515,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -29470,7 +29524,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/faraday_lenz_law.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/faraday_lenz_law/README.md",
+      "review_notes": "The pinned Python function computes `round(-(final_flux - initial_flux) / time_interval, 1)` and raises for negative time intervals; zero reaches division by zero. The portable contract uses milliweber and millisecond integer inputs, returns decivolts, and defines exact ties-to-even rounding with bounded integer arithmetic. It excludes zero intervals and maps invalid cases to the signed-64 minimum sentinel."
     },
     {
       "candidate_id": "farey_approximation",
@@ -29524,7 +29580,8 @@
       "additional_benchmark_contracts": [
         "benchmarks/b/binary_exponentiation/README.md"
       ],
-      "review_notes": "The pinned Java implementation takes base, exponent, and modulus and uses modular exponentiation by squaring, so it maps to `modular_exponentiation` on the shared positive-modulus domain. The pinned PHP implementation takes base and exponent and computes the unmodded power by squaring; it is recorded separately as `binary_exponentiation` when the exact result fits its bounded output domain."
+      "review_notes": "The pinned Java implementation takes base, exponent, and modulus and uses modular exponentiation by squaring, so it maps to `modular_exponentiation` on the shared positive-modulus domain. The pinned PHP implementation takes base and exponent and computes the unmodded power by squaring; it is recorded separately as `binary_exponentiation` when the exact result fits its bounded output domain.",
+      "benchmark_name": "modular_exponentiation"
     },
     {
       "candidate_id": "fast_factorial",
@@ -29853,7 +29910,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Julia",
@@ -29862,7 +29919,10 @@
           "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/scheduling/fcfs.jl",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fcfs_scheduling/README.md",
+      "alias_of": "fcfs_scheduling",
+      "review_notes": "The Julia function accepts process IDs and burst times in an already chosen FCFS order, then computes cumulative waiting and turnaround times and their averages. This is the same prefix-sum scheduling calculation represented by `fcfs_scheduling` when processes are already ordered and all are available before execution; zero-process behavior is outside the alias domain."
     },
     {
       "candidate_id": "fcfs_scheduling",
@@ -29874,7 +29934,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -29890,7 +29950,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/cpu_scheduling_algorithms/fcfs_scheduling.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fcfs_scheduling/README.md",
+      "review_notes": "The two pinned C++ files are mirrored non-preemptive FCFS schedulers. Processes run in ascending arrival-time order; equal arrivals use ascending process ID, and the CPU idles until the next arrival. The self-test/demo output is excluded from timing. The bounded shared contract requires unique IDs and reports completion, turnaround, and waiting times for each scheduled process."
     },
     {
       "candidate_id": "fcfsscheduling",
@@ -29899,7 +29961,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -29908,7 +29970,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/FCFSScheduling.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fcfs_scheduling/README.md",
+      "alias_of": "fcfs_scheduling",
+      "review_notes": "The pinned Java scheduler consumes its `ProcessDetails` list in the supplied order, assigns each waiting time from prior burst durations, and sets turnaround time to waiting plus burst. It aliases the ordered, no-idle subset of `fcfs_scheduling`; arrival-time sorting and empty output are handled by the shared benchmark contract."
     },
     {
       "candidate_id": "federated_averaging",
@@ -31864,7 +31929,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -31873,7 +31938,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/scheduling/first_come_first_served.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fcfs_scheduling/README.md",
+      "alias_of": "fcfs_scheduling",
+      "review_notes": "The Python helpers calculate cumulative waiting times from an already ordered duration list and derive turnaround times; they do not sort jobs or accept arrival times. This matches the ordered, all-jobs-available subset of `fcfs_scheduling`. Its empty average case raises on division by zero, so empty input is outside the alias domain."
     },
     {
       "candidate_id": "first_different_bit",
@@ -32207,7 +32275,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -32216,7 +32284,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/hashing/fletcher.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "fletcher16",
+      "review_notes": "The pinned Rust `fletcher` function updates the same two modulo-255 accumulators and packs them identically to the Python Fletcher-16 implementation for ASCII strings. Its documented examples match. The shared contract is ASCII-only; Rust's UTF-8 byte behavior outside that domain is not included.",
+      "benchmark_contract": "benchmarks/f/fletcher16/README.md"
     },
     {
       "candidate_id": "fletcher16",
@@ -32225,7 +32296,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -32234,7 +32305,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/hashes/fletcher16.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fletcher16/README.md",
+      "review_notes": "The pinned Python source converts an ASCII string to bytes, starts two sums at zero, updates `sum1 = (sum1 + byte) % 255` and `sum2 = (sum2 + sum1) % 255` for every byte, then returns `(sum2 << 8) | sum1`. The bounded shared contract accepts empty through 4096-byte ASCII inputs including NUL and represents invalid non-ASCII byte values with -1."
     },
     {
       "candidate_id": "flip_augmentation",
@@ -32361,7 +32434,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -32377,7 +32450,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/search/floyd_cycle_detection_algo.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "287",
+      "review_notes": "Both pinned C++ copies implement the Floyd cycle-entry method for the duplicate-number problem: a length n+1 array with values in 1..=n returns the repeated value. On that valid domain this is the same contract as `find_duplicate_number`; the shared benchmark adds explicit validation for malformed inputs.",
+      "benchmark_contract": "benchmarks/f/find_duplicate_number/README.md"
     },
     {
       "candidate_id": "floyd_cycle_detection_algorithm",
@@ -32388,7 +32464,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -32397,7 +32473,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/searching/floyd_cycle_detection_algorithm.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "287",
+      "review_notes": "The pinned C source implements the Floyd cycle-entry method for the duplicate-number problem: a length n+1 array with values in 1..=n returns the repeated value. On that valid domain this is the same contract as `find_duplicate_number`; the shared benchmark adds explicit validation for malformed inputs.",
+      "benchmark_contract": "benchmarks/f/find_duplicate_number/README.md"
     },
     {
       "candidate_id": "floyd_triangle",
@@ -32546,7 +32625,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -32555,7 +32634,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/floyds_cycle_detection.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "141",
+      "review_notes": "The pinned Python `LinkedList.detect_cycle` advances slow and fast references by one and two nodes and intends to return a boolean for cycles reachable from the head. Its `Node` dataclass uses structural equality rather than object identity, which can misidentify equal-payload nodes or recurse on some cycles; the alias maps the intended Floyd cycle-detection operation, whose shared indexed-list contract uses node identity.",
+      "benchmark_contract": "benchmarks/l/linked_list_has_cycle/README.md"
     },
     {
       "candidate_id": "floydwarshall",
@@ -33594,7 +33676,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -33638,7 +33720,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/gaussian_elimination.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/g/gaussian_elimination/README.md",
+      "review_notes": "The pinned C++, Python, and Rust sources use elimination without pivoting; R and TypeScript use partial pivoting. The package uses symmetric tridiagonal matrices with a dominant positive diagonal so the pivoting variants do not swap rows, avoids singular pivots, and preserves Rust f32 evaluation with a source-appropriate tolerance. The C++ console example is adapted to the shared packed input/output ABI."
     },
     {
       "candidate_id": "gaussian_elimination_pivoting",
@@ -37452,7 +37536,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -37517,7 +37601,16 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/heap.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/h/heap_max_push_peek_pop/README.md",
+      "additional_benchmark_names": [
+        "heap_permutation"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/h/heap_permutation/README.md"
+      ],
+      "review_notes": "The Go, Lua, Python, Rust `src/data_structures/heap.rs`, Swift, TypeScript, and Zig sources implement heap data structures; the shared package uses max-heap push, peek, and pop on positive values. Java `Heap.java` is interface-only and is excluded. Rust `src/general/permutations/heap.rs` is Heap’s permutation-generation algorithm, not a heap data structure; it is tracked separately as `heap_permutation` because its ordered output differs from the existing depth-first `all_permutations` contract.",
+      "benchmark_name": "heap_max_push_peek_pop"
     },
     {
       "candidate_id": "heap_element",
@@ -38612,7 +38705,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -38649,7 +38742,18 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/hill_cipher.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/h/hill_cipher_mod36/README.md",
+      "additional_benchmark_names": [
+        "hill_cipher_mod26_java",
+        "hill_cipher_mod97_cpp"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/h/hill_cipher_mod26_java/README.md",
+        "benchmarks/h/hill_cipher_mod97_cpp/README.md"
+      ],
+      "review_notes": "The pinned Python/Rust sources use a modulus-36 alphanumeric alphabet, uppercase/filter input, repeat-final-character padding, and require determinant coprime to 36; these map to `hill_cipher_mod36` on a nonempty bounded ASCII domain. Java uses a separate modulus-26 letters-only contract with X padding and invertible key matrices. C++ and its mirror use modulus 97 over a fixed 97-character ASCII alphabet, preserve literal input, and NUL-pad blocks; these are separately mapped as `hill_cipher_mod97_cpp` with a fixed key.",
+      "benchmark_name": "hill_cipher_mod36"
     },
     {
       "candidate_id": "hill_climbing",
@@ -38758,7 +38862,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -38788,7 +38892,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/hopcroft_karp.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "hopcroft_karp_cardinality",
+      "benchmark_contract": "benchmarks/h/hopcroft_karp_cardinality/README.md",
+      "review_notes": "The pinned C++ mirrors, Java, and Python implement maximum bipartite matching. The portable contract compares only maximum cardinality, not pair choices; it uses bounded simple bipartite edges and shifts external 0-based IDs for the C++ source."
     },
     {
       "candidate_id": "horizontal_projectile_motion",
@@ -39046,7 +39153,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -39076,7 +39183,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_compression/huffman.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "huffman_weighted_cost",
+      "benchmark_contract": "benchmarks/h/huffman_weighted_cost/README.md",
+      "review_notes": "The pinned C++ mirrors, Java, and Python build Huffman codes. The portable contract uses at least two unique lowercase symbols with positive frequencies and compares weighted encoded bit cost, avoiding code-map differences from tie-breaking. It excludes the one-symbol case because source outputs differ."
     },
     {
       "candidate_id": "huffman_coding",
@@ -44114,7 +44224,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -44144,7 +44254,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/k_nearest_neighbors.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "k_nearest_neighbors_binary",
+      "benchmark_contract": "benchmarks/k/k_nearest_neighbors_binary/README.md",
+      "review_notes": "The pinned C++ mirrors, Python, and Rust sources classify one query over a fixed feature dimension. The portable domain uses finite bounded integer coordinates, binary labels, odd k, and a strict gap at the kth distance to avoid distance and vote ties; the result is the predicted class ID."
     },
     {
       "candidate_id": "k_nn",
@@ -48761,7 +48874,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -48791,7 +48904,10 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/data_structures/queue/linked_queue.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "linked_queue_fifo_trace",
+      "benchmark_contract": "benchmarks/l/linked_queue_fifo_trace/README.md",
+      "review_notes": "The pinned Java, Lua, Python, and TypeScript sources implement linked FIFO queues. The bounded trace uses non-null i32 values, dequeues only when nonempty, and never enqueues after the queue becomes empty, avoiding TypeScript’s stale-tail reuse bug. It compares dequeue order."
     },
     {
       "candidate_id": "linked_stack",
@@ -50594,7 +50710,7 @@
         "cpp",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -50631,7 +50747,10 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/dataStructures/lruCache.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/l/lru_page_reference/README.md",
+      "review_notes": "The pinned C++ and C++-1 mirrors, C#, Python, and Zig implementations provide LRU page-cache behavior. The package uses positive power-of-two capacity, treats page IDs as their own values, records hit/miss and evicted page on each reference, then returns final MRU-to-LRU order. Zig lookups are moved to the front explicitly to match standard LRU recency.",
+      "benchmark_name": "lru_page_reference"
     },
     {
       "candidate_id": "lru_cache2",
@@ -53405,7 +53524,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -53449,7 +53568,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/hashing/md5.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/md5/README.md",
+      "review_notes": "The pinned C++, Go, JavaScript, Python, and Rust implementations compute standard MD5 over bytes. Go, JavaScript, and Rust expose digest bytes; Python returns lowercase hexadecimal and the benchmark normalizes it to 16 raw bytes. The mirrored C++ endian helper is correct on little-endian hosts but skips the needed conversion on big-endian hosts, so the portable contract specifies byte order directly."
     },
     {
       "candidate_id": "mean",
@@ -80706,7 +80827,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -80758,7 +80879,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/hashing/sha1.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/s/sha1/README.md",
+      "review_notes": "The pinned C++, Go, JavaScript, Python, and Rust sources implement standard SHA-1 over byte sequences. The benchmark uses raw byte-valued inputs and raw 20-byte digest outputs; JavaScript must map each byte to one code unit in U+0000..U+00FF, and Python/C++ hex output is normalized to digest bytes. The C++ and C++-1 sources are mirrors. The AArch64 assembly entry is a fixed-input Rosetta Code demo with an external I/O include and is not part of the shared arbitrary-byte contract."
     },
     {
       "candidate_id": "sha2",
@@ -80793,7 +80916,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -80831,7 +80954,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/hashes/sha256.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/s/sha256/README.md",
+      "review_notes": "The pinned C++, Go, JavaScript, and Python sources share standard SHA-256 over raw byte strings. The benchmark can use bounded byte arrays and normalized 32-byte digest output; JavaScript maps each byte to one code unit in U+0000..U+00FF, without UTF-8 decoding. C++ and Python hexadecimal outputs normalize to raw digest bytes. The AArch64 source is a fixed-input Raspberry Pi demo with an external include and 1,000-byte scratch area, outside the generic byte-array contract."
     },
     {
       "candidate_id": "sha3",
@@ -82964,7 +83089,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -83015,7 +83140,10 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/tiger_style/skip_list.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "benchmark_name": "skip_list_unique_key_set",
+      "benchmark_contract": "benchmarks/s/skip_list_unique_key_set/README.md",
+      "review_notes": "The pinned C++ mirrors, C#, Java, Python, Rust, and Zig sources support skip-list set or map operations. The portable trace inserts unique keys, queries membership, deletes only currently present keys, and outputs sorted keys; map variants store key as value. Keys are bounded to signed i32 excluding INT_MIN and INT_MAX for C# sentinels. This avoids Java duplicate-as-multiset and missing-remove behavior; node heights and randomized topology are not observable."
     },
     {
       "candidate_id": "skip_list_node",
@@ -90569,7 +90697,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -90613,7 +90741,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/data_structures/treap.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "treap_unique_key_set",
+      "benchmark_contract": "benchmarks/t/treap_unique_key_set/README.md",
+      "review_notes": "The pinned C++, F#, Java, Lua, Python, and Rust sources support unique-key treap set operations. The shared contract bounds signed 32-bit keys, inserts only absent keys, and deletes only present keys; it compares sorted contents and ignores randomized priorities and tree topology. It excludes `Int32.MaxValue` because the F# split code computes value+1, and avoids absent C++ erase because its sentinel path can recurse indefinitely."
     },
     {
       "candidate_id": "tree",
@@ -92738,7 +92869,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -92747,7 +92878,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/validate_sudoku_board.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/v/validate_sudoku_board/README.md",
+      "review_notes": "The pinned Python function validates a supplied 9x9 board for repeated filled digits in rows, columns, and 3x3 boxes; it does not test whether the board is solvable. The benchmark uses exactly 81 row-major ASCII cells with `.` and `1` through `9`; malformed shapes or symbols are invalid input."
     },
     {
       "candidate_id": "validation_utils",

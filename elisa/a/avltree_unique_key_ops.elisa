@@ -1,0 +1,193 @@
+const MAX_NODES: usize = 128
+const MAX_OPS: usize = 128
+
+def avltree_height(node: i64, left: i64&, right: i64&, heights: i64&) -> i64:
+    if node < 0:
+        return 0
+    heights[node.usize()]
+
+def avltree_update(node: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> void:
+    left_height: i64 = avltree_height(left[node], left, right, heights)
+    right_height: i64 = avltree_height(right[node], left, right, heights)
+    if left_height > right_height:
+        heights[node] <- left_height + 1
+    else:
+        heights[node] <- right_height + 1
+
+def avltree_rotate_right(root: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> usize:
+    pivot: usize = left[root].usize()
+    middle: i64 = right[pivot]
+    right[pivot] <- root.i64()
+    left[root] <- middle
+    avltree_update(root, left, right, heights)
+    avltree_update(pivot, left, right, heights)
+    pivot
+
+def avltree_rotate_left(root: usize, left: mutable i64&, right: mutable i64&, heights: mutable i64&) -> usize:
+    pivot: usize = right[root].usize()
+    middle: i64 = left[pivot]
+    left[pivot] <- root.i64()
+    right[root] <- middle
+    avltree_update(root, left, right, heights)
+    avltree_update(pivot, left, right, heights)
+    pivot
+
+def avltree_rebalance(root: i64, keys: mutable i64&, left: mutable i64&, right: mutable i64&,
+                      heights: mutable i64&) -> i64:
+    if root < 0:
+        return root
+    node: usize = root.usize()
+    avltree_update(node, left, right, heights)
+    balance: i64 = avltree_height(left[node], left, right, heights) - avltree_height(right[node], left, right, heights)
+    if balance > 1:
+        left_node: usize = left[node].usize()
+        if avltree_height(right[left_node], left, right, heights) > avltree_height(left[left_node], left, right, heights):
+            left[node] <- avltree_rotate_left(left_node, left, right, heights).i64()
+        return avltree_rotate_right(node, left, right, heights).i64()
+    if balance < -1:
+        right_node: usize = right[node].usize()
+        if avltree_height(left[right_node], left, right, heights) > avltree_height(right[right_node], left, right, heights):
+            right[node] <- avltree_rotate_right(right_node, left, right, heights).i64()
+        return avltree_rotate_left(node, left, right, heights).i64()
+    root
+
+def avltree_insert(root: i64, key: i64, keys: mutable i64&, left: mutable i64&, right: mutable i64&,
+                   heights: mutable i64&, next: mutable usize&) -> i64:
+    if root < 0:
+        index: usize = next
+        next <- next + 1
+        keys[index] <- key
+        left[index] <- -1
+        right[index] <- -1
+        heights[index] <- 1
+        return index.i64()
+    node: usize = root.usize()
+    if key < keys[node]:
+        left[node] <- avltree_insert(left[node], key, keys, left, right, heights, next)
+    else:
+        right[node] <- avltree_insert(right[node], key, keys, left, right, heights, next)
+    avltree_rebalance(root, keys, left, right, heights)
+
+def avltree_contains(root: i64, key: i64, keys: i64&, left: i64&, right: i64&) -> bool:
+    cursor: mutable i64 = root
+    while cursor >= 0:
+        node: usize = cursor.usize()
+        if keys[node] == key:
+            return true
+        if key < keys[node]:
+            cursor <- left[node]
+        else:
+            cursor <- right[node]
+    false
+
+def avltree_maximum(root: i64, right: i64&) -> i64:
+    cursor: mutable i64 = root
+    while right[cursor.usize()] >= 0:
+        cursor <- right[cursor.usize()]
+    cursor
+
+def avltree_delete(root: i64, key: i64, keys: mutable i64&, left: mutable i64&, right: mutable i64&,
+                   heights: mutable i64&) -> i64:
+    node: usize = root.usize()
+    if key < keys[node]:
+        left[node] <- avltree_delete(left[node], key, keys, left, right, heights)
+    elif key > keys[node]:
+        right[node] <- avltree_delete(right[node], key, keys, left, right, heights)
+    else:
+        if left[node] < 0:
+            return right[node]
+        if right[node] < 0:
+            return left[node]
+        predecessor: i64 = avltree_maximum(left[node], right)
+        keys[node] <- keys[predecessor.usize()]
+        left[node] <- avltree_delete(left[node], keys[node], keys, left, right, heights)
+    avltree_rebalance(root, keys, left, right, heights)
+
+def avltree_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def avltree_unique_key_ops_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1:
+        return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > 128 or length != (1 + 2 * operation_count_value).usize():
+        return -1
+    operation_count: usize = operation_count_value.usize()
+    active: mutable i64[MAX_NODES] = zeroed
+    active_count: mutable usize = 0
+    search_count: mutable usize = 0
+    for index in 0..<operation_count:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if operation < 0 or operation > 2 or key < -1000000 or key > 1000000:
+            return -1
+        found: mutable usize = active_count
+        for i in 0..<active_count:
+            if active[i] == key:
+                found <- i
+                break
+        if operation == 0:
+            if found != active_count or active_count >= MAX_NODES:
+                return -1
+            active[active_count] <- key
+            active_count <- active_count + 1
+        elif operation == 1:
+            search_count <- search_count + 1
+        else:
+            if found == active_count:
+                return -1
+            for i in found + 1..<active_count:
+                active[i - 1] <- active[i]
+            active_count <- active_count - 1
+
+    keys: mutable i64[MAX_NODES] = zeroed
+    left: mutable i64[MAX_NODES] = zeroed
+    right: mutable i64[MAX_NODES] = zeroed
+    heights: mutable i64[MAX_NODES] = zeroed
+    for i in 0..<MAX_NODES:
+        left[i] <- -1
+        right[i] <- -1
+    root: mutable i64 = -1
+    next: mutable usize = 0
+    results: mutable i64[MAX_OPS] = zeroed
+    result_count: mutable usize = 0
+    for index in 0..<operation_count:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if operation == 0:
+            root <- avltree_insert(root, key, keys, left, right, heights, next)
+        elif operation == 1:
+            results[result_count] <- if avltree_contains(root, key, keys, left, right) then 1 else 0
+            result_count <- result_count + 1
+        else:
+            root <- avltree_delete(root, key, keys, left, right, heights)
+
+    output_bytes: usize = (2 + active_count + search_count) * 8
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    avltree_put_i64(output, 0, active_count.i64())
+    stack: mutable usize[MAX_NODES] = zeroed
+    top: mutable usize = 0
+    cursor: mutable i64 = root
+    output_index: mutable usize = 1
+    while cursor >= 0 or top > 0:
+        while cursor >= 0:
+            stack[top] <- cursor.usize()
+            top <- top + 1
+            cursor <- left[cursor.usize()]
+        top <- top - 1
+        cursor <- stack[top].i64()
+        avltree_put_i64(output, output_index * 8, keys[cursor.usize()])
+        output_index <- output_index + 1
+        cursor <- right[cursor.usize()]
+    avltree_put_i64(output, output_index * 8, search_count.i64())
+    output_index <- output_index + 1
+    for index in 0..<search_count:
+        avltree_put_i64(output, output_index * 8, results[index])
+        output_index <- output_index + 1
+    output_bytes.i64()
+
+export fn avltree_unique_key_ops(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = avltree_unique_key_ops_impl

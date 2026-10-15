@@ -1,0 +1,83 @@
+def bfs_result_tree_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def bfs_result_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or input[0] < 1 or input[0] > 32 or input[1] < 0 or input[1] > 126: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if input[2] < 0 or input[2] >= input[0] or length != 3 + 2 * m: return -1
+    start: usize = input[2].usize()
+    adjacency: mutable usize[32 * 126] = zeroed
+    degree: mutable usize[32] = zeroed
+    seen: mutable bool[32] = zeroed
+    parent: mutable i64[32] = zeroed
+    distance: mutable i64[32] = zeroed
+    queue: mutable usize[32] = zeroed
+    order: mutable usize[32] = zeroed
+    index: mutable usize = 0
+    while index < 32:
+        parent[index] <- -1
+        distance[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < m:
+        from: i64 = input[3 + 2 * index]
+        to: i64 = input[4 + 2 * index]
+        if from < 0 or from >= input[0] or to < 0 or to >= input[0]: return -1
+        from_index: usize = from.usize()
+        adjacency[from_index * 126 + degree[from_index]] <- to.usize()
+        degree[from_index] <- degree[from_index] + 1
+        index <- index + 1
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    count: mutable usize = 0
+    seen[start] <- true
+    distance[start] <- 0
+    queue[tail] <- start
+    tail <- tail + 1
+    while head < tail:
+        vertex: usize = queue[head]
+        head <- head + 1
+        order[count] <- vertex
+        count <- count + 1
+        neighbor_index: mutable usize = 0
+        while neighbor_index < degree[vertex]:
+            neighbor: usize = adjacency[vertex * 126 + neighbor_index]
+            if not seen[neighbor]:
+                seen[neighbor] <- true
+                parent[neighbor] <- vertex.i64()
+                distance[neighbor] <- distance[vertex] + 1
+                queue[tail] <- neighbor
+                tail <- tail + 1
+            neighbor_index <- neighbor_index + 1
+    words: usize = 4 + 6 * count
+    if output.is_null() or capacity < words * 8: return -2
+    bfs_result_tree_put_i64(output, 0, count.i64())
+    index <- 0
+    while index < count:
+        bfs_result_tree_put_i64(output, index + 1, order[index].i64())
+        index <- index + 1
+    bfs_result_tree_put_i64(output, count + 1, count.i64())
+    index <- 0
+    while index < count:
+        bfs_result_tree_put_i64(output, count + 2 + index, order[index].i64())
+        index <- index + 1
+    bfs_result_tree_put_i64(output, 2 * count + 2, count.i64())
+    index <- 0
+    while index < count:
+        vertex: usize = order[index]
+        bfs_result_tree_put_i64(output, 2 * count + 3 + 2 * index, vertex.i64())
+        bfs_result_tree_put_i64(output, 2 * count + 4 + 2 * index, parent[vertex])
+        index <- index + 1
+    bfs_result_tree_put_i64(output, 4 * count + 3, count.i64())
+    index <- 0
+    while index < count:
+        vertex: usize = order[index]
+        bfs_result_tree_put_i64(output, 4 * count + 4 + 2 * index, vertex.i64())
+        bfs_result_tree_put_i64(output, 4 * count + 5 + 2 * index, distance[vertex])
+        index <- index + 1
+    (words * 8).i64()

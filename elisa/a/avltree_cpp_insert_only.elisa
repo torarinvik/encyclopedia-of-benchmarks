@@ -1,0 +1,101 @@
+const MAX_NODES: usize = 256
+
+def avltree_height(root: usize, left: usize&, right: usize&) -> usize:
+    if root == MAX_NODES:
+        return 0
+    left_height: usize = avltree_height(left[root], left, right)
+    right_height: usize = avltree_height(right[root], left, right)
+    return if left_height > right_height then left_height + 1 else right_height + 1
+
+def avltree_balance(root: usize, left: usize&, right: usize&) -> i64:
+    return avltree_height(left[root], left, right).i64() - avltree_height(right[root], left, right).i64()
+
+def avltree_rotate_right(root: usize, left: mutable usize&, right: mutable usize&) -> usize:
+    pivot: usize = left[root]
+    moved: usize = right[pivot]
+    right[pivot] <- root
+    left[root] <- moved
+    return pivot
+
+def avltree_rotate_left(root: usize, left: mutable usize&, right: mutable usize&) -> usize:
+    pivot: usize = right[root]
+    moved: usize = left[pivot]
+    left[pivot] <- root
+    right[root] <- moved
+    return pivot
+
+def avltree_insert(root: usize, key: i32, keys: mutable i32&, left: mutable usize&,
+    right: mutable usize&, next_node: mutable usize&) -> usize:
+    if root == MAX_NODES:
+        node: usize = next_node
+        next_node <- next_node + 1
+        keys[node] <- key
+        left[node] <- MAX_NODES
+        right[node] <- MAX_NODES
+        return node
+    if key < keys[root]:
+        child: usize = left[root]
+        left[root] <- avltree_insert(child, key, keys, left, right, next_node)
+    else:
+        child: usize = right[root]
+        right[root] <- avltree_insert(child, key, keys, left, right, next_node)
+    balance: i64 = avltree_balance(root, left, right)
+    if balance > 1:
+        if avltree_balance(left[root], left, right) < 0:
+            child: usize = left[root]
+            left[root] <- avltree_rotate_left(child, left, right)
+        return avltree_rotate_right(root, left, right)
+    if balance < -1:
+        if avltree_balance(right[root], left, right) > 0:
+            child: usize = right[root]
+            right[root] <- avltree_rotate_right(child, left, right)
+        return avltree_rotate_left(root, left, right)
+    return root
+
+def avltree_store_i32(value: i32, output: mutable u8&, position: usize) -> void:
+    bits: mutable u32 = value.u32()
+    for byte in 0..<4:
+        output[position * 4 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def avltree_emit_inorder(root: usize, keys: i32&, left: usize&, right: usize&,
+    output: mutable u8&, position: mutable usize&) -> void:
+    if root == MAX_NODES:
+        return
+    avltree_emit_inorder(left[root], keys, left, right, output, position)
+    avltree_store_i32(keys[root], output, position)
+    position <- position + 1
+    avltree_emit_inorder(right[root], keys, left, right, output, position)
+
+def avltree_cpp_insert_only_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_NODES + 1 or input[0] < 1 or input[0] > MAX_NODES.i64():
+        return -1
+    count: usize = input[0].usize()
+    if length != count + 1:
+        return -1
+    for index in 0..<count:
+        key: i64 = input[index + 1]
+        if key < -2147483648 or key > 2147483647:
+            return -1
+        for previous in 0..<index:
+            if input[previous + 1] == key:
+                return -1
+    required: usize = count * 4
+    if output == null or output_capacity < required:
+        return -2
+
+    keys: mutable i32[MAX_NODES] = zeroed
+    left: mutable usize[MAX_NODES] = zeroed
+    right: mutable usize[MAX_NODES] = zeroed
+    for index in 0..<MAX_NODES:
+        left[index] <- MAX_NODES
+        right[index] <- MAX_NODES
+    next_node: mutable usize = 0
+    root: mutable usize = MAX_NODES
+    for index in 0..<count:
+        root <- avltree_insert(root, input[index + 1].i32(), keys, left, right, next_node)
+    position: mutable usize = 0
+    avltree_emit_inorder(root, keys, left, right, output, position)
+    return position.i64()
+
+export fn avltree_cpp_insert_only(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = avltree_cpp_insert_only_impl

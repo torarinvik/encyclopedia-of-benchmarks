@@ -1,0 +1,84 @@
+def dijkstra_positive_connected_put_i64(output: mutable u8&, index: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[index * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def dijkstra_positive_connected_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or input[0] < 1 or input[0] > 4 or input[1] < 0 or input[1] > 6: return -1
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    if length != 2 + 3 * m or m < n - 1 or m > n * (n - 1) / 2: return -1
+    weights: mutable i64[16] = zeroed
+    adjacent: mutable bool[16] = zeroed
+    degree: mutable usize[4] = zeroed
+    neighbors: mutable usize[24] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u: i64 = input[2 + 3 * edge]
+        v: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if u < 0 or u >= input[0] or v < 0 or v >= input[0] or u == v or weight < 1 or weight > 255: return -1
+        ui: usize = u.usize()
+        vi: usize = v.usize()
+        if adjacent[ui * 4 + vi]: return -1
+        adjacent[ui * 4 + vi] <- true
+        adjacent[vi * 4 + ui] <- true
+        weights[ui * 4 + vi] <- weight
+        weights[vi * 4 + ui] <- weight
+        neighbors[ui * 6 + degree[ui]] <- vi
+        degree[ui] <- degree[ui] + 1
+        neighbors[vi * 6 + degree[vi]] <- ui
+        degree[vi] <- degree[vi] + 1
+        edge <- edge + 1
+    seen: mutable bool[4] = zeroed
+    stack: mutable usize[4] = zeroed
+    top: mutable usize = 1
+    stack[0] <- 0
+    seen[0] <- true
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        index: mutable usize = 0
+        while index < degree[u]:
+            v: usize = neighbors[u * 6 + index]
+            if not seen[v]:
+                seen[v] <- true
+                stack[top] <- v
+                top <- top + 1
+            index <- index + 1
+    index <- 0
+    while index < n:
+        if not seen[index]: return -1
+        index <- index + 1
+    distance: mutable i64[4] = zeroed
+    done: mutable bool[4] = zeroed
+    index <- 0
+    while index < 4:
+        distance[index] <- 1000000000
+        index <- index + 1
+    distance[0] <- 0
+    step: mutable usize = 0
+    while step < n:
+        selected: mutable i64 = -1
+        index <- 0
+        while index < n:
+            if not done[index] and (selected < 0 or distance[index] < distance[selected.usize()]): selected <- index.i64()
+            index <- index + 1
+        if selected < 0: break
+        u: usize = selected.usize()
+        done[u] <- true
+        index <- 0
+        while index < degree[u]:
+            v: usize = neighbors[u * 6 + index]
+            candidate: i64 = distance[u] + weights[u * 4 + v]
+            if not done[v] and candidate < distance[v]: distance[v] <- candidate
+            index <- index + 1
+        step <- step + 1
+    if output.is_null() or capacity < n * 8: return -2
+    index <- 0
+    while index < n:
+        dijkstra_positive_connected_put_i64(output, index, distance[index])
+        index <- index + 1
+    (n * 8).i64()

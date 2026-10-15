@@ -1,0 +1,63 @@
+const MAX_SYMBOLS: usize = 26
+const MAX_TOTAL_FREQUENCY: i64 = 2147483647
+
+def huffman_weighted_cost_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def huffman_weighted_cost_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 1 or length > 53:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 2 or raw_count > MAX_SYMBOLS.i64() or length != 1 + 2 * raw_count.usize():
+        return -1
+    count: usize = raw_count.usize()
+
+    seen: mutable bool[26] = zeroed
+    active: mutable bool[26] = zeroed
+    weights: mutable i64[26] = zeroed
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        symbol: i64 = values[1 + 2 * index]
+        frequency: i64 = values[2 + 2 * index]
+        if symbol < 97 or symbol > 122 or frequency < 1 or frequency > MAX_TOTAL_FREQUENCY:
+            return -1
+        letter: usize = (symbol - 97).usize()
+        if seen[letter] or total > MAX_TOTAL_FREQUENCY - frequency:
+            return -1
+        seen[letter] <- true
+        active[index] <- true
+        weights[index] <- frequency
+        total <- total + frequency
+        index <- index + 1
+
+    remaining: mutable usize = count
+    cost: mutable i64 = 0
+    while remaining > 1:
+        first: mutable usize = 26
+        second: mutable usize = 26
+        index <- 0
+        while index < count:
+            if active[index]:
+                if first == 26 or weights[index] < weights[first]:
+                    second <- first
+                    first <- index
+                else if second == 26 or weights[index] < weights[second]:
+                    second <- index
+            index <- index + 1
+        weights[first] <- weights[first] + weights[second]
+        active[second] <- false
+        cost <- cost + weights[first]
+        remaining <- remaining - 1
+
+    if output == null or capacity < 8:
+        return -2
+    huffman_weighted_cost_store(cost, output, 0)
+    cost
+
+export fn huffman_weighted_cost(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = huffman_weighted_cost_impl

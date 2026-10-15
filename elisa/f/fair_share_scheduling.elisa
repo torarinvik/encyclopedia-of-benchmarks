@@ -1,0 +1,88 @@
+# Allocate a finite resource total in proportion to each user's task weights.
+def fair_share_scheduling_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 323:
+        return -2
+    user_count_value: i64 = values[0]
+    task_count_value: i64 = values[1]
+    resources: i64 = values[2]
+    if user_count_value < 0 or user_count_value > 64 or task_count_value < 0 or task_count_value > 128:
+        return -2
+    if resources < 0 or resources > 1000000:
+        return -2
+    user_count: usize = user_count_value.usize()
+    task_count: usize = task_count_value.usize()
+    if length != 3 + user_count + 2 * task_count:
+        return -2
+
+    ids: mutable i64[64] = zeroed
+    weights: mutable i64[64] = zeroed
+    order: mutable usize[64] = zeroed
+    user: mutable usize = 0
+    while user < user_count:
+        id: i64 = values[3 + user]
+        if id < 0 or id > 63:
+            return -2
+        previous: mutable usize = 0
+        while previous < user:
+            if ids[previous] == id:
+                return -2
+            previous <- previous + 1
+        ids[user] <- id
+        order[user] <- user
+        user <- user + 1
+
+    task_start: usize = 3 + user_count
+    task: mutable usize = 0
+    while task < task_count:
+        owner: i64 = values[task_start + 2 * task]
+        weight: i64 = values[task_start + 2 * task + 1]
+        if owner < 0 or owner > 63 or weight < 0 or weight > 1000000:
+            return -2
+        user <- 0
+        while user < user_count:
+            if ids[user] == owner:
+                weights[user] <- weights[user] + weight
+                user <- user_count
+            else:
+                user <- user + 1
+        task <- task + 1
+
+    user <- 1
+    while user < user_count:
+        key: usize = order[user]
+        position: mutable usize = user
+        while position > 0 and ids[order[position - 1]] > ids[key]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- key
+        user <- user + 1
+
+    total_weight: mutable i64 = 0
+    user <- 0
+    while user < user_count:
+        total_weight <- total_weight + weights[user]
+        user <- user + 1
+    required: usize = user_count * 24
+    if output_capacity < required:
+        return -2
+
+    position: mutable usize = 0
+    while position < user_count:
+        selected: usize = order[position]
+        allocation: mutable i64 = 0
+        if total_weight != 0:
+            allocation <- weights[selected] * resources / total_weight
+        fields: i64[3] = [ids[selected], weights[selected], allocation]
+        field: mutable usize = 0
+        while field < 3:
+            bits: u64 = fields[field].u64()
+            byte: mutable usize = 0
+            while byte < 8:
+                output[position * 24 + field * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+                byte <- byte + 1
+            field <- field + 1
+        position <- position + 1
+    user_count.i64()
+
+export fn fair_share_scheduling(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = fair_share_scheduling_impl

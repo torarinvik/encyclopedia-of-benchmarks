@@ -1,0 +1,36 @@
+# Bracket-preserving false-position root solve for f(x) = x^2 - x.
+def false_position_value(x: f64) -> f64:
+    x * x - x
+
+def false_position_absolute(x: f64) -> f64:
+    if x < 0.0:
+        return -x
+    x
+
+def false_position_impl(a: f64, b: f64) -> f64:
+    if (a != a or b != b or a < 0.125 or a > 0.875 or
+        not ((b >= -2.0 and b <= -0.125) or (b >= 1.125 and b <= 3.0))):
+        return -1.0
+    left: mutable f64 = a
+    right: mutable f64 = b
+    fa: mutable f64 = false_position_value(left)
+    fb: mutable f64 = false_position_value(right)
+    if not (fa < 0.0 and fb > 0.0):
+        return -1.0
+    c: mutable f64 = right
+    for iteration in 0..<256:
+        c <- right - fb * (right - left) / (fb - fa)
+        fc: f64 = false_position_value(c)
+        if false_position_absolute(fc) <= 1e-12:
+            return c
+        if fc < 0.0:
+            left <- c
+            fa <- fc
+        else:
+            right <- c
+            fb <- fc
+    if false_position_absolute(fa) <= false_position_absolute(fb):
+        return left
+    right
+
+export fn false_position(a: f64, b: f64) -> f64 = false_position_impl

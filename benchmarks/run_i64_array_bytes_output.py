@@ -645,7 +645,187 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
     return len(board), bytes(board)
 
 
+def lowest_common_ancestor_batch_output(values: list[int]) -> tuple[int, bytes]:
+    if (not isinstance(values, list) or len(values) < 4
+            or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+        return -1, b""
+    node_count, root, edge_count, query_count = values[:4]
+    if (not 1 <= node_count <= 256 or not 0 <= root < node_count
+            or edge_count != node_count - 1 or not 0 <= query_count <= 1024
+            or len(values) != 4 + 2 * edge_count + 2 * query_count):
+        return -1, b""
+    adjacency = [[] for _ in range(node_count)]
+    seen_edges = set()
+    edge_offset = 4
+    for offset in range(edge_offset, edge_offset + 2 * edge_count, 2):
+        left, right = values[offset:offset + 2]
+        if not 0 <= left < node_count or not 0 <= right < node_count or left == right:
+            return -1, b""
+        edge = (min(left, right), max(left, right))
+        if edge in seen_edges:
+            return -1, b""
+        seen_edges.add(edge)
+        adjacency[left].append(right)
+        adjacency[right].append(left)
+
+    parent = [-1] * node_count
+    depth = [0] * node_count
+    visited = [False] * node_count
+    visited[root] = True
+    queue = deque([root])
+    while queue:
+        current = queue.popleft()
+        for neighbor in adjacency[current]:
+            if neighbor == parent[current]:
+                continue
+            if visited[neighbor]:
+                return -1, b""
+            visited[neighbor] = True
+            parent[neighbor] = current
+            depth[neighbor] = depth[current] + 1
+            queue.append(neighbor)
+    if not all(visited):
+        return -1, b""
+
+    answers = bytearray()
+    query_offset = edge_offset + 2 * edge_count
+    for offset in range(query_offset, len(values), 2):
+        left, right = values[offset:offset + 2]
+        if not 0 <= left < node_count or not 0 <= right < node_count:
+            return -1, b""
+        while depth[left] > depth[right]:
+            left = parent[left]
+        while depth[right] > depth[left]:
+            right = parent[right]
+        while left != right:
+            left = parent[left]
+            right = parent[right]
+        answers.append(left)
+    return len(answers), bytes(answers)
+
+
+def solve_sudoku_board(values: list[int]) -> list[int] | None:
+    if (not isinstance(values, list) or len(values) != 81
+            or any(type(value) is not int or not 0 <= value <= 9 for value in values)):
+        return None
+    board = list(values)
+    rows = [0] * 9
+    columns = [0] * 9
+    boxes = [0] * 9
+    for index, digit in enumerate(board):
+        if digit == 0:
+            continue
+        row, column = divmod(index, 9)
+        box = (row // 3) * 3 + column // 3
+        bit = 1 << digit
+        if rows[row] & bit or columns[column] & bit or boxes[box] & bit:
+            return None
+        rows[row] |= bit
+        columns[column] |= bit
+        boxes[box] |= bit
+
+    def search(position: int) -> bool:
+        while position < 81 and board[position] != 0:
+            position += 1
+        if position == 81:
+            return True
+        row, column = divmod(position, 9)
+        box = (row // 3) * 3 + column // 3
+        for digit in range(1, 10):
+            bit = 1 << digit
+            if rows[row] & bit or columns[column] & bit or boxes[box] & bit:
+                continue
+            board[position] = digit
+            rows[row] |= bit
+            columns[column] |= bit
+            boxes[box] |= bit
+            if search(position + 1):
+                return True
+            board[position] = 0
+            rows[row] ^= bit
+            columns[column] ^= bit
+            boxes[box] ^= bit
+        return False
+
+    return board if search(0) else None
+
+
+def radix2_fft_oracle(samples: list[tuple[float, float]], inverse: bool) -> list[tuple[float, float]]:
+    """Mirror the pinned Rust bit-reversal and iterative butterfly ordering."""
+    n = len(samples)
+    result = list(samples)
+    permutation = list(range(n))
+    reverse = 0
+    position = 1
+    while position < n:
+        bit = n >> 1
+        while bit & reverse:
+            reverse ^= bit
+            bit >>= 1
+        reverse ^= bit
+        if position < reverse:
+            permutation[position], permutation[reverse] = permutation[reverse], permutation[position]
+        position += 1
+    result = [result[index] for index in permutation]
+
+    segment_length = 1
+    direction = -1.0 if inverse else 1.0
+    while segment_length < n:
+        segment_length <<= 1
+        angle = direction * math.tau / segment_length
+        w_len = (math.cos(angle), math.sin(angle))
+        for segment_start in range(0, n, segment_length):
+            w_re, w_im = 1.0, 0.0
+            for index in range(segment_start, segment_start + segment_length // 2):
+                a_re, a_im = result[index]
+                rhs_re, rhs_im = result[index + segment_length // 2]
+                b_re = rhs_re * w_re - rhs_im * w_im
+                b_im = rhs_re * w_im + rhs_im * w_re
+                result[index] = (a_re + b_re, a_im + b_im)
+                result[index + segment_length // 2] = (a_re - b_re, a_im - b_im)
+                old_w_re, old_w_im = w_re, w_im
+                w_re = old_w_re * w_len[0] - old_w_im * w_len[1]
+                w_im = old_w_re * w_len[1] + old_w_im * w_len[0]
+    if inverse:
+        scale = 1.0 / n
+        result = [(real * scale, imaginary * scale) for real, imaginary in result]
+    return result
+
+
+def round_half_away_from_zero(value: float) -> int:
+    scaled = value * 1_000_000.0
+    return math.floor(scaled + 0.5) if scaled >= 0.0 else math.ceil(scaled - 0.5)
+
+
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "fast_fourier_transform":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n = values[0]
+        if (not 1 <= n <= 64 or n & (n - 1) or len(values) != n + 1
+                or any(not -1000 <= value <= 1000 for value in values[1:])):
+            return -1, b""
+        bins = radix2_fft_oracle([(float(value), 0.0) for value in values[1:]], inverse=False)
+        quantized = [round_half_away_from_zero(component) for item in bins for component in item]
+        encoded = b"".join(struct.pack("<q", value) for value in quantized)
+        return len(encoded), encoded
+
+    if algorithm == "inverse_fast_fourier_transform":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n = values[0]
+        if (not 1 <= n <= 64 or n & (n - 1) or len(values) != 1 + 2 * n
+                or any(not -1000 <= value <= 1000 for value in values[1:])):
+            return -1, b""
+        samples = [(float(values[1 + 2 * index]), float(values[2 + 2 * index]))
+                   for index in range(n)]
+        transformed = radix2_fft_oracle(samples, inverse=True)
+        quantized = [round_half_away_from_zero(real) for real, _ in transformed]
+        encoded = b"".join(struct.pack("<q", value) for value in quantized)
+        return len(encoded), encoded
+
     if algorithm == "brute_force_caesar_cipher":
         if (not isinstance(values, list) or len(values) > 64
                 or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
@@ -754,6 +934,546 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 coefficient += x_values[k] * y_values[y_start + k - k_min]
             coefficients.append(coefficient)
         encoded = b"".join(struct.pack("<q", value) for value in coefficients)
+        return len(encoded), encoded
+
+    if algorithm == "avl_tree_ruby_unique_key_insert_search":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 128
+                or len(values) != 1 + 2 * operation_count):
+            return -1, b""
+        keys: set[int] = set()
+        searches = []
+        for offset in range(1, len(values), 2):
+            operation, key = values[offset:offset + 2]
+            if operation not in (0, 1) or not -1_000_000 <= key <= 1_000_000:
+                return -1, b""
+            if operation == 0:
+                if key in keys or len(keys) >= 64:
+                    return -1, b""
+                keys.add(key)
+            else:
+                searches.append(int(key in keys))
+        result = [len(keys), *sorted(keys), len(searches), *searches]
+        encoded = b"".join(struct.pack("<q", value) for value in result)
+        return len(encoded), encoded
+
+    if algorithm == "avltree_unique_key_ops":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 128 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        keys: set[int] = set()
+        searches = []
+        for offset in range(1, len(values), 2):
+            opcode, key = values[offset:offset + 2]
+            if opcode not in (0, 1, 2) or not -1_000_000 <= key <= 1_000_000:
+                return -1, b""
+            if opcode == 0:
+                if key in keys:
+                    return -1, b""
+                keys.add(key)
+            elif opcode == 1:
+                searches.append(int(key in keys))
+            else:
+                if key not in keys:
+                    return -1, b""
+                keys.remove(key)
+        result = [len(keys), *sorted(keys), len(searches), *searches]
+        encoded = b"".join(struct.pack("<q", value) for value in result)
+        return len(encoded), encoded
+
+    if algorithm == "avltree_cpp_insert_only":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        keys = values[1:]
+        if (not 1 <= count <= 256 or len(keys) != count
+                or any(not -(2**31) <= key <= 2**31 - 1 for key in keys)
+                or len(set(keys)) != count):
+            return -1, b""
+        encoded = b"".join(struct.pack("<i", key) for key in sorted(keys))
+        return count, encoded
+
+    if algorithm == "treap_unique_key_set":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 128 or len(values) != 1 + 2 * operation_count):
+            return -1, b""
+        keys: set[int] = set()
+        for offset in range(1, len(values), 2):
+            opcode, key = values[offset:offset + 2]
+            if opcode not in (0, 1) or not -1_000_000 <= key <= 1_000_000:
+                return -1, b""
+            if opcode == 0:
+                if key in keys:
+                    return -1, b""
+                keys.add(key)
+            else:
+                if key not in keys:
+                    return -1, b""
+                keys.remove(key)
+        encoded = b"".join(struct.pack("<q", key) for key in sorted(keys))
+        return len(keys), encoded
+
+    if algorithm == "avltree_persistent_insert_delete":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 32 or len(values) != 1 + 3 * operation_count):
+            return -1, b""
+
+        # Nodes are immutable tuples: (key, left, right, height). Rebuilding only
+        # the path being edited preserves every previously recorded version root.
+        def node_height(node):
+            return -1 if node is None else node[3]
+
+        def make_node(key, left, right):
+            return (key, left, right, max(node_height(left), node_height(right)) + 1)
+
+        def balance(node):
+            return node_height(node[2]) - node_height(node[1])
+
+        def rotate_left(node):
+            pivot = node[2]
+            return make_node(pivot[0], make_node(node[0], node[1], pivot[1]), pivot[2])
+
+        def rotate_right(node):
+            pivot = node[1]
+            return make_node(pivot[0], pivot[1], make_node(node[0], pivot[2], node[2]))
+
+        def rebalance(node):
+            factor = balance(node)
+            if factor > 1:
+                right = node[2]
+                if balance(right) < 0:
+                    node = make_node(node[0], node[1], rotate_right(right))
+                return rotate_left(node)
+            if factor < -1:
+                left = node[1]
+                if balance(left) > 0:
+                    node = make_node(node[0], rotate_left(left), node[2])
+                return rotate_right(node)
+            return node
+
+        def insert(node, key):
+            if node is None:
+                return make_node(key, None, None)
+            if key < node[0]:
+                return rebalance(make_node(node[0], insert(node[1], key), node[2]))
+            if key > node[0]:
+                return rebalance(make_node(node[0], node[1], insert(node[2], key)))
+            return node
+
+        def delete_min(node):
+            if node[1] is None:
+                return node[2]
+            return rebalance(make_node(node[0], delete_min(node[1]), node[2]))
+
+        def delete(node, key):
+            if node is None:
+                return None
+            if key < node[0]:
+                return rebalance(make_node(node[0], delete(node[1], key), node[2]))
+            if key > node[0]:
+                return rebalance(make_node(node[0], node[1], delete(node[2], key)))
+            if node[1] is None:
+                return node[2]
+            if node[2] is None:
+                return node[1]
+            successor = node[2]
+            while successor[1] is not None:
+                successor = successor[1]
+            return rebalance(make_node(successor[0], node[1], delete_min(node[2])))
+
+        versions = [None]
+        for offset in range(1, len(values), 3):
+            parent, opcode, key = values[offset:offset + 3]
+            if (not 0 <= parent < len(versions) or opcode not in (0, 1)
+                    or not -1000 <= key <= 1000):
+                return -1, b""
+            root = versions[parent]
+            versions.append(insert(root, key) if opcode == 0 else delete(root, key))
+
+        output = bytearray(struct.pack("<q", len(versions)))
+        for root in versions:
+            breadth_first = []
+            if root is not None:
+                queue = [root]
+                while queue:
+                    current = queue.pop(0)
+                    breadth_first.append(current)
+                    if current[1] is not None:
+                        queue.append(current[1])
+                    if current[2] is not None:
+                        queue.append(current[2])
+            local_id = {id(current): index for index, current in enumerate(breadth_first)}
+            output.extend(struct.pack("<qq", len(breadth_first), node_height(root)))
+            for current in breadth_first:
+                left_id = local_id[id(current[1])] if current[1] is not None else -1
+                right_id = local_id[id(current[2])] if current[2] is not None else -1
+                output.extend(struct.pack("<qqqq", current[0], current[3], left_id, right_id))
+        return len(output), bytes(output)
+
+    if algorithm == "title_case_conversion":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        text_values = values[1:]
+        if not 0 <= byte_length <= 256 or len(text_values) != byte_length:
+            return -1, b""
+        if byte_length == 0:
+            return 0, b"\0"
+
+        output = bytearray()
+        at_word_start = True
+        for index, value in enumerate(text_values):
+            if 65 <= value <= 90 or 97 <= value <= 122:
+                if at_word_start:
+                    output.append(value - 32 if 97 <= value <= 122 else value)
+                    at_word_start = False
+                else:
+                    output.append(value + 32 if 65 <= value <= 90 else value)
+                continue
+            if (value == 32 and not at_word_start and index + 1 < byte_length
+                    and text_values[index + 1] != 32):
+                output.append(32)
+                at_word_start = True
+                continue
+            return -1, b""
+        if at_word_start:
+            return -1, b""
+        output.append(0)
+        return byte_length, bytes(output)
+
+    if algorithm == "md5":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
+            return -1, b""
+        return 16, hashlib.md5(bytes(values), usedforsecurity=False).digest()
+
+    if algorithm == "heap_max_push_peek_pop":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        items = values[1:]
+        if (not 1 <= count <= 256 or len(items) != count
+                or any(not 1 <= value <= 1_000_000_000 for value in items)):
+            return -1, b""
+        encoded = b"".join(struct.pack("<q", value) for value in sorted(items, reverse=True))
+        return len(encoded), encoded
+
+    if algorithm == "a1z26_decipher":
+        if (not isinstance(values, list) or len(values) > 66
+                or any(type(value) is not int or not 1 <= value <= 26 for value in values)):
+            return -1, b""
+        output = bytes(96 + value for value in values)
+        return len(output), output
+
+    if algorithm == "binary_to_hexadecimal":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 63
+                or any(type(value) is not int or value not in (0, 1) for value in values)):
+            return -1, b""
+        number = 0
+        for bit in values:
+            number = (number << 1) | bit
+        output = format(number, "x").encode("ascii")
+        return len(output), output
+
+    if algorithm == "decimal_to_any_base":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        number, base = values
+        if not 0 <= number <= 2**63 - 1 or not 2 <= base <= 36:
+            return -1, b""
+        alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        digits = []
+        while number:
+            number, remainder = divmod(number, base)
+            digits.append(alphabet[remainder])
+        output = ("".join(reversed(digits)) or "0").encode("ascii")
+        return len(output), output
+
+    if algorithm == "binary_xor_operator":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not 0 <= value <= 2**31 - 1 for value in values)):
+            return -1, b""
+        left, right = values
+        result = left ^ right
+        width = max(1, left.bit_length(), right.bit_length())
+        output = ("0b" + format(result, f"0{width}b")).encode("ascii")
+        return len(output), output
+
+    if algorithm == "hexadecimal_to_octal":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 16
+                or any(type(value) is not int or not 0 <= value <= 15 for value in values)):
+            return -1, b""
+        number = 0
+        for digit in values:
+            number = number * 16 + digit
+            if number > 2**63 - 1:
+                return -1, b""
+        output = format(number, "o").encode("ascii")
+        return len(output), output
+
+    if algorithm == "octal_to_hexadecimal":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 21
+                or any(type(value) is not int or not 0 <= value <= 7 for value in values)):
+            return -1, b""
+        number = 0
+        for digit in values:
+            number = number * 8 + digit
+            if number > 2**63 - 1:
+                return -1, b""
+        output = format(number, "x").encode("ascii")
+        return len(output), output
+
+    if algorithm == "theoretical_rot13":
+        if (not isinstance(values, list) or len(values) > 66
+                or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytes(97 + (value - 97 + 13) % 26 if 97 <= value <= 122 else value
+                       for value in values)
+        return len(output), output
+
+    if algorithm == "sha1":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
+            return -1, b""
+        return 20, hashlib.sha1(bytes(values), usedforsecurity=False).digest()
+
+    if algorithm == "sha256":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
+            return -1, b""
+        return 32, hashlib.sha256(bytes(values), usedforsecurity=False).digest()
+
+    if algorithm == "validate_sudoku_board":
+        if (not isinstance(values, list) or len(values) != 81
+                or any(type(value) is not int or (value != 46 and not 49 <= value <= 57) for value in values)):
+            return -1, b""
+        rows = [0] * 9
+        columns = [0] * 9
+        boxes = [0] * 9
+        valid = True
+        for index, value in enumerate(values):
+            if value == 46:
+                continue
+            row, col = divmod(index, 9)
+            box = (row // 3) * 3 + col // 3
+            bit = 1 << (value - 48)
+            if rows[row] & bit or columns[col] & bit or boxes[box] & bit:
+                valid = False
+            rows[row] |= bit
+            columns[col] |= bit
+            boxes[box] |= bit
+        return 1, bytes((1 if valid else 0,))
+
+    if algorithm == "palindrome_partitioning":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 256
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        n = len(values)
+        palindrome = [[False] * n for _ in range(n)]
+        minimum_cuts = [0] * n
+        for end in range(n):
+            best = end
+            for start in range(end + 1):
+                if (values[start] == values[end]
+                        and (end - start <= 2 or palindrome[start + 1][end - 1])):
+                    palindrome[start][end] = True
+                    candidate = 0 if start == 0 else minimum_cuts[start - 1] + 1
+                    best = min(best, candidate)
+            minimum_cuts[end] = best
+        encoded = struct.pack("<q", minimum_cuts[-1])
+        return 1, encoded
+
+    if algorithm == "hill_cipher_mod36":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, raw_length = values[:2]
+        if (operation not in (0, 1) or not 1 <= raw_length <= 256
+                or len(values) != raw_length + 2):
+            return -1, b""
+        raw = values[2:]
+        if any(not 0 <= value <= 127 for value in raw):
+            return -1, b""
+        alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        filtered = []
+        for value in raw:
+            if 97 <= value <= 122:
+                value -= 32
+            if 65 <= value <= 90:
+                filtered.append(value - 65)
+            elif 48 <= value <= 57:
+                filtered.append(value - 48 + 26)
+        if not filtered:
+            return -1, b""
+        if len(filtered) % 2:
+            filtered.append(filtered[-1])
+        output = bytearray()
+        for offset in range(0, len(filtered), 2):
+            first, second = filtered[offset:offset + 2]
+            if operation == 0:
+                out_first = (2 * first + 5 * second) % 36
+                out_second = (first + 6 * second) % 36
+            else:
+                out_first = (6 * first + 25 * second) % 36
+                out_second = (5 * first + 26 * second) % 36
+            output.extend((alphabet[out_first], alphabet[out_second]))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "hill_cipher_mod26_java":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation = values[0]
+        raw = values[1:]
+        if operation not in (0, 1) or len(raw) > 256 or any(not 0 <= value <= 127 for value in raw):
+            return -1, b""
+        filtered = []
+        for value in raw:
+            if 97 <= value <= 122:
+                value -= 32
+            if 65 <= value <= 90:
+                filtered.append(value - 65)
+        if filtered and len(filtered) % 2:
+            filtered.append(23)  # source-style X padding
+        output = bytearray()
+        for offset in range(0, len(filtered), 2):
+            first, second = filtered[offset:offset + 2]
+            if operation == 0:
+                out_first = (3 * first + 3 * second) % 26
+                out_second = (2 * first + 5 * second) % 26
+            else:
+                out_first = (15 * first + 17 * second) % 26
+                out_second = (20 * first + 9 * second) % 26
+            output.extend((65 + out_first, 65 + out_second))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "hill_cipher_mod97_cpp":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, raw_length = values[:2]
+        if (operation not in (0, 1) or not 1 <= raw_length <= 256
+                or len(values) != raw_length + 2):
+            return -1, b""
+        raw = values[2:]
+        if any(not 0 <= value <= 127 for value in raw):
+            return -1, b""
+        alphabet = (b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+"
+                    b"`-=[]{}|;'\"" b":,./<>?\\\r\n ")
+        positions = {value: index for index, value in enumerate(alphabet)}
+        if any(value not in positions for value in raw):
+            return -1, b""
+        symbols = [positions[value] for value in raw]
+        if len(symbols) % 2:
+            symbols.append(0)  # source NUL sentinel has lookup index 97 == 0 mod 97
+        output = bytearray()
+        for offset in range(0, len(symbols), 2):
+            first, second = symbols[offset:offset + 2]
+            if operation == 0:
+                out_first = (2 * first + 5 * second) % 97
+                out_second = (first + 6 * second) % 97
+            else:
+                out_first = (84 * first + 27 * second) % 97
+                out_second = (83 * first + 28 * second) % 97
+            output.extend((alphabet[out_first], alphabet[out_second]))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "array_keys_sort":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        row_count, key_count, order = values[:3]
+        if (not 1 <= row_count <= 64 or not 1 <= key_count <= 4
+                or order not in (0, 1) or len(values) < 3 + key_count):
+            return -1, b""
+        keys = values[3:3 + key_count]
+        if (len(set(keys)) != key_count or any(not 1 <= key <= 4 for key in keys)
+                or len(values) != 3 + key_count + 4 * row_count):
+            return -1, b""
+        flat_rows = values[3 + key_count:]
+        if any(not -1000 <= value <= 1000 for value in flat_rows):
+            return -1, b""
+        rows = [flat_rows[offset:offset + 4] for offset in range(0, len(flat_rows), 4)]
+        selected_tuples = [tuple(row[key - 1] for key in keys) for row in rows]
+        if len(set(selected_tuples)) != row_count:
+            return -1, b""
+        rows.sort(key=lambda row: tuple(row[key - 1] for key in keys), reverse=(order == 0))
+        encoded = b"".join(struct.pack("<q", value) for row in rows for value in row)
+        return len(encoded), encoded
+
+    if algorithm == "euler_method_julia":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        initial_state, step_count, denominator_power = values
+        if (not -8 <= initial_state <= 8 or not 1 <= step_count <= 16
+                or not 1 <= denominator_power <= 4):
+            return -1, b""
+        step_size = 1.0 / (1 << denominator_power)
+        states = [float(initial_state)]
+        times = [0.0]
+        for _ in range(1, step_count):
+            states.append(states[-1] + step_size * (states[-1] + times[-1]))
+            times.append(times[-1] + step_size)
+        encoded = b"".join(struct.pack("<d", value) for value in states + times)
+        return len(encoded), encoded
+
+    if algorithm == "gaussian_elimination":
+        if (not isinstance(values, list) or len(values) < 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n = values[0]
+        if not 2 <= n <= 8 or len(values) != 1 + n * n + n:
+            return -1, b""
+        matrix = [[0.0] * (n + 1) for _ in range(n)]
+        for row in range(n):
+            for col in range(n):
+                value = values[1 + row * n + col]
+                if ((row == col and value != 32)
+                        or (row != col and value not in (0, -1))
+                        or (abs(row - col) > 1 and value != 0)):
+                    return -1, b""
+                if row != col and value != values[1 + col * n + row]:
+                    return -1, b""
+                matrix[row][col] = float(value)
+            rhs = values[1 + n * n + row]
+            if not -100 <= rhs <= 100:
+                return -1, b""
+            matrix[row][n] = float(rhs)
+
+        # Forward elimination and back substitution. The workload's symmetric
+        # tridiagonal matrices keep every pivot positive and avoid row swaps.
+        for step in range(n - 1):
+            for row in range(step + 1, n):
+                factor = matrix[row][step] / matrix[step][step]
+                for col in range(step, n + 1):
+                    matrix[row][col] -= factor * matrix[step][col]
+        solution = [0.0] * n
+        for row in range(n - 1, -1, -1):
+            total = 0.0
+            for col in range(row + 1, n):
+                total += matrix[row][col] * solution[col]
+            solution[row] = (matrix[row][n] - total) / matrix[row][row]
+        encoded = b"".join(struct.pack("<d", value) for value in solution)
         return len(encoded), encoded
 
     if algorithm == "triangle":
@@ -1464,35 +2184,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         output = bytes(reversed(text_values)) + b"\0"
         return byte_length, output
-
-    if algorithm == "title_case_conversion":
-        if (not isinstance(values, list) or not 1 <= len(values) <= 257
-                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
-            return -1, b""
-        byte_length = values[0]
-        text_values = values[1:]
-        if not 0 <= byte_length <= 256 or len(text_values) != byte_length:
-            return -1, b""
-
-        output = bytearray()
-        at_word_start = True
-        for index, value in enumerate(text_values):
-            if 65 <= value <= 90 or 97 <= value <= 122:
-                if at_word_start:
-                    output.append(value - 32 if 97 <= value <= 122 else value)
-                    at_word_start = False
-                else:
-                    output.append(value + 32 if 65 <= value <= 90 else value)
-                continue
-            if (value == 32 and index > 0 and index + 1 < byte_length
-                    and text_values[index - 1] != 32):
-                output.append(32)
-                at_word_start = True
-                continue
-            return -1, b""
-
-        output.append(0)
-        return byte_length, bytes(output)
 
     if algorithm == "aatree":
         if (not isinstance(values, list) or not 1 <= len(values) <= 513
@@ -5382,6 +6073,66 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         emit(disks, source, destination, auxiliary)
         return len(moves) // 2, bytes(moves)
 
+    if algorithm == "fcfs_scheduling":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 193
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        process_count = values[0]
+        if not 0 <= process_count <= 64 or len(values) != 1 + 3 * process_count:
+            return -2, b""
+        processes = []
+        seen_ids = set()
+        for index in range(process_count):
+            process_id, arrival, burst = values[1 + 3 * index:4 + 3 * index]
+            if (not 0 <= process_id <= 63 or process_id in seen_ids
+                    or not 0 <= arrival <= 1_000_000 or not 1 <= burst <= 1_000_000):
+                return -2, b""
+            seen_ids.add(process_id)
+            processes.append((process_id, arrival, burst))
+        processes.sort(key=lambda process: (process[1], process[0]))
+        elapsed = 0
+        output = bytearray()
+        for process_id, arrival, burst in processes:
+            elapsed = max(elapsed, arrival) + burst
+            completion = elapsed
+            turnaround = completion - arrival
+            waiting = turnaround - burst
+            for field in (process_id, arrival, burst, completion, turnaround, waiting):
+                output.extend(field.to_bytes(8, "little", signed=True))
+        return process_count, bytes(output)
+
+    if algorithm == "fair_share_scheduling":
+        if (not isinstance(values, list) or not 3 <= len(values) <= 323
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        user_count, task_count, resources = values[:3]
+        if not 0 <= user_count <= 64 or not 0 <= task_count <= 128 or not 0 <= resources <= 1_000_000:
+            return -2, b""
+        if len(values) != 3 + user_count + 2 * task_count:
+            return -2, b""
+        users = {}
+        for offset in range(user_count):
+            user_id = values[3 + offset]
+            if not 0 <= user_id <= 63 or user_id in users:
+                return -2, b""
+            users[user_id] = 0
+        task_start = 3 + user_count
+        for task in range(task_count):
+            owner = values[task_start + 2 * task]
+            weight = values[task_start + 2 * task + 1]
+            if not 0 <= owner <= 63 or not 0 <= weight <= 1_000_000:
+                return -2, b""
+            if owner in users:
+                users[owner] += weight
+        total_weight = sum(users.values())
+        output = bytearray()
+        for user_id in sorted(users):
+            weight = users[user_id]
+            allocation = 0 if total_weight == 0 else weight * resources // total_weight
+            for field in (user_id, weight, allocation):
+                output.extend(field.to_bytes(8, "little", signed=True))
+        return user_count, bytes(output)
+
     if algorithm in {"breadth_first_search", "depth_first_search", "depth_first_search_with_stack"}:
         if (not 2 <= len(values) <= MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int for value in values)
@@ -5923,6 +6674,1138 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = b"\0".join(words)
         return len(output), output
 
+    if algorithm == "astar_csharp_spatial":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n, m, start, target = values[:4]
+        if (not 2 <= n <= 16 or m != n - 1 or not 0 <= start < n or not 0 <= target < n
+                or len(values) != 4 + 4 * n + 2 * m):
+            return -1, b""
+        nodes = []
+        for index in range(n):
+            x, y, traversable, multiplier = values[4 + 4 * index:8 + 4 * index]
+            if (not -1000 <= x <= 1000 or not -1000 <= y <= 1000 or traversable not in (0, 1)
+                    or not 1 <= multiplier <= 4 or any((x, y) == (other[0], other[1]) for other in nodes)):
+                return -1, b""
+            nodes.append([x, y, traversable, multiplier, 0.0, 0.0, 0, -1])
+        parent_count = [0] * n
+        adjacency = [[] for _ in range(n)]
+        edge_offset = 4 + 4 * n
+        for edge_index in range(m):
+            source, destination = values[edge_offset + 2 * edge_index:edge_offset + 2 * edge_index + 2]
+            if (not 0 <= source < n or not 0 <= destination < n or source == destination
+                    or destination in adjacency[source]):
+                return -1, b""
+            parent_count[destination] += 1
+            if parent_count[destination] > 1:
+                return -1, b""
+            adjacency[source].append(destination)
+        if parent_count[start] != 0 or any(parent_count[i] != 1 for i in range(n) if i != start):
+            return -1, b""
+        reached = {start}
+        stack = [start]
+        while stack:
+            vertex = stack.pop()
+            for neighbor in adjacency[vertex]:
+                if neighbor not in reached:
+                    reached.add(neighbor)
+                    stack.append(neighbor)
+        if len(reached) != n:
+            return -1, b""
+
+        def distance(left: int, right: int) -> float:
+            dx = nodes[left][0] - nodes[right][0]
+            dy = nodes[left][1] - nodes[right][1]
+            return math.sqrt(dx * dx + dy * dy)
+
+        heap: list[int] = []
+
+        def score(vertex: int) -> float:
+            return nodes[vertex][4] + nodes[vertex][5]
+
+        def push(vertex: int) -> None:
+            position = len(heap)
+            heap.append(vertex)
+            while position > 0:
+                parent = (position - 1) // 2
+                if score(heap[parent]) <= score(vertex):
+                    break
+                heap[position] = heap[parent]
+                position = parent
+            heap[position] = vertex
+
+        def pop() -> int:
+            result = heap[0]
+            root = heap.pop()
+            position = 0
+            while 2 * position + 1 < len(heap):
+                left = 2 * position + 1
+                right = left + 1
+                child = right if right < len(heap) and score(heap[right]) < score(heap[left]) else left
+                if score(heap[child]) >= score(root):
+                    break
+                heap[position] = heap[child]
+                position = child
+            if heap:
+                heap[position] = root
+            return result
+
+        for neighbor in adjacency[start]:
+            if nodes[neighbor][2]:
+                nodes[neighbor][4] = distance(start, neighbor) * nodes[neighbor][3]
+                nodes[neighbor][5] = distance(neighbor, target)
+                nodes[neighbor][6] = 1
+                push(neighbor)
+        path: list[int] = []
+        while heap:
+            current = pop()
+            nodes[current][6] = 2
+            if score(current) == score(target):
+                cursor = target
+                while cursor >= 0 and len(path) < n:
+                    path.append(cursor)
+                    cursor = nodes[cursor][7]
+                break
+            for neighbor in adjacency[current]:
+                if not nodes[neighbor][2] or nodes[neighbor][6] == 2:
+                    continue
+                if nodes[neighbor][6] == 0:
+                    nodes[neighbor][7] = current
+                    nodes[neighbor][4] = nodes[current][4] + distance(current, neighbor) * nodes[neighbor][3]
+                    nodes[neighbor][5] = nodes[neighbor][4] + distance(neighbor, target)
+                    nodes[neighbor][6] = 1
+                    push(neighbor)
+                elif score(current) != score(neighbor):
+                    new_current = nodes[current][4] + distance(current, neighbor)
+                    new_total = new_current + nodes[current][5]
+                    if new_total < score(neighbor):
+                        nodes[neighbor][7] = current
+                        nodes[neighbor][4] = new_current
+                else:
+                    return -1, b""
+        encoded = b"".join(struct.pack("<q", vertex) for vertex in reversed(path))
+        return len(encoded), encoded
+
+    if algorithm == "astar_java_weighted_graph":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n, m, start, target = values[:4]
+        if (not 1 <= n <= 7 or not 0 <= m <= 16 or not 0 <= start < n or not 0 <= target < n
+                or len(values) != 4 + n + 3 * m):
+            return -1, b""
+        heuristic = values[4:4 + n]
+        if any(not -1000 <= value <= 1000 for value in heuristic):
+            return -1, b""
+        adjacency: list[list[tuple[int, int]]] = [[] for _ in range(n)]
+        seen_edges: set[tuple[int, int]] = set()
+        offset = 4 + n
+        for edge_index in range(m):
+            u, v, weight = values[offset + 3 * edge_index:offset + 3 * edge_index + 3]
+            edge = (min(u, v), max(u, v))
+            if (not 0 <= u < n or not 0 <= v < n or u == v or not 0 <= weight <= 1000
+                    or edge in seen_edges):
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[u].append((v, weight))
+            adjacency[v].append((u, weight))
+
+        # Java PriorityQueue compares only f = distance + heuristic. Keep its
+        # binary-heap insertion and poll rules so equal-f paths follow source order.
+        states: list[tuple[int, int, tuple[int, ...]]] = [(0, heuristic[start], (start,))]
+        heap = [0]
+
+        def f_score(state_index: int) -> int:
+            distance_value, heuristic_value, _ = states[state_index]
+            return distance_value + heuristic_value
+
+        def offer(state_index: int) -> None:
+            position = len(heap)
+            heap.append(state_index)
+            while position > 0:
+                parent = (position - 1) // 2
+                if f_score(heap[parent]) <= f_score(state_index):
+                    break
+                heap[position] = heap[parent]
+                position = parent
+            heap[position] = state_index
+
+        def poll() -> int:
+            result = heap[0]
+            last = heap.pop()
+            position = 0
+            half = len(heap) // 2
+            while position < half:
+                child = 2 * position + 1
+                child_index = heap[child]
+                right = child + 1
+                if right < len(heap) and f_score(heap[right]) < f_score(child_index):
+                    child = right
+                    child_index = heap[right]
+                if f_score(last) <= f_score(child_index):
+                    break
+                heap[position] = child_index
+                position = child
+            if heap:
+                heap[position] = last
+            return result
+
+        solution = None
+        while heap:
+            current_index = poll()
+            current_distance, _, current_path = states[current_index]
+            vertex = current_path[-1]
+            if vertex == target:
+                solution = states[current_index]
+                break
+            for neighbor, weight in adjacency[vertex]:
+                if neighbor in current_path:
+                    continue
+                states.append((current_distance + weight, heuristic[neighbor], current_path + (neighbor,)))
+                offer(len(states) - 1)
+        if solution is None:
+            result_values = [-1, -1, 0]
+        else:
+            distance_value, heuristic_value, path = solution
+            result_values = [distance_value, heuristic_value, len(path), *path]
+        encoded = b"".join(struct.pack("<q", value) for value in result_values)
+        return len(encoded), encoded
+
+    if algorithm == "astar_rust_directed_graph":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        n, m, start, target = values[:4]
+        if (not 1 <= n <= 32 or not 0 <= m <= 128 or len(values) != 4 + n + 3 * m
+                or not 0 <= start < n or not 0 <= target < n):
+            return -1, b""
+        heuristic = values[4:4 + n]
+        if any(not 0 <= value <= 1_000_000 for value in heuristic) or heuristic[target] != 0:
+            return -1, b""
+        edges = []
+        for edge_index in range(m):
+            source, destination, weight = values[4 + n + 3 * edge_index:7 + n + 3 * edge_index]
+            if (not 0 <= source < n or not 0 <= destination < n or not 0 <= weight <= 1_000_000
+                    or heuristic[source] > weight + heuristic[destination]):
+                return -1, b""
+            edges.append((source, destination, weight))
+        distances = [None] * n
+        parents = [-1] * n
+        closed = [False] * n
+        distances[start] = 0
+        for _ in range(n):
+            current = None
+            for vertex in range(n):
+                if closed[vertex] or distances[vertex] is None:
+                    continue
+                candidate_key = (distances[vertex] + heuristic[vertex], distances[vertex], vertex)
+                if current is None or candidate_key < (distances[current] + heuristic[current], distances[current], current):
+                    current = vertex
+            if current is None or current == target:
+                break
+            closed[current] = True
+            for source, destination, weight in edges:
+                if source != current:
+                    continue
+                candidate = distances[current] + weight
+                if not closed[destination] and (distances[destination] is None or candidate < distances[destination]):
+                    distances[destination] = candidate
+                    parents[destination] = current
+        if distances[target] is None:
+            return 0, b""
+        reversed_path = []
+        current = target
+        while len(reversed_path) < n:
+            reversed_path.append(current)
+            if current == start:
+                break
+            current = parents[current]
+            if current < 0:
+                return -1, b""
+        if reversed_path[-1] != start:
+            return -1, b""
+        path = list(reversed(reversed_path))
+        result_values = [distances[target], len(path), *path]
+        encoded = b"".join(struct.pack("<q", value) for value in result_values)
+        return len(encoded), encoded
+
+    if algorithm == "lru_page_reference":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        capacity, reference_count = values[:2]
+        if (not 1 <= capacity <= 64 or capacity & (capacity - 1)
+                or not 0 <= reference_count <= 256 or len(values) != reference_count + 2
+                or any(not 0 <= page <= 1_000_000 for page in values[2:])):
+            return -1, b""
+        cache: list[int] = []  # Most recently used page first.
+        result_values = [reference_count]
+        for page in values[2:]:
+            if page in cache:
+                cache.remove(page)
+                cache.insert(0, page)
+                result_values.extend((1, -1))
+            else:
+                evicted = cache.pop() if len(cache) == capacity else -1
+                cache.insert(0, page)
+                result_values.extend((0, evicted))
+        result_values.extend((len(cache), *cache))
+        encoded = b"".join(struct.pack("<q", value) for value in result_values)
+        return len(encoded), encoded
+
+    if algorithm == "base64_to_binary":
+        if (not isinstance(values, list) or len(values) > 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        raw_length = values[0] if values else -1
+        if not 0 <= raw_length <= 256 or len(values) != raw_length + 1:
+            return -1, b""
+        raw = values[1:]
+        if any(not 0 <= value <= 127 for value in raw):
+            return -1, b""
+        whitespace = {9, 10, 11, 12, 13, 32}
+        begin, end = 0, len(raw)
+        while begin < end and raw[begin] in whitespace:
+            begin += 1
+        while end > begin and raw[end - 1] in whitespace:
+            end -= 1
+        if begin == end:
+            return -1, b""
+        negative = raw[begin] == 45
+        if negative:
+            begin += 1
+        alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        alphabet_positions = {value: index for index, value in enumerate(alphabet)}
+        output = bytearray(b"-" if negative else b"")
+        for value in raw[begin:end]:
+            digit = alphabet_positions.get(value)
+            if digit is None:
+                return -1, b""
+            output.extend(f"{digit:06b}".encode("ascii"))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "binary_to_base64":
+        if (not isinstance(values, list) or len(values) > 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        raw_length = values[0] if values else -1
+        if not 0 <= raw_length <= 256 or len(values) != raw_length + 1:
+            return -1, b""
+        raw = values[1:]
+        if any(not 0 <= value <= 127 for value in raw):
+            return -1, b""
+        whitespace = {9, 10, 11, 12, 13, 32}
+        begin, end = 0, len(raw)
+        while begin < end and raw[begin] in whitespace:
+            begin += 1
+        while end > begin and raw[end - 1] in whitespace:
+            end -= 1
+        if begin == end:
+            return -1, b""
+        negative = raw[begin] == 45
+        if negative:
+            begin += 1
+        bits = raw[begin:end]
+        if any(value not in (48, 49) for value in bits):
+            return -1, b""
+        bit_text = bytes(bits)
+        padding = 6 - len(bit_text) % 6
+        padded = b"0" * padding + bit_text
+        alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        output = bytearray(b"-" if negative else b"")
+        for offset in range(0, len(padded), 6):
+            digit = int(padded[offset:offset + 6], 2)
+            output.append(alphabet[digit])
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "binary_to_hex":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        if any(value not in (48, 49) for value in values):
+            return -1, b""
+        alphabet = b"0123456789ABCDEF"
+        output = bytearray()
+        first_width = len(values) % 4 or 4
+        offset = 0
+        width = first_width
+        while offset < len(values):
+            digit = 0
+            for value in values[offset:offset + width]:
+                digit = digit * 2 + value - 48
+            output.append(alphabet[digit])
+            offset += width
+            width = 4
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "hex_to_binary":
+        if (not isinstance(values, list) or len(values) > 256
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        output = bytearray()
+        for value in values:
+            if 48 <= value <= 57:
+                digit = value - 48
+            elif 65 <= value <= 70:
+                digit = value - 65 + 10
+            elif 97 <= value <= 102:
+                digit = value - 97 + 10
+            else:
+                return -1, b""
+            output.extend(f"{digit:04b}".encode("ascii"))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "camel_case_to_snake_case":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 256
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        if any(not (65 <= value <= 90 or 97 <= value <= 122) for value in values):
+            return -1, b""
+        output = bytearray()
+        for index, value in enumerate(values):
+            if 65 <= value <= 90:
+                if index > 0:
+                    output.append(95)
+                output.append(value + 32)
+            else:
+                output.append(value)
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "snake_case_to_camel_pascal_case":
+        if (not isinstance(values, list) or len(values) < 2 or len(values) > 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        mode, raw = values[0], values[1:]
+        if mode not in (0, 1) or not 1 <= len(raw) <= 256:
+            return -1, b""
+        if any(not (97 <= value <= 122 or 48 <= value <= 57 or value == 95) for value in raw):
+            return -1, b""
+        if raw[0] == 95 or raw[-1] == 95 or any(
+                raw[index] == raw[index + 1] == 95 for index in range(len(raw) - 1)):
+            return -1, b""
+        output = bytearray()
+        capitalize = mode == 1
+        for value in raw:
+            if value == 95:
+                capitalize = True
+            elif capitalize and 97 <= value <= 122:
+                output.append(value - 32)
+                capitalize = False
+            else:
+                output.append(value)
+                capitalize = False
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "longest_common_prefix":
+        if (not isinstance(values, list) or len(values) > 1041
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)
+                or not values):
+            return -1, b""
+        count = values[0]
+        if not 0 <= count <= 16:
+            return -1, b""
+        strings = []
+        position = 1
+        for _ in range(count):
+            if position >= len(values) or not 0 <= values[position] <= 64:
+                return -1, b""
+            string_length = values[position]
+            position += 1
+            if string_length > len(values) - position:
+                return -1, b""
+            raw = values[position:position + string_length]
+            if any(not 0 <= value <= 127 for value in raw):
+                return -1, b""
+            strings.append(bytes(raw))
+            position += string_length
+        if position != len(values):
+            return -1, b""
+        prefix_length = min(map(len, strings), default=0)
+        for index in range(prefix_length):
+            if any(string[index] != strings[0][index] for string in strings[1:]):
+                prefix_length = index
+                break
+        prefix = strings[0][:prefix_length] if strings else b""
+        return len(prefix), prefix
+
+    if algorithm == "string_append":
+        if (not isinstance(values, list) or len(values) < 2 or len(values) > 130
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        length_a, length_b = values[:2]
+        if (not 0 <= length_a <= 64 or not 0 <= length_b <= 64
+                or len(values) != length_a + length_b + 2):
+            return -1, b""
+        raw = values[2:]
+        if any(not 32 <= value <= 126 for value in raw):
+            return -1, b""
+        encoded = bytes(raw)
+        return len(encoded), encoded
+
+    if algorithm == "alternative_string_arrange":
+        if (not isinstance(values, list) or len(values) < 2 or len(values) > 130
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        length_a, length_b = values[:2]
+        if (not 0 <= length_a <= 64 or not 0 <= length_b <= 64
+                or len(values) != length_a + length_b + 2):
+            return -1, b""
+        first = values[2:2 + length_a]
+        second = values[2 + length_a:]
+        if any(not 0 <= value <= 127 for value in first + second):
+            return -1, b""
+        output = bytearray()
+        for index in range(max(length_a, length_b)):
+            if index < length_a:
+                output.append(first[index])
+            if index < length_b:
+                output.append(second[index])
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm in {"lowest_common_ancestor_binary_lifting", "lowest_common_ancestor_tarjan"}:
+        return lowest_common_ancestor_batch_output(values)
+
+    if algorithm in {"sudoku_solver", "sudoku_solver_mrv"}:
+        board = solve_sudoku_board(values)
+        if board is None:
+            return -1, b""
+        encoded = b"".join(struct.pack("<i", value) for value in board)
+        return 81, encoded
+
+    if algorithm == "depth_first_search_with_stack":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        vertex_count, start = values[:2]
+        edge_values = values[2:]
+        if (not 0 <= vertex_count <= 64 or len(edge_values) % 2 or len(edge_values) > 64
+                or (vertex_count == 0 and (start != -1 or edge_values))
+                or (vertex_count > 0 and not 0 <= start < vertex_count)):
+            return -2, b""
+        adjacency = [[] for _ in range(vertex_count)]
+        for offset in range(0, len(edge_values), 2):
+            source, destination = edge_values[offset:offset + 2]
+            if not 0 <= source < vertex_count or not 0 <= destination < vertex_count:
+                return -2, b""
+            adjacency[source].append(destination)
+        if vertex_count == 0:
+            return 0, b""
+        white, grey, black = 0, 1, 2
+        color = [white] * vertex_count
+        color[start] = grey
+        stack = [start]
+        order = bytearray()
+        while stack:
+            vertex = stack.pop()
+            if color[vertex] != grey:
+                continue
+            order.append(vertex)
+            for neighbor in adjacency[vertex]:
+                stack.append(neighbor)
+                if color[neighbor] == white:
+                    color[neighbor] = grey
+            color[vertex] = black
+        return len(order), bytes(order)
+
+    if algorithm == "topological_sort":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        vertex_count = values[0]
+        edge_values = values[1:]
+        if (not 0 <= vertex_count <= 64 or len(edge_values) % 2 or len(edge_values) > 64):
+            return -2, b""
+        adjacency = [set() for _ in range(vertex_count)]
+        indegree = [0] * vertex_count
+        for offset in range(0, len(edge_values), 2):
+            source, destination = edge_values[offset:offset + 2]
+            if not 0 <= source < vertex_count or not 0 <= destination < vertex_count:
+                return -2, b""
+            if destination not in adjacency[source]:
+                adjacency[source].add(destination)
+                indegree[destination] += 1
+        ready = deque(vertex for vertex, degree in enumerate(indegree) if degree == 0)
+        order = bytearray()
+        while ready:
+            vertex = ready.popleft()
+            order.append(vertex)
+            for neighbor in sorted(adjacency[vertex]):
+                indegree[neighbor] -= 1
+                if indegree[neighbor] == 0:
+                    ready.append(neighbor)
+        if len(order) != vertex_count:
+            return -1, b""
+        return len(order), bytes(order)
+
+    if algorithm == "longest_palindromic_substring":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1000
+                or any(type(value) is not int or not (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122)
+                       for value in values)):
+            return -1, b""
+        best_start = 0
+        best_length = 1
+
+        def expand(left: int, right: int) -> None:
+            nonlocal best_start, best_length
+            while left >= 0 and right < len(values) and values[left] == values[right]:
+                length = right - left + 1
+                if length > best_length:
+                    best_start, best_length = left, length
+                left -= 1
+                right += 1
+
+        for center in range(len(values)):
+            expand(center, center)
+            expand(center, center + 1)
+        output = bytes(values[best_start:best_start + best_length])
+        return len(output), output
+
+    if algorithm == "sorted_array_to_bst":
+        if (not isinstance(values, list) or len(values) > 64
+                or any(type(value) is not int or not -(2**31) <= value <= 2**31 - 1 for value in values)
+                or any(values[i] >= values[i + 1] for i in range(len(values) - 1))):
+            return -1, b""
+        output = bytearray()
+
+        def serialize(lo: int, hi: int) -> None:
+            if lo >= hi:
+                output.append(0)
+                return
+            middle = (lo + hi - 1) // 2
+            output.append(1)
+            output.extend(struct.pack("<i", values[middle]))
+            serialize(lo, middle)
+            serialize(middle + 1, hi)
+
+        serialize(0, len(values))
+        return len(values), bytes(output)
+
+    if algorithm == "wiggle_sort":
+        if (not isinstance(values, list) or len(values) > 4096
+                or any(type(value) is not int or not -(2**31) <= value <= 2**31 - 1 for value in values)):
+            return -1, b""
+        result = list(values)
+        for index in range(len(result) - 1):
+            if ((index % 2 == 0 and result[index] > result[index + 1])
+                    or (index % 2 == 1 and result[index] < result[index + 1])):
+                result[index], result[index + 1] = result[index + 1], result[index]
+        encoded = b"".join(struct.pack("<i", value) for value in result)
+        return len(result), encoded
+
+    if algorithm == "bfs_connected_undirected_visit_order":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count, start = values[:3]
+        if (not 1 <= vertex_count <= 40 or not 0 <= edge_count <= 780 or start != 0
+                or len(values) != 3 + 2 * edge_count):
+            return -1, b""
+        adjacency = [set() for _ in range(vertex_count)]
+        for offset in range(3, len(values), 2):
+            left, right = values[offset:offset + 2]
+            if not 0 <= left < vertex_count or not 0 <= right < vertex_count:
+                return -1, b""
+            adjacency[left].add(right)
+            adjacency[right].add(left)
+        visited = [False] * vertex_count
+        visited[start] = True
+        queue = deque([start])
+        order = []
+        while queue:
+            vertex = queue.popleft()
+            order.append(vertex)
+            for neighbor in sorted(adjacency[vertex]):
+                if not visited[neighbor]:
+                    visited[neighbor] = True
+                    queue.append(neighbor)
+        if len(order) != vertex_count:
+            return -1, b""
+        encoded = b"".join(struct.pack("<q", vertex) for vertex in order)
+        return vertex_count, encoded
+
+    if algorithm == "bfs_result_tree":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count, start = values[:3]
+        if (not 1 <= vertex_count <= 32 or not 0 <= edge_count <= 126
+                or not 0 <= start < vertex_count or len(values) != 3 + 2 * edge_count):
+            return -1, b""
+        adjacency = [[] for _ in range(vertex_count)]
+        for offset in range(3, len(values), 2):
+            source, destination = values[offset:offset + 2]
+            if not 0 <= source < vertex_count or not 0 <= destination < vertex_count:
+                return -1, b""
+            adjacency[source].append(destination)
+        seen = [False] * vertex_count
+        parent = [-1] * vertex_count
+        distance = [0] * vertex_count
+        seen[start] = True
+        discovery_order = [start]
+        queue = deque([start])
+        visited_order = []
+        while queue:
+            vertex = queue.popleft()
+            visited_order.append(vertex)
+            for neighbor in adjacency[vertex]:
+                if not seen[neighbor]:
+                    seen[neighbor] = True
+                    parent[neighbor] = vertex
+                    distance[neighbor] = distance[vertex] + 1
+                    discovery_order.append(neighbor)
+                    queue.append(neighbor)
+        result = [len(discovery_order), *discovery_order,
+                  len(visited_order), *visited_order,
+                  len(discovery_order)]
+        for vertex in discovery_order:
+            result.extend((vertex, parent[vertex]))
+        result.append(len(discovery_order))
+        for vertex in discovery_order:
+            result.extend((vertex, distance[vertex]))
+        encoded = b"".join(struct.pack("<q", value) for value in result)
+        return len(encoded), encoded
+
+    if algorithm == "heap_permutation":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        permutation = values[1:]
+        if (not 0 <= count <= 7 or len(permutation) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in permutation)):
+            return -1, b""
+        if count == 0:
+            return 1, b""
+        rows = []
+        current = list(permutation)
+
+        def generate(k: int) -> None:
+            if k == 1:
+                rows.append(tuple(current))
+                return
+            for index in range(k):
+                swap_index = index if k % 2 == 0 else 0
+                current[swap_index], current[k - 1] = current[k - 1], current[swap_index]
+                generate(k - 1)
+
+        generate(count)
+        encoded = b"".join(struct.pack("<i", value) for row in rows for value in row)
+        return len(rows), encoded
+
+    if algorithm == "palindrome_partitioning_all_partitions":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        text_length = values[0]
+        text_values = values[1:]
+        if (not 0 <= text_length <= 12 or len(text_values) != text_length
+                or any(not 0 <= value <= 127 for value in text_values)):
+            return -1, b""
+        partitions = []
+        endpoints = []
+
+        def partition_from(start: int) -> None:
+            if start == text_length:
+                partitions.append(tuple(endpoints))
+                return
+            for end in range(start + 1, text_length + 1):
+                piece = text_values[start:end]
+                if piece == piece[::-1]:
+                    endpoints.append(end)
+                    partition_from(end)
+                    endpoints.pop()
+
+        partition_from(0)
+        output = bytearray(struct.pack("<q", len(partitions)))
+        for partition in partitions:
+            output.extend(struct.pack("<q", len(partition)))
+            for end in partition:
+                output.extend(struct.pack("<q", end))
+        return len(output), bytes(output)
+
+    if algorithm == "bifid_cipher":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        mode, text_length = values[:2]
+        raw = values[2:]
+        if mode not in (0, 1) or not 0 <= text_length <= 256 or len(raw) != text_length:
+            return -1, b""
+        square = b"abcdefghiklmnopqrstuvwxyz"
+        positions = {chr(letter): (index // 5 + 1, index % 5 + 1)
+                     for index, letter in enumerate(square)}
+        if mode == 0:
+            if any(not (65 <= value <= 90 or 97 <= value <= 122 or value == 32) for value in raw):
+                return -1, b""
+            message = [chr(value).lower() for value in raw if value != 32]
+            message = ["i" if letter == "j" else letter for letter in message]
+            coordinates = [positions[letter] for letter in message]
+            flattened = [row for row, _ in coordinates] + [column for _, column in coordinates]
+            output = bytes(square[(flattened[index * 2] - 1) * 5 + flattened[index * 2 + 1] - 1]
+                           for index in range(len(message)))
+            return len(output), output
+        if any(not (65 <= value <= 90 or 97 <= value <= 122) for value in raw):
+            return -1, b""
+        message = [chr(value).lower() for value in raw]
+        if any(letter not in positions for letter in message):
+            return -1, b""
+        coordinates = [positions[letter] for letter in message]
+        flattened = [coordinate for pair in coordinates for coordinate in pair]
+        output = bytes(square[(flattened[index] - 1) * 5 + flattened[index + text_length] - 1]
+                       for index in range(text_length))
+        return len(output), output
+
+    if algorithm == "convert_number_to_words":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        number, system = values
+        scales = {
+            0: ((15, "quadrillion"), (12, "trillion"), (9, "billion"),
+                (6, "million"), (3, "thousand"), (2, "hundred")),
+            1: ((15, "billiard"), (9, "milliard"), (6, "million"),
+                (3, "thousand"), (2, "hundred")),
+            2: ((14, "crore crore"), (12, "lakh crore"), (7, "crore"),
+                (5, "lakh"), (3, "thousand"), (2, "hundred")),
+        }
+        maxima = {0: 10**18 - 1, 1: 9_000_000_000_000_000_000,
+                  2: 9_000_000_000_000_000_000}
+        if system not in scales or abs(number) > maxima[system]:
+            return -1, b""
+        ones = ("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+        teens = ("ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+                 "sixteen", "seventeen", "eighteen", "nineteen")
+        tens = {2: "twenty", 3: "thirty", 4: "forty", 5: "fifty", 6: "sixty",
+                7: "seventy", 8: "eighty", 9: "ninety"}
+
+        def small_number(value: int) -> str:
+            if value < 10:
+                return ones[value] or "zero"
+            if value < 20:
+                return teens[value - 10]
+            ten, one = divmod(value, 10)
+            return tens[ten] + ("-" + ones[one] if one else "")
+
+        def convert_number(value: int) -> str:
+            groups = []
+            if value < 0:
+                groups.append("negative")
+                value = -value
+            for power, unit in scales[system]:
+                group, value = divmod(value, 10**power)
+                if group:
+                    words = convert_number(group) if group >= 100 else small_number(group)
+                    groups.append(f"{words} {unit}")
+            if value > 0 or not groups:
+                groups.append(small_number(value))
+            return " ".join(groups)
+
+        encoded = convert_number(number).encode("ascii")
+        return len(encoded), encoded
+
+    if algorithm == "digital_differential_analyzer_line":
+        if (not isinstance(values, list) or len(values) != 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        if any(not -1_000_000 <= value <= 1_000_000 for value in values):
+            return -1, b""
+        x1, y1, x2, y2 = values
+        dx, dy = x2 - x1, y2 - y1
+        steps = max(abs(dx), abs(dy))
+        if not 1 <= steps <= 4096:
+            return -1, b""
+        x, y = float(x1), float(y1)
+        x_increment, y_increment = dx / float(steps), dy / float(steps)
+        output = bytearray()
+        for _ in range(steps):
+            x += x_increment
+            y += y_increment
+            output.extend(struct.pack("<ii", round(x), round(y)))
+        encoded = bytes(output)
+        return len(encoded), encoded
+
+    if algorithm == "find_triplets_with_0_sum":
+        if (not isinstance(values, list) or len(values) > 64
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)
+                or any(not -100_000 <= value <= 100_000 for value in values)):
+            return -1, b""
+        ordered = sorted(values)
+        matches = set()
+        for first in range(len(ordered)):
+            for second in range(first + 1, len(ordered)):
+                for third in range(second + 1, len(ordered)):
+                    triple = (ordered[first], ordered[second], ordered[third])
+                    if sum(triple) == 0:
+                        matches.add(triple)
+        triples = sorted(matches)
+        encoded = b"".join(struct.pack("<iii", *triple) for triple in triples)
+        return len(triples), encoded
+
+    if algorithm == "find_triplets_with_0_sum_hashing":
+        if (not isinstance(values, list) or len(values) > 64
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)
+                or any(not -100_000 <= value <= 100_000 for value in values)):
+            return -1, b""
+        triples = []
+        for index, item in enumerate(values[:-2]):
+            seen = set()
+            current_sum = -item
+            for other_item in values[index + 1:]:
+                required = current_sum - other_item
+                if required in seen:
+                    triple = tuple(sorted((item, other_item, required)))
+                    if triple not in triples:
+                        triples.append(triple)
+                seen.add(other_item)
+        encoded = b"".join(struct.pack("<iii", *triple) for triple in triples)
+        return len(triples), encoded
+
+    if algorithm == "generate_parentheses":
+        if (not isinstance(values, list) or len(values) != 1
+                or type(values[0]) is not int or not 1 <= values[0] <= 6):
+            return -1, b""
+        pair_count = values[0]
+        sequences = []
+
+        def generate(partial: str, opened: int, closed: int) -> None:
+            if len(partial) == 2 * pair_count:
+                sequences.append(partial)
+                return
+            if opened < pair_count:
+                generate(partial + "(", opened + 1, closed)
+            if closed < opened:
+                generate(partial + ")", opened, closed + 1)
+
+        generate("", 0, 0)
+        encoded = "".join(sequences).encode("ascii")
+        return len(encoded), encoded
+
+    if algorithm == "max_difference_pair":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 129
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        data = values[1:]
+        if (not 1 <= count <= 128 or len(data) != count
+                or any(not -1_000_000 <= value <= 1_000_000 for value in data)):
+            return -1, b""
+
+        def choose_pair(items: list[int]) -> tuple[int, int]:
+            if len(items) == 1:
+                return items[0], items[0]
+            middle = len(items) // 2
+            first, second = items[:middle], items[middle:]
+            small1, big1 = choose_pair(first)
+            small2, big2 = choose_pair(second)
+            min_first, max_second = min(first), max(second)
+            cross_difference = max_second - min_first
+            if big2 - small2 > cross_difference and big2 - small2 > big1 - small1:
+                return small2, big2
+            if big1 - small1 > cross_difference:
+                return small1, big1
+            return min_first, max_second
+
+        small, big = choose_pair(data)
+        return 16, struct.pack("<qq", small, big)
+
+    if algorithm == "next_smaller_element":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        data = values[1:]
+        if (not 0 <= count <= 1024 or len(data) != count
+                or any(not -(2**31) <= value < 2**31 for value in data)):
+            return -1, b""
+        stack = []
+        previous_smaller = []
+        for value in data:
+            while stack and stack[-1] >= value:
+                stack.pop()
+            previous_smaller.append(stack[-1] if stack else -1)
+            stack.append(value)
+        encoded = b"".join(struct.pack("<q", value) for value in previous_smaller)
+        return len(encoded), encoded
+
+    if algorithm == "segmented_sieve":
+        if (not isinstance(values, list) or len(values) != 1
+                or type(values[0]) is not int or not 2 <= values[0] <= 10_000):
+            return -1, b""
+        limit = values[0]
+        prime_flags = [True] * (limit + 1)
+        prime_flags[0:2] = [False, False]
+        for candidate in range(2, math.isqrt(limit) + 1):
+            if prime_flags[candidate]:
+                for composite in range(candidate * candidate, limit + 1, candidate):
+                    prime_flags[composite] = False
+        primes = [value for value in range(2, limit + 1) if prime_flags[value]]
+        encoded = b"".join(struct.pack("<q", prime) for prime in primes)
+        return len(encoded), encoded
+
+    if algorithm == "linked_queue_fifo_trace":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 127 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        queue = deque()
+        removed = []
+        closed_after_empty = False
+        for offset in range(1, len(values), 2):
+            opcode, value = values[offset:offset + 2]
+            if opcode == 0:
+                if (closed_after_empty or value == 0
+                        or not -(2**31) <= value <= 2**31 - 1):
+                    return -1, b""
+                queue.append(value)
+            elif opcode == 1:
+                if value != 0 or not queue:
+                    return -1, b""
+                removed.append(queue.popleft())
+                if not queue:
+                    closed_after_empty = True
+            else:
+                return -1, b""
+        removed.extend(queue)
+        encoded = b"".join(struct.pack("<i", value) for value in removed)
+        return len(encoded), encoded
+
+    if algorithm == "k_nearest_neighbors_binary":
+        if (not isinstance(values, list) or len(values) < 5
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        dimension, point_count, k = values[:3]
+        if (not 1 <= dimension <= 8 or not 1 <= point_count <= 128
+                or not 1 <= k <= point_count or k % 2 == 0
+                or len(values) != 3 + dimension + point_count * (dimension + 1)):
+            return -1, b""
+        query = values[3:3 + dimension]
+        if any(not -1000 <= coordinate <= 1000 for coordinate in query):
+            return -1, b""
+        offset = 3 + dimension
+        neighbors = []
+        distances = set()
+        for point in range(point_count):
+            start = offset + point * (dimension + 1)
+            coordinates = values[start:start + dimension]
+            label = values[start + dimension]
+            if (any(not -1000 <= coordinate <= 1000 for coordinate in coordinates)
+                    or label not in (0, 1)):
+                return -1, b""
+            distance_value = sum((left - right) ** 2 for left, right in zip(query, coordinates))
+            if distance_value in distances:
+                return -1, b""
+            distances.add(distance_value)
+            neighbors.append((distance_value, label))
+        nearest = sorted(neighbors)[:k]
+        prediction = int(sum(label for _, label in nearest) > k // 2)
+        return 8, struct.pack("<q", prediction)
+
+    if algorithm == "bfs_graph_coloring":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 0 <= vertex_count <= 64
+                or not 0 <= edge_count <= vertex_count * (vertex_count - 1) // 2
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        adjacency = [set() for _ in range(vertex_count)]
+        seen_edges = set()
+        degree = [0] * vertex_count
+        for offset in range(2, len(values), 2):
+            left, right = values[offset:offset + 2]
+            if not 0 <= left < vertex_count or not 0 <= right < vertex_count or left == right:
+                return -1, b""
+            edge = (min(left, right), max(left, right))
+            if edge in seen_edges:
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[left].add(right)
+            adjacency[right].add(left)
+            degree[left] += 1
+            degree[right] += 1
+
+        visited = [False] * vertex_count
+        for root in range(vertex_count):
+            if visited[root]:
+                continue
+            component = []
+            visited[root] = True
+            queue = deque([root])
+            while queue:
+                vertex = queue.popleft()
+                component.append(vertex)
+                for neighbor in adjacency[vertex]:
+                    if not visited[neighbor]:
+                        visited[neighbor] = True
+                        queue.append(neighbor)
+            if sum(degree[vertex] > 1 for vertex in component) > 1:
+                return -1, b""
+
+        colors = [1] * vertex_count
+        visited = [False] * vertex_count
+        for root in range(vertex_count):
+            if visited[root]:
+                continue
+            visited[root] = True
+            queue = deque([root])
+            while queue:
+                vertex = queue.popleft()
+                for neighbor in sorted(adjacency[vertex]):
+                    if colors[neighbor] == colors[vertex]:
+                        colors[neighbor] += 1
+                    if not visited[neighbor]:
+                        visited[neighbor] = True
+                        queue.append(neighbor)
+        result = [vertex_count, *colors, max(colors, default=0)]
+        encoded = b"".join(struct.pack("<q", value) for value in result)
+        return len(encoded), encoded
+
+    if algorithm == "binary_heap_min_push_peek_pop":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        items = values[1:]
+        if (not 1 <= count <= 256 or len(items) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in items)):
+            return -1, b""
+        encoded = b"".join(struct.pack("<q", value) for value in sorted(items))
+        return len(encoded), encoded
+
+    if algorithm == "huffman_weighted_cost":
+        if (not isinstance(values, list) or len(values) < 5
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        symbol_count = values[0]
+        if (not 2 <= symbol_count <= 26 or len(values) != 1 + 2 * symbol_count):
+            return -1, b""
+        symbols = values[1::2]
+        frequencies = values[2::2]
+        if (any(not 97 <= symbol <= 122 for symbol in symbols)
+                or len(set(symbols)) != symbol_count
+                or any(frequency <= 0 for frequency in frequencies)
+                or sum(frequencies) > 2**31 - 1):
+            return -1, b""
+        weights = list(frequencies)
+        heapq.heapify(weights)
+        weighted_cost = 0
+        while len(weights) > 1:
+            merged = heapq.heappop(weights) + heapq.heappop(weights)
+            weighted_cost += merged
+            heapq.heappush(weights, merged)
+        return weighted_cost, struct.pack("<q", weighted_cost)
+
     raise ValueError(f"no byte-output oracle for {algorithm}")
 
 
@@ -6003,7 +7886,7 @@ def main() -> int:
             raise ValueError(f"declared input length differs for {case['id']}")
         required_count, required_output = expected_output(values, algorithm)
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
-        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity", "triangle"}:
+        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity", "triangle", "gaussian_elimination"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0

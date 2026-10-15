@@ -21,6 +21,7 @@ pub fn detect_anagrams(input &i64, length usize, mut output &u8, capacity usize)
 		subject_length_value := input[0]
 		if subject_length_value < 0 || subject_length_value > max_string_length { return -1 }
 		subject_length := int(subject_length_value)
+		if subject_length + 1 >= count { return -1 }
 		mut position := 1
 		mut subject_counts := [26]int{}
 		for index in 0 .. subject_length {

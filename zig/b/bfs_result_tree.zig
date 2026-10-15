@@ -1,0 +1,9 @@
+/// Return seen/visited order and insertion-ordered parent and distance pairs.
+fn putI64(out:[*]u8,word:usize,value:i64)void{const bits:u64=@bitCast(value);for(0..8)|b|out[word*8+b]=@truncate(bits>>@intCast(8*b));}
+pub export fn bfs_result_tree(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<3)return -1;const nv=input[0];const mv=input[1];const sv=input[2];if(nv<1 or nv>32 or mv<0 or mv>126 or sv<0 or sv>=nv)return -1;const n:usize=@intCast(nv);const m:usize=@intCast(mv);const start:usize=@intCast(sv);if(length!=3+2*m)return -1;
+ var adj:[32][126]usize=@splat(@splat(0));var degree:[32]usize=@splat(0);for(0..m)|e|{const av=input[3+2*e];const bv=input[4+2*e];if(av<0 or av>=nv or bv<0 or bv>=nv)return -1;const a:usize=@intCast(av);adj[a][degree[a]]=@intCast(bv);degree[a]+=1;}
+ var seen:[32]bool=@splat(false);var parent:[32]i64=@splat(-1);var distance:[32]i64=@splat(-1);var queue:[32]usize=@splat(0);var order:[32]usize=@splat(0);var head:usize=0;var tail:usize=0;var count:usize=0;seen[start]=true;distance[start]=0;queue[tail]=start;tail+=1;
+ while(head<tail){const v=queue[head];head+=1;order[count]=v;count+=1;for(0..degree[v])|j|{const w=adj[v][j];if(!seen[w]){seen[w]=true;parent[w]=@intCast(v);distance[w]=distance[v]+1;queue[tail]=w;tail+=1;}}}
+ const words=4+6*count;if(output==null or capacity<words*8)return -2;var k:usize=0;putI64(output,k,@intCast(count));k+=1;for(order[0..count])|v|{putI64(output,k,@intCast(v));k+=1;}putI64(output,k,@intCast(count));k+=1;for(order[0..count])|v|{putI64(output,k,@intCast(v));k+=1;}putI64(output,k,@intCast(count));k+=1;for(order[0..count])|v|{putI64(output,k,@intCast(v));k+=1;putI64(output,k,parent[v]);k+=1;}putI64(output,k,@intCast(count));k+=1;for(order[0..count])|v|{putI64(output,k,@intCast(v));k+=1;putI64(output,k,distance[v]);k+=1;}const _=n;return @intCast(words*8);
+}

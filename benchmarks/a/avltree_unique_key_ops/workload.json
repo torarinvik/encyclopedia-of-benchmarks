@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "avltree-unique-key-ops-i64-v1",
+  "algorithm": "avltree_unique_key_ops",
+  "function_symbol": "avltree_unique_key_ops",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": [
+      "operation_count",
+      "operation, key pairs..."
+    ],
+    "operation_count_range": [
+      0,
+      128
+    ],
+    "operations": {
+      "0": "insert absent key",
+      "1": "search key",
+      "2": "delete present key"
+    },
+    "key_range": [
+      -1000000,
+      1000000
+    ],
+    "duplicate_active_insert": "invalid",
+    "absent_delete": "invalid",
+    "deleted_keys_may_be_reinserted": true,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": [
+      "inorder_count",
+      "sorted_keys...",
+      "search_count",
+      "search_results..."
+    ],
+    "search_result_values": {
+      "0": "absent",
+      "1": "present"
+    },
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_trace",
+      "input_values": [
+        0
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "left_left_rotation",
+      "input_values": [
+        5,
+        0,
+        30,
+        0,
+        20,
+        0,
+        10,
+        1,
+        20,
+        1,
+        99
+      ],
+      "expected_result": 56,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e00000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "right_right_rotation",
+      "input_values": [
+        5,
+        0,
+        10,
+        0,
+        20,
+        0,
+        30,
+        1,
+        20,
+        1,
+        -1
+      ],
+      "expected_result": 56,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e00000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "left_right_rotation",
+      "input_values": [
+        4,
+        0,
+        30,
+        0,
+        10,
+        0,
+        20,
+        1,
+        20
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e0000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "right_left_rotation",
+      "input_values": [
+        4,
+        0,
+        10,
+        0,
+        30,
+        0,
+        20,
+        1,
+        10
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e0000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "leaf_one_child_two_child_deletes_and_searches",
+      "input_values": [
+        17,
+        0,
+        40,
+        0,
+        20,
+        0,
+        60,
+        0,
+        10,
+        0,
+        30,
+        0,
+        50,
+        0,
+        70,
+        0,
+        25,
+        1,
+        40,
+        1,
+        99,
+        2,
+        10,
+        2,
+        30,
+        2,
+        40,
+        1,
+        20,
+        1,
+        40,
+        1,
+        25,
+        1,
+        70
+      ],
+      "expected_result": 104,
+      "expected_output_hex": "05000000000000001400000000000000190000000000000032000000000000003c0000000000000046000000000000000600000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "root_delete_with_one_child",
+      "input_values": [
+        3,
+        0,
+        2,
+        0,
+        1,
+        2,
+        2
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "delete_then_reinsert_and_search",
+      "input_values": [
+        6,
+        0,
+        5,
+        1,
+        5,
+        2,
+        5,
+        1,
+        5,
+        0,
+        5,
+        1,
+        5
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000005000000000000000300000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "key_bounds",
+      "input_values": [
+        4,
+        0,
+        -1000000,
+        0,
+        1000000,
+        1,
+        -1000000,
+        1,
+        0
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "0200000000000000c0bdf0ffffffffff40420f0000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate_active_insert_rejected",
+      "input_values": [
+        2,
+        0,
+        7,
+        0,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "delete_absent_key_rejected",
+      "input_values": [
+        1,
+        2,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unknown_operation_rejected",
+      "input_values": [
+        1,
+        3,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_out_of_range_rejected",
+      "input_values": [
+        1,
+        0,
+        1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_operation_count_rejected",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation_count_over_limit_rejected",
+      "input_values": [
+        129
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_operation_trace",
+      "input_values": [
+        2,
+        0,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        1,
+        0,
+        5
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 0,
+      "capacity_error_result": -2
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+const MAX_NODES: usize = 64;
+const MAX_OPS: usize = 128;
+const Node = struct { key: i64 = 0, left: i32 = -1, right: i32 = -1, height: i32 = 0 };
+fn nodeHeight(nodes: *const [MAX_NODES]Node, i: i32) i32 { return if (i < 0) 0 else nodes[@intCast(i)].height; }
+fn update(nodes: *[MAX_NODES]Node, i: usize) void { const a=nodeHeight(nodes,nodes[i].left);const b=nodeHeight(nodes,nodes[i].right);nodes[i].height=1+@max(a,b); }
+fn rotateRight(nodes: *[MAX_NODES]Node, root: usize) usize { const pivot:usize=@intCast(nodes[root].left);const middle=nodes[pivot].right;nodes[pivot].right=@intCast(root);nodes[root].left=middle;update(nodes,root);update(nodes,pivot);return pivot; }
+fn rotateLeft(nodes: *[MAX_NODES]Node, root: usize) usize { const pivot:usize=@intCast(nodes[root].right);const middle=nodes[pivot].left;nodes[pivot].left=@intCast(root);nodes[root].right=middle;update(nodes,root);update(nodes,pivot);return pivot; }
+fn insert(nodes:*[MAX_NODES]Node,root:i32,key:i64,next:*usize)i32{if(root<0){const i=next.*;next.*+=1;nodes[i]=.{.key=key,.left=-1,.right=-1,.height=1};return @intCast(i);}const r:usize=@intCast(root);if(key<nodes[r].key){nodes[r].left=insert(nodes,nodes[r].left,key,next);}else{nodes[r].right=insert(nodes,nodes[r].right,key,next);}update(nodes,r);const balance=nodeHeight(nodes,nodes[r].left)-nodeHeight(nodes,nodes[r].right);if(balance>1){const l:usize=@intCast(nodes[r].left);if(key>nodes[l].key)nodes[r].left=@intCast(rotateLeft(nodes,l));return @intCast(rotateRight(nodes,r));}if(balance < -1){const ri:usize=@intCast(nodes[r].right);if(key<nodes[ri].key)nodes[r].right=@intCast(rotateRight(nodes,ri));return @intCast(rotateLeft(nodes,r));}return root;}
+fn contains(nodes:*const [MAX_NODES]Node,root_value:i32,key:i64)bool{var root=root_value;while(root>=0){const i:usize=@intCast(root);if(nodes[i].key==key)return true;root=if(key<nodes[i].key)nodes[i].left else nodes[i].right;}return false;}
+fn putI64(out:[*]u8,offset:usize,value:i64)void{const bits:u64=@bitCast(value);for(0..8)|b|out[offset+b]=@truncate(bits>>@intCast(b*8));}
+
+pub export fn avl_tree_ruby_unique_key_insert_search(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<1)return -1;const ops64=input[0];if(ops64<0 or ops64>MAX_OPS or length!=1+2*@as(usize,@intCast(ops64)))return -1;const ops:usize=@intCast(ops64);
+ var inserted:[MAX_NODES]i64=undefined;var ni:usize=0;var ns:usize=0;for(0..ops)|i|{const op=input[1+2*i];const key=input[2+2*i];if((op!=0 and op!=1) or key < -1_000_000 or key>1_000_000)return -1;if(op==0){if(ni>=MAX_NODES)return -1;for(0..ni)|j|if(inserted[j]==key)return -1;inserted[ni]=key;ni+=1;}else ns+=1;}
+ var nodes:[MAX_NODES]Node=[_]Node{.{}}**MAX_NODES;var root:i32=-1;var next:usize=0;var results:[MAX_OPS]i64=undefined;var q:usize=0;for(0..ops)|i|{const op=input[1+2*i];const key=input[2+2*i];if(op==0){root=insert(&nodes,root,key,&next);}else{results[q]=if(contains(&nodes,root,key))1 else 0;q+=1;}}
+ const bytes=(2+ni+ns)*8;if(output==null or capacity<bytes)return -2;putI64(output,0,@intCast(ni));var stack:[MAX_NODES]usize=undefined;var top:usize=0;var current=root;var out:usize=1;while(current>=0 or top>0){while(current>=0){stack[top]=@intCast(current);top+=1;current=nodes[@intCast(current)].left;}top-=1;const i=stack[top];putI64(output,out*8,nodes[i].key);out+=1;current=nodes[i].right;}putI64(output,out*8,@intCast(ns));out+=1;for(0..ns)|i|{putI64(output,out*8,results[i]);out+=1;}return @intCast(bytes);
+}

@@ -9,7 +9,7 @@
     "maximum_subject_length": 16,
     "maximum_candidate_count": 16,
     "maximum_candidate_length": 16,
-    "maximum_input_length": 291,
+    "maximum_input_length": 290,
     "character_domain": "ASCII letters A-Z and a-z; empty strings are allowed"
   },
   "output": {

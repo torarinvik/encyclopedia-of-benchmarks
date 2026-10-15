@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "avl-tree-ruby-unique-key-insert-search-i64-v1",
+  "algorithm": "avl_tree_ruby_unique_key_insert_search",
+  "function_symbol": "avl_tree_ruby_unique_key_insert_search",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["operation_count", "operation, key pairs..."],
+    "operation_count_range": [0, 128],
+    "operations": {"0": "insert unique key", "1": "search key"},
+    "key_range": [-1000000, 1000000],
+    "maximum_inserted_keys": 64,
+    "insert_keys_must_be_unique": true,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": ["inorder_count", "inorder_keys...", "search_count", "search_results..."],
+    "search_result_values": {"0": "absent", "1": "present"},
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "left_left_rotation_and_searches",
+      "input_values": [6, 0, 30, 0, 20, 0, 10, 1, 20, 1, 10, 1, 99],
+      "expected_result": 64,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e000000000000000300000000000000010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "right_left_rotation",
+      "input_values": [5, 0, 10, 0, 30, 0, 20, 1, 10, 1, 20],
+      "expected_result": 56,
+      "expected_output_hex": "03000000000000000a0000000000000014000000000000001e00000000000000020000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "search_before_and_after_insert",
+      "input_values": [4, 1, -1, 0, -1, 1, -1, 0, 4],
+      "expected_result": 48,
+      "expected_output_hex": "0200000000000000ffffffffffffffff0400000000000000020000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "empty_operation_trace",
+      "input_values": [0],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate_insert_rejected",
+      "input_values": [2, 0, 7, 0, 7],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unknown_operation_rejected",
+      "input_values": [1, 2, 7],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_operation_trace",
+      "input_values": [1, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [1, 0, 5],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 0,
+      "capacity_error_result": -2
+    }
+  ]
+}

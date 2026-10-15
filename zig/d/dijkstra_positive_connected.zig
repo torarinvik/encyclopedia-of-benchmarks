@@ -1,0 +1,9 @@
+/// Compute shortest distances from vertex zero using a bounded graph scan.
+fn putI64(out:[*]u8,index:usize,value:i64)void{const bits:u64=@bitCast(value);for(0..8)|b|out[index*8+b]=@truncate(bits>>@intCast(8*b));}
+pub export fn dijkstra_positive_connected(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<2)return -1;const nv=input[0];const mv=input[1];if(nv<1 or nv>4 or mv<0 or mv>6)return -1;const n:usize=@intCast(nv);const m:usize=@intCast(mv);if(length!=2+3*m or m<n-1 or m>n*(n-1)/2)return -1;
+ var weight:[4][4]i64=@splat(@splat(0));var adj:[4][4]bool=@splat(@splat(false));var neighbors:[4][6]usize=@splat(@splat(0));var degree:[4]usize=@splat(0);for(0..m)|e|{const av=input[2+3*e];const bv=input[3+3*e];const cost=input[4+3*e];if(av<0 or av>=nv or bv<0 or bv>=nv or av==bv or cost<1 or cost>255)return -1;const a:usize=@intCast(av);const b:usize=@intCast(bv);if(adj[a][b])return -1;adj[a][b]=true;adj[b][a]=true;weight[a][b]=cost;weight[b][a]=cost;neighbors[a][degree[a]]=b;degree[a]+=1;neighbors[b][degree[b]]=a;degree[b]+=1;}
+ var seen:[4]bool=@splat(false);var stack:[4]usize=@splat(0);var top:usize=1;stack[0]=0;seen[0]=true;while(top>0){top-=1;const u=stack[top];for(neighbors[u][0..degree[u]])|v|{if(!seen[v]){seen[v]=true;stack[top]=v;top+=1;}}}for(seen[0..n])|v|if(!v)return -1;
+ var dist:[4]i64=@splat(std.math.maxInt(i64));var done:[4]bool=@splat(false);dist[0]=0;for(0..n)|_|{var selected:?usize=null;for(0..n)|v|{if(!done[v] and (selected==null or dist[v]<dist[selected.?]))selected=v;}if(selected)|u|{done[u]=true;for(neighbors[u][0..degree[u]])|v|{if(!done[v] and dist[u]+weight[u][v]<dist[v])dist[v]=dist[u]+weight[u][v];}}else break;}
+ if(output==null or capacity<n*8)return -2;for(0..n)|i|putI64(output,i,dist[i]);return @intCast(n*8);
+}

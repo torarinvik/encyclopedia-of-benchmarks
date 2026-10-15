@@ -1,0 +1,97 @@
+const MAX_INPUT_LENGTH: usize = 4096
+
+def md5_add32(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & 0xFFFF_FFFF.u64()).u32()
+
+def md5_rotate_left(value: u32, amount: usize) -> u32:
+    (value << amount) | (value >> (32 - amount))
+
+def md5_byte(input: i64&, length: usize, padded_length: usize, bit_length: u64, position: usize) -> u32:
+    if position < length:
+        return input[position].u32()
+    if position == length:
+        return 0x80.u32()
+    if position >= padded_length - 8:
+        return ((bit_length >> (8 * (position - (padded_length - 8)))) & 255.u64()).u32()
+    0.u32()
+
+def md5_word(input: i64&, length: usize, padded_length: usize, bit_length: u64,
+             block_offset: usize, word_index: usize) -> u32:
+    word: mutable u32 = 0
+    start: usize = block_offset + word_index * 4
+    for byte in 0..<4:
+        word <- word | (md5_byte(input, length, padded_length, bit_length, start + byte) << (8 * byte))
+    word
+
+def md5_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or (length > 0 and input == null):
+        return -1
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    if output == null or output_capacity < 16:
+        return -2
+
+    shifts: u32[64] = [
+        7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
+        5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+        4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
+        6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21]
+    constants: u32[64] = [
+        0xD76AA478,0xE8C7B756,0x242070DB,0xC1BDCEEE,0xF57C0FAF,0x4787C62A,0xA8304613,0xFD469501,
+        0x698098D8,0x8B44F7AF,0xFFFF5BB1,0x895CD7BE,0x6B901122,0xFD987193,0xA679438E,0x49B40821,
+        0xF61E2562,0xC040B340,0x265E5A51,0xE9B6C7AA,0xD62F105D,0x02441453,0xD8A1E681,0xE7D3FBC8,
+        0x21E1CDE6,0xC33707D6,0xF4D50D87,0x455A14ED,0xA9E3E905,0xFCEFA3F8,0x676F02D9,0x8D2A4C8A,
+        0xFFFA3942,0x8771F681,0x6D9D6122,0xFDE5380C,0xA4BEEA44,0x4BDECFA9,0xF6BB4B60,0xBEBFBC70,
+        0x289B7EC6,0xEAA127FA,0xD4EF3085,0x04881D05,0xD9D4D039,0xE6DB99E5,0x1FA27CF8,0xC4AC5665,
+        0xF4292244,0x432AFF97,0xAB9423A7,0xFC93A039,0x655B59C3,0x8F0CCC92,0xFFEFF47D,0x85845DD1,
+        0x6FA87E4F,0xFE2CE6E0,0xA3014314,0x4E0811A1,0xF7537E82,0xBD3AF235,0x2AD7D2BB,0xEB86D391]
+    padded_length: usize = ((length + 8) / 64 + 1) * 64
+    bit_length: u64 = length.u64() * 8
+    h0: mutable u32 = 0x67452301.u32()
+    h1: mutable u32 = 0xEFCDAB89.u32()
+    h2: mutable u32 = 0x98BADCFE.u32()
+    h3: mutable u32 = 0x10325476.u32()
+
+    offset: mutable usize = 0
+    while offset < padded_length:
+        words: mutable u32[16]
+        for index in 0..<16:
+            words[index] <- md5_word(input, length, padded_length, bit_length, offset, index)
+        a: mutable u32 = h0
+        b: mutable u32 = h1
+        c: mutable u32 = h2
+        d: mutable u32 = h3
+        for index in 0..<64:
+            f: mutable u32 = 0
+            g: mutable usize = 0
+            if index < 16:
+                f <- (b & c) | (~b & d)
+                g <- index
+            elif index < 32:
+                f <- (d & b) | (~d & c)
+                g <- (5 * index + 1) % 16
+            elif index < 48:
+                f <- b ^ c ^ d
+                g <- (3 * index + 5) % 16
+            else:
+                f <- c ^ (b | ~d)
+                g <- (7 * index) % 16
+            total: u32 = md5_add32(md5_add32(md5_add32(a, f), constants[index]), words[g])
+            previous_d: u32 = d
+            d <- c
+            c <- b
+            b <- md5_add32(b, md5_rotate_left(total, shifts[index].usize()))
+            a <- previous_d
+        h0 <- md5_add32(h0, a)
+        h1 <- md5_add32(h1, b)
+        h2 <- md5_add32(h2, c)
+        h3 <- md5_add32(h3, d)
+        offset <- offset + 64
+    state: u32[4] = [h0, h1, h2, h3]
+    for word in 0..<4:
+        for byte in 0..<4:
+            output[word * 4 + byte] <- ((state >> (8 * byte)) & 255.u32()).u8()
+    16
+
+export fn md5(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = md5_impl
