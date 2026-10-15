@@ -1,0 +1,16 @@
+# Portable zero-based Tribonacci recurrence for the shared i64 contract.
+def tribonacci_impl(n: i64) -> i64:
+    if n < 0 or n > 73:
+        return -1
+    if n == 0:
+        return 0
+    if n <= 2:
+        return 1
+    while index <= n |index: i64 = 3, previous_three: i64 = 0, previous_two: i64 = 1, previous_one: i64 = 1| -> previous_one:
+        next: i64 = previous_three + previous_two + previous_one
+        previous_three <- previous_two
+        previous_two <- previous_one
+        previous_one <- next
+        index <- index + 1
+
+export fn tribonacci(n: i64) -> i64 = tribonacci_impl

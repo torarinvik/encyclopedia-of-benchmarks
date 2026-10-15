@@ -1,0 +1,14 @@
+# Complement only the significant binary digits of a nonnegative integer.
+def bitwise_complement_impl(n: i64) -> i64:
+    if n < 0 or n > 2147483647:
+        return -1
+    if n == 0:
+        return 1
+    mask: mutable u64 = 0
+    value: mutable u64 = n.u64()
+    while value != 0:
+        mask <- (mask << 1) | 1.u64()
+        value <- value >> 1
+    n ^ mask.i64()
+
+export fn bitwise_complement(n: i64) -> i64 = bitwise_complement_impl

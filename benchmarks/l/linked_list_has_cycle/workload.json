@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "linked-list-has-cycle-v1",
+  "algorithm": "linked_list_has_cycle",
+  "function_symbol": "linked_list_has_cycle",
+  "input": {
+    "kind": "successor_index_array",
+    "maximum_nodes": 100000,
+    "head_index": 0,
+    "null_successor": -1,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id":"empty","input_values":[],"expected_result":0},
+    {"id":"single_null","input_values":[-1],"expected_result":0},
+    {"id":"single_self_cycle","input_values":[0],"expected_result":1},
+    {"id":"two_node_linear","input_values":[1,-1],"expected_result":0},
+    {"id":"two_node_cycle","input_values":[1,0],"expected_result":1},
+    {"id":"long_linear","input_values":[1,2,3,4,-1],"expected_result":0},
+    {"id":"cycle_at_head","input_values":[1,2,0],"expected_result":1},
+    {"id":"cycle_after_prefix","input_values":[1,2,3,4,2],"expected_result":1},
+    {"id":"unreachable_cycle","input_values":[1,-1,2],"expected_result":0},
+    {"id":"invalid_below_null","input_values":[-2],"expected_result":-1},
+    {"id":"invalid_successor_out_of_range","input_values":[1],"expected_result":-1},
+    {"id":"invalid_i64_min","input_values":[-9223372036854775808],"expected_result":-1},
+    {"id":"invalid_i64_max","input_values":[9223372036854775807],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 32,
+    "timed_region": "validate successor indices and detect whether the list reachable from node 0 contains a cycle"
+  }
+}

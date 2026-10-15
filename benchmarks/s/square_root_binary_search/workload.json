@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "square-root-binary-search-i64-v1",
+  "algorithm": "square_root_binary_search",
+  "function_symbol": "square_root_binary_search",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [0, 9223372036854775807],
+    "invalid_result": -1,
+    "result": "floor of the nonnegative square root, found using binary search and integer division"
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 1},
+    {"id": "three", "input_value": 3, "expected_result": 1},
+    {"id": "perfect_square_four", "input_value": 4, "expected_result": 2},
+    {"id": "non_square_eight", "input_value": 8, "expected_result": 2},
+    {"id": "perfect_square_nine", "input_value": 9, "expected_result": 3},
+    {"id": "below_square", "input_value": 15, "expected_result": 3},
+    {"id": "perfect_square_sixteen", "input_value": 16, "expected_result": 4},
+    {"id": "above_square", "input_value": 17, "expected_result": 4},
+    {"id": "largest_i64", "input_value": 9223372036854775807, "expected_result": 3037000499},
+    {"id": "negative_invalid", "input_value": -1, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "climbing-stairs-v1",
+  "algorithm": "climbing_stairs",
+  "input": {
+    "minimum": 1,
+    "maximum": 45,
+    "out_of_range_result": -1,
+    "meaning": "number of ordered sequences of one-step and two-step moves that total n steps"
+  },
+  "cases": [
+    {
+      "id": "steps_1",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "steps_2",
+      "input_value": 2,
+      "expected_result": 2
+    },
+    {
+      "id": "steps_3",
+      "input_value": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "steps_4",
+      "input_value": 4,
+      "expected_result": 5
+    },
+    {
+      "id": "steps_5",
+      "input_value": 5,
+      "expected_result": 8
+    },
+    {
+      "id": "steps_6",
+      "input_value": 6,
+      "expected_result": 13
+    },
+    {
+      "id": "steps_7",
+      "input_value": 7,
+      "expected_result": 21
+    },
+    {
+      "id": "steps_8",
+      "input_value": 8,
+      "expected_result": 34
+    },
+    {
+      "id": "steps_9",
+      "input_value": 9,
+      "expected_result": 55
+    },
+    {
+      "id": "steps_10",
+      "input_value": 10,
+      "expected_result": 89
+    },
+    {
+      "id": "steps_20",
+      "input_value": 20,
+      "expected_result": 10946
+    },
+    {
+      "id": "steps_30",
+      "input_value": 30,
+      "expected_result": 1346269
+    },
+    {
+      "id": "steps_40",
+      "input_value": 40,
+      "expected_result": 165580141
+    },
+    {
+      "id": "steps_44",
+      "input_value": 44,
+      "expected_result": 1134903170
+    },
+    {
+      "id": "steps_45",
+      "input_value": 45,
+      "expected_result": 1836311903
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "first_above_limit",
+      "input_value": 46,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

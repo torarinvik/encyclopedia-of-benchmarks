@@ -1,0 +1,15 @@
+def lucas_series_impl(n: i64) -> i64:
+    if n < 0 or n > 90:
+        return -1
+    if n == 0:
+        return 2
+    previous: mutable i64 = 2
+    current: mutable i64 = 1
+    index: mutable i64 = 2
+    while index <= n:
+        next_value: i64 = previous + current
+        previous <- current
+        current <- next_value
+        index <- index + 1
+    current
+export fn lucas_series(n: i64) -> i64 = lucas_series_impl

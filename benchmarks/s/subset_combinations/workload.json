@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "subset-combinations-v1",
+  "algorithm": "subset_combinations",
+  "input": {
+    "kind": "choose_count_followed_by_signed_64_bit_elements",
+    "length_range": [1, 13],
+    "maximum_items": 12,
+    "choose_range": "nonnegative signed 64-bit integer; values above item count produce no combinations",
+    "result": "count of index combinations; each mask is emitted as two little-endian bytes in lexicographic index order",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id": "empty_combination", "input_values": [0], "expected_result": 1, "expected_output_hex": "0000"},
+    {"id": "choose_above_item_count", "input_values": [4, 10, 20, 30], "expected_result": 0, "expected_output_hex": ""},
+    {"id": "choose_one", "input_values": [1, 10, 20, 30], "expected_result": 3, "expected_output_hex": "010002000400"},
+    {"id": "choose_two", "input_values": [2, 10, 20, 30], "expected_result": 3, "expected_output_hex": "030005000600"},
+    {"id": "duplicate_values_keep_positions", "input_values": [2, 5, 5, 9], "expected_result": 3, "expected_output_hex": "030005000600"},
+    {"id": "choose_every_item", "input_values": [3, 10, 20, 30], "expected_result": 1, "expected_output_hex": "0700"},
+    {"id": "extreme_element_values", "input_values": [1, -9223372036854775808, 9223372036854775807], "expected_result": 2, "expected_output_hex": "01000200"},
+    {"id": "negative_choose", "input_values": [-1, 10], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "too_many_elements", "input_values": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "expected_result": -1, "expected_output_hex": ""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

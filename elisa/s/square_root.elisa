@@ -1,0 +1,17 @@
+# Newton square root using binary64 arithmetic and a portable initial estimate.
+def square_root_impl(value: f64) -> f64:
+    if value == 0.0:
+        return 0.0
+    estimate: mutable f64 = value
+    if value < 1.0:
+        estimate <- 1.0
+    iteration: mutable usize = 0
+    while iteration < 1100:
+        next: f64 = 0.5 * estimate + 0.5 * (value / estimate)
+        if next >= estimate:
+            return estimate
+        estimate <- next
+        iteration <- iteration + 1
+    estimate
+
+export fn square_root(value: f64) -> f64 = square_root_impl(value)

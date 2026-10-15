@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "prime-factors-v1",
+  "algorithm": "prime_factors",
+  "input": {
+    "minimum": 1,
+    "maximum": 2147483647,
+    "out_of_range_result": -1,
+    "encoding": "prime_factors",
+    "meaning": "ascending prime factors with multiplicity, comma-separated"
+  },
+  "cases": [
+    {
+      "id": "case_1",
+      "input_value": 1,
+      "expected_result": 0,
+      "expected_output": ""
+    },
+    {
+      "id": "case_2",
+      "input_value": 2,
+      "expected_result": 1,
+      "expected_output": "2"
+    },
+    {
+      "id": "case_3",
+      "input_value": 3,
+      "expected_result": 1,
+      "expected_output": "3"
+    },
+    {
+      "id": "case_4",
+      "input_value": 4,
+      "expected_result": 3,
+      "expected_output": "2,2"
+    },
+    {
+      "id": "case_5",
+      "input_value": 97,
+      "expected_result": 2,
+      "expected_output": "97"
+    },
+    {
+      "id": "case_6",
+      "input_value": 100,
+      "expected_result": 7,
+      "expected_output": "2,2,5,5"
+    },
+    {
+      "id": "case_7",
+      "input_value": 2560,
+      "expected_result": 19,
+      "expected_output": "2,2,2,2,2,2,2,2,2,5"
+    },
+    {
+      "id": "case_8",
+      "input_value": 65535,
+      "expected_result": 10,
+      "expected_output": "3,5,17,257"
+    },
+    {
+      "id": "case_9",
+      "input_value": 1048576,
+      "expected_result": 39,
+      "expected_output": "2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2"
+    },
+    {
+      "id": "case_10",
+      "input_value": 1073741824,
+      "expected_result": 59,
+      "expected_output": "2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2"
+    },
+    {
+      "id": "case_11",
+      "input_value": 2147483646,
+      "expected_result": 21,
+      "expected_output": "2,3,3,7,11,31,151,331"
+    },
+    {
+      "id": "case_12",
+      "input_value": 2147483647,
+      "expected_result": 10,
+      "expected_output": "2147483647"
+    },
+    {
+      "id": "case_13",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "case_14",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "case_15",
+      "input_value": 2147483648,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "case_16",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "case_17",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

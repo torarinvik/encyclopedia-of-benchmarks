@@ -10,7 +10,7 @@ int64_t hamming_distance(uint64_t left, uint64_t right);
 
 Both inputs range from `0` through `2^64 - 1`. The result is the number of positions where the two 64-bit values differ, including leading zero positions, so it ranges from `0` to `64`. There are no invalid inputs or error results. The implementation compares the low bits and shifts both unsigned values until both are zero; it takes at most 64 iterations and constant auxiliary storage. It uses portable integer operations without architecture-specific population-count instructions.
 
-The upstream C string function accepts two null-terminated strings and assumes the second has at least the first string's length. That string API has a different input contract, so the local benchmark selects the unsigned integer variant available in the reviewed C++ and Rust files and supplies the corresponding portable C implementation.
+The upstream C string function accepts two null-terminated strings and assumes the second has at least the first string's length. That string API has a different input contract, so the local benchmark selects the unsigned integer variant available in the reviewed C++ and Rust files and supplies the corresponding portable C implementation. The C++ `count_bits_flip` and Java `CountBitsFlip` sources also compute set-bit count of `A XOR B`; their alias is normalized to nonnegative signed 64-bit inputs.
 
 ## Workload and correctness
 
@@ -51,3 +51,5 @@ The verification report is written to `build/binary_scalar/verification.json`. V
 | Rust | [`rust/h/hamming_distance.rs`](../../../rust/h/hamming_distance.rs) | Independent portable implementation |
 | V | [`v/h/hamming_distance.v`](../../../v/h/hamming_distance.v) | Independent portable implementation |
 | Zig | [`zig/h/hamming_distance.zig`](../../../zig/h/hamming_distance.zig) | Independent portable implementation |
+
+Additional matching sources: [C++ `count_bits_flip`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/bit_manipulation/count_bits_flip.cpp) and [Java `CountBitsFlip`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/CountBitsFlip.java).

@@ -1,0 +1,34 @@
+# Find the least positive divisor whose rounded sum fits the threshold.
+def smallest_divisor_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 257:
+        return -1
+    threshold: i64 = input[0]
+    if threshold < 1 or threshold > 1000000:
+        return -1
+    maximum: mutable i64 = 0
+    index: mutable usize = 1
+    while index < length:
+        value: i64 = input[index]
+        if value < 1 or value > 1000000:
+            return -1
+        if value > maximum:
+            maximum <- value
+        index <- index + 1
+    count: usize = length - 1
+    if threshold < count.i64():
+        return -1
+    answer: i64 =
+        while low < high |low: mutable i64 = 1, high: mutable i64 = maximum| -> low:
+            middle: i64 = low + (high - low) / 2
+            sum: i64 =
+                while index < length |index: mutable usize = 1, sum: mutable i64 = 0| -> sum:
+                    value: i64 = input[index]
+                    sum <- sum + (value + middle - 1) / middle
+                    index <- index + 1
+            if sum <= threshold:
+                high <- middle
+            else:
+                low <- middle + 1
+    answer
+
+export fn smallest_divisor(input: i64&, length: usize) -> i64 = smallest_divisor_impl

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "digital-root-v1",
+  "algorithm": "digital_root",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "range": [0, 9223372036854775807],
+    "outside_range_result": -1
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"single_digit_zero","input_value":7,"expected_result":7},
+    {"id":"nine_is_preserved","input_value":9,"expected_result":9},
+    {"id":"one_digit_sum","input_value":38,"expected_result":2},
+    {"id":"two_digit_sums","input_value":284,"expected_result":5},
+    {"id":"multiple_rounds","input_value":999999,"expected_result":9},
+    {"id":"trailing_zeroes","input_value":1000000000,"expected_result":1},
+    {"id":"large_power_of_ten","input_value":1000000000000000000,"expected_result":1},
+    {"id":"large_neighbor","input_value":1000000000000000001,"expected_result":2},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":7},
+    {"id":"negative_input","input_value":-1,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,42 @@
+# Divide-and-conquer maximum nonempty contiguous-subarray sum.
+def max_subarray_range(values: i64&, start: usize, end: usize) -> i64:
+    if end - start == 1:
+        return values[start]
+    middle: usize = start + (end - start) / 2
+    left_best: i64 = max_subarray_range(values, start, middle)
+    right_best: i64 = max_subarray_range(values, middle, end)
+    running: mutable i64 = values[middle - 1]
+    left_suffix: mutable i64 = running
+    index: mutable usize = middle - 1
+    while index > start:
+        index <- index - 1
+        running <- running + values[index]
+        if running > left_suffix:
+            left_suffix <- running
+    running <- values[middle]
+    right_prefix: mutable i64 = running
+    index <- middle + 1
+    while index < end:
+        running <- running + values[index]
+        if running > right_prefix:
+            right_prefix <- running
+        index <- index + 1
+    crossing: i64 = left_suffix + right_prefix
+    best: mutable i64 = left_best
+    if right_best > best:
+        best <- right_best
+    if crossing > best:
+        best <- crossing
+    best
+
+def max_subarray_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 1024:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        index <- index + 1
+    max_subarray_range(values, 0, length)
+
+export fn max_subarray(values: i64&, length: usize) -> i64 = max_subarray_impl

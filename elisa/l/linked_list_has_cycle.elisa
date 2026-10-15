@@ -1,0 +1,36 @@
+# Floyd cycle detection over a portable successor-index representation.
+def valid_successors(next: i64&, length: usize) -> bool:
+    if length > 100000:
+        return false
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = next[index]
+        if value < -1 or value >= length.i64():
+            return false
+        index <- index + 1
+    true
+
+def successor(next: i64&, node: i64) -> i64:
+    if node < 0:
+        return -1
+    next[node.usize()]
+
+def linked_list_has_cycle_impl(next: i64&, length: usize) -> i64:
+    if not valid_successors(next, length):
+        return -1
+    if length == 0:
+        return 0
+    slow: mutable i64 = 0
+    fast: mutable i64 = 0
+    while fast >= 0:
+        first: i64 = successor(next, fast)
+        if first < 0:
+            break
+        slow <- successor(next, slow)
+        fast <- successor(next, first)
+        if slow == fast:
+            return 1
+    0
+
+# Input entries are next-node indices; -1 means null and node 0 is the head.
+export fn linked_list_has_cycle(next: i64&, length: usize) -> i64 = linked_list_has_cycle_impl

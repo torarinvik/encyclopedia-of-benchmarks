@@ -1,4 +1,4 @@
-/* Portable C11 runner for two-unsigned-input scalar algorithms. */
+/* Portable C11 runner for two-word scalar ABI functions. */
 #include <errno.h>
 #include <inttypes.h>
 #include <stdint.h>

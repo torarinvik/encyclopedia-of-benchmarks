@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "lucas-series-recursive-v1",
+  "algorithm": "lucas_series_recursive",
+  "input": {
+    "kind": "signed_64_bit_zero_based_index",
+    "valid_range": [
+      0,
+      25
+    ],
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "zero_based_first",
+      "input_value": 0,
+      "expected_result": 2
+    },
+    {
+      "id": "second_term",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "third_term",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "example_term",
+      "input_value": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "term_ten",
+      "input_value": 10,
+      "expected_result": 123
+    },
+    {
+      "id": "term_twenty",
+      "input_value": 20,
+      "expected_result": 15127
+    },
+    {
+      "id": "largest_bounded_term",
+      "input_value": 25,
+      "expected_result": 167761
+    },
+    {
+      "id": "negative_index",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "index_over_runtime_bound",
+      "input_value": 26,
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_input",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_input",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

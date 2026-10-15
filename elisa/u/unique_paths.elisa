@@ -1,0 +1,26 @@
+# Count right-and-down paths with one row of dynamic programming.
+def unique_paths_impl(rows: u64, columns: u64) -> i64:
+    if rows == 0 or columns == 0 or rows > 34 or columns > 34:
+        return -1
+    row_count: usize = rows.usize()
+    column_count: usize = columns.usize()
+    width: mutable usize = row_count
+    height: mutable usize = column_count
+    if column_count < row_count:
+        width <- column_count
+        height <- row_count
+    initialized: i64[34] =
+        while column < width |column: mutable usize = 0, values: mutable i64[34] = zeroed| -> values:
+            values[column] <- 1
+            column <- column + 1
+    completed: i64[34] =
+        while row < height |row: mutable usize = 1, values: mutable i64[34] = initialized| -> values:
+            updated: i64[34] =
+                while column < width |column: mutable usize = 1, work_values: mutable i64[34] = values| -> work_values:
+                    work_values[column] <- work_values[column] + work_values[column - 1]
+                    column <- column + 1
+            rebind values = updated
+            row <- row + 1
+    completed[width - 1]
+
+export fn unique_paths(rows: u64, columns: u64) -> i64 = unique_paths_impl

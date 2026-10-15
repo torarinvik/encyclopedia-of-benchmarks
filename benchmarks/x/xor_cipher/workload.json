@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "id": "xor-cipher-v1",
+  "algorithm": "xor_cipher",
+  "input": {
+    "kind": "message_and_key_byte_arrays_with_lengths",
+    "minimum_length": 3,
+    "maximum_length": 66,
+    "message_length_range": [
+      0,
+      63
+    ],
+    "key_length_range": [
+      1,
+      63
+    ],
+    "byte_range": [
+      0,
+      255
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "raw byte sequence where output[i] = message[i] XOR key[i modulo key_length]"
+  },
+  "cases": [
+    {
+      "id": "empty_message",
+      "input_values": [
+        0,
+        3,
+        107,
+        101,
+        121
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_byte_integer_key",
+      "input_values": [
+        1,
+        1,
+        65,
+        17
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "50"
+    },
+    {
+      "id": "classic_text_repeating_key",
+      "input_values": [
+        5,
+        3,
+        72,
+        101,
+        108,
+        108,
+        111,
+        107,
+        101,
+        121
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "230015070a"
+    },
+    {
+      "id": "key_longer_than_message",
+      "input_values": [
+        2,
+        4,
+        65,
+        66,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "4040"
+    },
+    {
+      "id": "zero_and_high_bytes",
+      "input_values": [
+        5,
+        2,
+        0,
+        255,
+        128,
+        65,
+        17,
+        255,
+        0
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "ffff7f41ee"
+    },
+    {
+      "id": "key_zero_byte",
+      "input_values": [
+        4,
+        1,
+        0,
+        1,
+        254,
+        255,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0001feff"
+    },
+    {
+      "id": "repeated_key_cycle",
+      "input_values": [
+        7,
+        2,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        1,
+        2
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "40404246444446"
+    },
+    {
+      "id": "invalid_empty_key",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_missing_key_data",
+      "input_values": [
+        1,
+        2,
+        65,
+        66
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_byte_above_range",
+      "input_values": [
+        1,
+        1,
+        256,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_byte",
+      "input_values": [
+        1,
+        1,
+        -1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_input_length",
+      "input_values": [
+        63,
+        1,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        170
+      ],
+      "expected_result": 63,
+      "expected_output_hex": "555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

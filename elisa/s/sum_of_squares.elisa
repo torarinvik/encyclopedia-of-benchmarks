@@ -1,0 +1,34 @@
+# Minimum number of perfect squares summing to value, using Lagrange's theorem.
+def sum_of_squares_impl(value: i64) -> i64:
+    if value < 0 or value > 2147483647:
+        return -1
+    if value == 0:
+        return 0
+    low: mutable i64 = 1
+    high: mutable i64 = value
+    while high - low > 1:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle
+    root: i64 = low
+    if root * root == value:
+        return 1
+    second: mutable i64 = root
+    first: mutable i64 = 1
+    while first <= root:
+        remainder: i64 = value - first * first
+        while second * second > remainder:
+            second <- second - 1
+        if second * second == remainder:
+            return 2
+        first <- first + 1
+    reduced: mutable i64 = value
+    while reduced % 4 == 0:
+        reduced <- reduced / 4
+    if reduced % 8 == 7:
+        return 4
+    3
+
+export fn sum_of_squares(value: i64) -> i64 = sum_of_squares_impl(value)

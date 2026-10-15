@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -16,14 +17,390 @@ import sys
 
 from build_abi import ROOT, sha256_file
 
-MAX_INPUT_LENGTH = 66
+MAX_INPUT_LENGTH = 4096
+MAX_SMALL_INPUT_LENGTH = 66
 KEYPAD = {2: b"abc", 3: b"def", 4: b"ghi", 5: b"jkl", 6: b"mno",
           7: b"pqrs", 8: b"tuv", 9: b"wxyz"}
 
 
+MORSE_CODE = {
+    **dict(zip(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        (".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
+         "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+         "..-", "...-", ".--", "-..-", "-.--", "--.."),
+    )),
+    **dict(zip(
+        "0123456789",
+        ("-----", ".----", "..---", "...--", "....-", ".....", "-....", "--...",
+         "---..", "----."),
+    )),
+}
+
+
+@lru_cache(maxsize=None)
+def amicable_proper_divisor_sum(number: int) -> int:
+    """Factor n and use sigma(n) to produce an oracle independent of the sieve."""
+    if number <= 1:
+        return 0
+    remaining, sigma, factor = number, 1, 2
+    while factor <= remaining // factor:
+        if remaining % factor == 0:
+            prime_power, term = 1, 1
+            while remaining % factor == 0:
+                remaining //= factor
+                prime_power *= factor
+                term += prime_power
+            sigma *= term
+        factor = 3 if factor == 2 else factor + 2
+    if remaining > 1:
+        sigma *= remaining + 1
+    return sigma - number
+
+
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "amicable_pairs_below":
+        if (len(values) != 1 or type(values[0]) is not int
+                or not 1 <= values[0] <= 8_000):
+            return -1, b""
+
+        import struct
+
+        limit = values[0]
+        pairs = []
+        for smaller in range(2, limit):
+            larger = amicable_proper_divisor_sum(smaller)
+            if smaller < larger < limit and amicable_proper_divisor_sum(larger) == smaller:
+                pairs.append((smaller, larger))
+        output = b"".join(struct.pack("<II", smaller, larger)
+                           for smaller, larger in pairs)
+        return len(pairs), output
+
+    if algorithm == "extended_euclidean_algorithm":
+        if (len(values) != 2 or any(type(value) is not int or not 1 <= value <= 2**31 - 1
+                                    for value in values)):
+            return -1, b""
+        def bezout(a: int, b: int) -> tuple[int, int, int]:
+            if b == 0:
+                return a, 1, 0
+            gcd, x1, y1 = bezout(b, a % b)
+            return gcd, y1, x1 - (a // b) * y1
+        gcd, coefficient_a, coefficient_b = bezout(*values)
+        import struct
+        return 3, struct.pack("<iii", gcd, coefficient_a, coefficient_b)
+
+    if algorithm == "morse_code":
+        if len(values) > 682:
+            return -1, b""
+        encoded = []
+        for value in values:
+            if 97 <= value <= 122:
+                value -= 32
+            if not 48 <= value <= 57 and not 65 <= value <= 90:
+                return -1, b""
+            encoded.append(MORSE_CODE[chr(value)].encode("ascii"))
+        output = b" ".join(encoded)
+        return len(output), output
+
+    if algorithm == "bst_from_preorder":
+        if (not 1 <= len(values) <= 15
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
+            return -1, b""
+        root: list | None = None
+        for value in values:
+            if root is None:
+                root = [value, None, None]
+                continue
+            node = root
+            while True:
+                if value == node[0]:
+                    return -1, b""
+                side = 1 if value < node[0] else 2
+                if node[side] is None:
+                    node[side] = [value, None, None]
+                    break
+                node = node[side]
+
+        preorder = []
+        def collect(node: list | None) -> None:
+            if node is None:
+                return
+            preorder.append(node[0])
+            collect(node[1])
+            collect(node[2])
+        collect(root)
+        if preorder != values:
+            return -1, b""
+
+        encoded = bytearray()
+        def serialize(node: list | None) -> None:
+            if node is None:
+                encoded.append(0)
+                return
+            encoded.append(1)
+            encoded.extend(node[0].to_bytes(4, "little", signed=True))
+            serialize(node[1])
+            serialize(node[2])
+        serialize(root)
+        return len(values), bytes(encoded)
+
+    if algorithm in {"sorted_array_to_bst", "sorted_list_to_bst"}:
+        linked_list_semantics = algorithm == "sorted_list_to_bst"
+        if (len(values) > 64
+                or any(type(value) is not int or not -(2**31) <= value < 2**31 for value in values)):
+            return -1, b""
+        midpoint_rule = "upper" if linked_list_semantics else "lower"
+        if linked_list_semantics:
+            invalid_order = any(values[index - 1] > values[index] for index in range(1, len(values)))
+        else:
+            invalid_order = any(values[index - 1] >= values[index] for index in range(1, len(values)))
+        if invalid_order:
+            return -1, b""
+        encoded = bytearray()
+
+        def serialize(start: int, end: int) -> None:
+            if start == end:
+                encoded.append(0)
+                return
+            middle = (start + (end - start) // 2 if midpoint_rule == "upper"
+                      else start + (end - start - 1) // 2)
+            encoded.append(1)
+            encoded.extend(values[middle].to_bytes(4, "little", signed=True))
+            serialize(start, middle)
+            serialize(middle + 1, end)
+
+        serialize(0, len(values))
+        return len(values), bytes(encoded)
+
+    if algorithm == "duplicate_zeros":
+        if (len(values) > 64
+                or any(type(value) is not int or not 0 <= value <= 1000 for value in values)):
+            return -1, b""
+        duplicated = []
+        for value in values:
+            if len(duplicated) == len(values):
+                break
+            duplicated.append(value)
+            if value == 0 and len(duplicated) < len(values):
+                duplicated.append(0)
+        output = b"".join(value.to_bytes(4, "little", signed=True) for value in duplicated)
+        return len(duplicated), output
+
+    if algorithm == "minimum_operations_to_move_all_balls":
+        if (len(values) > 256
+                or any(type(value) is not int or value not in (0, 1) for value in values)):
+            return -1, b""
+        right_ones = sum(values)
+        right_distance = sum(index for index, value in enumerate(values) if value == 1)
+        left_ones = 0
+        left_distance = 0
+        output = bytearray()
+        for value in values:
+            if value == 1:
+                right_ones -= 1
+                left_ones += 1
+            distance = left_distance + right_distance
+            output.extend(distance.to_bytes(2, "little"))
+            right_distance -= right_ones
+            left_distance += left_ones
+        return len(values), bytes(output)
+
+    if algorithm == "plus_one":
+        if (len(values) > 256
+                or any(type(value) is not int or not 0 <= value <= 9 for value in values)
+                or (len(values) > 1 and values[0] == 0)):
+            return -1, b""
+        number = 0
+        for digit in values:
+            number = number * 10 + digit
+        output = str(number + 1).encode("ascii")
+        return len(output), output
+
+    if algorithm == "subset_combinations":
+        from itertools import combinations
+        if (not 1 <= len(values) <= 13 or any(type(value) is not int for value in values)
+                or values[0] < 0):
+            return -1, b""
+        item_count, choose = len(values) - 1, values[0]
+        if choose > item_count:
+            return 0, b""
+        masks = [sum(1 << index for index in selected)
+                 for selected in combinations(range(item_count), choose)]
+        output = b"".join(mask.to_bytes(2, "little") for mask in masks)
+        return len(masks), output
+
+    if algorithm == "subset_sum_enumerate":
+        if (not 1 <= len(values) <= 9 or any(type(value) is not int for value in values)):
+            return -1, b""
+        target, items = values[0], values[1:]
+        if not -512 <= target <= 512 or any(not -64 <= value <= 64 for value in items):
+            return -1, b""
+        masks = []
+        for mask in range(1 << len(items)):
+            if sum(value for index, value in enumerate(items) if (mask >> index) & 1) == target:
+                masks.append(mask)
+        return len(masks), bytes(masks)
+
+    if algorithm == "next_greater_nodes":
+        if (not 1 <= len(values) <= MAX_INPUT_LENGTH
+                or any(type(value) is not int or not 1 <= value <= 1_000_000_000
+                       for value in values)):
+            return -1, b""
+        result = [0] * len(values)
+        decreasing: list[int] = []
+        for index in range(len(values) - 1, -1, -1):
+            while decreasing and decreasing[-1] <= values[index]:
+                decreasing.pop()
+            if decreasing:
+                result[index] = decreasing[-1]
+            decreasing.append(values[index])
+        output = b"".join(value.to_bytes(4, "little", signed=True) for value in result)
+        return len(result), output
+
+    if algorithm in {"a1z26_cipher", "a1z26_decipher"}:
+        if (len(values) > MAX_SMALL_INPUT_LENGTH or any(type(value) is not int for value in values)):
+            return -1, b""
+        output = bytearray()
+        if algorithm == "a1z26_cipher":
+            for value in values:
+                if 65 <= value <= 90:
+                    output.append(value - 64)
+                elif 97 <= value <= 122:
+                    output.append(value - 96)
+                else:
+                    return -1, b""
+        else:
+            if any(not 1 <= value <= 26 for value in values):
+                return -1, b""
+            output.extend(96 + value for value in values)
+        return len(output), bytes(output)
+
+    if algorithm == "xor_cipher":
+        if (not 3 <= len(values) <= MAX_SMALL_INPUT_LENGTH
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        text_length, key_length = values[:2]
+        if (not 0 <= text_length <= 63 or not 1 <= key_length <= 63
+                or len(values) != 2 + text_length + key_length
+                or any(not 0 <= value <= 255 for value in values[2:])):
+            return -1, b""
+        output = bytes(values[2 + index] ^ values[2 + text_length + index % key_length]
+                       for index in range(text_length))
+        return text_length, output
+
+    if algorithm == "atbash_cipher":
+        if (len(values) > MAX_SMALL_INPUT_LENGTH
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        output = bytearray(values)
+        for index, value in enumerate(output):
+            if 65 <= value <= 90:
+                output[index] = 155 - value
+            elif 97 <= value <= 122:
+                output[index] = 219 - value
+        return len(output), bytes(output)
+
+    if algorithm == "vigenere_cipher":
+        if not 2 <= len(values) <= MAX_SMALL_INPUT_LENGTH or any(type(value) is not int for value in values):
+            return -1, b""
+        try:
+            separator = values.index(0)
+        except ValueError:
+            return -1, b""
+        if separator + 1 == len(values):
+            return -1, b""
+        message, key = values[:separator], values[separator + 1:]
+        if (any(not 1 <= value <= 127 for value in message)
+                or any(not (65 <= value <= 90 or 97 <= value <= 122) for value in key)):
+            return -1, b""
+        output = bytearray(message)
+        key_index = 0
+        for index, value in enumerate(message):
+            if 65 <= value <= 90:
+                key_value = key[key_index]
+                if key_value >= 97:
+                    key_value -= 32
+                output[index] = 65 + (value - 65 + key_value - 65) % 26
+                key_index = (key_index + 1) % len(key)
+            elif 97 <= value <= 122:
+                key_value = key[key_index]
+                if key_value <= 90:
+                    key_value += 32
+                output[index] = 97 + (value - 97 + key_value - 97) % 26
+                key_index = (key_index + 1) % len(key)
+        return len(output), bytes(output)
+
+    if algorithm == "run_length_encoding":
+        if (len(values) > MAX_SMALL_INPUT_LENGTH
+                or any(type(value) is not int or not 1 <= value <= 127
+                       or 48 <= value <= 57 for value in values)):
+            return -1, b""
+        output = bytearray()
+        index = 0
+        while index < len(values):
+            end = index + 1
+            while end < len(values) and values[end] == values[index]:
+                end += 1
+            count = end - index
+            output.extend(str(count).encode("ascii"))
+            output.append(values[index])
+            index = end
+        return len(output), bytes(output)
+
+    if algorithm == "caesar_cipher":
+        if (not 1 <= len(values) <= MAX_SMALL_INPUT_LENGTH
+                or any(type(value) is not int for value in values)
+                or any(not 0 <= value <= 127 for value in values[:-1])):
+            return -1, b""
+        shift = values[-1] % 26
+        output = bytearray(values[:-1])
+        for index, value in enumerate(output):
+            if ord("A") <= value <= ord("Z"):
+                output[index] = ord("A") + (value - ord("A") + shift) % 26
+            elif ord("a") <= value <= ord("z"):
+                output[index] = ord("a") + (value - ord("a") + shift) % 26
+        return len(output), bytes(output)
+
+    if algorithm == "gale_shapley":
+        if (not 1 <= len(values) <= MAX_SMALL_INPUT_LENGTH
+                or any(type(value) is not int for value in values)
+                or not 0 <= values[0] <= 5):
+            return -2, b""
+        count = values[0]
+        if len(values) != 1 + 2 * count * count:
+            return -2, b""
+        proposer_preferences = [values[1 + proposer * count:1 + (proposer + 1) * count]
+                                for proposer in range(count)]
+        accepter_offset = 1 + count * count
+        accepter_preferences = [values[accepter_offset + accepter * count:
+                                        accepter_offset + (accepter + 1) * count]
+                                for accepter in range(count)]
+        expected_ids = set(range(count))
+        if any(set(preferences) != expected_ids for preferences in
+               proposer_preferences + accepter_preferences):
+            return -2, b""
+        accepter_ranks = [{proposer: rank for rank, proposer in enumerate(preferences)}
+                          for preferences in accepter_preferences]
+        matched_by_accepter = [-1] * count
+        matched_by_proposer = [-1] * count
+        next_choice = [0] * count
+        while True:
+            proposer = next((index for index, partner in enumerate(matched_by_proposer)
+                             if partner == -1), count)
+            if proposer == count:
+                break
+            accepter = proposer_preferences[proposer][next_choice[proposer]]
+            next_choice[proposer] += 1
+            current = matched_by_accepter[accepter]
+            if current == -1 or accepter_ranks[accepter][proposer] < accepter_ranks[accepter][current]:
+                if current != -1:
+                    matched_by_proposer[current] = -1
+                matched_by_accepter[accepter] = proposer
+                matched_by_proposer[proposer] = accepter
+        return count, bytes(matched_by_proposer)
+
     if algorithm in {"rot13", "theoretical_rot13"}:
-        if (len(values) > MAX_INPUT_LENGTH
+        if (len(values) > MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
             return -1, b""
         output = bytearray(values)
@@ -54,7 +431,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(moves) // 2, bytes(moves)
 
     if algorithm in {"breadth_first_search", "depth_first_search"}:
-        if (not 2 <= len(values) <= MAX_INPUT_LENGTH
+        if (not 2 <= len(values) <= MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int for value in values)
                 or not 0 <= values[0] <= 64
                 or (len(values) - 2) % 2 != 0):
@@ -98,7 +475,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(order), bytes(order)
 
     if algorithm == "topological_sort":
-        if (not 1 <= len(values) <= MAX_INPUT_LENGTH
+        if (not 1 <= len(values) <= MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int for value in values)
                 or not 0 <= values[0] <= 64
                 or (len(values) - 1) % 2 != 0):

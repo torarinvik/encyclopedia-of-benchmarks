@@ -1,40 +1,36 @@
-/// Recursive circle sort for the shared signed 64-bit benchmark contract.
-fn circle_pass(values: &mut [i64]) -> bool {
-    let length = values.len();
-    if length < 2 {
+fn circle_sort_range(values: &mut [i64], left_value: usize, right_value: usize) -> bool {
+    if left_value >= right_value {
         return false;
     }
+
+    let mut low = left_value;
+    let mut high = right_value;
     let mut swapped = false;
-    let mut left = 0;
-    let mut right = length - 1;
-    while left < right {
-        if values[left] > values[right] {
-            values.swap(left, right);
+    while low < high {
+        if values[low] > values[high] {
+            values.swap(low, high);
             swapped = true;
         }
-        left += 1;
-        right -= 1;
+        low += 1;
+        high -= 1;
     }
-    if length % 2 != 0 && left == right && right + 1 < length && values[right + 1] < values[right] {
-        values.swap(right, right + 1);
+    if low == high && values[low] > values[high + 1] {
+        values.swap(low, high + 1);
         swapped = true;
     }
-    let split = length / 2 + length % 2;
-    let (left_values, right_values) = values.split_at_mut(split);
-    let left_swapped = circle_pass(left_values);
-    let right_swapped = circle_pass(right_values);
+
+    let middle = left_value + (right_value - left_value) / 2;
+    let left_swapped = circle_sort_range(values, left_value, middle);
+    let right_swapped = circle_sort_range(values, middle + 1, right_value);
     swapped || left_swapped || right_swapped
 }
 
-fn circle_sort_range(values: &mut [i64]) {
-    while values.len() > 1 && circle_pass(values) { }
-}
-
+/// Recursively compares mirrored pairs until each pass makes no swaps.
 #[no_mangle]
 pub extern "C" fn circle_sort(values: *mut i64, length: usize) {
     if length < 2 {
         return;
     }
     let values = unsafe { std::slice::from_raw_parts_mut(values, length) };
-    circle_sort_range(values);
+    while circle_sort_range(values, 0, length - 1) {}
 }

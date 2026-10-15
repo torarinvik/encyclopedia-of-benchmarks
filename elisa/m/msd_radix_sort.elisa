@@ -1,0 +1,31 @@
+# In-place most-significant-bit radix sort for signed 64-bit values.
+def msd_order_key(value: i64) -> u64:
+    sign_bit: u64 = 1.u64() << 63
+    if value < 0:
+        return sign_bit - 1.u64() - (-(value + 1)).u64()
+    sign_bit + value.u64()
+
+def msd_sort_range(values: mutable i64&, begin: usize, end: usize, bit: i32) -> void:
+    if end - begin < 2 or bit < 0:
+        return
+    left: mutable usize = begin
+    right: mutable usize = end
+    while left < right:
+        while left < right and ((msd_order_key(values[left]) >> bit.usize()) & 1.u64()) == 0.u64():
+            left <- left + 1
+        while left < right and ((msd_order_key(values[right - 1]) >> bit.usize()) & 1.u64()) != 0.u64():
+            right <- right - 1
+        if left < right:
+            temporary: i64 = values[left]
+            values[left] <- values[right - 1]
+            values[right - 1] <- temporary
+            left <- left + 1
+            right <- right - 1
+    msd_sort_range(values, begin, left, bit - 1)
+    msd_sort_range(values, left, end, bit - 1)
+
+def msd_radix_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > 1:
+        msd_sort_range(values, 0, length, 63)
+
+export fn msd_radix_sort(values: mutable i64&, length: usize) -> void = msd_radix_sort_impl

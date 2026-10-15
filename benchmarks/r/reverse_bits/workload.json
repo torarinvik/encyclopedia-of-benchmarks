@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "reverse-bits-v1",
+  "algorithm": "reverse_bits",
+  "input": {
+    "minimum": 0,
+    "maximum": 4294967295,
+    "out_of_range_result": -1,
+    "operation": "reverse the positions of all 32 bits; return the reversed bit pattern as an unsigned integer"
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one","input_value":1,"expected_result":2147483648},
+    {"id":"two","input_value":2,"expected_result":1073741824},
+    {"id":"three","input_value":3,"expected_result":3221225472},
+    {"id":"highest_bit","input_value":2147483648,"expected_result":1},
+    {"id":"alternating_low_bits","input_value":1431655765,"expected_result":2863311530},
+    {"id":"alternating_high_bits","input_value":2863311530,"expected_result":1431655765},
+    {"id":"leetcode_example","input_value":43261596,"expected_result":964176192},
+    {"id":"maximum","input_value":4294967295,"expected_result":4294967295},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"first_above_domain","input_value":4294967296,"expected_result":-1},
+    {"id":"signed_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"signed_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

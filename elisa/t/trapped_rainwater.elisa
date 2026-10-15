@@ -1,0 +1,36 @@
+# Sum trapped water from per-position prefix and suffix maxima.
+def trapped_rainwater_impl(heights: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    valid: i64 =
+        while index < length |index: mutable usize = 0, result: mutable i64 = 1| -> result:
+            if heights[index] < 0 or heights[index] > 1000000:
+                break -1
+            index <- index + 1
+            result
+    if valid != 1:
+        return -1
+    if length < 3:
+        return 0
+
+    left_max: i64[4096] =
+        for index in 0..<length |maxima: mutable i64[4096] = zeroed, highest: mutable i64 = 0| -> maxima:
+            if heights[index] > highest:
+                highest <- heights[index]
+            maxima[index] <- highest
+    right_max: i64[4096] =
+        for step in 0..<length |maxima: mutable i64[4096] = zeroed, highest: mutable i64 = 0| -> maxima:
+            index: usize = length - 1 - step
+            if heights[index] > highest:
+                highest <- heights[index]
+            maxima[index] <- highest
+    water: i64 =
+        for index in 0..<length |total: mutable i64 = 0| -> total:
+            boundary: mutable i64 = left_max[index]
+            if right_max[index] < boundary:
+                boundary <- right_max[index]
+            total <- total + boundary - heights[index]
+            total
+    water
+
+export fn trapped_rainwater(heights: i64&, length: usize) -> i64 = trapped_rainwater_impl

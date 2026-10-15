@@ -1,0 +1,35 @@
+# Count chunks by peeling the shortest matching prefix and suffix.
+def longest_chunked_palindrome_decomposition_impl(text: i64&, length: usize) -> i64:
+    if length > 128:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if text[index] < 1 or text[index] > 127:
+            return -1
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = length
+    chunks: mutable i64 = 0
+    while left < right:
+        remaining: usize = right - left
+        size: mutable usize = 1
+        matched: mutable bool = false
+        while size <= remaining / 2 and not matched:
+            offset: mutable usize = 0
+            equal: mutable bool = true
+            while offset < size and equal:
+                if text[left + offset] != text[right - size + offset]:
+                    equal <- false
+                offset <- offset + 1
+            if equal:
+                chunks <- chunks + 2
+                left <- left + size
+                right <- right - size
+                matched <- true
+            else:
+                size <- size + 1
+        if not matched:
+            return chunks + 1
+    chunks
+
+export fn longest_chunked_palindrome_decomposition(text: i64&, length: usize) -> i64 = longest_chunked_palindrome_decomposition_impl

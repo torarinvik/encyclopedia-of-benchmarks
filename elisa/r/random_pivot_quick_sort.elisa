@@ -1,0 +1,65 @@
+# Randomized Lomuto quicksort with a deterministic Park-Miller pivot stream.
+def random_pivot_quick_sort_next31(state: mutable u64&) -> u64:
+    state <- (state * 48271.u64()) % 2147483647.u64()
+    state
+
+def random_pivot_quick_sort_next(state: mutable u64&) -> u64:
+    high: u64 = random_pivot_quick_sort_next31(state)
+    low: u64 = random_pivot_quick_sort_next31(state)
+    high * 2147483647.u64() + low
+
+def random_pivot_quick_sort_partition(values: mutable i64&, low: usize, high: usize, state: mutable u64&) -> usize:
+    width: usize = high - low
+    pivot_index: usize = low + (random_pivot_quick_sort_next(state) % width).usize()
+    pivot_value: i64 = values[pivot_index]
+    pivot_slot: i64 = values[high - 1]
+    values[high - 1] <- pivot_value
+    values[pivot_index] <- pivot_slot
+
+    boundary: mutable usize = low
+    for scan in low..<(high - 1):
+        if values[scan] < pivot_value:
+            temporary: i64 = values[boundary]
+            values[boundary] <- values[scan]
+            values[scan] <- temporary
+            boundary <- boundary + 1
+    temporary: i64 = values[boundary]
+    values[boundary] <- values[high - 1]
+    values[high - 1] <- temporary
+    boundary
+
+def random_pivot_quick_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    stack_low: mutable usize[128] = zeroed
+    stack_high: mutable usize[128] = zeroed
+    stack_size: mutable usize = 0
+    low: mutable usize = 0
+    high: mutable usize = length
+    random_state: mutable u64 = 1
+    finished: mutable bool = false
+    while not finished:
+        while high - low > 1:
+            pivot: usize = random_pivot_quick_sort_partition(values, low, high, random_state)
+            left_size: usize = pivot - low
+            right_size: usize = high - pivot - 1
+            if left_size < right_size:
+                if right_size > 1:
+                    stack_low[stack_size] <- pivot + 1
+                    stack_high[stack_size] <- high
+                    stack_size <- stack_size + 1
+                high <- pivot
+            else:
+                if left_size > 1:
+                    stack_low[stack_size] <- low
+                    stack_high[stack_size] <- pivot
+                    stack_size <- stack_size + 1
+                low <- pivot + 1
+        if stack_size == 0:
+            finished <- true
+        else:
+            stack_size <- stack_size - 1
+            low <- stack_low[stack_size]
+            high <- stack_high[stack_size]
+
+export fn random_pivot_quick_sort(values: mutable i64&, length: usize) -> void = random_pivot_quick_sort_impl

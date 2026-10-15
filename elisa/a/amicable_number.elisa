@@ -1,0 +1,24 @@
+def proper_divisor_sum(number: u64) -> u64:
+    if number <= 1.u64():
+        return 0
+    sum: mutable u64 = 1
+    divisor: mutable u64 = 2
+    while divisor <= number / divisor:
+        if number % divisor == 0:
+            sum <- sum + divisor
+            partner: u64 = number / divisor
+            if partner != divisor:
+                sum <- sum + partner
+        divisor <- divisor + 1
+    sum
+
+def amicable_number_impl(left: u64, right: u64) -> i64:
+    if left < 1.u64() or left > 1000000000.u64() or right < 1.u64() or right > 1000000000.u64():
+        return -1
+    if left == right:
+        return 0
+    if proper_divisor_sum(left) == right and proper_divisor_sum(right) == left:
+        return 1
+    0
+
+export fn amicable_number(left: u64, right: u64) -> i64 = amicable_number_impl

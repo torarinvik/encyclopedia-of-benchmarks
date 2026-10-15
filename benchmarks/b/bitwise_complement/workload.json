@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "bitwise-complement-v1",
+  "algorithm": "bitwise_complement",
+  "input": {
+    "minimum": 0,
+    "maximum": 2147483647,
+    "out_of_range_result": -1,
+    "operation": "XOR with a mask containing one bit for each significant input bit; zero maps to one"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 3
+    },
+    {
+      "id": "five",
+      "input_value": 5,
+      "expected_result": 2
+    },
+    {
+      "id": "eight",
+      "input_value": 8,
+      "expected_result": 7
+    },
+    {
+      "id": "ten_bits",
+      "input_value": 1023,
+      "expected_result": 0
+    },
+    {
+      "id": "power_of_two",
+      "input_value": 1024,
+      "expected_result": 1023
+    },
+    {
+      "id": "upper_signed_bit_boundary",
+      "input_value": 1073741824,
+      "expected_result": 1073741823
+    },
+    {
+      "id": "maximum_input",
+      "input_value": 2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_above_domain",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

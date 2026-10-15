@@ -9,11 +9,12 @@ This benchmark finds the smallest prime strictly greater than a signed integer.
 - Each candidate is checked by trial division through its square root. The implementation uses integer division for the bound and does not depend on architecture-specific instructions.
 - The fixed input range bounds the candidate search; the largest valid input returns 4099.
 
-The pinned Python source documents the strict-greater-than behavior, including results of 2 for negative values and zero. The shared contract bounds its arbitrary-precision input domain so that all nine target languages use the same signed 64-bit scalar ABI.
+The pinned Python source documents the strict-greater-than behavior, including results of 2 for negative values and zero. The C# `PrimeNumber.NextPrime` method matches with its default factor and direction arguments. The shared contract bounds its arbitrary-precision input domain so that all nine target languages use the same signed 64-bit scalar ABI.
 
 ## Inspected upstream source
 
 - [Python — `maths/next_prime_number.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/next_prime_number.py)
+- [C# — `PrimeNumber.NextPrime`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/Hashing/NumberTheory/PrimeNumber.cs)
 
 ## Workload and verification
 

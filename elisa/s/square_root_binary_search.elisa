@@ -1,0 +1,19 @@
+# Floor square root by binary search, with division avoiding square overflow.
+def square_root_binary_search_impl(value: i64) -> i64:
+    if value < 0:
+        return -1
+    if value < 2:
+        return value
+    low: mutable i64 = 1
+    high: mutable i64 = value
+    answer: mutable i64 = 0
+    while low <= high:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            answer <- middle
+            low <- middle + 1
+        else:
+            high <- middle - 1
+    answer
+
+export fn square_root_binary_search(value: i64) -> i64 = square_root_binary_search_impl(value)

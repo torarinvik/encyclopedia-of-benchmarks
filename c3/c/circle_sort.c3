@@ -1,35 +1,37 @@
 module circle_sort;
 
-fn bool circle_pass(long* values, usz low, usz high)
+fn bool circle_sort_range(long* values, usz left_value, usz right_value)
 {
-    usz length = high - low;
-    if (length < 2) return false;
+    if (left_value >= right_value) return false;
+
+    usz low = left_value;
+    usz high = right_value;
     bool swapped = false;
-    usz left = low;
-    usz right = high - 1;
-    while (left < right) {
-        if (values[left] > values[right]) {
-            long temporary = values[left];
-            values[left] = values[right];
-            values[right] = temporary;
+    while (low < high) {
+        if (values[low] > values[high]) {
+            long temporary = values[low];
+            values[low] = values[high];
+            values[high] = temporary;
             swapped = true;
         }
-        left++;
-        right--;
+        low++;
+        high--;
     }
-    if (length % 2 != 0 && left == right && right + 1 < high && values[right + 1] < values[right]) {
-        long temporary = values[right];
-        values[right] = values[right + 1];
-        values[right + 1] = temporary;
+    if (low == high && values[low] > values[high + 1]) {
+        long temporary = values[low];
+        values[low] = values[high + 1];
+        values[high + 1] = temporary;
         swapped = true;
     }
-    usz split = low + length / 2 + length % 2;
-    bool left_swapped = circle_pass(values, low, split);
-    bool right_swapped = circle_pass(values, split, high);
+
+    usz middle = left_value + (right_value - left_value) / 2;
+    bool left_swapped = circle_sort_range(values, left_value, middle);
+    bool right_swapped = circle_sort_range(values, middle + 1, right_value);
     return swapped || left_swapped || right_swapped;
 }
 
 fn void circle_sort(long* values, usz length) @export("circle_sort")
 {
-    while (length > 1 && circle_pass(values, 0, length)) { }
+    if (length < 2) return;
+    while (circle_sort_range(values, 0, length - 1)) {}
 }

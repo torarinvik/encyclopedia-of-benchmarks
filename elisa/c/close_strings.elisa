@@ -1,0 +1,50 @@
+# Check whether lowercase strings have the same letter set and frequency multiset.
+def close_strings_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 514:
+        return -1
+    first_length_value: i64 = input[0]
+    second_length_value: i64 = input[1]
+    if first_length_value < 0 or first_length_value > 256 or second_length_value < 0 or second_length_value > 256:
+        return -1
+    first_length: usize = first_length_value.usize()
+    second_length: usize = second_length_value.usize()
+    if length != 2 + first_length + second_length:
+        return -1
+    first_counts: i64[26] =
+        while index < first_length |index: mutable usize = 0, counts: mutable i64[26] = zeroed| -> counts:
+            value: i64 = input[2 + index]
+            if value < 97 or value > 122:
+                return -1
+            letter: usize = (value - 97).usize()
+            counts[letter] <- counts[letter] + 1
+            index <- index + 1
+    second_counts: i64[26] =
+        while index < second_length |index: mutable usize = 0, counts: mutable i64[26] = zeroed| -> counts:
+            value: i64 = input[2 + first_length + index]
+            if value < 97 or value > 122:
+                return -1
+            letter: usize = (value - 97).usize()
+            counts[letter] <- counts[letter] + 1
+            index <- index + 1
+    if first_length != second_length:
+        return 0
+    first_frequencies: i64[257] =
+        while letter < 26 |letter: mutable usize = 0, frequencies: mutable i64[257] = zeroed| -> frequencies:
+            if (first_counts[letter] == 0) != (second_counts[letter] == 0):
+                return 0
+            first_frequency: usize = first_counts[letter].usize()
+            frequencies[first_frequency] <- frequencies[first_frequency] + 1
+            letter <- letter + 1
+    second_frequencies: i64[257] =
+        while letter < 26 |letter: mutable usize = 0, frequencies: mutable i64[257] = zeroed| -> frequencies:
+            second_frequency: usize = second_counts[letter].usize()
+            frequencies[second_frequency] <- frequencies[second_frequency] + 1
+            letter <- letter + 1
+    same_frequencies: i64 =
+        while frequency < 257 |frequency: mutable usize = 0, result: mutable i64 = 1| -> result:
+            if first_frequencies[frequency] != second_frequencies[frequency]:
+                result <- 0
+            frequency <- frequency + 1
+    same_frequencies
+
+export fn close_strings(input: i64&, length: usize) -> i64 = close_strings_impl

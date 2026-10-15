@@ -1,0 +1,35 @@
+# Carry the largest downward gain upward and update the best path at each node.
+def binary_tree_maximum_path_sum_gain(nodes: i64&, node_count: usize, node: i64,
+        best_path: mutable i64&) -> i64:
+    if node == -1:
+        return 0
+    if node < 0 or node.u64() >= node_count.u64():
+        return -2000000000
+    index: usize = node.usize()
+    value: i64 = nodes[3 * index]
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    invalid_left: bool = left < -1 or (left >= 0 and left.u64() >= node_count.u64())
+    invalid_right: bool = right < -1 or (right >= 0 and right.u64() >= node_count.u64())
+    if value < -1000 or value > 1000 or invalid_left or invalid_right:
+        return -2000000000
+    left_gain: i64 = binary_tree_maximum_path_sum_gain(nodes, node_count, left, best_path)
+    if left_gain == -2000000000:
+        return -2000000000
+    right_gain: i64 = binary_tree_maximum_path_sum_gain(nodes, node_count, right, best_path)
+    if right_gain == -2000000000:
+        return -2000000000
+    positive_left: i64 = left_gain if left_gain > 0 else 0
+    positive_right: i64 = right_gain if right_gain > 0 else 0
+    through_node: i64 = value + positive_left + positive_right
+    best_path <- through_node if through_node > best_path
+    value + (positive_left if positive_left > positive_right else positive_right)
+
+def binary_tree_maximum_path_sum_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
+    if node_count == 0 or node_count > 1023 or root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    best_path: mutable i64 = -2147483648
+    gain: i64 = binary_tree_maximum_path_sum_gain(nodes, node_count, root_index, best_path)
+    -1 if gain == -2000000000 else best_path
+
+export fn binary_tree_maximum_path_sum(nodes: i64&, node_count: usize, root_index: i64) -> i64 = binary_tree_maximum_path_sum_impl

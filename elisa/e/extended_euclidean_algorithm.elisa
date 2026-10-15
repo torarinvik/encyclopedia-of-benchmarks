@@ -1,0 +1,50 @@
+# Iterative extended Euclid for positive signed-32-bit inputs.
+def eea_store_i32(value: i64, output: mutable u8&, position: usize) -> usize:
+    magnitude: mutable u64 = 0.u64()
+    if value < 0:
+        magnitude <- (-value).u64()
+    else:
+        magnitude <- value.u64()
+    bits: mutable u64 = magnitude
+    if value < 0:
+        bits <- 4294967296.u64() - magnitude
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+        byte <- byte + 1
+    position + 4
+
+def extended_euclidean_algorithm_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2 or input[0] < 1 or input[0] > 2147483647 or input[1] < 1 or input[1] > 2147483647:
+        return -1
+    if output_capacity < 12:
+        return -2
+    old_r: mutable i64 = input[0]
+    remainder: mutable i64 = input[1]
+    old_x: mutable i64 = 1
+    x: mutable i64 = 0
+    old_y: mutable i64 = 0
+    y: mutable i64 = 1
+    while remainder != 0:
+        quotient: i64 = old_r / remainder
+        next_r: i64 = old_r - quotient * remainder
+        old_r <- remainder
+        remainder <- next_r
+        next_x: i64 = old_x - quotient * x
+        old_x <- x
+        x <- next_x
+        next_y: i64 = old_y - quotient * y
+        old_y <- y
+        y <- next_y
+    if old_r > 2147483647 or old_x < -2147483648 or old_x > 2147483647 or old_y < -2147483648 or old_y > 2147483647:
+        return -1
+    position: mutable usize = 0
+    position <- eea_store_i32(old_r, output, position)
+    position <- eea_store_i32(old_x, output, position)
+    position <- eea_store_i32(old_y, output, position)
+    if position == 12:
+        return 3
+    -1
+
+export fn extended_euclidean_algorithm(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = extended_euclidean_algorithm_impl

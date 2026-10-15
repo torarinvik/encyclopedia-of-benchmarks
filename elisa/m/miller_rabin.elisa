@@ -1,0 +1,51 @@
+# Deterministic Miller-Rabin for signed 32-bit inputs.
+def mod_power(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    result: i64 =
+        while power > 0 |base: mutable i64 = base_value % modulus, power: mutable i64 = exponent_value, accumulator: mutable i64 = 1| -> accumulator:
+            if power % 2 != 0:
+                accumulator <- (accumulator * base) % modulus
+            base <- (base * base) % modulus
+            power <- power / 2
+    result
+
+def passes_base(n: i64, base: i64, odd_part: i64, powers_of_two: i64) -> bool:
+    value: i64 = mod_power(base, odd_part, n)
+    if value == 1 or value == n - 1:
+        return true
+    passed: bool =
+        while round < powers_of_two |value: mutable i64 = value, round: mutable i64 = 1, found: bool = false| -> found:
+            value <- (value * value) % n
+            if value == n - 1:
+                break true
+            round <- round + 1
+    passed
+
+def miller_rabin_impl(n: i64) -> i64:
+    if n < 2:
+        return 0
+    if n > 2147483647:
+        return -1
+    if n == 2 or n == 3 or n == 5 or n == 7:
+        return 1
+    if n % 2 == 0 or n % 3 == 0 or n % 5 == 0 or n % 7 == 0:
+        return 0
+
+    odd_part: i64 =
+        while remaining % 2 == 0 |remaining: mutable i64 = n - 1| -> remaining:
+            remaining <- remaining / 2
+    powers_of_two: i64 =
+        while remaining % 2 == 0 |remaining: mutable i64 = n - 1, count: mutable i64 = 0| -> count:
+            remaining <- remaining / 2
+            count <- count + 1
+
+    if not passes_base(n, 2, odd_part, powers_of_two):
+        return 0
+    if not passes_base(n, 3, odd_part, powers_of_two):
+        return 0
+    if not passes_base(n, 5, odd_part, powers_of_two):
+        return 0
+    if not passes_base(n, 7, odd_part, powers_of_two):
+        return 0
+    1
+
+export fn miller_rabin(n: i64) -> i64 = miller_rabin_impl

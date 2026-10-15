@@ -1,0 +1,32 @@
+# Maximize the sum of a contiguous window with distinct values.
+def maximum_unique_subarray_impl(values: i64&, length: usize) -> i64:
+    if length > 256:
+        return -1
+    final_state: i64[4] =
+        while state[0].usize() < length |state: mutable i64[4] = zeroed, keys: mutable i64[512] = zeroed, last_seen: mutable usize[512] = zeroed, occupied: mutable bool[512] = zeroed| -> state:
+            index: usize = state[0].usize()
+            value: i64 = values[index]
+            if value < 1 or value > 10000:
+                return -1
+            slot: usize =
+                while occupied[slot] and keys[slot] != value |slot: mutable usize = (value % 512).usize()| -> slot:
+                    slot <- (slot + 1) % 512
+            previous: usize = last_seen[slot]
+            window: i64[2] =
+                while window_state[0].usize() < previous |window_state: mutable i64[2] = [state[1], state[2]]| -> window_state:
+                    left_index: usize = window_state[0].usize()
+                    window_state[1] <- window_state[1] - values[left_index]
+                    window_state[0] <- window_state[0] + 1
+            left: usize = window[0].usize()
+            window_sum: i64 = window[1] + value
+            keys[slot] <- value
+            last_seen[slot] <- index + 1
+            occupied[slot] <- true
+            if window_sum > state[3]:
+                state[3] <- window_sum
+            state[0] <- index + 1
+            state[1] <- left.i64()
+            state[2] <- window_sum
+    final_state[3]
+
+export fn maximum_unique_subarray(values: i64&, length: usize) -> i64 = maximum_unique_subarray_impl

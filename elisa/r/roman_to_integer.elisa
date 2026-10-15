@@ -1,0 +1,60 @@
+# Decode canonical uppercase Roman numerals in the range 1 through 3,999.
+def decode_roman_digit(symbols: i64&, length: usize, position: usize, one: i64, five: i64, ten: i64) -> i64:
+    if position >= length:
+        return 0
+    if symbols[position] == one:
+        if position + 1 < length and symbols[position + 1] == ten:
+            return 146
+        if position + 1 < length and symbols[position + 1] == five:
+            return 66
+        count: mutable usize = 0
+        while position + count < length and symbols[position + count] == one and count < 3:
+            count <- count + 1
+        if position + count < length and symbols[position + count] == one:
+            return -1
+        return count.i64() * 16 + count.i64()
+    if symbols[position] == five:
+        count: mutable usize = 0
+        while position + 1 + count < length and symbols[position + 1 + count] == one and count < 3:
+            count <- count + 1
+        if position + 1 + count < length and symbols[position + 1 + count] == one:
+            return -1
+        return (5 + count.i64()) * 16 + 1 + count.i64()
+    0
+
+def roman_to_integer_impl(symbols: i64&, length: usize) -> i64:
+    if length == 0 or length > 15:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        symbol: i64 = symbols[index]
+        if symbol != 73 and symbol != 86 and symbol != 88 and symbol != 76 and symbol != 67 and symbol != 68 and symbol != 77:
+            return -1
+        index <- index + 1
+    position: mutable usize = 0
+    thousands: mutable usize = 0
+    while position < length and symbols[position] == 77 and thousands < 3:
+        position <- position + 1
+        thousands <- thousands + 1
+    if position < length and symbols[position] == 77:
+        return -1
+    hundreds: i64 = decode_roman_digit(symbols, length, position, 67, 68, 77)
+    if hundreds < 0:
+        return -1
+    position <- position + (hundreds & 15).usize()
+    tens: i64 = decode_roman_digit(symbols, length, position, 88, 76, 67)
+    if tens < 0:
+        return -1
+    position <- position + (tens & 15).usize()
+    ones: i64 = decode_roman_digit(symbols, length, position, 73, 86, 88)
+    if ones < 0:
+        return -1
+    position <- position + (ones & 15).usize()
+    if position != length:
+        return -1
+    value: i64 = thousands.i64() * 1000 + (hundreds / 16) * 100 + (tens / 16) * 10 + (ones / 16)
+    if value < 1 or value > 3999:
+        return -1
+    value
+
+export fn roman_to_integer(symbols: i64&, length: usize) -> i64 = roman_to_integer_impl

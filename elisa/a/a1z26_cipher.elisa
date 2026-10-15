@@ -1,0 +1,26 @@
+# Encode ASCII letters as their one-based alphabet positions.
+def a1z26_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 66:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if output_capacity < length:
+        return -2
+    while index < length |index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        mapped: mutable i64 = value - 64
+        if value >= 97:
+            mapped <- value - 96
+        output[index] <- mapped.u8()
+        index <- index + 1
+        output
+    length.i64()
+
+export fn a1z26_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = a1z26_cipher_impl

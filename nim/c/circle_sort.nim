@@ -1,29 +1,27 @@
-## Recursive circle sort for the shared signed 64-bit benchmark contract.
-proc circle_pass(values: ptr UncheckedArray[int64], low, high: csize_t): bool =
-  let length = high - low
-  if length < 2:
+proc circleSortRange(values: ptr UncheckedArray[int64], leftValue, rightValue: csize_t): bool =
+  if leftValue >= rightValue:
     return false
+
+  var low = leftValue
+  var high = rightValue
   var swapped = false
-  var left = low
-  var right = high - 1
-  while left < right:
-    if values[left] > values[right]:
-      let temporary = values[left]
-      values[left] = values[right]
-      values[right] = temporary
+  while low < high:
+    if values[low] > values[high]:
+      swap(values[low], values[high])
       swapped = true
-    inc left
-    dec right
-  if length mod 2 != 0 and left == right and right + 1 < high and values[right + 1] < values[right]:
-    let temporary = values[right]
-    values[right] = values[right + 1]
-    values[right + 1] = temporary
+    inc low
+    dec high
+  if low == high and values[low] > values[high + 1]:
+    swap(values[low], values[high + 1])
     swapped = true
-  let split = low + length div 2 + length mod 2
-  let leftSwapped = circle_pass(values, low, split)
-  let rightSwapped = circle_pass(values, split, high)
-  return swapped or leftSwapped or rightSwapped
+
+  let middle = leftValue + (rightValue - leftValue) div 2
+  let leftSwapped = circleSortRange(values, leftValue, middle)
+  let rightSwapped = circleSortRange(values, middle + 1, rightValue)
+  swapped or leftSwapped or rightSwapped
 
 proc circle_sort*(values: ptr UncheckedArray[int64], length: csize_t) {.cdecl, exportc: "circle_sort".} =
-  while length > 1 and circle_pass(values, 0, length):
+  if length < 2:
+    return
+  while circleSortRange(values, 0, length - 1):
     discard

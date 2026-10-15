@@ -1,0 +1,68 @@
+# Encode prime factors in ascending order, retaining multiplicity.
+def decimal_length(value: i64) -> usize:
+    length: mutable usize = 1
+    remaining: mutable i64 = value
+    while remaining >= 10:
+        remaining <- remaining / 10
+        length <- length + 1
+    length
+
+def required_length(value: i64) -> usize:
+    length: mutable usize = 0
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    divisor: mutable i64 = 2
+    while divisor <= remaining / divisor:
+        while remaining % divisor == 0:
+            length <- length + decimal_length(divisor)
+            length <- length + 1 if count > 0
+            count <- count + 1
+            remaining <- remaining / divisor
+        divisor <- divisor + 1
+    if remaining > 1:
+        length <- length + decimal_length(remaining)
+        length <- length + 1 if count > 0
+    length
+
+def append_decimal(value: i64, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[10]
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    position: mutable usize = position_value
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def prime_factors_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 1 or value > 2147483647:
+        return -1
+    required: usize = required_length(value)
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    divisor: mutable i64 = 2
+    while divisor <= remaining / divisor:
+        while remaining % divisor == 0:
+            if count > 0:
+                output[position] <- 44.u8()
+                position <- position + 1
+            position <- append_decimal(divisor, output, position)
+            count <- count + 1
+            remaining <- remaining / divisor
+        divisor <- divisor + 1
+    if remaining > 1:
+        if count > 0:
+            output[position] <- 44.u8()
+            position <- position + 1
+        position <- append_decimal(remaining, output, position)
+    position.i64()
+
+export fn prime_factors(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = prime_factors_impl

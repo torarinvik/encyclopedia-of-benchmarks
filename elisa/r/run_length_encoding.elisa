@@ -1,0 +1,48 @@
+# Encode runs as an unambiguous decimal count followed by an ASCII byte.
+def run_length_encoding_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 66:
+        return -1
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 1 or value > 127 or (value >= 48 and value <= 57):
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+
+    encoded_length: usize =
+        while index < length |index: mutable usize = 0, total: mutable usize = 0| -> total:
+            value: i64 = input[index]
+            end: mutable usize = index + 1
+            while end < length and input[end] == value:
+                end <- end + 1
+            count: usize = end - index
+            if count >= 10:
+                total <- total + 3
+            else:
+                total <- total + 2
+            index <- end
+            total
+    if output_capacity < encoded_length:
+        return -2
+
+    while index < length |index: mutable usize = 0, write_index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        end: mutable usize = index + 1
+        while end < length and input[end] == value:
+            end <- end + 1
+        count: usize = end - index
+        if count >= 10:
+            output[write_index] <- (48 + count / 10).u8()
+            write_index <- write_index + 1
+        output[write_index] <- (48 + count % 10).u8()
+        write_index <- write_index + 1
+        output[write_index] <- value.u8()
+        write_index <- write_index + 1
+        index <- end
+        output
+    encoded_length.i64()
+
+export fn run_length_encoding(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = run_length_encoding_impl

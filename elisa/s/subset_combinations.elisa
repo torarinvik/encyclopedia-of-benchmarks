@@ -1,0 +1,51 @@
+# Emit fixed-size index combinations as little-endian subset masks.
+def subset_combinations_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 13 or input[0] < 0:
+        return -1
+    item_count: usize = length - 1
+    if item_count > 12:
+        return -1
+    choose_value: i64 = input[0]
+    if choose_value > item_count.i64():
+        return 0
+    choose: usize = choose_value.usize()
+
+    count: mutable usize = 1
+    index: mutable usize = 1
+    while index <= choose:
+        count <- count * (item_count - choose + index) / index
+        index <- index + 1
+    required: usize = count * 2
+    if output_capacity < required:
+        return -2
+
+    indices: mutable usize[12] = zeroed
+    index <- 0
+    while index < choose:
+        indices[index] <- index
+        index <- index + 1
+    combination: mutable usize = 0
+    while combination < count:
+        mask: mutable usize = 0
+        index <- 0
+        while index < choose:
+            mask <- mask + (1 << indices[index])
+            index <- index + 1
+        output[2 * combination] <- (mask % 256).u8()
+        output[2 * combination + 1] <- (mask / 256).u8()
+        combination <- combination + 1
+        if combination == count:
+            break
+        position: mutable usize = choose
+        while position > 0:
+            position <- position - 1
+            if indices[position] < item_count - choose + position:
+                break
+        indices[position] <- indices[position] + 1
+        index <- position + 1
+        while index < choose:
+            indices[index] <- indices[index - 1] + 1
+            index <- index + 1
+    count.i64()
+
+export fn subset_combinations(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = subset_combinations_impl

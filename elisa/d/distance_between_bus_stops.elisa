@@ -1,0 +1,35 @@
+# Sum both circular routes and return the shorter one.
+def distance_between_bus_stops_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 66:
+        return -1
+    stop_count: usize = length - 2
+    start: i64 = input[0]
+    destination: i64 = input[1]
+    if start < 0 or destination < 0 or start >= stop_count.i64() or destination >= stop_count.i64():
+        return -1
+    low_value: mutable i64 = start
+    high_value: mutable i64 = destination
+    if low_value > high_value:
+        temporary: i64 = low_value
+        low_value <- high_value
+        high_value <- temporary
+    low: usize = low_value.usize()
+    high: usize = high_value.usize()
+    total: mutable i64 = 0
+    direct: mutable i64 = 0
+    index: mutable usize = 0
+    while index < stop_count:
+        distance: i64 = input[index + 2]
+        if distance < 0 or distance > 1000000:
+            return -1
+        total <- total + distance
+        if index >= low and index < high:
+            direct <- direct + distance
+        index <- index + 1
+    other: i64 = total - direct
+    if direct < other:
+        direct
+    else:
+        other
+
+export fn distance_between_bus_stops(input: i64&, length: usize) -> i64 = distance_between_bus_stops_impl

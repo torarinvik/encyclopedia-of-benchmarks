@@ -1,0 +1,10 @@
+# Reverse the bit order of an unsigned 32-bit word.
+def reverse_bits_impl(value: i64) -> i64:
+    if value < 0 or value > 4294967295:
+        return -1
+    reversed: u32 = for bit in 0..<32 |reversed: mutable u32 = 0, remaining: mutable u32 = value.u32()| -> reversed:
+        reversed <- (reversed << 1) | (remaining & 1.u32())
+        remaining <- remaining >> 1
+    reversed.i64()
+
+export fn reverse_bits(value: i64) -> i64 = reverse_bits_impl

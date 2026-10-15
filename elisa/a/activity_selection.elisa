@@ -1,0 +1,41 @@
+# Count a maximum set of non-overlapping half-open activities.
+def activity_selection_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or input[0] < 0 or input[0] > 64:
+        return -1
+    count: usize = input[0].usize()
+    if length != 1 + count * 2:
+        return -1
+    if count == 0:
+        return 0
+    starts: mutable i64[64] = zeroed
+    finishes: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        starts[index] <- input[1 + index * 2]
+        finishes[index] <- input[2 + index * 2]
+        if starts[index] > finishes[index]:
+            return -1
+        index <- index + 1
+    index <- 1
+    while index < count:
+        start: i64 = starts[index]
+        finish: i64 = finishes[index]
+        position: mutable usize = index
+        while position > 0 and (finishes[position - 1] > finish or (finishes[position - 1] == finish and starts[position - 1] > start)):
+            starts[position] <- starts[position - 1]
+            finishes[position] <- finishes[position - 1]
+            position <- position - 1
+        starts[position] <- start
+        finishes[position] <- finish
+        index <- index + 1
+    selected: mutable i64 = 1
+    last_finish: mutable i64 = finishes[0]
+    index <- 1
+    while index < count:
+        if starts[index] >= last_finish:
+            selected <- selected + 1
+            last_finish <- finishes[index]
+        index <- index + 1
+    selected
+
+export fn activity_selection(input: i64&, length: usize) -> i64 = activity_selection_impl

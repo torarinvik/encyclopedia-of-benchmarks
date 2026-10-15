@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "caesar-cipher-v1",
+  "algorithm": "caesar_cipher",
+  "input": {
+    "kind": "signed_64_bit_ascii_bytes_followed_by_signed_shift",
+    "minimum_length": 1,
+    "maximum_length": 66,
+    "byte_range": [
+      0,
+      127
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "same-length ASCII; shift A-Z and a-z independently modulo 26, preserving other bytes"
+  },
+  "cases": [
+    {
+      "id": "empty_text",
+      "input_values": [
+        3
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "classic_example",
+      "input_values": [
+        65,
+        116,
+        116,
+        97,
+        99,
+        107,
+        32,
+        97,
+        116,
+        32,
+        100,
+        97,
+        119,
+        110,
+        33,
+        3
+      ],
+      "expected_result": 15,
+      "expected_output_hex": "44777764666e2064772067647a7121"
+    },
+    {
+      "id": "both_alphabets",
+      "input_values": [
+        65,
+        90,
+        97,
+        122,
+        13
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "4e4d6e6d"
+    },
+    {
+      "id": "negative_shift",
+      "input_values": [
+        65,
+        97,
+        66,
+        98,
+        90,
+        122,
+        -3
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "587859795777"
+    },
+    {
+      "id": "full_rotation",
+      "input_values": [
+        72,
+        101,
+        108,
+        108,
+        111,
+        44,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        33,
+        26
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "48656c6c6f2c20576f726c6421"
+    },
+    {
+      "id": "zero_rotation",
+      "input_values": [
+        0,
+        9,
+        32,
+        33,
+        48,
+        57,
+        64,
+        91,
+        96,
+        123,
+        127,
+        0
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "000920213039405b607b7f"
+    },
+    {
+      "id": "int64_min_shift",
+      "input_values": [
+        65,
+        97,
+        90,
+        122,
+        -9223372036854775808
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "53735272"
+    },
+    {
+      "id": "int64_max_shift",
+      "input_values": [
+        65,
+        97,
+        90,
+        122,
+        9223372036854775807
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "48684767"
+    },
+    {
+      "id": "invalid_missing_shift",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_byte",
+      "input_values": [
+        -1,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii_byte",
+      "input_values": [
+        128,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_text_length",
+      "input_values": [
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        33,
+        63,
+        32,
+        25
+      ],
+      "expected_result": 65,
+      "expected_output_hex": "5a4142434445464748494a4b4c4d4e4f505152535455565758597a6162636465666768696a6b6c6d6e6f7071727374757677787930313233343536373839213f20"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

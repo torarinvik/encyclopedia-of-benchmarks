@@ -1,0 +1,24 @@
+# Return 1 when every present value has a unique occurrence count.
+def unique_occurrences_impl(values: i64&, length: usize) -> i64:
+    if length > 1000:
+        return -1
+    counts: i64[2001] =
+        while index < length |index: mutable usize = 0, counts: mutable i64[2001] = zeroed| -> counts:
+            value: i64 = values[index]
+            if value < -1000 or value > 1000:
+                return -1
+            slot: usize = (value + 1000).usize()
+            counts[slot] <- counts[slot] + 1
+            index <- index + 1
+    result: i64 =
+        while index < 2001 |index: mutable usize = 0, seen_frequencies: mutable bool[1001] = zeroed, result: mutable i64 = 1| -> result:
+            frequency: i64 = counts[index]
+            if frequency > 0:
+                frequency_index: usize = frequency.usize()
+                if seen_frequencies[frequency_index]:
+                    result <- 0
+                seen_frequencies[frequency_index] <- true
+            index <- index + 1
+    result
+
+export fn unique_occurrences(values: i64&, length: usize) -> i64 = unique_occurrences_impl

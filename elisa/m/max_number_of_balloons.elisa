@@ -1,0 +1,39 @@
+# Count how many copies of balloon the text can supply.
+def max_number_of_balloons_impl(text: i64&, length: usize) -> i64:
+    if length > 256:
+        return -1
+    b: mutable i64 = 0
+    a: mutable i64 = 0
+    l: mutable i64 = 0
+    o: mutable i64 = 0
+    n: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = text[index]
+        if value < 97 or value > 122:
+            return -1
+        if value == 98:
+            b <- b + 1
+        elif value == 97:
+            a <- a + 1
+        elif value == 108:
+            l <- l + 1
+        elif value == 111:
+            o <- o + 1
+        elif value == 110:
+            n <- n + 1
+        index <- index + 1
+    l <- l / 2
+    o <- o / 2
+    minimum: mutable i64 = b
+    if a < minimum:
+        minimum <- a
+    if l < minimum:
+        minimum <- l
+    if o < minimum:
+        minimum <- o
+    if n < minimum:
+        minimum <- n
+    minimum
+
+export fn max_number_of_balloons(text: i64&, length: usize) -> i64 = max_number_of_balloons_impl

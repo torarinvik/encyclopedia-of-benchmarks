@@ -1,0 +1,30 @@
+# Return each box's movement count as a 16-bit little-endian value.
+def minimum_operations_to_move_all_balls_impl(boxes: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 256:
+        return -1
+    right_ones: mutable i64 = 0
+    right_distance: mutable i64 = 0
+    for index in 0..<length |boxes, right_ones, right_distance|:
+        value: i64 = boxes[index]
+        if value != 0 and value != 1:
+            return -1
+        if value == 1:
+            right_ones <- right_ones + 1
+            right_distance <- right_distance + index.i64()
+    required_capacity: usize = length * 2
+    if output_capacity < required_capacity:
+        return -2
+    left_ones: mutable i64 = 0
+    left_distance: mutable i64 = 0
+    for index in 0..<length |boxes, output, right_ones, right_distance, left_ones, left_distance|:
+        if boxes[index] == 1:
+            right_ones <- right_ones - 1
+            left_ones <- left_ones + 1
+        distance: i64 = left_distance + right_distance
+        output[2 * index] <- (distance % 256).u8()
+        output[2 * index + 1] <- (distance / 256).u8()
+        right_distance <- right_distance - right_ones
+        left_distance <- left_distance + left_ones
+    length.i64()
+
+export fn minimum_operations_to_move_all_balls(boxes: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = minimum_operations_to_move_all_balls_impl

@@ -1,0 +1,328 @@
+{
+  "id": "distance-between-bus-stops-v1",
+  "algorithm": "distance_between_bus_stops",
+  "contract": {
+    "input": "Packed signed 64-bit values [start_index, destination_index, distance_0, ..., distance_n_minus_1], with 1..64 stops and each distance in 0..1000000.",
+    "output": "The smaller sum of distances along the two routes around the circle.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "one-field",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing-distance-array",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "single-stop",
+      "input_values": [
+        0,
+        0,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "same-stop",
+      "input_values": [
+        1,
+        1,
+        5,
+        8,
+        2,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "adjacent-stops",
+      "input_values": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "wraparound-route",
+      "input_values": [
+        0,
+        3,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": 4
+    },
+    {
+      "id": "reverse-wraparound-route",
+      "input_values": [
+        3,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": 4
+    },
+    {
+      "id": "equal-routes",
+      "input_values": [
+        0,
+        2,
+        3,
+        7,
+        7,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 10
+    },
+    {
+      "id": "zero-distances",
+      "input_values": [
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum-stop-count",
+      "input_values": [
+        0,
+        32,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 66,
+      "expected_result": 32000000
+    },
+    {
+      "id": "negative-start",
+      "input_values": [
+        -1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative-destination",
+      "input_values": [
+        0,
+        -1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "destination-out-of-range",
+      "input_values": [
+        0,
+        2,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "negative-distance",
+      "input_values": [
+        0,
+        1,
+        5,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "distance-over-contract-limit",
+      "input_values": [
+        0,
+        1,
+        5,
+        1000001
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "too-many-stops",
+      "input_values": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 67,
+      "expected_result": -1
+    }
+  ]
+}

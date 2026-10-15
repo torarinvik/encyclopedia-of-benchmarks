@@ -1,0 +1,19 @@
+# Selection-sort variant: reverse the selected prefix to move its minimum.
+def reverse_selection_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    for start in 0..<(length - 1):
+        minimum: mutable usize = start
+        for scan in (start + 1)..<length:
+            if values[scan] < values[minimum]:
+                minimum <- scan
+        left: mutable usize = start
+        right: mutable usize = minimum
+        while left < right:
+            temporary: i64 = values[left]
+            values[left] <- values[right]
+            values[right] <- temporary
+            left <- left + 1
+            right <- right - 1
+
+export fn reverse_selection(values: mutable i64&, length: usize) -> void = reverse_selection_impl

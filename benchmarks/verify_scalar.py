@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "fibonacci", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast")
+ALGORITHMS = ("factorial", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -32,10 +32,40 @@ def fibonacci_pair(n: int) -> tuple[int, int]:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "digital_root":
+        if n < 0:
+            return -1
+        while n >= 10:
+            total = 0
+            while n > 0:
+                total += n % 10
+                n //= 10
+            n = total
+        return n
+    if algorithm == "hamming_weight":
+        if not 0 <= n <= 2**32 - 1:
+            return -1
+        return sum((n >> bit) & 1 for bit in range(32))
+    if algorithm == "reverse_bits":
+        if not 0 <= n <= 2**32 - 1:
+            return -1
+        return int(f"{n:032b}"[::-1], 2)
+    if algorithm in {"lucas_series", "lucas_series_recursive"}:
+        maximum = 90 if algorithm == "lucas_series" else 25
+        if not 0 <= n <= maximum:
+            return -1
+        previous, current = 2, 1
+        for _ in range(n):
+            previous, current = current, previous + current
+        return previous
     if algorithm == "power_of_four":
         if not -(2**31) <= n <= 2**31 - 1:
             return -1
         return int(n > 0 and (n & (n - 1)) == 0 and (n & 0x55555555) != 0)
+    if algorithm == "bitwise_complement":
+        if not 0 <= n <= 2**31 - 1:
+            return -1
+        return 1 if n == 0 else n ^ ((1 << n.bit_length()) - 1)
     if algorithm == "palindrome_number":
         if not 0 <= n <= 2**31 - 1:
             return -1
@@ -125,6 +155,16 @@ def oracle(algorithm: str, n: int) -> int:
         return math.factorial(n) if 0 <= n <= 20 else -1
     if algorithm in {"fibonacci", "fibonacci_fast"}:
         return fibonacci_pair(n)[0] if 0 <= n <= 92 else -1
+    if algorithm == "tribonacci":
+        if not 0 <= n <= 73:
+            return -1
+        if n == 0:
+            return 0
+        previous_three, previous_two, previous_one = 0, 1, 1
+        for _ in range(3, n + 1):
+            previous_three, previous_two, previous_one = (
+                previous_two, previous_one, previous_three + previous_two + previous_one)
+        return (previous_three, previous_two, previous_one)[n] if n < 3 else previous_one
     if algorithm == "armstrong_number":
         if n < 0:
             return 0
@@ -174,12 +214,43 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     rng = random.Random(20261014)
     inputs = {case["input_value"] for case in workload["cases"]}
-    if algorithm == "factorial":
+    if algorithm == "lucas_series":
+        inputs.update(range(-4, 96))
+        inputs.update([I64_MIN, I64_MIN + 1, 89, 90, 91, I64_MAX - 1, I64_MAX])
+    elif algorithm == "lucas_series_recursive":
+        inputs.update(range(-4, 27))
+        inputs.update([I64_MIN, I64_MIN + 1, 24, 25, 26, I64_MAX - 1, I64_MAX])
+    elif algorithm == "factorial":
         inputs.update(range(-4, 26))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
     elif algorithm in {"fibonacci", "fibonacci_fast"}:
         inputs.update(range(-4, 98))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "tribonacci":
+        inputs.update(range(-4, 79))
+        inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "hamming_weight":
+        inputs.update(range(-4, 65536))
+        inputs.update(rng.randrange(0, 2**32) for _ in range(512))
+        inputs.update([-1, 0, 1, 2, 3, 0x55555555, 0xAAAAAAAA,
+                       1 << 31, 2**32 - 1, 2**32, I64_MAX])
+        for bit in range(32):
+            value = 1 << bit
+            inputs.update([value - 1, value, value + 1])
+    elif algorithm == "reverse_bits":
+        inputs.update(range(-4, 65536))
+        inputs.update(rng.randrange(0, 2**32) for _ in range(512))
+        inputs.update([I64_MIN, -1, 0, 1, 2, 3, 0x55555555, 0xAAAAAAAA,
+                       1 << 31, 2**32 - 1, 2**32, I64_MAX])
+        for bit in range(32):
+            value = 1 << bit
+            inputs.update([value - 1, value, value + 1])
+    elif algorithm == "bitwise_complement":
+        inputs.update(range(-8, 4097))
+        inputs.update(rng.randrange(0, 2**31) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 4, 5,
+                       2**30 - 1, 2**30, 2**30 + 1, 2**31 - 2,
+                       2**31 - 1, 2**31, I64_MAX - 1, I64_MAX])
     elif algorithm == "aliquot_sum":
         inputs.update(range(513))
         inputs.update(rng.randrange(1, 10001) for _ in range(128))
@@ -243,6 +314,12 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         for power in range(1, 19):
             value = 10 ** power
             inputs.update([value - 1, value, value + 1, -value + 1, -value, -value - 1])
+    elif algorithm == "digital_root":
+        inputs.update(range(-16, 10_001))
+        inputs.update(rng.randrange(I64_MIN, I64_MAX + 1) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 9, 10, 19, 38, 284,
+                       999, 1000, 9999, 10**18 - 1, 10**18, 10**18 + 1,
+                       I64_MAX - 1, I64_MAX])
     elif algorithm == "happy_number":
         inputs.update(range(-32, 10001))
         inputs.update(rng.randrange(1, I64_MAX + 1) for _ in range(512))

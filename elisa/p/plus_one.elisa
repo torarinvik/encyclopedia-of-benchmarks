@@ -1,0 +1,36 @@
+# Increment decimal digits and write their ASCII representation.
+def plus_one_impl(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 256:
+        return -1
+    all_nines: mutable bool = true
+    for index in 0..<length |digits, all_nines|:
+        if digits[index] < 0 or digits[index] > 9:
+            return -1
+        if digits[index] != 9:
+            all_nines <- false
+    if length > 1 and digits[0] == 0:
+        return -1
+    result_length: mutable usize = length
+    if length == 0 or all_nines:
+        result_length <- length + 1
+    if output_capacity < result_length:
+        return -2
+    if length == 0 or all_nines:
+        output[0] <- '1'.u8()
+        for index in 1..<result_length |output|:
+            output[index] <- '0'.u8()
+        return result_length.i64()
+    for index in 0..<length |digits, output|:
+        output[index] <- (digits[index] + 48).u8()
+    index: mutable usize = length
+    carry: mutable bool = true
+    while index > 0 and carry |index, carry, digits, output|:
+        index <- index - 1
+        if digits[index] == 9:
+            output[index] <- '0'.u8()
+        else:
+            output[index] <- output[index] + 1
+            carry <- false
+    result_length.i64()
+
+export fn plus_one(digits: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = plus_one_impl

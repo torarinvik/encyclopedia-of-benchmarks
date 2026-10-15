@@ -4,7 +4,7 @@ Checked 2026-10-14 against pinned default-branch commits from 34 non-archived Th
 
 ## How to read this inventory
 
-Each candidate is based on a normalized source filename, with camelCase converted to snake_case. The list is a discovery aid: matching filenames do not prove that implementations use the same algorithm, input contract, edge cases, or output. Unreviewed filename candidates remain marked `unreviewed_filename_match` in the JSON until their implementations are inspected. One hundred fifty-eight unique reviewed benchmarks now have shared contracts, workloads, and portable implementations across all nine target languages: nine search algorithms, forty-three sorting algorithms, thirty-eight scalar algorithms, twenty-one conversion algorithms, eight graph algorithms, nine array algorithms, one tree traversal, one binary-search-tree operation algorithm, three combinatorial algorithms, six dynamic-programming algorithms, six string algorithms, one postfix-expression evaluation algorithm, one stack-operation algorithm, one queue-operation algorithm, one two-stack queue algorithm, one linked list operation algorithm, one doubly linked list operation algorithm, one trie operation algorithm, one disjoint-set operation algorithm, one Fenwick-tree range-query operation algorithm, one segment-tree range-query operation algorithm, one polygon-area algorithm, one geometry-area formula algorithm, and one fractional-knapsack greedy algorithm. They cover 228 reviewed filename candidates. The C LeetCode filename `231` aliases `power_of_two`; C filename `9` aliases `palindrome_number`. The C LeetCode filename `121` and Java `stock_profit_calculator` alias `best_time_to_buy_and_sell_stock`. The C LeetCode filename `136` is reviewed as an alias of `single_number`. The C LeetCode filename `10` is reviewed as an alias of `regex_match`; `regex_matching` in Java implements wildcard matching and is tracked separately. The C LeetCode filename `1` is reviewed as an alias of `two_sum`; the `letter_combination` filename is recorded as an alias of `letter_combinations_of_phone_number`; `edit_distance`, `levenshtein`, and `levenshteindistance` alias `levenshtein_distance`; `coin_change_topdown` aliases `coin_change`; `lcs` aliases `longest_common_subsequence`; `decimal_to_any` aliases `decimal_to_any_base`; `int_to_base` and `base_x` alias `decimal_to_any_base`; `arbitrary_base` aliases `any_base_to_any_base`; `int_to_negative_binary_base` aliases `base_neg2_conversion`; and `prime_sieve`, `prime_sieve_eratosthenes`, `eratosthenes_sieve`, `sieve_er`, `sieve2`, and `odd_sieve` alias `sieve_of_eratosthenes`; `bogo_sorter` and `bogosort` alias `bogo_sort`; `greatest_common_divisor` aliases `gcd`; and `least_common_multiple` aliases `lcm`; `circular_queue` aliases `queue`; `singly_linked_list` aliases `linked_list`; `knapsack` aliases `knapsack_zero_one_tabulation` for its 0/1 variants; `fractional_knapsack_2` aliases `fractional_knapsack`; `abundant_numbers` aliases `abundant_number`; `iterative_merge_sort` and `non_recursive_merge_sort` alias `merge_sort_nr`; `merge_sort_recursive` and `recursive_mergesort_array` alias `merge_sorter`. Tests, examples, benchmarks, documentation, scripts, build output, and vendor directories are omitted. Project Euler `solN` files include their problem number in the candidate name.
+Each candidate is based on a normalized source filename, with camelCase converted to snake_case. The list is a discovery aid: matching filenames do not prove that implementations use the same algorithm, input contract, edge cases, or output. Unreviewed filename candidates remain marked `unreviewed_filename_match` in the JSON until their implementations are inspected. Two hundred fifty-five unique reviewed benchmarks now have shared contracts, workloads, and portable implementations across all nine target languages: ten search algorithms, forty-nine sorting algorithms, one order-statistic selection algorithm, one median algorithm, one Morse-code encoder, six number-theory algorithms, two prime-list algorithms, fifty-one scalar algorithms, twenty-three conversion algorithms, eight graph algorithms, twenty-six array algorithms, one tree traversal, three binary-search-tree construction algorithms, one binary-search-tree operation algorithm, seven combinatorial algorithms, one stable-matching algorithm, sixteen dynamic-programming algorithms, twenty-three string algorithms (including longest chunked palindrome decomposition, maximum number of balloons, halves are alike, close strings, and valid parentheses), one postfix-expression evaluation algorithm, one stack-operation algorithm, one queue-operation algorithm, one two-stack queue algorithm, one linked list operation algorithm, one doubly linked list operation algorithm, one trie operation algorithm, one disjoint-set operation algorithm, one Fenwick-tree range-query operation algorithm, one segment-tree range-query operation algorithm, one polygon-area algorithm, one geometry-area formula algorithm, three greedy algorithms (activity selection, fractional knapsack, and maximum ice cream bars), one binary-tree symmetry algorithm, one linked-list next-greater-value algorithm, one binary-tree ancestor-difference algorithm, one binary-tree maximum-depth algorithm, one balanced-binary-tree algorithm, one sum-of-left-leaves algorithm, one univalued-binary-tree algorithm, and one binary-tree maximum-path-sum algorithm, and one binary-tree root-to-leaf path-sum algorithm. They cover 416 reviewed filename candidates. The C LeetCode filename `231` aliases `power_of_two`; `atbash` aliases `atbash_cipher`; `xorcipher` aliases `xor_cipher`; `a1z26` aliases `a1z26_cipher`; `caesar` aliases `caesar_cipher`; `vigenere` and `vignere_cipher` alias `vigenere_cipher`; C filename `9` aliases `palindrome_number`; C LeetCode filename `190` aliases `reverse_bits`; C LeetCode candidate `119` uses benchmark name `pascal_triangle_row`. The C LeetCode filename `121` and Java `stock_profit_calculator` alias `best_time_to_buy_and_sell_stock`. The C LeetCode filename `136` is reviewed as an alias of `single_number`. The C LeetCode filename `10` is reviewed as an alias of `regex_match`; candidate `11` uses benchmark name `container_with_most_water`; candidate `125` uses benchmark name `valid_palindrome`; C LeetCode candidate `101`, Java `check_tree_is_symmetric`, and Python `symmetric_tree` share the recursive mirror-check contract; C LeetCode candidate `1019` uses benchmark name `next_greater_nodes`; C LeetCode candidate `1026` uses benchmark name `max_ancestor_diff`; C LeetCode candidate `104` uses benchmark name `max_depth`; C LeetCode candidate `110` uses benchmark name `balanced_binary_tree`; C LeetCode candidate `404` uses benchmark name `sum_of_left_leaves`; C LeetCode candidate `965` uses benchmark name `univalued_binary_tree`; C LeetCode candidate `124` aliases `binary_tree_maximum_path_sum`; C LeetCode `12`, `decimal_to_roman`, `decimal_to_roman_numeral`, and `inttoroman` alias `integer_to_roman`; `roman_numeral_util` aliases `integer_to_roman`; `roman_numerals` aliases `roman_to_integer`; `roman_numerals_to_decimal`, `roman_to_decimal`, and `romantoint` alias `roman_to_integer`; C LeetCode candidate `13` aliases `roman_to_integer`; C LeetCode candidate `14` aliases `max_consecutive_ones`; `regex_matching` in Java implements wildcard matching and is tracked separately. The C LeetCode filename `1` is reviewed as an alias of `two_sum`; the `letter_combination` filename is recorded as an alias of `letter_combinations_of_phone_number`; `edit_distance`, `levenshtein`, and `levenshteindistance` alias `levenshtein_distance`; `coin_change_topdown` aliases `coin_change`; `lcs` aliases `longest_common_subsequence`; `decimal_to_any` aliases `decimal_to_any_base`; `int_to_base` and `base_x` alias `decimal_to_any_base`; `arbitrary_base` aliases `any_base_to_any_base`; `int_to_negative_binary_base` aliases `base_neg2_conversion`; and `prime_sieve`, `prime_sieve_eratosthenes`, `eratosthenes_sieve`, `sieve_er`, `sieve2`, and `odd_sieve` alias `sieve_of_eratosthenes`; `bogo_sorter` and `bogosort` alias `bogo_sort`; `greatest_common_divisor` aliases `gcd`; and `least_common_multiple` aliases `lcm`; `circular_queue` aliases `queue`; `singly_linked_list` aliases `linked_list`; `knapsack` aliases `knapsack_zero_one_tabulation` for its 0/1 variants; `fractional_knapsack_2` aliases `fractional_knapsack`; `abundant_numbers` aliases `abundant_number`; `add_digits` aliases `digital_root`; `iterative_merge_sort` and `non_recursive_merge_sort` alias `merge_sort_nr`; `merge_sort_recursive` and `recursive_mergesort_array` alias `merge_sorter`; `quick_sort_3_ways` aliases `quick_sort_3`; `circlesort` aliases `circle_sort`; `brick_sort`, `oddevensort`, and `odd_even_transposition_single_threaded` alias `odd_even_sort`; `shaker_sort` aliases `cocktail_sort`; `shellsort` and `shell_sorter` alias `shell_sort`; `select_sort` and `selectionsort` alias `selection_sort`; `recursive_insertion_sort` aliases `insertion_sort_recursive`; `recursive_quick_sort` and `quick_sort_recursive` alias `quick_sort`; `mergesort` aliases `merge_sorter`; `slowsort` aliases `slow_sort`; `timsort` aliases `tim_sort`; `random_quick_sort`, `randomized_quick_sort`, and `random_pivot_quick_sorter` alias `random_pivot_quick_sort`; `radixsort`, `radix_sort2`, and `radix_sort_2` alias `radix_sort`; `pigeon_sort` aliases `pigeonhole_sort`; The Go/Lua `bubblesort` filename aliases `bubble_sort`; Go `cocktailsort`, `cyclesort`, `heapsort`, `insertionsort`, `pancakesort`, `patiencesort`, `pigeonholesort`, and `exchangesort` alias their matching benchmark names; Go/Lua `countingsort` and Dart/PHP `count_sort` alias `counting_sort`; C `bubble_sort_2` and PHP `bubble_sort2` alias `bubble_sort`; C `bubble_sort_recursion` aliases `bubble_sort_recursive`; Go `bucketsort` aliases `bucket_sort`; C-Sharp `BucketSorter` aliases `radix_sort` because it sorts by repeated decimal-digit bucket passes; `binary_insertion_sorter` and `binaryinsertionsort` alias `binary_insertion_sort`; C-Sharp `counting_sorter` aliases `counting_sort`; C-Sharp `exchange_sorter` aliases `exchange_sort`; JavaScript `heap_sort_v2` aliases `heap_sort`; Dart `insert_sort` aliases `insertion_sort`; and JavaScript `pigeon_hole_sort` aliases `pigeonhole_sort`; candidate `subset_sum` includes existence, count, and enumeration benchmarks, with `subset_sum_dynamic`, `subset_sum_space_optimized`, and `subsetsum` recorded as aliases. C-Sharp `aliquot_sum_calculator` and Go `aliquotsum` are reviewed aliases of `aliquot_sum`. Java `AmicableNumber`, C# `AmicableNumbersChecker`, and the Dart/R predicates in `amicable_numbers` map to `amicable_number`; the Java range enumerator and Julia/Rust range algorithms in `amicable_numbers` map to `amicable_pairs_below`. Tests, examples, benchmarks, documentation, scripts, build output, and vendor directories are omitted. Project Euler `solN` files include their problem number in the candidate name.
 
 AArch64 Assembly paths are included only as discovery references. They are architecture-specific and are not portable benchmark implementations. Any benchmark derived from those algorithms still needs a portable implementation for each target.
 
@@ -264,7 +264,7 @@ Continue promoting filename candidates to confirmed algorithms by checking sourc
 
 ## Forty-sixth reviewed candidate: Hamming distance
 
-`hamming_distance` appears in 13 source repositories, including direct C, C++, and Rust files. The C source implements the string form, while C++ and Rust also provide an unsigned 64-bit integer form. The shared contract selects the bitwise integer variant, counts all 64 positions, and records two unsigned inputs. Nine portable implementations and a binary-scalar verifier are in [the Hamming distance guide](benchmarks/h/hamming_distance/README.md).
+`hamming_distance` appears in 13 source repositories, including direct C, C++, and Rust files. The C source implements the string form, while C++ and Rust also provide an unsigned 64-bit integer form. The shared contract selects the bitwise integer variant, counts all 64 positions, and records two unsigned inputs. The C++ `count_bits_flip` and Java `CountBitsFlip` sources also XOR the pair and count set bits, so their candidate is an alias over the shared nonnegative signed 64-bit domain. Nine portable implementations and a binary-scalar verifier are in [the Hamming distance guide](benchmarks/h/hamming_distance/README.md).
 
 ## Forty-seventh reviewed candidate: GCD
 
@@ -679,6 +679,10 @@ The benchmark applies the standard case-preserving ROT13 mapping to non-NUL 7-bi
 
 The pinned Rust `theoretical_rot13` source rotates `a` through `z` by thirteen positions while leaving uppercase ASCII letters and all other characters unchanged. The shared workload uses non-NUL 7-bit ASCII and checks both alphabets, wraparound, punctuation, and invalid values. All nine ports passed 16,758 oracle inputs per language and recorded 10 workload cases each. See [the theoretical ROT13 guide](benchmarks/t/theoretical_rot13/README.md) and [workload](benchmarks/t/theoretical_rot13/workload.json). Upstream reference: [Rust `theoretical_rot13.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/theoretical_rot13.rs).
 
+## One hundred eighty-third reviewed benchmark algorithm: Caesar cipher
+
+The source filename candidates `caesar` and `caesar_cipher` point to variants of the same letter-substitution algorithm. Their upstream implementations disagree on shifts, case handling, and nonletters, so the shared contract accepts any signed 64-bit shift, normalizes it modulo 26, preserves case, and leaves other 7-bit ASCII bytes unchanged. All nine ports passed 2,637 oracle inputs per language and recorded 12 workload cases each. See the [Caesar cipher guide](benchmarks/c/caesar_cipher/README.md) and [workload](benchmarks/c/caesar_cipher/workload.json). Upstream implementations are cataloged for [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/ciphers/caesar_cipher.cpp), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Ciphers/CaesarCipher.js), [PHP](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Ciphers/CaesarCipher.php), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/caesar_cipher.py), [Go](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/caesar/caesar.go), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/Caesar.java), [Julia](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/cipher/caesar.jl), [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/ciphers/caesar.rb), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/caesar.rs).
+
 ## One hundred forty-fourth reviewed benchmark algorithm: GCD of N numbers
 
 The pinned C++ and Rust implementations combine pairwise Euclidean GCD, using an iterative fold in C++ and recursive slice reduction in Rust. The Python implementation instead intersects prime-factor counts. The shared contract accepts 1 to 64 positive signed 32-bit values and uses the pairwise Euclidean fold; this keeps zero, negative, and empty-input convention differences outside the comparison. All nine ports passed 2,076 oracle arrays per language and recorded 12 workload cases each. See [the GCD-of-N guide](benchmarks/g/gcd_of_n_numbers/README.md). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/gcd_of_n_numbers.cpp), [additional C++ source](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/gcd_of_n_numbers.cpp), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/gcd_of_n_numbers.py), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/gcd_of_n_numbers.rs).
@@ -750,3 +754,386 @@ The pinned Python source orders adjacent pairs, merge-sorts the pairs by their l
 ## One hundred fifty-eighth reviewed benchmark algorithm: Bingo sort
 
 The pinned Rust source groups each occurrence of the current minimum value at the front and advances through the numeric range. The shared contract preserves that grouping strategy while scanning for the next value present, so work does not grow with empty gaps and signed 64-bit boundaries are supported. Inputs are capped at 1024 values. All nine ports passed 5,529 short-array order-pattern, duplicate, boundary, and deterministic random cases, plus all seven workload lengths. See [the Bingo-sort guide](benchmarks/b/bingo_sort/README.md). Upstream reference: [Rust `bingo_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/bingo_sort.rs).
+
+
+## One hundred fifty-ninth reviewed benchmark algorithm: Most-significant-bit radix sort
+
+The pinned Python source includes an in-place binary radix sort that partitions from the most-significant bit downward; this differs from the least-significant-digit passes in `radix_sort`. The shared contract extends its nonnegative input domain to signed 64-bit integers by mapping signed order to unsigned bit order. All nine portable ports passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the MSD-radix-sort guide](benchmarks/m/msd_radix_sort/README.md). Upstream reference: [Python `msd_radix_sort.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/msd_radix_sort.py).
+
+
+## One hundred sixtieth reviewed benchmark algorithm: Three-way quicksort
+
+The two pinned C++ files are identical and use Dutch-national-flag partitioning around the final value in each range. The shared implementations retain that three-way partition while recursing into the smaller outer partition to bound stack depth. The Rust `quick_sort_3_ways` filename uses the same partition family with a randomized pivot and is recorded as an alias. All nine ports passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the three-way-quicksort guide](benchmarks/q/quick_sort_3/README.md). Upstream references: [C++ `quick_sort_3.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/quick_sort_3.cpp), [additional identical C++ copy](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/quick_sort_3.cpp), and [Rust `quick_sort_3_ways.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/quick_sort_3_ways.rs).
+
+
+## One hundred sixty-first reviewed benchmark algorithm: Dual-pivot quicksort
+
+The pinned Java source uses the first and final range values as ordered pivots, partitions values into lower, middle, and upper regions, and recurses on all three. The shared contract preserves that two-pivot partition while tracking the final pivot positions explicitly and recursing into the smaller regions to bound stack depth. All nine ports passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the dual-pivot-quicksort guide](benchmarks/d/dual_pivot_quick_sort/README.md). Upstream reference: [Java `DualPivotQuickSort.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/DualPivotQuickSort.java).
+
+## One hundred sixty-second reviewed benchmark algorithm: Iterative quicksort
+
+The pinned C++ source uses Lomuto partitioning around the final value and stores pending index ranges on an explicit stack. The nine portable ports retain iterative traversal and final-value pivots; they process the smaller side immediately and push the larger side to bound stack space. All nine passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the iterative-quicksort guide](benchmarks/q/quick_sort_iterative/README.md). Upstream reference: [C++ `quick_sort_iterative.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/quick_sort_iterative.cpp).
+
+## One hundred sixty-third reviewed benchmark algorithm: Reverse selection sort
+
+The pinned Python source finds the minimum in each remaining suffix and reverses the prefix through that value to place it. This differs from standard selection sort, which swaps the selected value directly into place. All nine ports use the in-place signed 64-bit contract and passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the reverse-selection guide](benchmarks/r/reverse_selection/README.md). Upstream reference: [Python `reverse_selection.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/reverse_selection.py).
+
+## One hundred sixty-fourth reviewed benchmark algorithm: Random-pivot quicksort
+
+The pinned C++ sources select a random pivot from each range, move it to the end, and apply strict-less Lomuto partitioning. The nine ports use the same partition policy with a fixed-seed portable pseudorandom stream and an explicit stack that processes smaller partitions first. All nine passed 5,529 short-array order and duplicate patterns, signed boundaries, deterministic random cases, and all four workload lengths. See [the random-pivot-quicksort guide](benchmarks/r/random_pivot_quick_sort/README.md). Upstream references: [C++ `random_pivot_quick_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/random_pivot_quick_sort.cpp), [C `random_quick_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/random_quick_sort.c), and [Java `RandomizedQuickSort.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/randomized/RandomizedQuickSort.java).
+
+## One hundred sixty-fifth reviewed benchmark algorithm: Quickselect
+
+The pinned Python implementation selects a random pivot and recursively partitions values into less, equal, and greater lists; JavaScript and TypeScript partition the input array in place, while Java uses a median-of-medians pivot. The shared contract selects the upper median at zero-based rank `floor(length / 2)`. The nine portable implementations use a deterministic median-of-three pivot and three-way partition on a bounded local copy to match the read-only array-scalar ABI. See [the quickselect guide](benchmarks/q/quick_select/README.md). Upstream references: [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/searches/quick_select.py), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Array/QuickSelect.js), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/searches/QuickSelect.java), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74a4c939ec5163648458a8c2b46fd4c/src/searching/quick_select.rs), and [TypeScript](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/sorts/quick_select.ts).
+
+## One hundred sixty-sixth reviewed benchmark algorithm: Matrix-chain multiplication
+
+The pinned C++ sources use a memoized top-down recurrence with a small fixed dimension table. Python provides a bottom-up table and a cached recursive variant. The shared contract uses bottom-up dynamic programming over at most 64 matrices and dimensions from 1 through 1,000, keeping costs within signed 64-bit range. See [the matrix-chain-multiplication guide](benchmarks/m/matrix_chain_multiplication/README.md). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/matrix_chain_multiplication.cpp), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/MatrixChainMultiplication.java), [Kotlin](https://github.com/TheAlgorithms/Kotlin/blob/b913c1d85c972fd1e679c5d832d6458b21be8fb0/src/main/kotlin/dynamicProgramming/MatrixChainMultiplication.kt), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/matrix_chain_multiplication.py), and [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/matrix_chain_multiplication.r).
+
+## One hundred sixty-seventh reviewed benchmark algorithm: Chinese remainder theorem
+
+The inspected C#, Java, Rust, and Zig implementations solve systems with pairwise-coprime moduli; the Python source lacks a coprimality check and includes a non-coprime example whose returned value does not satisfy the input congruences. The shared contract accepts one to four valid pairwise-coprime congruences and uses incremental extended-Euclid modular inverses to return the least nonnegative solution. See [the Chinese-remainder-theorem guide](benchmarks/c/chinese_remainder_theorem/README.md). Upstream references: [C#](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/ModularArithmetic/ChineseRemainderTheorem.cs), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/ChineseRemainderTheorem.java), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/chinese_remainder_theorem.py), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74a4c939ec5163648458a8c2b46fd4c/src/math/chinese_remainder_theorem.rs), and [Zig](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/chineseRemainderTheorem.zig).
+
+## One hundred sixty-eighth reviewed benchmark algorithm: Longest palindromic subsequence
+
+The pinned Python and JavaScript implementations compute the LPS length with dynamic programming. C++ computes an LCS with the reversed input and reconstructs a subsequence; R also reconstructs one result, while Java recursively constructs strings. The shared contract returns the length and uses bottom-up interval DP over signed 64-bit symbols. See [the LPS guide](benchmarks/l/longest_palindromic_subsequence/README.md). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/longest_palindromic_subsequence.cpp), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/LongestPalindromicSubsequence.java), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/LongestPalindromicSubsequence.js), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/longest_palindromic_subsequence.py), and [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/string_manipulation/longest.palindromic.subsequence.r).
+
+## One hundred sixty-ninth reviewed benchmark algorithm: Square root by Newton's method
+
+The pinned JavaScript source uses four fixed Newton iterations; Python, Ruby, and TypeScript iterate to a tolerance. The shared contract uses finite nonnegative binary64 inputs through `1e300`, a portable initial estimate, and a fixed Newton recurrence with relative output tolerance. Four pinned source files were inspected; the cataloged Rust path does not resolve at its pinned revision. See [the square-root guide](benchmarks/s/square_root/README.md). Upstream references: [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/SquareRoot.js), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/numerical_analysis/square_root.py), [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/square_root.rb), and [TypeScript](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/square_root.ts).
+
+## One hundred seventieth reviewed benchmark algorithm: Square root by binary search
+
+The pinned Java implementation searches for the integer floor using division rather than squaring the midpoint, avoiding overflow at signed 64-bit boundaries. The JavaScript `SquareRootLogarithmic` candidate uses the same binary-search floor-root method and is recorded as a filename alias. The shared contract returns `-1` for negative input and supports every nonnegative signed 64-bit integer. See [the square-root binary-search guide](benchmarks/s/square_root_binary_search/README.md). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/searches/SquareRootBinarySearch.java) and [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/SquareRootLogarithmic.js).
+
+## One hundred seventy-first reviewed benchmark algorithm: Minimum number of perfect squares
+
+The pinned Java `SumOfSquares` source implements the minimum number of perfect-square summands: it checks one-square and two-square decompositions, then applies Legendre's three-square theorem. Its zero case returns one; the shared contract corrects that to zero. The nine ports use exact integer arithmetic through the source's nonnegative signed 32-bit domain. See [the minimum-square-summands guide](benchmarks/s/sum_of_squares/README.md). Upstream reference: [Java `SumOfSquares.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/SumOfSquares.java).
+
+
+## One hundred seventy-second reviewed benchmark algorithm: Abbreviation
+
+The pinned C++, Go, Java, JavaScript, and Python implementations solve the HackerRank abbreviation problem: lowercase source letters can be capitalized or deleted, while uppercase source letters must be retained. The shared contract packs two ASCII letter strings, bounds each at 128 characters, and uses two fixed dynamic-programming rows. All nine portable implementations are represented in the workload guide at [benchmarks/a/abbreviation/README.md](benchmarks/a/abbreviation/README.md). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/abbreviation.cpp), [additional C++ repository](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/abbreviation.cpp), [Go](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/abbreviation.go), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/Abbreviation.java), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Abbreviation.js), and [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/abbreviation.py).
+
+
+## One hundred seventy-third reviewed benchmark algorithm: Gale–Shapley stable matching
+
+The pinned C++, C#, Java, Lua, and Nim sources implement proposer-proposing Gale–Shapley matching. The C# `Accepter` and `Proposer` files are participant state types used by that algorithm, and Python’s `gale_shapley_bigraph` source uses the same strict complete-preference matching semantics; all three filename candidates are recorded as aliases. The shared contract packs two preference matrices for up to five participants per side and returns one accepter ID byte per proposer. All nine implementations passed the 12 published cases, 170 workload and generated oracle inputs, and five output-capacity checks per language. See the [Gale–Shapley guide](benchmarks/g/gale_shapley/README.md) and [repeatable verifier](benchmarks/verify_gale_shapley.py). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/greedy_algorithms/gale_shapley.cpp), [C# GaleShapley](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/StableMarriage/GaleShapley.cs), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/greedyalgorithms/GaleShapley.java), [Lua](https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/misc/stable_marriage/gale_shapley.lua), [Nim](https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/stable_marriage/gale_shapley.nim), and [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/gale_shapley_bigraph.py).
+
+
+## One hundred seventy-fourth reviewed benchmark algorithm: Tribonacci number
+
+The pinned C LeetCode 1137, Java, and JavaScript sources agree on the zero-based nth Tribonacci recurrence with initial values 0, 1, 1. The C LeetCode filename and JavaScript `tribonacci_number` are aliases of the Java `tribonacci` candidate. The Python file with the same stem produces the first n terms beginning 0, 0, 1, while the C# `TribonacciNumbersSequence` starts 1, 1, 1; these are documented as distinct semantics. The shared contract supports exact signed 64-bit terms through n = 73. See the [Tribonacci guide](benchmarks/t/tribonacci/README.md). Upstream references: [C](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1137.c), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/Tribonacci.java), and [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/TribonacciNumber.js).
+
+
+## One hundred seventy-fifth reviewed benchmark algorithm: Bitwise complement
+
+The pinned C LeetCode 1009 source uses `ceil(log2(n))` to determine a complement mask, and C LeetCode 476 grows the mask through the most significant bit. They implement the same operation for nonnegative signed 32-bit inputs; candidate 476 aliases candidate 1009. The catalog assigns candidate 1009 the alphabetic benchmark name `bitwise_complement`, so the nine portable integer-shift implementations are stored under `b/`. All nine passed 4,627 oracle inputs and 15 workload records through the scalar verifier. See the [bitwise-complement guide](benchmarks/b/bitwise_complement/README.md). Upstream references: [C LeetCode 1009](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1009.c) and [C LeetCode 476](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/476.c).
+
+
+Additional numeric C candidates were reviewed as filename aliases: `17` maps to [phone letter combinations](benchmarks/l/letter_combinations_of_phone_number/README.md), `69` to [square root by binary search](benchmarks/s/square_root_binary_search/README.md), `118` to [Pascal triangle](benchmarks/p/pascal_triangle/README.md), `367` to [perfect square](benchmarks/p/perfect_square/README.md), `509` to [Fibonacci](benchmarks/f/fibonacci/README.md), and `704` to [binary search](benchmarks/b/binary_search/README.md).
+
+
+## One hundred seventy-sixth reviewed benchmark algorithm: Maximum subarray with Kadane’s algorithm
+
+The pinned C LeetCode 53, Ruby, Rust, and Python `max_subarray_sum` sources implement the maximum nonempty contiguous-subarray sum with Kadane’s scan. The C 53 and Python `max_subarray_sum` candidates alias the Rust/Ruby `maximum_subarray` candidate. The shared contract accepts up to 1,024 signed 32-bit elements and returns the maximum nonempty sum. See the [maximum-subarray guide](benchmarks/m/maximum_subarray/README.md). Upstream references: [C LeetCode 53](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/53.c), [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/maximum_subarray.rb), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/maximum_subarray.rs), and [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/max_subarray_sum.py).
+
+## One hundred seventy-seventh reviewed benchmark algorithm: Maximum subarray by divide and conquer
+
+The pinned Python `max_subarray` source divides the input, recursively solves both halves, and evaluates the best interval crossing the midpoint. Its sum objective matches the nonempty maximum-subarray contract; it remains a separate benchmark because it uses a distinct strategy. See the [divide-and-conquer guide](benchmarks/m/max_subarray/README.md) and [maximum-subarray verifier](benchmarks/verify_maximum_subarray.py). Upstream reference: [Python max_subarray](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/divide_and_conquer/max_subarray.py).
+
+
+## One hundred seventy-eighth reviewed benchmark algorithm: Lucas number by iteration
+
+The pinned Java, JavaScript, Python, Ruby, Rust, and Solidity source group computes Lucas numbers with index conventions that differ between files. The shared contract uses zero-based indices and exact integer recurrence; Java’s one-based method is normalized, and the Ruby approximation is noted as incorrect for the first two terms. See the [iterative Lucas guide](benchmarks/l/lucas_series/README.md). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/LucasSeries.java), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/LucasSeries.js), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/lucas_series.py), [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/lucas_series.rb), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/lucas_series.rs), and [Solidity](https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/lucasSeries.sol).
+
+## One hundred seventy-ninth reviewed benchmark algorithm: Lucas number by direct recursion
+
+The same source group includes un-memoized recursive methods in Java, Python, Rust, and Solidity. Those recursive implementations are tracked separately from the linear iterative recurrence and use a bounded index to keep the exponential workload practical. See the [recursive Lucas guide](benchmarks/l/lucas_series_recursive/README.md). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/LucasSeries.java), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/lucas_series.py), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/lucas_series.rs), and [Solidity](https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/lucasSeries.sol).
+
+
+## One hundred eightieth reviewed benchmark algorithm: Josephus problem by iterative recurrence
+
+The pinned R source iterates the zero-based survivor recurrence, and the Java and Python sources state the same recurrence recursively. The shared contract accepts up to 100,000 participants and a positive signed 64-bit step, returning the one-based survivor. The step is reduced modulo each circle size before addition to avoid overflow. See the [iterative Josephus guide](benchmarks/j/josephus_problem/README.md) and [three-strategy verifier](benchmarks/verify_josephus_problem.py). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/JosephusProblem.java), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/josephus_problem.py), and [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/josephus_problem.r).
+
+## One hundred eighty-first reviewed benchmark algorithm: Josephus problem by direct recursion
+
+Java and Python provide direct recursive implementations of the zero-based survivor recurrence. The shared one-based output is used with a participant bound of 256 to constrain recursion depth. See the [recursive Josephus guide](benchmarks/j/josephus_problem_recursive/README.md). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/JosephusProblem.java) and [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/josephus_problem.py).
+
+## One hundred eighty-second reviewed benchmark algorithm: Josephus problem by list simulation
+
+Python also simulates removals with a list, an O(n^2) strategy distinct from the survivor recurrence. The ports preserve that shifting-list behavior with a bounded participant array. The C-Sharp source path recorded in the inventory does not resolve at its pinned revision; AArch64 Assembly is retained as a nonportable discovery reference. See the [simulation guide](benchmarks/j/josephus_problem_simulation/README.md). Upstream reference: [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/josephus_problem.py).
+
+## One hundred eighty-fourth reviewed benchmark algorithm: Run-length encoding
+
+The pinned C, Java, and Rust string implementations emit textual counts before each symbol, while Clojure, Python, and another Rust implementation return count/symbol pairs. The shared contract emits decimal count bytes followed by each ASCII symbol, excluding decimal digit symbols to keep the representation unambiguous. All nine ports passed 1,013 oracle inputs per language and recorded 12 workload cases each. See the [run-length encoding guide](benchmarks/r/run_length_encoding/README.md) and [workload](benchmarks/r/run_length_encoding/workload.json).
+
+## One hundred eighty-fifth reviewed benchmark algorithm: Vigenère cipher
+
+The Java, Julia, Rust, C++, JavaScript, and Python sources share repeating-key Vigenère encryption but differ on case preservation, invalid or empty keys, and whether punctuation advances the key. A PHP source uses the misspelled filename `vignere_cipher`. The shared contract uses a nonempty ASCII-letter key, preserves message case, and advances the key only for letters. All nine ports passed 3,575 oracle inputs per language and recorded 12 workload cases each. See the [Vigenère guide](benchmarks/v/vigenere_cipher/README.md) and [workload](benchmarks/v/vigenere_cipher/workload.json).
+
+## One hundred eighty-sixth reviewed benchmark algorithm: Atbash cipher
+
+The C++, Java, and PHP sources use the filename `atbash_cipher`; JavaScript, Julia, and Python use `atbash`. The benchmark standardizes to case-preserving reversal of ASCII letters and leaves all other 7-bit ASCII bytes unchanged. All nine ports passed 17,006 oracle inputs per language and recorded 8 workload cases each. See the [Atbash guide](benchmarks/a/atbash_cipher/README.md) and [workload](benchmarks/a/atbash_cipher/workload.json).
+
+## One hundred eighty-seventh reviewed benchmark algorithm: XOR cipher
+
+The C++, Python, and TypeScript `xor_cipher` sources use an integer key; Java, JavaScript, and PHP use the joined filename `xorcipher`, with some versions repeating a byte-string key and Java returning hexadecimal text. The shared contract uses a repeating byte key and returns raw output bytes, covering the single-byte integer-key form as well. All nine ports passed 2,577 oracle inputs per language and recorded 12 workload cases each. See the [XOR cipher guide](benchmarks/x/xor_cipher/README.md) and [workload](benchmarks/x/xor_cipher/workload.json).
+
+## One hundred eighty-eighth reviewed benchmark algorithm: A1Z26 encoding
+
+The pinned C++ `a1z26_cipher` and Python `a1z26` sources encode letters as one-based alphabet positions, using text or list results. The shared contract uses numeric bytes and accepts either ASCII letter case. All nine ports passed 684 oracle inputs per language and recorded 9 workload cases each. See the [A1Z26 encoding guide](benchmarks/a/a1z26_cipher/README.md) and [workload](benchmarks/a/a1z26_cipher/workload.json).
+
+## One hundred eighty-ninth reviewed benchmark algorithm: A1Z26 decoding
+
+The C++ `a1z26_cipher` source also decodes alphabet positions. This inverse operation has its own contract, accepting values from 1 through 26 and returning lowercase ASCII bytes. All nine ports passed 568 oracle inputs per language and recorded 8 workload cases each. See the [A1Z26 decoding guide](benchmarks/a/a1z26_decipher/README.md) and [workload](benchmarks/a/a1z26_decipher/workload.json).
+
+## One hundred ninetieth reviewed benchmark algorithm: Container With Most Water
+
+The pinned C LeetCode 11 implementation uses two pointers to find the maximum area between vertical lines. The shared contract accepts nonnegative signed 32-bit heights and returns signed 64-bit areas. All nine ports passed 22,412 oracle inputs per language and recorded 11 workload cases each. See the [Container With Most Water guide](benchmarks/c/container_with_most_water/README.md) and [workload](benchmarks/c/container_with_most_water/workload.json).
+
+## One hundred ninety-first reviewed benchmark algorithm: Valid Palindrome
+
+The pinned C LeetCode 125 implementation skips non-alphanumeric characters and compares ASCII letters without case sensitivity. The shared contract uses an explicit-length ASCII sequence and returns 1 for a palindrome, 0 otherwise, and -1 for invalid values or lengths. All nine ports passed 20,247 oracle inputs per language and recorded 11 workload cases each. See the [Valid Palindrome guide](benchmarks/v/valid_palindrome/README.md) and [workload](benchmarks/v/valid_palindrome/workload.json).
+
+## One hundred ninety-second reviewed benchmark algorithm: Integer to Roman Numeral
+
+The pinned C LeetCode 12, Java, Go, JavaScript, C++, and Python sources implement integer-to-Roman conversion. The shared contract emits canonical uppercase notation for values 1 through 3,999 and returns length-prefixed ASCII bytes. The pinned Dart source prints symbols but returns an empty list. All nine ports passed 4,620 oracle values per language, including every value from 0 through 4,096, capacity boundaries, and 11 workload cases. See the [Integer to Roman guide](benchmarks/i/integer_to_roman/README.md) and [workload](benchmarks/i/integer_to_roman/workload.json).
+
+## One hundred ninety-third reviewed benchmark algorithm: Roman Numeral to Integer
+
+The pinned C, JavaScript, Dart, Java, Ruby, Go, Python, and Rust sources decode Roman numerals with additive and subtractive notation. The shared contract accepts canonical uppercase numerals from 1 through 3,999 and rejects malformed forms. All nine ports passed 8,927 oracle arrays per language, including every valid numeral in range, exhaustive short symbol sequences, and 13 workload cases. See the [Roman Numeral to Integer guide](benchmarks/r/roman_to_integer/README.md) and [workload](benchmarks/r/roman_to_integer/workload.json).
+
+## One hundred ninety-fourth reviewed benchmark algorithm: Maximum Consecutive Ones
+
+The pinned C LeetCode filename 14 and JavaScript `MaxConsecutiveOnes` sources both count contiguous ones on binary arrays. All nine ports passed 8,734 oracle inputs per language and recorded 11 workload cases each. See the [Maximum Consecutive Ones guide](benchmarks/m/max_consecutive_ones/README.md) and [workload](benchmarks/m/max_consecutive_ones/workload.json).
+
+## One hundred ninety-fifth reviewed benchmark algorithm: Subset Sum Existence
+
+The pinned C++ dynamic-programming, Java, Go, and Rust implementations decide whether a subset reaches the target; they vary between top-down recursion, 2D dynamic programming, and a 1D space-optimized table. The shared contract extends these decision semantics to signed values and uses a bounded 1D reachability table. All nine ports passed 56,773 exhaustive and deterministic oracle inputs per language. See the [Subset Sum Existence guide](benchmarks/s/subset_sum_exists/README.md) and [workload](benchmarks/s/subset_sum_exists/workload.json).
+
+## One hundred ninety-sixth reviewed benchmark algorithm: Subset Sum Count
+
+The pinned C++ backtracking implementation counts indexed subsets that reach a target, including the empty subset for target zero. The shared contract preserves index identity for duplicate values and uses signed inputs. All nine ports passed 56,771 exhaustive and deterministic count-oracle inputs per language. See the [Subset Sum Count guide](benchmarks/s/subset_sum_count/README.md) and [workload](benchmarks/s/subset_sum_count/workload.json).
+
+## One hundred ninety-seventh reviewed benchmark algorithm: Subset Sum Enumeration
+
+The R `subset_sum.r` source includes a recursive `find_all_subsets` operation with positive-value pruning. The shared contract uses signed inputs and emits each matching input-index mask once in ascending order, so duplicate values remain distinct. All nine ports passed 48,959 exhaustive and deterministic mask-oracle inputs per language, including output-capacity failures. See the [Subset Sum Enumeration guide](benchmarks/s/subset_sum_enumerate/README.md) and [workload](benchmarks/s/subset_sum_enumerate/workload.json).
+
+## One hundred ninety-eighth reviewed benchmark algorithm: Subset Combinations
+
+The pinned Python source builds fixed-size combinations with a dynamic-programming table, while Rust recursively emits index selections. The shared contract emits two-byte masks in lexicographic index order and preserves duplicate positions. All nine ports passed 8,692 exhaustive and deterministic oracle inputs per language, including output-capacity failures. See the [Subset Combinations guide](benchmarks/s/subset_combinations/README.md) and [workload](benchmarks/s/subset_combinations/workload.json).
+
+## One hundred ninety-ninth reviewed benchmark algorithm: BST From Preorder
+
+The pinned C LeetCode 1008 source recursively partitions a valid BST preorder at each root and constructs its subtrees. The shared contract validates unique signed 32-bit keys and emits a preorder serialization with null-child markers so the resulting shape is explicit. All nine ports passed 6,892 exhaustive and deterministic oracle inputs per language, including invalid traversals and insufficient output capacity. See the [BST From Preorder guide](benchmarks/b/bst_from_preorder/README.md) and [workload](benchmarks/b/bst_from_preorder/workload.json).
+
+## Median benchmark
+
+The pinned C median source is an interactive random-data demonstration and truncates the middle-pair division; Go truncates integer division before converting to `float64`; Java and Kotlin can overflow while adding the middle `int` values; Lua uses quickselect; and PHP sorts variadic numeric inputs. The shared contract accepts 1–1,024 signed 32-bit values and reports twice the exact statistical median, preserving half-integer results in the integer-array scalar ABI. Nine portable ports insertion-sort a bounded local copy. The verifier checks 4,475 oracle arrays per language, including the maximum-length input, and checks the published workload. See [the median guide](benchmarks/m/median/README.md).
+
+## Morse code encoder
+
+The pinned C++ snapshots accept lowercase ASCII letters and digits; JavaScript supports a wider set with a configurable dot symbol; PHP, Python, and Rust encode letters, digits, spaces, and punctuation with differing invalid-input behavior. The shared contract keeps the common alphanumeric encoder, normalizes ASCII case, and emits canonical Morse tokens separated by single spaces. All nine ports passed 4,490 oracle inputs each, including invalid bytes and zero output capacity. See [the Morse code guide](benchmarks/m/morse_code/README.md).
+
+## Extended Euclidean algorithm
+
+The pinned C-Sharp, Java, Python, R, and Rust implementations differ in tuple order, whether the GCD is returned, and behavior for zero or negative inputs. The shared contract accepts two positive signed-32-bit values and emits `(gcd,x,y)` as three signed little-endian 32-bit integers. All nine ports passed 2,126 recursive-oracle inputs and the 17 published workload cases. See [the extended Euclidean guide](benchmarks/e/extended_euclidean_algorithm/README.md).
+
+
+## Climbing stairs
+
+The pinned Java, JavaScript, Python, and Ruby sources count ordered ways to climb using one-step and two-step moves. Their zero-step behavior differs, so the shared contract uses positive inputs from 1 through 45 and returns the corresponding Fibonacci value F(n+1); out-of-range inputs return -1. Nine portable ports use an iterative recurrence. The verifier checked all 45 valid inputs plus nine signed-64-bit boundary cases per language, and checked all 20 published workload cases. See the [climbing stairs guide](benchmarks/c/climbing_stairs/README.md). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/ClimbingStairs.java), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/ClimbingStairs.js), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/climbing_stairs.py), and [Ruby](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/dynamic_programming/climbing_stairs.rb).
+
+
+## Factors
+
+The pinned Dart and JavaScript implementations scan upward, Python and Rust scan divisor pairs through the square root and sort them, and TypeScript returns divisor pairs in a Set. The shared contract accepts positive values from 1 through 256 and emits every positive divisor once in ascending order as comma-separated bytes. All nine ports passed 520 exhaustive validity, output-capacity, and signed-boundary cases per language, plus the 14 workload cases. See the [factors guide](benchmarks/f/factors/README.md) and [workload](benchmarks/f/factors/workload.json). Upstream references: [Dart](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/factors.dart), [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/Factors.js), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/factors.py), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/factors.rs), and [TypeScript](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/factors.ts).
+
+
+## Prime factors
+
+The pinned JavaScript, Python, Rust, and intended Julia implementations emit prime factors with multiplicity; Python also has a distinct-factor helper. The Julia source can divide by a nonfactor because it compares the remainder to 1, and Scala returns `[1]` for input 1. The shared contract accepts positive signed-32-bit inputs, returns factors in ascending order, and encodes them as comma-separated ASCII bytes. All nine languages passed 5,143 oracle cases per language, including insufficient output capacity, plus the 17 published workload cases. See the [prime-factors guide](benchmarks/p/prime_factors/README.md) and [workload](benchmarks/p/prime_factors/workload.json). Upstream references: [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/PrimeFactors.js), [Julia](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/prime_factors.jl), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/prime_factors.py), [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_factors.rs), and [Scala](https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/PrimeFactors.scala).
+
+
+## Knuth–Morris–Pratt
+
+The pinned C++, F#, Python, and Rust versions expose different result types; Rust also uses Unicode character positions and returns every match. The shared contract standardizes first-match byte indices over ASCII inputs. All nine ports passed 4,504 oracle cases each, including exhaustive short binary strings, malformed packed inputs, deterministic random sequences, and long near-matches. See the [Knuth–Morris–Pratt guide](benchmarks/k/knuth_morris_pratt/README.md) and [workload](benchmarks/k/knuth_morris_pratt/workload.json). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/strings/knuth_morris_pratt.cpp), [C++1](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/strings/knuth_morris_pratt.cpp), [F#](https://github.com/TheAlgorithms/F-Sharp/blob/e5441e8bfd2cda87541634b75f39f0868447ae5f/Algorithms/Strings/KnuthMorrisPratt.fs), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/knuth_morris_pratt.py), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/knuth_morris_pratt.rs).
+
+
+## Isogram
+
+The pinned C implementation checks exact byte duplicates; Java contains alphabetic-only and full-string variants; Rust folds ASCII case, ignores whitespace, and rejects other nonletters. The benchmark standardizes case-insensitive ASCII letters with ASCII spaces ignored. All nine ports passed 4,440 oracle cases each, including exhaustive case-and-space sequences, invalid bytes, random inputs, and maximum lengths. See the [Isogram guide](benchmarks/i/isogram/README.md) and [workload](benchmarks/i/isogram/workload.json). Upstream references: [C](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/exercism/isogram/isogram.c), [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/Isogram.java), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/isogram.rs).
+
+
+## Boyer–Moore Search
+
+The pinned C, Python, and Rust versions implement the bad-character rule but expose different APIs; Rust returns Unicode character positions. The shared contract returns the first matching ASCII byte index. All nine ports passed 4,505 oracle inputs each, including exhaustive short binary strings, malformed packed inputs, random sequences, and long near-matches. See the [Boyer–Moore Search guide](benchmarks/b/boyer_moore_search/README.md) and [workload](benchmarks/b/boyer_moore_search/workload.json). Upstream references: [C](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/searching/pattern_search/boyer_moore_search.c), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/boyer_moore_search.py), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/boyer_moore_search.rs).
+
+
+## Trapped Rainwater
+
+The pinned C++ and Rust versions compute left and right maximum heights and sum the enclosed water. The contract bounds 4,096 heights to 0 through 1,000,000; the maximum total remains within their unsigned 32-bit result range. All nine ports passed 22,401 oracle arrays each, including exhaustive short profiles, random profiles, invalid values, and a maximum-length basin. See the [Trapped Rainwater guide](benchmarks/t/trapped_rainwater/README.md) and [workload](benchmarks/t/trapped_rainwater/workload.json). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/trapped_rainwater.cpp) and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/trapped_rainwater.rs).
+
+
+## Miller–Rabin
+
+The pinned C++ source chooses random witnesses, while the Rust source accepts a fixed list and returns a witness for composites. The shared contract uses bases `[2, 3, 5, 7]`, returns `1` for prime and `0` for composite, and returns `-1` above the benchmark domain; the Rust source states that these bases are deterministic below 3,215,031,751, covering the full signed 32-bit input range. All nine implementations passed 100,271 trial-division oracle inputs each, including published pseudoprime cases and signed boundaries. See the [Miller–Rabin guide](benchmarks/m/miller_rabin/README.md) and [workload](benchmarks/m/miller_rabin/workload.json). Upstream references: [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/miller_rabin.cpp), [C++1](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/miller_rabin.cpp), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/miller_rabin.rs).
+
+
+## Word Break
+
+The pinned C++ and Python sources all allow reuse of dictionary words, using memoized prefix or suffix checks, trie traversal, or backtracking. The shared contract uses lowercase ASCII and fixed-width dictionary slots, and treats empty text as segmentable. All nine ports passed 8,668 oracle inputs per language plus 27 workload records. See the [Word Break guide](benchmarks/w/word_break/README.md) and [workload](benchmarks/w/word_break/workload.json).
+
+## Unique Paths
+
+The pinned Java implementation offers one- and two-dimensional dynamic programming; JavaScript uses a one-dimensional row. The shared contract accepts dimensions from 1 through 34 and returns exact signed-64-bit counts, rejecting out-of-range dimensions. All nine ports passed 1,913 oracle pairs each and recorded 17 workload cases. See the [Unique Paths guide](benchmarks/u/unique_paths/README.md) and [workload](benchmarks/u/unique_paths/workload.json).
+
+
+## Activity Selection
+
+The pinned Java and Python greedy implementations sort activities by finish time and select the next activity when its start is at least the last finish; a second Python source assumes sorted inputs and prints selected indices. The shared contract returns the maximum selection count and validates a packed list of up to 64 signed-time intervals. All nine ports passed 11,615 oracle arrays each, including exhaustive small schedules and malformed inputs, and recorded 17 workload cases. See the [Activity Selection guide](benchmarks/a/activity_selection/README.md) and [workload](benchmarks/a/activity_selection/workload.json).
+
+
+## Sorted Array to BST
+
+The pinned C LeetCode 108 source recursively chooses the midpoint of a sorted array and constructs the left and right subtrees; empty input returns a null tree. The shared contract uses the lower median for even ranges and serializes the balanced result in preorder. All nine ports passed 1,032 serialized-tree cases each, including invalid arrays and insufficient output capacity, and recorded 12 workload cases. See the [Sorted Array to BST guide](benchmarks/s/sorted_array_to_bst/README.md) and [workload](benchmarks/s/sorted_array_to_bst/workload.json).
+
+
+## Duplicate Zeros
+
+The pinned C LeetCode 1089 source copies the input and duplicates zero values while preserving the array length. The shared contract emits the resulting values in signed 32-bit little-endian form. All nine ports passed 1,597 output-array cases each, including exhaustive short arrays and insufficient capacity, and recorded 11 workload cases. See the [Duplicate Zeros guide](benchmarks/d/duplicate_zeros/README.md) and [workload](benchmarks/d/duplicate_zeros/workload.json).
+
+## Sorted List to BST
+
+The pinned C LeetCode 109 source recursively finds each subtree root with slow and fast linked-list pointers; its walk selects the upper middle node for even lengths. The shared contract represents the list as a sorted array and serializes the resulting balanced tree. All nine ports passed 3,945 serialized-tree cases each, including duplicate keys, malformed sequences, and insufficient capacity, and recorded 12 workload cases. See the [Sorted List to BST guide](benchmarks/s/sorted_list_to_bst/README.md) and [workload](benchmarks/s/sorted_list_to_bst/workload.json).
+
+
+## Path Sum
+
+The pinned C LeetCode 112 source subtracts each node value from the requested target and accepts a match only at a leaf. The Dart `path_sum.dart` candidate accumulates path values and checks the sum only at leaves; it has the same root-to-leaf semantics. The shared contract uses a validated indexed-tree input with signed 32-bit node values and a signed 64-bit target. All nine ports passed 14,729 oracle trees each, including every small tree shape and malformed structures, and recorded 22 workload cases. See the [Path Sum guide](benchmarks/p/path_sum/README.md) and [workload](benchmarks/p/path_sum/workload.json).
+
+## Longest Chunked Palindrome Decomposition
+
+The pinned C LeetCode 1147 candidate is reviewed and mapped to longest_chunked_palindrome_decomposition. Its contract returns the maximum number of mirrored chunks for a bounded ASCII input. Nine portable ports, the workload, and an exhaustive-cut oracle verifier are recorded under benchmarks/l/longest_chunked_palindrome_decomposition/.
+
+## Distance Between Bus Stops
+
+The pinned C LeetCode 1184 candidate is reviewed and mapped to distance_between_bus_stops. Its bounded contract returns the shorter of the two circular routes between a pair of stops. Nine portable ports, the workload, and an exact summation verifier are recorded under benchmarks/d/distance_between_bus_stops/.
+
+## Maximum Number of Balloons
+
+The pinned C LeetCode 1189 candidate is reviewed and mapped to max_number_of_balloons. Its contract accepts up to 256 lowercase ASCII letters and returns the number of copies of balloon that can be formed. All nine language ports passed 20,054 oracle cases each and recorded 14 workload cases. See the [benchmark guide](benchmarks/m/max_number_of_balloons/README.md) and [verifier](benchmarks/verify_max_number_of_balloons.py).
+
+## Unique Occurrences
+
+The pinned C LeetCode 1207 candidate is reviewed and mapped to unique_occurrences. Its contract accepts up to 1,000 values in -1,000..1,000 and checks whether every value has a distinct positive frequency. All nine language ports passed 10,365 oracle cases each and recorded 13 workload cases. See the [benchmark guide](benchmarks/u/unique_occurrences/README.md) and [verifier](benchmarks/verify_unique_occurrences.py).
+
+## Smallest Divisor
+
+The pinned C LeetCode 1283 candidate is reviewed and mapped to smallest_divisor. Its packed input contains a threshold followed by 1 to 256 positive values. All nine language ports passed 5,797 cases each against a direct divisor scan and recorded 14 workload cases. See the [benchmark guide](benchmarks/s/smallest_divisor/README.md) and [verifier](benchmarks/verify_smallest_divisor.py).
+
+## Number of Subarrays With Odd Sum
+
+The pinned C LeetCode 1524 candidate is reviewed and mapped to number_of_subarrays_with_odd_sum. It returns the odd-sum contiguous subarray count modulo 1,000,000,007. All nine language ports passed 10,358 oracle cases each and recorded 11 workload cases. See the [benchmark guide](benchmarks/n/number_of_subarrays_with_odd_sum/README.md) and [verifier](benchmarks/verify_number_of_subarrays_with_odd_sum.py).
+
+
+
+## Minimum Deletions to Make String Balanced
+
+The pinned C LeetCode 1653 candidate is reviewed and mapped to minimum_deletions_to_make_string_balanced. Its packed input maps a to 0 and b to 1; it returns the fewest deletions needed to leave all a values before all b values. All nine language ports passed 8,690 oracle cases each and recorded 15 workload cases. See the [benchmark guide](benchmarks/m/minimum_deletions_to_make_string_balanced/README.md) and [verifier](benchmarks/verify_minimum_deletions_to_make_string_balanced.py).
+
+## Close Strings
+
+The pinned C LeetCode 1657 candidate is reviewed and mapped to close_strings. Its packed input contains two lowercase ASCII strings and checks their character sets and frequency multisets. All nine language ports passed 15,168 oracle cases each and recorded 14 workload cases. See the [benchmark guide](benchmarks/c/close_strings/README.md) and [verifier](benchmarks/verify_close_strings.py).
+
+## Maximum Unique Subarray
+
+The pinned C LeetCode 1695 candidate is reviewed and mapped to maximum_unique_subarray. It maximizes the sum of a contiguous subarray whose values are distinct. The shared contract accepts 0 to 256 positive values in 1..10,000. All nine language ports passed 22,371 oracle cases each and recorded 14 workload cases. See the [benchmark guide](benchmarks/m/maximum_unique_subarray/README.md) and [verifier](benchmarks/verify_maximum_unique_subarray.py).
+
+## Halves Are Alike
+
+The pinned C LeetCode 1704 candidate is reviewed and mapped to halves_are_alike. Its contract accepts even-length ASCII letter sequences and compares vowel counts in their equal halves. All nine language ports passed 16,797 oracle cases each and recorded 13 workload cases. See the [benchmark guide](benchmarks/h/halves_are_alike/README.md) and [verifier](benchmarks/verify_halves_are_alike.py).
+
+
+
+## Minimum Operations to Move All Balls
+
+The pinned C LeetCode 1769 candidate is reviewed and mapped to minimum_operations_to_move_all_balls. Its binary input represents occupied boxes, and it returns each box’s total movement count using two linear passes. All nine language ports passed 1,017 oracle cases each and recorded 15 workload cases. See the [benchmark guide](benchmarks/m/minimum_operations_to_move_all_balls/README.md) and [verifier](benchmarks/verify_minimum_operations_to_move_all_balls.py).
+
+## Check If Array Is Sorted and Rotated
+
+The pinned C LeetCode 1752 candidate is reviewed and mapped to check_if_array_is_sorted_and_rotated. Its contract accepts bounded signed 32-bit arrays and checks whether any rotation is nondecreasing. All nine language ports passed 3,805 oracle cases each and recorded 14 workload cases. See the [benchmark guide](benchmarks/c/check_if_array_is_sorted_and_rotated/README.md) and [verifier](benchmarks/verify_check_if_array_is_sorted_and_rotated.py).
+
+
+## Maximum Ice Cream Bars
+
+The pinned C LeetCode 1833 candidate is reviewed and mapped to maximum_ice_cream_bars. Its greedy implementation sorts costs and buys the cheapest bars while the budget permits. All nine language ports passed 10,649 oracle cases each and recorded 15 workload cases. See the [benchmark guide](benchmarks/m/maximum_ice_cream_bars/README.md) and [verifier](benchmarks/verify_maximum_ice_cream_bars.py).
+
+
+## Maximum Frequency After Increments
+
+The pinned C LeetCode 1838 candidate is reviewed and mapped to maximum_frequency_after_increments. It sorts values and finds the largest targetable window within the increment budget. All nine language ports passed 7,335 oracle cases each and recorded 16 workload cases. See the [benchmark guide](benchmarks/m/maximum_frequency_after_increments/README.md) and [verifier](benchmarks/verify_maximum_frequency_after_increments.py).
+
+
+## Search Insert Position
+
+The pinned C LeetCode 35 candidate is reviewed and mapped to search_insert_position. The benchmark uses the first, iterative binary-search definition in the upstream file and returns the lower-bound index for strictly increasing input. All nine language ports passed 6,582 oracle cases each and recorded 15 workload cases. See the [benchmark guide](benchmarks/s/search_insert_position/README.md) and [verifier](benchmarks/verify_search_insert_position.py).
+
+
+## Plus One
+
+The pinned C LeetCode 66 candidate is reviewed and mapped to plus_one. It increments canonical decimal digit arrays and returns ASCII decimal bytes. All nine language ports passed 10,519 oracle cases each and recorded 12 workload cases. See the [benchmark guide](benchmarks/p/plus_one/README.md) and [verifier](benchmarks/verify_plus_one.py).
+
+
+## Valid Parentheses
+
+The pinned C LeetCode 20 and Java `ValidParentheses` candidates share stack-based bracket matching; candidate `20` is recorded as an alias of the canonical Java filename candidate. The common contract returns 1 for correctly nested `()[]{}`, 0 for malformed nesting, and -1 for unsupported byte values or inputs longer than 256. All nine language ports passed 56,506 oracle arrays and recorded 14 workload cases. See the [benchmark guide](benchmarks/v/valid_parentheses/README.md) and [verifier](benchmarks/verify_valid_parentheses.py).
+
+
+## Find Minimum in Rotated Sorted Array
+
+The pinned C LeetCode 153 candidate assumes a nonempty rotation of a strictly increasing array and uses binary search to return its minimum. The shared contract supports up to 256 signed 64-bit values. All nine ports passed 981 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/f/find_min_rotated_sorted_array/README.md) and [verifier](benchmarks/verify_find_min_rotated_sorted_array.py).
+
+
+## Boyer–Moore Majority Vote
+
+The C LeetCode 169 and C-Sharp sources implement the strict majority vote algorithm; the Python generalized vote routine matches when its threshold parameter is fixed at 2. The Java `MajorityElement` candidate uses a different threshold and can return multiple values, so it remains separate. All nine ports passed 20,574 oracle arrays each and recorded 14 workload cases. See the [benchmark guide](benchmarks/b/boyer_moore_majority_vote/README.md) and [verifier](benchmarks/verify_boyer_moore_majority_vote.py).
+
+
+## Hamming Weight
+
+The pinned C LeetCode 191 candidate counts set bits across an unsigned 32-bit value. The C++ `count_of_set_bits` and JavaScript `binary_count_set_bits` candidates match it on this shared input domain and are recorded as aliases. All nine language ports passed 66,104 oracle cases each and recorded 10 workload cases. See the [benchmark guide](benchmarks/h/hamming_weight/README.md) and [verifier](benchmarks/verify_scalar.py). Upstream references: [C LeetCode 191](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/191.c), [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2849e8d1a8d926e171cc5b39f97759/bit_manipulation/count_of_set_bits.cpp), and [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/BinaryCountSetBits.js).
+
+
+## Prime Numbers
+
+The pinned C++1, Python, and Rust sources generate primes through an inclusive limit; the C++1 version uses a linear sieve, while Python and Rust include trial-division generators. One Python file with the same filename contains next-prime helper functions rather than the prime-list operation and is documented separately. The shared benchmark returns comma-separated primes for limits 0 through 80. All nine ports passed 175 oracle cases each, including insufficient output capacity and signed boundaries, and recorded 11 workload cases. See the [benchmark guide](benchmarks/p/prime_numbers/README.md) and [verifier](benchmarks/verify_prime_numbers.py). Upstream references: [C++1](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/prime_numbers.cpp), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/prime_numbers.py), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_numbers.rs).
+
+
+## First N Primes
+
+The pinned TypeScript source provides an infinite prime generator, and Zig computes the first 25 primes for its test. The benchmark returns the first `n` primes for counts from 0 through 20. All nine ports passed 54 oracle cases each, including output-capacity failures and signed boundaries, and recorded 9 workload cases. See the [benchmark guide](benchmarks/f/first_n_primes/README.md) and [verifier](benchmarks/verify_first_n_primes.py). Upstream references: [TypeScript](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/primes.ts) and [Zig](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/primes.zig).
+
+
+## Digital Root
+
+The pinned Java and Python sources compute the decimal digital root by repeatedly summing digits. The Ruby `add_digits` files implement the same operation with recursive summation and the modulo-nine identity, and are recorded as aliases. The shared contract accepts nonnegative signed-64-bit inputs; all nine ports passed 10,538 oracle cases each and recorded 12 workload cases. See the [benchmark guide](benchmarks/d/digital_root/README.md) and [verifier](benchmarks/verify_scalar.py). Upstream references: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/DigitalRoot.java), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/digital_root.py), [Ruby repeated sum](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/add_digits.rb), and [Ruby modulo nine](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/add_digits.rb).
+
+
+## Addition Without Arithmetic
+
+The pinned C-Sharp and Python implementations use the XOR/AND/shift carry recurrence; the C-Sharp source uses 32-bit integers while Python integers are unbounded. The shared contract accepts signed-32-bit operands, returns an exact sum only when the result also fits signed 32-bit range, and returns -1 for input-range failures or overflow. All nine ports passed 66,129 oracle pairs each and recorded 13 workload cases. See the [benchmark guide](benchmarks/a/addition_without_arithmetic/README.md) and [verifier](benchmarks/verify_binary_scalar.py). Upstream references: [C-Sharp](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/AdditionWithoutArithmetic.cs) and [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/addition_without_arithmetic.py).
+
+
+## Amicable Number
+
+The pinned Java source defines a pair of distinct positive integers as amicable when each number equals the other number’s proper-divisor sum. Its recursive predicate omits an equal-number check, so equal perfect numbers would otherwise pass despite the documented definition. The shared contract bounds both values to 1 through 1,000,000,000 and rejects equal pairs. All nine ports passed 66,058 oracle pairs each and recorded 15 workload cases. See the [benchmark guide](benchmarks/a/amicable_number/README.md) and [verifier](benchmarks/verify_binary_scalar.py). Upstream reference: [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/AmicableNumber.java).
+
+## Linked List Cycle Detection
+
+The pinned C LeetCode 141 source uses Floyd’s tortoise and hare pointers to detect a cycle reachable from the head. The portable contract represents links as successor indices, with `-1` for null and node `0` as the head, so the implementations do not depend on pointer layout or allocator behavior. All nine language ports passed 8,967 oracle arrays each, including every successor graph through five nodes, deterministic random arrays, malformed references, and 100,000-node stress cases. See the [benchmark guide](benchmarks/l/linked_list_has_cycle/README.md) and [verifier](benchmarks/verify_linked_list_cycles.py). Upstream reference: [C LeetCode 141](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/141.c).
+
+## Linked List Cycle Entry
+
+The pinned C LeetCode 142 source uses Floyd’s two-pass method to return the node where a reachable cycle begins. The portable contract uses successor indices with `-1` for null and node `0` as the head, returning the zero-based entry index, `-1` for an acyclic path, and `-2` for malformed input. All nine language ports passed 8,967 oracle arrays each and recorded 13 workload cases. See the [benchmark guide](benchmarks/l/linked_list_cycle_entry/README.md) and [verifier](benchmarks/verify_linked_list_cycles.py). Upstream reference: [C LeetCode 142](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/142.c).

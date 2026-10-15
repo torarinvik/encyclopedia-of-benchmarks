@@ -1,0 +1,36 @@
+# Bottom-up matrix-chain dynamic programming over a bounded dimension list.
+const MAX_DIMS: usize = 65
+const MAX_DIMENSION: i64 = 1000
+const MAX_CELLS: usize = 4225
+
+def matrix_chain_multiplication_impl(dimensions: i64&, length: usize) -> i64:
+    if length > MAX_DIMS:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if dimensions[index] < 1 or dimensions[index] > MAX_DIMENSION:
+            return -1
+        index <- index + 1
+    if length < 2:
+        return 0
+
+    matrix_count: usize = length - 1
+    costs: mutable i64[4225] = zeroed
+    chain_length: mutable usize = 2
+    while chain_length <= matrix_count:
+        start: mutable usize = 0
+        while start + chain_length <= matrix_count:
+            end: usize = start + chain_length - 1
+            best: mutable i64 = 9223372036854775807
+            split: mutable usize = start
+            while split < end:
+                cost: i64 = costs[start * MAX_DIMS + split] + costs[(split + 1) * MAX_DIMS + end] + dimensions[start] * dimensions[split + 1] * dimensions[end + 1]
+                if cost < best:
+                    best <- cost
+                split <- split + 1
+            costs[start * MAX_DIMS + end] <- best
+            start <- start + 1
+        chain_length <- chain_length + 1
+    costs[matrix_count - 1]
+
+export fn matrix_chain_multiplication(dimensions: i64&, length: usize) -> i64 = matrix_chain_multiplication_impl

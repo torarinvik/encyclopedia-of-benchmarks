@@ -1,0 +1,19 @@
+# Find the strict majority using Boyer-Moore voting, then verify its frequency.
+def boyer_moore_majority_vote_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 256:
+        return -1
+    candidate: i64 = for index in 0..<length |candidate: mutable i64 = 0, balance: mutable usize = 0| -> candidate:
+        if balance == 0:
+            candidate <- values[index]
+        if values[index] == candidate:
+            balance <- balance + 1
+        else:
+            balance <- balance - 1
+    occurrences: usize = for index in 0..<length |occurrences: mutable usize = 0| -> occurrences:
+        if values[index] == candidate:
+            occurrences <- occurrences + 1
+    if occurrences > length / 2:
+        return candidate
+    -1
+
+export fn boyer_moore_majority_vote(values: i64&, length: usize) -> i64 = boyer_moore_majority_vote_impl

@@ -1,4 +1,4 @@
-/* Batch checker for signed scalar algorithms that write ASCII bytes to a caller buffer. */
+/* Batch checker for signed scalar algorithms that write bytes to a caller buffer. */
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_OUTPUT_BYTES 63
+#define MAX_OUTPUT_BYTES 256
 extern int64_t BENCHMARK_FUNCTION(int64_t value, uint8_t *output, size_t output_capacity);
 
 static int hex_value(char value)
@@ -32,7 +32,7 @@ int main(void)
         int64_t input, expected_result;
         uint64_t capacity, output_length;
         char encoded[MAX_OUTPUT_BYTES * 2 + 2];
-        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %" SCNu64 " %127s",
+        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %" SCNu64 " %512s",
                   &input, &expected_result, &capacity, &output_length, encoded) != 5 ||
             capacity > MAX_OUTPUT_BYTES || output_length > MAX_OUTPUT_BYTES ||
             expected_result < -2 || expected_result > MAX_OUTPUT_BYTES) {

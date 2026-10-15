@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "run-length-encoding-v1",
+  "algorithm": "run_length_encoding",
+  "input": {
+    "kind": "ascii_byte_array",
+    "minimum_length": 0,
+    "maximum_length": 66,
+    "valid_value_range": [
+      1,
+      127
+    ],
+    "excluded_values": [
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "each run is encoded as one or two ASCII decimal count bytes followed by the run symbol"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_symbol",
+      "input_values": [
+        65
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "3141"
+    },
+    {
+      "id": "classic_example",
+      "input_values": [
+        65,
+        65,
+        65,
+        65,
+        66,
+        66,
+        66,
+        67,
+        67,
+        68,
+        65,
+        65
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "34413342324331443241"
+    },
+    {
+      "id": "alternating_symbols",
+      "input_values": [
+        97,
+        98,
+        67,
+        33
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "3161316231433121"
+    },
+    {
+      "id": "multi_digit_runs",
+      "input_values": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        65,
+        65,
+        65,
+        65
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "3131783441"
+    },
+    {
+      "id": "control_and_high_ascii",
+      "input_values": [
+        1,
+        1,
+        2,
+        126,
+        127,
+        127
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "32013102317e327f"
+    },
+    {
+      "id": "separated_equal_runs",
+      "input_values": [
+        65,
+        65,
+        66,
+        65,
+        65
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "324131423241"
+    },
+    {
+      "id": "maximum_run_length",
+      "input_values": [
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "363661"
+    },
+    {
+      "id": "invalid_zero_byte",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_decimal_symbol",
+      "input_values": [
+        65,
+        49,
+        66
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii_byte",
+      "input_values": [
+        128
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_value",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

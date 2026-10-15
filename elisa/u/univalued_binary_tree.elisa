@@ -1,0 +1,31 @@
+# Recursively check each node against its parent value.
+def univalued_binary_tree_visit(nodes: i64&, node_count: usize, node: i64) -> i64:
+    if node == -1:
+        return 1
+    if node < 0 or node.u64() >= node_count.u64():
+        return -1
+    index: usize = node.usize()
+    value: i64 = nodes[3 * index]
+    left: i64 = nodes[3 * index + 1]
+    right: i64 = nodes[3 * index + 2]
+    invalid_left: bool = left < -1 or (left >= 0 and left.u64() >= node_count.u64())
+    invalid_right: bool = right < -1 or (right >= 0 and right.u64() >= node_count.u64())
+    if invalid_left or invalid_right:
+        return -1
+    if (left >= 0 and nodes[3 * left.usize()] != value) or (right >= 0 and nodes[3 * right.usize()] != value):
+        return 0
+    left_result: i64 = univalued_binary_tree_visit(nodes, node_count, left)
+    if left_result <= 0:
+        return left_result
+    univalued_binary_tree_visit(nodes, node_count, right)
+
+def univalued_binary_tree_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
+    if node_count > 1023:
+        return -1
+    if node_count == 0:
+        return 1 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    univalued_binary_tree_visit(nodes, node_count, root_index)
+
+export fn univalued_binary_tree(nodes: i64&, node_count: usize, root_index: i64) -> i64 = univalued_binary_tree_impl

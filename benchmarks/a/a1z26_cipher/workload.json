@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "a1z26-cipher-v1",
+  "algorithm": "a1z26_cipher",
+  "input": {
+    "kind": "ascii_letter_array",
+    "minimum_length": 0,
+    "maximum_length": 66,
+    "valid_value_range": [
+      65,
+      122
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "one byte per letter, containing its one-based alphabet position"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "myname",
+      "input_values": [
+        109,
+        121,
+        110,
+        97,
+        109,
+        101
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "0d190e010d05"
+    },
+    {
+      "id": "lowercase_boundaries",
+      "input_values": [
+        97,
+        122
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "011a"
+    },
+    {
+      "id": "uppercase_boundaries",
+      "input_values": [
+        65,
+        90
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "011a"
+    },
+    {
+      "id": "mixed_case",
+      "input_values": [
+        65,
+        98,
+        67,
+        100,
+        90
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "010203041a"
+    },
+    {
+      "id": "invalid_digit",
+      "input_values": [
+        97,
+        49
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_punctuation",
+      "input_values": [
+        97,
+        33
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii",
+      "input_values": [
+        128
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 66,
+      "expected_output_hex": "010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

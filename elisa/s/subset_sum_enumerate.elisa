@@ -1,0 +1,40 @@
+# Emit the index masks of all signed subsets matching the target.
+def subset_sum_enumerate_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 9:
+        return -1
+    target: i64 = input[0]
+    if target < -512 or target > 512:
+        return -1
+    items: usize = length - 1
+    index: mutable usize = 0
+    while index < items:
+        if input[index + 1] < -64 or input[index + 1] > 64:
+            return -1
+        index <- index + 1
+
+    masks: mutable u8[256] = zeroed
+    count: mutable usize = 0
+    limit: usize = 1 << items
+    mask: mutable usize = 0
+    while mask < limit:
+        sum: mutable i64 = 0
+        index <- 0
+        bit: mutable usize = 1
+        while index < items:
+            if mask / bit % 2 == 1:
+                sum <- sum + input[index + 1]
+            index <- index + 1
+            bit <- bit * 2
+        if sum == target:
+            masks[count] <- mask.u8()
+            count <- count + 1
+        mask <- mask + 1
+    if output_capacity < count:
+        return -2
+    index <- 0
+    while index < count:
+        output[index] <- masks[index]
+        index <- index + 1
+    count.i64()
+
+export fn subset_sum_enumerate(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = subset_sum_enumerate_impl

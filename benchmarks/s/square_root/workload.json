@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "square-root-newton-binary64-v1",
+  "algorithm": "square_root",
+  "function_symbol": "square_root",
+  "input": {
+    "kind": "finite_nonnegative_binary64",
+    "minimum": 0.0,
+    "maximum": 1e300,
+    "formula": "Newton iteration: next = 0.5 * estimate + 0.5 * (input / estimate)",
+    "zero_result": 0.0,
+    "relative_tolerance": 1e-14
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-14,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0.0], "expected_result": 0.0},
+    {"id": "one", "input_values": [1.0], "expected_result": 1.0},
+    {"id": "two", "input_values": [2.0], "expected_result": 1.4142135623730951},
+    {"id": "quarter", "input_values": [0.25], "expected_result": 0.5},
+    {"id": "fractional_tenth", "input_values": [0.1], "expected_result": 0.31622776601683794},
+    {"id": "fractional_square", "input_values": [2.25], "expected_result": 1.5},
+    {"id": "fractional_value", "input_values": [3.2], "expected_result": 1.7888543819998317},
+    {"id": "small_magnitude", "input_values": [1e-300], "expected_result": 1e-150},
+    {"id": "large_magnitude", "input_values": [1e300], "expected_result": 1e150},
+    {"id": "small_power_of_two", "input_values": [7.888609052210118e-31], "expected_result": 8.881784197001252e-16},
+    {"id": "large_power_of_two", "input_values": [1.2676506002282294e30], "expected_result": 1125899906842624.0},
+    {"id": "just_below_one", "input_values": [0.9999999999999999], "expected_result": 0.9999999999999999},
+    {"id": "just_above_one", "input_values": [1.0000000000000002], "expected_result": 1.0}
+  ]
+}

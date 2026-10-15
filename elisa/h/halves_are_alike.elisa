@@ -1,0 +1,33 @@
+# Compare the vowel counts in two equal ASCII-letter halves.
+def halves_are_alike_impl(letters: i64&, length: usize) -> i64:
+    if length > 256 or length % 2 != 0:
+        return -1
+    half: usize = length / 2
+    counts: i64 =
+        while index < length |index: mutable usize = 0, first: mutable i64 = 0, second: mutable i64 = 0| -> first:
+            value: i64 = letters[index]
+            if (value < 65 or value > 90) and (value < 97 or value > 122):
+                return -1
+            is_vowel: bool = value == 65 or value == 69 or value == 73 or value == 79 or value == 85 or value == 97 or value == 101 or value == 105 or value == 111 or value == 117
+            if is_vowel:
+                if index < half:
+                    first <- first + 1
+                else:
+                    second <- second + 1
+            index <- index + 1
+    second_count: i64 =
+        while index < length |index: mutable usize = 0, first: mutable i64 = 0, second: mutable i64 = 0| -> second:
+            value: i64 = letters[index]
+            is_vowel: bool = value == 65 or value == 69 or value == 73 or value == 79 or value == 85 or value == 97 or value == 101 or value == 105 or value == 111 or value == 117
+            if is_vowel:
+                if index < half:
+                    first <- first + 1
+                else:
+                    second <- second + 1
+            index <- index + 1
+    if counts == second_count:
+        1
+    else:
+        0
+
+export fn halves_are_alike(letters: i64&, length: usize) -> i64 = halves_are_alike_impl

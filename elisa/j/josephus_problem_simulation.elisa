@@ -1,0 +1,25 @@
+def josephus_problem_simulation_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    n: i64 = values[0]
+    step: i64 = values[1]
+    if n < 1 or n > 512 or step < 1:
+        return -1
+    people: mutable i64[512] = zeroed
+    remaining: mutable usize = n.usize()
+    index: mutable usize = 0
+    while index < remaining:
+        people[index] <- index.i64() + 1
+        index <- index + 1
+    current: mutable usize = 0
+    while remaining > 1:
+        offset: usize = ((step - 1) % remaining.i64()).usize()
+        removed: usize = (current + offset) % remaining
+        index <- removed
+        while index + 1 < remaining:
+            people[index] <- people[index + 1]
+            index <- index + 1
+        remaining <- remaining - 1
+        current <- removed % remaining
+    people[0]
+export fn josephus_problem_simulation(values: i64&, length: usize) -> i64 = josephus_problem_simulation_impl

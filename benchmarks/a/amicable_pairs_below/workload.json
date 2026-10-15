@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "amicable-pairs-below-v1",
+  "algorithm": "amicable_pairs_below",
+  "function_symbol": "amicable_pairs_below",
+  "input": {
+    "kind": "exclusive_amicable_pair_limit",
+    "minimum_limit": 1,
+    "maximum_limit": 8000,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "ascending (smaller, larger) pairs; each value is a 32-bit unsigned little-endian integer"
+  },
+  "cases": [
+    {
+      "id": "one",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "no_small_pair",
+      "input_values": [
+        220
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "upper_partner_excluded",
+      "input_values": [
+        284
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "first_pair_included",
+      "input_values": [
+        285
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "dc0000001c010000"
+    },
+    {
+      "id": "just_before_second_pair",
+      "input_values": [
+        1210
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "dc0000001c010000"
+    },
+    {
+      "id": "second_pair_included",
+      "input_values": [
+        1211
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "dc0000001c010000a0040000ba040000"
+    },
+    {
+      "id": "just_before_third_pair",
+      "input_values": [
+        2924
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "dc0000001c010000a0040000ba040000"
+    },
+    {
+      "id": "third_pair_included",
+      "input_values": [
+        2925
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "dc0000001c010000a0040000ba0400003c0a00006c0b0000"
+    },
+    {
+      "id": "fourth_pair_included",
+      "input_values": [
+        5565
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "dc0000001c010000a0040000ba0400003c0a00006c0b00009c130000bc150000"
+    },
+    {
+      "id": "fifth_pair_included",
+      "input_values": [
+        6369
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "dc0000001c010000a0040000ba0400003c0a00006c0b00009c130000bc15000058180000e0180000"
+    },
+    {
+      "id": "all_pairs_through_7999",
+      "input_values": [
+        8000
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "dc0000001c010000a0040000ba0400003c0a00006c0b00009c130000bc15000058180000e0180000"
+    },
+    {
+      "id": "zero_invalid",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "over_limit_invalid",
+      "input_values": [
+        8001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "minimum_i64_invalid",
+      "input_values": [
+        -9223372036854775808
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_i64_invalid",
+      "input_values": [
+        9223372036854775807
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 16,
+    "timed_region": "one complete divisor-sum sieve, pair enumeration, and output serialization"
+  }
+}

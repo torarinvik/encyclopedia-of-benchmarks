@@ -1,0 +1,41 @@
+# Count indexed signed subsets that reach the requested sum.
+def subset_sum_count_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > 25:
+        return -1
+    target: i64 = input[0]
+    if target < -6144 or target > 6144:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < -256 or input[index] > 256:
+            return -1
+        index <- index + 1
+
+    ways: mutable i64[12289] = zeroed
+    ways[6144] <- 1
+    low: mutable i64 = 0
+    high: mutable i64 = 0
+    index <- 1
+    while index < length:
+        value: i64 = input[index]
+        if value > 0:
+            sum: mutable i64 = high
+            while sum >= low:
+                ways[(sum + value + 6144).usize()] <- ways[(sum + value + 6144).usize()] + ways[(sum + 6144).usize()]
+                sum <- sum - 1
+            high <- high + value
+        elif value < 0:
+            sum: mutable i64 = low
+            while sum <= high:
+                ways[(sum + value + 6144).usize()] <- ways[(sum + value + 6144).usize()] + ways[(sum + 6144).usize()]
+                sum <- sum + 1
+            low <- low + value
+        else:
+            sum: mutable i64 = low
+            while sum <= high:
+                ways[(sum + 6144).usize()] <- ways[(sum + 6144).usize()] * 2
+                sum <- sum + 1
+        index <- index + 1
+    ways[(target + 6144).usize()]
+
+export fn subset_sum_count(input: i64&, length: usize) -> i64 = subset_sum_count_impl

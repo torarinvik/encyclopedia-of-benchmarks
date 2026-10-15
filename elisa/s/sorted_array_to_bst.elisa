@@ -1,0 +1,34 @@
+# Build a height-balanced BST from sorted unique keys and serialize it.
+def sorted_array_to_bst_emit(values: i64&, start: usize, end: usize, output: mutable u8&, position: usize) -> usize:
+    if start == end:
+        output[position] <- 0
+        return position + 1
+    middle: usize = start + (end - start - 1) / 2
+    output[position] <- 1
+    encoded: mutable i64 = values[middle]
+    if encoded < 0:
+        encoded <- encoded + 4294967296
+    output[position + 1] <- (encoded % 256).u8()
+    output[position + 2] <- ((encoded / 256) % 256).u8()
+    output[position + 3] <- ((encoded / 65536) % 256).u8()
+    output[position + 4] <- (encoded / 16777216).u8()
+    next_position: usize = sorted_array_to_bst_emit(values, start, middle, output, position + 5)
+    sorted_array_to_bst_emit(values, middle + 1, end, output, next_position)
+
+def sorted_array_to_bst_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 64:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        if index > 0 and values[index - 1] >= values[index]:
+            return -1
+        index <- index + 1
+    required: usize = 6 * length + 1
+    if output_capacity < required:
+        return -2
+    sorted_array_to_bst_emit(values, 0, length, output, 0)
+    length.i64()
+
+export fn sorted_array_to_bst(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sorted_array_to_bst_impl

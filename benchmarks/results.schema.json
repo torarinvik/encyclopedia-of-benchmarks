@@ -275,6 +275,10 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
+        "result_relative_tolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
         "observed_distances": {
           "type": [
             "array",
@@ -355,9 +359,10 @@
               "input_values": {
                 "minItems": 2,
                 "maxItems": 2,
+                "description": "Two input values. Signed negative workload values are passed to the unsigned C ABI as two's-complement 64-bit words.",
                 "items": {
                   "type": "integer",
-                  "minimum": 0,
+                  "minimum": -9223372036854775808,
                   "maximum": 18446744073709551615
                 }
               }
@@ -558,6 +563,72 @@
           "measurement": {
             "properties": {
               "comparison_model": {
+                "const": "tree_symmetric_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values",
+              "root_index"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1023
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 3069,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                },
+                "description": "Flattened [signed 32-bit value, left-index, right-index] triplets for every node."
+              },
+              "root_index": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 1022
+              },
+              "expected_result": {
+                "type": "integer",
+                "enum": [
+                  -1,
+                  0,
+                  1
+                ],
+                "description": "1 for symmetric, 0 for asymmetric, -1 for invalid input."
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
                 "const": "float64_triple_call"
               }
             },
@@ -587,6 +658,115 @@
                 "items": {
                   "type": "number"
                 }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "float64_unary_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "null"
+              },
+              "input_values": {
+                "minItems": 1,
+                "maxItems": 1,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "not": {
+              "required": [
+                "input_value"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "measurement": {
+            "properties": {
+              "comparison_model": {
+                "const": "tree_scalar_call"
+              }
+            },
+            "required": [
+              "comparison_model"
+            ]
+          }
+        },
+        "required": [
+          "measurement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workload": {
+            "required": [
+              "input_length",
+              "input_values",
+              "root_index"
+            ],
+            "properties": {
+              "input_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1023
+              },
+              "input_values": {
+                "minItems": 0,
+                "maxItems": 3069,
+                "items": {
+                  "type": "integer",
+                  "minimum": -9223372036854775808,
+                  "maximum": 9223372036854775807
+                },
+                "description": "Flattened [signed value, left-index, right-index] triplets for every node."
+              },
+              "root_index": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 1022
+              },
+              "expected_result": {
+                "type": "integer",
+                "minimum": -9223372036854775808,
+                "maximum": 9223372036854775807,
+                "description": "Signed scalar result from the indexed-tree algorithm."
               }
             },
             "not": {

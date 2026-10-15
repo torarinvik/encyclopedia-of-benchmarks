@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "miller-rabin-i32-fixed-bases-v1",
+  "algorithm": "miller_rabin",
+  "function_symbol": "miller_rabin",
+  "input": {
+    "kind": "signed_integer",
+    "minimum_value": -9223372036854775808,
+    "maximum_value": 2147483647,
+    "result": "1 for prime and 0 for composite, using bases 2, 3, 5, and 7",
+    "negative_result": 0,
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "negative_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "negative",
+      "input_value": -17,
+      "expected_result": 0
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "small_prime",
+      "input_value": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "small_composite",
+      "input_value": 9,
+      "expected_result": 0
+    },
+    {
+      "id": "prime",
+      "input_value": 97,
+      "expected_result": 1
+    },
+    {
+      "id": "carmichael_561",
+      "input_value": 561,
+      "expected_result": 0
+    },
+    {
+      "id": "carmichael_1729",
+      "input_value": 1729,
+      "expected_result": 0
+    },
+    {
+      "id": "base_two_pseudoprime",
+      "input_value": 2047,
+      "expected_result": 0
+    },
+    {
+      "id": "base_two_three_pseudoprime",
+      "input_value": 1373653,
+      "expected_result": 0
+    },
+    {
+      "id": "outside_signed_32_bit_domain",
+      "input_value": 3215031751,
+      "expected_result": -1
+    },
+    {
+      "id": "largest_signed_32_bit_prime",
+      "input_value": 2147483647,
+      "expected_result": 1
+    },
+    {
+      "id": "near_signed_32_bit_limit",
+      "input_value": 2147483629,
+      "expected_result": 1
+    },
+    {
+      "id": "largest_even_signed_32_bit",
+      "input_value": 2147483646,
+      "expected_result": 0
+    },
+    {
+      "id": "first_outside_domain",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

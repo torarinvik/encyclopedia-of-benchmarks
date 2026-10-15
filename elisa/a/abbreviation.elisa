@@ -1,0 +1,60 @@
+# Check whether lowercase source letters can be capitalized or deleted.
+const MAX_STRING_LENGTH: usize = 128
+
+def is_lower_ascii(value: i64) -> bool:
+    value >= 97 and value <= 122
+
+def uppercase_ascii(value: i64) -> i64:
+    if is_lower_ascii(value):
+        return value - 32
+    value
+
+def abbreviation_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 258:
+        return -1
+    source_length: i64 = values[0]
+    target_length: i64 = values[1]
+    if source_length < 0 or source_length > 128 or target_length < 0 or target_length > 128 or length != 2 + source_length.usize() + target_length.usize():
+        return -1
+    source_index: mutable usize = 0
+    while source_index < source_length.usize():
+        value: i64 = values[2 + source_index]
+        if not ((value >= 65 and value <= 90) or is_lower_ascii(value)):
+            return -1
+        source_index <- source_index + 1
+    target_index: mutable usize = 0
+    while target_index < target_length.usize():
+        value: i64 = values[2 + source_length.usize() + target_index]
+        if value < 65 or value > 90:
+            return -1
+        target_index <- target_index + 1
+
+    current: mutable bool[129] = zeroed
+    next: mutable bool[129] = zeroed
+    current[0] <- true
+    source_index <- 0
+    while source_index < source_length.usize():
+        target_index <- 0
+        while target_index <= target_length.usize():
+            next[target_index] <- false
+            target_index <- target_index + 1
+        source: i64 = values[2 + source_index]
+        upper: i64 = uppercase_ascii(source)
+        target_index <- 0
+        while target_index <= target_length.usize():
+            if current[target_index]:
+                if is_lower_ascii(source):
+                    next[target_index] <- true
+                if target_index < target_length.usize() and upper == values[2 + source_length.usize() + target_index]:
+                    next[target_index + 1] <- true
+            target_index <- target_index + 1
+        target_index <- 0
+        while target_index <= target_length.usize():
+            current[target_index] <- next[target_index]
+            target_index <- target_index + 1
+        source_index <- source_index + 1
+    if current[target_length.usize()]:
+        return 1
+    0
+
+export fn abbreviation(values: i64&, length: usize) -> i64 = abbreviation_impl(values, length)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify scalar-to-byte-buffer ports against an integer-formatting oracle."""
+"""Verify scalar-to-byte-buffer ports against independent oracles."""
 
 from __future__ import annotations
 
@@ -14,28 +14,31 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_i64_scalar_bytes_output import expected_output
+from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
 
-ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal")
+ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
+              "pascal_triangle_row")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
 def corpus(workload: dict) -> tuple[str, int]:
-    radix = workload.get("input", {}).get("radix", 2)
+    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
     cases: dict[tuple[int, int], tuple[int, bytes]] = {}
 
     def add(value: int, capacity: int | None = None) -> None:
-        result, output = expected_output(value, radix)
-        selected_capacity = (63 if result < 0 else result) if capacity is None else capacity
+        result, output = expected_output(value, encoding)
+        selected_capacity = (MAX_OUTPUT_BYTES if result < 0 else result) if capacity is None else capacity
         if result >= 0 and selected_capacity < result:
             result, output = -2, b""
         cases[(value, selected_capacity)] = (result, output)
 
     for case in workload["cases"]:
         value = case["input_value"]
-        expected_result, output = expected_output(value, radix)
-        if (case["expected_result"] != expected_result
-                or case["expected_output"] != output.decode("ascii")):
+        expected_result, output = expected_output(value, encoding)
+        expected_matches = (case.get("expected_output_hex") == output.hex()
+                            if "expected_output_hex" in case
+                            else case.get("expected_output") == output.decode("ascii"))
+        if case["expected_result"] != expected_result or not expected_matches:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         add(value)
 
@@ -46,8 +49,9 @@ def corpus(workload: dict) -> tuple[str, int]:
         add(rng.randrange(0, I64_MAX + 1))
     for value in (I64_MIN, I64_MIN + 1, -1024, -2, -1, 0, 1, 2, I64_MAX - 1, I64_MAX):
         add(value)
-    for value in (0, 1, 7, I64_MAX):
-        result, _ = expected_output(value, radix)
+    capacity_cases = (0, 1, 7, 33, I64_MAX) if encoding == "pascal_triangle_row" else (0, 1, 7, I64_MAX)
+    for value in capacity_cases:
+        result, _ = expected_output(value, encoding)
         add(value, max(0, result - 1))
 
     lines = [f"{len(cases)}\n"]
@@ -84,7 +88,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
         value = case["input_value"]
-        expected, _ = expected_output(value, workload.get("input", {}).get("radix", 2))
+        expected, _ = expected_output(value, workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

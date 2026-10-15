@@ -1,0 +1,42 @@
+# Recursively compare opposite child pairs in an indexed binary tree.
+def symmetric_tree_mirror(nodes: i64&, node_count: usize, left: i64, right: i64) -> i64:
+    if left == -1 or right == -1:
+        return 1 if left == right else 0
+    if left < 0 or right < 0 or left.u64() >= node_count.u64() or right.u64() >= node_count.u64():
+        return -1
+    left_node: usize = left.usize()
+    right_node: usize = right.usize()
+    if nodes[3 * left_node] != nodes[3 * right_node]:
+        return 0
+    left_left: i64 = nodes[3 * left_node + 1]
+    left_right: i64 = nodes[3 * left_node + 2]
+    right_left: i64 = nodes[3 * right_node + 1]
+    right_right: i64 = nodes[3 * right_node + 2]
+    invalid_left_left: bool = left_left < -1 or (left_left >= 0 and left_left.u64() >= node_count.u64())
+    invalid_left_right: bool = left_right < -1 or (left_right >= 0 and left_right.u64() >= node_count.u64())
+    invalid_right_left: bool = right_left < -1 or (right_left >= 0 and right_left.u64() >= node_count.u64())
+    invalid_right_right: bool = right_right < -1 or (right_right >= 0 and right_right.u64() >= node_count.u64())
+    if invalid_left_left or invalid_left_right or invalid_right_left or invalid_right_right:
+        return -1
+    outer: i64 = symmetric_tree_mirror(nodes, node_count, left_left, right_right)
+    if outer != 1:
+        return outer
+    symmetric_tree_mirror(nodes, node_count, left_right, right_left)
+
+def symmetric_tree_impl(nodes: i64&, node_count: usize, root_index: i64) -> i64:
+    if node_count > 1023:
+        return -1
+    if node_count == 0:
+        return 1 if root_index == -1 else -1
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    root: usize = root_index.usize()
+    left: i64 = nodes[3 * root + 1]
+    right: i64 = nodes[3 * root + 2]
+    invalid_left: bool = left < -1 or (left >= 0 and left.u64() >= node_count.u64())
+    invalid_right: bool = right < -1 or (right >= 0 and right.u64() >= node_count.u64())
+    if invalid_left or invalid_right:
+        return -1
+    symmetric_tree_mirror(nodes, node_count, left, right)
+
+export fn symmetric_tree(nodes: i64&, node_count: usize, root_index: i64) -> i64 = symmetric_tree_impl

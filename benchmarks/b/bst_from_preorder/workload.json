@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "bst-from-preorder-v1",
+  "algorithm": "bst_from_preorder",
+  "input": {
+    "kind": "preorder_array_of_unique_signed_32_bit_keys",
+    "length_range": [1, 15],
+    "valid_order": "strict binary-search-tree preorder",
+    "result": "number of nodes",
+    "output_encoding": "preorder tree serialization: null is 00; node is 01 followed by signed 32-bit little-endian key, then left and right child serializations",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id": "balanced_example", "input_values": [8, 5, 1, 7, 10, 12], "expected_result": 6, "expected_output_hex": "010800000001050000000101000000000001070000000000010a00000000010c0000000000"},
+    {"id": "right_skewed", "input_values": [1, 2, 3, 4], "expected_result": 4, "expected_output_hex": "01010000000001020000000001030000000001040000000000"},
+    {"id": "left_skewed_negative", "input_values": [-1, -2, -3], "expected_result": 3, "expected_output_hex": "01ffffffff01feffffff01fdffffff00000000"},
+    {"id": "single_node", "input_values": [42], "expected_result": 1, "expected_output_hex": "012a0000000000"},
+    {"id": "invalid_preorder", "input_values": [5, 8, 1], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "duplicate_key", "input_values": [5, 5], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_32_bit_boundaries", "input_values": [0, -2147483648, 2147483647], "expected_result": 3, "expected_output_hex": "01000000000100000080000001ffffff7f0000"},
+    {"id": "out_of_range_key", "input_values": [2147483648], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "too_many_keys", "input_values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "expected_result": -1, "expected_output_hex": ""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

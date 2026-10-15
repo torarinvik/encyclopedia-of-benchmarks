@@ -1,0 +1,32 @@
+# XOR each input byte with a repeating key byte sequence.
+def xor_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 66:
+        return -1
+    text_size: i64 = input[0]
+    key_size: i64 = input[1]
+    if text_size < 0 or text_size > 63 or key_size < 1 or key_size > 63:
+        return -1
+    text_length: usize = text_size.usize()
+    key_length: usize = key_size.usize()
+    if length != 2 + text_length + key_length:
+        return -1
+    valid_input: bool =
+        while index < text_length + key_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[2 + index]
+            if value < 0 or value > 255:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if output_capacity < text_length:
+        return -2
+    while index < text_length |index: mutable usize = 0, output| -> output:
+        text_byte: i64 = input[2 + index]
+        key_byte: i64 = input[2 + text_length + index % key_length]
+        output[index] <- (text_byte ^ key_byte).u8()
+        index <- index + 1
+        output
+    text_length.i64()
+
+export fn xor_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = xor_cipher_impl

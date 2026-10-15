@@ -3,7 +3,7 @@
   "snapshot_date": "2026-10-14",
   "source_organization": "https://github.com/TheAlgorithms",
   "source_scope": "34 non-archived TheAlgorithms algorithm repositories. Portable-language source paths can supply benchmark implementations; AArch64 Assembly paths are included only as discovery references.",
-  "matching_method": "Normalize each source filename stem (including camelCase to snake_case); Project Euler solN files include their problem number. Identical normalized stems are candidate matches only and have not been checked for equivalent behavior.",
+  "matching_method": "Normalize each source filename stem (including camelCase to snake_case); Project Euler solN files include their problem number. Identical normalized stems are candidate matches only and have not been checked for equivalent behavior. Candidates may declare benchmark_name when a numeric or otherwise non-descriptive source stem needs an alphabetic algorithm folder, and additional_benchmark_names when one source candidate contains multiple distinct benchmarkable algorithms.",
   "excluded_paths": "Tests, examples, benchmarks, documentation, scripts, build output, and vendor directories are omitted.",
   "local_folder_mapping": {
     "C": "c",
@@ -491,9 +491,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -502,7 +510,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1008.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "bst_from_preorder",
+      "review_notes": "The pinned C LeetCode 1008 source recursively partitions a valid BST preorder at each root and constructs left and right subtrees. The shared contract validates unique signed 32-bit keys, bounds the input to 15 nodes, and emits an explicit preorder tree serialization with null markers.",
+      "benchmark_contract": "benchmarks/b/bst_from_preorder/README.md"
     },
     {
       "candidate_id": "1009",
@@ -511,9 +522,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -522,7 +541,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1009.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "bitwise_complement",
+      "review_notes": "The pinned C LeetCode 1009 source complements the significant bits of a nonnegative integer using a logarithmic bit-length calculation. C LeetCode 476 uses the same mask semantics. The shared benchmark uses integer shifts, handles zero explicitly, and bounds inputs to the source signed 32-bit domain.",
+      "benchmark_contract": "benchmarks/b/bitwise_complement/README.md"
     },
     {
       "candidate_id": "101",
@@ -531,9 +553,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -542,7 +572,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/101.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "symmetric_tree",
+      "review_notes": "The pinned C LeetCode 101 source recursively compares mirrored node pairs. Its behavior matches the canonical Python symmetric_tree source and Java CheckTreeIsSymmetric source; this numeric filename is recorded as an alias of symmetric_tree.",
+      "benchmark_contract": "benchmarks/s/symmetric_tree/README.md"
     },
     {
       "candidate_id": "1019",
@@ -551,9 +584,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -562,7 +603,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1019.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "next_greater_nodes",
+      "review_notes": "The pinned C LeetCode source scans the remaining linked list from each node and records the first strictly greater value, defaulting to zero when no later node qualifies. This is an O(n^2) forward-scan algorithm. The shared contract bounds the list to 4,096 positive signed 32-bit values and serializes one result per node as little-endian bytes.",
+      "benchmark_contract": "benchmarks/n/next_greater_nodes/README.md"
     },
     {
       "candidate_id": "1026",
@@ -571,9 +615,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -582,7 +634,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1026.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "max_ancestor_diff",
+      "review_notes": "The pinned C LeetCode source recursively tracks the minimum and maximum value on each root-to-node path and updates the maximum absolute difference. The shared benchmark uses a bounded indexed-tree contract and portable implementations in all nine target languages.",
+      "benchmark_contract": "benchmarks/m/max_ancestor_diff/README.md"
     },
     {
       "candidate_id": "104",
@@ -591,9 +646,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -602,7 +665,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/104.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "max_depth",
+      "review_notes": "The pinned C LeetCode source returns zero for a null tree and otherwise recursively returns one plus the larger child depth. The shared contract uses an indexed binary tree and portable recursive implementations in all nine target languages.",
+      "benchmark_contract": "benchmarks/m/max_depth/README.md"
     },
     {
       "candidate_id": "108",
@@ -613,7 +679,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -622,7 +688,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/108.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "sorted_array_to_bst",
+      "review_notes": "The pinned C LeetCode 108 implementation recursively selects the midpoint of the sorted input, allocates that key, and builds left and right subtrees; an empty input returns a null tree. The shared contract names the algorithm sorted_array_to_bst, requires strictly increasing signed 32-bit keys, uses the lower median for even ranges, and serializes the tree in preorder with null markers.",
+      "benchmark_contract": "benchmarks/s/sorted_array_to_bst/README.md"
     },
     {
       "candidate_id": "1089",
@@ -633,7 +702,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -642,7 +711,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1089.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "duplicate_zeros",
+      "review_notes": "The pinned C LeetCode 1089 source copies the fixed-length array, then writes each original value and a second zero slot when needed; the output remains the original length. The shared contract accepts values 0 through 1,000, validates a bounded array, and serializes the transformed fixed-length result.",
+      "benchmark_contract": "benchmarks/d/duplicate_zeros/README.md"
     },
     {
       "candidate_id": "109",
@@ -653,7 +725,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -662,7 +734,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/109.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "sorted_list_to_bst",
+      "review_notes": "The pinned C LeetCode 109 source recursively uses slow and fast linked-list pointers to select each subtree root; this walk chooses the upper middle for even-sized sublists. The shared contract supplies the sorted list values as an array, accepts nondecreasing signed 32-bit sequences, and serializes the balanced tree in preorder.",
+      "benchmark_contract": "benchmarks/s/sorted_list_to_bst/README.md"
     },
     {
       "candidate_id": "11",
@@ -671,9 +746,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -682,7 +765,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/11.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "container_with_most_water",
+      "review_notes": "The pinned C LeetCode 11 source implements the two-pointer maximum-container-area algorithm. The shared contract accepts nonnegative signed 32-bit heights and returns the maximum area as signed 64-bit; invalid heights and lengths are rejected.",
+      "benchmark_contract": "benchmarks/c/container_with_most_water/README.md"
     },
     {
       "candidate_id": "110",
@@ -691,9 +777,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -702,7 +796,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/110.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "balanced_binary_tree",
+      "review_notes": "The pinned C LeetCode source computes each node's left and right heights, then recursively checks both child subtrees; null trees are balanced. The benchmark preserves that repeated-height recursive approach under a bounded indexed-tree contract in all nine target languages.",
+      "benchmark_contract": "benchmarks/b/balanced_binary_tree/README.md"
     },
     {
       "candidate_id": "112",
@@ -713,7 +810,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -722,7 +819,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/112.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "path_sum",
+      "review_notes": "The pinned C LeetCode 112 function recursively subtracts each node value from the requested sum and succeeds only at a leaf. The shared contract packs an indexed binary tree with a signed 64-bit target, validates that every node is reachable exactly once from root index 0, and returns whether any root-to-leaf path matches.",
+      "benchmark_contract": "benchmarks/p/path_sum/README.md"
     },
     {
       "candidate_id": "1137",
@@ -733,7 +833,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -742,7 +842,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1137.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "tribonacci",
+      "review_notes": "The pinned C LeetCode implementation uses T(0)=0, T(1)=1, T(2)=1 and the same nth-term recurrence as the canonical tribonacci benchmark.",
+      "benchmark_contract": "benchmarks/t/tribonacci/README.md"
     },
     {
       "candidate_id": "1147",
@@ -753,7 +856,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -762,7 +865,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1147.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "longest_chunked_palindrome_decomposition",
+      "review_notes": "The pinned C LeetCode 1147 candidate recursively peels matching prefix and suffix chunks and counts a remaining center chunk. The shared contract accepts 0 to 128 ASCII byte values in 1..127 and returns the maximum number of chunks; invalid input returns -1.",
+      "benchmark_contract": "benchmarks/l/longest_chunked_palindrome_decomposition/README.md"
     },
     {
       "candidate_id": "118",
@@ -773,7 +879,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -782,7 +888,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/118.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "pascal_triangle",
+      "review_notes": "The pinned C LeetCode 118 source generates the first numRows rows of Pascal’s triangle, matching the canonical coefficient sequence.",
+      "benchmark_contract": "benchmarks/p/pascal_triangle/README.md"
     },
     {
       "candidate_id": "1184",
@@ -793,7 +902,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -802,7 +911,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1184.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "distance_between_bus_stops",
+      "review_notes": "The pinned C LeetCode 1184 function sums the distances on the two arcs between the selected stops and returns the smaller sum. The shared contract packs endpoint indices before 1 to 64 nonnegative distances bounded at 1,000,000.",
+      "benchmark_contract": "benchmarks/d/distance_between_bus_stops/README.md"
     },
     {
       "candidate_id": "1189",
@@ -813,7 +925,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -822,7 +934,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1189.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "max_number_of_balloons",
+      "review_notes": "The pinned C LeetCode 1189 candidate counts lowercase ASCII letters and returns the minimum of b, a, l/2, o/2, and n. The shared contract accepts 0 to 256 lowercase ASCII byte values and returns -1 for invalid input.",
+      "benchmark_contract": "benchmarks/m/max_number_of_balloons/README.md"
     },
     {
       "candidate_id": "119",
@@ -833,7 +948,10 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "pascal_triangle_row",
+      "review_notes": "The pinned C LeetCode 119 source builds the requested zero-based Pascal-triangle row in place, updating interior coefficients from right to left. The shared contract bounds the row index to 0 through 33, matching its 32-bit coefficient domain, and serializes coefficients as little-endian unsigned 32-bit values.",
+      "benchmark_contract": "benchmarks/p/pascal_triangle_row/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -851,9 +969,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -862,7 +988,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/12.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "integer_to_roman",
+      "review_notes": "The pinned C LeetCode filename 12 implements integer-to-Roman conversion for the standard 1 through 3,999 range. It aliases the descriptive integer_to_roman benchmark.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "1207",
@@ -873,7 +1002,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -882,7 +1011,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1207.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "unique_occurrences",
+      "review_notes": "The pinned C LeetCode 1207 candidate sorts bounded occurrence counts and rejects duplicate positive frequencies. The shared contract accepts 0 to 1,000 values in -1,000..1,000; invalid input returns -1.",
+      "benchmark_contract": "benchmarks/u/unique_occurrences/README.md"
     },
     {
       "candidate_id": "121",
@@ -914,9 +1046,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -925,7 +1065,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/124.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "binary_tree_maximum_path_sum",
+      "review_notes": "The pinned C source implements the same recursive maximum-path-sum recurrence as the Python candidate binary_tree_maximum_path_sum. Its LOWER_BOUND declaration is missing a semicolon; the benchmark ports implement the evident intended algorithm.",
+      "benchmark_contract": "benchmarks/b/binary_tree_maximum_path_sum/README.md"
     },
     {
       "candidate_id": "125",
@@ -934,9 +1077,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -945,7 +1096,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/125.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "valid_palindrome",
+      "review_notes": "The pinned C LeetCode 125 source uses inward-moving indices, skips non-alphanumeric characters, and compares ASCII letters without case sensitivity. The shared contract makes classification explicitly ASCII and uses a length-prefixed sequence of code points.",
+      "benchmark_contract": "benchmarks/v/valid_palindrome/README.md"
     },
     {
       "candidate_id": "1283",
@@ -956,7 +1110,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -965,7 +1119,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1283.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "smallest_divisor",
+      "review_notes": "The pinned C LeetCode 1283 candidate binary-searches the least divisor whose rounded quotient sum meets the threshold. The shared contract packs the threshold before 1 to 256 positive values bounded at 1,000,000; thresholds below the item count return -1.",
+      "benchmark_contract": "benchmarks/s/smallest_divisor/README.md"
     },
     {
       "candidate_id": "13",
@@ -974,9 +1131,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -985,7 +1150,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/13.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "roman_to_integer",
+      "review_notes": "The pinned C LeetCode 13 source converts standard Roman symbols using additive values and subtracts I, X, or C before their valid higher pairs. It aliases the canonical Roman decoder under its uppercase 1 through 3,999 contract.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "136",
@@ -1017,9 +1185,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1028,7 +1204,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/14.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "max_consecutive_ones",
+      "review_notes": "The pinned C LeetCode filename 14 contains findMaxConsecutiveOnes, which counts contiguous nonzero values. On the standardized binary domain this is the maximum-consecutive-ones algorithm, so candidate 14 aliases max_consecutive_ones.",
+      "benchmark_contract": "benchmarks/m/max_consecutive_ones/README.md"
     },
     {
       "candidate_id": "141",
@@ -1037,9 +1216,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1048,7 +1235,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/141.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "linked_list_has_cycle",
+      "review_notes": "The pinned C LeetCode 141 source uses Floyd’s tortoise and hare pointers to report whether the list reachable from the head contains a cycle. The portable contract represents each next pointer as a signed node index, uses -1 for null and node 0 as the head, and returns 1 for a cycle, 0 for an acyclic path, or -1 for malformed input.",
+      "benchmark_contract": "benchmarks/l/linked_list_has_cycle/README.md"
     },
     {
       "candidate_id": "142",
@@ -1057,9 +1247,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1068,7 +1266,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/142.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "linked_list_cycle_entry",
+      "review_notes": "The pinned C LeetCode 142 source first finds a Floyd tortoise-and-hare meeting point, then advances one pointer from the head and one from the meeting point to locate the cycle entry. The portable contract uses successor indices with -1 for null and node 0 as the head, returning the zero-based entry index, -1 for an acyclic path, or -2 for malformed input.",
+      "benchmark_contract": "benchmarks/l/linked_list_cycle_entry/README.md"
     },
     {
       "candidate_id": "1524",
@@ -1079,7 +1280,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1088,7 +1289,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1524.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "number_of_subarrays_with_odd_sum",
+      "review_notes": "The pinned C LeetCode 1524 candidate counts subarrays with odd sums using prefix parities. The shared contract accepts 0 to 100,000 signed 32-bit values and returns the count modulo 1,000,000,007.",
+      "benchmark_contract": "benchmarks/n/number_of_subarrays_with_odd_sum/README.md"
     },
     {
       "candidate_id": "153",
@@ -1099,7 +1303,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1108,7 +1312,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/153.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "find_min_rotated_sorted_array",
+      "review_notes": "The pinned C LeetCode 153 source compares the midpoint with the high endpoint and narrows the search interval to the minimum. The shared contract preserves the source assumption of a nonempty rotation of a strictly increasing array and bounds the input to 256 signed 64-bit values.",
+      "benchmark_contract": "benchmarks/f/find_min_rotated_sorted_array/README.md"
     },
     {
       "candidate_id": "16",
@@ -1159,7 +1366,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1168,7 +1375,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1653.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "minimum_deletions_to_make_string_balanced",
+      "review_notes": "The pinned C LeetCode 1653 candidate uses a linear two-state dynamic program to minimize deletions that leave all a characters before all b characters. The shared contract packs a as 0 and b as 1, accepts up to 256 symbols, and returns -1 for invalid symbols or excess length.",
+      "benchmark_contract": "benchmarks/m/minimum_deletions_to_make_string_balanced/README.md"
     },
     {
       "candidate_id": "1657",
@@ -1179,7 +1389,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1188,7 +1398,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1657.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "close_strings",
+      "review_notes": "The pinned C LeetCode 1657 candidate checks equal lowercase character sets and compares sorted occurrence counts. The shared contract packs two strings, each up to 256 lowercase ASCII bytes, after their lengths.",
+      "benchmark_contract": "benchmarks/c/close_strings/README.md"
     },
     {
       "candidate_id": "169",
@@ -1199,7 +1412,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1208,7 +1421,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/169.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "boyer_moore_majority_vote",
+      "review_notes": "The pinned C LeetCode 169 source uses Boyer-Moore cancellation for the strict majority candidate. It matches the C-Sharp canonical algorithm; this numeric filename is recorded as an alias.",
+      "benchmark_contract": "benchmarks/b/boyer_moore_majority_vote/README.md"
     },
     {
       "candidate_id": "1695",
@@ -1219,7 +1435,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1228,7 +1444,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1695.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "maximum_unique_subarray",
+      "review_notes": "The pinned C LeetCode 1695 candidate uses a last-occurrence sliding window to maximize the sum of a contiguous subarray with distinct values. The shared contract accepts 0 to 256 values in 1..10,000 and returns -1 for invalid values or excess length.",
+      "benchmark_contract": "benchmarks/m/maximum_unique_subarray/README.md"
     },
     {
       "candidate_id": "17",
@@ -1239,7 +1458,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1248,7 +1467,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/17.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "letter_combinations_of_phone_number",
+      "review_notes": "The pinned C LeetCode 17 source emits the standard 2–9 keypad Cartesian product in the same order as the canonical phone-letter-combinations benchmark.",
+      "benchmark_contract": "benchmarks/l/letter_combinations_of_phone_number/README.md"
     },
     {
       "candidate_id": "1704",
@@ -1259,7 +1481,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1268,7 +1490,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1704.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "halves_are_alike",
+      "review_notes": "The pinned C LeetCode 1704 candidate counts vowels in equal string halves. The shared contract accepts even-length ASCII letter arrays up to 256 bytes and returns -1 for odd lengths or invalid bytes.",
+      "benchmark_contract": "benchmarks/h/halves_are_alike/README.md"
     },
     {
       "candidate_id": "173",
@@ -1299,7 +1524,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1308,7 +1533,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1752.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "check_if_array_is_sorted_and_rotated",
+      "review_notes": "The pinned C LeetCode 1752 candidate detects at most one descending adjacent pair in the circular array. The shared contract accepts 0 to 256 signed 32-bit values and returns -1 for invalid values or excess length.",
+      "benchmark_contract": "benchmarks/c/check_if_array_is_sorted_and_rotated/README.md"
     },
     {
       "candidate_id": "1769",
@@ -1319,7 +1547,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1328,7 +1556,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1769.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "minimum_operations_to_move_all_balls",
+      "review_notes": "The pinned C LeetCode 1769 candidate computes all per-box move distances in two linear passes. The shared contract accepts 0 to 256 binary occupancy values and serializes one unsigned 16-bit little-endian move count per box; invalid values, excess length, and insufficient capacity have explicit results.",
+      "benchmark_contract": "benchmarks/m/minimum_operations_to_move_all_balls/README.md"
     },
     {
       "candidate_id": "1833",
@@ -1339,7 +1570,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1348,7 +1579,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1833.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "maximum_ice_cream_bars",
+      "review_notes": "The pinned C LeetCode 1833 candidate sorts positive bar costs, then greedily buys the cheapest bars while the budget allows. The shared contract packs a budget followed by up to 256 costs, with explicit ranges and invalid-input behavior.",
+      "benchmark_contract": "benchmarks/m/maximum_ice_cream_bars/README.md"
     },
     {
       "candidate_id": "1838",
@@ -1359,7 +1593,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1368,7 +1602,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/1838.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "maximum_frequency_after_increments",
+      "review_notes": "The pinned C LeetCode 1838 candidate sorts values and uses a sliding window with prefix sums to find the largest group that can be raised to one value within budget. The shared contract packs budget and up to 256 values into one array and defines portable bounds and invalid-input behavior.",
+      "benchmark_contract": "benchmarks/m/maximum_frequency_after_increments/README.md"
     },
     {
       "candidate_id": "189",
@@ -1419,7 +1656,9 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "alias_of": "reverse_bits",
+      "review_notes": "C LeetCode 190 explicitly reverses all 32 positions of an unsigned word, matching the Java, Python, and Rust reverse_bits sources. It is recorded as an alias of the shared fixed-width bit-reversal contract.",
       "implementations": [
         {
           "repository": "C",
@@ -1439,7 +1678,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1448,7 +1687,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/191.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "hamming_weight",
+      "review_notes": "The pinned C LeetCode 191 source counts set bits across an unsigned 32-bit value. The C++ count_of_set_bits and JavaScript BinaryCountSetBits sources have the same result on this shared domain. The benchmark accepts the value through a signed 64-bit ABI, counts valid values from 0 through 2^32-1, and returns -1 outside that range.",
+      "benchmark_contract": "benchmarks/h/hamming_weight/README.md"
     },
     {
       "candidate_id": "1_knapsack_problem",
@@ -1504,7 +1746,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -1513,7 +1755,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/20.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "valid_parentheses",
+      "review_notes": "The pinned C LeetCode 20 source uses a stack for matching parentheses, square brackets, and braces. Its stack semantics match the Java ValidParentheses candidate; this numeric filename is recorded as an alias of valid_parentheses.",
+      "benchmark_contract": "benchmarks/v/valid_parentheses/README.md"
     },
     {
       "candidate_id": "201",
@@ -2286,7 +2531,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2295,7 +2540,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/35.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "search_insert_position",
+      "review_notes": "The pinned C LeetCode 35 file contains two conflicting definitions of searchInsert. The first, iterative definition performs binary search; the benchmark follows it for strictly increasing signed 32-bit arrays and returns the lower-bound insertion index.",
+      "benchmark_contract": "benchmarks/s/search_insert_position/README.md"
     },
     {
       "candidate_id": "367",
@@ -2306,7 +2554,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2315,7 +2563,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/367.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "perfect_square",
+      "review_notes": "The pinned C LeetCode 367 source reports whether a nonnegative integer is a perfect square; its loop implementation shares the canonical exact square predicate.",
+      "benchmark_contract": "benchmarks/p/perfect_square/README.md"
     },
     {
       "candidate_id": "37",
@@ -2460,9 +2711,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2471,7 +2730,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/404.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "sum_of_left_leaves",
+      "review_notes": "The pinned C LeetCode source returns the sum of values at leaf nodes that are left children, recursively traversing both subtrees. The shared contract uses a bounded indexed tree and signed values in [-1000, 1000], with portable recursive ports in all nine target languages.",
+      "benchmark_contract": "benchmarks/s/sum_of_left_leaves/README.md"
     },
     {
       "candidate_id": "42",
@@ -2582,7 +2844,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2591,7 +2853,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/476.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "1009",
+      "review_notes": "The pinned C LeetCode 476 source constructs a mask through the most significant input bit and returns the same significant-bit complement as candidate 1009.",
+      "benchmark_contract": "benchmarks/b/bitwise_complement/README.md"
     },
     {
       "candidate_id": "485",
@@ -2662,7 +2927,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2671,7 +2936,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/509.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "fibonacci",
+      "review_notes": "The pinned C LeetCode 509 source computes the zero-based Fibonacci value with F(0)=0 and F(1)=1.",
+      "benchmark_contract": "benchmarks/f/fibonacci/README.md"
     },
     {
       "candidate_id": "520",
@@ -2702,7 +2970,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2711,7 +2979,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/53.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "review_notes": "The pinned C LeetCode 53 source uses Kadane’s recurrence for the maximum sum of a nonempty contiguous subarray. It has the same objective as maximum_subarray and is recorded as an alias.",
+      "alias_of": "maximum_subarray",
+      "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
     {
       "candidate_id": "540",
@@ -2882,7 +3153,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2891,7 +3162,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/66.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "plus_one",
+      "review_notes": "The pinned C LeetCode 66 candidate increments a decimal digit array with carry propagation, returning a new leading 1 when every digit is 9. The shared contract accepts canonical digit sequences, including empty input as zero, and serializes result digits as ASCII for the portable output-buffer ABI.",
+      "benchmark_contract": "benchmarks/p/plus_one/README.md"
     },
     {
       "candidate_id": "669",
@@ -2962,7 +3236,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2971,7 +3245,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/69.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "square_root_binary_search",
+      "review_notes": "The pinned C LeetCode 69 source returns the integer floor of the square root using binary search, matching the canonical square-root binary-search contract.",
+      "benchmark_contract": "benchmarks/s/square_root_binary_search/README.md"
     },
     {
       "candidate_id": "7",
@@ -3042,7 +3319,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3051,7 +3328,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/704.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "binary_search",
+      "review_notes": "The pinned C LeetCode 704 source performs ordinary binary search on an ascending array and returns a matching index or -1.",
+      "benchmark_contract": "benchmarks/b/binary_search/README.md"
     },
     {
       "candidate_id": "709",
@@ -3443,9 +3723,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3454,7 +3742,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/965.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "univalued_binary_tree",
+      "review_notes": "The pinned C LeetCode source recursively compares each child value with its parent and returns true for an empty tree. The shared bounded indexed-tree contract supports full signed 64-bit node values and portable recursive implementations in all nine target languages.",
+      "benchmark_contract": "benchmarks/u/univalued_binary_tree/README.md"
     },
     {
       "candidate_id": "977",
@@ -3562,8 +3853,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -3572,7 +3873,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/a1z26.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "a1z26_cipher",
+      "review_notes": "The pinned Python a1z26 file maps letters to their one-based alphabet positions. It aliases the encoding benchmark a1z26_cipher; the inverse operation is separately tracked as a1z26_decipher from the C++ source.",
+      "benchmark_contract": "benchmarks/a/a1z26_cipher/README.md"
     },
     {
       "candidate_id": "a1z26_cipher",
@@ -3582,9 +3886,17 @@
         "C-Plus-Plus-1"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -3600,6 +3912,14 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/ciphers/a1z26_cipher.cpp",
           "local_folder_source": null
         }
+      ],
+      "review_notes": "The pinned C++ a1z26_cipher files provide both letter-to-number encoding and number-to-letter decoding; Python a1z26 provides the encoding. The benchmark standardizes the differing text/list APIs to raw numeric bytes for encoding and lowercase ASCII bytes for decoding.",
+      "benchmark_contract": "benchmarks/a/a1z26_cipher/README.md",
+      "additional_benchmark_names": [
+        "a1z26_decipher"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/a/a1z26_decipher/README.md"
       ]
     },
     {
@@ -3758,9 +4078,17 @@
         "Python"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -3804,7 +4132,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/abbreviation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, Go, Java, JavaScript, and Python sources solve the HackerRank abbreviation problem: lowercase source letters may be capitalized or deleted, while uppercase letters must be retained. The shared contract uses ASCII letters and a two-row dynamic-programming recurrence with explicit packed-input validation.",
+      "benchmark_contract": "benchmarks/a/abbreviation/README.md"
     },
     {
       "candidate_id": "abs",
@@ -4203,7 +4533,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -4212,7 +4542,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/StableMarriage/Accepter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "gale_shapley",
+      "review_notes": "The pinned C# Accepter class stores one participant’s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
+      "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
       "candidate_id": "account_merge",
@@ -4239,7 +4572,9 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned Dart source implements the direct Ackermann recurrence. The shared benchmark keeps that recursive algorithm, bounds inputs to 0 <= m <= 3 and 0 <= n <= 5 to keep recursion practical, and returns -1 outside the declared domain.",
+      "benchmark_contract": "benchmarks/a/ackermann/README.md",
       "implementations": [
         {
           "repository": "Dart",
@@ -4285,7 +4620,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -4308,7 +4643,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/activity_selection.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java and Python greedy_methods sources order activities by finish time and accept the next activity when its start is at least the last selected finish. The Python other source assumes pre-sorted inputs and prints selected indices. The shared contract returns the optimal selection count, accepts empty input consistently, uses signed 64-bit times, permits touching and zero-duration intervals, and rejects malformed layouts or start > finish.",
+      "benchmark_contract": "benchmarks/a/activity_selection/README.md"
     },
     {
       "candidate_id": "adagrad",
@@ -4524,7 +4861,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -4540,7 +4877,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/add_digits.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "digital_root",
+      "review_notes": "Both pinned Ruby add_digits files compute the decimal digital root: the data-structures version recursively sums digits, while the maths version applies the modulo-nine identity. They are reviewed aliases of digital_root; the shared benchmark contract standardizes nonnegative signed-64-bit inputs and the repeated-sum operation.",
+      "benchmark_contract": "benchmarks/d/digital_root/README.md"
     },
     {
       "candidate_id": "add_two_numbers",
@@ -4596,7 +4936,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -4612,7 +4952,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/addition_without_arithmetic.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C-Sharp method uses 32-bit XOR-and-shift carry propagation. The pinned Python method uses the same recurrence with arbitrary-precision integers and supports negative operands. The shared contract fixes the input domain to signed 32-bit operands, returns the exact mathematical sum only when it also fits signed 32-bit range, and returns -1 for out-of-range inputs or overflow so behavior is explicit across languages.",
+      "benchmark_contract": "benchmarks/a/addition_without_arithmetic/README.md"
     },
     {
       "candidate_id": "adfgvxcipher",
@@ -5051,7 +5393,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -5060,7 +5402,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/AliquotSumCalculator.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "aliquot_sum",
+      "review_notes": "The pinned C# source sums positive proper divisors by scanning through n / 2. Its positive-input operation matches the shared aliquot_sum contract; its negative-input exception behavior is standardized to the benchmark sentinel.",
+      "benchmark_contract": "benchmarks/a/aliquot_sum/README.md"
     },
     {
       "candidate_id": "aliquotsum",
@@ -5069,7 +5414,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -5078,7 +5423,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/aliquotsum.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "aliquot_sum",
+      "review_notes": "The pinned Go source sums positive proper divisors by scanning through n / 2. Its positive-input operation matches the shared aliquot_sum contract; its error returns for nonpositive inputs are standardized to the benchmark zero and negative-input sentinel.",
+      "benchmark_contract": "benchmarks/a/aliquot_sum/README.md"
     },
     {
       "candidate_id": "all_combination_of_size_k",
@@ -5499,7 +5847,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -5508,6 +5856,11 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/AmicableNumber.java",
           "local_folder_source": null
         }
+      ],
+      "review_notes": "The pinned Java source documents distinct positive amicable numbers and exposes both a recursive pair predicate and a separate range enumerator. The predicate does not reject equal perfect numbers, so the shared predicate contract does. The range method is tracked as the additional amicable_pairs_below benchmark with an exclusive upper limit and a shared ordered output format.",
+      "benchmark_contract": "benchmarks/a/amicable_number/README.md",
+      "additional_benchmark_names": [
+        "amicable_pairs_below"
       ]
     },
     {
@@ -5522,7 +5875,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -5552,7 +5905,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/amicable_numbers.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "amicable_number",
+      "review_notes": "The pinned Dart and R functions are pair predicates equivalent to the shared distinct-positive amicable_number contract. The same normalized filename also contains Julia and Rust enumerators, which are treated as the separate amicable_pairs_below operation; their limit boundary and empty-result behavior are standardized there.",
+      "benchmark_contract": "benchmarks/a/amicable_number/README.md"
     },
     {
       "candidate_id": "amicable_numbers_checker",
@@ -5561,7 +5917,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -5570,7 +5926,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/AmicableNumbersChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "amicable_number",
+      "review_notes": "The pinned C# source checks reciprocal proper-divisor sums. Its documentation requires two different naturals, but its method can classify equal perfect numbers as amicable; the shared contract explicitly rejects equal inputs and normalizes behavior to the canonical pair benchmark.",
+      "benchmark_contract": "benchmarks/a/amicable_number/README.md"
     },
     {
       "candidate_id": "anagram",
@@ -6987,8 +7346,18 @@
         "Julia",
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -7011,7 +7380,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/atbash.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "atbash_cipher",
+      "review_notes": "The pinned JavaScript, Julia, and Python files implement the Atbash substitution under the filename atbash. Their handling of punctuation, digits, and case differs, so this candidate shares the explicit case-preserving ASCII contract and workload of atbash_cipher.",
+      "benchmark_contract": "benchmarks/a/atbash_cipher/README.md"
     },
     {
       "candidate_id": "atbash_cipher",
@@ -7023,9 +7395,17 @@
         "PHP"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -7055,7 +7435,9 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Ciphers/AtbashCipher.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, Java, and PHP files implement the case-preserving Atbash substitution. The shared contract reverses ASCII uppercase and lowercase letters independently and preserves every other 7-bit ASCII byte.",
+      "benchmark_contract": "benchmarks/a/atbash_cipher/README.md"
     },
     {
       "candidate_id": "auto_correlation",
@@ -9371,7 +9753,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -9380,7 +9762,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/BinaryCountSetBits.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "191",
+      "review_notes": "The pinned JavaScript BinaryCountSetBits implementation uses 32-bit bitwise operations and matches candidate 191 on the unsigned 32-bit input domain.",
+      "benchmark_contract": "benchmarks/h/hamming_weight/README.md"
     },
     {
       "candidate_id": "binary_count_setbits",
@@ -9761,7 +10146,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -9770,7 +10155,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/BinaryInsertionSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "binary_insertion_sort",
+      "review_notes": "The pinned C-Sharp implementation binary-searches the sorted prefix for each next value, shifts the suffix, and inserts the value, matching binary_insertion_sort.",
+      "benchmark_contract": "benchmarks/b/binary_insertion_sort/README.md"
     },
     {
       "candidate_id": "binary_length",
@@ -10763,8 +11151,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -10773,7 +11171,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_maximum_path_sum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binary_tree_maximum_path_sum",
+      "review_notes": "The pinned Python implementation and C LeetCode candidate 124 use the same maximum-path-sum recurrence: each node combines its value with positive gains from both child subtrees for the best complete path, then returns the best one-sided gain to its parent. The benchmark uses nonempty indexed trees with values in [-1000, 1000] and portable recursive implementations in all nine target languages.",
+      "benchmark_contract": "benchmarks/b/binary_tree_maximum_path_sum/README.md"
     },
     {
       "candidate_id": "binary_tree_mirror",
@@ -10996,7 +11397,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -11005,7 +11406,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/binaryinsertionsort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "binary_insertion_sort",
+      "review_notes": "The pinned Go implementation binary-searches the insertion point in the sorted prefix, then shifts the suffix and inserts the selected value. It matches the binary insertion-sort algorithm represented by binary_insertion_sort.",
+      "benchmark_contract": "benchmarks/b/binary_insertion_sort/README.md"
     },
     {
       "candidate_id": "binarytodecimal",
@@ -12458,7 +12862,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -12467,7 +12871,9 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/BoyerMooreMajorityVote.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C-Sharp implementation uses Boyer-Moore cancellation and verifies that its candidate occurs more than half the time. The shared contract allows no-majority inputs and returns -1 for them.",
+      "benchmark_contract": "benchmarks/b/boyer_moore_majority_vote/README.md"
     },
     {
       "candidate_id": "boyer_moore_search",
@@ -12481,7 +12887,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -12504,7 +12910,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/boyer_moore_search.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/b/boyer_moore_search/README.md",
+      "review_notes": "Inspected the pinned C, Python, and Rust sources. Each uses the Boyer-Moore bad-character rule; C prints matches while Python and Rust return match-position lists, and Rust uses Unicode character positions. The shared benchmark accepts ASCII byte sequences packed as text length, pattern length, and payload; it returns the first match index, defines an empty pattern as a match at zero, and returns -1 for malformed input or no match. Nine portable implementations use a 128-entry last-occurrence table."
     },
     {
       "candidate_id": "boyermoore",
@@ -13024,7 +13432,7 @@
         "Kotlin"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Kotlin",
@@ -13033,7 +13441,10 @@
           "url": "https://github.com/TheAlgorithms/Kotlin/blob/b913c1d85c972fd1e679c5d832d6458b21be8fb0/src/main/kotlin/sort/BrickSort.kt",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "odd_even_sort",
+      "review_notes": "The pinned Kotlin BrickSort implementation is named oddEvenSort and alternates odd-indexed and even-indexed adjacent compare-and-swap passes until a pass pair makes no swaps. It is the same odd-even transposition sort as odd_even_sort.",
+      "benchmark_contract": "benchmarks/o/odd_even_sort/README.md"
     },
     {
       "candidate_id": "bridge_detector",
@@ -13618,7 +14029,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -13627,7 +14038,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Sorting/BubbleSort2.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "bubble_sort",
+      "review_notes": "The pinned PHP implementation repeatedly compares adjacent values and swaps inversions until a pass makes no swaps, matching bubble_sort.",
+      "benchmark_contract": "benchmarks/b/bubble_sort/README.md"
     },
     {
       "candidate_id": "bubble_sort_2",
@@ -13638,7 +14052,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -13647,7 +14061,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/bubble_sort_2.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "bubble_sort",
+      "review_notes": "The pinned C implementation repeatedly scans its fixed 20-element demo array, swapping adjacent inversions until no swap occurs. It is standard bubble sort; its fixed demo-size API does not alter the shared variable-length contract.",
+      "benchmark_contract": "benchmarks/b/bubble_sort/README.md"
     },
     {
       "candidate_id": "bubble_sort_recursion",
@@ -13658,7 +14075,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -13667,7 +14084,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/bubble_sort_recursion.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "bubble_sort_recursive",
+      "review_notes": "The pinned C implementation performs one adjacent-swap pass and recurses on the shortened prefix only when that pass swaps values, matching the early-exit recursive bubble_sort_recursive benchmark.",
+      "benchmark_contract": "benchmarks/b/bubble_sort_recursive/README.md"
     },
     {
       "candidate_id": "bubble_sort_recursive",
@@ -13736,7 +14156,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -13752,7 +14172,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/bubblesort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "bubble_sort",
+      "review_notes": "Go Bubble and Lua bubblesort repeatedly compare adjacent values and exchange inversions, so they use the same stable bubble-sort contract. The Go implementation exits early after a pass without swaps; the Lua version runs fixed passes.",
+      "benchmark_contract": "benchmarks/b/bubble_sort/README.md"
     },
     {
       "candidate_id": "bucket_sort",
@@ -13855,7 +14278,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -13864,7 +14287,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Integer/BucketSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "radix_sort",
+      "review_notes": "Despite its class name, the pinned C-Sharp implementation distributes values into ten buckets on each successive decimal digit and collects them between passes. That is least-significant-digit radix sort, not range bucket_sort; it is grouped with radix_sort, whose shared contract extends the supported domain to signed 64-bit values.",
+      "benchmark_contract": "benchmarks/r/radix_sort/README.md"
     },
     {
       "candidate_id": "bucketsort",
@@ -13873,7 +14299,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -13882,7 +14308,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/bucketsort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "bucket_sort",
+      "review_notes": "The pinned Go implementation maps the numeric range into n buckets, insertion-sorts each bucket, then concatenates them, matching bucket_sort. Its range formula divides by max-min without handling a uniform input, so equal-only inputs can trigger invalid division; the shared contract handles that case.",
+      "benchmark_contract": "benchmarks/b/bucket_sort/README.md"
     },
     {
       "candidate_id": "buffered_reader",
@@ -14186,9 +14615,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -14225,7 +14662,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/caesar.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "caesar_cipher",
+      "review_notes": "The pinned Go, Java, Julia, Ruby, and Rust files are variants of the Caesar substitution cipher. They differ in shift limits, letter case, and nonletter handling, so this filename candidate shares the standardized ASCII contract and workload with caesar_cipher.",
+      "benchmark_contract": "benchmarks/c/caesar_cipher/README.md"
     },
     {
       "candidate_id": "caesar_cipher",
@@ -14238,9 +14678,17 @@
         "Python"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -14277,7 +14725,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/caesar_cipher.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, JavaScript, PHP, and Python files implement Caesar substitution but differ in case handling, configurable alphabets, and shift validation. The shared benchmark specifies ASCII upper/lowercase rotation, leaves other ASCII bytes unchanged, and normalizes every signed 64-bit shift modulo 26.",
+      "benchmark_contract": "benchmarks/c/caesar_cipher/README.md"
     },
     {
       "candidate_id": "caesar_encoder",
@@ -15796,8 +16246,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -15806,7 +16266,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/CheckTreeIsSymmetric.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "symmetric_tree",
+      "review_notes": "The pinned Java source recursively compares mirrored node pairs. Its behavior matches the canonical Python symmetric_tree source and C LeetCode 101 source; this descriptive filename is recorded as an alias of symmetric_tree.",
+      "benchmark_contract": "benchmarks/s/symmetric_tree/README.md"
     },
     {
       "candidate_id": "check_vowels",
@@ -15902,7 +16365,7 @@
         "rust",
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -15946,7 +16409,9 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/chineseRemainderTheorem.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "review_notes": "The inspected C#, Java, Rust, and Zig sources implement CRT for pairwise-coprime moduli; Rust reports failure when a modular inverse does not exist, and C# checks the precondition. The Python source does not validate coprimality, and its non-coprime example with moduli 6 and 4 returns 14 for residues 1 and 3, which does not satisfy those congruences. The shared contract accepts one to four pairwise-coprime congruences and returns the least nonnegative solution using incremental extended-Euclid inverses.",
+      "benchmark_contract": "benchmarks/c/chinese_remainder_theorem/README.md"
     },
     {
       "candidate_id": "choiceset",
@@ -16084,7 +16549,17 @@
         "Java",
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -16109,7 +16584,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/circle_sort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java, Python, and Go sources compare mirrored pairs, recursively sort both halves, and repeat full passes until no swaps occur. The shared contract applies that same strategy to signed 64-bit integers in place. The AArch64 assembly file is retained as a discovery reference only; all nine local ports use portable language operations.",
+      "benchmark_contract": "benchmarks/c/circle_sort/README.md"
     },
     {
       "candidate_id": "circlesort",
@@ -16118,7 +16595,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -16127,7 +16604,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/circlesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "circle_sort",
+      "review_notes": "The pinned Go circlesort source uses the same mirrored-pair comparisons, recursive split into two halves, and repeat-until-no-swaps passes as circle_sort. It is recorded as a filename alias of that canonical benchmark.",
+      "benchmark_contract": "benchmarks/c/circle_sort/README.md"
     },
     {
       "candidate_id": "circular_arc",
@@ -16615,7 +17095,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -16645,7 +17125,9 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/dynamic_programming/climbing_stairs.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/c/climbing_stairs/README.md",
+      "review_notes": "Inspected the pinned Java, JavaScript, Python, and Ruby sources. They count ordered sequences of one-step and two-step moves, but differ in implementation and zero-step behavior: JavaScript and Ruby define one way to climb zero steps, Python requires a positive input, and Java computes the positive-step recurrence. The shared contract accepts 1 through 45 and returns F(n+1), with -1 outside that range. Nine portable ports use the iterative recurrence; the maximum result fits signed 32-bit."
     },
     {
       "candidate_id": "cll",
@@ -17014,7 +17496,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -17023,7 +17505,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/cocktailsort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "cocktail_sort",
+      "review_notes": "The pinned Go implementation sweeps forward and backward over shrinking bounds, which is the bidirectional bubble-sort strategy in cocktail_sort.",
+      "benchmark_contract": "benchmarks/c/cocktail_sort/README.md"
     },
     {
       "candidate_id": "code",
@@ -18720,7 +19205,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -18743,7 +19228,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/CountBitsFlip.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "hamming_distance",
+      "review_notes": "The pinned C++ count_bits_flip and Java CountBitsFlip implementations XOR the input pair and count set bits, which is the Hamming distance between their binary representations. The alias is normalized to the shared nonnegative signed 64-bit input domain; the existing benchmark also covers the wider unsigned 64-bit domain.",
+      "benchmark_contract": "benchmarks/h/hamming_distance/README.md"
     },
     {
       "candidate_id": "count_char",
@@ -19045,7 +19533,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -19061,7 +19549,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/bit_manipulation/count_of_set_bits.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "191",
+      "review_notes": "The pinned C++ count_of_set_bits implementations use repeated lowest-set-bit clearing. They match candidate 191 on the shared unsigned 32-bit input domain.",
+      "benchmark_contract": "benchmarks/h/hamming_weight/README.md"
     },
     {
       "candidate_id": "count_of_trailing_ciphers_in_factorial_n",
@@ -19171,7 +19662,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -19187,7 +19678,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Sorting/CountSort.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned Dart and PHP implementations count occurrences over the signed input range and write values back in ascending order, matching counting_sort; their output-array and prefix-sum details do not change the integer ordering contract.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "count_sorted_vowel_strings",
@@ -19496,7 +19990,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -19505,7 +19999,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Integer/CountingSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned C-Sharp implementation builds a histogram over the min-to-max range, prefix-sums counts, and reconstructs the array, matching counting_sort.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "countingsort",
@@ -19515,7 +20012,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -19531,7 +20028,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/countingsort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned Go and Lua implementations build frequency counts over the input range and reconstruct values in ascending order, matching counting_sort. The benchmark contract standardizes the signed 64-bit input and in-place output.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "covid_stats_via_xpath",
@@ -20337,7 +20837,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -20346,7 +20846,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/cyclesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "cycle_sort",
+      "review_notes": "The pinned Go implementation counts smaller values and rotates each item into its final position, matching cycle sort. Its duplicate-skip loops do not check the array bound and can panic when equal values exhaust the remaining positions; this upstream defect is recorded here.",
+      "benchmark_contract": "benchmarks/c/cycle_sort/README.md"
     },
     {
       "candidate_id": "cyclic",
@@ -21222,8 +21725,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -21232,7 +21745,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/DecimalToRoman.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "integer_to_roman",
+      "review_notes": "The pinned JavaScript source includes integer-to-Roman conversion and is equivalent on the shared canonical uppercase 1 through 3,999 contract. This filename aliases integer_to_roman.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "decimal_to_roman_numeral",
@@ -21242,9 +21758,17 @@
         "C-Plus-Plus-1"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -21260,7 +21784,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/decimal_to_roman_numeral.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "integer_to_roman",
+      "review_notes": "The pinned C++ source includes integer-to-Roman conversion and is equivalent on the shared canonical uppercase 1 through 3,999 contract. This filename aliases integer_to_roman.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "decimaltobinary",
@@ -22434,7 +22961,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -22450,7 +22977,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/digital_root.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java and Python sources repeatedly sum decimal digits until one digit remains. The Ruby add_digits candidates implement the same mathematical operation, using either recursive repeated summation or the modulo-nine digital-root identity. The benchmark uses the repeated-sum variant, accepts nonnegative signed-64-bit inputs, and returns -1 for negative inputs.",
+      "benchmark_contract": "benchmarks/d/digital_root/README.md"
     },
     {
       "candidate_id": "dijkstra",
@@ -24074,7 +24603,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -24083,7 +24612,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/DualPivotQuickSort.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java source orders the first and final values as two pivots, partitions the range into lower, middle, and upper regions, and recursively sorts those regions. The shared benchmark retains the two-pivot partition, records explicit pivot boundaries, and recurses into the smaller partitions while iterating over the largest to bound stack depth.",
+      "benchmark_contract": "benchmarks/d/dual_pivot_quick_sort/README.md"
     },
     {
       "candidate_id": "dudeney_number",
@@ -26130,7 +26661,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -26139,7 +26670,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/ExchangeSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "exchange_sort",
+      "review_notes": "The pinned C-Sharp implementation compares every pair (i,j) with j>i and swaps when the pair is inverted, matching exchange_sort. Its XML summary calls it stable, but pairwise exchanges do not generally preserve equal-key order.",
+      "benchmark_contract": "benchmarks/e/exchange_sort/README.md"
     },
     {
       "candidate_id": "exchangesort",
@@ -26148,7 +26682,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -26157,7 +26691,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/exchangesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "exchange_sort",
+      "review_notes": "The pinned Go implementation compares each position with every later position and swaps out-of-order pairs, matching exchange_sort.",
+      "benchmark_contract": "benchmarks/e/exchange_sort/README.md"
     },
     {
       "candidate_id": "execution_time",
@@ -26504,7 +27041,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -26541,7 +27078,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/extended_euclidean_algorithm.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/extended_euclidean_algorithm/README.md",
+      "review_notes": "Inspected the pinned C-Sharp, Java, Python, R, and Rust sources. C-Sharp returns the two Bezout coefficients before the GCD in its result record; Java and Rust return (gcd,x,y); Python returns only the coefficients; and R includes recursive, iterative, modular-inverse, and Diophantine helpers. Their sign and zero-input behavior differs. The shared benchmark restricts inputs to two positive signed-32-bit integers and returns (gcd,x,y), satisfying a*x+b*y=gcd. The output is three signed 32-bit two's-complement values in little-endian byte order. The nine portable ports use iterative Euclid with checked coefficient bounds."
     },
     {
       "candidate_id": "extended_euclidean_gcd",
@@ -27099,7 +27638,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -27136,7 +27675,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/factors.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/factors/README.md",
+      "review_notes": "Inspected the pinned Dart, JavaScript, Python, Rust, and TypeScript sources. They enumerate positive divisors but differ on nonpositive values, traversal strategy, and result ordering: Dart scans upward from one, JavaScript includes zero in its candidate sequence, Python and Rust search divisor pairs through the square root and sort, and TypeScript inserts divisor pairs into a Set. The shared contract accepts 1 through 256, returns every positive divisor once in ascending order as comma-separated ASCII bytes, returns -1 for out-of-range input, and returns -2 without writing when output capacity is insufficient. The nine portable ports use integer trial division."
     },
     {
       "candidate_id": "fair_share_scheduling",
@@ -30688,10 +31229,17 @@
         "Nim"
       ],
       "local_source_folders": [
+        "c",
+        "c3",
         "cpp",
-        "nim"
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -30728,7 +31276,9 @@
           "url": "https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/stable_marriage/gale_shapley.nim",
           "local_folder_source": "nim"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, C#, Java, Lua, and Nim sources implement proposer-proposing Gale-Shapley matching. The shared contract bounds both sides to five participants with strict complete preference permutations, returns proposer-to-accepter matches in a byte buffer, and defines malformed input and capacity behavior.",
+      "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
       "candidate_id": "gale_shapley_bigraph",
@@ -30737,7 +31287,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -30746,7 +31296,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/gale_shapley_bigraph.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "gale_shapley",
+      "review_notes": "The pinned Python source applies the same proposer-proposing Gale-Shapley recurrence to two equal groups with complete strict preferences and returns the same proposer-to-accepter matching.",
+      "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
       "candidate_id": "galloping_strategy",
@@ -35166,7 +35719,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -35175,7 +35728,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Sorts/HeapSortV2.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "heap_sort",
+      "review_notes": "The pinned JavaScript implementation builds a max heap with sift-down and repeatedly extracts the maximum to the end, matching heap_sort. It stores heap length in module-level state, which is reset at each call.",
+      "benchmark_contract": "benchmarks/h/heap_sort/README.md"
     },
     {
       "candidate_id": "heap_sorter",
@@ -35268,7 +35824,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -35284,7 +35840,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/heapsort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "heap_sort",
+      "review_notes": "The pinned Go and Lua implementations build a max heap and repeatedly move its maximum to the sorted suffix, matching the in-place heap_sort contract.",
+      "benchmark_contract": "benchmarks/h/heap_sort/README.md"
     },
     {
       "candidate_id": "heavy_light_decomposition",
@@ -37360,7 +37919,7 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -37369,7 +37928,10 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/sort/insert_Sort.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "insertion_sort",
+      "review_notes": "The pinned Dart implementation shifts larger values right to insert each next value into the sorted prefix, matching insertion_sort.",
+      "benchmark_contract": "benchmarks/i/insertion_sort/README.md"
     },
     {
       "candidate_id": "insertion_sort",
@@ -37648,7 +38210,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -37664,7 +38226,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/insertionsort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "insertion_sort",
+      "review_notes": "The pinned Go and Lua implementations insert each next value into the sorted prefix by shifting larger values right, matching insertion_sort.",
+      "benchmark_contract": "benchmarks/i/insertion_sort/README.md"
     },
     {
       "candidate_id": "instagram_crawler",
@@ -37907,8 +38472,18 @@
         "Dart",
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -37924,7 +38499,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/IntegerToRoman.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C LeetCode 12, Java, Go, JavaScript, C++, and Python sources implement integer-to-Roman conversion with differing APIs and limits. The shared contract uses canonical uppercase notation for values 1 through 3,999 and a length-prefixed byte output. The pinned Dart source prints symbols but returns an empty list, so it does not supply a usable conversion result.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "integral_approximation",
@@ -38520,8 +39097,18 @@
       "source_repositories": [
         "Go"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -38530,7 +39117,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/conversion/inttoroman.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "integer_to_roman",
+      "review_notes": "The pinned Go source includes integer-to-Roman conversion and is equivalent on the shared canonical uppercase 1 through 3,999 contract. This filename aliases integer_to_roman.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "inv_sqrt",
@@ -39822,7 +40412,7 @@
         "c",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -39852,7 +40442,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/isogram.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/i/isogram/README.md",
+      "review_notes": "Inspected the pinned C, Java, and Rust implementations. The C source compares literal bytes, Java has separate alphabetic-only and full-string variants, and Rust ignores whitespace and ASCII case while rejecting other nonletters. The shared contract accepts ASCII letters and regular space, compares letters without case sensitivity, ignores spaces, returns 1/0 for isogram/repetition, and -1 for unsupported bytes or lengths. Nine portable implementations use a 26-entry local seen table."
     },
     {
       "candidate_id": "isomorphic",
@@ -40683,7 +41275,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "AArch64_Assembly",
@@ -40721,6 +41313,17 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/josephus_problem.r",
           "local_folder_source": null
         }
+      ],
+      "benchmark_name": "josephus_problem",
+      "additional_benchmark_names": [
+        "josephus_problem_recursive",
+        "josephus_problem_simulation"
+      ],
+      "review_notes": "The pinned Java source implements the one-based survivor via a recursive zero-based Josephus recurrence. Python contains both that recurrence and an O(n^2) list-removal simulation; R uses the iterative O(n) recurrence. These are tracked as separate benchmark strategies. The cataloged C-Sharp source path does not resolve at its pinned revision. The AArch64 source is a discovery reference only.",
+      "benchmark_contract": "benchmarks/j/josephus_problem/README.md",
+      "additional_benchmark_contracts": [
+        "benchmarks/j/josephus_problem_recursive/README.md",
+        "benchmarks/j/josephus_problem_simulation/README.md"
       ]
     },
     {
@@ -42532,7 +43135,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -42569,7 +43172,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/knuth_morris_pratt.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/k/knuth_morris_pratt/README.md",
+      "review_notes": "Inspected the pinned C++, C++1, F#, Python, and Rust sources. The sources differ in result shape: C++ and Python return a first-match position, F# returns a Boolean, and Rust returns all positions using Unicode scalar indices. The shared contract uses ASCII byte sequences packed as text length, pattern length, and payload bytes; it returns the first byte index, returns 0 for an empty pattern, and returns -1 for absence or malformed input. Nine portable KMP implementations use a fixed prefix table sized to the 4,096-byte input limit."
     },
     {
       "candidate_id": "knuth_morris_pratt_searcher",
@@ -46819,7 +47424,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -46863,7 +47468,9 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/string_manipulation/longest.palindromic.subsequence.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python and JavaScript sources return the length of a longest palindromic subsequence using dynamic programming. C++ computes an LCS against the reversed input and reconstructs a sequence; R also reconstructs one sequence, and Java uses recursive string construction. The shared benchmark returns the length and uses bottom-up interval DP over exact signed 64-bit symbols.",
+      "benchmark_contract": "benchmarks/l/longest_palindromic_subsequence/README.md"
     },
     {
       "candidate_id": "longest_palindromic_substring",
@@ -47790,7 +48397,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -47834,6 +48441,15 @@
           "url": "https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/lucasSeries.sol",
           "local_folder_source": null
         }
+      ],
+      "benchmark_name": "lucas_series",
+      "additional_benchmark_names": [
+        "lucas_series_recursive"
+      ],
+      "review_notes": "The pinned Java, JavaScript, Python, Ruby, Rust, and Solidity files all concern the Lucas sequence, but use different index conventions and methods. The benchmark uses exact zero-based recurrence with L(0)=2 and L(1)=1; Java’s one-based entry point is normalized, and the Ruby floating-point formula is known to disagree at indices 0 and 1. Recursive and iterative methods are tracked as separate benchmarks.",
+      "benchmark_contract": "benchmarks/l/lucas_series/README.md",
+      "additional_benchmark_contracts": [
+        "benchmarks/l/lucas_series_recursive/README.md"
       ]
     },
     {
@@ -48319,7 +48935,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -48328,7 +48944,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/majority_vote_algorithm.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "boyer_moore_majority_vote",
+      "review_notes": "The pinned Python implementation generalizes Boyer-Moore voting for a threshold k. With k=2 it returns the strict majority element, matching the canonical benchmark; the generalized thresholds are outside this benchmark contract.",
+      "benchmark_contract": "benchmarks/b/boyer_moore_majority_vote/README.md"
     },
     {
       "candidate_id": "make_change_sequence",
@@ -48960,7 +49579,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -49004,7 +49623,9 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/matrix_chain_multiplication.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ sources use a memoized top-down recurrence with a small fixed dimension table; Python includes bottom-up tabulation and cached recursion. The benchmark contract uses bottom-up matrix-chain dynamic programming on positive dimensions and bounds the chain and dimensions so signed 64-bit costs are safe.",
+      "benchmark_contract": "benchmarks/m/matrix_chain_multiplication/README.md"
     },
     {
       "candidate_id": "matrix_chain_multiply",
@@ -49490,8 +50111,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -49500,7 +50131,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/MaxConsecutiveOnes.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript source uses a sliding window to count consecutive ones. The shared benchmark contract uses binary arrays; its scan returns the same longest run while validating the input domain.",
+      "benchmark_contract": "benchmarks/m/max_consecutive_ones/README.md"
     },
     {
       "candidate_id": "max_consecutive_ones_iii",
@@ -49713,7 +50346,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -49722,7 +50355,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/divide_and_conquer/max_subarray.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source uses divide and conquer and returns the selected start, end, and sum. Its sum objective is benchmarked with the same nonempty contract as maximum_subarray while preserving divide and conquer as a distinct algorithm strategy.",
+      "benchmark_contract": "benchmarks/m/max_subarray/README.md"
     },
     {
       "candidate_id": "max_subarray_sum",
@@ -49731,7 +50366,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -49740,7 +50375,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/max_subarray_sum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python implementation defaults to allow_empty_subarrays=False and uses Kadane’s recurrence, matching the nonempty maximum-subarray contract.",
+      "alias_of": "maximum_subarray",
+      "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
     {
       "candidate_id": "max_sum_ksize_subarray",
@@ -49970,7 +50608,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -49986,7 +50624,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/maximum_subarray.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Ruby and Rust implementations compute the greatest sum of a nonempty contiguous subarray with Kadane’s recurrence. The Ruby source uses an Integer array and Rust uses an i64 slice; both have the same objective and empty-subarray behavior.",
+      "benchmark_contract": "benchmarks/m/maximum_subarray/README.md"
     },
     {
       "candidate_id": "maximum_subsequence",
@@ -50436,7 +51076,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -50480,7 +51120,9 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/Median.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/median/README.md",
+      "review_notes": "Inspected the pinned C, Go, Java, Kotlin, Lua, and PHP sources. The C file is an interactive random-data demonstration and integer-divides the middle pair before storing into float; Go divides the two middle generic integer values before converting to float64; Java and Kotlin sort integer arrays but add the middle int values before conversion, which can overflow; Lua uses quickselect; and PHP sorts variadic numeric inputs. The shared contract is a nonempty array of signed 32-bit integers with exact statistical median semantics. To preserve half-integer results in the signed-64-bit scalar ABI, the result is encoded as twice the median. The nine portable read-only ports insertion-sort a bounded local copy."
     },
     {
       "candidate_id": "median_filter",
@@ -51516,7 +52158,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -51539,7 +52181,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/divide_and_conquer/mergesort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "merge_sorter",
+      "review_notes": "The pinned Python and Lua sources recursively divide and merge halves. The Go file contains recursive Merge plus iterative and parallel alternatives; the shared candidate mapping follows the recursive top-down strategy, represented by merge_sorter.",
+      "benchmark_contract": "benchmarks/m/merge_sorter/README.md"
     },
     {
       "candidate_id": "merkle_hellman_cryptosystem",
@@ -51875,7 +52520,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -51898,7 +52543,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/miller_rabin.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ implementation chooses random witness bases, while the Rust implementation accepts a caller-supplied base list and returns a compositeness witness. The shared contract uses fixed bases [2, 3, 5, 7] and returns 1 for prime or 0 for composite. The Rust source notes these bases are deterministic below 3,215,031,751, covering the selected signed 32-bit domain. Negative values and values below 2 return 0; values above the signed 32-bit maximum return -1.",
+      "benchmark_contract": "benchmarks/m/miller_rabin/README.md"
     },
     {
       "candidate_id": "miller_rabin_primality_check",
@@ -53888,7 +54535,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -53932,7 +54579,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/morse_code.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/morse_code/README.md",
+      "review_notes": "Inspected the pinned C++ and C++-1 snapshots, JavaScript, PHP, Python, and Rust sources. All provide an encoder for ASCII letters and digits, but they differ on letter case, punctuation, whitespace, dot symbols, unsupported characters, and trailing or word separators. The shared benchmark covers their common alphanumeric encoding: ASCII case-folding, canonical dot/dash Morse, one space between codes, no trailing separator, empty input as empty output, and explicit invalid-input and capacity statuses. The JavaScript candidate additionally supports punctuation and custom symbols; those extensions are outside the common contract."
     },
     {
       "candidate_id": "morse_code_converter",
@@ -54121,7 +54770,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -54130,7 +54779,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/msd_radix_sort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source contains an in-place recursive partitioner that processes integer bits from most to least significant; this is distinct from least-significant-digit radix_sort. The shared benchmark preserves that strategy and maps signed 64-bit values to order-preserving unsigned keys, extending the upstream positive-integer domain.",
+      "benchmark_contract": "benchmarks/m/msd_radix_sort/README.md"
     },
     {
       "candidate_id": "msd_radix_string_sorter",
@@ -55794,8 +56445,9 @@
     },
     {
       "candidate_id": "next_prime_number",
-      "source_repository_count": 1,
+      "source_repository_count": 2,
       "source_repositories": [
+        "C-Sharp",
         "Python"
       ],
       "local_source_folders": [],
@@ -55807,9 +56459,16 @@
           "path": "maths/next_prime_number.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/next_prime_number.py",
           "local_folder_source": null
+        },
+        {
+          "repository": "C-Sharp",
+          "language": "C#",
+          "path": "DataStructures/Hashing/NumberTheory/PrimeNumber.cs",
+          "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/Hashing/NumberTheory/PrimeNumber.cs",
+          "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k±1 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload.",
+      "review_notes": "The pinned Python source finds the smallest prime strictly greater than its integer input, including 2 for negative values and zero. It tests primality by trial division, first handling values below two and even values, then checking 6k±1 divisors. The local scalar contract bounds inputs to -4096..4096 and returns -1 outside that range so all target languages have a bounded signed 64-bit workload. The C# PrimeNumber.NextPrime method has the same strictly-greater result when its optional factor is 1 and descending mode is false; those are the benchmark defaults.",
       "benchmark_contract": "benchmarks/n/next_prime_number/README.md"
     },
     {
@@ -57089,7 +57748,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -57098,7 +57757,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/odd_even_transposition_single_threaded.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "odd_even_sort",
+      "review_notes": "The pinned Python implementation performs sequential odd-even transposition phases, comparing disjoint adjacent pairs by index parity. Its fixed number of phases is equivalent to the shared early-exit contract; it is the same single-threaded odd-even sort.",
+      "benchmark_contract": "benchmarks/o/odd_even_sort/README.md"
     },
     {
       "candidate_id": "odd_sieve",
@@ -57128,7 +57790,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -57137,7 +57799,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/oddevensort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "odd_even_sort",
+      "review_notes": "The pinned Go implementation documents odd-even sort as brick sort and alternates adjacent odd-indexed and even-indexed compare-and-swap passes until sorted. Its algorithm is the same as odd_even_sort.",
+      "benchmark_contract": "benchmarks/o/odd_even_sort/README.md"
     },
     {
       "candidate_id": "ode_forward_euler",
@@ -58645,7 +59310,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -58654,7 +59319,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/pancakesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pancake_sort",
+      "review_notes": "The pinned Go implementation repeatedly finds the maximum in the active prefix and moves it to the end using prefix reversals, matching pancake_sort.",
+      "benchmark_contract": "benchmarks/p/pancake_sort/README.md"
     },
     {
       "candidate_id": "pandas",
@@ -59259,7 +59927,7 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -59268,7 +59936,9 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/trees/path_sum.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Dart source accumulates values from the root and compares the target only at leaves. It returns false for an empty tree and explores both child branches. This matches the root-to-leaf path-sum semantics standardized by the shared benchmark; its indexed-tree contract additionally validates reachability and child references.",
+      "benchmark_contract": "benchmarks/p/path_sum/README.md"
     },
     {
       "candidate_id": "pathfinding_exception",
@@ -59366,7 +60036,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -59375,7 +60045,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/patiencesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "patience_sort",
+      "review_notes": "The pinned Go implementation places values onto ordered piles, then merges pile tops to produce ascending output, matching patience_sort.",
+      "benchmark_contract": "benchmarks/p/patience_sort/README.md"
     },
     {
       "candidate_id": "pattern_matching",
@@ -60579,7 +61252,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -60588,7 +61261,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Sorts/PigeonHoleSort.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pigeonhole_sort",
+      "review_notes": "The pinned JavaScript implementation counts occurrences across the inclusive min-to-max value range and writes them back in ascending order, matching pigeonhole_sort.",
+      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
     },
     {
       "candidate_id": "pigeon_sort",
@@ -60597,7 +61273,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -60606,7 +61282,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/pigeon_sort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pigeonhole_sort",
+      "review_notes": "The pinned Python source counts occurrences in a key-indexed pigeonhole array and writes values back in order, which is the pigeonhole-sort algorithm represented by pigeonhole_sort.",
+      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
     },
     {
       "candidate_id": "pigeonhole_sort",
@@ -60693,7 +61372,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -60702,7 +61381,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/pigeonholesort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "pigeonhole_sort",
+      "review_notes": "The pinned Go implementation counts values in a min-to-max pigeonhole range and reconstructs the sorted slice, matching pigeonhole_sort; the benchmark contract supplies the bounded signed-integer domain.",
+      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
     },
     {
       "candidate_id": "pipeline",
@@ -62554,7 +63236,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -62563,7 +63245,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/PrimeChecker.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prime_check",
+      "review_notes": "The pinned C# PrimeChecker.IsPrime method uses deterministic trial division and matches the existing prime_check contract.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "prime_factorial",
@@ -62660,7 +63345,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -62697,7 +63382,9 @@
           "url": "https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/PrimeFactors.scala",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/prime_factors/README.md",
+      "review_notes": "Inspected the pinned JavaScript, Julia, Python, Rust, and Scala sources. The common intended operation is ascending prime factors with multiplicity; Python additionally exposes a separate distinct-factor helper. Julia compares the remainder with 1 rather than testing for a nonzero remainder, so some composites are divided by a nonfactor. Scala returns [1] for input 1. The shared contract accepts 1 through 2,147,483,647, returns an empty sequence for 1, emits repeated factors as comma-separated ASCII bytes, returns -1 outside range, and returns -2 without writes when capacity is insufficient. Nine portable ports use integer trial division with an exact division-based square-root bound."
     },
     {
       "candidate_id": "prime_number",
@@ -62707,7 +63394,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -62723,7 +63410,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/prime_number.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prime_check",
+      "review_notes": "The pinned Ruby prime_number function and the IsPrime method in the C# PrimeNumber class implement primality checking and normalize to the deterministic prime_check contract. The same C# file also defines NextPrime, which is registered as an implementation of the separate next_prime_number benchmark.",
+      "benchmark_contract": "benchmarks/p/prime_check/README.md"
     },
     {
       "candidate_id": "prime_numbers",
@@ -62738,7 +63428,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -62775,7 +63465,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_numbers.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The C++1, Python maths, and Rust sources generate an ascending prime list through an inclusive limit; their implementations include a linear sieve and trial division. The pinned C++ source URL could not be fetched, so its exact implementation was not used to define the local contract. A second Python file with this normalized filename provides is_prime and next_prime helpers rather than a prime-list entry point; that related next-prime operation is cataloged separately. The local benchmark uses trial division for a shared portable baseline and returns comma-separated ASCII primes for limits 0 through 80.",
+      "benchmark_contract": "benchmarks/p/prime_numbers/README.md"
     },
     {
       "candidate_id": "prime_pi_sequence",
@@ -62903,7 +63595,7 @@
       "local_source_folders": [
         "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "TypeScript",
@@ -62919,7 +63611,10 @@
           "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/math/primes.zig",
           "local_folder_source": "zig"
         }
-      ]
+      ],
+      "benchmark_name": "first_n_primes",
+      "review_notes": "The pinned TypeScript source includes a prime generator, and the Zig source computes the first 25 primes at compile time before summing them. Both support the normalized first-N-primes operation; the TypeScript file also contains an inclusive-limit sieve, which is tracked under the separate prime_numbers benchmark.",
+      "benchmark_contract": "benchmarks/f/first_n_primes/README.md"
     },
     {
       "candidate_id": "primes_sequence",
@@ -69015,7 +69710,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -69024,7 +69719,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/StableMarriage/Proposer.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "gale_shapley",
+      "review_notes": "The pinned C# Proposer class stores one participant’s current engagement and preference order; it is a supporting type for Gale-Shapley, not a standalone algorithm.",
+      "benchmark_contract": "benchmarks/g/gale_shapley/README.md"
     },
     {
       "candidate_id": "proth_number",
@@ -70036,7 +70734,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -70073,7 +70771,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/sorts/quick_select.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source chooses a random pivot and recursively separates less, equal, and greater values; JavaScript and TypeScript partition a mutable array in place, and Java uses median-of-medians. The shared contract selects the upper median at zero-based rank floor(length/2) from signed 64-bit input. The portable ports use deterministic median-of-three three-way partitioning on a bounded local copy to match the read-only array-scalar ABI.",
+      "benchmark_contract": "benchmarks/q/quick_select/README.md"
     },
     {
       "candidate_id": "quick_select_search",
@@ -70313,7 +71013,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -70329,7 +71029,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/quick_sort_3.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The two pinned C++ files are identical and implement three-way Dutch-national-flag partitioning around the final value in each range. The shared contract preserves that partition and pivot policy, sorts signed 64-bit integers in place, and recurses into the smaller outer partition to bound stack depth.",
+      "benchmark_contract": "benchmarks/q/quick_sort_3/README.md"
     },
     {
       "candidate_id": "quick_sort_3_partition",
@@ -70358,7 +71060,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -70367,7 +71069,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/quick_sort_3_ways.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "quick_sort_3",
+      "review_notes": "The pinned Rust quick_sort_3_ways uses the same less-than, equal-to, and greater-than partitioning, choosing each pivot randomly instead of taking the final range value. It is cataloged with quick_sort_3, whose shared contract uses the deterministic final-value pivot policy for comparable cross-language runs.",
+      "benchmark_contract": "benchmarks/q/quick_sort_3/README.md"
     },
     {
       "candidate_id": "quick_sort_iterative",
@@ -70378,7 +71083,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -70387,7 +71092,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/quick_sort_iterative.cpp",
           "local_folder_source": "cpp"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ source partitions each range with Lomuto partitioning around its final value and stores pending index ranges on an explicit stack instead of recursing. The nine ports keep the final-value pivot and iterative traversal, use half-open ranges, and process the smaller side immediately while stacking the larger side to bound stack space.",
+      "benchmark_contract": "benchmarks/q/quick_sort_iterative/README.md"
     },
     {
       "candidate_id": "quick_sort_linked_list",
@@ -70414,7 +71121,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -70423,7 +71130,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Sorts/QuickSortRecursive.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "quick_sort",
+      "review_notes": "The pinned JavaScript source uses in-place Lomuto partitioning with the final value as pivot, then recursively sorts both sides. This is the same recursive quicksort algorithm as quick_sort; its strict-less partition puts values equal to the pivot on the right.",
+      "benchmark_contract": "benchmarks/q/quick_sort/README.md"
     },
     {
       "candidate_id": "quick_sorter",
@@ -70966,7 +71676,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -70982,7 +71692,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/radix_sort2.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "radix_sort",
+      "review_notes": "The two pinned C++ copies perform stable least-significant decimal-digit passes over unsigned integers. They are radix-sort variants represented by radix_sort, whose shared contract covers signed 64-bit inputs with bytewise passes.",
+      "benchmark_contract": "benchmarks/r/radix_sort/README.md"
     },
     {
       "candidate_id": "radix_sort_2",
@@ -70993,7 +71706,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -71002,7 +71715,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/radix_sort_2.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "radix_sort",
+      "review_notes": "The pinned C source performs stable least-significant decimal-digit counting passes, matching the radix-sort family represented by radix_sort.",
+      "benchmark_contract": "benchmarks/r/radix_sort/README.md"
     },
     {
       "candidate_id": "radix_sorter",
@@ -71048,7 +71764,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -71064,7 +71780,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/radixsort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "radix_sort",
+      "review_notes": "The pinned Go and Lua sources perform stable least-significant-digit passes over integer keys. Their digit bases and supported signs differ, but they are radix-sort variants represented by the bytewise signed radix_sort benchmark.",
+      "benchmark_contract": "benchmarks/r/radix_sort/README.md"
     },
     {
       "candidate_id": "raft_consensus",
@@ -71449,7 +72168,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -71465,7 +72184,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/random_pivot_quick_sort.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The two pinned C++ copies select a random index, move the pivot to the end, and use Lomuto partitioning with strict-less comparisons. The shared ports retain random pivot selection and the strict-less partition policy, using a fixed-seed Park-Miller generator so pivot choices are reproducible across compiler runtimes; an explicit range stack bounds auxiliary stack space.",
+      "benchmark_contract": "benchmarks/r/random_pivot_quick_sort/README.md"
     },
     {
       "candidate_id": "random_pivot_quick_sorter",
@@ -71474,7 +72195,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -71483,7 +72204,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/RandomPivotQuickSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "random_pivot_quick_sort",
+      "review_notes": "The pinned C# source overrides the base quicksort pivot selector to choose a random element from the active inclusive range. It is the same randomized-pivot quicksort algorithm as the canonical benchmark.",
+      "benchmark_contract": "benchmarks/r/random_pivot_quick_sort/README.md"
     },
     {
       "candidate_id": "random_quick_sort",
@@ -71494,7 +72218,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -71503,7 +72227,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/random_quick_sort.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "random_pivot_quick_sort",
+      "review_notes": "The pinned C source selects a random pivot and partitions around it before recursively sorting both sides. Its Hoare-like scan differs from the canonical C++ Lomuto partition, but it implements the same randomized quicksort algorithm.",
+      "benchmark_contract": "benchmarks/r/random_pivot_quick_sort/README.md"
     },
     {
       "candidate_id": "random_scheduling",
@@ -71610,7 +72337,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -71619,7 +72346,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/randomized/RandomizedQuickSort.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "random_pivot_quick_sort",
+      "review_notes": "The pinned Java source chooses a random index, moves that pivot to the end, and uses strict-less Lomuto partitioning before recursive calls. It matches the randomized quicksort strategy represented by the canonical benchmark.",
+      "benchmark_contract": "benchmarks/r/random_pivot_quick_sort/README.md"
     },
     {
       "candidate_id": "range_in_sorted_array",
@@ -72239,7 +72969,7 @@
         "Scala"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -72255,7 +72985,10 @@
           "url": "https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Sort/RecursiveInsertionSort.scala",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "insertion_sort_recursive",
+      "review_notes": "The pinned Python and Scala sources recursively sort prefixes or tails and insert values into their sorted positions, matching the recursive insertion-sort strategy represented by insertion_sort_recursive. Their container and insertion mechanics differ, while the shared benchmark fixes the signed 64-bit in-place contract.",
+      "benchmark_contract": "benchmarks/i/insertion_sort_recursive/README.md"
     },
     {
       "candidate_id": "recursive_linear_search",
@@ -72311,7 +73044,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -72320,7 +73053,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/recursive_quick_sort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "quick_sort",
+      "review_notes": "The pinned Python source chooses the first element as pivot, recursively partitions the remaining values into less-than-or-equal and greater groups, and concatenates the groups with the pivot. This is the same recursive quicksort algorithm as quick_sort, with an out-of-place list-comprehension implementation and a different pivot/tie policy.",
+      "benchmark_contract": "benchmarks/q/quick_sort/README.md"
     },
     {
       "candidate_id": "recursive_shuffler",
@@ -73149,7 +73885,9 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned Java, Python, and Rust sources all reverse exactly 32 bit positions. The shared contract accepts an unsigned 32-bit word represented by a signed 64-bit ABI input, returns the reversed pattern as an unsigned value, and rejects values outside the 32-bit domain.",
+      "benchmark_contract": "benchmarks/r/reverse_bits/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -73359,7 +74097,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -73368,7 +74106,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/reverse_selection.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source selects the minimum in each unsorted suffix, then reverses the prefix from the current position through that minimum to place it. This differs from ordinary selection sort, which swaps the two values; all nine ports retain the prefix-reversal strategy.",
+      "benchmark_contract": "benchmarks/r/reverse_selection/README.md"
     },
     {
       "candidate_id": "reverse_singly_linked_list",
@@ -74094,8 +74834,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -74104,7 +74854,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/RomanNumeralUtil.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "integer_to_roman",
+      "review_notes": "The pinned Java utility generates uppercase Roman numerals for values from 1 through 5,999. Its output matches the shared standard 1 through 3,999 range, so this filename aliases integer_to_roman.",
+      "benchmark_contract": "benchmarks/i/integer_to_roman/README.md"
     },
     {
       "candidate_id": "roman_numerals",
@@ -74114,9 +74867,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -74132,7 +74893,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/roman_numerals.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "roman_to_integer",
+      "review_notes": "The pinned Python and Rust roman_numerals files contain both directions; this filename is tracked as an alias for their Roman-to-integer operation. Their encoder is described in the integer_to_roman guide.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "roman_numerals_to_decimal",
@@ -74141,9 +74905,17 @@
         "C"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -74152,7 +74924,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/roman_numerals_to_decimal.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "roman_to_integer",
+      "review_notes": "The pinned C source sums symbols and applies subtractive pairs. This filename aliases the canonical Roman decoder under the standardized uppercase contract.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "roman_to_decimal",
@@ -74160,8 +74935,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -74170,7 +74955,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/RomanToDecimal.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "roman_to_integer",
+      "review_notes": "The pinned JavaScript source scans from right to left and applies subtractive values. This filename aliases the canonical Roman decoder under the standardized uppercase contract.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "roman_to_integer",
@@ -74180,8 +74968,18 @@
         "Java",
         "Ruby"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -74204,7 +75002,9 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/roman_to_integer.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C, JavaScript, Dart, Java, Ruby, Go, Python, and Rust sources decode Roman numerals using additive and subtractive symbol values. The shared contract accepts only canonical uppercase numerals from 1 through 3,999; the C and JavaScript sources do not validate malformed symbols, while Rust accepts lowercase and Go treats empty input as zero.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "romantoint",
@@ -74212,8 +75012,18 @@
       "source_repositories": [
         "Go"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -74222,7 +75032,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/conversion/romantoint.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "roman_to_integer",
+      "review_notes": "The pinned Go source greedily parses standard Roman numeral tokens. This filename aliases the canonical Roman decoder under the standardized uppercase contract.",
+      "benchmark_contract": "benchmarks/r/roman_to_integer/README.md"
     },
     {
       "candidate_id": "root",
@@ -74821,9 +75634,16 @@
       ],
       "local_source_folders": [
         "c",
-        "rust"
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -74867,7 +75687,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/run_length_encoding.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C and Java sources and Rust string variant emit decimal counts followed by each run symbol; Clojure, Python, and the Rust compression variant return count/symbol pairs. The benchmark standardizes to a count-prefixed ASCII byte stream, excludes decimal digit symbols to keep that stream unambiguous, and uses the same adjacent-run grouping.",
+      "benchmark_contract": "benchmarks/r/run_length_encoding/README.md"
     },
     {
       "candidate_id": "run_linear_regression",
@@ -75948,7 +76770,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -75964,7 +76786,10 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/sorting/select_sort.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "selection_sort",
+      "review_notes": "The pinned Dart and MATLAB/Octave sources repeatedly select the minimum from the remaining suffix and swap it into the next output position, matching selection_sort.",
+      "benchmark_contract": "benchmarks/s/selection_sort/README.md"
     },
     {
       "candidate_id": "selection_sort",
@@ -76240,7 +77065,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -76256,7 +77081,10 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/selectionsort.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "selection_sort",
+      "review_notes": "The pinned Go and Lua sources repeatedly find the minimum remaining value and swap it into the current position, matching selection_sort.",
+      "benchmark_contract": "benchmarks/s/selection_sort/README.md"
     },
     {
       "candidate_id": "selectionsortlinkedlist",
@@ -76847,7 +77675,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -76856,7 +77684,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/shaker_sort.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "alias_of": "cocktail_sort",
+      "review_notes": "The pinned C shakersort performs forward and backward adjacent compare-and-swap passes over shrinking bounds. It is the cocktail sort strategy represented by cocktail_sort; its console driver and fixed pass count are outside the shared contract.",
+      "benchmark_contract": "benchmarks/c/cocktail_sort/README.md"
     },
     {
       "candidate_id": "shannon_fano",
@@ -77145,7 +77976,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -77154,7 +77985,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/ShellSorter.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "shell_sort",
+      "review_notes": "The pinned C# source halves the gap from floor(n/2) and bubble-sorts each gapped subsequence. This is the Shell-sort strategy represented by shell_sort; the local contract uses gapped insertion passes for the same halving gap sequence.",
+      "benchmark_contract": "benchmarks/s/shell_sort/README.md"
     },
     {
       "candidate_id": "shellsort",
@@ -77163,7 +77997,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -77172,7 +78006,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/shellsort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "shell_sort",
+      "review_notes": "The pinned Go implementation halves the gap from floor(n/2) to one and insertion-sorts each gapped subsequence, matching the shared shell_sort strategy.",
+      "benchmark_contract": "benchmarks/s/shell_sort/README.md"
     },
     {
       "candidate_id": "sherman_morrison",
@@ -79220,7 +80057,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -79229,7 +80066,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/slowsort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "slow_sort",
+      "review_notes": "The pinned Python source recursively sorts both halves, conditionally swaps the midpoint and final values, and recurses over the prefix. It matches the SlowSort recurrence represented by slow_sort.",
+      "benchmark_contract": "benchmarks/s/slow_sort/README.md"
     },
     {
       "candidate_id": "smallest_circle",
@@ -80795,7 +81635,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -80832,7 +81672,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/square_root.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Inspected the pinned JavaScript, Python, Ruby, and TypeScript sources. They implement Newton square-root iterations with different starting points and convergence rules; the JavaScript default performs only four iterations. The cataloged Rust path src/math/square_root.rs does not resolve at its pinned revision. The shared contract uses finite nonnegative binary64 inputs through 1e300, a common initial estimate, the stable split-sum Newton recurrence, and a 1,100-iteration cap with relative output tolerance.",
+      "benchmark_contract": "benchmarks/s/square_root/README.md"
     },
     {
       "candidate_id": "square_root_binary_search",
@@ -80841,7 +81683,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -80850,7 +81692,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/searches/SquareRootBinarySearch.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java source uses binary search and integer division to find the floor square root without multiplying large values. The shared signed 64-bit contract returns -1 for negative inputs and uses middle <= value / middle to avoid overflow through INT64_MAX. The JavaScript SquareRootLogarithmic candidate uses the same binary-search floor-root algorithm with squared midpoints and is cataloged as an alias.",
+      "benchmark_contract": "benchmarks/s/square_root_binary_search/README.md"
     },
     {
       "candidate_id": "square_root_logarithmic",
@@ -80859,7 +81703,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -80868,7 +81712,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/SquareRootLogarithmic.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "square_root_binary_search",
+      "review_notes": "The pinned JavaScript source performs binary search for the integer floor of the square root, the same algorithm as the Java SquareRootBinarySearch candidate. It uses Number arithmetic and squared midpoints; the canonical portable contract uses signed 64-bit integers and division to avoid overflow.",
+      "benchmark_contract": "benchmarks/s/square_root_binary_search/README.md"
     },
     {
       "candidate_id": "square_root_module",
@@ -82597,9 +83444,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -82615,7 +83470,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/subset_generation.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "subset_combinations",
+      "review_notes": "The pinned Python source generates fixed-size combinations with a dynamic-programming table and sorts numeric tuples; the Rust source recursively emits selections in input-index order. The shared output identifies selected positions by mask, preserves duplicate positions, emits lexicographic index order, includes the empty combination for k=0, and returns no results when k exceeds the item count.",
+      "benchmark_contract": "benchmarks/s/subset_combinations/README.md"
     },
     {
       "candidate_id": "subset_sum",
@@ -82628,10 +83486,17 @@
         "Rust"
       ],
       "local_source_folders": [
+        "c",
+        "c3",
         "cpp",
-        "rust"
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -82682,6 +83547,11 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/subset_sum.rs",
           "local_folder_source": "rust"
         }
+      ],
+      "benchmark_name": "subset_sum_exists",
+      "additional_benchmark_names": [
+        "subset_sum_count",
+        "subset_sum_enumerate"
       ]
     },
     {
@@ -82693,7 +83563,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -82702,7 +83572,8 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/subset_sum_dynamic.cpp",
           "local_folder_source": "cpp"
         }
-      ]
+      ],
+      "alias_of": "subset_sum"
     },
     {
       "candidate_id": "subset_sum_space_optimized",
@@ -82711,7 +83582,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -82720,7 +83591,8 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SubsetSumSpaceOptimized.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "subset_sum"
     },
     {
       "candidate_id": "subsetsum",
@@ -82729,7 +83601,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -82738,7 +83610,8 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/subsetsum.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "subset_sum"
     },
     {
       "candidate_id": "substring",
@@ -83304,7 +84177,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -83313,7 +84186,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/SumOfSquares.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java source implements the minimum number of perfect-square summands using a perfect-square check, a search for a two-square decomposition, and Legendre's three-square theorem. Its zero case returns one; the shared mathematical contract corrects this to zero. Inputs are bounded to the source's nonnegative signed 32-bit domain, and exact integer arithmetic avoids floating-point square classification.",
+      "benchmark_contract": "benchmarks/s/sum_of_squares/README.md"
     },
     {
       "candidate_id": "sum_of_subset",
@@ -83737,8 +84612,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -83747,7 +84632,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/symmetric_tree.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source recursively compares the root left and right subtrees as mirror pairs: values must match, left children are paired with right children, and both empty subtrees match. The pinned Java CheckTreeIsSymmetric and C LeetCode 101 implementations use the same recursive rule. The shared indexed-tree contract bounds input to 1,023 nodes and records symmetry as 1, asymmetry as 0.",
+      "benchmark_contract": "benchmarks/s/symmetric_tree/README.md"
     },
     {
       "candidate_id": "t_stochastic_neighbour_embedding",
@@ -85229,7 +86116,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -85238,7 +86125,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/timsort.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "tim_sort",
+      "review_notes": "The pinned Go source insertion-sorts fixed-size runs and merges adjacent runs, identifying the implementation as Timsort. Its run-size threshold differs from the shared fixed-size run contract, but it is the same Timsort family represented by tim_sort.",
+      "benchmark_contract": "benchmarks/t/tim_sort/README.md"
     },
     {
       "candidate_id": "title",
@@ -85968,7 +86858,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -85984,7 +86874,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/trapped_rainwater.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/t/trapped_rainwater/README.md",
+      "review_notes": "Inspected the pinned C++ and Rust sources. Both compute prefix and suffix maximum heights and sum the trapped volume, using unsigned 32-bit values. The shared contract accepts up to 4,096 heights from 0 through 1,000,000; the maximum possible water total is 4,094,000,000 and fits both upstream value widths. Nine portable implementations use the same two-maximum-array method with signed 64-bit arithmetic."
     },
     {
       "candidate_id": "trapped_rainwater2",
@@ -86616,8 +87508,18 @@
         "Java",
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -86633,7 +87535,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/tribonacci.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java source computes the zero-based nth Tribonacci value with initial terms 0, 1, 1. The Python file with the same stem emits a sequence beginning 0, 0, 1 and is recorded as a semantic mismatch; the shared benchmark uses the matching nth-value contract and bounds it to exact signed 64-bit results.",
+      "benchmark_contract": "benchmarks/t/tribonacci/README.md"
     },
     {
       "candidate_id": "tribonacci_number",
@@ -86642,7 +87546,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -86651,7 +87555,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/TribonacciNumber.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "tribonacci",
+      "review_notes": "The pinned JavaScript TribonacciNumber implementation uses the same zero-based nth-term recurrence and initial values as the canonical tribonacci benchmark.",
+      "benchmark_contract": "benchmarks/t/tribonacci/README.md"
     },
     {
       "candidate_id": "tribonacci_numbers_sequence",
@@ -87875,7 +88782,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -87891,7 +88798,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/UniquePaths.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java implementation includes one-dimensional dynamic programming that swaps dimensions to minimize storage, plus a two-dimensional variant; both use int results with Math.addExact. The JavaScript source uses a one-dimensional table and Number arithmetic. The shared contract standardizes positive dimensions up to 34 and exact signed-64-bit counts, rejecting dimensions outside that range; this includes results beyond Java int and JavaScript exact-integer ranges.",
+      "benchmark_contract": "benchmarks/u/unique_paths/README.md"
     },
     {
       "candidate_id": "unique_paths2",
@@ -88202,7 +89111,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -88211,7 +89120,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/stacks/ValidParentheses.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "valid_parentheses",
+      "review_notes": "The pinned Java ValidParentheses and C LeetCode 20 sources use a stack to check properly nested parentheses, square brackets, and braces. The shared contract encodes ASCII bracket bytes as signed 64-bit values, bounds the input at 256 symbols, and returns 1 for valid nesting, 0 for invalid nesting, or -1 for out-of-domain input.",
+      "benchmark_contract": "benchmarks/v/valid_parentheses/README.md"
     },
     {
       "candidate_id": "validate_credit_card",
@@ -88807,9 +89719,17 @@
         "Rust"
       ],
       "local_source_folders": [
-        "rust"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -88832,7 +89752,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/vigenere.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "vigenere_cipher",
+      "review_notes": "The pinned Java, Julia, and Rust sources implement the same Vigenere letter-substitution cipher. Differences in case handling, empty-key behavior, or key advancement are normalized to the shared vigenere_cipher contract and workload.",
+      "benchmark_contract": "benchmarks/v/vigenere_cipher/README.md"
     },
     {
       "candidate_id": "vigenere_cipher",
@@ -88844,9 +89767,17 @@
         "Python"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -88876,7 +89807,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/vigenere_cipher.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++, JavaScript, and Python files implement Vigenere encryption with differing case, key validation, and key-advance behavior. The shared contract encrypts ASCII letters case-preservingly, accepts a nonempty ASCII-letter key, and advances the repeating key only on message letters.",
+      "benchmark_contract": "benchmarks/v/vigenere_cipher/README.md"
     },
     {
       "candidate_id": "vigenere_encoder",
@@ -88902,8 +89835,18 @@
       "source_repositories": [
         "PHP"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -88912,7 +89855,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Ciphers/VignereCipher.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "vigenere_cipher",
+      "review_notes": "The pinned the PHP source with a misspelled filename implement the same Vigenere letter-substitution cipher. Differences in case handling, empty-key behavior, or key advancement are normalized to the shared vigenere_cipher contract and workload.",
+      "benchmark_contract": "benchmarks/v/vigenere_cipher/README.md"
     },
     {
       "candidate_id": "vision_transformer",
@@ -89842,7 +90788,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -89879,7 +90825,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/word_break.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ implementation memoizes suffix results and checks growing prefixes. Python’s dynamic-programming source traverses a trie with cached suffix checks, and its backtracking source explores dictionary-word choices. The sources agree that words may be reused. The shared contract standardizes lowercase ASCII, fixed-width packed word slots, and treats the empty string as segmentable, although Python rejects empty text as input. The cataloged Rust blob path returned 404 at its pinned commit and was not used for the semantic review.",
+      "benchmark_contract": "benchmarks/w/word_break/README.md"
     },
     {
       "candidate_id": "word_count",
@@ -90267,9 +91215,17 @@
         "TypeScript"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -90299,7 +91255,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/ciphers/xor_cipher.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C++ and TypeScript examples XOR each character with an integer key, while Python exposes integer-key and string/file helpers. The shared benchmark uses byte arrays and a repeating byte key, which includes the one-byte integer-key case and defines binary output explicitly.",
+      "benchmark_contract": "benchmarks/x/xor_cipher/README.md"
     },
     {
       "candidate_id": "xor_gate",
@@ -90363,8 +91321,18 @@
         "JavaScript",
         "PHP"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -90387,7 +91355,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Ciphers/XORCipher.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "xor_cipher",
+      "review_notes": "The pinned Java, JavaScript, and PHP files use the XOR cipher under the joined spelling xorcipher. Their key and output representations differ; this filename candidate shares the byte-oriented repeating-key contract and workload of xor_cipher.",
+      "benchmark_contract": "benchmarks/x/xor_cipher/README.md"
     },
     {
       "candidate_id": "xorsearch",

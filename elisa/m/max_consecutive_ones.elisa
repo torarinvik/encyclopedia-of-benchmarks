@@ -1,0 +1,20 @@
+# Return the longest run of ones in a binary array.
+def max_consecutive_ones_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    index: mutable usize = 0
+    best: mutable usize = 0
+    run: mutable usize = 0
+    while index < length:
+        if values[index] != 0 and values[index] != 1:
+            return -1
+        if values[index] == 1:
+            run <- run + 1
+            if run > best:
+                best <- run
+        else:
+            run <- 0
+        index <- index + 1
+    best.i64()
+
+export fn max_consecutive_ones(values: i64&, length: usize) -> i64 = max_consecutive_ones_impl

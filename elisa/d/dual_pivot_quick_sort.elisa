@@ -1,0 +1,68 @@
+# Dual-pivot quicksort with first and final values as pivots.
+def dual_pivot_sort_range(values: mutable i64&, low_value: usize, high_value: usize) -> void:
+    low: mutable usize = low_value
+    high: mutable usize = high_value
+    while high - low > 2:
+        if values[low] > values[high - 1]:
+            temporary: i64 = values[low]
+            values[low] <- values[high - 1]
+            values[high - 1] <- temporary
+        pivot1: i64 = values[low]
+        pivot2: i64 = values[high - 1]
+        less: mutable usize = low + 1
+        scan: mutable usize = low + 1
+        greater: mutable usize = high - 2
+        while scan <= greater:
+            if values[scan] < pivot1:
+                temporary: i64 = values[scan]
+                values[scan] <- values[less]
+                values[less] <- temporary
+                less <- less + 1
+            elif values[scan] >= pivot2:
+                while scan < greater and values[greater] > pivot2:
+                    greater <- greater - 1
+                temporary: i64 = values[scan]
+                values[scan] <- values[greater]
+                values[greater] <- temporary
+                greater <- greater - 1
+                if values[scan] < pivot1:
+                    second_temporary: i64 = values[scan]
+                    values[scan] <- values[less]
+                    values[less] <- second_temporary
+                    less <- less + 1
+            scan <- scan + 1
+        pivot1_index: usize = less - 1
+        pivot2_index: usize = greater + 1
+        first_temporary: i64 = values[low]
+        values[low] <- values[pivot1_index]
+        values[pivot1_index] <- first_temporary
+        second_temporary: i64 = values[high - 1]
+        values[high - 1] <- values[pivot2_index]
+        values[pivot2_index] <- second_temporary
+
+        left_size: usize = pivot1_index - low
+        middle_size: usize = pivot2_index - pivot1_index - 1
+        right_size: usize = high - pivot2_index - 1
+        if left_size >= middle_size and left_size >= right_size:
+            dual_pivot_sort_range(values, pivot1_index + 1, pivot2_index)
+            dual_pivot_sort_range(values, pivot2_index + 1, high)
+            high <- pivot1_index
+        elif middle_size >= right_size:
+            dual_pivot_sort_range(values, low, pivot1_index)
+            dual_pivot_sort_range(values, pivot2_index + 1, high)
+            low <- pivot1_index + 1
+            high <- pivot2_index
+        else:
+            dual_pivot_sort_range(values, low, pivot1_index)
+            dual_pivot_sort_range(values, pivot1_index + 1, pivot2_index)
+            low <- pivot2_index + 1
+    if high - low == 2 and values[low] > values[low + 1]:
+        temporary: i64 = values[low]
+        values[low] <- values[low + 1]
+        values[low + 1] <- temporary
+
+def dual_pivot_quick_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length > 1:
+        dual_pivot_sort_range(values, 0, length)
+
+export fn dual_pivot_quick_sort(values: mutable i64&, length: usize) -> void = dual_pivot_quick_sort_impl

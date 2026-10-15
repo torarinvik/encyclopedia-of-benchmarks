@@ -1,0 +1,32 @@
+# Apply a normalized Caesar shift to ASCII letters in a byte sequence.
+def caesar_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 66:
+        return -1
+    text_length: usize = length - 1
+    valid_input: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 0 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if output_capacity < text_length:
+        return -2
+    shift: mutable i64 = input[text_length] % 26
+    if shift < 0:
+        shift <- shift + 26
+    while index < text_length |index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        mapped: mutable i64 = value
+        if value >= 65 and value <= 90:
+            mapped <- 65 + (value - 65 + shift) % 26
+        elif value >= 97 and value <= 122:
+            mapped <- 97 + (value - 97 + shift) % 26
+        output[index] <- mapped.u8()
+        index <- index + 1
+        output
+    text_length.i64()
+
+export fn caesar_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = caesar_cipher_impl

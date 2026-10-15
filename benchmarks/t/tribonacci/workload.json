@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "tribonacci-v1",
+  "algorithm": "tribonacci",
+  "input": {
+    "minimum": 0,
+    "maximum": 73,
+    "out_of_range_result": -1,
+    "definition": "T(0)=0, T(1)=1, T(2)=1, T(n)=T(n-1)+T(n-2)+T(n-3)"
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "three",
+      "input_value": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 4
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 149
+    },
+    {
+      "id": "twenty_five",
+      "input_value": 25,
+      "expected_result": 1389537
+    },
+    {
+      "id": "forty",
+      "input_value": 40,
+      "expected_result": 12960201916
+    },
+    {
+      "id": "seventy_two",
+      "input_value": 72,
+      "expected_result": 3814116544533214284
+    },
+    {
+      "id": "maximum_i64_result",
+      "input_value": 73,
+      "expected_result": 7015254043203144209
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_overflowing_term",
+      "input_value": 74,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

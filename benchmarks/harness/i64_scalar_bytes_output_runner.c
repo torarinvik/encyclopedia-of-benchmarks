@@ -1,4 +1,4 @@
-/* Timing runner for signed scalar algorithms that write ASCII bytes to a caller buffer. */
+/* Timing runner for signed scalar algorithms that write bytes to a caller buffer. */
 #include <errno.h>
 #include <inttypes.h>
 #include <stdint.h>
@@ -11,7 +11,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_OUTPUT_BYTES 63
+#define MAX_OUTPUT_BYTES 256
 typedef int64_t (*output_fn)(int64_t, uint8_t *, size_t);
 extern int64_t BENCHMARK_FUNCTION(int64_t value, uint8_t *output, size_t output_capacity);
 static output_fn volatile run_algorithm = BENCHMARK_FUNCTION;

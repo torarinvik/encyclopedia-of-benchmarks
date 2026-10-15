@@ -1,0 +1,57 @@
+# Return the upper median using three-way quickselect on a local copy.
+const MAX_VALUES: usize = 1024
+
+def quick_select_median_of_three(first: i64, middle: i64, last: i64) -> i64:
+    if first < middle:
+        if middle < last:
+            return middle
+        if first < last:
+            return last
+        return first
+    if first < last:
+        return first
+    if middle < last:
+        return last
+    return middle
+
+def quick_select_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_VALUES:
+        return -1
+    scratch: mutable i64[1024] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        scratch[index] <- values[index]
+        index <- index + 1
+
+    target: usize = length / 2
+    low: mutable usize = 0
+    high: mutable usize = length
+    while high - low > 1:
+        middle: usize = low + (high - low) / 2
+        pivot: i64 = quick_select_median_of_three(scratch[low], scratch[middle], scratch[high - 1])
+        less: mutable usize = low
+        scan: mutable usize = low
+        greater: mutable usize = high
+        while scan < greater:
+            if scratch[scan] < pivot:
+                temporary: i64 = scratch[less]
+                scratch[less] <- scratch[scan]
+                scratch[scan] <- temporary
+                less <- less + 1
+                scan <- scan + 1
+            elif scratch[scan] > pivot:
+                greater <- greater - 1
+                temporary: i64 = scratch[greater]
+                scratch[greater] <- scratch[scan]
+                scratch[scan] <- temporary
+            else:
+                scan <- scan + 1
+        if target < less:
+            high <- less
+        elif target >= greater:
+            low <- greater
+        else:
+            return pivot
+    scratch[target]
+
+export fn quick_select(values: i64&, length: usize) -> i64 = quick_select_impl

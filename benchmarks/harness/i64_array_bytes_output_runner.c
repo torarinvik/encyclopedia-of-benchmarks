@@ -11,7 +11,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_INPUT_LENGTH 66
+#define MAX_INPUT_LENGTH 4096
 #define MAX_OUTPUT_BYTES 24576
 typedef int64_t (*output_fn)(const int64_t *, size_t, uint8_t *, size_t);
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "invalid signed 64-bit input value\n"); free(values); return 2;
         }
     }
-    if (!parse_i64(argv[length + 2], &expected_count) || expected_count < -1 || expected_count > 4096 ||
+    if (!parse_i64(argv[length + 2], &expected_count) || expected_count < -2 || expected_count > 4096 ||
         !parse_u64(argv[samples_index], &samples_arg) ||
         !parse_u64(argv[warmups_index], &warmups_arg) ||
         !parse_u64(argv[repetitions_index], &repetitions_arg) ||

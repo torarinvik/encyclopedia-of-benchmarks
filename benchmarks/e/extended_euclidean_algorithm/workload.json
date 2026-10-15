@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "extended-euclidean-algorithm-v1",
+  "algorithm": "extended_euclidean_algorithm",
+  "input": {
+    "kind": "two_positive_signed_32_bit_integers",
+    "range": [
+      1,
+      2147483647
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "result_order": [
+      "gcd",
+      "coefficient_a",
+      "coefficient_b"
+    ],
+    "identity": "a*coefficient_a + b*coefficient_b = gcd",
+    "output_encoding": "three signed 32-bit two's-complement integers in little-endian byte order"
+  },
+  "cases": [
+    {
+      "id": "coprime_example",
+      "input_values": [
+        240,
+        46
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "02000000f7ffffff2f000000"
+    },
+    {
+      "id": "rust_reference_example",
+      "input_values": [
+        101,
+        13
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "0100000004000000e1ffffff"
+    },
+    {
+      "id": "non_coprime",
+      "input_values": [
+        69,
+        54
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "03000000f9ffffff09000000"
+    },
+    {
+      "id": "first_is_one",
+      "input_values": [
+        1,
+        24
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "010000000100000000000000"
+    },
+    {
+      "id": "second_is_one",
+      "input_values": [
+        24,
+        1
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "010000000000000001000000"
+    },
+    {
+      "id": "equal_values",
+      "input_values": [
+        42,
+        42
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "2a0000000000000001000000"
+    },
+    {
+      "id": "first_divides_second",
+      "input_values": [
+        12,
+        60
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "0c0000000100000000000000"
+    },
+    {
+      "id": "second_divides_first",
+      "input_values": [
+        60,
+        12
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "0c0000000000000001000000"
+    },
+    {
+      "id": "consecutive_values",
+      "input_values": [
+        987654321,
+        987654320
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "0100000001000000ffffffff"
+    },
+    {
+      "id": "near_signed_32_bit_limit",
+      "input_values": [
+        2147483647,
+        2147483629
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "010000003a8ee3f8c7711c07"
+    },
+    {
+      "id": "maximum_equal_inputs",
+      "input_values": [
+        2147483647,
+        2147483647
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "ffffff7f0000000001000000"
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one_argument",
+      "input_values": [
+        15
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_arguments",
+      "input_values": [
+        15,
+        7,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_is_invalid",
+      "input_values": [
+        0,
+        15
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_is_invalid",
+      "input_values": [
+        -15,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_i32_is_invalid",
+      "input_values": [
+        2147483648,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

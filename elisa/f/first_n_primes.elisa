@@ -1,0 +1,66 @@
+# Encode the first n primes in ascending order as comma-separated decimal bytes.
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def decimal_length(value: i64) -> usize:
+    length: mutable usize = 1
+    remaining: mutable i64 = value
+    while remaining >= 10:
+        remaining <- remaining / 10
+        length <- length + 1
+    length
+
+def required_length(number_of_primes: i64) -> usize:
+    length: mutable usize = 0
+    count: mutable usize = 0
+    value: mutable i64 = 2
+    while count < number_of_primes.usize():
+        if is_prime(value):
+            length <- length + decimal_length(value)
+            length <- length + 1 if count > 0
+            count <- count + 1
+        value <- value + 1
+    length
+
+def append_decimal(value: i64, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[3]
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    position: mutable usize = position_value
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+    position
+
+def first_n_primes_impl(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if number_of_primes < 0 or number_of_primes > 20:
+        return -1
+    required: usize = required_length(number_of_primes)
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    count: mutable usize = 0
+    value: mutable i64 = 2
+    while count < number_of_primes.usize():
+        if is_prime(value):
+            if count > 0:
+                output[position] <- 44.u8()
+                position <- position + 1
+            position <- append_decimal(value, output, position)
+            count <- count + 1
+        value <- value + 1
+    position.i64()
+
+export fn first_n_primes(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64 = first_n_primes_impl

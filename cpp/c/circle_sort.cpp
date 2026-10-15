@@ -1,40 +1,39 @@
-/* Recursive circle sort for the shared signed 64-bit benchmark contract. */
+/* Portable recursive circle sort for signed 64-bit values. */
 #include <cstddef>
 #include <cstdint>
 
-namespace {
-bool circle_pass(std::int64_t *values, std::size_t low, std::size_t high) noexcept
+static bool circle_sort_range(std::int64_t *values, std::size_t left_value, std::size_t right_value) noexcept
 {
-    const std::size_t length = high - low;
-    if (length < 2) return false;
+    if (left_value >= right_value) return false;
+
+    std::size_t low = left_value;
+    std::size_t high = right_value;
     bool swapped = false;
-    std::size_t left = low;
-    std::size_t right = high - 1;
-    while (left < right) {
-        if (values[left] > values[right]) {
-            const std::int64_t temporary = values[left];
-            values[left] = values[right];
-            values[right] = temporary;
+    while (low < high) {
+        if (values[low] > values[high]) {
+            const std::int64_t temporary = values[low];
+            values[low] = values[high];
+            values[high] = temporary;
             swapped = true;
         }
-        ++left;
-        --right;
+        ++low;
+        --high;
     }
-    if ((length & 1U) != 0 && left == right && right + 1 < high &&
-        values[right + 1] < values[right]) {
-        const std::int64_t temporary = values[right];
-        values[right] = values[right + 1];
-        values[right + 1] = temporary;
+    if (low == high && values[low] > values[high + 1]) {
+        const std::int64_t temporary = values[low];
+        values[low] = values[high + 1];
+        values[high + 1] = temporary;
         swapped = true;
     }
-    const std::size_t split = low + length / 2 + length % 2;
-    const bool left_swapped = circle_pass(values, low, split);
-    const bool right_swapped = circle_pass(values, split, high);
+
+    const std::size_t middle = left_value + (right_value - left_value) / 2;
+    const bool left_swapped = circle_sort_range(values, left_value, middle);
+    const bool right_swapped = circle_sort_range(values, middle + 1, right_value);
     return swapped || left_swapped || right_swapped;
-}
 }
 
 extern "C" void circle_sort(std::int64_t *values, std::size_t length) noexcept
 {
-    while (length > 1 && circle_pass(values, 0, length)) { }
+    if (length < 2) return;
+    while (circle_sort_range(values, 0, length - 1)) {}
 }

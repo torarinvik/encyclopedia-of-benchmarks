@@ -1,0 +1,25 @@
+# Compute one row of Pascal's triangle using in-place dynamic programming.
+def pascal_triangle_row_impl(row_index: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if row_index < 0 or row_index > 33:
+        return -1
+    row_limit: usize = row_index.usize()
+    count: usize = row_limit + 1
+    required: usize = count * 4
+    if output_capacity < required:
+        return -2
+
+    coefficients: mutable u32[34] = for column in 0..<count |coefficients: mutable u32[34] = zeroed| -> coefficients:
+        coefficients[column] <- 1.u32()
+    for row in 2..<(row_limit + 1) |coefficients|:
+        for step in 0..<(row - 1) |coefficients|:
+            column: usize = row - step - 1
+            coefficients[column] <- coefficients[column] + coefficients[column - 1]
+
+    position: mutable usize = 0
+    for column in 0..<count |coefficients, output, position|:
+        for byte in 0..<4 |coefficients, output, position|:
+            output[position] <- ((coefficients[column] >> (byte * 8)) & 255.u32()).u8()
+            position <- position + 1
+    position.i64()
+
+export fn pascal_triangle_row(row_index: i64, output: mutable u8&, output_capacity: usize) -> i64 = pascal_triangle_row_impl

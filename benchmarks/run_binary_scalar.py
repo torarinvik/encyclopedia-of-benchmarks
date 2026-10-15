@@ -15,15 +15,16 @@ import subprocess
 from build_abi import ROOT, sha256_file
 
 U64_MAX = 2**64 - 1
+I64_MIN = -(2**63)
 
 
 def encode_values(case: dict) -> tuple[int, int, int]:
     values = case.get("input_values")
     expected = case.get("expected_result")
     if (not isinstance(values, list) or len(values) != 2
-            or any(type(value) is not int or not 0 <= value <= U64_MAX for value in values)
+            or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
-        raise ValueError("binary scalar cases require two unsigned 64-bit inputs and an integer result")
+        raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
     return values[0], values[1], expected
 
 
@@ -74,7 +75,9 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         left, right, expected = encode_values(case)
-        command = [str(executable), str(left), str(right), str(expected),
+        abi_left = left if left >= 0 else left + (1 << 64)
+        abi_right = right if right >= 0 else right + (1 << 64)
+        command = [str(executable), str(abi_left), str(abi_right), str(expected),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:

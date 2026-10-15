@@ -1,0 +1,25 @@
+# Check whether ASCII letters form an isogram, ignoring case and spaces.
+def isogram_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    result: i64 =
+        while index < length |index: mutable usize = 0, seen: mutable bool[26] = zeroed, result: mutable i64 = 1| -> result:
+            value: i64 = values[index]
+            if value == 32:
+                index <- index + 1
+            else:
+                letter_index: mutable usize = 0
+                if value >= 65 and value <= 90:
+                    letter_index <- (value - 65).usize()
+                elif value >= 97 and value <= 122:
+                    letter_index <- (value - 97).usize()
+                else:
+                    break -1
+                if seen[letter_index]:
+                    break 0
+                seen[letter_index] <- true
+                index <- index + 1
+            result
+    result
+
+export fn isogram(values: i64&, length: usize) -> i64 = isogram_impl

@@ -1,4 +1,4 @@
-/* Batch correctness checker for a two-unsigned-input C ABI. */
+/* Batch correctness checker for a two-word scalar C ABI. */
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>

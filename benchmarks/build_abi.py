@@ -20,6 +20,7 @@ EXTENSIONS = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim"
 FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "binary_scalar": ("binary_scalar_call", ["binary_scalar_runner", "binary_scalar_check"]),
             "float64_triple": ("float64_triple_call", ["float64_triple_runner", "float64_triple_check"]),
+            "float64_unary": ("float64_unary_call", ["float64_unary_runner", "float64_unary_check"]),
             "i64_array_bytes_output": ("i64_array_bytes_output_call",
                                        ["i64_array_bytes_output_runner", "i64_array_bytes_output_check"]),
             "i64_scalar_bytes_output": ("i64_scalar_bytes_output_call",
@@ -29,7 +30,11 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "sort": ("sort_call", ["sort_runner", "sort_checker"]),
             "shortest_path": ("shortest_path_call", ["shortest_path_runner"]),
             "tree_level_order": ("tree_level_order_call",
-                                 ["tree_level_order_runner", "tree_level_order_check"])}
+                                 ["tree_level_order_runner", "tree_level_order_check"]),
+            "tree_symmetric": ("tree_symmetric_call",
+                               ["tree_symmetric_runner", "tree_symmetric_check"]),
+            "tree_scalar": ("tree_scalar_call",
+                            ["tree_scalar_runner", "tree_scalar_check"])}
 COMPILERS = {"c": "cc", "c3": "c3c", "cpp": "c++", "elisa": "elisac", "nim": "nim",
              "odin": "odin", "rust": "rustc", "v": "v", "zig": "zig"}
 
@@ -46,7 +51,8 @@ def resolve_tool(name: str) -> str:
 
 
 def build(algorithm: str, language: str, directory: Path, *, compiler: str | None = None,
-          cc: str = "cc", with_checker: bool = False, family: str = "scalar") -> dict:
+          cc: str = "cc", with_checker: bool = False, family: str = "scalar",
+          extra_link_sources: tuple[Path, ...] = ()) -> dict:
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
@@ -70,6 +76,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     artifact = directory / ("implementation.a" if language in {"c3", "nim", "rust"} else "implementation.o")
     commands: list[list[str]] = []
     native_link_flags: list[str] = []
+    extra_link_objects: list[Path] = []
 
     def run(command: list[str]) -> subprocess.CompletedProcess:
         commands.append(command)
@@ -120,6 +127,14 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if not artifact.is_file():
         raise RuntimeError(f"compiler completed without creating {artifact}")
 
+    for source_index, link_source in enumerate(extra_link_sources):
+        link_source = link_source.resolve()
+        if not link_source.is_file():
+            raise ValueError(f"extra link source is missing: {link_source}")
+        link_object = directory / f"extra-link-{source_index}.o"
+        run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", "-c", str(link_source), "-o", str(link_object)])
+        extra_link_objects.append(link_object)
+
     binaries = {}
     harnesses = family_harnesses if with_checker else family_harnesses[:1]
     for name in harnesses:
@@ -129,7 +144,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
              "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
-        command = [linker, str(harness_object), str(artifact), "-o", str(executable), *native_link_flags]
+        command = [linker, str(harness_object), str(artifact),
+                   *(str(path) for path in extra_link_objects), "-o", str(executable), *native_link_flags]
         if os.name != "nt":
             command.append("-lm")
         if sys.platform.startswith("linux") and language in {"nim", "v"}:
@@ -151,6 +167,11 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         "version_exit_code": version.returncode,
         "build_flags": shlex.join(flags), "commands": commands,
         "native_link_flags": native_link_flags, "artifact": str(artifact), "binaries": binaries,
+        "extra_link_sources": [
+            {"path": path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path),
+             "sha256": sha256_file(path)}
+            for path in (source.resolve() for source in extra_link_sources)
+        ],
     }
     (directory / "build.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest

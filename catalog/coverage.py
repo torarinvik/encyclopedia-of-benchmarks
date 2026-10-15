@@ -41,41 +41,62 @@ def audit() -> dict:
         return current
 
     entries = []
-    complete_by_name = {}
+    missing_implementations = 0
+    unique_complete = 0
     for candidate in candidates:
         name = candidate["candidate_id"]
         target = canonical(candidate)
-        benchmark_name = target["candidate_id"]
-        letter = benchmark_name[0] if benchmark_name[0].isalpha() else "0-9"
-        guide = ROOT / "benchmarks" / letter / benchmark_name / "README.md"
-        workload = guide.with_name("workload.json")
-        missing = [language for language, extension in LANGUAGES.items()
-                   if not (ROOT / language / letter / f"{benchmark_name}.{extension}").is_file()]
-        workload_matches = False
-        if workload.is_file():
-            spec = json.loads(workload.read_text(encoding="utf-8"))
-            workload_matches = spec.get("algorithm") == benchmark_name
+        benchmark_name = target.get("benchmark_name", target["candidate_id"])
+        additional_names = target.get("additional_benchmark_names", [])
+        if not isinstance(additional_names, list):
+            raise ValueError(f"additional_benchmark_names must be a list for candidate {name}")
+        benchmark_names = [benchmark_name, *additional_names]
+        if (any(not isinstance(item, str) or not item for item in benchmark_names)
+                or len(set(benchmark_names)) != len(benchmark_names)):
+            raise ValueError(f"invalid benchmark names for candidate {name}")
+        benchmark_details = []
+        for algorithm in benchmark_names:
+            letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
+            guide = ROOT / "benchmarks" / letter / algorithm / "README.md"
+            workload = guide.with_name("workload.json")
+            missing = [language for language, extension in LANGUAGES.items()
+                       if not (ROOT / language / letter / f"{algorithm}.{extension}").is_file()]
+            workload_matches = False
+            if workload.is_file():
+                spec = json.loads(workload.read_text(encoding="utf-8"))
+                workload_matches = spec.get("algorithm") == algorithm
+            benchmark_details.append({"algorithm": algorithm, "missing_languages": missing,
+                                      "guide_present": guide.is_file(),
+                                      "workload_matches": workload_matches})
+            if "alias_of" not in candidate:
+                missing_implementations += len(missing)
+        missing = sorted({language for detail in benchmark_details
+                          for language in detail["missing_languages"]})
+        workload_matches = all(detail["workload_matches"] for detail in benchmark_details)
         reviewed = candidate["review_status"] == "reviewed_algorithm_semantics"
         complete = (reviewed and target["review_status"] == "reviewed_algorithm_semantics"
-                    and not missing and guide.is_file() and workload_matches)
-        if name == benchmark_name:
-            complete_by_name[name] = complete
+                    and all(not detail["missing_languages"] and detail["guide_present"]
+                            and detail["workload_matches"] for detail in benchmark_details))
+        if "alias_of" not in candidate:
+            if complete:
+                unique_complete += len(benchmark_names)
         entries.append({"candidate_id": name, "reviewed": reviewed,
                         "alias_of": candidate.get("alias_of"),
                         "benchmark_algorithm": benchmark_name,
-                        "missing_languages": missing, "guide_present": guide.is_file(),
+                        "benchmark_algorithms": benchmark_names,
+                        "benchmark_details": benchmark_details,
+                        "missing_languages": missing,
+                        "guide_present": all(detail["guide_present"] for detail in benchmark_details),
                         "workload_matches": workload_matches,
                         "files_present_and_reviewed": complete})
-    unique_complete = sum(complete_by_name.values())
     summary = {
         "candidate_count": len(entries),
         "reviewed_candidates": sum(entry["reviewed"] for entry in entries),
         "files_present_and_reviewed": sum(entry["files_present_and_reviewed"] for entry in entries),
-        "canonical_candidate_count": sum("alias_of" not in candidate for candidate in candidates),
+            "canonical_candidate_count": sum("alias_of" not in candidate for candidate in candidates),
         "unique_benchmarks_complete": unique_complete,
         "reviewed_aliases": sum(entry["reviewed"] and entry["alias_of"] is not None for entry in entries),
-        "missing_implementation_files": sum(
-            len(entry["missing_languages"]) for entry in entries if entry["alias_of"] is None),
+        "missing_implementation_files": missing_implementations,
         "target_language_count": len(LANGUAGES),
     }
     summary["candidates_remaining"] = len(entries) - summary["files_present_and_reviewed"]

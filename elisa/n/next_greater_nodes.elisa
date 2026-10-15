@@ -1,0 +1,31 @@
+# Brute-force next-greater-value search for each node in list order.
+def next_greater_nodes_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 4096:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 1 or values[index] > 1000000000:
+            return -1
+        index <- index + 1
+    required: usize = 4 * length
+    if output_capacity < required:
+        return -2
+    index <- 0
+    while index < length:
+        next_greater: mutable i64 = 0
+        later: mutable usize = index + 1
+        while later < length:
+            if values[later] > values[index]:
+                next_greater <- values[later]
+                break
+            later <- later + 1
+        encoded: u64 = next_greater.u64()
+        output[4 * index] <- (encoded % 256).u8()
+        output[4 * index + 1] <- ((encoded / 256) % 256).u8()
+        output[4 * index + 2] <- ((encoded / 65536) % 256).u8()
+        output[4 * index + 3] <- (encoded / 16777216).u8()
+        index <- index + 1
+    length.i64()
+
+export fn next_greater_nodes(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = next_greater_nodes_impl

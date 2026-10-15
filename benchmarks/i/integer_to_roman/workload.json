@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "integer-to-roman-v1",
+  "algorithm": "integer_to_roman",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "range": [
+      1,
+      3999
+    ],
+    "encoding": "roman",
+    "invalid_result": -1,
+    "output": "canonical uppercase Roman numeral in subtractive notation"
+  },
+  "cases": [
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1,
+      "expected_output": "I"
+    },
+    {
+      "id": "four",
+      "input_value": 4,
+      "expected_result": 2,
+      "expected_output": "IV"
+    },
+    {
+      "id": "nine",
+      "input_value": 9,
+      "expected_result": 2,
+      "expected_output": "IX"
+    },
+    {
+      "id": "forty_nine",
+      "input_value": 49,
+      "expected_result": 4,
+      "expected_output": "XLIX"
+    },
+    {
+      "id": "nine_hundred_forty_four",
+      "input_value": 944,
+      "expected_result": 6,
+      "expected_output": "CMXLIV"
+    },
+    {
+      "id": "nineteen_ninety_four",
+      "input_value": 1994,
+      "expected_result": 7,
+      "expected_output": "MCMXCIV"
+    },
+    {
+      "id": "current_year_example",
+      "input_value": 2024,
+      "expected_result": 6,
+      "expected_output": "MMXXIV"
+    },
+    {
+      "id": "maximum",
+      "input_value": 3999,
+      "expected_result": 9,
+      "expected_output": "MMMCMXCIX"
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "above_range_invalid",
+      "input_value": 4000,
+      "expected_result": -1,
+      "expected_output": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

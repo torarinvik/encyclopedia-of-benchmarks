@@ -1,0 +1,18 @@
+# Minimum deletions to leave all a values before all b values.
+def minimum_deletions_to_make_string_balanced_impl(values: i64&, length: usize) -> i64:
+    if length > 256:
+        return -1
+    a_state: mutable i64 = 0
+    b_state: mutable i64 = 0
+    for index in 0..<length |values, a_state, b_state|:
+        value: i64 = values[index]
+        if value < 0 or value > 1:
+            return -1
+        next_a: i64 = a_state + (1 if value == 1 else 0)
+        b_with_a: i64 = b_state + (1 if value == 0 else 0)
+        next_b: i64 = a_state if a_state < b_with_a else b_with_a
+        a_state <- next_a
+        b_state <- next_b
+    return a_state if a_state < b_state else b_state
+
+export fn minimum_deletions_to_make_string_balanced(values: i64&, length: usize) -> i64 = minimum_deletions_to_make_string_balanced_impl

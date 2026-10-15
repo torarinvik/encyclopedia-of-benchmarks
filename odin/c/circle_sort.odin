@@ -2,35 +2,42 @@ package circle_sort
 
 import "core:c"
 
-circle_pass :: proc(values: [^]i64, low, high: c.size_t) -> bool {
-	length := high - low
-	if length < 2 { return false }
+circle_sort_range :: proc "contextless" (values: [^]i64, left_value, right_value: c.size_t) -> bool {
+	if left_value >= right_value {
+		return false
+	}
+
+	low := left_value
+	high := right_value
 	swapped := false
-	left := low
-	right := high - 1
-	for left < right {
-		if values[left] > values[right] {
-			temporary := values[left]
-			values[left] = values[right]
-			values[right] = temporary
+	for low < high {
+		if values[low] > values[high] {
+			temporary := values[low]
+			values[low] = values[high]
+			values[high] = temporary
 			swapped = true
 		}
-		left += 1
-		right -= 1
+		low += 1
+		high -= 1
 	}
-	if length % 2 != 0 && left == right && right + 1 < high && values[right + 1] < values[right] {
-		temporary := values[right]
-		values[right] = values[right + 1]
-		values[right + 1] = temporary
+	if low == high && values[low] > values[high + 1] {
+		temporary := values[low]
+		values[low] = values[high + 1]
+		values[high + 1] = temporary
 		swapped = true
 	}
-	split := low + length / 2 + length % 2
-	left_swapped := circle_pass(values, low, split)
-	right_swapped := circle_pass(values, split, high)
+
+	middle := left_value + (right_value-left_value)/2
+	left_swapped := circle_sort_range(values, left_value, middle)
+	right_swapped := circle_sort_range(values, middle+1, right_value)
 	return swapped || left_swapped || right_swapped
 }
 
 @(export)
 circle_sort :: proc "c" (values: [^]i64, length: c.size_t) {
-	for length > 1 && circle_pass(values, 0, length) { }
+	if length < 2 {
+		return
+	}
+	for circle_sort_range(values, 0, length-1) {
+	}
 }

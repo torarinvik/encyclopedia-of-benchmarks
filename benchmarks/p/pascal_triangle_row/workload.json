@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "id": "pascal-triangle-row-v1",
+  "algorithm": "pascal_triangle_row",
+  "input": {
+    "kind": "zero_based_pascal_triangle_row_index",
+    "encoding": "pascal_triangle_row",
+    "minimum": 0,
+    "maximum": 33,
+    "out_of_range_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "unsigned_32_bit_little_endian_coefficients"
+  },
+  "cases": [
+    {
+      "id": "row_00",
+      "input_value": 0,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "row_01",
+      "input_value": 1,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "row_02",
+      "input_value": 2,
+      "expected_result": 12,
+      "expected_output_hex": "010000000200000001000000"
+    },
+    {
+      "id": "row_03",
+      "input_value": 3,
+      "expected_result": 16,
+      "expected_output_hex": "01000000030000000300000001000000"
+    },
+    {
+      "id": "row_04",
+      "input_value": 4,
+      "expected_result": 20,
+      "expected_output_hex": "0100000004000000060000000400000001000000"
+    },
+    {
+      "id": "row_05",
+      "input_value": 5,
+      "expected_result": 24,
+      "expected_output_hex": "01000000050000000a0000000a0000000500000001000000"
+    },
+    {
+      "id": "row_06",
+      "input_value": 6,
+      "expected_result": 28,
+      "expected_output_hex": "01000000060000000f000000140000000f0000000600000001000000"
+    },
+    {
+      "id": "row_07",
+      "input_value": 7,
+      "expected_result": 32,
+      "expected_output_hex": "0100000007000000150000002300000023000000150000000700000001000000"
+    },
+    {
+      "id": "row_08",
+      "input_value": 8,
+      "expected_result": 36,
+      "expected_output_hex": "01000000080000001c0000003800000046000000380000001c0000000800000001000000"
+    },
+    {
+      "id": "row_09",
+      "input_value": 9,
+      "expected_result": 40,
+      "expected_output_hex": "010000000900000024000000540000007e0000007e00000054000000240000000900000001000000"
+    },
+    {
+      "id": "row_10",
+      "input_value": 10,
+      "expected_result": 44,
+      "expected_output_hex": "010000000a0000002d00000078000000d2000000fc000000d2000000780000002d0000000a00000001000000"
+    },
+    {
+      "id": "row_11",
+      "input_value": 11,
+      "expected_result": 48,
+      "expected_output_hex": "010000000b00000037000000a50000004a010000ce010000ce0100004a010000a5000000370000000b00000001000000"
+    },
+    {
+      "id": "row_12",
+      "input_value": 12,
+      "expected_result": 52,
+      "expected_output_hex": "010000000c00000042000000dc000000ef010000180300009c03000018030000ef010000dc000000420000000c00000001000000"
+    },
+    {
+      "id": "row_13",
+      "input_value": 13,
+      "expected_result": 56,
+      "expected_output_hex": "010000000d0000004e0000001e010000cb02000007050000b4060000b406000007050000cb0200001e0100004e0000000d00000001000000"
+    },
+    {
+      "id": "row_14",
+      "input_value": 14,
+      "expected_result": 60,
+      "expected_output_hex": "010000000e0000005b0000006c010000e9030000d2070000bb0b0000680d0000bb0b0000d2070000e90300006c0100005b0000000e00000001000000"
+    },
+    {
+      "id": "row_15",
+      "input_value": 15,
+      "expected_result": 64,
+      "expected_output_hex": "010000000f00000069000000c701000055050000bb0b00008d13000023190000231900008d130000bb0b000055050000c7010000690000000f00000001000000"
+    },
+    {
+      "id": "row_16",
+      "input_value": 16,
+      "expected_result": 68,
+      "expected_output_hex": "010000001000000078000000300200001c07000010110000481f0000b02c000046320000b02c0000481f0000101100001c07000030020000780000001000000001000000"
+    },
+    {
+      "id": "row_17",
+      "input_value": 17,
+      "expected_result": 72,
+      "expected_output_hex": "010000001100000088000000a80200004c0900002c18000058300000f84b0000f65e0000f65e0000f84b0000583000002c1800004c090000a8020000880000001100000001000000"
+    },
+    {
+      "id": "row_18",
+      "input_value": 18,
+      "expected_result": 76,
+      "expected_output_hex": "01000000120000009900000030030000f40b00007821000084480000507c0000eeaa0000ecbd0000eeaa0000507c00008448000078210000f40b000030030000990000001200000001000000"
+    },
+    {
+      "id": "row_19",
+      "input_value": 19,
+      "expected_result": 80,
+      "expected_output_hex": "0100000013000000ab000000c9030000240f00006c2d0000fc690000d4c400003e270100da680100da6801003e270100d4c40000fc6900006c2d0000240f0000c9030000ab0000001300000001000000"
+    },
+    {
+      "id": "row_20",
+      "input_value": 20,
+      "expected_result": 84,
+      "expected_output_hex": "0100000014000000be00000074040000ed120000903c000068970000d02e010012ec010018900200b4d102001890020012ec0100d02e010068970000903c0000ed12000074040000be0000001400000001000000"
+    },
+    {
+      "id": "row_21",
+      "input_value": 21,
+      "expected_result": 88,
+      "expected_output_hex": "0100000015000000d200000032050000611700007d4f0000f8d3000038c60100e21a03002a7c0400cc610500cc6105002a7c0400e21a030038c60100f8d300007d4f00006117000032050000d20000001500000001000000"
+    },
+    {
+      "id": "row_22",
+      "input_value": 22,
+      "expected_result": 92,
+      "expected_output_hex": "0100000016000000e700000004060000931c0000de66000075230100309a02001ae104000c970700f6dd090098c30a00f6dd09000c9707001ae10400309a020075230100de660000931c000004060000e70000001600000001000000"
+    },
+    {
+      "id": "row_23",
+      "input_value": 23,
+      "expected_result": 96,
+      "expected_output_hex": "0100000017000000fd000000eb0600009722000071830000538a0100a5bd03004a7b070026780c00027511008ea114008ea114000275110026780c004a7b0700a5bd0300538a01007183000097220000eb060000fd0000001700000001000000"
+    },
+    {
+      "id": "row_24",
+      "input_value": 24,
+      "expected_result": 100,
+      "expected_output_hex": "010000001800000014010000e80700008229000008a60000c40d0200f8470500ef380b0070f3130028ed1d00901626001c4329009016260028ed1d0070f31300ef380b00f8470500c40d020008a6000082290000e8070000140100001800000001000000"
+    },
+    {
+      "id": "row_25",
+      "input_value": 25,
+      "expected_result": 104,
+      "expected_output_hex": "01000000190000002c010000fc0800006a3100008acf0000ccb30200bc550700e78010005f2c1f0098e03100b8034400ac594f00ac594f00b803440098e031005f2c1f00e7801000bc550700ccb302008acf00006a310000fc0800002c0100001900000001000000"
+    },
+    {
+      "id": "row_26",
+      "input_value": 26,
+      "expected_result": 108,
+      "expected_output_hex": "010000001a00000045010000280a0000663a0000f40001005683030088090a00a3d6170046ad2f00f70c510050e47500645d930058b39e00645d930050e47500f70c510046ad2f00a3d6170088090a0056830300f4000100663a0000280a0000450100001a00000001000000"
+    },
+    {
+      "id": "row_27",
+      "input_value": 27,
+      "expected_result": 112,
+      "expected_output_hex": "010000001b0000005f0100006d0b00008e4400005a3b01004a840400de8c0d002be02100e98347003dba800047f1c600b4410901bc103201bc103201b441090147f1c6003dba8000e98347002be02100de8c0d004a8404005a3b01008e4400006d0b00005f0100001b00000001000000"
+    },
+    {
+      "id": "row_28",
+      "input_value": 28,
+      "expected_result": 116,
+      "expected_output_hex": "010000001c0000007a010000cc0c0000fb4f0000e87f0100a4bf050028111200096d2f0014646900263ec80084ab4701fb32d00170523b027821640270523b02fb32d00184ab4701263ec80014646900096d2f0028111200a4bf0500e87f0100fb4f0000cc0c00007a0100001c00000001000000"
+    },
+    {
+      "id": "row_29",
+      "input_value": 29,
+      "expected_result": 120,
+      "expected_output_hex": "010000001d00000096010000460e0000c75c0000e3cf01008c3f0700ccd01700317e41001dd198003aa23101aae90f027fde17036b850b04e8739f04e8739f046b850b047fde1703aae90f023aa231011dd19800317e4100ccd017008c3f0700e3cf0100c75c0000460e0000960100001d00000001000000"
+    },
+    {
+      "id": "row_30",
+      "input_value": 30,
+      "expected_result": 124,
+      "expected_output_hex": "010000001e000000b3010000dc0f00000d6b0000aa2c02006f0f090058101f00fd4e59004e4fda005773ca01e48b410329c82705ea63230753f9aa08d0e73e0953f9aa08ea63230729c82705e48b41035773ca014e4fda00fd4e590058101f006f0f0900aa2c02000d6b0000dc0f0000b30100001e00000001000000"
+    },
+    {
+      "id": "row_31",
+      "input_value": 31,
+      "expected_result": 128,
+      "expected_output_hex": "010000001f000000d10100008f110000e97a0000b7970200193c0b00c71f2800555f78004b9e3301a5c2a4023bff0b050d546908132c4b0c3d5dce0f23e1e91123e1e9113d5dce0f132c4b0c0d5469083bff0b05a5c2a4024b9e3301555f7800c71f2800193c0b00b7970200e97a00008f110000d10100001f00000001000000"
+    },
+    {
+      "id": "row_32",
+      "input_value": 32,
+      "expected_result": 132,
+      "expected_output_hex": "0100000020000000f001000060130000788c0000a0120300d0d30d00e05b33001c7fa000a0fdab01f060d803e0c1b0074853750d2080b4145089191c603eb82146c2d323603eb8215089191c2080b4144853750de0c1b007f060d803a0fdab011c7fa000e05b3300d0d30d00a0120300788c000060130000f00100002000000001000000"
+    },
+    {
+      "id": "row_33",
+      "input_value": 33,
+      "expected_result": 136,
+      "expected_output_hex": "01000000210000001002000050150000d89f0000189f030070e61000b02f4100fcdad300bc7c4c02905e8405d022890b2815261568d329227009ce30b0c7d13da6008c45a6008c45b0c7d13d7009ce3068d3292228152615d022890b905e8405bc7c4c02fcdad300b02f410070e61000189f0300d89f000050150000100200002100000001000000"
+    },
+    {
+      "id": "negative_index",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "first_above_domain",
+      "input_value": 34,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "repetitions_per_sample": 1000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

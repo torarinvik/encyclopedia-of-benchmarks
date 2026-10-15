@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "id": "circle_sort-v1",
+  "id": "circle-sort-v1",
   "algorithm": "circle_sort",
   "input": {
     "lengths": [
       0,
       16,
-      64,
-      256
+      256,
+      1024
     ],
     "generation": {
       "kind": "modular_affine",
@@ -21,7 +21,6 @@
     "timer": "clock()",
     "comparison_model": "sort_call",
     "warmup_rounds": 2,
-    "sample_count": 7,
-    "maximum_recursive_length": 256
+    "sample_count": 7
   }
 }

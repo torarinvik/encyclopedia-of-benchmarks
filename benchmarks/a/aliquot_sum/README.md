@@ -12,7 +12,7 @@ All nine ports scan candidate divisors from `1` through `n / 2`, matching the li
 
 ## Upstream review
 
-The C++ example returns zero for zero and one, Nim accepts a positive input type, and Rust panics on zero. The local contract explicitly defines zero, negative inputs, result width, and overflow behavior while preserving the divisor scan.
+The C++ example returns zero for zero and one, Nim accepts a positive input type, and Rust panics on zero. The pinned C# and Go sources also scan positive proper divisors through `n / 2`; C# rejects negative inputs, while Go reports an error for nonpositive inputs. These two filename candidates are reviewed aliases. The local contract explicitly defines zero, negative inputs, result width, and overflow behavior while preserving the divisor scan.
 
 All local implementations were written independently for this contract. The pinned upstream sources below are discovery and algorithm references.
 
@@ -43,3 +43,5 @@ See [`workload.json`](workload.json). The shared [`scalar runner`](../../harness
 - [C++ `math/aliquot_sum.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/aliquot_sum.cpp)
 - [Nim `maths/aliquot_sum.nim`](https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/maths/aliquot_sum.nim)
 - [Rust `src/math/aliquot_sum.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/aliquot_sum.rs)
+- [C# `Algorithms/Numeric/AliquotSumCalculator.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/AliquotSumCalculator.cs)
+- [Go `math/aliquotsum.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/aliquotsum.go)

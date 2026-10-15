@@ -1,0 +1,54 @@
+# Encrypt ASCII text with a repeating, case-insensitive Vigenere key.
+def vigenere_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 66:
+        return -1
+    separator: usize =
+        while index < length |index: mutable usize = 0, found: mutable usize = length| -> found:
+            if input[index] == 0:
+                break index
+            index <- index + 1
+            found
+    if separator == length or separator + 1 == length:
+        return -1
+    key_length: usize = length - separator - 1
+    valid_text: bool =
+        while index < separator |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 1 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_text:
+        return -1
+    valid_key: bool =
+        while index < key_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[separator + 1 + index]
+            if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+                break false
+            index <- index + 1
+            valid
+    if not valid_key:
+        return -1
+    if output_capacity < separator:
+        return -2
+    while index < separator |index: mutable usize = 0, key_index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        mapped: mutable i64 = value
+        if value >= 65 and value <= 90:
+            key_value: mutable i64 = input[separator + 1 + key_index]
+            if key_value >= 97:
+                key_value <- key_value - 32
+            mapped <- 65 + (value - 65 + key_value - 65) % 26
+            key_index <- (key_index + 1) % key_length
+        elif value >= 97 and value <= 122:
+            key_value: mutable i64 = input[separator + 1 + key_index]
+            if key_value <= 90:
+                key_value <- key_value + 32
+            mapped <- 97 + (value - 97 + key_value - 97) % 26
+            key_index <- (key_index + 1) % key_length
+        output[index] <- mapped.u8()
+        index <- index + 1
+        output
+    separator.i64()
+
+export fn vigenere_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = vigenere_cipher_impl

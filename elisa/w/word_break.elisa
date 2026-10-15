@@ -1,0 +1,69 @@
+# Bottom-up word segmentation over packed lowercase ASCII letter codes.
+def word_break_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 1122:
+        return -1
+    text_length_value: i64 = input_values[0]
+    word_count_value: i64 = input_values[1]
+    if text_length_value < 0 or text_length_value > 64 or word_count_value < 0 or word_count_value > 32:
+        return -1
+    text_length: usize = text_length_value.usize()
+    word_count: usize = word_count_value.usize()
+    dictionary_start: usize = 2 + text_length
+    if length != dictionary_start + word_count * 33:
+        return -1
+
+    text_valid: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            code: i64 = input_values[2 + index]
+            if code < 1 or code > 26:
+                break false
+            index <- index + 1
+    if not text_valid:
+        return -1
+
+    dictionary_valid: bool =
+        while word < word_count |word: mutable usize = 0, valid: mutable bool = true| -> valid:
+            slot: usize = dictionary_start + word * 33
+            word_length_value: i64 = input_values[slot]
+            if word_length_value < 1 or word_length_value > 32:
+                break false
+            word_length: usize = word_length_value.usize()
+            padding_valid: bool =
+                while index < 32 |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+                    code: i64 = input_values[slot + 1 + index]
+                    if index < word_length:
+                        if code < 1 or code > 26:
+                            break false
+                    else:
+                        if code != 0:
+                            break false
+                    index <- index + 1
+            if not padding_valid:
+                break false
+            word <- word + 1
+    if not dictionary_valid:
+        return -1
+
+    initial: mutable bool[65] = zeroed
+    initial[0] <- true
+    reachable: bool[65] =
+        while start < text_length |start: mutable usize = 0, state: mutable bool[65] = initial| -> state:
+            if state[start]:
+                state <- while word < word_count |word: mutable usize = 0, words_state: mutable bool[65] = state| -> words_state:
+                    slot: usize = dictionary_start + word * 33
+                    word_length: usize = input_values[slot].usize()
+                    if word_length <= text_length - start:
+                        matches: bool =
+                            while index < word_length |index: mutable usize = 0, equal: mutable bool = true| -> equal:
+                                if input_values[2 + start + index] != input_values[slot + 1 + index]:
+                                    break false
+                                index <- index + 1
+                        if matches:
+                            words_state[start + word_length] <- true
+                    word <- word + 1
+            start <- start + 1
+    if reachable[text_length]:
+        return 1
+    0
+
+export fn word_break(input_values: i64&, length: usize) -> i64 = word_break_impl

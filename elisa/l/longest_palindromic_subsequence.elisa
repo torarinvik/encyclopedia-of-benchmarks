@@ -1,0 +1,27 @@
+# Return the longest palindromic subsequence length using interval DP.
+const MAX_VALUES: usize = 128
+
+def longest_palindromic_subsequence_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_VALUES:
+        return -1
+    if length == 0:
+        return 0
+    dp: mutable i64[128] = zeroed
+    start: mutable usize = length
+    while start > 0:
+        start <- start - 1
+        dp[start] <- 1
+        diagonal: mutable i64 = 0
+        finish: mutable usize = start + 1
+        while finish < length:
+            previous: i64 = dp[finish]
+            if values[start] == values[finish]:
+                dp[finish] <- diagonal + 2
+            else:
+                if dp[finish] < dp[finish - 1]:
+                    dp[finish] <- dp[finish - 1]
+            diagonal <- previous
+            finish <- finish + 1
+    dp[length - 1]
+
+export fn longest_palindromic_subsequence(values: i64&, length: usize) -> i64 = longest_palindromic_subsequence_impl

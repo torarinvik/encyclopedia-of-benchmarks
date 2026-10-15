@@ -1,37 +1,34 @@
-fn circle_pass(values: []i64) bool {
-    const length = values.len;
-    if (length < 2) return false;
+fn circleSortRange(values: [*]i64, left_value: usize, right_value: usize) bool {
+    if (left_value >= right_value) return false;
+
+    var low = left_value;
+    var high = right_value;
     var swapped = false;
-    var left: usize = 0;
-    var right = length - 1;
-    while (left < right) {
-        if (values[left] > values[right]) {
-            const temporary = values[left];
-            values[left] = values[right];
-            values[right] = temporary;
+    while (low < high) {
+        if (values[low] > values[high]) {
+            const temporary = values[low];
+            values[low] = values[high];
+            values[high] = temporary;
             swapped = true;
         }
-        left += 1;
-        right -= 1;
+        low += 1;
+        high -= 1;
     }
-    if (length % 2 != 0 and left == right and right + 1 < length and values[right + 1] < values[right]) {
-        const temporary = values[right];
-        values[right] = values[right + 1];
-        values[right + 1] = temporary;
+    if (low == high and values[low] > values[high + 1]) {
+        const temporary = values[low];
+        values[low] = values[high + 1];
+        values[high + 1] = temporary;
         swapped = true;
     }
-    const split = length / 2 + length % 2;
-    const left_swapped = circle_pass(values[0..split]);
-    const right_swapped = circle_pass(values[split..]);
+
+    const middle = left_value + (right_value - left_value) / 2;
+    const left_swapped = circleSortRange(values, left_value, middle);
+    const right_swapped = circleSortRange(values, middle + 1, right_value);
     return swapped or left_swapped or right_swapped;
 }
 
-fn circle_sort_range(values: []i64) void {
-    while (values.len > 1 and circle_pass(values)) { }
-}
-
-/// Recursive circle sort for the shared signed 64-bit benchmark contract.
+/// Recursively compares mirrored pairs until each pass makes no swaps.
 export fn circle_sort(values: [*]i64, length: usize) void {
     if (length < 2) return;
-    circle_sort_range(values[0..length]);
+    while (circleSortRange(values, 0, length - 1)) {}
 }

@@ -1,0 +1,34 @@
+# Duplicate each zero while retaining the fixed output length.
+def duplicate_zeros_write(output: mutable u8&, position: usize, value: i64) -> void:
+    encoded: mutable i64 = value
+    if encoded < 0:
+        encoded <- encoded + 4294967296
+    output[position] <- (encoded % 256).u8()
+    output[position + 1] <- ((encoded / 256) % 256).u8()
+    output[position + 2] <- ((encoded / 65536) % 256).u8()
+    output[position + 3] <- (encoded / 16777216).u8()
+
+def duplicate_zeros_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 64:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > 1000:
+            return -1
+        index <- index + 1
+    required: usize = 4 * length
+    if output_capacity < required:
+        return -2
+    source: mutable usize = 0
+    destination: mutable usize = 0
+    while destination < length:
+        value: i64 = values[source]
+        source <- source + 1
+        duplicate_zeros_write(output, 4 * destination, value)
+        destination <- destination + 1
+        if value == 0 and destination < length:
+            duplicate_zeros_write(output, 4 * destination, 0)
+            destination <- destination + 1
+    length.i64()
+
+export fn duplicate_zeros(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = duplicate_zeros_impl

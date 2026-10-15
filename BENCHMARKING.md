@@ -42,13 +42,13 @@ int64_t algorithm_name(int64_t input);
 
 `catalan_number` returns exact `C(n)` for indices `0..=35` and `-1` outside that range. Its ports use the integer ratio recurrence with greatest-common-divisor cancellation, preserving exact signed 64-bit arithmetic. See [`benchmarks/c/catalan_number/README.md`](benchmarks/c/catalan_number/README.md).
 
-Binary scalar benchmarks use two unsigned 64-bit inputs and an integer result:
+Binary scalar benchmarks use two 64-bit input words and an integer result:
 
 ```c
 int64_t algorithm_name(uint64_t left, uint64_t right);
 ```
 
-Hamming distance uses this ABI and returns a value from `0` to `64`; GCD returns the greatest common divisor of two nonnegative signed 64-bit values; LCM returns the least common multiple or `-1` if the result exceeds `INT64_MAX`; and `binomial_coefficient` computes `C(n,k)` for `n <= 66`, returning 0 when `k > n` and `-1` when `n` exceeds 66. Binary scalar result records store the inputs in `workload.input_values`. See [`benchmarks/b/binomial_coefficient/README.md`](benchmarks/b/binomial_coefficient/README.md).
+Hamming distance uses unsigned 64-bit values and returns a value from `0` to `64`; GCD returns the greatest common divisor of two nonnegative signed 64-bit values; LCM returns the least common multiple or `-1` if the result exceeds `INT64_MAX`; and `binomial_coefficient` computes `C(n,k)` for `n <= 66`, returning 0 when `k > n` and `-1` when `n` exceeds 66. `addition_without_arithmetic` records signed 32-bit operands and passes negative values to the C ABI as their unsigned 64-bit two's-complement words; it returns the exact sum when that sum fits signed 32-bit range and `-1` otherwise. Binary scalar result records retain the signed workload inputs in `workload.input_values`. See [`benchmarks/b/binomial_coefficient/README.md`](benchmarks/b/binomial_coefficient/README.md) and [`benchmarks/a/addition_without_arithmetic/README.md`](benchmarks/a/addition_without_arithmetic/README.md).
 
 Array scalar benchmarks take a read-only sequence of nonnegative signed 64-bit values and return an integer:
 
@@ -191,7 +191,7 @@ Use the same runner for Fibonacci or another scalar implementation by changing t
 python3 benchmarks/build_scalar.py --algorithm aliquot_sum --language nim
 ```
 
-The scalar wrapper writes to `build/scalar/<letter>/<algorithm>/<language>/scalar_runner`, with `.exe` on Windows. The generic builder takes an explicit ABI family (`scalar`, `binary_scalar`, `float64_triple`, `i64_array_scalar`, `i64_array_bytes_output`, `i64_scalar_bytes_output`, `shortest_path`, or `tree_level_order`) and selects the matching harness:
+The scalar wrapper writes to `build/scalar/<letter>/<algorithm>/<language>/scalar_runner`, with `.exe` on Windows. The generic builder takes an explicit ABI family (`scalar`, `binary_scalar`, `float64_triple`, `float64_unary`, `i64_array_scalar`, `i64_array_bytes_output`, `i64_scalar_bytes_output`, `shortest_path`, `tree_level_order`, `tree_symmetric`, or `tree_scalar`) and selects the matching harness:
 
 ```sh
 python3 benchmarks/build_abi.py --family shortest_path --algorithm bellman_ford --language rust
@@ -229,7 +229,7 @@ python3 benchmarks/run_i64_array_bytes_output.py \
   --build-manifest build/i64_array_bytes_output/letter_combinations_of_phone_number/rust/build.json
 ```
 
-The same `i64_array_bytes_output` family supports binary, octal, and hexadecimal digit-array conversions. The binary decoders accept up to 63 bits, octal decoders accept up to 21 octal digits, and hexadecimal decoders accept up to 16 nibbles subject to the signed 64-bit bound. The converters write prefix-free output. The harness accepts arrays up to 66 values so verifiers can submit overlength cases and confirm rejection; each algorithm enforces its own documented contract.
+The same `i64_array_bytes_output` family supports binary, octal, and hexadecimal digit-array conversions. The binary decoders accept up to 63 bits, octal decoders accept up to 21 octal digits, and hexadecimal decoders accept up to 16 nibbles subject to the signed 64-bit bound. The converters write prefix-free output. The harness accepts arrays up to 4,096 values so verifiers can submit overlength cases and confirm rejection; each algorithm enforces its own documented contract.
 
 For a scalar algorithm that writes bytes into a caller-provided buffer, use the `i64_scalar_bytes_output` family. `decimal_to_binary`, `decimal_to_octal`, and `decimal_to_hexadecimal` share this ABI. Their workloads declare radix 2, 8, or 16; the recorder emits prefix-free digits (lowercase for hexadecimal) and checks caller-buffer capacity.
 
@@ -255,6 +255,24 @@ python3 benchmarks/run_tree_level_order.py \
   --build-manifest build/tree_level_order/level_order_traversal/rust/build.json
 ```
 
+For recursive binary-tree symmetry checks, the `tree_symmetric` family passes a flat indexed node table and root index to the implementation:
+
+```sh
+python3 benchmarks/build_abi.py --family tree_symmetric \
+  --algorithm symmetric_tree --language rust --with-checker
+python3 benchmarks/run_tree_symmetric.py \
+  --build-manifest build/tree_symmetric/s/symmetric_tree/rust/build.json
+```
+
+For recursive indexed-tree algorithms that return one integer, use `tree_scalar`. The implementation receives the flat node table, node count, and root index, then returns the scalar result. [Maximum depth](benchmarks/m/max_depth/README.md), [maximum ancestor difference](benchmarks/m/max_ancestor_diff/README.md), [balanced-tree checking](benchmarks/b/balanced_binary_tree/README.md), [maximum path sum](benchmarks/b/binary_tree_maximum_path_sum/README.md), [sum of left leaves](benchmarks/s/sum_of_left_leaves/README.md), and [univalued-tree checking](benchmarks/u/univalued_binary_tree/README.md) use this family:
+
+```sh
+python3 benchmarks/build_abi.py --family tree_scalar \
+  --algorithm max_depth --language rust --with-checker
+python3 benchmarks/run_tree_scalar.py \
+  --build-manifest build/tree_scalar/m/max_depth/rust/build.json
+```
+
 The binary scalar output is `build/binary_scalar/<letter>/<algorithm>/<language>/binary_scalar_runner`. Graph output is `build/shortest_path/<letter>/<algorithm>/<language>/shortest_path_runner`. `build.json` in each directory records the source hash, compiler version or executable fingerprint, compiler flags, exact compile and link argument lists, runtime library link flags reported by Rust, executable hashes, and harness hashes. Pass `--compiler` to choose a compiler executable, and `--cc` to choose the C harness compiler. Elisa needs the custom compiler executable on `PATH` or an explicit path:
 
 ```sh
@@ -271,6 +289,8 @@ These recipes use ordinary optimization, generic/baseline CPU settings where ava
 python3 benchmarks/verify_scalar.py --elisa-compiler /absolute/path/to/elisac
 ```
 
+[`benchmarks/verify_miller_rabin.py`](benchmarks/verify_miller_rabin.py) checks the fixed-base Miller–Rabin implementation against trial division for every input from 0 through 100,000, seeded values across the signed 32-bit domain, boundary values, and the published workload in all nine languages. It also checks that every recorded workload result matches the exported scalar ABI.
+
 Hamming distance uses [`benchmarks/run_binary_scalar.py`](benchmarks/run_binary_scalar.py) and the binary scalar build manifest:
 
 ```sh
@@ -280,13 +300,17 @@ python3 benchmarks/run_binary_scalar.py \
 
 [`benchmarks/verify_binary_scalar.py`](benchmarks/verify_binary_scalar.py) checks Hamming distance, GCD, and LCM in all nine languages. It covers every pair of 8-bit inputs, boundary patterns, deterministic random inputs, and each published workload. The GCD and LCM oracles use Stein's algorithm, independently of the ports' Euclidean remainder loops.
 
-[`benchmarks/verify_i64_array_scalar.py`](benchmarks/verify_i64_array_scalar.py) checks LCM of N numbers in all nine languages against Python's arbitrary-precision `math.lcm`. It covers exhaustive short arrays, boundary pairs and singletons, deterministic random arrays, and each published workload.
+[`benchmarks/verify_i64_array_scalar.py`](benchmarks/verify_i64_array_scalar.py) checks LCM of N numbers in all nine languages against Python's arbitrary-precision `math.lcm`. It covers exhaustive short arrays, boundary pairs and singletons, deterministic random arrays, and each published workload. [`benchmarks/verify_activity_selection.py`](benchmarks/verify_activity_selection.py) checks activity-selection counts against an independent weighted-interval dynamic-programming oracle, with exhaustive small schedules, deterministic random schedules, signed time boundaries, and malformed layouts. [`benchmarks/verify_word_break.py`](benchmarks/verify_word_break.py) checks packed lowercase text and dictionary inputs against a memoized recursive oracle, exhausts all short binary strings and dictionary subsets, and checks deterministic longer inputs plus malformed layouts in all nine languages.
 
 [`benchmarks/verify_longest_increasing_subsequence.py`](benchmarks/verify_longest_increasing_subsequence.py) checks strict LIS length against an independent binary-search tails oracle. Its corpus exhausts short sequences over a three-value alphabet, adds deterministic signed arrays and i64 boundaries, and checks the maximum and first unsupported lengths in all nine languages.
 
 [`benchmarks/verify_coin_change.py`](benchmarks/verify_coin_change.py) checks minimum-coin change against a breadth-first shortest-path oracle. It exhausts small denomination lists, adds deterministic inputs and malformed packed cases, and checks amount and denomination-count limits in all nine languages.
 
 [`benchmarks/verify_longest_common_subsequence.py`](benchmarks/verify_longest_common_subsequence.py) checks LCS length against an independent full-table oracle. It exhausts all pairs of binary-alphabet sequences through length five, then checks deterministic random pairs, maximum-length sequences, malformed packed inputs, and the published workload in all nine languages.
+[`benchmarks/verify_knuth_morris_pratt.py`](benchmarks/verify_knuth_morris_pratt.py) checks first-match byte indices against Python byte search, including all pairs of binary-alphabet sequences through length five, malformed packed inputs, deterministic random pairs, long near-matches, and the published workload in all nine languages.
+[`benchmarks/verify_isogram.py`](benchmarks/verify_isogram.py) checks case-insensitive ASCII letter uniqueness with spaces ignored, exhaustive case-and-space sequences, invalid bytes, deterministic random sequences, maximum lengths, and the published workload in all nine languages.
+[`benchmarks/verify_boyer_moore_search.py`](benchmarks/verify_boyer_moore_search.py) checks the bad-character first-match index against Python byte search, including exhaustive binary strings through length five, invalid packed inputs, random sequences, maximum-length near-matches, and the workload in all nine languages.
+[`benchmarks/verify_trapped_rainwater.py`](benchmarks/verify_trapped_rainwater.py) checks the prefix/suffix-maxima volume against an independent oracle, with exhaustive short height profiles, random and boundary profiles, invalid values, maximum lengths, and the workload in all nine languages.
 
 [`benchmarks/verify_rabin_karp.py`](benchmarks/verify_rabin_karp.py) checks pattern presence against a naive substring oracle. It covers all pairs of short binary-alphabet sequences, deterministic random pairs, maximum lengths, malformed packed inputs, and a crafted rolling-hash collision in all nine languages.
 
@@ -302,6 +326,8 @@ python3 benchmarks/run_binary_scalar.py \
 
 [`benchmarks/verify_binomial_coefficient.py`](benchmarks/verify_binomial_coefficient.py) checks `C(n,k)` against Python's arbitrary-precision `math.comb` for every pair in the supported domain, plus unsigned 64-bit boundaries and the published workload in all nine languages.
 
+[`benchmarks/verify_unique_paths.py`](benchmarks/verify_unique_paths.py) checks every grid from 0 through 36 in each dimension, unsigned 64-bit boundary pairs, deterministic random dimensions, and the published workload against Python's arbitrary-precision binomial oracle in all nine languages.
+
 [`benchmarks/verify_find_min_max.py`](benchmarks/verify_find_min_max.py) checks array minimum and maximum against Python's built-in operations, with exhaustive short arrays, signed boundaries, deterministic random inputs, and the published workloads in all nine languages.
 
 [`benchmarks/verify_i64_array_bytes_output.py`](benchmarks/verify_i64_array_bytes_output.py) checks the phone keypad Cartesian product against Python's `itertools.product`, including exhaustive sequences through length four, longer deterministic sequences, invalid digits, overlength inputs, and insufficient output capacity.
@@ -310,7 +336,25 @@ python3 benchmarks/run_binary_scalar.py \
 
 [`benchmarks/verify_tree_level_order.py`](benchmarks/verify_tree_level_order.py) checks indexed-tree BFS values and level boundaries against an independent oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, larger chains and complete trees, invalid roots, and undersized buffers.
 
+[`benchmarks/verify_symmetric_tree.py`](benchmarks/verify_symmetric_tree.py) checks recursive mirrored-pair comparisons against an independent iterative oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, signed boundary values, invalid roots, and mirrored chains reaching the documented recursion bound.
+
+[`benchmarks/verify_max_ancestor_diff.py`](benchmarks/verify_max_ancestor_diff.py) checks the recursive path-minimum/path-maximum traversal against an independent iterative oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, signed boundary values, invalid indexes, nonzero roots, and a chain reaching the documented recursion bound.
+
+[`benchmarks/verify_max_depth.py`](benchmarks/verify_max_depth.py) checks recursive maximum depth against an independent iterative tree traversal. It covers every ordered tree shape through seven nodes, deterministic random trees, empty trees, invalid indexes, nonzero roots, and a chain reaching the documented recursion bound.
+
+[`benchmarks/verify_balanced_binary_tree.py`](benchmarks/verify_balanced_binary_tree.py) checks recursive height-balance results against an independent iterative postorder oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, empty trees, internally unbalanced subtrees, invalid indexes, and a chain reaching the documented recursion bound.
+
+[`benchmarks/verify_sum_of_left_leaves.py`](benchmarks/verify_sum_of_left_leaves.py) checks recursive left-leaf sums against an independent iterative oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, negative leaf values, a valid result of `-1`, invalid indexes and values, and larger trees with many left leaves.
+
+[`benchmarks/verify_univalued_binary_tree.py`](benchmarks/verify_univalued_binary_tree.py) checks recursive value comparisons against an independent iterative tree oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, signed 64-bit extremes, invalid indexes, and a 1,023-node path.
+
+[`benchmarks/verify_binary_tree_maximum_path_sum.py`](benchmarks/verify_binary_tree_maximum_path_sum.py) checks recursive downward gains and best complete paths against an independent iterative postorder oracle. It covers every ordered tree shape through seven nodes, deterministic random trees, all-negative trees, best paths that exclude the root, invalid inputs, and 1,023-node path and complete-tree workloads.
+
+[`benchmarks/verify_next_greater_nodes.py`](benchmarks/verify_next_greater_nodes.py) checks the forward-scan next-greater-node algorithm against a monotonic-stack oracle, with exhaustive short sequences, deterministic full-range inputs, a 4,096-node workload, invalid values, and insufficient output capacity.
+
 [`benchmarks/verify_float64_triple.py`](benchmarks/verify_float64_triple.py) checks LERP in all nine languages against a high-precision decimal oracle and applies the documented input-scaled tolerance to finite binary64 values.
+
+The `float64_unary` ABI family measures one-input binary64 algorithms such as [square root](benchmarks/s/square_root/README.md). `benchmarks/run_float64_unary.py` records results against each workload's expected value and relative tolerance.
 
 ```sh
 python3 benchmarks/verify_binary_scalar.py --elisa-compiler /absolute/path/to/elisac
@@ -342,3 +386,50 @@ Search workloads default to seven samples and two warmup rounds. Repetitions are
 Search, sort, scalar, array byte-output, shortest-path, and tree traversal result records follow [`benchmarks/results.schema.json`](benchmarks/results.schema.json). Sort, scalar, array, graph, and tree records leave the search target and comparison count null. All runners use `clock()`, so samples are process CPU time and timer resolution depends on the C runtime. Compare runs on the same host and runtime when studying small differences. Each record includes the timer resolution.
 
 Do not use `-march=native`, Intel-specific intrinsics, or other host-specific tuning for the portable baseline. A separately labeled optimized variant can be added later, with its exact compiler flags recorded separately.
+
+
+[`benchmarks/verify_sorted_array_to_bst.py`](benchmarks/verify_sorted_array_to_bst.py) checks the C LeetCode 108 tree construction against an independent preorder serializer, including every subset of a small key set, deterministic arrays, invalid ordering and range cases, the maximum input length, and insufficient output capacity in all nine languages.
+
+
+[`benchmarks/verify_duplicate_zeros.py`](benchmarks/verify_duplicate_zeros.py) checks fixed-length zero duplication and output bytes against an independent array oracle, including exhaustive short arrays, seeded longer inputs, malformed values, and output-capacity handling in all nine languages.
+
+[`benchmarks/verify_sorted_list_to_bst.py`](benchmarks/verify_sorted_list_to_bst.py) checks the C LeetCode 109 tree construction against an independent serializer, including exhaustive nondecreasing sequences, duplicate keys, signed boundaries, maximum length, and output-capacity handling in all nine languages.
+
+
+[`benchmarks/verify_path_sum.py`](benchmarks/verify_path_sum.py) checks root-to-leaf path sums against an independent indexed-tree oracle, including every binary-tree shape through four nodes over small node values and target sums, deterministic larger trees, malformed structures, and signed target boundaries in all nine languages.
+
+## Longest Chunked Palindrome Decomposition
+
+The C LeetCode 1147 candidate is cataloged under its algorithm name. The contract accepts 0 to 128 ASCII byte values in 1..127. All nine ports passed 10,361 cases each against a memoized exhaustive-cut oracle, including all strings through length eight over a three-symbol alphabet, deterministic random strings, the length boundary, malformed bytes, and 15 workload records. Run python3 benchmarks/verify_longest_chunked_palindrome_decomposition.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Distance Between Bus Stops
+
+The pinned C LeetCode 1184 candidate is cataloged under its algorithm name. The packed input contains two endpoint indices and 1 to 64 distances. All nine ports passed 5,271 routes each against an exact summation oracle, including every endpoint pair and distance array through four stops, seeded random routes, invalid inputs, and 17 workload records. Run python3 benchmarks/verify_distance_between_bus_stops.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Maximum Number of Balloons
+
+The pinned C LeetCode 1189 candidate is cataloged under its algorithm name. The contract accepts 0 to 256 lowercase ASCII letters. All nine ports passed 20,054 cases each against a frequency-count oracle, including all strings through length six over the required-letter alphabet, deterministic random strings, length and byte boundaries, and 14 workload records. Run python3 benchmarks/verify_max_number_of_balloons.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Unique Occurrences
+
+The pinned C LeetCode 1207 candidate is cataloged under its algorithm name. The contract accepts 0 to 1,000 signed values in -1,000..1,000. All nine ports passed 10,365 cases each against an independent frequency oracle, including all arrays through length eight over a three-value alphabet, deterministic random arrays, signed boundaries, invalid values, the length limit, and 13 workload records. Run python3 benchmarks/verify_unique_occurrences.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Smallest Divisor
+
+The pinned C LeetCode 1283 candidate is cataloged under its algorithm name. Its packed input contains the threshold followed by 1 to 256 positive values bounded at 1,000,000. All nine ports passed 5,797 cases each against a direct scan of candidate divisors, including exhaustive short arrays, random inputs, infeasible thresholds, signed and length boundaries, and 14 workload records. Run python3 benchmarks/verify_smallest_divisor.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Number of Subarrays With Odd Sum
+
+The pinned C LeetCode 1524 candidate is cataloged under its algorithm name. It returns the odd-sum contiguous subarray count modulo 1,000,000,007 for up to 100,000 signed 32-bit values. All nine ports passed 10,358 cases each, including exhaustive short inputs, signed boundaries, random arrays, and the maximum-length input boundary. Run python3 benchmarks/verify_number_of_subarrays_with_odd_sum.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Close Strings
+
+The pinned C LeetCode 1657 candidate is cataloged under its algorithm name. It accepts two lowercase ASCII strings packed after their lengths. All nine ports passed 15,168 pairs each, including all pairs through length four over a three-letter alphabet, random and maximum-length strings, malformed layouts, and 14 workload records. Run python3 benchmarks/verify_close_strings.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Halves Are Alike
+
+The pinned C LeetCode 1704 candidate is cataloged under its algorithm name. Its contract accepts even-length ASCII letters, and the empty string returns true. All nine ports passed 16,797 cases each, including every even string through length six over a mixed-case vowel/consonant alphabet, random strings, malformed bytes, and 13 workload records. Run python3 benchmarks/verify_halves_are_alike.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.
+
+## Check If Array Is Sorted and Rotated
+
+The pinned C LeetCode 1752 candidate is cataloged under its algorithm name. Its contract accepts 0 to 256 signed 32-bit values. All nine ports passed 3,805 arrays each against a sort-and-rotation oracle, including exhaustive short arrays, random signed values, boundaries, and 14 workload records. Run python3 benchmarks/verify_check_if_array_is_sorted_and_rotated.py --elisa-compiler /absolute/path/to/elisac to reproduce the check.

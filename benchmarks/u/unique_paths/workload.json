@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "unique-paths-v1",
+  "algorithm": "unique_paths",
+  "input": {
+    "dimensions": [
+      "rows",
+      "columns"
+    ],
+    "type": "unsigned 64-bit integers",
+    "minimum_dimension": 1,
+    "maximum_dimension": 34,
+    "out_of_range_result": -1,
+    "meaning": "number of paths from the top-left to bottom-right using only down and right moves"
+  },
+  "cases": [
+    {
+      "id": "one_cell",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "one_row",
+      "input_values": [
+        1,
+        34
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "one_column",
+      "input_values": [
+        34,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "two_by_two",
+      "input_values": [
+        2,
+        2
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "three_by_seven",
+      "input_values": [
+        3,
+        7
+      ],
+      "expected_result": 28
+    },
+    {
+      "id": "seven_by_three",
+      "input_values": [
+        7,
+        3
+      ],
+      "expected_result": 28
+    },
+    {
+      "id": "ten_by_ten",
+      "input_values": [
+        10,
+        10
+      ],
+      "expected_result": 48620
+    },
+    {
+      "id": "twenty_by_twenty",
+      "input_values": [
+        20,
+        20
+      ],
+      "expected_result": 35345263800
+    },
+    {
+      "id": "thirty_three_by_thirty_four",
+      "input_values": [
+        33,
+        34
+      ],
+      "expected_result": 3609714217008132870
+    },
+    {
+      "id": "maximum_square",
+      "input_values": [
+        34,
+        34
+      ],
+      "expected_result": 7219428434016265740
+    },
+    {
+      "id": "zero_rows",
+      "input_values": [
+        0,
+        5
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "zero_columns",
+      "input_values": [
+        5,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "rows_above_limit",
+      "input_values": [
+        35,
+        10
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "columns_above_limit",
+      "input_values": [
+        10,
+        35
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "both_above_limit",
+      "input_values": [
+        35,
+        35
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_u64_rows",
+      "input_values": [
+        18446744073709551615,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_u64_columns",
+      "input_values": [
+        1,
+        18446744073709551615
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

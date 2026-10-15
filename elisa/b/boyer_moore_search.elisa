@@ -1,0 +1,53 @@
+# Return the first ASCII byte match using Boyer-Moore's bad-character rule.
+def boyer_moore_search_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 8194:
+        return -1
+    text_length_value: i64 = input_values[0]
+    pattern_length_value: i64 = input_values[1]
+    if text_length_value < 0 or text_length_value > 4096 or pattern_length_value < 0 or pattern_length_value > 4096:
+        return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+    valid: i64 =
+        while index < text_length + pattern_length |index: mutable usize = 0, result: mutable i64 = 1| -> result:
+            value: i64 = input_values[2 + index]
+            if value < 0 or value > 127:
+                break -1
+            index <- index + 1
+            result
+    if valid != 1:
+        return -1
+    if pattern_length == 0:
+        return 0
+    if pattern_length > text_length:
+        return -1
+
+    pattern_start: usize = 2 + text_length
+    last_occurrence: mutable i64[128] = zeroed
+    value_index: mutable usize = 0
+    while value_index < 128:
+        last_occurrence[value_index] <- -1
+        value_index <- value_index + 1
+    pattern_index: mutable usize = 0
+    while pattern_index < pattern_length:
+        last_occurrence[input_values[pattern_start + pattern_index].usize()] <- pattern_index.i64()
+        pattern_index <- pattern_index + 1
+
+    result: i64 =
+        while alignment <= text_length - pattern_length |alignment: mutable usize = 0, result: mutable i64 = -1| -> result:
+            current: mutable usize = pattern_length
+            while current > 0 and input_values[pattern_start + current - 1] == input_values[2 + alignment + current - 1]:
+                current <- current - 1
+            if current == 0:
+                break alignment.i64()
+            text_byte: usize = input_values[2 + alignment + current - 1].usize()
+            shift: mutable i64 = (current - 1).i64() - last_occurrence[text_byte]
+            if shift < 1:
+                shift <- 1
+            alignment <- alignment + shift.usize()
+            result
+    result
+
+export fn boyer_moore_search(input_values: i64&, length: usize) -> i64 = boyer_moore_search_impl

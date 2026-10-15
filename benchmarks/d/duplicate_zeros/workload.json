@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "duplicate-zeros-v1",
+  "algorithm": "duplicate_zeros",
+  "input": {
+    "type": "array of integers from 0 through 1000",
+    "length_range": [
+      0,
+      64
+    ],
+    "result": "fixed output length; each zero is duplicated and trailing values are truncated",
+    "output_encoding": "each output value is signed 32-bit little-endian",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "no_zeros",
+      "input_values": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000020000000300000004000000"
+    },
+    {
+      "id": "zero_at_front",
+      "input_values": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "00000000000000000100000002000000"
+    },
+    {
+      "id": "zero_at_end",
+      "input_values": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000020000000300000000000000"
+    },
+    {
+      "id": "consecutive_zeros",
+      "input_values": [
+        1,
+        0,
+        0,
+        2,
+        3
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "0100000000000000000000000000000000000000"
+    },
+    {
+      "id": "truncated_duplicate",
+      "input_values": [
+        1,
+        2,
+        0
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "010000000200000000000000"
+    },
+    {
+      "id": "all_zeros",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        6,
+        7,
+        8,
+        9,
+        0,
+        11,
+        12,
+        13,
+        14,
+        0,
+        16,
+        17,
+        18,
+        19,
+        0,
+        21,
+        22,
+        23,
+        24,
+        0,
+        26,
+        27,
+        28,
+        29,
+        0,
+        31,
+        32,
+        33,
+        34,
+        0,
+        36,
+        37,
+        38,
+        39,
+        0,
+        41,
+        42,
+        43,
+        44,
+        0,
+        46,
+        47,
+        48,
+        49,
+        0,
+        51,
+        52,
+        53,
+        54,
+        0,
+        56,
+        57,
+        58,
+        59,
+        0,
+        61,
+        62,
+        63
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000100000002000000030000000400000000000000000000000600000007000000080000000900000000000000000000000b0000000c0000000d0000000e00000000000000000000001000000011000000120000001300000000000000000000001500000016000000170000001800000000000000000000001a0000001b0000001c0000001d00000000000000000000001f0000002000000021000000220000000000000000000000240000002500000026000000270000000000000000000000290000002a0000002b0000002c00000000000000000000002e0000002f000000300000003100000000000000000000003300000034000000"
+    },
+    {
+      "id": "invalid_negative",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_above_value_limit",
+      "input_values": [
+        1001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_values",
+      "input_values": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "gale-shapley-v1",
+  "algorithm": "gale_shapley",
+  "input": {
+    "kind": "packed_complete_preference_lists",
+    "encoding": "[participant_count, proposer_preferences..., accepter_preferences...]",
+    "maximum_participants_per_side": 5,
+    "preference_rows": "one complete permutation of 0..participant_count-1 per participant",
+    "matching_direction": "proposer index to accepter index"
+  },
+  "output": {
+    "success": "one byte per proposer, containing its matched accepter index",
+    "invalid_or_insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "empty_market",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_order": []
+    },
+    {
+      "id": "single_pair",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "expected_result": 1,
+      "expected_order": [
+        0
+      ]
+    },
+    {
+      "id": "mutual_first_choices",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": 2,
+      "expected_order": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "displacement",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 2,
+      "expected_order": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "cpp_example_one",
+      "input_values": [
+        4,
+        0,
+        1,
+        2,
+        3,
+        2,
+        1,
+        3,
+        0,
+        1,
+        2,
+        0,
+        3,
+        3,
+        0,
+        1,
+        2,
+        1,
+        0,
+        2,
+        3,
+        3,
+        0,
+        1,
+        2,
+        0,
+        2,
+        1,
+        3,
+        1,
+        2,
+        0,
+        3
+      ],
+      "expected_result": 4,
+      "expected_order": [
+        0,
+        2,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "cpp_example_two",
+      "input_values": [
+        4,
+        0,
+        2,
+        1,
+        3,
+        2,
+        3,
+        0,
+        1,
+        3,
+        1,
+        2,
+        0,
+        2,
+        1,
+        0,
+        3,
+        1,
+        0,
+        2,
+        3,
+        3,
+        0,
+        1,
+        2,
+        0,
+        2,
+        1,
+        3,
+        1,
+        2,
+        0,
+        3
+      ],
+      "expected_result": 4,
+      "expected_order": [
+        0,
+        2,
+        3,
+        1
+      ]
+    },
+    {
+      "id": "maximum_supported_market",
+      "input_values": [
+        5,
+        0,
+        1,
+        2,
+        3,
+        4,
+        1,
+        2,
+        3,
+        4,
+        0,
+        2,
+        3,
+        4,
+        0,
+        1,
+        3,
+        4,
+        0,
+        1,
+        2,
+        4,
+        0,
+        1,
+        2,
+        3,
+        0,
+        4,
+        3,
+        2,
+        1,
+        1,
+        0,
+        4,
+        3,
+        2,
+        2,
+        1,
+        0,
+        4,
+        3,
+        3,
+        2,
+        1,
+        0,
+        4,
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "expected_result": 5,
+      "expected_order": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "negative_count",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -2,
+      "expected_order": []
+    },
+    {
+      "id": "count_above_limit",
+      "input_values": [
+        6
+      ],
+      "expected_result": -2,
+      "expected_order": []
+    },
+    {
+      "id": "packed_length_mismatch",
+      "input_values": [
+        2,
+        0,
+        1
+      ],
+      "expected_result": -2,
+      "expected_order": []
+    },
+    {
+      "id": "duplicate_proposer_preference",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -2,
+      "expected_order": []
+    },
+    {
+      "id": "preference_out_of_range",
+      "input_values": [
+        2,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -2,
+      "expected_order": []
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

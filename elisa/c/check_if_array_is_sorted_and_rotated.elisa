@@ -1,0 +1,22 @@
+# Check the circular array for at most one descending adjacent pair.
+def check_if_array_is_sorted_and_rotated_impl(values: i64&, length: usize) -> i64:
+    if length > 256:
+        return -1
+    if length == 0:
+        return 1
+    answer: i64 =
+        while index < length |index: mutable usize = 0, descents: mutable usize = 0, result: mutable i64 = 1| -> result:
+            value: i64 = values[index]
+            if value < -2147483648 or value > 2147483647:
+                return -1
+            next: mutable usize = index + 1
+            if next == length:
+                next <- 0
+            if value > values[next]:
+                descents <- descents + 1
+                if descents > 1:
+                    result <- 0
+            index <- index + 1
+    answer
+
+export fn check_if_array_is_sorted_and_rotated(values: i64&, length: usize) -> i64 = check_if_array_is_sorted_and_rotated_impl

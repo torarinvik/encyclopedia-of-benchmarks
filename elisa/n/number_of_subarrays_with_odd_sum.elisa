@@ -1,0 +1,21 @@
+# Count subarrays with an odd sum, modulo 1,000,000,007.
+def number_of_subarrays_with_odd_sum_impl(values: i64&, length: usize) -> i64:
+    if length > 100000:
+        return -1
+    result: i64 =
+        while index < length |index: mutable usize = 0, parity: mutable i64 = 0, even_prefixes: mutable i64 = 1, odd_prefixes: mutable i64 = 0, result: mutable i64 = 0| -> result:
+            value: i64 = values[index]
+            if value < -2147483648 or value > 2147483647:
+                return -1
+            if value % 2 != 0:
+                parity <- 1 - parity
+            if parity == 0:
+                result <- (result + odd_prefixes) % 1000000007
+                even_prefixes <- even_prefixes + 1
+            else:
+                result <- (result + even_prefixes) % 1000000007
+                odd_prefixes <- odd_prefixes + 1
+            index <- index + 1
+    result
+
+export fn number_of_subarrays_with_odd_sum(values: i64&, length: usize) -> i64 = number_of_subarrays_with_odd_sum_impl

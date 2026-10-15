@@ -1,34 +1,24 @@
-# Circle Sort
+# Circle sort
+
+Circle sort repeatedly compares mirrored pairs in each range, recursively processes its two halves, and repeats full passes until one makes no swaps. The algorithm keeps the array in place and uses logarithmic recursion depth.
 
 ## Contract
 
-Sort a mutable sequence of signed 64-bit integers in ascending order, in place. Empty and single-element inputs are unchanged. C ABI entry point: void circle_sort(int64_t *values, size_t length).
+- Sort a mutable array of signed 64-bit integers in ascending order.
+- Empty and one-element arrays are unchanged.
+- Duplicate values and the full signed 64-bit range are supported.
+- The sort is not stable.
 
-A circle pass compares mirrored elements in each range, recursively applies itself to the two halves, and repeats whole-array passes until none of those comparisons swaps values. Odd-length ranges also compare the center pair used by the inspected implementations. Implementations use portable scalar comparisons and swaps.
+The implementation follows the same mirrored-pair and recursive-halves strategy in the pinned Java, Python, and Go sources. The AArch64 assembly source is recorded as an architecture-specific reference only; these benchmark ports use ordinary language operations and portable compiler targets.
 
-## Workload
+## Workload and verification
 
-[workload.json](workload.json) defines deterministic modular-affine input values[index] = ((index * 48,271) mod 2,000,003) - 1,000,001 for lengths 0, 16, 64, 256. The runner restores input before each sample and checks the complete sorted output after timing.
+The workload uses deterministic modular-affine input at lengths 0, 16, 256, and 1,024. `verify_circle_sort.py` checks exhaustive short-array order and duplicate patterns, signed 64-bit edge cases, seeded random arrays, and the recorded workload through the shared sort ABI.
 
-Use [sort_runner.c](../../harness/sort_runner.c) and [run_sort.py](../../run_sort.py); each timed sample contains one sort call.
+## Reviewed TheAlgorithms sources
 
-## Implementations
+- [Java CircleSort](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/CircleSort.java)
+- [Python circle_sort](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/circle_sort.py)
+- [Go circlesort](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/circlesort.go), reviewed as a filename alias
 
-| Language | Source | Origin |
-| --- | --- | --- |
-| C | [c/c/circle_sort.c](../../../c/c/circle_sort.c) | Local port |
-| C3 | [c3/c/circle_sort.c3](../../../c3/c/circle_sort.c3) | Local port |
-| C++ | [cpp/c/circle_sort.cpp](../../../cpp/c/circle_sort.cpp) | Local port |
-| Elisa | [elisa/c/circle_sort.elisa](../../../elisa/c/circle_sort.elisa) | Local port for the custom Elisa compiler |
-| Nim | [nim/c/circle_sort.nim](../../../nim/c/circle_sort.nim) | Local port |
-| Odin | [odin/c/circle_sort.odin](../../../odin/c/circle_sort.odin) | Local port |
-| Rust | [rust/c/circle_sort.rs](../../../rust/c/circle_sort.rs) | Local port |
-| V | [v/c/circle_sort.v](../../../v/c/circle_sort.v) | Local port |
-| Zig | [zig/c/circle_sort.zig](../../../zig/c/circle_sort.zig) | Local port |
-
-## TheAlgorithms references
-
-This filename candidate appears in 3 source repositories. The inspected references were checked at the pinned commits recorded in the catalog:
-
-- [Python circle_sort.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/circle_sort.py)
-- [Java CircleSort.java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/CircleSort.java)
+The benchmark is a signed 64-bit in-place contract so results can be compared consistently across the nine target languages.

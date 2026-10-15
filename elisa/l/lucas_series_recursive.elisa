@@ -1,0 +1,11 @@
+def lucas_recursive_solve(n: i64) -> i64:
+    if n == 0:
+        return 2
+    if n == 1:
+        return 1
+    lucas_recursive_solve(n - 1) + lucas_recursive_solve(n - 2)
+def lucas_series_recursive_impl(n: i64) -> i64:
+    if n < 0 or n > 25:
+        return -1
+    lucas_recursive_solve(n)
+export fn lucas_series_recursive(n: i64) -> i64 = lucas_series_recursive_impl

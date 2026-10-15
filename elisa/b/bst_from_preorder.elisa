@@ -1,0 +1,48 @@
+# Validate and serialize a strict BST reconstructed from preorder values.
+def bst_preorder_valid(values: i64&, start: usize, end: usize, lower: i64, upper: i64) -> bool:
+    if start == end:
+        return true
+    root: i64 = values[start]
+    if root <= lower or root >= upper:
+        return false
+    split: mutable usize = start + 1
+    while split < end and values[split] < root:
+        split <- split + 1
+    return bst_preorder_valid(values, start + 1, split, lower, root) and bst_preorder_valid(values, split, end, root, upper)
+
+def bst_preorder_emit(values: i64&, start: usize, end: usize, output: mutable u8&, position: usize) -> usize:
+    if start == end:
+        output[position] <- 0
+        return position + 1
+    root: i64 = values[start]
+    split: mutable usize = start + 1
+    while split < end and values[split] < root:
+        split <- split + 1
+    output[position] <- 1
+    encoded: mutable i64 = root
+    if encoded < 0:
+        encoded <- encoded + 4294967296
+    output[position + 1] <- (encoded % 256).u8()
+    output[position + 2] <- ((encoded / 256) % 256).u8()
+    output[position + 3] <- ((encoded / 65536) % 256).u8()
+    output[position + 4] <- (encoded / 16777216).u8()
+    next_position: usize = bst_preorder_emit(values, start + 1, split, output, position + 5)
+    bst_preorder_emit(values, split, end, output, next_position)
+
+def bst_from_preorder_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 15:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        index <- index + 1
+    if not bst_preorder_valid(values, 0, length, -2147483649, 2147483648):
+        return -1
+    required: usize = 6 * length + 1
+    if output_capacity < required:
+        return -2
+    bst_preorder_emit(values, 0, length, output, 0)
+    length.i64()
+
+export fn bst_from_preorder(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bst_from_preorder_impl

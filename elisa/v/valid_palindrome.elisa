@@ -1,0 +1,34 @@
+# ASCII alphanumeric palindrome check, ignoring case and punctuation.
+def valid_palindrome_is_alphanumeric(value: i64) -> i64:
+    if (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122):
+        return 1
+    return 0
+
+def valid_palindrome_ascii_lower(value: i64) -> i64:
+    if value >= 65 and value <= 90:
+        return value + 32
+    return value
+
+def valid_palindrome_impl(text: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if text[index] < 0 or text[index] > 127:
+            return -1
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = length
+    while left < right:
+        while left < right and valid_palindrome_is_alphanumeric(text[left]) == 0:
+            left <- left + 1
+        while left < right and valid_palindrome_is_alphanumeric(text[right - 1]) == 0:
+            right <- right - 1
+        if left < right and valid_palindrome_ascii_lower(text[left]) != valid_palindrome_ascii_lower(text[right - 1]):
+            return 0
+        if left < right:
+            left <- left + 1
+            right <- right - 1
+    1
+
+export fn valid_palindrome(text: i64&, length: usize) -> i64 = valid_palindrome_impl

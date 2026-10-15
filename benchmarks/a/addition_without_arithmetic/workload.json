@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "addition-without-arithmetic-v1",
+  "algorithm": "addition_without_arithmetic",
+  "input": {
+    "kind": "pair_of_signed_32_bit_integers",
+    "range": [[-2147483648, 2147483647], [-2147483648, 2147483647]],
+    "overflow_result": -1,
+    "outside_range_result": -1
+  },
+  "cases": [
+    {"id":"small_positive","input_values":[3,5],"expected_result":8},
+    {"id":"mixed_bits","input_values":[13,5],"expected_result":18},
+    {"id":"positive_negative","input_values":[-7,2],"expected_result":-5},
+    {"id":"negative_zero","input_values":[0,-7],"expected_result":-7},
+    {"id":"carry_chain","input_values":[-321,1],"expected_result":-320},
+    {"id":"valid_negative_one","input_values":[1,-2],"expected_result":-1},
+    {"id":"signed_maximum","input_values":[2147483647,0],"expected_result":2147483647},
+    {"id":"signed_minimum","input_values":[-2147483648,0],"expected_result":-2147483648},
+    {"id":"maximum_overflow","input_values":[2147483647,1],"expected_result":-1},
+    {"id":"minimum_overflow","input_values":[-2147483648,-1],"expected_result":-1},
+    {"id":"outside_positive_range","input_values":[2147483648,0],"expected_result":-1},
+    {"id":"outside_negative_range","input_values":[-2147483649,0],"expected_result":-1},
+    {"id":"both_zero","input_values":[0,0],"expected_result":0}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

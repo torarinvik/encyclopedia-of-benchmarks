@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime as dt
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -18,8 +19,9 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_binary_scalar import encode_values
 
 U64_MAX = 2**64 - 1
-I64_MAX = 2**63 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm")
+I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+I32_MIN, I32_MAX = -(2**31), 2**31 - 1
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann")
 
 
 def oracle(left: int, right: int) -> int:
@@ -62,6 +64,62 @@ def lcm_oracle(left: int, right: int) -> int:
     return value if value <= I64_MAX else -1
 
 
+def addition_without_arithmetic_oracle(left: int, right: int) -> int:
+    if (type(left) is not int or type(right) is not int
+            or not I32_MIN <= left <= I32_MAX or not I32_MIN <= right <= I32_MAX):
+        return -1
+    total = left + right
+    return total if I32_MIN <= total <= I32_MAX else -1
+
+
+@lru_cache(maxsize=None)
+def proper_divisor_sum_oracle(number: int) -> int:
+    """Use the multiplicative divisor-sum identity, independent of divisor-pair scans."""
+    if number <= 1:
+        return 0
+    remaining, sigma, factor = number, 1, 2
+    while factor <= remaining // factor:
+        if remaining % factor == 0:
+            prime_power, term = 1, 1
+            while remaining % factor == 0:
+                remaining //= factor
+                prime_power *= factor
+                term += prime_power
+            sigma *= term
+        factor = 3 if factor == 2 else factor + 2
+    if remaining > 1:
+        sigma *= remaining + 1
+    return sigma - number
+
+
+def amicable_number_oracle(left: int, right: int) -> int:
+    limit = 1_000_000_000
+    if (type(left) is not int or type(right) is not int
+            or not 1 <= left <= limit or not 1 <= right <= limit):
+        return -1
+    if left == right:
+        return 0
+    return int(proper_divisor_sum_oracle(left) == right
+               and proper_divisor_sum_oracle(right) == left)
+
+
+@lru_cache(maxsize=None)
+def _ackermann_value(m: int, n: int) -> int:
+    if m == 0:
+        return n + 1
+    if n == 0:
+        return _ackermann_value(m - 1, 1)
+    return _ackermann_value(m - 1, _ackermann_value(m, n - 1))
+
+
+def ackermann_oracle(m: int, n: int) -> int:
+    if (type(m) is not int or type(n) is not int
+            or not I64_MIN <= m <= I64_MAX or not I64_MIN <= n <= I64_MAX
+            or not 0 <= m <= 3 or not 0 <= n <= 5):
+        return -1
+    return _ackermann_value(m, n)
+
+
 def result(algorithm: str, left: int, right: int) -> int:
     if algorithm == "hamming_distance":
         return oracle(left, right)
@@ -69,26 +127,63 @@ def result(algorithm: str, left: int, right: int) -> int:
         return gcd_oracle(left, right)
     if algorithm == "lcm":
         return lcm_oracle(left, right)
+    if algorithm == "addition_without_arithmetic":
+        return addition_without_arithmetic_oracle(left, right)
+    if algorithm == "amicable_number":
+        return amicable_number_oracle(left, right)
+    if algorithm == "ackermann":
+        return ackermann_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     pairs = {tuple(case["input_values"]) for case in workload["cases"]}
-    pairs.update((left, right) for left in range(256) for right in range(256))
-    if algorithm == "hamming_distance":
-        edge_values = [0, 1, 2**63, U64_MAX, 0xAAAAAAAAAAAAAAAA, 0x5555555555555555]
-        random_bits = 64
+    if algorithm == "ackermann":
+        pairs.update((m, n) for m in range(4) for n in range(6))
+        left_edges = [I64_MIN, -1, 0, 1, 3, 4, I64_MAX]
+        right_edges = [I64_MIN, -1, 0, 1, 5, 6, I64_MAX]
+        pairs.update((left, right) for left in left_edges for right in right_edges)
+        rng = random.Random(20261014)
+        pairs.update((rng.randrange(-1, 5), rng.randrange(-1, 7)) for _ in range(512))
     else:
-        edge_values = [0, 1, 2, 3, I64_MAX, I64_MAX - 1, 7540113804746346429, 4660046610375530309]
-        random_bits = 63
-    pairs.update((left, right) for left in edge_values for right in edge_values)
-    rng = random.Random(20261014)
-    pairs.update((rng.getrandbits(random_bits), rng.getrandbits(random_bits)) for _ in range(512))
+        pairs.update((left, right) for left in range(256) for right in range(256))
+    if algorithm != "ackermann":
+        if algorithm == "hamming_distance":
+            edge_values = [0, 1, 2**63, U64_MAX, 0xAAAAAAAAAAAAAAAA, 0x5555555555555555]
+            random_bits = 64
+        elif algorithm == "addition_without_arithmetic":
+            edge_values = [I32_MIN - 1, I32_MIN, I32_MIN + 1, -1, 0, 1,
+                           I32_MAX - 1, I32_MAX, I32_MAX + 1]
+            random_bits = 32
+        elif algorithm == "amicable_number":
+            edge_values = [0, 1, 2, 3, 6, 28, 220, 284, 1184, 1210,
+                           2620, 2924, 5020, 5564, 6232, 6368,
+                           999_999, 1_000_000, 999_999_999, 1_000_000_000,
+                           1_000_000_001]
+            random_bits = 30
+        else:
+            edge_values = [0, 1, 2, 3, I64_MAX, I64_MAX - 1, 7540113804746346429, 4660046610375530309]
+            random_bits = 63
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261014)
+        if algorithm == "addition_without_arithmetic":
+            pairs.update((rng.randrange(I32_MIN - 1, I32_MAX + 2),
+                          rng.randrange(I32_MIN - 1, I32_MAX + 2)) for _ in range(512))
+        elif algorithm == "amicable_number":
+            pairs.update((rng.randrange(1, 1_000_000_001),
+                          rng.randrange(1, 1_000_000_001)) for _ in range(128))
+        else:
+            pairs.update((rng.getrandbits(random_bits), rng.getrandbits(random_bits)) for _ in range(512))
     for case in workload["cases"]:
         left, right, expected = encode_values(case)
         if expected != result(algorithm, left, right):
             raise ValueError(f"workload oracle mismatch: {case['id']}")
-    data = "".join(f"{left} {right} {result(algorithm, left, right)}\n" for left, right in sorted(pairs))
+    data = "".join(
+        f"{left if left >= 0 else left + (1 << 64)} "
+        f"{right if right >= 0 else right + (1 << 64)} "
+        f"{result(algorithm, left, right)}\n"
+        for left, right in sorted(pairs)
+    )
     return data, len(pairs)
 
 

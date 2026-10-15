@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record a scalar-to-ASCII-byte-output benchmark from its ABI build manifest."""
+"""Record a scalar-to-byte-output benchmark from its ABI build manifest."""
 
 from __future__ import annotations
 
@@ -7,22 +7,94 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
 import shlex
+import struct
 import subprocess
 
 from build_abi import ROOT, sha256_file
 
+MAX_OUTPUT_BYTES = 256
 
-def expected_output(value: int, radix: int = 2) -> tuple[int, bytes]:
+
+def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "pascal_triangle_row":
+        if not 0 <= value <= 33:
+            return -1, b""
+        output = b"".join(struct.pack("<I", math.comb(value, column))
+                          for column in range(value + 1))
+        return len(output), output
+    if encoding == "roman":
+        if not 1 <= value <= 3999:
+            return -1, b""
+        values = (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+        symbols = (b"M", b"CM", b"D", b"CD", b"C", b"XC", b"L", b"XL", b"X", b"IX", b"V", b"IV", b"I")
+        output = bytearray()
+        for numeral_value, symbol in zip(values, symbols):
+            count, value = divmod(value, numeral_value)
+            output.extend(symbol * count)
+        result = bytes(output)
+        return len(result), result
+    if encoding == "factors":
+        if not 1 <= value <= 256:
+            return -1, b""
+        output = ",".join(str(divisor) for divisor in range(1, value + 1)
+                          if value % divisor == 0).encode("ascii")
+        return len(output), output
+    if encoding == "prime_factors":
+        if not 1 <= value <= 2**31 - 1:
+            return -1, b""
+        remaining = value
+        divisor = 2
+        factors = []
+        while divisor <= remaining // divisor:
+            while remaining % divisor == 0:
+                factors.append(str(divisor))
+                remaining //= divisor
+            divisor += 1
+        if remaining > 1:
+            factors.append(str(remaining))
+        output = ",".join(factors).encode("ascii")
+        return len(output), output
+    if encoding == "prime_numbers":
+        if not 0 <= value <= 80:
+            return -1, b""
+        primes = []
+        for candidate in range(2, value + 1):
+            divisor = 2
+            while divisor <= candidate // divisor:
+                if candidate % divisor == 0:
+                    break
+                divisor += 1
+            else:
+                primes.append(str(candidate))
+        output = ",".join(primes).encode("ascii")
+        return len(output), output
+    if encoding == "first_n_primes":
+        if not 0 <= value <= 20:
+            return -1, b""
+        primes = []
+        candidate = 2
+        while len(primes) < value:
+            divisor = 2
+            while divisor <= candidate // divisor:
+                if candidate % divisor == 0:
+                    break
+                divisor += 1
+            else:
+                primes.append(str(candidate))
+            candidate += 1
+        output = ",".join(primes).encode("ascii")
+        return len(output), output
     if value < 0:
         return -1, b""
     formats = {2: "b", 8: "o", 16: "x"}
-    if radix not in formats:
-        raise ValueError(f"unsupported output radix: {radix}")
-    output = format(value, formats[radix]).encode("ascii")
+    if encoding not in formats:
+        raise ValueError(f"unsupported output encoding: {encoding}")
+    output = format(value, formats[encoding]).encode("ascii")
     return len(output), output
 
 
@@ -63,7 +135,7 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"):
         parser.error("workload does not match the built scalar byte-output algorithm")
-    radix = workload.get("input", {}).get("radix", 2)
+    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -87,9 +159,11 @@ def main() -> int:
         value = case.get("input_value")
         if type(value) is not int or not -(2**63) <= value < 2**63:
             raise ValueError(f"invalid signed 64-bit scalar in {case['id']}")
-        expected_result, expected = expected_output(value, radix)
-        if (case.get("expected_result") != expected_result
-                or case.get("expected_output") != expected.decode("ascii")):
+        expected_result, expected = expected_output(value, encoding)
+        expected_matches = (case.get("expected_output_hex") == expected.hex()
+                            if "expected_output_hex" in case
+                            else case.get("expected_output") == expected.decode("ascii"))
+        if case.get("expected_result") != expected_result or not expected_matches:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
         encoded = expected.hex() if expected else "-"
         command = [str(executable), str(value), str(expected_result), encoded,

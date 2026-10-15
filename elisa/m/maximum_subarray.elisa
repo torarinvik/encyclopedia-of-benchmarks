@@ -1,0 +1,23 @@
+# Kadane's maximum nonempty contiguous-subarray sum.
+def maximum_subarray_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 1024:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        index <- index + 1
+    current: mutable i64 = values[0]
+    best: mutable i64 = current
+    index <- 1
+    while index < length:
+        if current > 0:
+            current <- current + values[index]
+        else:
+            current <- values[index]
+        if current > best:
+            best <- current
+        index <- index + 1
+    best
+
+export fn maximum_subarray(values: i64&, length: usize) -> i64 = maximum_subarray_impl

@@ -1,0 +1,40 @@
+# Decide whether a signed integer subset reaches the requested sum.
+def subset_sum_exists_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > 25:
+        return -1
+    target: i64 = input[0]
+    if target < -6144 or target > 6144:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < -256 or input[index] > 256:
+            return -1
+        index <- index + 1
+
+    reachable: mutable bool[12289] = zeroed
+    reachable[6144] <- true
+    low: mutable i64 = 0
+    high: mutable i64 = 0
+    index <- 1
+    while index < length:
+        value: i64 = input[index]
+        if value > 0:
+            sum: mutable i64 = high
+            while sum >= low:
+                if reachable[(sum + 6144).usize()]:
+                    reachable[(sum + value + 6144).usize()] <- true
+                sum <- sum - 1
+            high <- high + value
+        elif value < 0:
+            sum: mutable i64 = low
+            while sum <= high:
+                if reachable[(sum + 6144).usize()]:
+                    reachable[(sum + value + 6144).usize()] <- true
+                sum <- sum + 1
+            low <- low + value
+        index <- index + 1
+    if reachable[(target + 6144).usize()]:
+        return 1
+    0
+
+export fn subset_sum_exists(input: i64&, length: usize) -> i64 = subset_sum_exists_impl

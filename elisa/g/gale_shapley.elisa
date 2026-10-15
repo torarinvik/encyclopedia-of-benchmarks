@@ -1,0 +1,85 @@
+# Proposer-proposing Gale-Shapley stable matching for complete preferences.
+def gale_shapley_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 66:
+        return -2
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 5:
+        return -2
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count * count:
+        return -2
+
+    ranks: mutable i64[5][5] = zeroed
+    seen: mutable bool[5] = zeroed
+    proposer: mutable usize = 0
+    index: mutable usize = 0
+    rank: mutable usize = 0
+    while proposer < count:
+        index <- 0
+        while index < count:
+            seen[index] <- false
+            index <- index + 1
+        rank <- 0
+        while rank < count:
+            accepter_value: i64 = values[1 + proposer * count + rank]
+            if accepter_value < 0 or accepter_value.usize() >= count:
+                return -2
+            accepter: usize = accepter_value.usize()
+            if seen[accepter]:
+                return -2
+            seen[accepter] <- true
+            rank <- rank + 1
+        proposer <- proposer + 1
+
+    accepter_offset: usize = 1 + count * count
+    accepter: mutable usize = 0
+    while accepter < count:
+        index <- 0
+        while index < count:
+            seen[index] <- false
+            index <- index + 1
+        rank <- 0
+        while rank < count:
+            proposer_value: i64 = values[accepter_offset + accepter * count + rank]
+            if proposer_value < 0 or proposer_value.usize() >= count:
+                return -2
+            proposer_index: usize = proposer_value.usize()
+            if seen[proposer_index]:
+                return -2
+            seen[proposer_index] <- true
+            ranks[accepter][proposer_index] <- rank.i64()
+            rank <- rank + 1
+        accepter <- accepter + 1
+
+    if output_capacity < count:
+        return -2
+    matched_proposer: mutable i64[5]
+    matched_accepter: mutable i64[5]
+    next_choice: mutable usize[5] = zeroed
+    index <- 0
+    while index < count:
+        matched_proposer[index] <- -1
+        matched_accepter[index] <- -1
+        index <- index + 1
+    while true:
+        proposer <- 0
+        while proposer < count and matched_accepter[proposer] != -1:
+            proposer <- proposer + 1
+        if proposer == count:
+            break
+        preference_index: usize = 1 + proposer * count + next_choice[proposer]
+        next_choice[proposer] <- next_choice[proposer] + 1
+        accepter_index: usize = values[preference_index].usize()
+        current: i64 = matched_proposer[accepter_index]
+        if current == -1 or ranks[accepter_index][proposer] < ranks[accepter_index][current.usize()]:
+            if current != -1:
+                matched_accepter[current.usize()] <- -1
+            matched_proposer[accepter_index] <- proposer.i64()
+            matched_accepter[proposer] <- accepter_index.i64()
+    proposer <- 0
+    while proposer < count:
+        output[proposer] <- matched_accepter[proposer].u8()
+        proposer <- proposer + 1
+    count.i64()
+
+export fn gale_shapley(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = gale_shapley_impl

@@ -1,0 +1,15 @@
+# Linear-time Josephus recurrence, returning the one-based survivor.
+def josephus_problem_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    n: i64 = values[0]
+    step: i64 = values[1]
+    if n < 1 or n > 100000 or step < 1:
+        return -1
+    winner: mutable i64 = 0
+    size: mutable i64 = 1
+    while size <= n:
+        winner <- (winner + step % size) % size
+        size <- size + 1
+    winner + 1
+export fn josephus_problem(values: i64&, length: usize) -> i64 = josephus_problem_impl
