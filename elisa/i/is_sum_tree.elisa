@@ -1,0 +1,52 @@
+def is_sum_tree_subtree_sum(nodes: i64&, index: i64) -> i64:
+    if index < 0:
+        return 0
+    base: usize = (index * 3).usize()
+    nodes[base] + is_sum_tree_subtree_sum(nodes, nodes[base + 1]) + is_sum_tree_subtree_sum(nodes, nodes[base + 2])
+
+def is_sum_tree_check_node(nodes: i64&, index: i64) -> bool:
+    base: usize = (index * 3).usize()
+    value: i64 = nodes[base]
+    left: i64 = nodes[base + 1]
+    right: i64 = nodes[base + 2]
+    if left == -1 and right == -1:
+        return true
+    left_sum: i64 = is_sum_tree_subtree_sum(nodes, left)
+    right_sum: i64 = is_sum_tree_subtree_sum(nodes, right)
+    left_ok: bool = if left == -1 then true else is_sum_tree_check_node(nodes, left)
+    right_ok: bool = if right == -1 then true else is_sum_tree_check_node(nodes, right)
+    value == left_sum + right_sum and left_ok and right_ok
+
+def is_sum_tree_impl(nodes: i64&, count: usize, root: i64) -> i64:
+    if nodes == null or count == 0 or count > 400 or root < 0 or root.u64() >= count.u64():
+        return -9000000000000000000
+    seen: mutable bool[400] = zeroed
+    stack: mutable i64[800] = zeroed
+    top: mutable usize = 0
+    stack[top] <- root
+    top <- top + 1
+    while top > 0:
+        top <- top - 1
+        index: i64 = stack[top]
+        if index < 0 or index.u64() >= count.u64() or seen[index.usize()]:
+            return -9000000000000000000
+        seen[index.usize()] <- true
+        base: usize = (index * 3).usize()
+        value: i64 = nodes[base]
+        left: i64 = nodes[base + 1]
+        right: i64 = nodes[base + 2]
+        if value < -1000000000 or value > 1000000000 or left < -1 or right < -1:
+            return -9000000000000000000
+        if left >= 0:
+            if left.u64() >= count.u64():
+                return -9000000000000000000
+            stack[top] <- left
+            top <- top + 1
+        if right >= 0:
+            if right.u64() >= count.u64():
+                return -9000000000000000000
+            stack[top] <- right
+            top <- top + 1
+    if is_sum_tree_check_node(nodes, root): 1.i64() else: 0.i64()
+
+export fn is_sum_tree(nodes: i64&, count: usize, root: i64) -> i64 = is_sum_tree_impl

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "highest-common-factor-matlab-subtractive-v1",
+  "algorithm": "highest_common_factor",
+  "function_symbol": "highest_common_factor",
+  "input": {
+    "kind": "unsigned_64_bit_integer_pair",
+    "left_range": [
+      0,
+      64
+    ],
+    "right_range": [
+      0,
+      64
+    ]
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "greatest common factor of the two inputs"
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "both_zero",
+      "left": 0,
+      "right": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "left_zero",
+      "left": 0,
+      "right": 42,
+      "expected_result": 42
+    },
+    {
+      "id": "right_zero",
+      "left": 45,
+      "right": 0,
+      "expected_result": 45
+    },
+    {
+      "id": "equal_values",
+      "left": 32,
+      "right": 32,
+      "expected_result": 32
+    },
+    {
+      "id": "nontrivial_factor",
+      "left": 24,
+      "right": 36,
+      "expected_result": 12
+    },
+    {
+      "id": "coprime_consecutive",
+      "left": 64,
+      "right": 63,
+      "expected_result": 1
+    },
+    {
+      "id": "repeated_subtraction",
+      "left": 63,
+      "right": 42,
+      "expected_result": 21
+    },
+    {
+      "id": "shared_factor",
+      "left": 60,
+      "right": 24,
+      "expected_result": 12
+    },
+    {
+      "id": "common_factor_of_seven",
+      "left": 49,
+      "right": 14,
+      "expected_result": 7
+    },
+    {
+      "id": "one_divides_other",
+      "left": 64,
+      "right": 32,
+      "expected_result": 32
+    }
+  ]
+}

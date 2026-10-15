@@ -1,0 +1,67 @@
+const MAX_LENGTH: usize = 8
+const BYTES_PER_VALUE: usize = 4
+
+def all_subsequences_store_u32(value: usize, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def all_subsequences_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def all_subsequences_generate(values: i64&, n: usize, index: usize,
+        current: mutable i64&, current_length: usize, output: mutable u8&,
+        output_cursor: mutable usize&, result_count: mutable usize&) -> void:
+    if index == n:
+        all_subsequences_store_u32(current_length, output, output_cursor)
+        output_cursor <- output_cursor + BYTES_PER_VALUE
+        item: mutable usize = 0
+        while item < current_length:
+            all_subsequences_store_i32(current[item], output, output_cursor)
+            output_cursor <- output_cursor + BYTES_PER_VALUE
+            item <- item + 1
+        result_count <- result_count + 1
+    else:
+        all_subsequences_generate(values, n, index + 1, current, current_length, output, output_cursor, result_count)
+        current[current_length] <- values[index]
+        all_subsequences_generate(values, n, index + 1, current, current_length + 1, output, output_cursor, result_count)
+
+def all_subsequences_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_LENGTH + 1:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > i64(MAX_LENGTH) or length != usize(n_value) + 1:
+        return -1
+    n: usize = n_value.usize()
+    values: mutable i64[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    result_count: mutable usize = 1
+    index <- 0
+    while index < n:
+        result_count <- result_count * 2
+        index <- index + 1
+    value_count: mutable usize = 0
+    if n > 0:
+        value_count <- n * (result_count / 2)
+    required: usize = (result_count + value_count) * BYTES_PER_VALUE
+    if output_capacity < required:
+        return -2
+    current: mutable i64[MAX_LENGTH] = zeroed
+    output_cursor: mutable usize = 0
+    emitted: mutable usize = 0
+    all_subsequences_generate(&values[0], n, 0, &current[0], 0, output, output_cursor, emitted)
+    emitted.i64()
+
+export fn all_subsequences(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = all_subsequences_impl

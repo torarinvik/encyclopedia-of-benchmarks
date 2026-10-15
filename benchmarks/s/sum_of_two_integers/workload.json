@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "sum-of-two-integers-bitwise-i32-v1",
+  "algorithm": "sum_of_two_integers",
+  "function_symbol": "sum_of_two_integers",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[a,b]",
+    "length": 2,
+    "operand_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Exact mathematical sum of the two operands; no wraparound is possible for signed 32-bit operands."
+  },
+  "cases": [
+    {
+      "id": "pinned_positive",
+      "input_values": [
+        3,
+        5
+      ],
+      "expected_result": 8
+    },
+    {
+      "id": "pinned_large_positive",
+      "input_values": [
+        100,
+        200
+      ],
+      "expected_result": 300
+    },
+    {
+      "id": "pinned_carry_boundary",
+      "input_values": [
+        65535,
+        1
+      ],
+      "expected_result": 65536
+    },
+    {
+      "id": "pinned_mixed_sign",
+      "input_values": [
+        -10,
+        6
+      ],
+      "expected_result": -4
+    },
+    {
+      "id": "pinned_both_negative",
+      "input_values": [
+        -50,
+        -30
+      ],
+      "expected_result": -80
+    },
+    {
+      "id": "pinned_negative_edge",
+      "input_values": [
+        -1,
+        -1
+      ],
+      "expected_result": -2
+    },
+    {
+      "id": "zero_operands",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_with_negative",
+      "input_values": [
+        0,
+        -42
+      ],
+      "expected_result": -42
+    },
+    {
+      "id": "maximum_i32_plus_one",
+      "input_values": [
+        2147483647,
+        1
+      ],
+      "expected_result": 2147483648
+    },
+    {
+      "id": "minimum_i32_minus_one",
+      "input_values": [
+        -2147483648,
+        -1
+      ],
+      "expected_result": -2147483649
+    },
+    {
+      "id": "opposite_i32_endpoints_sum_minus_one",
+      "input_values": [
+        -2147483648,
+        2147483647
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_wrong_length",
+      "input_values": [
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_extra_value",
+      "input_values": [
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_operand_above_i32",
+      "input_values": [
+        2147483648,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_operand_below_i32",
+      "input_values": [
+        -2147483649,
+        0
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

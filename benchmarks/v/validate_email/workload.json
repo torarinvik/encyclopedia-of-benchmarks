@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "javascript-validate-email-regex-ascii-v1",
+  "algorithm": "validate_email",
+  "function_symbol": "validate_email",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[length, ASCII codepoints...]",
+    "length_range": [1, 1024],
+    "codepoint_range": [0, 127],
+    "ascii_whitespace": [9, 10, 11, 12, 13, 32],
+    "empty_string_result": -1,
+    "malformed_or_out_of_domain_result": -1
+  },
+  "output": {
+    "kind": "signed_64_integer",
+    "valid": 1,
+    "invalid": 0,
+    "description": "Regex match for /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/ with JavaScript end-anchor behavior"
+  },
+  "cases": [
+    {
+      "id": "ordinary_address",
+      "input_values": [5, 97, 64, 98, 46, 99],
+      "expected_result": 1
+    },
+    {
+      "id": "unusual_dots_are_accepted_by_regex",
+      "input_values": [7, 46, 120, 46, 64, 46, 46, 97],
+      "expected_result": 1
+    },
+    {
+      "id": "domain_without_dot",
+      "input_values": [17, 97, 100, 109, 105, 110, 64, 109, 97, 105, 108, 115, 101, 114, 118, 101, 114, 49],
+      "expected_result": 0
+    },
+    {
+      "id": "multiple_at_signs",
+      "input_values": [7, 97, 64, 98, 64, 99, 46, 100],
+      "expected_result": 0
+    },
+    {
+      "id": "ascii_space_rejected",
+      "input_values": [6, 97, 64, 98, 46, 32, 99],
+      "expected_result": 0
+    },
+    {
+      "id": "one_final_lf_matches_end_anchor",
+      "input_values": [6, 97, 64, 98, 46, 99, 10],
+      "expected_result": 1
+    },
+    {
+      "id": "final_crlf_does_not_match",
+      "input_values": [7, 97, 64, 98, 46, 99, 13, 10],
+      "expected_result": 0
+    },
+    {
+      "id": "embedded_nul_is_not_regex_whitespace",
+      "input_values": [6, 97, 0, 64, 98, 46, 99],
+      "expected_result": 1
+    },
+    {
+      "id": "empty_string_source_exception_normalized",
+      "input_values": [0],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [5, 97, 64, 98],
+      "expected_result": -1
+    },
+    {
+      "id": "non_ascii_codepoint_outside_contract",
+      "input_values": [5, 97, 64, 98, 46, 233],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_array_scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

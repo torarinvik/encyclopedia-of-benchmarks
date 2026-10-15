@@ -1,0 +1,108 @@
+const MAX_NODE_COUNT: usize = 1023
+
+def same_trees_valid_tree(input: i64&, row_start: usize, count: usize, root: i64) -> bool:
+    if count == 0:
+        return root == -1
+    if root < 0 or root.usize() >= count:
+        return false
+    parents: mutable usize[MAX_NODE_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[row_start + 3 * index]
+        left: i64 = input[row_start + 3 * index + 1]
+        right: i64 = input[row_start + 3 * index + 2]
+        if value < -2147483648 or value > 2147483647 or left < -1 or right < -1 or (left >= 0 and left.usize() >= count) or (right >= 0 and right.usize() >= count):
+            return false
+        if left >= 0:
+            parents[left.usize()] <- parents[left.usize()] + 1
+            if parents[left.usize()] > 1:
+                return false
+        if right >= 0:
+            parents[right.usize()] <- parents[right.usize()] + 1
+            if parents[right.usize()] > 1:
+                return false
+        index <- index + 1
+    index <- 0
+    while index < count:
+        expected: usize = 1
+        if index == root.usize():
+            expected <- 0
+        if parents[index] != expected:
+            return false
+        index <- index + 1
+    seen: mutable bool[MAX_NODE_COUNT] = zeroed
+    queue: mutable usize[MAX_NODE_COUNT] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- root.usize()
+    while head < tail:
+        current: usize = queue[head]
+        head <- head + 1
+        if seen[current]:
+            return false
+        seen[current] <- true
+        left: i64 = input[row_start + 3 * current + 1]
+        right: i64 = input[row_start + 3 * current + 2]
+        if left >= 0:
+            queue[tail] <- left.usize()
+            tail <- tail + 1
+        if right >= 0:
+            queue[tail] <- right.usize()
+            tail <- tail + 1
+    tail == count
+
+def same_trees_equal(input: i64&, first_start: usize, first_root: i64,
+        second_start: usize, second_root: i64) -> i64:
+    if first_root == -1 or second_root == -1:
+        if first_root == second_root:
+            return 1
+        return 0
+    first_queue: mutable usize[MAX_NODE_COUNT] = zeroed
+    second_queue: mutable usize[MAX_NODE_COUNT] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    first_queue[0] <- first_root.usize()
+    second_queue[0] <- second_root.usize()
+    while head < tail:
+        first_index: usize = first_queue[head]
+        second_index: usize = second_queue[head]
+        head <- head + 1
+        first: usize = first_start + 3 * first_index
+        second: usize = second_start + 3 * second_index
+        if input[first] != input[second] or (input[first + 1] == -1) != (input[second + 1] == -1) or (input[first + 2] == -1) != (input[second + 2] == -1):
+            return 0
+        if input[first + 1] >= 0:
+            first_queue[tail] <- input[first + 1].usize()
+            second_queue[tail] <- input[second + 1].usize()
+            tail <- tail + 1
+        if input[first + 2] >= 0:
+            first_queue[tail] <- input[first + 2].usize()
+            second_queue[tail] <- input[second + 2].usize()
+            tail <- tail + 1
+    1
+
+def same_trees_check_impl(input: i64&, length: usize) -> i64:
+    if length < 4:
+        return -1
+    n1_value: i64 = input[0]
+    root1: i64 = input[1]
+    if n1_value < 0 or n1_value > i64(MAX_NODE_COUNT):
+        return -1
+    n1: usize = n1_value.usize()
+    start1: usize = 2
+    start2: usize = start1 + 3 * n1
+    if start2 > length or length - start2 < 2:
+        return -1
+    n2_value: i64 = input[start2]
+    root2: i64 = input[start2 + 1]
+    if n2_value < 0 or n2_value > i64(MAX_NODE_COUNT):
+        return -1
+    n2: usize = n2_value.usize()
+    rows2: usize = start2 + 2
+    if n1 + n2 > MAX_NODE_COUNT or n2 > (length - rows2) / 3 or rows2 + 3 * n2 != length:
+        return -1
+    if not same_trees_valid_tree(input, start1, n1, root1) or not same_trees_valid_tree(input, rows2, n2, root2):
+        return -1
+    same_trees_equal(input, start1, root1, rows2, root2)
+
+export fn same_trees_check(input: i64&, length: usize) -> i64 = same_trees_check_impl

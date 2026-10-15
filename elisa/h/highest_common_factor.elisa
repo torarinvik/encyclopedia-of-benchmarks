@@ -1,0 +1,14 @@
+# Recursive subtraction-based highest common factor.
+def highest_common_factor_impl(x: u64, y: u64) -> u64:
+    if x == 0:
+        return y
+    if y == 0:
+        return x
+    if x == y:
+        return x
+    if y > x:
+        highest_common_factor_impl(y - x, x)
+    else:
+        highest_common_factor_impl(x - y, y)
+
+export fn highest_common_factor(x: u64, y: u64) -> i64 = highest_common_factor_impl(x, y).i64()

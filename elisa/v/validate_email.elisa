@@ -1,0 +1,35 @@
+def validate_email_ascii_space(value: i64) -> bool:
+    value == 9 or value == 10 or value == 11 or value == 12 or value == 13 or value == 32
+
+def validate_email_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > 1025 or values[0] < 1 or values[0] > 1024 or values[0].usize() + 1 != length:
+        return -1
+    finish: mutable usize = values[0].usize()
+    index: mutable usize = 0
+    while index < finish:
+        if values[index + 1] < 0 or values[index + 1] > 127:
+            return -1
+        index <- index + 1
+    if finish > 0 and (values[finish] == 10 or values[finish] == 13):
+        finish <- finish - 1
+    at: mutable usize = finish
+    index <- 0
+    while index < finish:
+        character: i64 = values[index + 1]
+        if validate_email_ascii_space(character):
+            return 0
+        if character == 64:
+            if at != finish:
+                return 0
+            at <- index
+        index <- index + 1
+    if at == 0 or at >= finish - 1:
+        return 0
+    index <- at + 2
+    while index + 1 < finish:
+        if values[index + 1] == 46:
+            return 1
+        index <- index + 1
+    0
+
+export fn validate_email(values: i64&, length: usize) -> i64 = validate_email_impl

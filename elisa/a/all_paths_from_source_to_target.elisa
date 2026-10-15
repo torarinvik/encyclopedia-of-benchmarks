@@ -1,0 +1,76 @@
+def all_paths_from_source_to_target_put_i64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    offset: mutable usize = 0
+    while offset < 8:
+        output[position + offset] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+        offset <- offset + 1
+
+def all_paths_from_source_to_target_dfs(adj: i64&, degree: i64&, visited: mutable bool&, path: mutable i64&, depth: usize, target: i64, count: mutable usize&, output: mutable u8&, at: mutable usize&, overflow: mutable bool&) -> void:
+    if overflow:
+        return
+    current: i64 = path[depth - 1]
+    if current == target:
+        if count >= 1000:
+            overflow <- true
+            return
+        all_paths_from_source_to_target_put_i64(output, at, depth.i64())
+        at <- at + 8
+        offset: mutable usize = 0
+        while offset < depth:
+            all_paths_from_source_to_target_put_i64(output, at, path[offset])
+            at <- at + 8
+            offset <- offset + 1
+        count <- count + 1
+        return
+    visited[current.usize()] <- true
+    offset: mutable usize = 0
+    while offset < degree[current.usize()] and not overflow:
+        next: i64 = adj[current.usize() * 24 + offset]
+        if not visited[next.usize()]:
+            path[depth] <- next
+            all_paths_from_source_to_target_dfs(adj, degree, visited, path, depth + 1, target, count, output, at, overflow)
+        offset <- offset + 1
+    visited[current.usize()] <- false
+
+def all_paths_from_source_to_target_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 4 or length > 52 or values[0] < 1 or values[0] > 8 or values[1] < 0 or values[1] > 24:
+        return -1
+    vertices: usize = values[0].usize()
+    edges: usize = values[1].usize()
+    source: i64 = values[2]
+    target: i64 = values[3]
+    if source < 0 or source >= vertices.i64() or target < 0 or target >= vertices.i64() or length != 4 + 2 * edges:
+        return -1
+    adjacency: mutable i64[192] = zeroed
+    degree: mutable i64[8] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        from: i64 = values[4 + 2 * edge]
+        to: i64 = values[5 + 2 * edge]
+        if from < 0 or from >= vertices.i64() or to < 0 or to >= vertices.i64():
+            return -1
+        base: usize = from.usize() * 24 + degree[from.usize()].usize()
+        adjacency[base] <- to
+        degree[from.usize()] <- degree[from.usize()] + 1
+        edge <- edge + 1
+    temporary: mutable u8[72008] = zeroed
+    visited: mutable bool[8] = zeroed
+    path: mutable i64[8] = zeroed
+    path[0] <- source
+    count: mutable usize = 0
+    at: mutable usize = 8
+    overflow: mutable bool = false
+    all_paths_from_source_to_target_dfs(adjacency, degree, visited, path, 1, target, count, temporary, at, overflow)
+    if overflow:
+        return -2
+    all_paths_from_source_to_target_put_i64(temporary, 0, count.i64())
+    if output == null or capacity < at:
+        return -2
+    offset: mutable usize = 0
+    while offset < at:
+        output[offset] <- temporary[offset]
+        offset <- offset + 1
+    at.i64()
+
+export fn all_paths_from_source_to_target(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = all_paths_from_source_to_target_impl

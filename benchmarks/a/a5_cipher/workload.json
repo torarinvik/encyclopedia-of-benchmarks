@@ -1,0 +1,12 @@
+{
+  "algorithm": "a5_cipher",
+  "input_encoding": "signed-i64 slots [session_key_bits, initial_frame_bits, block_count, then four little-endian plaintext words per block]",
+  "output_encoding": "32 little-endian bytes per ciphertext block",
+  "cases": [
+    {"name": "zero-key-zero-frame", "input": [0, 0, 1, 0, 0, 0, 0]},
+    {"name": "single-key-bit", "input": [1, 0, 1, 0, 0, 0, 0]},
+    {"name": "frame-counter-high-bit", "input": [0, 2097152, 1, 0, 0, 0, 0]},
+    {"name": "plaintext-low-and-high", "input": [81985529216486895, 17, 1, 1, 0, 0, -9223372036854775808]},
+    {"name": "sequential-frame-advance", "input": [-81985529216486896, 2097151, 2, 0, 0, 0, 0, 1, 0, 0, 0]}
+  ]
+}

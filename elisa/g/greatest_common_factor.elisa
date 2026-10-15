@@ -1,0 +1,33 @@
+# Fold nonnegative integer inputs with Euclidean GCD.
+const MAX_ITEMS: usize = 256
+const MAX_SAFE_INTEGER: i64 = 9007199254740991
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def greatest_common_factor_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_ITEMS + 1:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 1 or count > 256 or length != usize(count) + 1:
+        return INVALID_RESULT
+    result: mutable i64 = values[1]
+    if result < 0 or result > MAX_SAFE_INTEGER:
+        return INVALID_RESULT
+    index: mutable usize = 2
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > MAX_SAFE_INTEGER:
+            return INVALID_RESULT
+        result <- gcd_nonnegative(result, value)
+        index <- index + 1
+    result
+
+export fn greatest_common_factor(values: i64&, length: usize) -> i64 = greatest_common_factor_impl

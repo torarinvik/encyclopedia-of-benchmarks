@@ -1,0 +1,60 @@
+const MAX_LENGTH: usize = 6
+const BYTES_PER_VALUE: usize = 4
+
+def all_permutations_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def all_permutations_generate(values: i64&, n: usize, depth: usize,
+        current: mutable i64&, used: mutable bool&, output: mutable u8&,
+        result_count: mutable usize&) -> void:
+    if depth == n:
+        row_start: usize = result_count * n * BYTES_PER_VALUE
+        index: usize = 0
+        while index < n:
+            all_permutations_store_i32(current[index], output, row_start + index * BYTES_PER_VALUE)
+            index <- index + 1
+        result_count <- result_count + 1
+    else:
+        index: mutable usize = 0
+        while index < n:
+            if not used[index]:
+                current[depth] <- values[index]
+                used[index] <- true
+                all_permutations_generate(values, n, depth + 1, current, used, output, result_count)
+                used[index] <- false
+            index <- index + 1
+
+def all_permutations_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_LENGTH + 1:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > i64(MAX_LENGTH) or length != usize(n_value) + 1:
+        return -1
+    n: usize = n_value.usize()
+    values: mutable i64[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    permutation_count: mutable usize = 1
+    factor: mutable usize = 2
+    while factor <= n:
+        permutation_count <- permutation_count * factor
+        factor <- factor + 1
+    required: usize = permutation_count * n * BYTES_PER_VALUE
+    if output_capacity < required:
+        return -2
+    current: mutable i64[MAX_LENGTH] = zeroed
+    used: mutable bool[MAX_LENGTH] = zeroed
+    result_count: mutable usize = 0
+    all_permutations_generate(&values[0], n, 0, &current[0], &used[0], output, result_count)
+    result_count.i64()
+
+export fn all_permutations(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = all_permutations_impl

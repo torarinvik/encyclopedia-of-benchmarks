@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "vertical-order-traversal-v1",
+  "algorithm": "vertical_order_traversal",
+  "function_symbol": "vertical_order_traversal",
+  "input": {
+    "kind": "indexed_binary_tree_triplets",
+    "maximum_nodes": 1023,
+    "node_record": ["signed_i32_value", "left_child_index", "right_child_index"],
+    "missing_child": -1,
+    "root_index": "Node table index, or -1 for an empty tree.",
+    "tree_requirement": "Every non-root node has exactly one parent, the root has none, and every node is reachable from the root.",
+    "output": "Values grouped by horizontal column in ascending coordinate order; ties retain breadth-first top-to-bottom, left-to-right order. Column offsets begin with 0.",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {"id":"empty","nodes":[],"root_index":-1,"expected_result":0,"expected_output_values":[],"expected_level_offsets":[0]},
+    {"id":"single_node","nodes":[[7,-1,-1]],"root_index":0,"expected_result":1,"expected_output_values":[7],"expected_level_offsets":[0,1]},
+    {"id":"source_example","nodes":[[1,1,2],[2,3,4],[3,-1,5],[4,-1,6],[5,-1,-1],[6,7,8],[7,-1,9],[8,-1,-1],[10,-1,-1],[9,-1,-1]],"root_index":0,"expected_result":6,"expected_output_values":[4,2,7,1,5,9,3,8,6,10],"expected_level_offsets":[0,1,3,6,8,9,10]},
+    {"id":"same_row_column_tie_keeps_left_to_right","nodes":[[1,1,2],[2,-1,3],[3,4,-1],[4,-1,-1],[5,-1,-1]],"root_index":0,"expected_result":3,"expected_output_values":[2,1,4,5,3],"expected_level_offsets":[0,1,4,5]},
+    {"id":"nonzero_root_index","nodes":[[8,1,-1],[2,-1,-1],[1,0,3],[3,-1,-1]],"root_index":2,"expected_result":4,"expected_output_values":[2,8,1,3],"expected_level_offsets":[0,1,2,3,4]},
+    {"id":"invalid_root","nodes":[[1,-1,-1]],"root_index":1,"expected_result":-1,"expected_output_values":[],"expected_level_offsets":[]}
+  ],
+  "measurement": {"comparison_model":"tree_level_order_call","sample_count":5,"warmup_rounds":0,"repetitions_per_sample":1}
+}

@@ -433,6 +433,91 @@ def distribute_coins_oracle(nodes: list[list[int]], root_index: int) -> int:
     return moves if excesses[root_index] == 1 else -1
 
 
+def diameter_of_binary_tree_oracle(nodes: list[list[int]], root_index: int) -> int:
+    count = len(nodes)
+    if not 1 <= count <= MAX_NODE_COUNT or type(root_index) is not int:
+        return -1
+    if not 0 <= root_index < count:
+        return -1
+    parents = [0] * count
+    for row in nodes:
+        if not isinstance(row, list) or len(row) != 3 or any(type(value) is not int for value in row):
+            return -1
+        for child in row[1:]:
+            if child < -1 or child >= count:
+                return -1
+            if child >= 0:
+                parents[child] += 1
+    if parents[root_index] != 0 or any(parents[index] != 1 for index in range(count)
+                                       if index != root_index):
+        return -1
+    stack = [(root_index, False)]
+    seen: set[int] = set()
+    heights: dict[int, int] = {}
+    while stack:
+        node, expanded = stack.pop()
+        if not expanded:
+            if node in seen:
+                return -1
+            seen.add(node)
+            stack.append((node, True))
+            for child in reversed(nodes[node][1:]):
+                if child >= 0:
+                    stack.append((child, False))
+            continue
+        left, right = nodes[node][1:]
+        heights[node] = 1 + max(heights.get(left, 0), heights.get(right, 0))
+    if len(seen) != count:
+        return -1
+    _value, left, right = nodes[root_index]
+    return heights.get(left, 0) + heights.get(right, 0) + 1
+
+
+def is_sum_tree_oracle(nodes: list[list[int]], root_index: int) -> int:
+    invalid = -9_000_000_000_000_000_000
+    count = len(nodes)
+    if not 1 <= count <= 400 or type(root_index) is not int:
+        return invalid
+    if not 0 <= root_index < count:
+        return invalid
+    stack = [(root_index, False)]
+    seen: set[int] = set()
+    subtree_sums: dict[int, int] = {}
+    valid_sum_tree: dict[int, bool] = {}
+    while stack:
+        node, expanded = stack.pop()
+        if node < 0 or node >= count:
+            return invalid
+        if not expanded:
+            if node in seen:
+                return invalid
+            seen.add(node)
+            row = nodes[node]
+            if (not isinstance(row, list) or len(row) != 3
+                    or any(type(value) is not int for value in row)):
+                return invalid
+            value, left, right = row
+            if not -1_000_000_000 <= value <= 1_000_000_000:
+                return invalid
+            if left < -1 or left >= count or right < -1 or right >= count:
+                return invalid
+            stack.append((node, True))
+            if right >= 0:
+                stack.append((right, False))
+            if left >= 0:
+                stack.append((left, False))
+            continue
+        value, left, right = nodes[node]
+        left_sum = subtree_sums.get(left, 0)
+        right_sum = subtree_sums.get(right, 0)
+        left_ok = left < 0 or valid_sum_tree[left]
+        right_ok = right < 0 or valid_sum_tree[right]
+        leaf = left < 0 and right < 0
+        valid_sum_tree[node] = leaf or (value == left_sum + right_sum and left_ok and right_ok)
+        subtree_sums[node] = value + left_sum + right_sum
+    return int(valid_sum_tree[root_index])
+
+
 def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
     if algorithm == "max_ancestor_diff":
         return max_ancestor_diff_oracle(nodes, root_index)
@@ -456,6 +541,10 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return validate_bst_oracle(nodes, root_index)
     if algorithm == "distribute_coins":
         return distribute_coins_oracle(nodes, root_index)
+    if algorithm == "diameter_of_binary_tree":
+        return diameter_of_binary_tree_oracle(nodes, root_index)
+    if algorithm == "is_sum_tree":
+        return is_sum_tree_oracle(nodes, root_index)
     raise ValueError(f"no tree scalar oracle for {algorithm}")
 
 

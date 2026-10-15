@@ -1,0 +1,56 @@
+const MAX_TEXT_LENGTH: usize = 4096
+
+def is_trim_byte(value: u8) -> bool:
+    value == 0 or value == 9 or value == 10 or value == 11 or value == 13 or value == 32
+
+def is_regex_space(value: u8) -> bool:
+    (value >= 9 and value <= 13) or value == 32
+
+def is_word_byte(value: u8) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122) or
+        (value >= 48 and value <= 57) or value == 95
+
+def is_terminator(value: u8) -> bool:
+    value == 46 or value == 33 or value == 63
+
+def is_eligible_predecessor(value: u8) -> bool:
+    not is_regex_space(value) and value != 124 and value != 94 and value != 46
+
+def count_sentences_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_TEXT_LENGTH + 1:
+        return -1
+    if input[0] < 0 or input[0] > 4096 or length != input[0].usize() + 1:
+        return -1
+    text_length: usize = input[0].usize()
+    text: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        if input[index + 1] < 0 or input[index + 1] > 127:
+            return -1
+        text[index] <- input[index + 1].u8()
+        index <- index + 1
+
+    begin: mutable usize = 0
+    end: mutable usize = text_length
+    while begin < end and is_trim_byte(text[begin]):
+        begin <- begin + 1
+    while end > begin and is_trim_byte(text[end - 1]):
+        end <- end - 1
+    cursor: mutable usize = begin
+    count: mutable i64 = 0
+    while cursor + 1 < end:
+        found: mutable bool = false
+        index <- cursor
+        while index + 1 < end:
+            if is_eligible_predecessor(text[index]) and is_terminator(text[index + 1]) and
+                (index + 2 == end or not is_word_byte(text[index + 2])):
+                count <- count + 1
+                cursor <- index + 2
+                found <- true
+                break
+            index <- index + 1
+        if not found:
+            break
+    count
+
+export fn count_sentences(input: i64&, length: usize) -> i64 = count_sentences_impl

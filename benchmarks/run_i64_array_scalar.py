@@ -294,6 +294,31 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = 100 * matches // (len(values) - 1)
         if expected != expected_from_source:
             raise ValueError("percentage_of_letters expected_result must match the floored ASCII percentage")
+    elif algorithm == "count_sentences":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 4096
+                 and len(values) == 1 + values[0]
+                 and all(0 <= value <= 127 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            text = bytes(values[1:]).strip(b"\x00\t\n\v\r ")
+            regex_whitespace = {9, 10, 11, 12, 13, 32}
+            word_bytes = set(range(48, 58)) | set(range(65, 91)) | set(range(97, 123)) | {95}
+            sentence_count = 0
+            index = 0
+            while index + 1 < len(text):
+                previous, terminator = text[index], text[index + 1]
+                eligible_previous = previous not in regex_whitespace | {ord("|"), ord("^"), ord(".")}
+                eligible_terminator = terminator in {ord("."), ord("!"), ord("?")}
+                next_is_word = index + 2 < len(text) and text[index + 2] in word_bytes
+                if eligible_previous and eligible_terminator and not next_is_word:
+                    sentence_count += 1
+                    index += 2
+                else:
+                    index += 1
+            expected_from_source = sentence_count
+        if expected != expected_from_source:
+            raise ValueError("count_sentences expected_result must match the trimmed ASCII regex count")
     elif algorithm == "is_sorted":
         valid = len(values) <= 4096 and all(-(2**31) <= value <= 2**31 - 1 for value in values)
         if not valid:
@@ -302,6 +327,40 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = int(all(left <= right for left, right in zip(values, values[1:])))
         if expected != expected_from_source:
             raise ValueError("is_sorted expected_result must match the Lua nondecreasing numeric predicate")
+    elif algorithm == "is_subsequence":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 4096
+                 and len(values) == 2 + values[0] + values[1]
+                 and all(0 <= value <= 0x10FFFF and not 0xD800 <= value <= 0xDFFF
+                         for value in values[2:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            main_length, sub_length = values[:2]
+            main = values[2:2 + main_length]
+            sub = values[2 + main_length:]
+            sub_index = 0
+            for codepoint in main:
+                if sub_index < sub_length and codepoint == sub[sub_index]:
+                    sub_index += 1
+            expected_from_source = int(sub_index == sub_length)
+        if expected != expected_from_source:
+            raise ValueError("is_subsequence expected_result must match the Unicode-scalar greedy scan")
+    elif algorithm == "golomb_sequence_validator":
+        valid = (1 <= len(values) <= 1024 and values[0] == len(values)
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
+        if not valid:
+            expected_from_source = -1
+        else:
+            n = values[0]
+            sequence = [0] * n
+            sequence[0] = 1
+            for index in range(1, n):
+                prior = sequence[index - 1]
+                previous_index = index - sequence[prior]
+                sequence[index] = 1 + sequence[previous_index]
+            expected_from_source = int(values[1:] == sequence[1:])
+        if expected != expected_from_source:
+            raise ValueError("golomb_sequence_validator expected_result must match the generated Golomb prefix")
     elif algorithm == "validate_subsequence":
         valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 4096
                  and len(values) == 2 + values[0] + values[1]
@@ -348,6 +407,53 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = int(ordered)
         if expected != expected_from_source:
             raise ValueError("binary_tree_is_sorted_local expected_result must match direct child ordering")
+    elif algorithm == "binary_tree_path_sum":
+        valid = (len(values) >= 2 and 0 <= values[1] <= 63
+                 and len(values) == 2 + 3 * values[1])
+        if valid:
+            node_count = values[1]
+            nodes = [values[index:index + 3] for index in range(2, len(values), 3)]
+            valid = all(-(2**31) <= row[0] <= 2**31 - 1
+                        and all(-1 <= child < node_count for child in row[1:]) for row in nodes)
+        if not valid:
+            expected_from_source = -1
+        elif node_count == 0:
+            expected_from_source = 0
+        else:
+            parents = [0] * node_count
+            for _value, left, right in nodes:
+                for child in (left, right):
+                    if child >= 0:
+                        parents[child] += 1
+            valid = parents[0] == 0 and all(parents[index] == 1 for index in range(1, node_count))
+            if valid:
+                stack = [0]
+                seen: set[int] = set()
+                while stack:
+                    node = stack.pop()
+                    if node in seen:
+                        valid = False
+                        break
+                    seen.add(node)
+                    stack.extend(child for child in nodes[node][1:] if child >= 0)
+                valid = valid and len(seen) == node_count
+            if not valid:
+                expected_from_source = -1
+            else:
+                expected_from_source = 0
+                for start in range(node_count):
+                    path_stack = [(start, nodes[start][0])]
+                    while path_stack:
+                        node, total = path_stack.pop()
+                        if total == values[0]:
+                            expected_from_source += 1
+                        _value, left, right = nodes[node]
+                        if left >= 0:
+                            path_stack.append((left, total + nodes[left][0]))
+                        if right >= 0:
+                            path_stack.append((right, total + nodes[right][0]))
+        if expected != expected_from_source:
+            raise ValueError("binary_tree_path_sum expected_result must count every target-sum downward path")
     elif algorithm == "kth_smallest":
         valid = (len(values) >= 2 and 1 <= values[0] <= 256 and 1 <= values[1] <= values[0]
                  and len(values) == 2 + values[0]
@@ -355,6 +461,42 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = sorted(values[2:])[values[1] - 1] if valid else I64_MIN
         if expected != expected_from_source:
             raise ValueError("kth_smallest expected_result must match the bounded one-based order statistic")
+    elif algorithm == "tree_height":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 1023
+                 and len(values) == 2 * values[0] - 1)
+        if valid:
+            node_count = values[0]
+            edges = list(zip(values[1::2], values[2::2]))
+            valid = (len(edges) == node_count - 1
+                     and all(1 <= left <= node_count and 1 <= right <= node_count and left != right
+                             for left, right in edges))
+        if not valid:
+            expected_from_source = -1
+        else:
+            adjacency = [[] for _ in range(node_count + 1)]
+            for left, right in edges:
+                adjacency[left].append(right)
+                adjacency[right].append(left)
+            stack = [(1, 1, 0)]
+            seen = {1}
+            expected_from_source = 1
+            while stack:
+                node, height, parent = stack.pop()
+                expected_from_source = max(expected_from_source, height)
+                for neighbor in adjacency[node]:
+                    if neighbor == parent:
+                        continue
+                    if neighbor in seen:
+                        valid = False
+                        break
+                    seen.add(neighbor)
+                    stack.append((neighbor, height + 1, node))
+                if not valid:
+                    break
+            if not valid or len(seen) != node_count:
+                expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("tree_height expected_result must match the root-1 DFS height in nodes")
     elif algorithm in {"polynomial_evaluation", "polynomial_evaluation_direct"}:
         valid = (len(values) >= 2 and 0 <= values[0] <= 8 and len(values) == 2 + values[0]
                  and -10 <= values[1] <= 10

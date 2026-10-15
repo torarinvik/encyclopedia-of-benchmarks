@@ -59,11 +59,110 @@ def oracle(nodes: list[list[int]], root: int) -> tuple[list[int], list[int]]:
     return values, offsets
 
 
-def encode_input(case: dict) -> tuple[list[int], str]:
+def vertical_order_oracle(nodes: list[list[int]], root: int) -> tuple[list[int], list[int]] | None:
+    count = len(nodes)
+    if count == 0:
+        return ([], [0]) if root == -1 else None
+    if count > 1023 or type(root) is not int or not 0 <= root < count:
+        return None
+    parents = [0] * count
+    for row in nodes:
+        if (not isinstance(row, list) or len(row) != 3
+                or any(type(value) is not int for value in row)
+                or not -(2**31) <= row[0] <= 2**31 - 1):
+            return None
+        for child in row[1:]:
+            if child < -1 or child >= count:
+                return None
+            if child >= 0:
+                parents[child] += 1
+    if parents[root] != 0 or any(parents[index] != 1 for index in range(count) if index != root):
+        return None
+    columns: dict[int, list[int]] = {}
+    queue = [(root, 0)]
+    head = 0
+    seen: set[int] = set()
+    while head < len(queue):
+        node, column = queue[head]
+        head += 1
+        if node in seen:
+            return None
+        seen.add(node)
+        value, left, right = nodes[node]
+        columns.setdefault(column, []).append(value)
+        if left >= 0:
+            queue.append((left, column - 1))
+        if right >= 0:
+            queue.append((right, column + 1))
+    if len(seen) != count:
+        return None
+    values: list[int] = []
+    offsets = [0]
+    for column in sorted(columns):
+        values.extend(columns[column])
+        offsets.append(len(values))
+    return values, offsets
+
+
+def top_view_oracle(nodes: list[list[int]], root: int) -> tuple[list[int], list[int]] | None:
+    count = len(nodes)
+    if count == 0:
+        return ([], [0]) if root == -1 else None
+    if count > 1023 or type(root) is not int or not 0 <= root < count:
+        return None
+    parents = [0] * count
+    for row in nodes:
+        if (not isinstance(row, list) or len(row) != 3
+                or any(type(value) is not int for value in row)
+                or not -(2**31) <= row[0] <= 2**31 - 1):
+            return None
+        for child in row[1:]:
+            if child < -1 or child >= count:
+                return None
+            if child >= 0:
+                parents[child] += 1
+    if parents[root] != 0 or any(parents[index] != 1 for index in range(count) if index != root):
+        return None
+    queue = [(root, 0)]
+    head = 0
+    seen: set[int] = set()
+    columns: set[int] = set()
+    values: list[int] = []
+    while head < len(queue):
+        node, column = queue[head]
+        head += 1
+        if node in seen:
+            return None
+        seen.add(node)
+        value, left, right = nodes[node]
+        if column not in columns:
+            columns.add(column)
+            values.append(value)
+        if left >= 0:
+            queue.append((left, column - 1))
+        if right >= 0:
+            queue.append((right, column + 1))
+    if len(seen) != count:
+        return None
+    return values, list(range(len(values) + 1))
+
+
+def encode_input(case: dict, algorithm: str) -> tuple[list[int], str | None]:
     nodes, root = case.get("nodes"), case.get("root_index")
     if not isinstance(nodes, list) or len(nodes) > MAX_NODES or type(root) is not int:
         raise ValueError(f"invalid tree case: {case.get('id')}")
-    values, offsets = oracle(nodes, root)
+    if algorithm in {"vertical_order_traversal", "print_top_viewof_tree"}:
+        traversal = (vertical_order_oracle(nodes, root)
+                     if algorithm == "vertical_order_traversal"
+                     else top_view_oracle(nodes, root))
+        if traversal is None:
+            if (case.get("expected_result") != -1 or case.get("expected_output_values") != []
+                    or case.get("expected_level_offsets") != []):
+                raise ValueError(f"invalid-tree oracle mismatch: {case['id']}")
+            return [value for row in nodes for value in row], None
+        values, offsets = traversal
+    else:
+        values, offsets = oracle(nodes, root)
     if (case.get("expected_result") != len(offsets) - 1
             or case.get("expected_output_values") != values
             or case.get("expected_level_offsets") != offsets):
@@ -131,7 +230,11 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        flattened, payload = encode_input(case)
+        flattened, payload = encode_input(case, algorithm)
+        if payload is None:
+            # Error cases are checked by the independent oracle, while this timing harness
+            # records successful calls only.
+            continue
         expected_levels = case["expected_result"]
         completed = subprocess.run([str(executable), str(expected_levels), str(samples),
                                     str(warmups), str(repetitions)], input=payload,

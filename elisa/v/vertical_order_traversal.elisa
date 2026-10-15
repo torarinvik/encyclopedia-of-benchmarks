@@ -1,0 +1,119 @@
+# Breadth-first traversal with linked buckets preserving each column's visit order.
+const MAX_NODES: usize = 1023
+const COLUMN_COUNT: usize = 2 * MAX_NODES + 1
+
+def vertical_order_traversal_impl(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        column_offsets: mutable usize&, offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64:
+    if node_count > MAX_NODES:
+        return -1
+    if node_count == 0:
+        if root_index != -1:
+            return -1
+        if offsets_capacity < 1:
+            return -2
+        column_offsets[0] <- 0
+        return 0
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    if output_capacity < node_count or offsets_capacity < node_count + 1 or queue_capacity < node_count:
+        return -2
+    parents: mutable usize[MAX_NODES] = zeroed
+    for node in 0..<node_count |nodes, parents|:
+        value: i64 = nodes[3 * node]
+        left: i64 = nodes[3 * node + 1]
+        right: i64 = nodes[3 * node + 2]
+        if value < -2147483648 or value > 2147483647 or left < -1 or right < -1 or
+            (left >= 0 and left.u64() >= node_count.u64()) or
+            (right >= 0 and right.u64() >= node_count.u64()):
+            return -1
+        if left >= 0:
+            left_index: usize = left.usize()
+            parents[left_index] <- parents[left_index] + 1
+            if parents[left_index] > 1:
+                return -1
+        if right >= 0:
+            right_index: usize = right.usize()
+            parents[right_index] <- parents[right_index] + 1
+            if parents[right_index] > 1:
+                return -1
+    root: usize = root_index.usize()
+    if parents[root] != 0:
+        return -1
+    for node in 0..<node_count |parents, root|:
+        if node != root and parents[node] != 1:
+            return -1
+    column: mutable i64[MAX_NODES] = zeroed
+    next_column: mutable i64[MAX_NODES] = zeroed
+    bucket_head: mutable i64[COLUMN_COUNT] = zeroed
+    bucket_tail: mutable i64[COLUMN_COUNT] = zeroed
+    visited: mutable i64[MAX_NODES] = zeroed
+    for slot in 0..<COLUMN_COUNT |bucket_head, bucket_tail|:
+        bucket_head[slot] <- -1
+        bucket_tail[slot] <- -1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    reached: mutable usize = 0
+    minimum: mutable i64 = 0
+    maximum: mutable i64 = 0
+    queue[0] <- root
+    column[root] <- 0
+    visited[root] <- 1
+    while head < tail |head, tail, reached, minimum, maximum, queue, column, next_column, bucket_head, bucket_tail, visited, nodes|:
+        node: usize = queue[head]
+        head <- head + 1
+        coordinate: i64 = column[node]
+        slot: usize = (coordinate + i64(MAX_NODES)).usize()
+        next_column[node] <- -1
+        if bucket_head[slot] < 0:
+            bucket_head[slot] <- node.i64()
+        else:
+            previous: usize = bucket_tail[slot].usize()
+            next_column[previous] <- node.i64()
+        bucket_tail[slot] <- node.i64()
+        reached <- reached + 1
+        left: i64 = nodes[3 * node + 1]
+        right: i64 = nodes[3 * node + 2]
+        if left >= 0:
+            child: usize = left.usize()
+            if visited[child] != 0 or tail >= queue_capacity:
+                return -1
+            visited[child] <- 1
+            column[child] <- coordinate - 1
+            queue[tail] <- child
+            tail <- tail + 1
+            if column[child] < minimum:
+                minimum <- column[child]
+        if right >= 0:
+            child: usize = right.usize()
+            if visited[child] != 0 or tail >= queue_capacity:
+                return -1
+            visited[child] <- 1
+            column[child] <- coordinate + 1
+            queue[tail] <- child
+            tail <- tail + 1
+            if column[child] > maximum:
+                maximum <- column[child]
+    if reached != node_count:
+        return -1
+    written: mutable usize = 0
+    columns: mutable usize = 0
+    column_offsets[0] <- 0
+    coordinate: mutable i64 = minimum
+    while coordinate <= maximum |coordinate, written, columns, output_values, column_offsets, bucket_head, next_column, nodes|:
+        slot: usize = (coordinate + i64(MAX_NODES)).usize()
+        node: mutable i64 = bucket_head[slot]
+        while node >= 0 |node, written, output_values, next_column, nodes|:
+            output_values[written] <- nodes[3 * node.usize()]
+            written <- written + 1
+            node <- next_column[node.usize()]
+        columns <- columns + 1
+        column_offsets[columns] <- written
+        coordinate <- coordinate + 1
+    columns.i64()
+
+export fn vertical_order_traversal(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        column_offsets: mutable usize&, offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64 = vertical_order_traversal_impl

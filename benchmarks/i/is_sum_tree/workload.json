@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "python-is-sum-tree-indexed-v1",
+  "algorithm": "is_sum_tree",
+  "function_symbol": "is_sum_tree",
+  "input": {
+    "kind": "indexed_binary_tree",
+    "encoding": "Each node is [signed 64-bit value, left child index, right child index]; -1 means no child.",
+    "maximum_node_count": 400,
+    "root_index": "Index of the root node; the source requires a nonempty tree.",
+    "node_value_range": [-1000000000, 1000000000],
+    "tree_requirement": "The root-reachable portion must be a proper acyclic tree; disconnected table entries are ignored.",
+    "predicate": "Every non-leaf node equals the sum of all values in its left and right descendant subtrees; leaves are always true.",
+    "valid_result": 1,
+    "not_sum_tree_result": 0,
+    "invalid_result": -9000000000000000000
+  },
+  "cases": [
+    {
+      "id": "single_leaf_is_always_sum_node",
+      "nodes": [[-17, -1, -1]],
+      "root_index": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "pinned_sum_tree_example",
+      "nodes": [[26, 1, 2], [10, 3, 4], [3, -1, 5], [4, -1, -1], [6, -1, -1], [3, -1, -1]],
+      "root_index": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "pinned_non_sum_tree_example",
+      "nodes": [[11, 1, 2], [2, 3, 4], [29, 5, 6], [1, -1, -1], [7, -1, -1], [15, -1, -1], [40, 7, -1], [35, -1, -1]],
+      "root_index": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_descendants_sum_to_root",
+      "nodes": [[0, 1, 2], [-2, -1, -1], [2, -1, -1]],
+      "root_index": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "valid_sum_tree_at_nonzero_root",
+      "nodes": [[999, -1, -1], [7, 2, 3], [3, -1, -1], [4, -1, -1]],
+      "root_index": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "shared_child_is_invalid_structure",
+      "nodes": [[2, 1, 1], [2, -1, -1]],
+      "root_index": 0,
+      "expected_result": -9000000000000000000
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "tree_scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

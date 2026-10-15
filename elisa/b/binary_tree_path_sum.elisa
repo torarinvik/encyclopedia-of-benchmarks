@@ -1,0 +1,81 @@
+# Count target-sum downward paths by restarting the DFS at every node.
+const MAX_NODES: usize = 63
+
+def binary_tree_path_sum_count_from(input: i64&, node: usize, sum: i64, target: i64) -> i64:
+    base: usize = 2 + 3 * node
+    count: mutable i64 = 1 if sum == target else 0
+    left: i64 = input[base + 1]
+    right: i64 = input[base + 2]
+    if left >= 0:
+        left_index: usize = left.usize()
+        count <- count + binary_tree_path_sum_count_from(input, left_index,
+            sum + input[2 + 3 * left_index], target)
+    if right >= 0:
+        right_index: usize = right.usize()
+        count <- count + binary_tree_path_sum_count_from(input, right_index,
+            sum + input[2 + 3 * right_index], target)
+    count
+
+def binary_tree_path_sum_start_each(input: i64&, node: usize) -> i64:
+    base: usize = 2 + 3 * node
+    count: mutable i64 = binary_tree_path_sum_count_from(input, node, input[base], input[0])
+    left: i64 = input[base + 1]
+    right: i64 = input[base + 2]
+    if left >= 0:
+        count <- count + binary_tree_path_sum_start_each(input, left.usize())
+    if right >= 0:
+        count <- count + binary_tree_path_sum_start_each(input, right.usize())
+    count
+
+def binary_tree_path_sum_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or input[1] < 0 or input[1] > i64(MAX_NODES):
+        return -1
+    count: usize = input[1].usize()
+    if length != 2 + 3 * count:
+        return -1
+    if count == 0:
+        return 0
+    parents: mutable usize[MAX_NODES] = zeroed
+    for node in 0..<count |input, parents|:
+        base: usize = 2 + 3 * node
+        if input[base] < -2147483648 or input[base] > 2147483647:
+            return -1
+        for side in 1..<3 |input, parents, base|:
+            child: i64 = input[base + side]
+            if child < -1 or child >= i64(count):
+                return -1
+            if child >= 0:
+                child_index: usize = child.usize()
+                parents[child_index] <- parents[child_index] + 1
+                if parents[child_index] > 1:
+                    return -1
+    if parents[0] != 0:
+        return -1
+    for node in 1..<count |parents|:
+        if parents[node] != 1:
+            return -1
+    seen: mutable i64[MAX_NODES] = zeroed
+    stack: mutable usize[MAX_NODES] = zeroed
+    top: mutable usize = 0
+    reached: mutable usize = 0
+    stack[top] <- 0
+    top <- top + 1
+    while top > 0 |top, stack, seen, input, reached|:
+        top <- top - 1
+        node: usize = stack[top]
+        if seen[node] != 0:
+            return -1
+        seen[node] <- 1
+        reached <- reached + 1
+        base: usize = 2 + 3 * node
+        if input[base + 1] >= 0:
+            stack[top] <- input[base + 1].usize()
+            top <- top + 1
+        if input[base + 2] >= 0:
+            stack[top] <- input[base + 2].usize()
+            top <- top + 1
+    if reached != count:
+        return -1
+    binary_tree_path_sum_start_each(input, 0)
+
+export fn binary_tree_path_sum(input: i64&, length: usize) -> i64 = binary_tree_path_sum_impl

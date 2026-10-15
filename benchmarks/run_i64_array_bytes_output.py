@@ -8,7 +8,9 @@ from collections import deque
 import datetime as dt
 from functools import lru_cache
 import hashlib
+from itertools import permutations
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -641,6 +643,97 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "all_paths_from_source_to_target":
+        if (not isinstance(values, list) or not 4 <= len(values) <= 52
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count, source, destination = values[:4]
+        if (not 1 <= vertex_count <= 8 or not 0 <= edge_count <= 24
+                or len(values) != 4 + 2 * edge_count
+                or not 0 <= source < vertex_count or not 0 <= destination < vertex_count):
+            return -1, b""
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        for index in range(4, len(values), 2):
+            start, end = values[index:index + 2]
+            if not 0 <= start < vertex_count or not 0 <= end < vertex_count:
+                return -1, b""
+            adjacency[start].append(end)
+        paths: list[list[int]] = []
+        path = [source]
+        in_path = {source}
+
+        def visit(node: int) -> bool:
+            if node == destination:
+                if len(paths) == 1000:
+                    return False
+                paths.append(path.copy())
+                return True
+            for neighbor in adjacency[node]:
+                if neighbor in in_path:
+                    continue
+                in_path.add(neighbor)
+                path.append(neighbor)
+                if not visit(neighbor):
+                    return False
+                path.pop()
+                in_path.remove(neighbor)
+            return True
+
+        if not visit(source):
+            return -2, b""
+        output = bytearray(struct.pack("<q", len(paths)))
+        for found_path in paths:
+            output.extend(struct.pack("<q", len(found_path)))
+            output.extend(b"".join(struct.pack("<q", vertex) for vertex in found_path))
+        return len(output), bytes(output)
+
+    if algorithm == "alternative_list_arrange":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 130
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        first_count = values[0]
+        if not 0 <= first_count <= 64 or len(values) < first_count + 2:
+            return -1, b""
+        first = values[1:1 + first_count]
+        second_count_position = 1 + first_count
+        second_count = values[second_count_position]
+        second = values[second_count_position + 1:]
+        if not 0 <= second_count <= 64 or len(second) != second_count:
+            return -1, b""
+        arranged = []
+        for index in range(max(first_count, second_count)):
+            if index < first_count:
+                arranged.append(first[index])
+            if index < second_count:
+                arranged.append(second[index])
+        output = b"".join(struct.pack("<q", value) for value in arranged)
+        return len(arranged), output
+
+    if algorithm == "sorted_arrays_intersection":
+        if (not isinstance(values, list) or not 3 <= len(values) <= 195
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        arrays = []
+        position = 0
+        for _ in range(3):
+            if position >= len(values) or not 0 <= values[position] <= 64:
+                return -1, b""
+            count = values[position]
+            position += 1
+            if count > len(values) - position:
+                return -1, b""
+            array = values[position:position + count]
+            if (any(not -(2**31) <= value <= 2**31 - 1 for value in array)
+                    or any(array[index - 1] >= array[index] for index in range(1, count))):
+                return -1, b""
+            arrays.append(array)
+            position += count
+        if position != len(values):
+            return -1, b""
+        common = sorted(set(arrays[0]).intersection(arrays[1], arrays[2]))
+        output = b"".join(struct.pack("<i", value) for value in common)
+        return len(common), output
+
     if algorithm == "cantor_set":
         if (not isinstance(values, list) or len(values) != 3
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -804,6 +897,110 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = b"\n".join(matches) + b"\0"
         return len(output), output
 
+    if algorithm == "detect_anagrams":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 290
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        subject_length = values[0]
+        if not 0 <= subject_length <= 16 or 1 + subject_length >= len(values):
+            return -1, b""
+        subject_values = values[1:1 + subject_length]
+        if any(not (65 <= value <= 90 or 97 <= value <= 122) for value in subject_values):
+            return -1, b""
+        position = 1 + subject_length
+        candidate_count = values[position]
+        position += 1
+        if not 0 <= candidate_count <= 16:
+            return -1, b""
+        subject = bytes(value | 32 for value in subject_values)
+        subject_signature = sorted(subject)
+        matches = []
+        for _ in range(candidate_count):
+            if position >= len(values) or not 0 <= values[position] <= 16:
+                return -1, b""
+            candidate_length = values[position]
+            position += 1
+            if candidate_length > len(values) - position:
+                return -1, b""
+            candidate_values = values[position:position + candidate_length]
+            if any(not (65 <= value <= 90 or 97 <= value <= 122) for value in candidate_values):
+                return -1, b""
+            candidate = bytes(candidate_values)
+            lowered = bytes(value | 32 for value in candidate)
+            if lowered != subject and sorted(lowered) == subject_signature:
+                matches.append(candidate)
+            position += candidate_length
+        if position != len(values):
+            return -1, b""
+        output = b"\n".join(matches) + b"\0"
+        return len(matches), output
+
+    if algorithm == "all_permutations":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 7
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        items = values[1:]
+        if (not 0 <= count <= 6 or len(items) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in items)):
+            return -1, b""
+        output = b"".join(struct.pack("<i", value)
+                           for row in permutations(items) for value in row)
+        return math.factorial(count), output
+
+    if algorithm == "top_k_frequent_words":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 1090
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        k, word_count = values[:2]
+        if not 0 <= k <= 64 or not 0 <= word_count <= 64:
+            return -1, b""
+        position = 2
+        frequencies: dict[bytes, int] = {}
+        for _ in range(word_count):
+            if position >= len(values) or not 1 <= values[position] <= 16:
+                return -1, b""
+            word_length = values[position]
+            position += 1
+            if word_length > len(values) - position:
+                return -1, b""
+            word_values = values[position:position + word_length]
+            if any(not 97 <= value <= 122 for value in word_values):
+                return -1, b""
+            word = bytes(word_values)
+            frequencies[word] = frequencies.get(word, 0) + 1
+            position += word_length
+        if position != len(values):
+            return -1, b""
+        heap = list(frequencies.items())
+
+        def max_heapify(index: int, size: int) -> None:
+            violation = index
+            left = 2 * index + 1
+            right = left + 1
+            if left < size and heap[left][1] > heap[violation][1]:
+                violation = left
+            if right < size and heap[right][1] > heap[violation][1]:
+                violation = right
+            if violation != index:
+                heap[index], heap[violation] = heap[violation], heap[index]
+                max_heapify(violation, size)
+
+        for index in range(len(heap) // 2 - 1, -1, -1):
+            max_heapify(index, len(heap))
+        ranked = []
+        size = len(heap)
+        for _ in range(min(k, size)):
+            ranked.append(heap[0][0])
+            if size == 1:
+                size = 0
+            else:
+                heap[0] = heap[size - 1]
+                size -= 1
+                max_heapify(0, size)
+        output = b"\n".join(ranked) + b"\0"
+        return len(output), output
+
     if algorithm == "find_all_duplicates_hash_order":
         if (not isinstance(values, list) or len(values) > 1024
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -814,6 +1011,18 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         duplicates = [value for value, count in frequencies.items() if count > 1]
         output = b"".join(struct.pack("<q", value) for value in duplicates)
         return len(duplicates), output
+
+    if algorithm == "majority_elements_floor_half":
+        if (not isinstance(values, list) or len(values) > 256
+                or any(type(value) is not int or not -(2**31) <= value <= 2**31 - 1 for value in values)):
+            return -1, b""
+        frequencies: dict[int, int] = {}
+        for value in values:
+            frequencies[value] = frequencies.get(value, 0) + 1
+        threshold = len(values) // 2
+        majority_values = sorted(value for value, count in frequencies.items() if count >= threshold)
+        output = b"".join(struct.pack("<i", value) for value in majority_values)
+        return len(majority_values), output
 
     if algorithm == "infix_to_postfix":
         if (not isinstance(values, list) or not 1 <= len(values) <= 24

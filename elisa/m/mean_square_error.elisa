@@ -1,0 +1,24 @@
+# Mean squared error over paired prediction and expected arrays.
+const MAX_LENGTH: usize = 256
+const INVALID_RESULT: f64 = -1.0e300
+
+def mean_square_error_impl(values: i64&, length: usize) -> f64:
+    if length < 3 or length > 2 * MAX_LENGTH + 1:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256 or length != 2 * usize(count_value) + 1:
+        return INVALID_RESULT
+    count: usize = usize(count_value)
+    error_sum: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        predicted: i64 = values[index + 1]
+        expected: i64 = values[index + 1 + count]
+        if predicted < -1000000 or predicted > 1000000 or expected < -1000000 or expected > 1000000:
+            return INVALID_RESULT
+        difference: f64 = (expected - predicted).f64()
+        error_sum <- error_sum + difference * difference
+        index <- index + 1
+    error_sum / count.f64()
+
+export fn mean_square_error(values: i64&, length: usize) -> f64 = mean_square_error_impl

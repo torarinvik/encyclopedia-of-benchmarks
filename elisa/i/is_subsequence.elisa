@@ -1,0 +1,35 @@
+def is_unicode_scalar(value: i64) -> bool:
+    if value < 0 or value > 1114111:
+        return false
+    if value >= 55296 and value <= 57343:
+        return false
+    true
+
+def is_subsequence_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 8194:
+        return -1
+    if input[0] < 0 or input[0] > 4096 or input[1] < 0 or input[1] > 4096:
+        return -1
+    main_length: usize = input[0].usize()
+    subsequence_length: usize = input[1].usize()
+    if length != 2 + main_length + subsequence_length:
+        return -1
+    index: mutable usize = 2
+    while index < length:
+        if not is_unicode_scalar(input[index]):
+            return -1
+        index <- index + 1
+
+    subsequence_start: usize = 2 + main_length
+    main_index: mutable usize = 0
+    subsequence_index: mutable usize = 0
+    while subsequence_index < subsequence_length and main_index < main_length:
+        if input[subsequence_start + subsequence_index] == input[2 + main_index]:
+            subsequence_index <- subsequence_index + 1
+        main_index <- main_index + 1
+    if subsequence_index == subsequence_length:
+        1
+    else:
+        0
+
+export fn is_subsequence(input: i64&, length: usize) -> i64 = is_subsequence_impl

@@ -1,0 +1,26 @@
+# Mean absolute error over paired prediction and actual arrays.
+const MAX_LENGTH: usize = 256
+const INVALID_RESULT: f64 = -1.0e300
+
+def mean_absolute_error_loss_impl(values: i64&, length: usize) -> f64:
+    if length < 3 or length > 2 * MAX_LENGTH + 1:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256 or length != 2 * usize(count_value) + 1:
+        return INVALID_RESULT
+    count: usize = usize(count_value)
+    absolute_sum: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        predicted: i64 = values[index + 1]
+        actual: i64 = values[index + 1 + count]
+        if predicted < -1000000 or predicted > 1000000 or actual < -1000000 or actual > 1000000:
+            return INVALID_RESULT
+        difference: mutable f64 = (predicted - actual).f64()
+        if difference < 0.0:
+            difference <- -difference
+        absolute_sum <- absolute_sum + difference
+        index <- index + 1
+    absolute_sum / count.f64()
+
+export fn mean_absolute_error_loss(values: i64&, length: usize) -> f64 = mean_absolute_error_loss_impl

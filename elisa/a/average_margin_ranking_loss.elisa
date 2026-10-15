@@ -1,0 +1,27 @@
+# Average pairwise hinge loss for ranked scores.
+const MAX_LENGTH: usize = 256
+const INVALID_RESULT: f64 = -1.0e300
+
+def average_margin_ranking_loss_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 2 * MAX_LENGTH + 3:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    margin_value: i64 = values[1]
+    label_value: i64 = values[2]
+    if count_value < 1 or count_value > 256 or length != 2 * usize(count_value) + 3 or margin_value < 0 or margin_value > 1000 or (label_value != 1 and label_value != -1):
+        return INVALID_RESULT
+    count: usize = usize(count_value)
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        first: i64 = values[index + 3]
+        second: i64 = values[index + 3 + count]
+        if first < -1000 or first > 1000 or second < -1000 or second > 1000:
+            return INVALID_RESULT
+        loss: f64 = margin_value.f64() - label_value.f64() * (first.f64() - second.f64())
+        if loss > 0.0:
+            total <- total + loss
+        index <- index + 1
+    total / count.f64()
+
+export fn average_margin_ranking_loss(values: i64&, length: usize) -> f64 = average_margin_ranking_loss_impl

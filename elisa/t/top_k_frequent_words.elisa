@@ -1,0 +1,96 @@
+def top_k_frequent_words_sift(heap: mutable usize&, counts: usize&, size: usize, root_value: usize) -> void:
+    best: mutable usize = root_value
+    left: usize = root_value * 2 + 1
+    right: usize = left + 1
+    if left < size and counts[heap[left]] > counts[heap[best]]:
+        best <- left
+    if right < size and counts[heap[right]] > counts[heap[best]]:
+        best <- right
+    if best != root_value:
+        temporary: usize = heap[root_value]
+        heap[root_value] <- heap[best]
+        heap[best] <- temporary
+        top_k_frequent_words_sift(heap, counts, size, best)
+
+def top_k_frequent_words_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 1090 or values[0] < 0 or values[0] > 64 or values[1] < 0 or values[1] > 64:
+        return -1
+    k: usize = values[0].usize()
+    word_count: usize = values[1].usize()
+    words: mutable u8[1024] = zeroed
+    lens: mutable usize[64] = zeroed
+    counts: mutable usize[64] = zeroed
+    heap: mutable usize[64] = zeroed
+    distinct: mutable usize = 0
+    position: mutable usize = 2
+    word_index: mutable usize = 0
+    while word_index < word_count:
+        if position >= length or values[position] < 1 or values[position] > 16:
+            return -1
+        word_length: usize = values[position].usize()
+        position <- position + 1
+        if word_length > length - position:
+            return -1
+        offset: mutable usize = 0
+        while offset < word_length:
+            if values[position + offset] < 97 or values[position + offset] > 122:
+                return -1
+            offset <- offset + 1
+        id: mutable usize = 0
+        while id < distinct:
+            if lens[id] == word_length:
+                offset <- 0
+                while offset < word_length and words[id * 16 + offset].i64() == values[position + offset]:
+                    offset <- offset + 1
+                if offset == word_length:
+                    break
+            id <- id + 1
+        if id == distinct:
+            lens[id] <- word_length
+            offset <- 0
+            while offset < word_length:
+                words[id * 16 + offset] <- values[position + offset].u8()
+                offset <- offset + 1
+            distinct <- distinct + 1
+        counts[id] <- counts[id] + 1
+        position <- position + word_length
+        word_index <- word_index + 1
+    if position != length:
+        return -1
+    word_index <- 0
+    while word_index < distinct:
+        heap[word_index] <- word_index
+        word_index <- word_index + 1
+    build: mutable usize = distinct / 2
+    while build > 0:
+        build <- build - 1
+        top_k_frequent_words_sift(heap, counts, distinct, build)
+    limit: usize = if k < distinct then k else distinct
+    temporary: mutable u8[1089] = zeroed
+    output_length: mutable usize = 0
+    word_index <- 0
+    while word_index < limit:
+        id: usize = heap[0]
+        offset <- 0
+        while offset < lens[id]:
+            temporary[output_length] <- words[id * 16 + offset]
+            output_length <- output_length + 1
+            offset <- offset + 1
+        temporary[output_length] <- 10.u8()
+        output_length <- output_length + 1
+        distinct <- distinct - 1
+        heap[0] <- heap[distinct]
+        if distinct > 0:
+            top_k_frequent_words_sift(heap, counts, distinct, 0)
+        word_index <- word_index + 1
+    temporary[output_length] <- 0.u8()
+    output_length <- output_length + 1
+    if output == null or output_capacity < output_length:
+        return -2
+    offset <- 0
+    while offset < output_length:
+        output[offset] <- temporary[offset]
+        offset <- offset + 1
+    output_length.i64()
+
+export fn top_k_frequent_words(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = top_k_frequent_words_impl

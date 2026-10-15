@@ -1,0 +1,16 @@
+def alaw_decode_impl(input: i64) -> i64:
+    if input < 0 or input > 255:
+        return -1
+    alaw: i64 = input ^ 0xD5
+    sign: i64 = alaw & 0x80
+    segment: i64 = (alaw & 0x70) >> 4
+    sample: mutable i64 = ((alaw & 0x0F) << 4) | 8
+    if segment != 0:
+        sample <- sample + 0x100
+    shift: i64 = segment - 1 if segment > 1 else 0
+    sample <- sample << shift
+    if sign != 0:
+        return -sample
+    sample
+
+export fn alaw_decode(input: i64) -> i64 = alaw_decode_impl

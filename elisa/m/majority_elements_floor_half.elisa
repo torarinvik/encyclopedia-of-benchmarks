@@ -1,0 +1,73 @@
+const MAX_INPUT_LENGTH: usize = 256
+const TABLE_SIZE: usize = 512
+
+def majority_elements_floor_half_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or (length > 0 and values == null):
+        return -1
+
+    keys: mutable i64[TABLE_SIZE] = zeroed
+    counts: mutable usize[TABLE_SIZE] = zeroed
+    used: mutable bool[TABLE_SIZE] = zeroed
+    insertion_order: mutable usize[MAX_INPUT_LENGTH] = zeroed
+    unique_count: mutable usize = 0
+
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        remainder: mutable i64 = value % 512
+        if remainder < 0:
+            remainder <- remainder + 512
+        slot: mutable usize = remainder.usize()
+        while used[slot] and keys[slot] != value:
+            slot <- (slot + 1) % TABLE_SIZE
+        if not used[slot]:
+            used[slot] <- true
+            keys[slot] <- value
+            counts[slot] <- 1
+            insertion_order[unique_count] <- slot
+            unique_count <- unique_count + 1
+        else:
+            counts[slot] <- counts[slot] + 1
+        index <- index + 1
+
+    results: mutable i64[MAX_INPUT_LENGTH] = zeroed
+    result_count: mutable usize = 0
+    threshold: usize = length / 2
+    index <- 0
+    while index < unique_count:
+        slot: usize = insertion_order[index]
+        if counts[slot] >= threshold:
+            results[result_count] <- keys[slot]
+            result_count <- result_count + 1
+        index <- index + 1
+
+    index <- 1
+    while index < result_count:
+        value: i64 = results[index]
+        position: mutable usize = index
+        while position > 0 and results[position - 1] > value:
+            results[position] <- results[position - 1]
+            position <- position - 1
+        results[position] <- value
+        index <- index + 1
+
+    required: usize = result_count * 4
+    if output_capacity < required or (required > 0 and output == null):
+        return -2
+    written: mutable usize = 0
+    index <- 0
+    while index < result_count:
+        bits: u32 = results[index].u32()
+        byte: mutable usize = 0
+        while byte < 4:
+            output[written] <- ((bits >> (byte * 8)) & 255).u8()
+            written <- written + 1
+            byte <- byte + 1
+        index <- index + 1
+    result_count.i64()
+
+export fn majority_elements_floor_half(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = majority_elements_floor_half_impl

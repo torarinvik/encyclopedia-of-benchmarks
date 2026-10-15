@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "alternative-list-arrange-i64-v1",
+  "algorithm": "alternative_list_arrange",
+  "function_symbol": "alternative_list_arrange",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[first_count, first values..., second_count, second values...]",
+    "length_range": [
+      0,
+      64
+    ],
+    "maximum_packed_values": 130,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Interleave first[i], second[i], preserving each input order, then append the remaining tail.",
+    "successful_result": "Number of output values.",
+    "maximum_values": 128,
+    "maximum_bytes": 1024
+  },
+  "cases": [
+    {
+      "id": "unequal-first-longer",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        3,
+        10,
+        20,
+        30
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "01000000000000000a000000000000000200000000000000140000000000000003000000000000001e0000000000000004000000000000000500000000000000"
+    },
+    {
+      "id": "unequal-second-longer",
+      "input_values": [
+        2,
+        7,
+        8,
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "070000000000000001000000000000000800000000000000020000000000000003000000000000000400000000000000"
+    },
+    {
+      "id": "empty-first",
+      "input_values": [
+        0,
+        3,
+        11,
+        12,
+        13
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "0b000000000000000c000000000000000d00000000000000"
+    },
+    {
+      "id": "empty-second",
+      "input_values": [
+        3,
+        -1,
+        0,
+        9,
+        0
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "ffffffffffffffff00000000000000000900000000000000"
+    },
+    {
+      "id": "both-empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

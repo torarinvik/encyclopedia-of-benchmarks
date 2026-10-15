@@ -1,0 +1,103 @@
+def parity(value: u32) -> u32:
+    x: mutable u32 = value
+    x <- x ^ (x >> 16)
+    x <- x ^ (x >> 8)
+    x <- x ^ (x >> 4)
+    x <- x ^ (x >> 2)
+    x <- x ^ (x >> 1)
+    x & 1
+
+def feedback1(register: u32) -> u32:
+    parity(register & ((1.u32() << 13) | (1.u32() << 16) | (1.u32() << 17) | (1.u32() << 18)))
+def feedback2(register: u32) -> u32:
+    parity(register & ((1.u32() << 20) | (1.u32() << 21)))
+def feedback3(register: u32) -> u32:
+    parity(register & ((1.u32() << 7) | (1.u32() << 20) | (1.u32() << 21) | (1.u32() << 22)))
+def push(register: u32, width: usize, bit: u32) -> u32:
+    ((register << 1) | bit) & ((1.u32() << width) - 1)
+
+def initialize(key: u64, frame: u32, r1: mutable u32&, r2: mutable u32&, r3: mutable u32&) -> void:
+    r1 <- 0; r2 <- 0; r3 <- 0
+    i: mutable usize = 64
+    while i > 0:
+        i <- i - 1
+        bit: u32 = ((key >> i) & 1).u32()
+        r1 <- push(r1, 19, bit ^ feedback1(r1))
+        r2 <- push(r2, 22, bit ^ feedback2(r2))
+        r3 <- push(r3, 23, bit ^ feedback3(r3))
+    i <- 22
+    while i > 0:
+        i <- i - 1
+        bit <- (frame >> i) & 1
+        r1 <- push(r1, 19, bit ^ feedback1(r1))
+        r2 <- push(r2, 22, bit ^ feedback2(r2))
+        r3 <- push(r3, 23, bit ^ feedback3(r3))
+
+def tick(r1: mutable u32&, r2: mutable u32&, r3: mutable u32&) -> u32:
+    c1: u32 = (r1 >> 8) & 1
+    c2: u32 = (r2 >> 10) & 1
+    c3: u32 = (r3 >> 10) & 1
+    majority: u32 = 0
+    if c1 + c2 + c3 >= 2:
+        majority <- 1
+    result: u32 = ((r1 >> 18) ^ (r2 >> 21) ^ (r3 >> 22)) & 1
+    if c1 == majority: r1 <- push(r1, 19, feedback1(r1))
+    if c2 == majority: r2 <- push(r2, 22, feedback2(r2))
+    if c3 == majority: r3 <- push(r3, 23, feedback3(r3))
+    result
+
+def next_frame(frame: u32) -> u32:
+    result: mutable u32 = frame
+    i: mutable usize = 22
+    while i > 0:
+        i <- i - 1
+        mask: u32 = 1.u32() << i
+        if (result & mask) == 0:
+            return result | mask
+        result <- result & (not mask)
+    result
+
+def store_bit(output: mutable u8&, block_offset: usize, bit: usize, value: u32) -> void:
+    position: usize = block_offset + bit / 8
+    output[position] <- output[position] | (value.u8() << (bit % 8))
+
+def a5_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or input[2] < 1 or input[2] > 4:
+        return -1
+    blocks: usize = input[2].usize()
+    if length != 3 + 4 * blocks:
+        return -1
+    byte_count: usize = 32 * blocks
+    if output_capacity < byte_count:
+        return -2
+    key: u64 = input[0].u64()
+    frame: mutable u32 = (input[1].u64() & 0x3fffff).u32()
+    block: mutable usize = 0
+    while block < blocks:
+        r1: mutable u32 = 0; r2: mutable u32 = 0; r3: mutable u32 = 0
+        initialize(key, frame, r1, r2, r3)
+        cycle: mutable usize = 0
+        ignored: mutable u32 = 0
+        while cycle < 100:
+            ignored <- tick(r1, r2, r3)
+            cycle <- cycle + 1
+        byte: mutable usize = 0
+        while byte < 32:
+            output[block * 32 + byte] <- 0
+            byte <- byte + 1
+        bit: mutable usize = 0
+        while bit < 228:
+            plain: u64 = input[3 + 4 * block + bit / 64].u64()
+            value: u32 = ((plain >> (bit % 64)) & 1).u32() ^ tick(r1, r2, r3)
+            store_bit(output, block * 32, bit, value)
+            bit <- bit + 1
+        while bit < 256:
+            plain: u64 = input[3 + 4 * block + bit / 64].u64()
+            value: u32 = ((plain >> (bit % 64)) & 1).u32()
+            store_bit(output, block * 32, bit, value)
+            bit <- bit + 1
+        frame <- next_frame(frame)
+        block <- block + 1
+    byte_count.i64()
+
+export fn a5_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = a5_cipher_impl

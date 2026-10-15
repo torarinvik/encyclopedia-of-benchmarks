@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "golomb-sequence-validator-i64-array-v1",
+  "algorithm": "golomb_sequence_validator",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, n-1 signed-32-bit prefix values...]",
+    "supported_n": [1, 1024],
+    "prefix_definition": "dp[0]=1; for i=1..n-1, dp[i]=1+dp[i-dp[dp[i-1]]]; compare supplied values to dp[1..n-1]",
+    "result": "1 when the complete supplied prefix matches; otherwise 0",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty_prefix_n_one","input_values":[1],"input_length":1,"expected_result":1},
+    {"id":"first_prefix_value","input_values":[2,1],"input_length":2,"expected_result":1},
+    {"id":"first_prefix_mismatch","input_values":[2,2],"input_length":2,"expected_result":0},
+    {"id":"golomb_prefix_through_dp_four","input_values":[5,1,2,2,3],"input_length":5,"expected_result":1},
+    {"id":"golomb_prefix_through_dp_five","input_values":[6,1,2,2,3,3],"input_length":6,"expected_result":1},
+    {"id":"later_prefix_mismatch","input_values":[6,1,2,2,3,4],"input_length":6,"expected_result":0},
+    {"id":"length_shorter_than_n","input_values":[3,1],"input_length":2,"expected_result":-1},
+    {"id":"length_longer_than_n","input_values":[2,1,2],"input_length":3,"expected_result":-1},
+    {"id":"zero_n","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"n_above_limit","input_values":[1025],"input_length":1,"expected_result":-1},
+    {"id":"prefix_value_outside_i32","input_values":[2,2147483648],"input_length":2,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

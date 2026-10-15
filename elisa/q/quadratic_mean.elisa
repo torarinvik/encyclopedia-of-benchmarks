@@ -1,0 +1,20 @@
+# Quadratic mean, also known as root mean square.
+extern sqrt(value: f64) -> f64
+const MAX_LENGTH: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+def quadratic_mean_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > MAX_LENGTH:
+        return INVALID_RESULT
+    square_sum: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -1000 or value > 1000:
+            return INVALID_RESULT
+        converted: f64 = value.f64()
+        square_sum <- square_sum + converted * converted
+        index <- index + 1
+    sqrt(square_sum / length.f64())
+
+export fn quadratic_mean(values: i64&, length: usize) -> f64 = quadratic_mean_impl

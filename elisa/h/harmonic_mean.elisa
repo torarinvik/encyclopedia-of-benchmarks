@@ -1,0 +1,18 @@
+# Harmonic mean of positive values.
+const MAX_LENGTH: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+def harmonic_mean_impl(values: i64&, length: usize) -> f64:
+    if length == 0 or length > MAX_LENGTH:
+        return INVALID_RESULT
+    reciprocal_sum: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 1 or value > 1000:
+            return INVALID_RESULT
+        reciprocal_sum <- reciprocal_sum + 1.0 / value.f64()
+        index <- index + 1
+    length.f64() / reciprocal_sum
+
+export fn harmonic_mean(values: i64&, length: usize) -> f64 = harmonic_mean_impl

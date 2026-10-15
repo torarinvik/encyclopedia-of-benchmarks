@@ -1,0 +1,108 @@
+const MAX_TEXT_LENGTH: usize = 16
+const MAX_CANDIDATE_COUNT: usize = 16
+const MAX_INPUT_LENGTH: usize = 290
+
+def detect_anagrams_is_ascii_letter(value: i64) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def detect_anagrams_lowercase_ascii(value: i64) -> i64:
+    if value >= 65 and value <= 90:
+        return value + 32
+    value
+
+def detect_anagrams_letter_index(value: i64) -> usize:
+    if value >= 65 and value <= 90:
+        return (value - 65).usize()
+    (value - 97).usize()
+
+def detect_anagrams_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if values[0] < 0 or values[0] > MAX_TEXT_LENGTH.i64():
+        return -1
+    subject_length: usize = values[0].usize()
+    subject_start: usize = 1
+    position: mutable usize = subject_start + subject_length
+    if position >= length:
+        return -1
+    candidate_count_value: i64 = values[position]
+    position <- position + 1
+    if candidate_count_value < 0 or candidate_count_value > MAX_CANDIDATE_COUNT.i64():
+        return -1
+    candidate_count: usize = candidate_count_value.usize()
+
+    subject_counts: mutable usize[26] = zeroed
+    offset: mutable usize = 0
+    while offset < subject_length:
+        value: i64 = values[subject_start + offset]
+        if not detect_anagrams_is_ascii_letter(value):
+            return -1
+        letter: usize = detect_anagrams_letter_index(value)
+        subject_counts[letter] <- subject_counts[letter] + 1
+        offset <- offset + 1
+
+    match_starts: mutable usize[MAX_CANDIDATE_COUNT] = zeroed
+    match_lengths: mutable usize[MAX_CANDIDATE_COUNT] = zeroed
+    match_count: mutable usize = 0
+    required: mutable usize = 1
+    candidate: mutable usize = 0
+    while candidate < candidate_count:
+        if position >= length:
+            return -1
+        candidate_length_value: i64 = values[position]
+        position <- position + 1
+        if candidate_length_value < 0 or candidate_length_value > MAX_TEXT_LENGTH.i64():
+            return -1
+        candidate_length: usize = candidate_length_value.usize()
+        if candidate_length > length - position:
+            return -1
+        candidate_start: usize = position
+
+        candidate_counts: mutable usize[26] = zeroed
+        identical: mutable bool = candidate_length == subject_length
+        offset <- 0
+        while offset < candidate_length:
+            value: i64 = values[candidate_start + offset]
+            if not detect_anagrams_is_ascii_letter(value):
+                return -1
+            letter: usize = detect_anagrams_letter_index(value)
+            candidate_counts[letter] <- candidate_counts[letter] + 1
+            if identical and detect_anagrams_lowercase_ascii(value) != detect_anagrams_lowercase_ascii(values[subject_start + offset]):
+                identical <- false
+            offset <- offset + 1
+
+        same_signature: mutable bool = true
+        letter: mutable usize = 0
+        while letter < 26:
+            if candidate_counts[letter] != subject_counts[letter]:
+                same_signature <- false
+            letter <- letter + 1
+        if same_signature and not identical:
+            match_starts[match_count] <- candidate_start
+            match_lengths[match_count] <- candidate_length
+            match_count <- match_count + 1
+            required <- required + candidate_length + 1
+        position <- position + candidate_length
+        candidate <- candidate + 1
+    if position != length:
+        return -1
+    if output == null or output_capacity < required:
+        return -2
+
+    written: mutable usize = 0
+    candidate <- 0
+    while candidate < match_count:
+        offset <- 0
+        while offset < match_lengths[candidate]:
+            output[written] <- values[match_starts[candidate] + offset].u8()
+            written <- written + 1
+            offset <- offset + 1
+        output[written] <- 10.u8()
+        written <- written + 1
+        candidate <- candidate + 1
+    output[written] <- 0.u8()
+    match_count.i64()
+
+export fn detect_anagrams(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = detect_anagrams_impl

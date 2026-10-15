@@ -1,0 +1,41 @@
+# Biased autocorrelation; both variance and covariance divide by n.
+const MAX_LENGTH: usize = 64
+const INVALID_RESULT: f64 = -1.0e300
+
+def autocorrelation_impl(values: i64&, length: usize) -> f64:
+    if length < 4 or length > MAX_LENGTH + 2:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    lag_value: i64 = values[1]
+    if count_value < 2 or count_value > 64 or length != usize(count_value) + 2 or lag_value < 0 or lag_value >= count_value:
+        return INVALID_RESULT
+    count: usize = usize(count_value)
+    lag: usize = usize(lag_value)
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = values[index + 2]
+        if value < -1000 or value > 1000:
+            return INVALID_RESULT
+        total <- total + value.f64()
+        index <- index + 1
+    mean: f64 = total / count.f64()
+    variance_sum: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        difference: f64 = values[index + 2].f64() - mean
+        variance_sum <- variance_sum + difference * difference
+        index <- index + 1
+    if variance_sum == 0.0:
+        return INVALID_RESULT
+    variance: f64 = variance_sum / count.f64()
+    covariance_sum: mutable f64 = 0.0
+    index <- lag
+    while index < count:
+        current: f64 = values[index + 2].f64() - mean
+        delayed: f64 = values[index - lag + 2].f64() - mean
+        covariance_sum <- covariance_sum + current * delayed
+        index <- index + 1
+    (covariance_sum / count.f64()) / variance
+
+export fn autocorrelation(values: i64&, length: usize) -> f64 = autocorrelation_impl

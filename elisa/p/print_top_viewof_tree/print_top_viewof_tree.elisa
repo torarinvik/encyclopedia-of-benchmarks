@@ -1,0 +1,93 @@
+# BFS top view: first node encountered at each horizontal distance.
+const MAX_NODES: usize = 1023
+
+def print_top_viewof_tree_impl(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        column_offsets: mutable usize&, offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64:
+    if node_count > MAX_NODES:
+        return -1
+    if node_count == 0:
+        if root_index != -1:
+            return -1
+        if offsets_capacity < 1:
+            return -2
+        column_offsets[0] <- 0
+        return 0
+    if root_index < 0 or root_index.u64() >= node_count.u64():
+        return -1
+    if output_capacity < node_count or offsets_capacity < node_count + 1 or queue_capacity < node_count:
+        return -2
+    parents: mutable usize[MAX_NODES] = zeroed
+    for node in 0..<node_count |nodes, parents|:
+        value: i64 = nodes[3 * node]
+        left: i64 = nodes[3 * node + 1]
+        right: i64 = nodes[3 * node + 2]
+        if value < -2147483648 or value > 2147483647 or left < -1 or right < -1 or
+            (left >= 0 and left.u64() >= node_count.u64()) or
+            (right >= 0 and right.u64() >= node_count.u64()):
+            return -1
+        if left >= 0:
+            left_index: usize = left.usize()
+            parents[left_index] <- parents[left_index] + 1
+            if parents[left_index] > 1:
+                return -1
+        if right >= 0:
+            right_index: usize = right.usize()
+            parents[right_index] <- parents[right_index] + 1
+            if parents[right_index] > 1:
+                return -1
+    root: usize = root_index.usize()
+    if parents[root] != 0:
+        return -1
+    for node in 0..<node_count |parents, root|:
+        if node != root and parents[node] != 1:
+            return -1
+    column: mutable i64[MAX_NODES] = zeroed
+    visited: mutable i64[MAX_NODES] = zeroed
+    seen_column: mutable i64[2 * MAX_NODES + 1] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    reached: mutable usize = 0
+    written: mutable usize = 0
+    column_offsets[0] <- 0
+    queue[0] <- root
+    column[root] <- 0
+    visited[root] <- 1
+    while head < tail |head, tail, reached, written, queue, column, seen_column, visited, nodes, output_values, column_offsets|:
+        node: usize = queue[head]
+        head <- head + 1
+        coordinate: i64 = column[node]
+        slot: usize = (coordinate + i64(MAX_NODES)).usize()
+        if seen_column[slot] == 0:
+            seen_column[slot] <- 1
+            output_values[written] <- nodes[3 * node]
+            written <- written + 1
+            column_offsets[written] <- written
+        reached <- reached + 1
+        left: i64 = nodes[3 * node + 1]
+        right: i64 = nodes[3 * node + 2]
+        if left >= 0:
+            child: usize = left.usize()
+            if visited[child] != 0 or tail >= queue_capacity:
+                return -1
+            visited[child] <- 1
+            column[child] <- coordinate - 1
+            queue[tail] <- child
+            tail <- tail + 1
+        if right >= 0:
+            child: usize = right.usize()
+            if visited[child] != 0 or tail >= queue_capacity:
+                return -1
+            visited[child] <- 1
+            column[child] <- coordinate + 1
+            queue[tail] <- child
+            tail <- tail + 1
+    if reached != node_count:
+        return -1
+    written.i64()
+
+export fn print_top_viewof_tree(nodes: i64&, node_count: usize, root_index: i64,
+        output_values: mutable i64&, output_capacity: usize,
+        column_offsets: mutable usize&, offsets_capacity: usize,
+        queue: mutable usize&, queue_capacity: usize) -> i64 = print_top_viewof_tree_impl

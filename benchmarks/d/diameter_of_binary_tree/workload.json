@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "diameter-of-binary-tree-python-root-centered-v1",
+  "algorithm": "diameter_of_binary_tree",
+  "function_symbol": "diameter_of_binary_tree",
+  "input": {
+    "kind": "indexed_binary_tree",
+    "encoding": "Each node is [ignored signed value, left child index, right child index]; -1 means no child.",
+    "maximum_node_count": 1023,
+    "root_index": "The selected receiver node is the tree root; every row must be reachable exactly once.",
+    "tree_requirement": "One valid nonempty rooted binary tree.",
+    "result": "Number of nodes on the longest path through the selected root: left subtree height + right subtree height + 1. This is receiver-centered and does not maximize over descendant nodes.",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "single_node",
+      "nodes": [
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one_child",
+      "nodes": [
+        [
+          1,
+          1,
+          -1
+        ],
+        [
+          2,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 2
+    },
+    {
+      "id": "pinned_five_node_example",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          3,
+          4
+        ],
+        [
+          3,
+          -1,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 4
+    },
+    {
+      "id": "deepest_path_is_below_receiver",
+      "nodes": [
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          0,
+          4,
+          5
+        ],
+        [
+          0,
+          6,
+          7
+        ],
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 4
+    },
+    {
+      "id": "nonzero_root_index",
+      "nodes": [
+        [
+          10,
+          -1,
+          -1
+        ],
+        [
+          20,
+          -1,
+          -1
+        ],
+        [
+          30,
+          0,
+          1
+        ]
+      ],
+      "root_index": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "one_sided_path",
+      "nodes": [
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          2,
+          -1
+        ],
+        [
+          0,
+          3,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": 4
+    },
+    {
+      "id": "invalid_child_index",
+      "nodes": [
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          9,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_disconnected_node",
+      "nodes": [
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_cycle",
+      "nodes": [
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_root",
+      "nodes": [
+        [
+          0,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "tree_scalar",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

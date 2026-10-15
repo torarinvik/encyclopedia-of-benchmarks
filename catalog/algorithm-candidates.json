@@ -396,7 +396,7 @@
         "Jupyter"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Jupyter",
@@ -405,7 +405,8 @@
           "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/neural_network/02-imdb-binary-classification.ipynb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Jupyter notebook is an end-to-end Keras IMDB sentiment-classification workflow: it loads a remote dataset, trains a neural network, evaluates it, and plots results. It is not a standalone deterministic algorithm with a bounded callable input/output contract, so it is excluded from the benchmark catalog."
     },
     {
       "candidate_id": "0_1_knapsack",
@@ -5936,7 +5937,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -5945,7 +5946,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/AllPathsFromSourceToTarget.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "all_paths_from_source_to_target",
+      "benchmark_contract": "benchmarks/a/all_paths_from_source_to_target/README.md",
+      "review_notes": "The pinned Java DFS visits outgoing edges in insertion order, blocks only vertices on the current path, emits each path immediately on reaching the destination, and preserves duplicates caused by parallel edges. The package resets the source static result list for each ABI call."
     },
     {
       "candidate_id": "all_permutations",
@@ -5954,7 +5958,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -5963,7 +5967,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/all_permutations.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "all_permutations",
+      "benchmark_contract": "benchmarks/a/all_permutations/README.md",
+      "review_notes": "The pinned Python generator recursively chooses unused input positions from left to right and prints each complete permutation. It does not deduplicate repeated values, so equal values at distinct positions produce repeated rows. The package preserves depth-first input-index order and emits one empty row for an empty input."
     },
     {
       "candidate_id": "all_subsequences",
@@ -6193,7 +6200,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -6202,7 +6209,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/alternative_list_arrange.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "alternative_list_arrange",
+      "benchmark_contract": "benchmarks/a/alternative_list_arrange/README.md",
+      "review_notes": "The pinned Python function alternates first[i], then second[i] for each position where values remain, preserving the order of both inputs and appending the longer tail. Empty inputs work naturally; the benchmark uses a bounded signed-i64 specialization."
     },
     {
       "candidate_id": "alternative_string_arrange",
@@ -7485,7 +7495,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -7494,7 +7504,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/ArrayCombination.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "subset_generation",
+      "review_notes": "The pinned Java source recursively enumerates fixed-size combinations of values 0 through n-1 in lexicographic order. It maps to the position-combination contract when the input values are the range 0..n-1; k=0 yields the single empty combination, including for n=0.",
+      "benchmark_contract": "benchmarks/s/subset_combinations/README.md"
     },
     {
       "candidate_id": "array_helpers",
@@ -8034,7 +8047,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -8043,7 +8056,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/autocorrelation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/autocorrelation/README.md",
+      "review_notes": "The pinned Python implementation computes the series mean, population variance, and lagged covariance, dividing both sums by the full length n; zero variance and lag >= n raise errors. The benchmark bounds integer data and nonnegative lag, rejects constant series, and maps invalid input to a sentinel. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "autoencoder",
@@ -8257,7 +8272,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -8266,7 +8281,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/loss_function/average_margin_ranking_loss.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/average_margin_ranking_loss/README.md",
+      "review_notes": "The pinned Rust function validates equal nonempty score arrays, nonnegative margin, and y_true in {-1, 1}; each pair contributes max(0, margin - y_true * (x_first - x_second)), averaged over the arrays. The benchmark uses bounded integer inputs and maps invalid packed inputs to a sentinel. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "average_mean",
@@ -11879,7 +11896,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -11888,7 +11905,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_mirror.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "invert_binary_tree",
+      "review_notes": "The pinned Python source recursively swaps each node’s left and right children, matching `invert_binary_tree`. The source helper treats root key 0 as absent and fails when the required root is missing, so the alias domain uses a nonempty valid tree with nonzero root/node keys.",
+      "benchmark_contract": "benchmarks/i/invert_binary_tree/README.md"
     },
     {
       "candidate_id": "binary_tree_node",
@@ -11936,7 +11956,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -11945,7 +11965,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_path_sum.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "binary_tree_path_sum",
+      "benchmark_contract": "benchmarks/b/binary_tree_path_sum/README.md",
+      "review_notes": "The pinned Python method starts a downward DFS at every node, counts each running-sum match, and continues to both children. It therefore counts every downward path, including paths that start below the root or end above a leaf. The benchmark supplies the target per call and uses a fresh source-equivalent operation."
     },
     {
       "candidate_id": "binary_tree_to_string",
@@ -12693,7 +12716,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -12702,7 +12725,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/binary/bitcounter.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "191",
+      "review_notes": "The pinned Go source repeatedly shifts an unsigned value right and counts low set bits until zero. It returns the same population count as the canonical hamming_weight benchmark for portable unsigned 32-bit inputs; zero returns zero.",
+      "benchmark_contract": "benchmarks/h/hamming_weight/README.md"
     },
     {
       "candidate_id": "bitmask",
@@ -16694,7 +16720,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -16703,7 +16729,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/CheckBinaryTreeIsValidBST.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "98",
+      "review_notes": "The pinned Java implementation performs strict global BST-bound validation and matches the canonical `validate_bst` contract when values stay inside [-2147483647, 2147483646]. Its recursive data-1/data+1 bounds can overflow at Java int extrema, so those boundary values are excluded.",
+      "benchmark_contract": "benchmarks/v/validate_bst/README.md"
     },
     {
       "candidate_id": "check_bipatrite",
@@ -20333,7 +20362,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -20342,7 +20371,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/CountFriendsPairing.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "golomb_sequence_validator",
+      "benchmark_contract": "benchmarks/g/golomb_sequence_validator/README.md",
+      "review_notes": "Despite its filename and method name, the pinned Java source generates Golomb values in a dynamic-programming array and checks the supplied prefix against them, returning a boolean. It is a sequence validator, not friends-pairing counting; its distinct package is pending."
     },
     {
       "candidate_id": "count_homogenous",
@@ -20671,7 +20703,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -20680,7 +20712,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Strings/CountSentences.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "count_sentences",
+      "benchmark_contract": "benchmarks/c/count_sentences/README.md",
+      "review_notes": "The pinned PHP source applies default trim() and counts non-overlapping matches of `/[^\\s|^\\.](\\.|\\!|\\?)(?!\\w)/`. The ASCII package preserves PHP trim boundaries, regex whitespace exclusions, punctuation rules, and the ASCII word-byte lookahead."
     },
     {
       "candidate_id": "count_set_bits",
@@ -23490,7 +23525,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Julia",
@@ -23499,7 +23534,10 @@
           "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/strings/detect_anagrams.jl",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "detect_anagrams",
+      "benchmark_contract": "benchmarks/d/detect_anagrams/README.md",
+      "review_notes": "The pinned Julia function compares sorted lowercase character sequences, excludes candidates equal to the subject after lowercasing, and preserves candidate order and duplicates. The bounded ASCII package includes empty strings while excluding an empty candidate when the subject is empty."
     },
     {
       "candidate_id": "detect_cycle",
@@ -23698,7 +23736,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -23707,7 +23745,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/diameter_of_binary_tree.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "diameter_of_binary_tree",
+      "benchmark_contract": "benchmarks/d/diameter_of_binary_tree/README.md",
+      "review_notes": "The pinned Python Node.diameter() returns left.depth() + right.depth() + 1 for the selected receiver. It does not maximize over descendant nodes despite the module description; the package preserves that receiver-centered node count and validates the indexed tree shape."
     },
     {
       "candidate_id": "dice_coefficient",
@@ -30764,7 +30805,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -30780,6 +30821,15 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/hash_table/find_all_duplicates_in_an_array.rb",
           "local_folder_source": null
         }
+      ],
+      "alias_of": "442",
+      "review_notes": "The pinned Ruby array implementation sorts values and emits each duplicate once; it aliases C LeetCode 442 on arrays with values in [1,n] and at most two occurrences. The Ruby hash-table implementation supports arbitrary signed values and preserves first-insertion order, so it is represented by the separate `find_all_duplicates_hash_order` package.",
+      "benchmark_contract": "benchmarks/f/find_all_duplicates_in_array/README.md",
+      "additional_benchmark_names": [
+        "find_all_duplicates_hash_order"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/f/find_all_duplicates_hash_order/README.md"
       ]
     },
     {
@@ -35463,7 +35513,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "TypeScript",
@@ -35472,7 +35522,15 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/greatest_common_factor.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/g/greatest_common_factor/README.md",
+      "additional_benchmark_names": [
+        "gcd"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/g/gcd/README.md"
+      ],
+      "review_notes": "The pinned TypeScript source exposes binaryGCF, an iterative Euclidean algorithm for a nonnegative integer pair, and greatestCommonFactor, which reduces a nonempty array through that helper. The new benchmark covers the list reduction on exact JavaScript safe integers; its additional gcd mapping covers binaryGCF on the same source domain. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "greatest_element_constant_time",
@@ -37897,7 +37955,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "MATLAB-Octave",
@@ -37906,7 +37964,9 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/maths/highest_common_factor.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/h/highest_common_factor/README.md",
+      "review_notes": "The pinned MATLAB function implements recursive subtractive GCD: return the other value for zero, return the value for equality, and otherwise recurse after subtracting the smaller operand. The benchmark restricts inputs to 0..64 to keep recursion bounded and preserve the method on its nonnegative domain. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "highest_response_ratio_next",
@@ -41745,7 +41805,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -41754,7 +41814,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/is_subsequence.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The pinned Rust source greedily consumes Unicode characters from the requested subsequence while scanning the main string, returning true for an empty subsequence even when the main string is empty. A dedicated Unicode-scalar benchmark is being added because the Dart array-oriented alias differs on the both-empty case.",
+      "benchmark_contract": "benchmarks/i/is_subsequence/README.md"
     },
     {
       "candidate_id": "is_sum_tree",
@@ -41763,7 +41825,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -41772,7 +41834,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/is_sum_tree.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "is_sum_tree",
+      "benchmark_contract": "benchmarks/i/is_sum_tree/README.md",
+      "review_notes": "The pinned Python source considers leaves valid; each internal node must equal the sum of all values in its left and right descendant subtrees, and both child predicates are evaluated. The package preserves the repeated-subtree-sum predicate on its bounded reachable tree."
     },
     {
       "candidate_id": "is_uppercase",
@@ -50721,7 +50786,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -50730,7 +50795,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/hashmap/hashing/MajorityElement.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/majority_elements_floor_half/README.md",
+      "review_notes": "The pinned Java method returns every distinct int whose frequency is at least floor(n/2), not a single strict majority element. HashMap iteration order is unspecified; the benchmark normalizes returned values to ascending signed-i32 order.",
+      "benchmark_name": "majority_elements_floor_half"
     },
     {
       "candidate_id": "majority_vote_algorithm",
@@ -52086,7 +52154,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -52095,7 +52163,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/strings/max_k_most_frequent_words.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "top_k_frequent_words",
+      "benchmark_contract": "benchmarks/t/top_k_frequent_words/README.md",
+      "review_notes": "The pinned Ruby implementation uses first-seen word counts and a frequency-only max heap with strict comparisons, matching the Python top_k_frequent_words behavior and its heap-layout-dependent tie order on the shared bounded domain."
     },
     {
       "candidate_id": "max_non_adjacent_sum",
@@ -52765,7 +52836,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -52774,7 +52845,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/MeanAbsoluteDeviation.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/mean_absolute_deviation/README.md",
+      "review_notes": "The pinned JavaScript method computes the arithmetic mean through AverageMean.js, then returns the average absolute difference from that mean. The benchmark uses nonempty bounded integer arrays so the mean sum is exact in binary64, and maps malformed/empty source exceptions to a sentinel. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "mean_absolute_error_loss",
@@ -52785,7 +52858,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -52794,7 +52867,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/loss_function/mean_absolute_error_loss.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/mean_absolute_error_loss/README.md",
+      "review_notes": "The pinned Rust mae_loss sums absolute differences for zipped prediction/actual values and divides by predicted length. The benchmark preserves this mean absolute error formula on equal-length bounded integer arrays and maps malformed inputs to a sentinel. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "mean_shift",
@@ -52821,7 +52896,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -52830,7 +52905,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/MeanSquareError.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/mean_square_error/README.md",
+      "review_notes": "The pinned JavaScript source sums squared expected-minus-predicted differences and divides by the expected-list length; unequal list lengths throw, while empty lists yield NaN. The benchmark uses equal-length bounded integer arrays, maps malformed and empty packed inputs to a sentinel, and keeps the maximum sum below 2^53. All nine target-language ABI implementations compile and link."
     },
     {
       "candidate_id": "mean_squared_error_loss",
@@ -52841,7 +52918,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Rust",
@@ -52850,7 +52927,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/loss_function/mean_squared_error_loss.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "mean_square_error",
+      "benchmark_contract": "benchmarks/m/mean_square_error/README.md",
+      "review_notes": "The pinned Rust mse_loss sums squared differences for zipped prediction/actual values and divides by predicted length. On equal-length inputs this is the same mean-squared-error formula as the canonical benchmark; the local contract bounds both arrays and requires matching lengths."
     },
     {
       "candidate_id": "mean_threshold",
@@ -52877,7 +52957,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -52886,7 +52966,20 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Means.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "arithmetic_mean",
+      "benchmark_contract": "benchmarks/a/arithmetic_mean/README.md",
+      "additional_benchmark_names": [
+        "geometric_mean",
+        "harmonic_mean",
+        "quadratic_mean"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/g/geometric_mean/README.md",
+        "benchmarks/h/harmonic_mean/README.md",
+        "benchmarks/q/quadratic_mean/README.md"
+      ],
+      "review_notes": "The pinned Java Means.java defines arithmetic, geometric, harmonic, and quadratic means. Arithmetic maps to the existing arithmetic_mean package; geometric maps to geometric_mean on the positive bounded subset, where the Java product-root formula agrees with the canonical package. The harmonic method returns n divided by the sum of reciprocals, and the quadratic method returns the square root of the average of squares; both now have dedicated nine-language packages."
     },
     {
       "candidate_id": "median",
@@ -66030,7 +66123,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -66039,7 +66132,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/PrintTopViewofTree.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "print_top_viewof_tree",
+      "benchmark_contract": "benchmarks/p/print_top_viewof_tree/README.md",
+      "review_notes": "The pinned Java source breadth-first traverses the tree and selects only the first dequeued node at each horizontal distance. It emits those selected values immediately in BFS discovery order, so this is a top view rather than all-node vertical order."
     },
     {
       "candidate_id": "priority_queue",
@@ -83156,7 +83252,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -83165,7 +83261,10 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/sorted_arrays_intersection.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "sorted_arrays_intersection",
+      "benchmark_contract": "benchmarks/s/sorted_arrays_intersection/README.md",
+      "review_notes": "The pinned Ruby routine advances three cursors over strictly increasing arrays, emits a value only when all three current values match, and advances the cursor for the smallest current value otherwise. This yields the unique ascending intersection described by the package contract."
     },
     {
       "candidate_id": "sorted_linked_list",
@@ -88765,7 +88864,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -88774,7 +88873,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/top_k_frequent_words.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "top_k_frequent_words",
+      "benchmark_contract": "benchmarks/t/top_k_frequent_words/README.md",
+      "review_notes": "The pinned Python source counts words in first-occurrence order, builds its max heap bottom-up, and compares frequency only with strict greater-than checks, preserving heap-layout-dependent tie output. The package reproduces this behavior on bounded lowercase ASCII words, including k clamping and empty results."
     },
     {
       "candidate_id": "top_kfrequent_words",
@@ -89730,7 +89832,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -89746,7 +89848,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/tree_height.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "tree_height",
+      "benchmark_contract": "benchmarks/t/tree_height/README.md",
+      "review_notes": "The two pinned C++ sources implement the same root-1 DFS over an undirected tree. Each leaf has height 1; parent height is the maximum child height plus one. The source comment example has an inconsistent height, so the benchmark follows the implementation and workload. The local contract bounds n to 1..1023 and rejects malformed or disconnected graphs."
     },
     {
       "candidate_id": "tree_matching",
@@ -91282,7 +91387,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -91291,7 +91396,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/UniqueElementInAnArray.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "single_number",
+      "review_notes": "The pinned JavaScript source XOR-folds the array and returns the value occurring once when every other signed-i32 value occurs twice. The empty input result is outside the source problem precondition.",
+      "benchmark_contract": "benchmarks/s/single_number/README.md"
     },
     {
       "candidate_id": "unique_letters_count",
@@ -91346,7 +91454,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -91355,7 +91463,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/UniquePaths2.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "63",
+      "review_notes": "The pinned JavaScript source uses right/down dynamic programming over rectangular nonempty binary obstacle grids with each dimension 1..19. This aliases the canonical obstacle-grid path count; empty, ragged, nonbinary, and larger inputs are outside the alias domain.",
+      "benchmark_contract": "benchmarks/u/unique_paths_with_obstacles/README.md"
     },
     {
       "candidate_id": "unique_permutation",
@@ -92231,7 +92342,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -92240,7 +92351,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/VerticalOrderTraversal.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "vertical_order_traversal",
+      "benchmark_contract": "benchmarks/v/vertical_order_traversal/README.md",
+      "review_notes": "The pinned Java implementation breadth-first traverses the indexed tree, enqueues left before right, appends each value to its horizontal column, and concatenates columns from leftmost to rightmost. Nodes tied by column retain BFS top-to-bottom and left-to-right order."
     },
     {
       "candidate_id": "vicsek",

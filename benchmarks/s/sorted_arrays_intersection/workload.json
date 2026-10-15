@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "sorted-three-arrays-intersection-i32-v1",
+  "algorithm": "sorted_arrays_intersection",
+  "function_symbol": "sorted_arrays_intersection",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[n1, array1..., n2, array2..., n3, array3...]",
+    "array_count": 3,
+    "array_length_range": [
+      0,
+      64
+    ],
+    "maximum_packed_values": 195,
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "requirement": "Each array is strictly increasing; packed input length is exactly 3+n1+n2+n3. Lengths and values are passed as signed 64-bit integers; values outside signed 32-bit range are invalid.",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_array",
+    "encoding": "Common values in ascending order, each encoded as one little-endian signed 32-bit integer.",
+    "successful_result": "Number of values written; empty intersection returns 0 and zero bytes.",
+    "maximum_values": 64,
+    "maximum_bytes": 256
+  },
+  "cases": [
+    {
+      "id": "pinned_example",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        1,
+        2,
+        5,
+        7,
+        9,
+        5,
+        1,
+        3,
+        4,
+        5,
+        8
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "0100000005000000"
+    },
+    {
+      "id": "pinned_example_no_common_values",
+      "input_values": [
+        5,
+        197,
+        418,
+        523,
+        876,
+        1356,
+        5,
+        501,
+        880,
+        1593,
+        1710,
+        1870,
+        5,
+        521,
+        682,
+        1337,
+        1395,
+        1764
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all_empty",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one_array_empty",
+      "input_values": [
+        3,
+        -1,
+        0,
+        8,
+        0,
+        3,
+        -1,
+        0,
+        8
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_zero_and_positive_common",
+      "input_values": [
+        4,
+        -9,
+        -5,
+        0,
+        11,
+        4,
+        -5,
+        0,
+        3,
+        11,
+        5,
+        -5,
+        0,
+        1,
+        11,
+        12
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "fbffffff000000000b000000"
+    },
+    {
+      "id": "cursor_advancement_and_two_matches",
+      "input_values": [
+        6,
+        -20,
+        -3,
+        1,
+        4,
+        12,
+        30,
+        6,
+        -15,
+        -3,
+        0,
+        4,
+        8,
+        30,
+        5,
+        -3,
+        2,
+        4,
+        10,
+        30
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "fdffffff040000001e000000"
+    },
+    {
+      "id": "signed_i32_boundaries",
+      "input_values": [
+        3,
+        -2147483648,
+        0,
+        2147483647,
+        3,
+        -2147483648,
+        1,
+        2147483647,
+        3,
+        -2147483648,
+        0,
+        2147483647
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "00000080ffffff7f"
+    },
+    {
+      "id": "invalid_truncated_array",
+      "input_values": [
+        2,
+        1,
+        4,
+        3,
+        8,
+        4,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_duplicate_in_array",
+      "input_values": [
+        3,
+        1,
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        3,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_descending_array",
+      "input_values": [
+        3,
+        1,
+        4,
+        2,
+        3,
+        1,
+        2,
+        3,
+        3,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_trailing_value",
+      "input_values": [
+        1,
+        7,
+        1,
+        7,
+        1,
+        7,
+        99
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_value_outside_i32",
+      "input_values": [
+        1,
+        2147483648,
+        1,
+        2147483648,
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

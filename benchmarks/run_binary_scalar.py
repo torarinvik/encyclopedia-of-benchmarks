@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -66,6 +67,12 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
         expected_from_source = (second + 32768) * 65536 + (first + 32768) if valid else -1
         if expected != expected_from_source:
             raise ValueError("xor_swap_two_integers expected_result must encode the swapped pair")
+    elif algorithm == "highest_common_factor":
+        left, right = values
+        valid = 0 <= left <= 64 and 0 <= right <= 64
+        expected_from_source = math.gcd(left, right) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("highest_common_factor expected_result must match bounded subtractive GCD")
     return values[0], values[1], expected
 
 

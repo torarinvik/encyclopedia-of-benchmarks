@@ -1,0 +1,31 @@
+# Mean absolute deviation from the arithmetic mean.
+const MAX_LENGTH: usize = 256
+const INVALID_RESULT: f64 = -1.0e300
+
+def mean_absolute_deviation_impl(values: i64&, length: usize) -> f64:
+    if length < 2 or length > MAX_LENGTH + 1:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256 or length != usize(count_value) + 1:
+        return INVALID_RESULT
+    count: usize = usize(count_value)
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = values[index + 1]
+        if value < -1000000 or value > 1000000:
+            return INVALID_RESULT
+        total <- total + value.f64()
+        index <- index + 1
+    mean: f64 = total / count.f64()
+    absolute_total: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        difference: mutable f64 = values[index + 1].f64() - mean
+        if difference < 0.0:
+            difference <- -difference
+        absolute_total <- absolute_total + difference
+        index <- index + 1
+    absolute_total / count.f64()
+
+export fn mean_absolute_deviation(values: i64&, length: usize) -> f64 = mean_absolute_deviation_impl
