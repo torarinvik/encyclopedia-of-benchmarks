@@ -141,8 +141,15 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         harness = ROOT / "benchmarks" / "harness" / f"{name}.c"
         harness_object = directory / f"{name}.o"
         executable = directory / (name + (".exe" if os.name == "nt" else ""))
+        workspace_flag = []
+        if (name == "i64_array_bytes_output_check" and family == "i64_array_bytes_output"
+                and "workspace" in spec):
+            workspace_bytes = spec["workspace"].get("bytes")
+            if type(workspace_bytes) is not int or not 1 <= workspace_bytes <= 400004:
+                raise ValueError("workspace bytes must be an integer from 1 through 400004")
+            workspace_flag = [f"-DBENCHMARK_WORKSPACE_BYTES={workspace_bytes}"]
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
-             "-c", str(harness), "-o", str(harness_object)])
+             *workspace_flag, "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
         command = [linker, str(harness_object), str(artifact),
                    *(str(path) for path in extra_link_objects), "-o", str(executable), *native_link_flags]

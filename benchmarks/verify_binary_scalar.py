@@ -21,7 +21,7 @@ from run_binary_scalar import encode_values
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and")
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version")
 
 
 def oracle(left: int, right: int) -> int:
@@ -82,6 +82,14 @@ def range_bitwise_and_oracle(left: int, right: int) -> int:
         right >>= 1
         shift += 1
     return left << shift
+
+
+def first_bad_version_oracle(version_count: int, first_bad: int) -> int:
+    if (type(version_count) is not int or type(first_bad) is not int
+            or not 1 <= version_count <= I32_MAX
+            or not 1 <= first_bad <= version_count):
+        return -1
+    return first_bad
 
 
 @lru_cache(maxsize=None)
@@ -147,6 +155,8 @@ def result(algorithm: str, left: int, right: int) -> int:
         return ackermann_oracle(left, right)
     if algorithm == "range_bitwise_and":
         return range_bitwise_and_oracle(left, right)
+    if algorithm == "first_bad_version":
+        return first_bad_version_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")
 
 
@@ -172,12 +182,30 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             right = rng.randrange(0, I32_MAX + 2)
             pairs.add((min(left, right), max(left, right)))
             pairs.add((left, right))
+    elif algorithm == "first_bad_version":
+        pairs = set()
+        for version_count in range(1, 129):
+            pairs.update((version_count, first_bad)
+                         for first_bad in range(1, version_count + 1))
+            pairs.add((version_count, 0))
+            pairs.add((version_count, version_count + 1))
+        edge_counts = [1, 2, 3, 4, 7, 8, 2**30 - 1, 2**30,
+                       I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
+        for version_count in edge_counts:
+            edge_bad_values = {0, 1, 2, version_count // 2,
+                               version_count // 2 + 1, version_count,
+                               version_count + 1, U64_MAX}
+            edge_bad_values = {value for value in edge_bad_values if value <= U64_MAX}
+            pairs.update((version_count, first_bad) for first_bad in edge_bad_values)
     else:
         pairs.update((left, right) for left in range(256) for right in range(256))
     if algorithm != "ackermann":
         if algorithm == "range_bitwise_and":
             edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
                            I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
+            random_bits = 32
+        elif algorithm == "first_bad_version":
+            edge_values = [0, 1, 2, 3, I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
             random_bits = 32
         elif algorithm == "hamming_distance":
             edge_values = [0, 1, 2**63, U64_MAX, 0xAAAAAAAAAAAAAAAA, 0x5555555555555555]
@@ -206,6 +234,14 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         elif algorithm == "amicable_number":
             pairs.update((rng.randrange(1, 1_000_000_001),
                           rng.randrange(1, 1_000_000_001)) for _ in range(128))
+        elif algorithm == "first_bad_version":
+            for _ in range(512):
+                version_count = rng.randrange(1, I32_MAX + 1)
+                if rng.randrange(4) == 0:
+                    first_bad = rng.choice([0, version_count + 1])
+                else:
+                    first_bad = rng.randrange(1, version_count + 1)
+                pairs.add((version_count, first_bad))
         else:
             pairs.update((rng.getrandbits(random_bits), rng.getrandbits(random_bits)) for _ in range(512))
     for case in workload["cases"]:

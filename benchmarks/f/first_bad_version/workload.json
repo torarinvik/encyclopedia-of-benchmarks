@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "first-bad-version-v1",
+  "algorithm": "first_bad_version",
+  "input": {
+    "kind": "version_count_and_first_bad_version",
+    "version_count_range": [
+      1,
+      2147483647
+    ],
+    "first_bad_range": "1..=version_count",
+    "invalid_result": -1,
+    "predicate": "version >= first_bad_version"
+  },
+  "output": "the smallest version for which the bad-version predicate is true",
+  "cases": [
+    {
+      "id": "single_version",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "example_first_bad_four",
+      "input_values": [
+        5,
+        4
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "bad_from_first",
+      "input_values": [
+        5,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "bad_at_last",
+      "input_values": [
+        5,
+        5
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "power_of_two_boundary",
+      "input_values": [
+        1024,
+        512
+      ],
+      "expected_result": 512
+    },
+    {
+      "id": "bad_just_after_midpoint",
+      "input_values": [
+        1024,
+        513
+      ],
+      "expected_result": 513
+    },
+    {
+      "id": "large_odd_count_middle",
+      "input_values": [
+        1000000001,
+        500000001
+      ],
+      "expected_result": 500000001
+    },
+    {
+      "id": "maximum_count_first_bad",
+      "input_values": [
+        2147483647,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_count_middle_bad",
+      "input_values": [
+        2147483647,
+        1073741824
+      ],
+      "expected_result": 1073741824
+    },
+    {
+      "id": "maximum_count_last_bad",
+      "input_values": [
+        2147483647,
+        2147483647
+      ],
+      "expected_result": 2147483647
+    },
+    {
+      "id": "zero_versions",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "zero_bad_version",
+      "input_values": [
+        10,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "bad_after_last_version",
+      "input_values": [
+        10,
+        11
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "version_count_above_limit",
+      "input_values": [
+        2147483648,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "unsigned_max_inputs",
+      "input_values": [
+        18446744073709551615,
+        18446744073709551615
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

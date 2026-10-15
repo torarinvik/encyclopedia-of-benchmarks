@@ -34,13 +34,19 @@ int main(void)
         int64_t expected_count;
         if (scanf("%" SCNu64 " %" SCNd64 " %" SCNu64,
                   &length, &expected_count, &expected_bytes) != 3 ||
-            scanf("%" SCNu64, &output_capacity) != 1 ||
-            length > MAX_INPUT_LENGTH || expected_bytes > output_capacity ||
-            output_capacity > MAX_OUTPUT_BYTES ||
+            length > MAX_INPUT_LENGTH || expected_bytes > MAX_OUTPUT_BYTES ||
             expected_count < -2 || expected_count > 100000) {
             fprintf(stderr, "invalid output-array case header\n");
             return 2;
         }
+#ifdef BENCHMARK_WORKSPACE_BYTES
+        if (scanf("%" SCNu64, &output_capacity) != 1 ||
+            expected_bytes > output_capacity || output_capacity > MAX_OUTPUT_BYTES) {
+            fprintf(stderr, "invalid workspace capacity\n"); return 2;
+        }
+#else
+        output_capacity = expected_bytes;
+#endif
         int64_t *values = length == 0 ? NULL : malloc((size_t)length * sizeof(*values));
         uint8_t *expected = malloc(expected_bytes == 0 ? 1 : (size_t)expected_bytes);
         uint8_t *observed = malloc(output_capacity == 0 ? 1 : (size_t)output_capacity);

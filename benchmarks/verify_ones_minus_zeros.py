@@ -101,7 +101,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     lines = [f"{len(records)}\n"]
     for values, count, output, capacity in records:
         suffix = "" if not values else " " + " ".join(map(str, values))
-        lines.append(f"{len(values)} {count} {len(output)} {capacity}{suffix} "
+        lines.append(f"{len(values)} {count} {len(output)}{suffix} "
                      f"{output.hex() if output else '-'}\n")
     return "".join(lines), len(records)
 

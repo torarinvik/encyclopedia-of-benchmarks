@@ -10,7 +10,7 @@ Compute the bitwise AND of every integer in an inclusive nonnegative range. The 
 
 ## Reviewed source
 
-The pinned [C LeetCode 201 source](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/201.c) applies `n &= n - 1` while `m < n`, then returns `n`. The benchmark names the module `range_bitwise_and` because Elisa module names must begin with a letter, `_`, or `$`; the upstream filename `201.c` remains the inventory key.
+The pinned [C LeetCode 201 source](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/201.c) applies `n &= n - 1` while `m < n`, then returns `n`. The benchmark uses the descriptive name `range_bitwise_and` for its implementation and exported function. Elisa identifiers used in declarations, including explicit module names, must begin with a letter, `_`, or `$`; the upstream candidate ID `201` remains catalog metadata, separate from source filenames and identifiers.
 
 ## Workload and verification
 

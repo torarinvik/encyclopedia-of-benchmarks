@@ -2460,7 +2460,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2469,7 +2469,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/274.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "h_index",
+      "benchmark_contract": "benchmarks/h/h_index/README.md",
+      "review_notes": "The pinned C LeetCode 274 source sorts citations in place and scans from largest to smallest. The shared array-scalar ABI is read-only, so the benchmark preserves the H-index definition with an upper-midpoint binary search over h and a count of citations >= h. The contract accepts 0 through 5,000 values in 0..1,000, returns 0 for empty input, and returns -1 for invalid input. All nine ports use O(n log(min(n, 1000))) time, O(1) auxiliary space, and do not mutate input."
     },
     {
       "candidate_id": "278",

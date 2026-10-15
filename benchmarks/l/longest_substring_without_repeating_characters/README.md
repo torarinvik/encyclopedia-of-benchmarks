@@ -9,7 +9,7 @@ This benchmark returns the length of the longest contiguous substring whose char
 - Invalid values or an overlong input return -2. The input is not modified.
 - Runtime is O(n); each port uses a fixed 95-entry last-seen table and O(1) auxiliary space.
 
-LeetCode candidate `3` uses this alphabetic benchmark name because numeric source stems are identifiers in the catalog, not algorithm module names.
+The upstream LeetCode candidate ID `3` remains catalog metadata. The benchmark and exported function use the descriptive name `longest_substring_without_repeating_characters`; Elisa declaration identifiers cannot begin with a digit, while catalog IDs and source paths are separate.
 
 Run `python3 benchmarks/verify_longest_substring_without_repeating_characters.py --elisa-compiler ../Elisa-compiler/bin/elisac-stage1` from the repository root to check all nine ports against exhaustive short strings, randomized inputs, invalid values, maximum-length inputs, and the published workload.
 
