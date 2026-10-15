@@ -2259,7 +2259,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2268,7 +2268,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/234.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "palindrome_linked_list",
+      "benchmark_contract": "benchmarks/p/palindrome_linked_list/README.md",
+      "review_notes": "The pinned C LeetCode 234 source uses slow/fast pointers, reverses the second half of the linked list, and compares values. The shared ABI represents the values in order as a read-only array, so the benchmark compares from both ends with O(n) time and O(1) auxiliary space while preserving the palindrome result. The contract accepts up to 100,000 digits in 0..9, extends empty input as a palindrome, and returns -1 for invalid inputs. All nine ports passed 10,656 oracle arrays and 11 workload cases."
     },
     {
       "candidate_id": "236",
@@ -2345,7 +2348,7 @@
       "local_source_folders": [
         "c"
       ],
-    "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2354,10 +2357,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2482.c",
           "local_folder_source": "c"
         }
-    ],
-    "benchmark_name": "ones_minus_zeros",
-    "benchmark_contract": "benchmarks/o/ones_minus_zeros/README.md",
-    "review_notes": "The pinned C LeetCode 2482 source counts ones in each row and column, but uses the opposite dimension when deriving zero counts on rectangular matrices. The benchmark follows the stated formula onesRow[r] + onesColumn[c] - zerosRow[r] - zerosColumn[c], accepts matrices up to 100,000 cells, and serializes signed 32-bit little-endian results. All nine portable ports run in O(rows * columns) time and reuse the output buffer for row/column counts instead of using architecture-specific optimizations."
+      ],
+      "benchmark_name": "ones_minus_zeros",
+      "benchmark_contract": "benchmarks/o/ones_minus_zeros/README.md",
+      "review_notes": "The pinned C LeetCode 2482 source counts ones in each row and column, but uses the opposite dimension when deriving zero counts on rectangular matrices. The benchmark follows the stated formula onesRow[r] + onesColumn[c] - zerosRow[r] - zerosColumn[c], accepts matrices up to 100,000 cells, and serializes signed 32-bit little-endian results. All nine portable ports run in O(rows * columns) time and reuse the output buffer for row/column counts instead of using architecture-specific optimizations."
     },
     {
       "candidate_id": "2501",
@@ -2368,7 +2371,7 @@
       "local_source_folders": [
         "c"
       ],
-    "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -2377,10 +2380,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/2501.c",
           "local_folder_source": "c"
         }
-    ],
-    "benchmark_name": "longest_square_streak",
-    "benchmark_contract": "benchmarks/l/longest_square_streak/README.md",
-    "review_notes": "The pinned C LeetCode 2501 source marks values present in a set, memoizes square-chain lengths, and takes the maximum chain with at least two values. The shared contract accepts 2 through 100,000 values in 2..100,000 and uses a 400,004-byte caller workspace for portable presence and memo states, avoiding large stack arrays and per-language allocation differences. All nine ports use the same O(n + maxValue) recurrence and leave input unchanged."
+      ],
+      "benchmark_name": "longest_square_streak",
+      "benchmark_contract": "benchmarks/l/longest_square_streak/README.md",
+      "review_notes": "The pinned C LeetCode 2501 source marks values present in a set, memoizes square-chain lengths, and takes the maximum chain with at least two values. The shared contract accepts 2 through 100,000 values in 2..100,000 and uses a 400,004-byte caller workspace for portable presence and memo states, avoiding large stack arrays and per-language allocation differences. All nine ports use the same O(n + maxValue) recurrence and leave input unchanged."
     },
     {
       "candidate_id": "26",
@@ -3054,7 +3057,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C",
@@ -3063,7 +3066,10 @@
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/5.c",
           "local_folder_source": "c"
         }
-      ]
+      ],
+      "benchmark_name": "longest_palindromic_substring",
+      "benchmark_contract": "benchmarks/l/longest_palindromic_substring/README.md",
+      "review_notes": "The pinned TheAlgorithms/C LeetCode 5 source describes center expansion for odd and even palindromes, but allocates only sizeof(pointer) bytes for its result. The benchmark preserves the O(n^2) center-expansion algorithm with caller-provided output storage. Its contract accepts 1,000 ASCII alphanumeric code points, returns the leftmost longest substring on ties, and uses -1/-2 for invalid input/insufficient capacity. All nine portable ports are checked against an independent interval dynamic-programming oracle."
     },
     {
       "candidate_id": "50",

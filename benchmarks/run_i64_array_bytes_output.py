@@ -606,6 +606,29 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         return len(values), bytes(reversed(values))
 
+    if algorithm == "longest_palindromic_substring":
+        if (not 1 <= len(values) <= 1000
+                or any(type(value) is not int or
+                       not (48 <= value <= 57 or 65 <= value <= 90 or 97 <= value <= 122)
+                       for value in values)):
+            return -1, b""
+        length = len(values)
+        palindrome = [[False] * length for _ in range(length)]
+        best_start = 0
+        best_length = 0
+        for start in range(length - 1, -1, -1):
+            for end in range(start, length):
+                is_palindrome = (values[start] == values[end] and
+                                 (end - start < 2 or palindrome[start + 1][end - 1]))
+                palindrome[start][end] = is_palindrome
+                candidate_length = end - start + 1
+                if (is_palindrome and
+                        (candidate_length > best_length or
+                         (candidate_length == best_length and start < best_start))):
+                    best_start = start
+                    best_length = candidate_length
+        return best_length, bytes(values[best_start:best_start + best_length])
+
     if algorithm == "rotate_array":
         import struct
 

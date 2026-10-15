@@ -18,7 +18,7 @@ import sys
 
 from build_scalar import EXTENSIONS, ROOT, build, sha256_file
 
-ALGORITHMS = ("factorial", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits")
+ALGORITHMS = ("factorial", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -32,6 +32,14 @@ def fibonacci_pair(n: int) -> tuple[int, int]:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "collatz":
+        if not 1 <= n <= 1_000_000:
+            return -1
+        steps = 0
+        while n != 1:
+            n = n // 2 if n % 2 == 0 else 3 * n + 1
+            steps += 1
+        return steps
     if algorithm == "digital_root":
         if n < 0:
             return -1
@@ -320,6 +328,11 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 9, 10, 19, 38, 284,
                        999, 1000, 9999, 10**18 - 1, 10**18, 10**18 + 1,
                        I64_MAX - 1, I64_MAX])
+    elif algorithm == "collatz":
+        inputs.update(range(-4, 65_536))
+        inputs.update(rng.randrange(1, 1_000_001) for _ in range(512))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 27, 97, 871,
+                       6171, 837799, 999999, 1000000, 1000001, I64_MAX - 1, I64_MAX])
     elif algorithm == "happy_number":
         inputs.update(range(-32, 10001))
         inputs.update(rng.randrange(1, I64_MAX + 1) for _ in range(512))

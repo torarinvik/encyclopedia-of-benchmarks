@@ -1,0 +1,53 @@
+# Find the leftmost longest ASCII alphanumeric palindrome by expanding centers.
+def is_ascii_alphanumeric(value: i64) -> bool:
+    (value >= 48 and value <= 57) or
+    (value >= 65 and value <= 90) or
+    (value >= 97 and value <= 122)
+
+def longest_palindromic_substring_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length == 0 or length > 1000:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if not is_ascii_alphanumeric(values[index]):
+            return -1
+        index <- index + 1
+
+    best_start: mutable usize = 0
+    best_length: mutable usize = 1
+    center: mutable usize = 0
+    while center < length:
+        left: mutable usize = center
+        right: mutable usize = center
+        while left > 0 and right + 1 < length and values[left - 1] == values[right + 1]:
+            left <- left - 1
+            right <- right + 1
+        candidate_length: usize = right - left + 1
+        if candidate_length > best_length:
+            best_start <- left
+            best_length <- candidate_length
+
+        left <- center
+        right <- center + 1
+        while right < length and values[left] == values[right]:
+            candidate_length <- right - left + 1
+            if candidate_length > best_length:
+                best_start <- left
+                best_length <- candidate_length
+            if left == 0 or right + 1 == length:
+                break
+            left <- left - 1
+            right <- right + 1
+        center <- center + 1
+
+    if output_capacity < best_length:
+        return -2
+    index <- 0
+    while index < best_length:
+        output[index] <- values[best_start + index].u8()
+        index <- index + 1
+    best_length.i64()
+
+export fn longest_palindromic_substring(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = longest_palindromic_substring_impl

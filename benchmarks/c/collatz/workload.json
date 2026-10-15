@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "collatz-v1",
+  "algorithm": "collatz",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "tested_range": [
+      1,
+      1000000
+    ],
+    "out_of_range_result": -1,
+    "meaning": "positive starting value for the Collatz sequence"
+  },
+  "output": "number of transitions required to reach 1",
+  "cases": [
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -17,
+      "expected_result": -1
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "source_example",
+      "input_value": 20,
+      "expected_result": 7
+    },
+    {
+      "id": "odd_start",
+      "input_value": 3,
+      "expected_result": 7
+    },
+    {
+      "id": "power_of_two",
+      "input_value": 1024,
+      "expected_result": 10
+    },
+    {
+      "id": "long_trajectory_27",
+      "input_value": 27,
+      "expected_result": 111
+    },
+    {
+      "id": "long_trajectory_837799",
+      "input_value": 837799,
+      "expected_result": 524
+    },
+    {
+      "id": "near_maximum_input",
+      "input_value": 999999,
+      "expected_result": 258
+    },
+    {
+      "id": "maximum_supported_input",
+      "input_value": 1000000,
+      "expected_result": 152
+    },
+    {
+      "id": "first_out_of_range",
+      "input_value": 1000001,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  }
+}
