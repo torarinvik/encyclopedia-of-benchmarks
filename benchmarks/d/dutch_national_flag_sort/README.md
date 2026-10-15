@@ -28,7 +28,9 @@ Use [sort_runner.c](../../harness/sort_runner.c) and [run_sort.py](../../run_sor
 
 ## TheAlgorithms references
 
-The candidate appears in 4 source repositories. These reference implementations were inspected at the pinned commits recorded in the catalog:
+The `dutch_national_flag_sort` candidate appears in four source repositories. The separate C++ filename candidate `dnf_sort` appears in two repositories and uses the same 0/1/2 three-way partition, so it aliases this contract. The pinned C++ version is undefined for empty input and has no branch for values outside 0/1/2; the shared contract defines empty input as unchanged and excludes other keys. These references were inspected at the pinned commits recorded in the catalog:
 
 - [Rust dutch_national_flag_sort.rs](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/dutch_national_flag_sort.rs)
 - [Python dutch_national_flag_sort.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/dutch_national_flag_sort.py)
+- [C++ dnf_sort.cpp](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/dnf_sort.cpp)
+- [C++-Plus-Plus-1 dnf_sort.cpp](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/dnf_sort.cpp)

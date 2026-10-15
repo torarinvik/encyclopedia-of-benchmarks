@@ -1,0 +1,36 @@
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def matrix_multiplication_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1: return -2
+    dimension: i64 = input[0]
+    if dimension < 2 or dimension > 8: return -2
+    n: usize = dimension.usize()
+    cells: usize = n * n
+    if length != 1 + 2 * cells: return -2
+    index: mutable usize = 0
+    while index < 2 * cells:
+        value: i64 = input[1 + index]
+        if value < -1000 or value > 1000: return -2
+        index <- index + 1
+    if output_capacity < cells * 8: return -3
+
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            sum: mutable i64 = 0
+            inner: mutable usize = 0
+            while inner < n:
+                sum <- sum + input[1 + row * n + inner] * input[1 + cells + inner * n + column]
+                inner <- inner + 1
+            store_i64_le(sum, output, (row * n + column) * 8)
+            column <- column + 1
+        row <- row + 1
+    cells.i64()
+
+export fn matrix_multiplication(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = matrix_multiplication_impl

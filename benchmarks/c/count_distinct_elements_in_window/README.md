@@ -14,4 +14,4 @@ Pinned source: [TheAlgorithms/Java `CountDistinctElementsInWindow.java`](https:/
 
 This package returns a distinct-value count for every fixed-width window. It differs from `maximum_sum_of_distinct_subarrays_with_length_k`, which returns one maximum sum among windows whose values are all distinct, and from `max_sum_sliding_window`, which returns a maximum sum while allowing duplicates. It also differs from `windowed_median`, which emits a statistic over a trailing stream prefix.
 
-`workload.json` covers duplicates, all-distinct windows, negative and boundary values, `k=1`, a full-array window, and invalid packed/domain inputs. The nine ports use the existing `i64_array_bytes_output` ABI family.
+`workload.json` covers duplicates, all-distinct windows, negative and boundary values, `k=1`, a full-array window, and invalid packed/domain inputs. The nine ports use the existing `i64_array_bytes_output` ABI family and a 512-slot open-addressed frequency table. A key remains occupied after its count reaches zero, so each entering and leaving value uses expected O(1) lookup without tombstones; the 512 slots cover all 256 possible distinct input values.

@@ -11,7 +11,7 @@ def cycle_check_directed_graph_impl(values: i64&, length: usize) -> i64:
         return -1
     adjacency: mutable u64[64] = zeroed
     state: mutable u8[64] = zeroed
-    stack: mutable usize[64] = zeroed
+    dfs_stack: mutable usize[64] = zeroed
     next_neighbor: mutable usize[64] = zeroed
     edge: mutable usize = 0
     while edge < edge_count:
@@ -30,14 +30,13 @@ def cycle_check_directed_graph_impl(values: i64&, length: usize) -> i64:
     while root < vertices:
         if state[root] == 0:
             top: mutable usize = 0
-            stack[top] <- root
+            dfs_stack[top] <- root
             next_neighbor[top] <- 0
             state[root] <- 1
             while true:
-                node: usize = stack[top]
+                node: usize = dfs_stack[top]
                 destination: mutable usize = next_neighbor[top]
-                while destination < vertices and
-                        (adjacency[node] & (1.u64() << destination)) == 0:
+                while (destination < vertices and (adjacency[node] & (1.u64() << destination)) == 0):
                     destination <- destination + 1
                 if destination == vertices:
                     state[node] <- 2
@@ -50,7 +49,7 @@ def cycle_check_directed_graph_impl(values: i64&, length: usize) -> i64:
                     return 1
                 if state[destination] == 0:
                     top <- top + 1
-                    stack[top] <- destination
+                    dfs_stack[top] <- destination
                     next_neighbor[top] <- 0
                     state[destination] <- 1
         root <- root + 1

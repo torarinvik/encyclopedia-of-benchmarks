@@ -1,0 +1,19 @@
+# Magnetic flux rounded to one decimal place.
+extern cos(value: f64) -> f64
+extern round(value: f64) -> f64
+
+const pi_value: f64 = 3.14159265358979323846
+
+def magnetic_flux_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    magnetic_field: i64 = values[0]
+    area: i64 = values[1]
+    angle: i64 = values[2]
+    if magnetic_field < 0 or magnetic_field > 10000 or area < 0 or area > 10000 or (angle != 0 and angle != 60 and angle != 90 and angle != 120 and angle != 180):
+        return -1.0e300
+    radians: f64 = angle.f64() * (pi_value / 180.0)
+    flux: f64 = magnetic_field.f64() * area.f64() * cos(radians)
+    round(flux * 10.0) / 10.0
+
+export fn magnetic_flux(values: i64&, length: usize) -> f64 = magnetic_flux_impl

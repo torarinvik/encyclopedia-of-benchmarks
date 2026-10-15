@@ -1,0 +1,85 @@
+def astar_write_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+    shift: mutable usize = 0
+    while shift < 64:
+        output[position] <- ((value >> shift) & 255).u8()
+        position <- position + 1
+        shift <- shift + 8
+    position
+
+def astar_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 6: return -1
+    rows: i64 = input[0]
+    cols: i64 = input[1]
+    sx: i64 = input[2]
+    sy: i64 = input[3]
+    gx: i64 = input[4]
+    gy: i64 = input[5]
+    if rows < 1 or rows > 16 or cols < 1 or cols > 16: return -1
+    if sx < 0 or sx >= rows or sy < 0 or sy >= cols or gx < 0 or gx >= rows or gy < 0 or gy >= cols: return -1
+    dx: i64[8] = [-1, -1, -1, 0, 0, 1, 1, 1]
+    dy: i64[8] = [-1, 0, 1, -1, 1, -1, 0, 1]
+    node_x: mutable i64[256] = zeroed
+    node_y: mutable i64[256] = zeroed
+    node_g: mutable i64[256] = zeroed
+    node_f: mutable i64[256] = zeroed
+    node_parent: mutable i64[256] = zeroed
+    open: mutable usize[256] = zeroed
+    node_parent[0] <- -1
+    node_x[0] <- sx
+    node_y[0] <- sy
+    node_count: mutable usize = 1
+    open_count: mutable usize = 1
+    open[0] <- 0
+    current: mutable usize = 0
+    found: mutable bool = false
+    while open_count > 0:
+        best: mutable usize = 0
+        index: mutable usize = 1
+        while index < open_count:
+            if node_f[open[index]] < node_f[open[best]]: best <- index
+            index <- index + 1
+        current <- open[best]
+        index <- best + 1
+        while index < open_count:
+            open[index - 1] <- open[index]
+            index <- index + 1
+        open_count <- open_count - 1
+        if node_x[current] == gx and node_y[current] == gy:
+            found <- true
+            break
+        neighbor: mutable usize = 0
+        while neighbor < 8:
+            next_x: i64 = node_x[current] + dx[neighbor]
+            next_y: i64 = node_y[current] + dy[neighbor]
+            if next_x >= 0 and next_x < rows and next_y >= 0 and next_y < cols:
+                if node_count >= 256 or open_count >= 256: return -1
+                next_g: i64 = node_g[current] + 1
+                error_x: i64 = gx - next_x
+                error_y: i64 = gy - next_y
+                node_x[node_count] <- next_x
+                node_y[node_count] <- next_y
+                node_g[node_count] <- next_g
+                node_f[node_count] <- next_g + error_x * error_x + error_y * error_y
+                node_parent[node_count] <- current.i64()
+                open[open_count] <- node_count
+                open_count <- open_count + 1
+                node_count <- node_count + 1
+            neighbor <- neighbor + 1
+    if not found: return -1
+    path_count: mutable usize = 0
+    cursor: mutable i64 = current.i64()
+    while cursor >= 0:
+        path_count <- path_count + 1
+        cursor <- node_parent[cursor.usize()]
+    output_bytes: usize = path_count * 16
+    if output.is_null() or capacity < output_bytes: return -2
+    position: mutable usize = output_bytes
+    cursor <- current.i64()
+    while cursor >= 0:
+        position <- position - 16
+        astar_write_i64(output, &position, node_x[cursor.usize()])
+        astar_write_i64(output, &position, node_y[cursor.usize()])
+        cursor <- node_parent[cursor.usize()]
+    output_bytes.i64()
+
+export fn astar(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = astar_impl

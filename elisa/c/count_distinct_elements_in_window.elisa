@@ -1,50 +1,71 @@
+const MAX_N: usize = 256
+const HASH_CAPACITY: usize = 512
+
+def hash_slot(value: i32) -> usize:
+    bits: u32 = value.u32()
+    mixed: u64 = bits.u64() * 2654435761.u64()
+    (mixed.u32() >> 23).usize()
+
+def find_slot(keys: i32&, occupied: bool&, value: i32) -> usize:
+    for probes in 0..<HASH_CAPACITY|slot: usize = hash_slot(value)|:
+        if not occupied[slot] or keys[slot] == value:
+            return slot
+        slot <- (slot + 1) % HASH_CAPACITY
+    0
+
 def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
-    bits: mutable u64 = value.u64()
-    b: mutable usize = 0
-    while b < 8:
-        output[offset+b] <- (bits & 255).u8()
+    for byte in 0..<8|output, bits:u64 = value.u64()|:
+        output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
-        b <- b + 1
 
 def count_distinct_elements_in_window_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length < 3 or input[0] < 1 or input[0] > 256: return -1
+    if true in {input == null,length < 3, input[0] < 1, input[0] > MAX_N.i64()}:
+        return -1
     n: usize = input[0].usize()
-    if input[1] < 1 or input[1] > n.i64() or length != n+2: return -1
+    if true in {input[1] < 1, input[1] > n.i64(), length != n + 2}:
+        return -1
     k: usize = input[1].usize()
-    out_n: usize = n-k+1
-    i: mutable usize = 0
-    while i<n:
-        if input[i+2] < -2147483648 or input[i+2] > 2147483647: return -1
-        i <- i+1
-    if capacity < out_n*8: return -2
-    keys: mutable i32[256] = zeroed
-    counts: mutable i32[256] = zeroed
-    used: mutable usize = 0
+    out_n: usize = n - k + 1
+    for i in 0..<n:
+        underflow = input[i + 2] < -2147483648
+        overflow = input[i + 2] > 2147483647
+        return -1 if underflow or overflow
+        return -2 if output == null or capacity < out_n * 8
+
+    keys: mutable i32[HASH_CAPACITY]
+    counts: mutable i32[HASH_CAPACITY]
+    occupied: mutable bool[HASH_CAPACITY]
+    for i in 0..<HASH_CAPACITY:
+        counts[i] <- 0
+        occupied[i] <- false
     distinct: mutable i64 = 0
-    i <- 0
-    while i<k:
-        value: i32 = input[i+2].i32()
-        j: mutable usize = 0
-        while j<used and keys[j]!=value: j <- j+1
-        if j==used: keys[used] <- value; used <- used+1
-        if counts[j]==0: distinct <- distinct+1
-        counts[j] <- counts[j]+1
-        i <- i+1
-    store_i64_le(distinct,output,0)
-    while i<n:
-        incoming: i32 = input[i+2].i32()
-        j: mutable usize = 0
-        while j<used and keys[j]!=incoming: j <- j+1
-        if j==used: keys[used] <- incoming; used <- used+1
-        if counts[j]==0: distinct <- distinct+1
-        counts[j] <- counts[j]+1
-        outgoing: i32 = input[i-k+2].i32()
-        j <- 0
-        while keys[j]!=outgoing: j <- j+1
-        counts[j] <- counts[j]-1
-        if counts[j]==0: distinct <- distinct-1
-        store_i64_le(distinct,output,(i-k+1)*8)
-        i <- i+1
-    (out_n*8).i64()
+    for i in 0..<k:
+        value: i32 = input[i + 2].i32()
+        slot: usize = find_slot(keys, occupied, value)
+        if not occupied[slot]:
+            keys[slot] <- value
+            occupied[slot] <- true
+            counts[slot] <- 0
+        if counts[slot] == 0:
+            distinct <- distinct + 1
+        counts[slot] <- counts[slot] + 1
+    store_i64_le(distinct, output, 0)
+    for i in k..<n:
+        incoming: i32 = input[i + 2].i32()
+        slot: usize = find_slot(keys, occupied, incoming)
+        if not occupied[slot]:
+            keys[slot] <- incoming
+            occupied[slot] <- true
+            counts[slot] <- 0
+        if counts[slot] == 0:
+            distinct <- distinct + 1
+        counts[slot] <- counts[slot] + 1
+        outgoing: i32 = input[i - k + 2].i32()
+        slot <- find_slot(keys, occupied, outgoing)
+        counts[slot] <- counts[slot] - 1
+        if counts[slot] == 0:
+            distinct <- distinct - 1
+        store_i64_le(distinct, output, (i - k + 1) * 8)
+    (out_n * 8).i64()
 
 export fn count_distinct_elements_in_window(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = count_distinct_elements_in_window_impl

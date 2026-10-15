@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "bisection-2-fixed-equation-float64-v1",
+  "algorithm": "bisection_2",
+  "function_symbol": "bisection_2",
+  "input": {
+    "kind": "signed_integer_millipoint_endpoints",
+    "encoding": "[left_milli,right_milli], with x = endpoint / 1000",
+    "maximum_length": 2,
+    "endpoint_milli_range": [
+      -100000,
+      100000
+    ],
+    "required_order": "left_milli < right_milli",
+    "source_equation": "f(x) = 10 - x*x",
+    "bracket_requirement": "f(left) * f(right) < 0",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "the source bisection variable c in the same x units as the endpoints",
+    "invalid_input_result": -1e+300,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example_negative_to_positive",
+      "input_values": [
+        -2000,
+        5000
+      ],
+      "expected_result": 3.1611328125
+    },
+    {
+      "id": "source_example_zero_to_six",
+      "input_values": [
+        0,
+        6000
+      ],
+      "expected_result": 3.158203125
+    },
+    {
+      "id": "negative_root",
+      "input_values": [
+        -5000,
+        -2000
+      ],
+      "expected_result": -3.166015625
+    },
+    {
+      "id": "narrow_positive_bracket_returns_left",
+      "input_values": [
+        3162,
+        3168
+      ],
+      "expected_result": 3.162
+    },
+    {
+      "id": "nominal_one_hundredth_width_below_binary_threshold",
+      "input_values": [
+        3160,
+        3170
+      ],
+      "expected_result": 3.16
+    },
+    {
+      "id": "one_iteration_above_threshold",
+      "input_values": [
+        3160,
+        3171
+      ],
+      "expected_result": 3.1654999999999998
+    },
+    {
+      "id": "narrow_negative_bracket_returns_left",
+      "input_values": [
+        -3168,
+        -3162
+      ],
+      "expected_result": -3.168
+    },
+    {
+      "id": "same_sign_inside_root",
+      "input_values": [
+        0,
+        3000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "interval_spans_both_roots",
+      "input_values": [
+        -4000,
+        4000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "reversed_endpoints",
+      "input_values": [
+        5000,
+        2000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "endpoint_below_bound",
+      "input_values": [
+        -100001,
+        4000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        0,
+        6000,
+        1
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

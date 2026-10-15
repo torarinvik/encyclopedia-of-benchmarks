@@ -1,0 +1,65 @@
+# Stack-based DFS that marks vertices when they are pushed, matching the source order.
+def depth_first_search_with_stack_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 66 or (length - 2) % 2 != 0:
+        return -2
+    vertices_value: i64 = values[0]
+    start_value: i64 = values[1]
+    if vertices_value < 0 or vertices_value > 64:
+        return -2
+    vertices: usize = vertices_value.usize()
+    if vertices == 0:
+        if start_value == -1 and length == 2:
+            return 0
+        return -2
+    if start_value < 0 or start_value.u64() >= vertices.u64():
+        return -2
+
+    adjacency: mutable usize[2048] = zeroed
+    degree: mutable usize[64] = zeroed
+    state: mutable u8[64] = zeroed
+    edge_count: usize = (length - 2) / 2
+    edge: mutable usize = 0
+    while edge < edge_count:
+        origin_value: i64 = values[2 + 2 * edge]
+        destination_value: i64 = values[3 + 2 * edge]
+        if origin_value < 0 or destination_value < 0:
+            return -2
+        if origin_value.u64() >= vertices.u64() or destination_value.u64() >= vertices.u64():
+            return -2
+        origin: usize = origin_value.usize()
+        adjacency[origin * 32 + degree[origin]] <- destination_value.usize()
+        degree[origin] <- degree[origin] + 1
+        edge <- edge + 1
+
+    pending_vertices: mutable usize[33] = zeroed
+    order: mutable usize[64] = zeroed
+    pending_count: mutable usize = 1
+    count: mutable usize = 0
+    start: usize = start_value.usize()
+    state[start] <- 1
+    pending_vertices[0] <- start
+    while pending_count != 0:
+        pending_count <- pending_count - 1
+        vertex: usize = pending_vertices[pending_count]
+        if state[vertex] == 1:
+            order[count] <- vertex
+            count <- count + 1
+            edge_index: mutable usize = 0
+            while edge_index < degree[vertex]:
+                neighbor: usize = adjacency[vertex * 32 + edge_index]
+                pending_vertices[pending_count] <- neighbor
+                pending_count <- pending_count + 1
+                if state[neighbor] != 2:
+                    state[neighbor] <- 1
+                edge_index <- edge_index + 1
+            state[vertex] <- 2
+    if output_capacity < count:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        output[index] <- order[index].u8()
+        index <- index + 1
+    count.i64()
+
+export fn depth_first_search_with_stack(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = depth_first_search_with_stack_impl

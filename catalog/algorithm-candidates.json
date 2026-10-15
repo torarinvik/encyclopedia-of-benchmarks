@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3836,
+  "candidate_count": 3837,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -7626,7 +7626,7 @@
         "PHP"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "PHP",
@@ -7635,7 +7635,10 @@
           "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Utils/ArrayHelpers.php",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/i/is_sorted/README.md",
+      "alias_of": "is_sorted",
+      "review_notes": "The pinned PHP helper asserts that an integer array is nondecreasing and throws when an adjacent pair decreases. The benchmark normalizes normal return to 1 and the exception to 0 on the shared signed-i32 array domain; duplicates are allowed, unlike strict `is_sorted_array`."
     },
     {
       "candidate_id": "array_keys_sort",
@@ -7998,7 +8001,19 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/astar.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/a/astar/README.md",
+      "additional_benchmark_names": [
+        "astar_java_weighted_graph",
+        "astar_rust_directed_graph",
+        "astar_csharp_spatial"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/a/astar_java_weighted_graph/README.md",
+        "benchmarks/a/astar_rust_directed_graph/README.md",
+        "benchmarks/a/astar_csharp_spatial/README.md"
+      ],
+      "review_notes": "The pinned Python source is an open 8-neighbor grid search with squared-distance heuristic and is mapped to the primary `astar` contract. Java uses a simple undirected weighted graph, caller-provided per-node heuristics, and path-simple expansion; its package preserves heap tie behavior and returns distance, target heuristic, and path. Rust uses directed weighted edges, relaxes only a strictly lower g score, and returns cost plus source-to-target path with deterministic tie ordering specified by its package. C# uses spatial nodes, traversal multipliers, and Euclidean heuristic with source-specific path behavior. These are separate contracts; the Python, Java, and Rust packages are complete, while C# remains in progress."
     },
     {
       "candidate_id": "astronomical_length_scale_conversion",
@@ -8966,7 +8981,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -8975,7 +8990,8 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/Bag/BagNode.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C# `BagNode<T>` file only defines a generic linked-node representation with an item, multiplicity, and next pointer. It has no operation or algorithm that can be benchmarked independently."
     },
     {
       "candidate_id": "bailey_borwein_plouffe",
@@ -9316,7 +9332,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -9325,7 +9341,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/base64_cipher.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/b/base64/README.md",
+      "alias_of": "base64",
+      "review_notes": "The pinned Python encoder and decoder match the shared `base64` contract on canonical padded ASCII inputs. The Python decoder requires a length divisible by four and does not verify unused pad bits; the benchmark also accepts valid unpadded input and rejects nonzero unused bits, so the alias is limited to the common canonical domain."
     },
     {
       "candidate_id": "base64_encoding",
@@ -10407,7 +10426,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -10416,7 +10435,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/search/binary.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/b/binary_search/README.md",
+      "alias_of": "binary_search",
+      "review_notes": "The pinned Go file provides recursive and iterative binary search over ascending integer arrays, returning a matching index or -1. Both match the existing `binary_search` contract on its unique-valued bounded workload domain; lower and upper bound helpers are separate candidates."
     },
     {
       "candidate_id": "binary_addition",
@@ -12747,7 +12769,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -12756,7 +12778,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/numerical_analysis/bisection_2.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/b/bisection_2/README.md",
+      "review_notes": "The pinned Python source bisects the fixed equation `10 - x*x` with a 0.01 interval-width threshold. The package preserves the initial `c=a` behavior for brackets already narrower than the threshold, returns an unscaled binary64 root estimate, and rejects invalid or unbracketed intervals."
     },
     {
       "candidate_id": "bisection_method",
@@ -14572,7 +14596,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -14581,7 +14605,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/brute_force_caesar_cipher.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/b/brute_force_caesar_cipher/README.md",
+      "review_notes": "The pinned Python helper tries Caesar decryption keys 0 through 25, shifting uppercase ASCII letters backward and preserving other bytes. The package emits the 26 candidate plaintext rows in key order, without the source display labels."
     },
     {
       "candidate_id": "brute_force_knapsack",
@@ -17503,7 +17529,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -17512,7 +17538,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/CheckWordOccurrence.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/c/check_word_occurrence/README.md",
+      "review_notes": "The pinned JavaScript source counts whitespace-delimited tokens using `/\\s+/`; its `isCaseSensitive` flag is inverted (true lowercases words, false preserves case), punctuation is retained, and leading/trailing whitespace can create empty-string keys. The package records token counts in a deterministic byte-output format and preserves the source flag behavior."
     },
     {
       "candidate_id": "checkequal",
@@ -21683,7 +21711,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -21692,7 +21720,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/CrossCorrelation.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/c/cross_correlation/README.md",
+      "review_notes": "The pinned Java source computes full linear cross-correlation of two finite signals with the second signal traversed in reverse overlap orientation. The bounded integer-sample package preserves the source coefficient order and encodes exact coefficients as little-endian i64 values."
     },
     {
       "candidate_id": "cross_entropy_loss",
@@ -23681,7 +23711,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -23697,7 +23727,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/graph/depth_first_search_with_stack.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/d/depth_first_search_with_stack/README.md",
+      "review_notes": "The two pinned C++ files are mirrors of the same explicit-stack DFS. The implementation marks vertices grey when pushed, emits a grey vertex when popped, pushes its adjacency list in insertion order, and marks it black after expansion; this differs from recursive-preorder DFS. Although addEdge comments describe an undirected graph, it adds only the source-to-destination edge, so the shared graph contract is directed. The local contract normalizes IDs to zero-based values, preserves edge insertion order and duplicates, and defines an empty graph safely."
     },
     {
       "candidate_id": "depthfirstsearch",
@@ -25437,7 +25469,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -25453,7 +25485,10 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/sorting/dnf_sort.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "dutch_national_flag_sort",
+      "benchmark_contract": "benchmarks/d/dutch_national_flag_sort/README.md",
+      "review_notes": "Both pinned C++ dnf_sort files implement the same three-way partition for keys 0, 1, and 2 as dutch_national_flag_sort, so the candidate aliases that benchmark. The source dereferences size()-1 on empty input and has no default switch branch for other keys; those cases are outside its defined domain. The shared contract safely includes empty input and restricts keys to 0, 1, and 2."
     },
     {
       "candidate_id": "doc",
@@ -28450,7 +28485,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -28473,7 +28508,15 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/financial/exponential_moving_average.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/exponential_moving_average/README.md",
+      "additional_benchmark_names": [
+        "exponential_moving_average_java_stream"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/e/exponential_moving_average_java_stream/README.md"
+      ],
+      "review_notes": "Pinned Python and Rust sources share the batch EMA warm-up and recurrence only on `window_size >= 2`; the package preserves their source update order over integer prices. Java is a different streaming state API that applies the standard one-step EWMA immediately and is tracked as the additional `exponential_moving_average_java_stream` package."
     },
     {
       "candidate_id": "exponential_search",
@@ -29559,7 +29602,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -29582,7 +29625,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_fourier_transform.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fast_fourier_transform/README.md",
+      "review_notes": "The pinned C++ and Rust sources implement the same forward radix-2 DFT with positive-angle twiddles; C++ uses recursion and Rust uses iterative butterflies with bit reversal. The package accepts power-of-two real integer samples and returns interleaved fixed-point complex bins."
     },
     {
       "candidate_id": "fast_integer_input",
@@ -29621,7 +29666,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -29644,7 +29689,18 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/fast_inverse_sqrt.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fast_inverse_square_root/README.md",
+      "alias_of": "fast_inverse_square_root",
+      "additional_benchmark_names": [
+        "fast_inverse_sqrt_go",
+        "fast_inverse_sqrt_java_check"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/f/fast_inverse_sqrt_go/README.md",
+        "benchmarks/f/fast_inverse_sqrt_java_check/README.md"
+      ],
+      "review_notes": "The pinned Python implementation matches `fast_inverse_square_root` on positive finite inputs. Go uses a distinct binary32 magic-seed approximation with two Newton corrections and maps to `fast_inverse_sqrt_go`. Java returns exact-equality checks rather than approximation values; its float and double overloads are mapped to `fast_inverse_sqrt_java_check` using mode 0 or 1 and positive normal raw IEEE input bits."
     },
     {
       "candidate_id": "fast_inverse_square_root",
@@ -36740,7 +36796,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -36749,7 +36805,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/hardy_ramanujanalgo.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/h/hardy_ramanujanalgo/README.md",
+      "review_notes": "The pinned Python function counts the distinct prime factors of n using the factor-2 pass, odd trial divisors, and a final remaining-prime check. It returns an exact count, not the Hardy–Ramanujan average; the package bounds n to 1..2,147,483,647 and defines n=1 as zero."
     },
     {
       "candidate_id": "harmonic",
@@ -41270,7 +41328,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_invalid_source",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -41286,7 +41344,31 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/inverse_fast_fourier_transform.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "Both pinned C++ inverse-transform files are mathematically incorrect: they use the positive-angle twiddle and divide the twiddle components by n before recursive exponentiation, rather than applying final inverse normalization. Their self-tests also use signed error comparisons without absolute values. These implementations are excluded as invalid."
+    },
+    {
+      "candidate_id": "inverse_fast_fourier_transform_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Rust",
+          "language": "Rust",
+          "path": "src/math/fast_fourier_transform.rs",
+          "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_fourier_transform.rs",
+          "local_folder_source": "rust"
+        }
+      ],
+      "benchmark_name": "inverse_fast_fourier_transform",
+      "benchmark_contract": "benchmarks/i/inverse_fast_fourier_transform/README.md",
+      "review_notes": "The valid pinned Rust inverse function is embedded in `fast_fourier_transform.rs`. It uses negative-angle twiddles, normalizes by n after the inverse transform, and returns the real components. It is the canonical source for this benchmark; the similarly named C++ files are separately excluded as invalid."
     },
     {
       "candidate_id": "inverse_of_matrix",
@@ -47277,7 +47359,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -47286,7 +47368,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/lens_formulae.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/l/lens_formulae/README.md",
+      "review_notes": "The pinned Python source exposes three thin-lens reciprocal solves: focal length, object distance, and image distance. The package preserves each source expression on bounded nonzero signed integer distances and rejects the singular reciprocal-difference or reciprocal-sum cases; it is distinct from `thin_lens`, which covers magnification and image classification."
     },
     {
       "candidate_id": "leonardo_number",
@@ -51255,7 +51339,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -51264,7 +51348,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/magnetic_flux.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/magnetic_flux/README.md",
+      "review_notes": "The pinned Python source computes magnetic flux as the field-area product times cosine of the angle in radians, rounded to one decimal place. The bounded package preserves the source SI units and operation/domain rules."
     },
     {
       "candidate_id": "main_cll",
@@ -52275,7 +52361,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -52298,7 +52384,9 @@
           "url": "https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/matrix_multiplication.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/m/matrix_multiplication/README.md",
+      "review_notes": "The pinned Java and TypeScript sources implement rectangular matrix products; JavaScript also computes the same dot products but its dimension check only accepts square output and fails on one-row inputs. The package uses square matrices of size 2..8 with bounded integer cells, which is the common valid domain and keeps every result exact."
     },
     {
       "candidate_id": "matrix_multiplication_recursion",
@@ -58332,7 +58420,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -58348,7 +58436,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/ncr_modulo_p.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/n/ncr_modulo_p/README.md",
+      "review_notes": "The pinned C++ source precomputes factorials modulo p and uses an extended-Euclid modular inverse for nCr. The package preserves the source’s -1 result when the denominator is not invertible and uses the signed-i64 minimum sentinel for malformed inputs."
     },
     {
       "candidate_id": "nearest_neighbour_algorithm",
@@ -61751,7 +61841,7 @@
         "cpp",
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -61795,7 +61885,15 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/palindrome_partitioning.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/palindrome_partitioning/README.md",
+      "additional_benchmark_names": [
+        "palindrome_partitioning_all_partitions"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/p/palindrome_partitioning_all_partitions/README.md"
+      ],
+      "review_notes": "The pinned C++, Python, Rust, and Kotlin sources compute the minimum number of cuts needed to partition a nonempty ASCII string into palindromes; the package uses a shared nonempty domain because C++ and Python error on empty input. The JavaScript source instead enumerates every palindrome partition and is tracked separately as `palindrome_partitioning_all_partitions`."
     },
     {
       "candidate_id": "palindrome_prime",
@@ -90823,7 +90921,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -90832,7 +90930,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/geometry/triangle.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/t/triangle/README.md",
+      "review_notes": "The pinned Python `Triangle` type computes circumcenter, incenter, and orthocenter from three planar points. The package accepts bounded noncollinear integer-coordinate triangles with pairwise distinct x values and y3 distinct from y1 and y2 to preserve the source slope formulas, and returns the three centers as six binary64 coordinates."
     },
     {
       "candidate_id": "triangular_numbers",
@@ -92519,7 +92619,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -92528,7 +92628,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/UpperCaseConversion.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/u/upper/README.md",
+      "alias_of": "upper",
+      "review_notes": "The pinned JavaScript source uppercases ASCII lowercase letters and preserves other code units. On the existing `upper` package domain (accepted ASCII bytes excluding whitespace), its output is identical, so it aliases `upper`."
     },
     {
       "candidate_id": "util",
@@ -93391,7 +93494,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -93400,7 +93503,8 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/vitest.config.ts",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned JavaScript file only configures Vitest globals, mock restoration, and coverage reporting; it contains no algorithm or callable benchmark source."
     },
     {
       "candidate_id": "volume",
@@ -93873,7 +93977,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -93882,7 +93986,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/scheduling/weighted_interval_scheduling.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/w/weighted_interval_scheduling/README.md",
+      "review_notes": "The pinned Python source sorts weighted intervals by end time, binary-searches the count of compatible predecessors, and uses dynamic programming with strict include-greater-than-exclude reconstruction. The package preserves selected original interval indices in source reconstruction order and uses bounded integer inputs."
     },
     {
       "candidate_id": "weighted_job_scheduling",

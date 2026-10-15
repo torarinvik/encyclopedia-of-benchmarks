@@ -50,5 +50,6 @@ fn long cycle_check_directed_graph_kahn(long* values, usz length)
             }
         }
     }
-    return 1 if removed != vertices else 0;
+    if (removed != vertices) return 1;
+    return 0;
 }

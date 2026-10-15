@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "id": "matrix-multiplication-square-i64-v1",
+  "algorithm": "matrix_multiplication",
+  "function_symbol": "matrix_multiplication",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "signed-i64 slots [n, A row-major n*n values, B row-major n*n values]"
+  },
+  "output": {
+    "kind": "row_major_little_endian_signed_i64",
+    "description": "row-major little-endian signed-i64 product cells"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "two_by_two",
+      "input_values": [2, 1, 2, 3, 4, 5, 6, 7, 8],
+      "expected_result": 4,
+      "expected_output_hex": "130000000000000016000000000000002b000000000000003200000000000000"
+    },
+    {
+      "id": "two_by_two_identity",
+      "input_values": [2, 3, -4, 5, 6, 1, 0, 0, 1],
+      "expected_result": 4,
+      "expected_output_hex": "0300000000000000fcffffffffffffff05000000000000000600000000000000"
+    },
+    {
+      "id": "negative_products",
+      "input_values": [2, -1, 2, 3, -4, 5, -6, -7, 8],
+      "expected_result": 4,
+      "expected_output_hex": "edffffffffffffff16000000000000002b00000000000000ceffffffffffffff"
+    },
+    {
+      "id": "three_by_three_identity",
+      "input_values": [3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+      "expected_result": 9,
+      "expected_output_hex": "010000000000000002000000000000000300000000000000040000000000000005000000000000000600000000000000070000000000000008000000000000000900000000000000"
+    },
+    {
+      "id": "maximum_magnitude_values",
+      "input_values": [2, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+      "expected_result": 4,
+      "expected_output_hex": "80841e000000000080841e000000000080841e000000000080841e0000000000"
+    },
+    {
+      "id": "dimension_too_small",
+      "input_values": [1, 4, 5],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_too_large",
+      "input_values": [9],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [2, 1, 2, 3, 4, 5, 6, 7],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_range_cell",
+      "input_values": [2, 1001, 0, 0, 0, 1, 0, 0, 1],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [2, 1, 0, 0, 1, 1, 0, 0, 1],
+      "expected_result": -3,
+      "expected_output_hex": "",
+      "workspace_bytes": 8,
+      "capacity_error_result": -3
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+def astar_java_write_i64(output: mutable u8&, position: mutable usize&, value: i64) -> usize:
+    shift: mutable usize = 0
+    while shift < 64:
+        output[position] <- ((value >> shift) & 255).u8()
+        position <- position + 1
+        shift <- shift + 8
+    position
+
+def astar_java_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5: return -1
+    n: i64 = input[0]
+    m: i64 = input[1]
+    start_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if n < 1 or n > 7 or m < 0 or m > 16: return -1
+    if start_value < 0 or start_value >= n or target_value < 0 or target_value >= n: return -1
+    if length != (4 + n + 3 * m).usize(): return -1
+    start: usize = start_value.usize()
+    target: usize = target_value.usize()
+    heuristic: mutable i64[7] = zeroed
+    adjacent: mutable i64[7][7] = zeroed
+    weights: mutable i64[7][7] = zeroed
+    degree: mutable usize[7] = zeroed
+    index: mutable usize = 0
+    while index < n.usize():
+        if input[4 + index] < -1000 or input[4 + index] > 1000: return -1
+        heuristic[index] <- input[4 + index]
+        index <- index + 1
+    position: mutable usize = 4 + n.usize()
+    edge: mutable usize = 0
+    while edge < m.usize():
+        u: i64 = input[position]
+        v: i64 = input[position + 1]
+        weight: i64 = input[position + 2]
+        position <- position + 3
+        if u < 0 or u >= n or v < 0 or v >= n or u == v or weight < 0 or weight > 1000: return -1
+        ui: usize = u.usize()
+        vi: usize = v.usize()
+        duplicate: mutable bool = false
+        scan: mutable usize = 0
+        while scan < degree[ui]:
+            if adjacent[ui][scan] == v: duplicate <- true
+            scan <- scan + 1
+        if duplicate: return -1
+        adjacent[ui][degree[ui]] <- v
+        weights[ui][degree[ui]] <- weight
+        degree[ui] <- degree[ui] + 1
+        adjacent[vi][degree[vi]] <- u
+        weights[vi][degree[vi]] <- weight
+        degree[vi] <- degree[vi] + 1
+        edge <- edge + 1
+    state_distance: mutable i64[4096] = zeroed
+    state_heuristic: mutable i64[4096] = zeroed
+    state_length: mutable usize[4096] = zeroed
+    state_path: mutable i64[4096][7] = zeroed
+    heap: mutable usize[4096] = zeroed
+    state_count: mutable usize = 1
+    heap_size: mutable usize = 1
+    state_heuristic[0] <- heuristic[start]
+    state_length[0] <- 1
+    state_path[0][0] <- start.i64()
+    heap[0] <- 0
+    found: mutable bool = false
+    solution: mutable usize = 0
+    while heap_size > 0:
+        current_index: usize = heap[0]
+        last: usize = heap[heap_size - 1]
+        heap_size <- heap_size - 1
+        if heap_size > 0:
+            heap_index: mutable usize = 0
+            half: usize = heap_size / 2
+            while heap_index < half:
+                child: mutable usize = 2 * heap_index + 1
+                child_index: mutable usize = heap[child]
+                right: usize = child + 1
+                if right < heap_size and state_distance[heap[right]] + state_heuristic[heap[right]] < state_distance[child_index] + state_heuristic[child_index]:
+                    child <- right
+                    child_index <- heap[right]
+                if state_distance[last] + state_heuristic[last] <= state_distance[child_index] + state_heuristic[child_index]: break
+                heap[heap_index] <- child_index
+                heap_index <- child
+            heap[heap_index] <- last
+        current_vertex: usize = state_path[current_index][state_length[current_index] - 1].usize()
+        if current_vertex == target:
+            found <- true
+            solution <- current_index
+            break
+        edge_index: mutable usize = 0
+        while edge_index < degree[current_vertex]:
+            next_value: i64 = adjacent[current_vertex][edge_index]
+            next: usize = next_value.usize()
+            in_path: mutable bool = false
+            path_index: mutable usize = 0
+            while path_index < state_length[current_index]:
+                if state_path[current_index][path_index] == next_value: in_path <- true
+                path_index <- path_index + 1
+            if not in_path:
+                if state_count >= 4096 or heap_size >= 4096: return -1
+                next_state: usize = state_count
+                state_count <- state_count + 1
+                state_distance[next_state] <- state_distance[current_index] + weights[current_vertex][edge_index]
+                state_heuristic[next_state] <- heuristic[next]
+                state_length[next_state] <- state_length[current_index] + 1
+                path_index <- 0
+                while path_index < state_length[current_index]:
+                    state_path[next_state][path_index] <- state_path[current_index][path_index]
+                    path_index <- path_index + 1
+                state_path[next_state][state_length[current_index]] <- next_value
+                heap_index <- heap_size
+                heap_size <- heap_size + 1
+                while heap_index > 0:
+                    parent: usize = (heap_index - 1) / 2
+                    parent_index: usize = heap[parent]
+                    if state_distance[parent_index] + state_heuristic[parent_index] <= state_distance[next_state] + state_heuristic[next_state]: break
+                    heap[heap_index] <- parent_index
+                    heap_index <- parent
+                heap[heap_index] <- next_state
+            edge_index <- edge_index + 1
+    result: mutable i64[10] = zeroed
+    result_words: mutable usize = 3
+    if not found:
+        result[0] <- -1
+        result[1] <- -1
+        result[2] <- 0
+    else:
+        result[0] <- state_distance[solution]
+        result[1] <- state_heuristic[solution]
+        result[2] <- state_length[solution].i64()
+        result_words <- result_words + state_length[solution]
+        index <- 0
+        while index < state_length[solution]:
+            result[3 + index] <- state_path[solution][index]
+            index <- index + 1
+    output_bytes: usize = result_words * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    result_index: mutable usize = 0
+    write_position: mutable usize = 0
+    while result_index < result_words:
+        astar_java_write_i64(output, &write_position, result[result_index])
+        result_index <- result_index + 1
+    output_bytes.i64()
+
+export fn astar_java_weighted_graph(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = astar_java_impl

@@ -1,0 +1,191 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def astar_csharp_distance(xs: f64&, ys: f64&, a: usize, b: usize) -> f64:
+    dx: f64 = xs[a] - xs[b]
+    dy: f64 = ys[a] - ys[b]
+    sqrt(dx * dx + dy * dy)
+
+def astar_csharp_total(current: f64&, estimated: f64&, node: usize) -> f64:
+    current[node] + estimated[node]
+
+def astar_csharp_enqueue(heap: mutable usize&, heap_count: mutable usize&, value: usize,
+        current: f64&, estimated: f64&) -> void:
+    index: mutable usize = heap_count
+    heap_count <- heap_count + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if astar_csharp_total(current, estimated, heap[parent]) <= astar_csharp_total(current, estimated, value):
+            break
+        heap[index] <- heap[parent]
+        index <- parent
+    heap[index] <- value
+
+def astar_csharp_dequeue(heap: mutable usize&, heap_count: mutable usize&,
+        current: f64&, estimated: f64&) -> usize:
+    target: usize = heap[0]
+    heap_count <- heap_count - 1
+    root: usize = heap[heap_count]
+    index: mutable usize = 0
+    while index * 2 + 1 < heap_count:
+        left: usize = index * 2 + 1
+        right: usize = index * 2 + 2
+        child: usize = left
+        if right < heap_count and astar_csharp_total(current, estimated, heap[right]) < astar_csharp_total(current, estimated, heap[left]):
+            child <- right
+        if astar_csharp_total(current, estimated, heap[child]) >= astar_csharp_total(current, estimated, root):
+            break
+        heap[index] <- heap[child]
+        index <- child
+    if heap_count > 0:
+        heap[index] <- root
+    target
+
+def astar_csharp_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    index: mutable usize = 0
+    while index < 8:
+        output[offset + index] <- ((value >> (index * 8)) & 255).u8()
+        index <- index + 1
+
+def astar_csharp_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4:
+        return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    start64: i64 = input[2]
+    goal64: i64 = input[3]
+    if n64 < 2 or n64 > 16 or m64 != n64 - 1 or start64 < 0 or start64 >= n64 or goal64 < 0 or goal64 >= n64:
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    start: usize = start64.usize()
+    goal: usize = goal64.usize()
+    edge: usize = 4 + 4 * n
+    if length != 4 + 4 * n + 2 * m:
+        return -1
+    xs: mutable f64[16] = zeroed
+    ys: mutable f64[16] = zeroed
+    multipliers: mutable f64[16] = zeroed
+    current: mutable f64[16] = zeroed
+    estimated: mutable f64[16] = zeroed
+    traversable: mutable i64[16] = zeroed
+    state: mutable i64[16] = zeroed
+    parents: mutable i64[16] = zeroed
+    parent_count: mutable i64[16] = zeroed
+    seen: mutable i64[16] = zeroed
+    stack: mutable usize[16] = zeroed
+    heap: mutable usize[16] = zeroed
+    path: mutable usize[16] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        offset: usize = 4 + 4 * index
+        x: i64 = input[offset]
+        y: i64 = input[offset + 1]
+        can_traverse: i64 = input[offset + 2]
+        multiplier: i64 = input[offset + 3]
+        if x < -1000 or x > 1000 or y < -1000 or y > 1000 or (can_traverse != 0 and can_traverse != 1) or multiplier < 1 or multiplier > 4:
+            return -1
+        xs[index] <- x.f64()
+        ys[index] <- y.f64()
+        traversable[index] <- can_traverse
+        multipliers[index] <- multiplier.f64()
+        parents[index] <- -1
+        cursor: mutable usize = 0
+        while cursor < index:
+            if xs[index] == xs[cursor] and ys[index] == ys[cursor]:
+                return -1
+            cursor <- cursor + 1
+        index <- index + 1
+    edge_index: mutable usize = 0
+    while edge_index < m:
+        from: i64 = input[edge + 2 * edge_index]
+        to: i64 = input[edge + 2 * edge_index + 1]
+        if from < 0 or from >= n64 or to < 0 or to >= n64 or from == to:
+            return -1
+        parent_count[to.usize()] <- parent_count[to.usize()] + 1
+        if parent_count[to.usize()] > 1:
+            return -1
+        cursor <- 0
+        while cursor < edge_index:
+            if input[edge + 2 * cursor] == from and input[edge + 2 * cursor + 1] == to:
+                return -1
+            cursor <- cursor + 1
+        edge_index <- edge_index + 1
+    if parent_count[start] != 0:
+        return -1
+    index <- 0
+    while index < n:
+        if index != start and parent_count[index] != 1:
+            return -1
+        index <- index + 1
+    top: mutable usize = 1
+    visited: mutable usize = 0
+    stack[0] <- start
+    while top > 0:
+        top <- top - 1
+        node: usize = stack[top]
+        if seen[node] == 1:
+            continue
+        seen[node] <- 1
+        visited <- visited + 1
+        edge_index <- 0
+        while edge_index < m:
+            if input[edge + 2 * edge_index] == node.i64():
+                stack[top] <- input[edge + 2 * edge_index + 1].usize()
+                top <- top + 1
+            edge_index <- edge_index + 1
+    if visited != n:
+        return -1
+    heap_count: mutable usize = 0
+    edge_index <- 0
+    while edge_index < m:
+        if input[edge + 2 * edge_index] == start.i64():
+            node: usize = input[edge + 2 * edge_index + 1].usize()
+            if traversable[node] == 1:
+                current[node] <- astar_csharp_distance(xs, ys, start, node) * multipliers[node]
+                estimated[node] <- astar_csharp_distance(xs, ys, node, goal)
+                astar_csharp_enqueue(heap, heap_count, node, current, estimated)
+        edge_index <- edge_index + 1
+    path_count: mutable usize = 0
+    while heap_count > 0:
+        node: usize = astar_csharp_dequeue(heap, heap_count, current, estimated)
+        state[node] <- 2
+        if astar_csharp_total(current, estimated, node) == astar_csharp_total(current, estimated, goal):
+            cursor: mutable i64 = goal.i64()
+            while cursor >= 0 and path_count < 16:
+                path[path_count] <- cursor.usize()
+                path_count <- path_count + 1
+                cursor <- parents[cursor.usize()]
+            break
+        edge_index <- 0
+        while edge_index < m:
+            if input[edge + 2 * edge_index] == node.i64():
+                connected: usize = input[edge + 2 * edge_index + 1].usize()
+                if traversable[connected] == 1 and state[connected] != 2:
+                    if state[connected] == 0:
+                        parents[connected] <- node.i64()
+                        current[connected] <- current[node] + astar_csharp_distance(xs, ys, node, connected) * multipliers[connected]
+                        estimated[connected] <- current[connected] + astar_csharp_distance(xs, ys, connected, goal)
+                        state[connected] <- 1
+                        astar_csharp_enqueue(heap, heap_count, connected, current, estimated)
+                    elif astar_csharp_total(current, estimated, node) != astar_csharp_total(current, estimated, connected):
+                        new_current: f64 = current[node] + astar_csharp_distance(xs, ys, node, connected)
+                        new_total: f64 = new_current + estimated[node]
+                        if new_total < astar_csharp_total(current, estimated, connected):
+                            parents[connected] <- node.i64()
+                            current[connected] <- new_current
+                    else:
+                        return -1
+            edge_index <- edge_index + 1
+    output_bytes: usize = path_count * 8
+    if output_bytes == 0:
+        return 0
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    index <- 0
+    while index < path_count:
+        astar_csharp_put_i64(output, index * 8, path[path_count - 1 - index].i64())
+        index <- index + 1
+    output_bytes.i64()
+
+export fn astar_csharp_spatial(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = astar_csharp_impl

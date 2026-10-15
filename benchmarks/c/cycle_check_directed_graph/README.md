@@ -8,13 +8,13 @@ This benchmark reports whether a directed graph contains a cycle using depth-fir
 - Graphs contain 0–64 vertices and at most 32 directed edges. Vertices are numbered from `0` through `vertex_count - 1`; isolated vertices are included by the vertex count.
 - Duplicate edges are coalesced. A self-loop is a cycle. Disconnected components are all examined.
 - Return `1` when a cycle exists, `0` when the graph is acyclic, and `-1` for malformed input or an endpoint outside the declared vertex range.
-- Implementations use bounded, fixed-size adjacency bitsets and portable scalar operations.
+- Implementations use bounded, fixed-size adjacency bitsets and portable scalar operations. Scanning possible neighbors gives these bounded ports an `O(V²)` worst-case cost, with `V ≤ 64`.
 
 The pinned Go `HasCycle` method and C++ `isCyclicDFS` method use the same three-state depth-first cycle check. The Go graph must be directed for this contract; its default graph mode inserts reverse edges and would otherwise report undirected parent edges as cycles. The C++ source's separate Kahn implementation is benchmarked in [`cycle_check_directed_graph_kahn`](../cycle_check_directed_graph_kahn/README.md).
 
 ## Workload
 
-[`workload.json`](workload.json) covers empty and isolated graphs, chains, disconnected components, self-loops, directed cycles with tails, duplicate edges, the maximum vertex count, malformed encodings, and invalid endpoints. Build with the `i64_array_scalar` ABI family.
+[`workload.json`](workload.json) covers empty and isolated graphs, chains, disconnected components, self-loops, directed cycles with tails, duplicate edges, maximum vertex and edge counts, malformed encodings, and invalid endpoints. Build with the `i64_array_scalar` ABI family.
 
 ## Reviewed TheAlgorithms sources
 

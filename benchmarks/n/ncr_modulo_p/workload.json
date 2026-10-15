@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "id": "ncr-modulo-p-cpp-bounded-i64-array-scalar-v1",
+  "algorithm": "ncr_modulo_p",
+  "function_symbol": "ncr_modulo_p",
+  "description": "Precompute factorials modulo p, then query a binomial coefficient using an extended-Euclid modular inverse.",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["size", "p", "n", "r"],
+    "array_length": 4,
+    "size_range": [0, 64],
+    "modulus_range": [2, 1009],
+    "query_n_range": [0, 64],
+    "query_r_range": [0, 64],
+    "constraints": ["n <= size"],
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_i64",
+    "definition": "The source's nCr modulo p result; returns -1 when the denominator has no modular inverse.",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "ordinary", "input_values": [10, 13, 6, 3], "expected_result": 7},
+    {"id": "r_one", "input_values": [10, 19, 6, 1], "expected_result": 6},
+    {"id": "r_zero", "input_values": [10, 19, 6, 0], "expected_result": 1},
+    {"id": "r_equals_n", "input_values": [10, 19, 6, 6], "expected_result": 1},
+    {"id": "r_above_n", "input_values": [10, 19, 6, 8], "expected_result": 0},
+    {"id": "noninvertible_composite_modulus", "input_values": [20, 9, 10, 2], "expected_result": -1},
+    {"id": "small_composite_modulus", "input_values": [6, 2, 4, 2], "expected_result": -1},
+    {"id": "zero_size_empty_query", "input_values": [0, 7, 0, 0], "expected_result": 1},
+    {"id": "invalid_size", "input_values": [65, 101, 6, 3], "expected_result": -9223372036854775808},
+    {"id": "invalid_modulus", "input_values": [10, 1, 6, 3], "expected_result": -9223372036854775808},
+    {"id": "query_exceeds_precomputed_size", "input_values": [5, 7, 6, 3], "expected_result": -9223372036854775808},
+    {"id": "wrong_array_length", "input_values": [10, 13, 6], "expected_result": -9223372036854775808}
+  ]
+}

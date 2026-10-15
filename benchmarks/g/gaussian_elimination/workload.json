@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "gaussian-elimination-symmetric-dd-f64-vector-v1",
+  "algorithm": "gaussian_elimination",
+  "function_symbol": "gaussian_elimination",
+  "input": {
+    "kind": "packed_i64_array",
+    "layout": "[n, A row-major n*n cells, b n cells]",
+    "dimension_range": [2, 8],
+    "coefficient_domain": "A is symmetric tridiagonal, each diagonal cell is 32, each adjacent off-diagonal cell is 0 or -1, all other cells are 0",
+    "right_hand_side_range": [-100, 100],
+    "invalid_input_result": -1,
+    "invalid_input_output": "empty"
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution vector x for A*x=b",
+    "encoding": "n IEEE-754 binary64 little-endian values",
+    "max_length": 8,
+    "relative_tolerance": 1e-5,
+    "absolute_tolerance": 1e-4
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "two_by_two_integer_solution",
+      "input_values": [2, 32, -1, -1, 32, 34, -65],
+      "workspace_bytes": 16,
+      "expected_result": 16,
+      "expected_output": [1.0, -2.0]
+    },
+    {
+      "id": "three_by_three_path",
+      "input_values": [3, 32, -1, 0, -1, 32, -1, 0, -1, 32, 30, 60, 94],
+      "workspace_bytes": 24,
+      "expected_result": 24,
+      "expected_output": [1.0, 2.0, 3.0]
+    },
+    {
+      "id": "four_by_four_path_negative_solution",
+      "input_values": [4, 32, -1, 0, 0, -1, 32, -1, 0, 0, -1, 32, -1, 0, 0, -1, 32, -64, 1, 30, 63],
+      "workspace_bytes": 32,
+      "expected_result": 32,
+      "expected_output": [-2.0, 0.0, 1.0, 2.0]
+    },
+    {
+      "id": "four_by_four_disconnected_paths",
+      "input_values": [4, 32, -1, 0, 0, -1, 32, 0, 0, 0, 0, 32, -1, 0, 0, -1, 32, 30, 63, -35, 97],
+      "workspace_bytes": 32,
+      "expected_result": 32,
+      "expected_output": [1.0, 2.0, -1.0, 3.0]
+    },
+    {
+      "id": "two_by_two_fractional_solution",
+      "input_values": [2, 32, -1, -1, 32, 1, 1],
+      "workspace_bytes": 16,
+      "expected_result": 16,
+      "expected_output": [0.03225806451612903, 0.03225806451612903]
+    },
+    {
+      "id": "eight_by_eight_path",
+      "input_values": [8, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, -1, 0, 0, 0, 0, 0, 0, -1, 32, 33, -33, 35, -67, 67, -67, 35, -33],
+      "workspace_bytes": 64,
+      "expected_result": 64,
+      "expected_output": [1.0, -1.0, 1.0, -1.0, 2.0, -2.0, 1.0, -1.0]
+    },
+    {
+      "id": "dimension_too_small",
+      "input_values": [1, 32, 0],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonsymmetric_matrix",
+      "input_values": [2, 32, -1, 0, 32, 1, 1],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unsupported_off_diagonal",
+      "input_values": [2, 32, 1, 1, 32, 1, 1],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nontridiagonal_matrix",
+      "input_values": [3, 32, 0, -1, 0, 32, 0, -1, -1, 32, 1, 1, 1],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [2, 32, -1, -1, 32, 1],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [2, 32, -1, -1, 32, 34, -65],
+      "workspace_bytes": 8,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

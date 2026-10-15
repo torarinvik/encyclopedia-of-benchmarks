@@ -1,0 +1,22 @@
+# Three reciprocal thin-lens formula solves.
+def lens_formulae_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    operation: i64 = values[0]
+    first: i64 = values[1]
+    second: i64 = values[2]
+    if operation < 0 or operation > 2 or first == 0 or second == 0 or first < -1000000 or first > 1000000 or second < -1000000 or second > 1000000:
+        return -1.0e300
+    if operation == 0:
+        if first == second:
+            return -1.0e300
+        return 1.0 / ((1.0 / second.f64()) - (1.0 / first.f64()))
+    if operation == 1:
+        if first == second:
+            return -1.0e300
+        return 1.0 / ((1.0 / second.f64()) - (1.0 / first.f64()))
+    if first == -second:
+        return -1.0e300
+    1.0 / ((1.0 / second.f64()) + (1.0 / first.f64()))
+
+export fn lens_formulae(values: i64&, length: usize) -> f64 = lens_formulae_impl

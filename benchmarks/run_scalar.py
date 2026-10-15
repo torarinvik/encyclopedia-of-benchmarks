@@ -104,6 +104,25 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != expected_from_source:
             raise ValueError("reverse_number expected_result must match repeated decimal digit reversal")
         return
+    if algorithm == "hardy_ramanujanalgo":
+        if not 1 <= input_value <= 2_147_483_647:
+            expected_from_source = -1
+        else:
+            remaining = input_value
+            distinct_factors = 0
+            divisor = 2
+            while divisor * divisor <= remaining:
+                if remaining % divisor == 0:
+                    distinct_factors += 1
+                    while remaining % divisor == 0:
+                        remaining //= divisor
+                divisor = 3 if divisor == 2 else divisor + 2
+            if remaining > 1:
+                distinct_factors += 1
+            expected_from_source = distinct_factors
+        if expected_result != expected_from_source:
+            raise ValueError("hardy_ramanujanalgo expected_result must match exact distinct-prime-factor counting")
+        return
     if algorithm == "fast_factorial":
         expected_from_source = math.factorial(input_value) if 0 <= input_value <= 20 else -1
         if expected_result != expected_from_source:

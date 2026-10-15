@@ -1,0 +1,26 @@
+const MAX_MESSAGE_LENGTH: usize = 64
+const KEY_COUNT: usize = 26
+
+def brute_force_caesar_cipher_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_MESSAGE_LENGTH or (length > 0 and input == null):
+        return -1
+    for i in 0..<length:
+        if input[i] < 0 or input[i] > 127:
+            return -1
+    needed: usize = length * KEY_COUNT + (KEY_COUNT - 1)
+    if output == null or capacity < needed:
+        return -2
+    position: mutable usize = 0
+    for key in 0..<KEY_COUNT:
+        for i in 0..<length:
+            value: mutable i64 = input[i]
+            if value >= 65 and value <= 90:
+                value <- 65 + (value - 65 + 26 - key.i64()) % 26
+            output[position] <- value.u8()
+            position <- position + 1
+        if key + 1 < KEY_COUNT:
+            output[position] <- 10.u8()
+            position <- position + 1
+    KEY_COUNT.i64()
+
+export fn brute_force_caesar_cipher(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = brute_force_caesar_cipher_impl

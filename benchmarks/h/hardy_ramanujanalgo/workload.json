@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "hardy-ramanujan-distinct-prime-divisor-count-i64-v1",
+  "algorithm": "hardy_ramanujanalgo",
+  "function_symbol": "hardy_ramanujanalgo",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 1,
+    "maximum": 2147483647,
+    "definition": "count the distinct prime divisors of n",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_integer",
+    "definition": "number of distinct prime divisors, with n=1 returning 0",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"one_empty_factorization","input_value":1,"expected_result":0},
+    {"id":"smallest_prime","input_value":2,"expected_result":1},
+    {"id":"odd_prime","input_value":17,"expected_result":1},
+    {"id":"prime_square","input_value":49,"expected_result":1},
+    {"id":"two_distinct_primes","input_value":12,"expected_result":2},
+    {"id":"four_distinct_primes","input_value":210,"expected_result":4},
+    {"id":"six_distinct_primes","input_value":30030,"expected_result":6},
+    {"id":"large_power_of_two","input_value":1073741824,"expected_result":1},
+    {"id":"upper_bound_mersenne_prime","input_value":2147483647,"expected_result":1},
+    {"id":"zero_outside_domain","input_value":0,"expected_result":-1},
+    {"id":"negative_outside_domain","input_value":-1,"expected_result":-1},
+    {"id":"above_upper_bound","input_value":2147483648,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,33 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def exponential_moving_average_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def exponential_moving_average_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or input[0] < 2 or input[0] > 32 or input[1] < 1 or input[1] > 256: return -1
+    window: usize = input[0].usize()
+    count: usize = input[1].usize()
+    if length != count + 2: return -1
+    index: mutable usize = 0
+    while index < count:
+        if input[2 + index] < -1000000 or input[2 + index] > 1000000: return -1
+        index <- index + 1
+    if capacity < count * 8 or output.is_null(): return -2
+    alpha: f64 = 2.0 / (1.0 + window.f64())
+    average: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        price: f64 = input[2 + index].f64()
+        if index == 0: average <- price
+        else if index <= window: average <- (average + price) * 0.5
+        else: average <- (alpha * price) + ((1.0 - alpha) * average)
+        exponential_moving_average_put_f64(output, index * 8, average)
+        index <- index + 1
+    (count * 8).i64()
+
+export fn exponential_moving_average(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = exponential_moving_average_impl

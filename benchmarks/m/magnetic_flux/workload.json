@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "magnetic-flux-v1",
+  "algorithm": "magnetic_flux",
+  "function_symbol": "magnetic_flux",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 3,
+    "layout": ["magnetic_field_tesla", "area_m2", "angle_degrees"],
+    "field_minimum": 0,
+    "field_maximum": 10000,
+    "area_minimum": 0,
+    "area_maximum": 10000,
+    "supported_angles_degrees": [0, 60, 90, 120, 180],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "round(magnetic_field * area * cos(radians(angle_degrees)), 1)",
+    "unit": "weber (tesla square meter)",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"source-example-zero-degrees","input_values":[50,2,0],"input_length":3,"expected_result":100.0},
+    {"id":"source-example-sixty-degrees","input_values":[50,2,60],"input_length":3,"expected_result":50.0},
+    {"id":"source-example-right-angle","input_values":[5,4,90],"input_length":3,"expected_result":0.0},
+    {"id":"negative-flux-120-degrees","input_values":[50,2,120],"input_length":3,"expected_result":-50.0},
+    {"id":"negative-flux-180-degrees","input_values":[1,2,180],"input_length":3,"expected_result":-2.0},
+    {"id":"zero-field","input_values":[0,10000,60],"input_length":3,"expected_result":0.0},
+    {"id":"zero-area","input_values":[10000,0,120],"input_length":3,"expected_result":0.0},
+    {"id":"maximum-inputs","input_values":[10000,10000,0],"input_length":3,"expected_result":100000000.0},
+    {"id":"invalid-negative-field","input_values":[-1,2,60],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-negative-area","input_values":[2,-1,60],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-angle","input_values":[2,3,30],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-field-bound","input_values":[10001,1,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[50,2],"input_length":2,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,24 @@
+# Count distinct prime divisors using factor-2 removal and odd trial divisors.
+def hardy_ramanujanalgo_impl(value: i64) -> i64:
+    if value < 1 or value > 2147483647:
+        return -1
+
+    count: mutable i64 = 0
+    remaining: mutable i64 = value
+    if remaining % 2 == 0:
+        count <- count + 1
+    while remaining % 2 == 0:
+        remaining <- remaining / 2
+
+    factor: mutable i64 = 3
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            count <- count + 1
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+        factor <- factor + 2
+    if remaining > 2:
+        count <- count + 1
+    count
+
+export fn hardy_ramanujanalgo(value: i64) -> i64 = hardy_ramanujanalgo_impl

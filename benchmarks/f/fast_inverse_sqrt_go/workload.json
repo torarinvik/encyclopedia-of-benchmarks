@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "fast-inverse-sqrt-go-binary32-two-corrections-v1",
+  "algorithm": "fast_inverse_sqrt_go",
+  "function_symbol": "fast_inverse_sqrt_go",
+  "input": {
+    "kind": "finite_positive_binary64_cast_to_binary32",
+    "minimum": 1e-6,
+    "maximum": 1e6,
+    "seed_format": "IEEE-754 binary32",
+    "magic_constant": "0x5f3759df",
+    "newton_iterations": 2,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_widened_from_binary32",
+    "definition": "two binary32 Newton corrections after the fast inverse-square-root bit seed",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "minimum_input",
+      "input_values": [
+        1e-6
+      ],
+      "expected_result": 999.9990844726562
+    },
+    {
+      "id": "one_eighth",
+      "input_values": [
+        0.125
+      ],
+      "expected_result": 2.8284265995025635
+    },
+    {
+      "id": "half",
+      "input_values": [
+        0.5
+      ],
+      "expected_result": 1.4142132997512817
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 0.9999956488609314
+    },
+    {
+      "id": "two",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 0.7071066498756409
+    },
+    {
+      "id": "ten",
+      "input_values": [
+        10.0
+      ],
+      "expected_result": 0.31622636318206787
+    },
+    {
+      "id": "fractional",
+      "input_values": [
+        123.456
+      ],
+      "expected_result": 0.09000024199485779
+    },
+    {
+      "id": "maximum_input",
+      "input_values": [
+        1000000.0
+      ],
+      "expected_result": 0.0009999956237152219
+    },
+    {
+      "id": "zero_invalid",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_values": [
+        1000001.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

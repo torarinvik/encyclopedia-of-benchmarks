@@ -1,0 +1,86 @@
+def write_i64_le(output: mutable u8&, offset: mutable usize&, value: i64) -> usize:
+    shift: mutable usize = 0
+    while shift < 64:
+        output[offset] <- ((value >> shift) & 255).u8()
+        offset <- offset + 1
+        shift <- shift + 8
+    offset
+
+def astar_rust_directed_graph_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4: return -1
+    vertices: i64 = input[0]
+    edge_count: i64 = input[1]
+    if vertices < 1 or vertices > 32 or edge_count < 0 or edge_count > 128: return -1
+    if length != (4 + vertices + 3 * edge_count).usize(): return -1
+    start: i64 = input[2]
+    goal: i64 = input[3]
+    if start < 0 or start >= vertices or goal < 0 or goal >= vertices: return -1
+    heuristic: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < vertices.usize():
+        heuristic[index] <- input[index + 4]
+        if heuristic[index] < 0 or heuristic[index] > 1000000: return -1
+        index <- index + 1
+    if heuristic[goal.usize()] != 0: return -1
+    edge_base: usize = 4 + vertices.usize()
+    edge_index: mutable usize = 0
+    while edge_index < edge_count.usize():
+        from: i64 = input[edge_base + edge_index * 3]
+        to: i64 = input[edge_base + edge_index * 3 + 1]
+        weight: i64 = input[edge_base + edge_index * 3 + 2]
+        if from < 0 or from >= vertices or to < 0 or to >= vertices or weight < 0 or weight > 1000000: return -1
+        if heuristic[from.usize()] > weight + heuristic[to.usize()]: return -1
+        edge_index <- edge_index + 1
+    distance: mutable i64[32] = zeroed
+    parent: mutable i64[32] = zeroed
+    closed: mutable bool[32] = zeroed
+    index <- 0
+    while index < vertices.usize():
+        distance[index] <- 9223372036854775807
+        parent[index] <- -1
+        index <- index + 1
+    distance[start.usize()] <- 0
+    step: mutable i64 = 0
+    while step < vertices:
+        current: mutable i64 = -1
+        index <- 0
+        while index < vertices.usize():
+            if not closed[index] and distance[index] != 9223372036854775807:
+                if current < 0 or distance[index] + heuristic[index] < distance[current.usize()] + heuristic[current.usize()] or (distance[index] + heuristic[index] == distance[current.usize()] + heuristic[current.usize()] and (distance[index] < distance[current.usize()] or (distance[index] == distance[current.usize()] and index.i64() < current))):
+                    current <- index.i64()
+            index <- index + 1
+        if current < 0 or current == goal: break
+        closed[current.usize()] <- true
+        edge_index <- 0
+        while edge_index < edge_count.usize():
+            if input[edge_base + edge_index * 3] == current:
+                next: i64 = input[edge_base + edge_index * 3 + 1]
+                candidate: i64 = distance[current.usize()] + input[edge_base + edge_index * 3 + 2]
+                if not closed[next.usize()] and candidate < distance[next.usize()]:
+                    distance[next.usize()] <- candidate
+                    parent[next.usize()] <- current
+            edge_index <- edge_index + 1
+        step <- step + 1
+    if distance[goal.usize()] == 9223372036854775807: return 0
+    reversed: mutable i64[32] = zeroed
+    path_length: mutable usize = 0
+    current: mutable i64 = goal
+    while path_length < vertices.usize():
+        reversed[path_length] <- current
+        path_length <- path_length + 1
+        if current == start: break
+        current <- parent[current.usize()]
+        if current < 0: return -1
+    if reversed[path_length - 1] != start: return -1
+    required: usize = 8 * (path_length + 2)
+    if output.is_null() or capacity < required: return -2
+    position: mutable usize = 0
+    write_i64_le(output, &position, distance[goal.usize()])
+    write_i64_le(output, &position, path_length.i64())
+    index <- 0
+    while index < path_length:
+        write_i64_le(output, &position, reversed[path_length - 1 - index])
+        index <- index + 1
+    required.i64()
+
+export fn astar_rust_directed_graph(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = astar_rust_directed_graph_impl

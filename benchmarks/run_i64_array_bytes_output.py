@@ -16,6 +16,7 @@ import math
 import os
 from pathlib import Path
 import platform
+import re
 import shlex
 import struct
 import subprocess
@@ -645,6 +646,165 @@ def word_search_generator_output(values: list[int]) -> tuple[int, bytes]:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "brute_force_caesar_cipher":
+        if (not isinstance(values, list) or len(values) > 64
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        message = bytes(values)
+        candidates = []
+        for key in range(26):
+            candidates.append(bytes(65 + ((value - 65 - key) % 26) if 65 <= value <= 90 else value
+                                   for value in message))
+        return 26, b"\n".join(candidates)
+
+    if algorithm == "check_word_occurrence":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        lowercase_flag, byte_length = values[:2]
+        input_values = values[2:]
+        if (lowercase_flag not in (0, 1) or not 0 <= byte_length <= 1024
+                or len(input_values) != byte_length):
+            return -1, b""
+        if any(not (65 <= value <= 90 or 97 <= value <= 122 or value in (9, 10, 11, 12, 13, 32))
+               for value in input_values):
+            return -1, b""
+        text = bytes(input_values)
+        if lowercase_flag == 1:
+            text = text.lower()
+        words = re.split(rb"[\x09-\x0d\x20]+", text)
+        forbidden_keys = {b"constructor", b"tostring", b"tolocalestring", b"valueof",
+                          b"hasownproperty", b"isprototypeof", b"propertyisenumerable"}
+        if any(word.lower() in forbidden_keys for word in words):
+            return -1, b""
+        occurrence: dict[bytes, int] = {}
+        for word in words:
+            occurrence[word] = occurrence.get(word, 0) + 1
+        encoded = bytearray(struct.pack("<I", len(occurrence)))
+        for word, count in occurrence.items():
+            encoded.extend(struct.pack("<I", len(word)))
+            encoded.extend(word)
+            encoded.extend(struct.pack("<I", count))
+        return len(encoded), bytes(encoded)
+
+    if algorithm == "astar":
+        if (not isinstance(values, list) or len(values) != 6
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        rows, columns, start_x, start_y, goal_x, goal_y = values
+        if (not 1 <= rows <= 16 or not 1 <= columns <= 16
+                or not 0 <= start_x < rows or not 0 <= goal_x < rows
+                or not 0 <= start_y < columns or not 0 <= goal_y < columns):
+            return -1, b""
+
+        # Each record stores x, y, path length, source f-score, and parent index.
+        nodes = [(start_x, start_y, 0, 0, -1)]
+        open_nodes = [0]
+        current = 0
+        neighbor_offsets = ((-1, -1), (-1, 0), (-1, 1), (0, -1),
+                            (0, 1), (1, -1), (1, 0), (1, 1))
+        while open_nodes:
+            # Match NumPy argmin: retain the first open-list item on equal scores.
+            best_offset = min(range(len(open_nodes)), key=lambda offset: nodes[open_nodes[offset]][3])
+            current = open_nodes.pop(best_offset)
+            current_x, current_y, current_g, _, _ = nodes[current]
+            if current_x == goal_x and current_y == goal_y:
+                break
+            for delta_x, delta_y in neighbor_offsets:
+                x, y = current_x + delta_x, current_y + delta_y
+                if not 0 <= x < rows or not 0 <= y < columns:
+                    continue
+                g = current_g + 1
+                h = (goal_y - y) ** 2 + (goal_x - x) ** 2
+                nodes.append((x, y, g, h + g, current))
+                open_nodes.append(len(nodes) - 1)
+
+        if not nodes or (nodes[current][0], nodes[current][1]) != (goal_x, goal_y):
+            return -1, b""
+        path = []
+        cursor = current
+        while cursor >= 0:
+            x, y, _, _, parent = nodes[cursor]
+            path.append((x, y))
+            cursor = parent
+        path.reverse()
+        encoded = b"".join(struct.pack("<qq", x, y) for x, y in path)
+        return len(encoded), encoded
+
+    if algorithm == "cross_correlation":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        x_count, y_count = values[:2]
+        if (not 1 <= x_count <= 32 or not 1 <= y_count <= 32
+                or len(values) != 2 + x_count + y_count):
+            return -1, b""
+        x_values = values[2:2 + x_count]
+        y_values = values[2 + x_count:]
+        if (any(not -1_000_000 <= value <= 1_000_000 for value in x_values)
+                or any(not -1_000_000 <= value <= 1_000_000 for value in y_values)):
+            return -1, b""
+        coefficients = []
+        for index in range(x_count + y_count - 1):
+            k_min = max(0, index - (y_count - 1))
+            k_max = min(index, x_count - 1)
+            y_start = max(0, y_count - index - 1)
+            coefficient = 0
+            for k in range(k_min, k_max + 1):
+                coefficient += x_values[k] * y_values[y_start + k - k_min]
+            coefficients.append(coefficient)
+        encoded = b"".join(struct.pack("<q", value) for value in coefficients)
+        return len(encoded), encoded
+
+    if algorithm == "triangle":
+        if (not isinstance(values, list) or len(values) != 6
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        if any(not -100 <= value <= 100 for value in values):
+            return -1, b""
+        x1, y1, x2, y2, x3, y3 = values
+        if len({x1, x2, x3}) != 3 or y3 == y1 or y3 == y2:
+            return -1, b""
+        area_twice = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
+        if area_twice == 0:
+            return -1, b""
+
+        vertices = ((float(x1), float(y1)), (float(x2), float(y2)), (float(x3), float(y3)))
+
+        def determinant3(matrix: tuple[tuple[float, float, float], ...]) -> float:
+            a, b, c = matrix
+            return (a[0] * (b[1] * c[2] - b[2] * c[1])
+                    - a[1] * (b[0] * c[2] - b[2] * c[0])
+                    + a[2] * (b[0] * c[1] - b[1] * c[0]))
+
+        squared_norms = tuple(x * x + y * y for x, y in vertices)
+        determinant = determinant3(tuple((x, y, 1.0) for x, y in vertices))
+        determinant_x = determinant3(tuple((radius, y, 1.0)
+                                           for radius, (_, y) in zip(squared_norms, vertices)))
+        determinant_y = determinant3(tuple((radius, x, 1.0)
+                                           for radius, (x, _) in zip(squared_norms, vertices)))
+        circumcenter = (determinant_x / (2.0 * determinant),
+                        determinant_y / (2.0 * determinant))
+
+        a = math.sqrt((x2 - x3) ** 2 + (y2 - y3) ** 2)
+        b = math.sqrt((x1 - x3) ** 2 + (y1 - y3) ** 2)
+        c = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        perimeter = a + b + c
+        incenter = ((a * x1 + b * x2 + c * x3) / perimeter,
+                    (a * y1 + b * y2 + c * y3) / perimeter)
+
+        inverse_slope_1 = -1.0 / ((y3 - y1) / (x3 - x1))
+        inverse_slope_2 = -1.0 / ((y3 - y2) / (x3 - x2))
+        rhs_1 = inverse_slope_2 * x1 - y1
+        rhs_2 = inverse_slope_1 * x2 - y2
+        orthocenter_denominator = inverse_slope_1 - inverse_slope_2
+        orthocenter = ((rhs_2 - rhs_1) / orthocenter_denominator,
+                       (inverse_slope_2 * rhs_2 - inverse_slope_1 * rhs_1)
+                       / orthocenter_denominator)
+        encoded = b"".join(struct.pack("<d", value)
+                           for value in (*circumcenter, *incenter, *orthocenter))
+        return len(encoded), encoded
+
     if algorithm == "ddaline":
         if (not isinstance(values, list) or len(values) != 4
                 or any(type(value) is not int or not -128 <= value <= 128 for value in values)):
@@ -5222,7 +5382,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         emit(disks, source, destination, auxiliary)
         return len(moves) // 2, bytes(moves)
 
-    if algorithm in {"breadth_first_search", "depth_first_search"}:
+    if algorithm in {"breadth_first_search", "depth_first_search", "depth_first_search_with_stack"}:
         if (not 2 <= len(values) <= MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int for value in values)
                 or not 0 <= values[0] <= 64
@@ -5233,12 +5393,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return (0, b"") if start == -1 and len(values) == 2 else (-2, b"")
         if not 0 <= start < vertices:
             return -2, b""
-        adjacency = [set() for _ in range(vertices)]
+        adjacency = [[] for _ in range(vertices)]
         for offset in range(2, len(values), 2):
             origin, destination = values[offset:offset + 2]
             if not 0 <= origin < vertices or not 0 <= destination < vertices:
                 return -2, b""
-            adjacency[origin].add(destination)
+            adjacency[origin].append(destination)
         order = []
         visited = {start}
         if algorithm == "breadth_first_search":
@@ -5252,7 +5412,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                     if destination not in visited:
                         visited.add(destination)
                         queue.append(destination)
-        else:
+        elif algorithm == "depth_first_search":
             order.append(start)
             frames = [(start, iter(sorted(adjacency[start])))]
             while frames:
@@ -5264,6 +5424,20 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                     visited.add(destination)
                     order.append(destination)
                     frames.append((destination, iter(sorted(adjacency[destination]))))
+        else:
+            state = [0] * vertices  # white=0, grey=1, black=2
+            state[start] = 1
+            stack = [start]
+            while stack:
+                origin = stack.pop()
+                if state[origin] != 1:
+                    continue
+                order.append(origin)
+                for destination in adjacency[origin]:
+                    stack.append(destination)
+                    if state[destination] != 2:
+                        state[destination] = 1
+                state[origin] = 2
         return len(order), bytes(order)
 
     if algorithm == "topological":
@@ -5829,7 +6003,7 @@ def main() -> int:
             raise ValueError(f"declared input length differs for {case['id']}")
         required_count, required_output = expected_output(values, algorithm)
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
-        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity"}:
+        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity", "triangle"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0

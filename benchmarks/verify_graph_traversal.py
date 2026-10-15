@@ -86,7 +86,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
 
 
 def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str | None,
-           data: str, case_count: int, workload: dict) -> dict:
+           data: str, case_count: int, workload: dict, record_workload: bool) -> dict:
     manifest = build(algorithm, language, directory,
                      compiler=elisa_compiler if language == "elisa" else None,
                      with_checker=True, family="i64_array_bytes_output")
@@ -96,6 +96,12 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         raise RuntimeError(f"graph-traversal C ABI check failed: {checked.stderr}")
     if json.loads(checked.stdout)["cases_checked"] != case_count:
         raise RuntimeError("checker did not consume the complete graph corpus")
+
+    if not record_workload:
+        return {"algorithm": algorithm, "language": language, "status": "passed",
+                "oracle_cases": case_count, "source_sha256": manifest["source_sha256"],
+                "build_manifest": str(directory / "build.json"),
+                "build_manifest_sha256": sha256_file(directory / "build.json")}
 
     output_path = directory / "verification-records.jsonl"
     output_path.unlink(missing_ok=True)
@@ -133,11 +139,14 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--algorithm", required=True,
-                        choices=("breadth_first_search", "depth_first_search"))
+                        choices=("breadth_first_search", "depth_first_search",
+                                 "depth_first_search_with_stack"))
     parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--build-dir", type=Path)
+    parser.add_argument("--checker-only", action="store_true",
+                        help="compile and check the oracle corpus without running the timed workload recorder")
     args = parser.parse_args()
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and languages must be unique")
@@ -155,7 +164,8 @@ def main() -> int:
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         jobs = {
             executor.submit(verify, algorithm, language, directory / language,
-                            args.elisa_compiler, data, case_count, workload): language
+                            args.elisa_compiler, data, case_count, workload,
+                            not args.checker_only): language
             for language in args.languages
         }
         for job in as_completed(jobs):
@@ -167,8 +177,9 @@ def main() -> int:
                           "status": "failed", "error": str(error)}
                 print(f"FAIL {algorithm}/{language}: {error}", file=sys.stderr, flush=True)
             else:
-                print(f"PASS {algorithm}/{language}: {case_count} graph cases, "
-                      f"{result['workload_records']} workload records", flush=True)
+                suffix = ("checker-only" if args.checker_only else
+                          f"{result['workload_records']} workload records")
+                print(f"PASS {algorithm}/{language}: {case_count} graph cases, {suffix}", flush=True)
             results.append(result)
 
     report = {

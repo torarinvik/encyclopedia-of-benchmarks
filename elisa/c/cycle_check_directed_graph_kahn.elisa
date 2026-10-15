@@ -29,15 +29,15 @@ def cycle_check_directed_graph_kahn_impl(values: i64&, length: usize) -> i64:
 
     queue: mutable usize[64] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    queue_end: mutable usize = 0
     vertex: mutable usize = 0
     while vertex < vertices:
         if indegree[vertex] == 0:
-            queue[tail] <- vertex
-            tail <- tail + 1
+            queue[queue_end] <- vertex
+            queue_end <- queue_end + 1
         vertex <- vertex + 1
     removed: mutable usize = 0
-    while head < tail:
+    while head < queue_end:
         source: usize = queue[head]
         head <- head + 1
         removed <- removed + 1
@@ -46,8 +46,8 @@ def cycle_check_directed_graph_kahn_impl(values: i64&, length: usize) -> i64:
             if (adjacency[source] & (1.u64() << destination)) != 0:
                 indegree[destination] <- indegree[destination] - 1
                 if indegree[destination] == 0:
-                    queue[tail] <- destination
-                    tail <- tail + 1
+                    queue[queue_end] <- destination
+                    queue_end <- queue_end + 1
             destination <- destination + 1
     if removed != vertices:
         return 1

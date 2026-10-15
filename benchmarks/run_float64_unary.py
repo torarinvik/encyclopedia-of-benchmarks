@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import platform
 import shlex
+import struct
 import subprocess
 
 from build_abi import ROOT, sha256_file
@@ -107,6 +108,26 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             source_result = (value / x0 + x0) / 2.0
             if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
                 raise ValueError("babylonian_method expected result must match the pinned first-update path")
+    elif algorithm == "fast_inverse_sqrt_go":
+        valid = 1e-6 <= value <= 1e6
+        if not valid:
+            if expected_value != -1.0:
+                raise ValueError("invalid fast_inverse_sqrt_go inputs must use the -1.0 result sentinel")
+        else:
+            def f32(number: float) -> float:
+                return struct.unpack("<f", struct.pack("<f", number))[0]
+
+            source_input = f32(value)
+            x2 = f32(source_input * f32(0.5))
+            bits = struct.unpack("<I", struct.pack("<f", source_input))[0]
+            seed_bits = 0x5F3759DF - (bits >> 1)
+            estimate = struct.unpack("<f", struct.pack("<I", seed_bits))[0]
+            for _ in range(2):
+                product = f32(f32(x2 * estimate) * estimate)
+                correction = f32(f32(1.5) - product)
+                estimate = f32(estimate * correction)
+            if expected_value != estimate:
+                raise ValueError("fast_inverse_sqrt_go expected result must match two binary32 Newton corrections")
     elif algorithm == "decimal_isolate":
         valid = 0.0 < value <= 999_999.0
         scaled_value = value * 10_000.0 if valid else 0.0

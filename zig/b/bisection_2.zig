@@ -1,0 +1,23 @@
+const INVALID_RESULT: f64 = -1.0e300;
+const MAX_ENDPOINT_MILLI: i64 = 100_000;
+
+fn equation(x: f64) f64 { return 10.0 - x * x; }
+
+export fn bisection_2(input: [*c]const i64, length: usize) f64 {
+    if (input == null or length != 2) return INVALID_RESULT;
+    const left_milli = input[0];
+    const right_milli = input[1];
+    if (left_milli < -MAX_ENDPOINT_MILLI or left_milli > MAX_ENDPOINT_MILLI
+        or right_milli < -MAX_ENDPOINT_MILLI or right_milli > MAX_ENDPOINT_MILLI
+        or left_milli >= right_milli) return INVALID_RESULT;
+    var a = @as(f64, @floatFromInt(left_milli)) / 1000.0;
+    var b = @as(f64, @floatFromInt(right_milli)) / 1000.0;
+    if (equation(a) * equation(b) >= 0.0) return INVALID_RESULT;
+    var c = a;
+    while ((b - a) >= 0.01) {
+        c = (a + b) / 2.0;
+        if (equation(c) == 0.0) break;
+        if (equation(c) * equation(a) < 0.0) b = c else a = c;
+    }
+    return c;
+}

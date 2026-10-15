@@ -1,0 +1,82 @@
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def compare_rows(left: i64&, right: i64&, keys: i64&, key_count: usize, ascending: bool) -> i64:
+    key_index: usize = 0
+    while key_index < key_count:
+        field: usize = (keys[key_index] - 1).usize()
+        a: i64 = left[field]
+        b: i64 = right[field]
+        if a < b:
+            return if ascending: -1 else: 1
+        if a > b:
+            return if ascending: 1 else: -1
+        key_index <- key_index + 1
+    0
+
+def array_keys_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 8 or length > 263:
+        return -1
+    raw_count: i64 = values[0]
+    raw_key_count: i64 = values[1]
+    order: i64 = values[2]
+    if raw_count < 1 or raw_count > 64 or raw_key_count < 1 or raw_key_count > 4 or (order != 0 and order != 1):
+        return -1
+    count: usize = raw_count.usize()
+    key_count: usize = raw_key_count.usize()
+    if length != 3 + key_count + 4 * count:
+        return -1
+    key_index: usize = 0
+    while key_index < key_count:
+        key: i64 = values[3 + key_index]
+        if key < 1 or key > 4:
+            return -1
+        prior: usize = 0
+        while prior < key_index:
+            if key == values[3 + prior]: return -1
+            prior <- prior + 1
+        key_index <- key_index + 1
+    rows_start: usize = 3 + key_count
+    rows: mutable i64[256] = zeroed
+    index: usize = 0
+    while index < 4 * count:
+        value: i64 = values[rows_start + index]
+        if value < -1000 or value > 1000: return -1
+        rows[index] <- value
+        index <- index + 1
+    left: usize = 0
+    while left < count:
+        right: usize = left + 1
+        while right < count:
+            if compare_rows(rows[left * 4], rows[right * 4], values[3], key_count, true) == 0: return -1
+            right <- right + 1
+        left <- left + 1
+    byte_count: usize = 32 * count
+    if output.is_null() or capacity < byte_count: return -2
+    i: usize = 1
+    while i < count:
+        temporary: mutable i64[4] = [rows[i * 4], rows[i * 4 + 1], rows[i * 4 + 2], rows[i * 4 + 3]]
+        position: mutable usize = i
+        while position > 0 and compare_rows(rows[(position - 1) * 4], temporary[0], values[3], key_count, order == 1) > 0:
+            rows[position * 4] <- rows[(position - 1) * 4]
+            rows[position * 4 + 1] <- rows[(position - 1) * 4 + 1]
+            rows[position * 4 + 2] <- rows[(position - 1) * 4 + 2]
+            rows[position * 4 + 3] <- rows[(position - 1) * 4 + 3]
+            position <- position - 1
+        rows[position * 4] <- temporary[0]
+        rows[position * 4 + 1] <- temporary[1]
+        rows[position * 4 + 2] <- temporary[2]
+        rows[position * 4 + 3] <- temporary[3]
+        i <- i + 1
+    index <- 0
+    while index < 4 * count:
+        store_i64_le(rows[index], output, 8 * index)
+        index <- index + 1
+    byte_count.i64()
+
+export fn array_keys_sort(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = array_keys_sort_impl

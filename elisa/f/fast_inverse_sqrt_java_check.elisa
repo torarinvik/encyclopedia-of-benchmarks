@@ -1,0 +1,56 @@
+extern sqrt(value: f64) -> f64
+
+def decode_positive_f32(bits: u32) -> f32:
+    exponent_bits: i32 = ((bits >> 23) & 255).i32()
+    fraction_bits: u32 = bits & 8388607
+    value: mutable f64 = 1.0 + fraction_bits.f64() / 8388608.0
+    exponent: mutable i32 = exponent_bits - 127
+    while exponent > 0:
+        value <- value * 2.0
+        exponent <- exponent - 1
+    while exponent < 0:
+        value <- value / 2.0
+        exponent <- exponent + 1
+    value.f32()
+
+def decode_positive_f64(bits: u64) -> f64:
+    exponent_bits: i32 = ((bits >> 52) & 2047).i32()
+    fraction_bits: u64 = bits & 4503599627370495
+    value: mutable f64 = 1.0 + fraction_bits.f64() / 4503599627370496.0
+    exponent: mutable i32 = exponent_bits - 1023
+    while exponent > 0:
+        value <- value * 2.0
+        exponent <- exponent - 1
+    while exponent < 0:
+        value <- value / 2.0
+        exponent <- exponent + 1
+    value
+
+def fast_inverse_sqrt_java_check_impl(input: &[i64], length: usz) -> i64:
+    if length != 2: return -1
+    if input[0] == 0:
+        if input[1] < 8388608 or input[1] > 2139095039: return -1
+        bits: u32 = input[1].u32()
+        number: f32 = decode_positive_f32(bits)
+        xhalf: f32 = 0.5.f32() * number
+        seed_bits: u32 = 0x5f3759df - (bits >> 1)
+        x: f32 = decode_positive_f32(seed_bits)
+        x <- x * (1.5.f32() - xhalf * x * x)
+        expected: f32 = 1.0.f32() / sqrt(number.f64()).f32()
+        return if x == expected: 1 else: 0
+    if input[0] == 1:
+        if input[1] < 4503599627370496 or input[1] > 9218868437227405311: return -1
+        bits: u64 = input[1].u64()
+        number: f64 = decode_positive_f64(bits)
+        xhalf: f64 = 0.5 * number
+        seed_bits: u64 = 0x5fe6ec85e7de30da - (bits >> 1)
+        x: f64 = decode_positive_f64(seed_bits)
+        x <- x * (1.5 - xhalf * x * x)
+        x <- x * (1.5 - xhalf * x * x)
+        x <- x * (1.5 - xhalf * x * x)
+        x <- x * (1.5 - xhalf * x * x)
+        x <- x * number
+        return if x == 1.0 / sqrt(number): 1 else: 0
+    -1
+
+export fn fast_inverse_sqrt_java_check(input: &[i64], length: usz) -> i64 = fast_inverse_sqrt_java_check_impl

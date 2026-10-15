@@ -1,0 +1,92 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def quantize(value: f64) -> i64:
+    scaled: f64 = value * 1000000.0
+    if scaled >= 0.0:
+        return (scaled + 0.5).i64()
+    (scaled - 0.5).i64()
+
+def transform(real: mutable f64&, imag: mutable f64&, n: usize) -> void:
+    reverse: mutable usize = 0
+    position: usize = 1
+    while position < n:
+        bit: mutable usize = n >> 1
+        while (reverse & bit) != 0:
+            reverse <- reverse ^ bit
+            bit <- bit >> 1
+        reverse <- reverse ^ bit
+        if position < reverse:
+            temporary: mutable f64 = real[position]
+            real[position] <- real[reverse]
+            real[reverse] <- temporary
+            temporary <- imag[position]
+            imag[position] <- imag[reverse]
+            imag[reverse] <- temporary
+        position <- position + 1
+    block: mutable usize = 2
+    while block <= n:
+        angle: f64 = 6.283185307179586476925286766559 / block.f64()
+        step_real: f64 = cos(angle)
+        step_imag: f64 = sin(angle)
+        start: mutable usize = 0
+        while start < n:
+            weight_real: mutable f64 = 1.0
+            weight_imag: mutable f64 = 0.0
+            offset: mutable usize = 0
+            while offset < block / 2:
+                first: usize = start + offset
+                second: usize = first + block / 2
+                product_real: f64 = weight_real * real[second] - weight_imag * imag[second]
+                product_imag: f64 = weight_real * imag[second] + weight_imag * real[second]
+                first_real: f64 = real[first]
+                first_imag: f64 = imag[first]
+                real[first] <- first_real + product_real
+                imag[first] <- first_imag + product_imag
+                real[second] <- first_real - product_real
+                imag[second] <- first_imag - product_imag
+                next_real: f64 = weight_real * step_real - weight_imag * step_imag
+                weight_imag <- weight_real * step_imag + weight_imag * step_real
+                weight_real <- next_real
+                offset <- offset + 1
+            start <- start + block
+        block <- block * 2
+
+def fast_fourier_transform_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 65 or values.is_null():
+        return -1
+    raw_n: i64 = values[0]
+    if raw_n < 1 or raw_n > 64 or (raw_n & (raw_n - 1)) != 0 or length != raw_n.usize() + 1:
+        return -1
+    n: usize = raw_n.usize()
+    index: usize = 0
+    while index < n:
+        if values[index + 1] < -1000 or values[index + 1] > 1000:
+            return -1
+        index <- index + 1
+    byte_count: usize = 16 * n
+    if output.is_null() or capacity < byte_count:
+        return -2
+    real: mutable f64[64] = zeroed
+    imag: mutable f64[64] = zeroed
+    index <- 0
+    while index < n:
+        real[index] <- values[index + 1].f64()
+        index <- index + 1
+    transform(real[0], imag[0], n)
+    index <- 0
+    while index < n:
+        store_i64_le(quantize(real[index]), output, 16 * index)
+        store_i64_le(quantize(imag[index]), output, 16 * index + 8)
+        index <- index + 1
+    byte_count.i64()
+
+export fn fast_fourier_transform(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fast_fourier_transform_impl

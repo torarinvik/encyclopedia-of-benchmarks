@@ -599,6 +599,70 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-30):
             raise ValueError("casimir_effect expected_result must match the source-ordered SI branch")
+    elif algorithm == "bisection_2":
+        valid = (len(values) == 2 and all(-100_000 <= value <= 100_000 for value in values))
+        source_result = -1e300
+        if valid:
+            left_milli, right_milli = values
+            a, b = left_milli / 1000.0, right_milli / 1000.0
+
+            def source_function(x: float) -> float:
+                return 10.0 - x * x
+
+            valid = a < b and source_function(a) * source_function(b) < 0.0
+            if valid:
+                c = a
+                while b - a >= 0.01:
+                    c = (a + b) / 2.0
+                    if source_function(c) == 0.0:
+                        break
+                    if source_function(c) * source_function(a) < 0.0:
+                        b = c
+                    else:
+                        a = c
+                source_result = c
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid bisection_2 inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("bisection_2 expected_result must match the source-ordered bisection loop")
+    elif algorithm == "magnetic_flux":
+        valid = (len(values) == 3 and 0 <= values[0] <= 10_000
+                 and 0 <= values[1] <= 10_000
+                 and values[2] in (0, 60, 90, 120, 180))
+        source_result = -1e300
+        if valid:
+            magnetic_field, area, angle = values
+            source_result = round(magnetic_field * area * math.cos(math.radians(angle)), 1)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid magnetic_flux inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("magnetic_flux expected_result must match the source-ordered rounded flux formula")
+    elif algorithm == "lens_formulae":
+        valid = (len(values) == 3 and values[0] in (0, 1, 2)
+                 and all(value != 0 and -1_000_000 <= value <= 1_000_000 for value in values[1:]))
+        source_result = -1e300
+        if valid:
+            operation, first, second = values
+            if operation in (0, 1) and first == second:
+                valid = False
+            elif operation == 2 and first == -second:
+                valid = False
+            elif operation == 0:
+                source_result = 1 / ((1 / second) - (1 / first))
+            elif operation == 1:
+                source_result = 1 / ((1 / second) - (1 / first))
+            else:
+                source_result = 1 / ((1 / second) + (1 / first))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid lens_formulae inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("lens_formulae expected_result must match the selected source-ordered reciprocal expression")
     elif algorithm == "circular_arc":
         valid = (len(values) == 3 and values[0] in (0, 1)
                  and -1_000_000 <= values[1] <= 1_000_000

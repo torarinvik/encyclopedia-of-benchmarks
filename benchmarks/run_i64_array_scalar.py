@@ -104,7 +104,79 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "anyto_any":
+    if algorithm == "fast_inverse_sqrt_java_check":
+        valid = len(values) == 2
+        expected_from_source = -1
+        if valid:
+            mode, raw_bits = values
+            if mode == 0:
+                valid = 8_388_608 <= raw_bits <= 2_139_095_039
+                if valid:
+                    def float32(value: float) -> float:
+                        return struct.unpack("<f", struct.pack("<f", value))[0]
+
+                    number = struct.unpack("<f", struct.pack("<I", raw_bits))[0]
+                    xhalf = float32(0.5 * number)
+                    seed = 0x5F3759DF - (raw_bits >> 1)
+                    x = struct.unpack("<f", struct.pack("<I", seed))[0]
+                    product = float32(float32(xhalf * x) * x)
+                    correction = float32(1.5 - product)
+                    approximation = float32(x * correction)
+                    sqrt_value = float32(math.sqrt(number))
+                    exact_value = float32(1.0 / sqrt_value)
+                    expected_from_source = int(approximation == exact_value)
+            elif mode == 1:
+                valid = 4_503_599_627_370_496 <= raw_bits <= 9_218_868_437_227_405_311
+                if valid:
+                    number = struct.unpack("<d", struct.pack("<Q", raw_bits))[0]
+                    xhalf = 0.5 * number
+                    seed = 0x5FE6EC85E7DE30DA - (raw_bits >> 1)
+                    approximation = struct.unpack("<d", struct.pack("<Q", seed))[0]
+                    for _ in range(4):
+                        product = (xhalf * approximation) * approximation
+                        approximation = approximation * (1.5 - product)
+                    approximation *= number
+                    expected_from_source = int(approximation == 1.0 / math.sqrt(number))
+            else:
+                valid = False
+        if not valid:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("fast_inverse_sqrt_java_check expected_result must match the selected Java exact-equality overload")
+    elif algorithm == "ncr_modulo_p":
+        valid = (len(values) == 4 and 0 <= values[0] <= 64
+                 and 2 <= values[1] <= 1009 and 0 <= values[2] <= values[0]
+                 and 0 <= values[3] <= 64)
+        expected_from_source = I64_MIN
+        if valid:
+            size, modulus, n, r = values
+            factorials = [1]
+            for index in range(1, size + 1):
+                factorials.append((factorials[-1] * index) % modulus)
+            if r > n:
+                expected_from_source = 0
+            elif r == 1:
+                expected_from_source = n % modulus
+            elif r == 0 or r == n:
+                expected_from_source = 1
+            else:
+                denominator = (factorials[r] * factorials[n - r]) % modulus
+
+                def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
+                    if a == 0:
+                        return b, 0, 1
+                    gcd, x1, y1 = extended_gcd(b % a, a)
+                    return gcd, y1 - (b // a) * x1, x1
+
+                gcd, coefficient, _ = extended_gcd(denominator, modulus)
+                if gcd != 1:
+                    expected_from_source = -1
+                else:
+                    inverse = (coefficient + modulus) % modulus
+                    expected_from_source = (factorials[n] * inverse) % modulus
+        if expected != expected_from_source:
+            raise ValueError("ncr_modulo_p expected_result must match the bounded factorial-table and extended-Euclid source")
+    elif algorithm == "anyto_any":
         expected_from_source = -1
         if len(values) == 3:
             encoded, source_base, destination_base = values
