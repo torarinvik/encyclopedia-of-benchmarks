@@ -456,6 +456,92 @@ from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGT
 from edmonds_karp_oracle import MAX_VERTICES as MAX_EDMONDS_KARP_VERTICES
 from edmonds_karp_oracle import MAX_CAPACITY as MAX_EDMONDS_KARP_CAPACITY
 from edmonds_karp_oracle import expected_result as edmonds_karp_oracle
+from gomory_hu_tree_oracle import MAX_INPUT_LENGTH as MAX_GOMORY_HU_TREE_INPUT_LENGTH
+from gomory_hu_tree_oracle import MAX_VERTICES as MAX_GOMORY_HU_TREE_VERTICES
+from gomory_hu_tree_oracle import MAX_CAPACITY as MAX_GOMORY_HU_TREE_CAPACITY
+from gomory_hu_tree_oracle import expected_result as gomory_hu_tree_oracle
+from graph_enumeration_oracle import MAX_VERTICES as GRAPH_ENUMERATION_MAX_VERTICES
+from graph_enumeration_oracle import MAX_DEGREE as GRAPH_ENUMERATION_MAX_DEGREE
+from graph_enumeration_oracle import expected_result as graph_enumeration_oracle
+from jaro_winkler_distance_oracle import MAX_INPUT_LENGTH as MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH
+from jaro_winkler_distance_oracle import MAX_STRING_LENGTH as JARO_WINKLER_DISTANCE_MAX_STRING_LENGTH
+from jaro_winkler_distance_oracle import expected_result as jaro_winkler_distance_oracle
+from smallest_range_oracle import MAX_LIST_LENGTH as SMALLEST_RANGE_MAX_LIST_LENGTH
+from smallest_range_oracle import MAX_LISTS as SMALLEST_RANGE_MAX_LISTS
+from smallest_range_oracle import MAX_VALUES as SMALLEST_RANGE_MAX_VALUES
+from smallest_range_oracle import VALUE_MAX as SMALLEST_RANGE_VALUE_MAX
+from smallest_range_oracle import VALUE_MIN as SMALLEST_RANGE_VALUE_MIN
+from smallest_range_oracle import oracle as smallest_range_oracle
+from lazy_segment_tree_range_set_max_oracle import MAX_INPUT_LENGTH as MAX_LAZY_SEGMENT_TREE_RANGE_SET_MAX_INPUT_LENGTH
+from lazy_segment_tree_range_set_max_oracle import MAX_N as LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N
+from lazy_segment_tree_range_set_max_oracle import MAX_OPERATIONS as LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS
+from lazy_segment_tree_range_set_max_oracle import MAX_VALUE as LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE
+from lazy_segment_tree_range_set_max_oracle import oracle as lazy_segment_tree_range_set_max_oracle
+from lazy_segment_tree_range_add_sum_oracle import MAX_INPUT_LENGTH as MAX_LAZY_SEGMENT_TREE_RANGE_ADD_SUM_INPUT_LENGTH
+from lazy_segment_tree_range_add_sum_oracle import MAX_ITEMS as LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS
+from lazy_segment_tree_range_add_sum_oracle import MAX_OPERATIONS as LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS
+from lazy_segment_tree_range_add_sum_oracle import VALUE_LIMIT as LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT
+from lazy_segment_tree_range_add_sum_oracle import expected_result as lazy_segment_tree_range_add_sum_oracle
+from queue_using_array_oracle import MAX_INPUT_LENGTH as MAX_QUEUE_USING_ARRAY_INPUT_LENGTH
+from queue_using_array_oracle import MAX_OPERATIONS as QUEUE_USING_ARRAY_MAX_OPERATIONS
+from queue_using_array_oracle import oracle as queue_using_array_oracle
+from queue_using_array2_oracle import MAX_INPUT_LENGTH as MAX_QUEUE_USING_ARRAY2_INPUT_LENGTH
+from queue_using_array2_oracle import MAX_OPERATIONS as QUEUE_USING_ARRAY2_MAX_OPERATIONS
+from queue_using_array2_oracle import VALUE_LIMIT as QUEUE_USING_ARRAY2_VALUE_LIMIT
+from queue_using_array2_oracle import oracle as queue_using_array2_oracle
+from heap_generic_oracle import MAX_ID as HEAP_GENERIC_MAX_ID
+from heap_generic_oracle import MAX_INPUT_LENGTH as MAX_HEAP_GENERIC_INPUT_LENGTH
+from heap_generic_oracle import MAX_ITEMS as HEAP_GENERIC_MAX_ITEMS
+from heap_generic_oracle import MAX_OPERATIONS as HEAP_GENERIC_MAX_OPERATIONS
+from heap_generic_oracle import MAX_PRIORITY as HEAP_GENERIC_MAX_PRIORITY
+from heap_generic_oracle import MIN_PRIORITY as HEAP_GENERIC_MIN_PRIORITY
+from heap_generic_oracle import expected_result as heap_generic_oracle
+from two_phase_commit_oracle import MAX_INPUT_LENGTH as MAX_TWO_PHASE_COMMIT_INPUT_LENGTH
+from two_phase_commit_oracle import MAX_PARTICIPANTS as TWO_PHASE_COMMIT_MAX_PARTICIPANTS
+from two_phase_commit_oracle import expected_result as two_phase_commit_oracle
+from ring_buffer_oracle import CAPACITY as RING_BUFFER_CAPACITY
+from ring_buffer_oracle import MAX_INPUT_LENGTH as MAX_RING_BUFFER_INPUT_LENGTH
+from ring_buffer_oracle import MAX_OPERATIONS as RING_BUFFER_MAX_OPERATIONS
+from ring_buffer_oracle import VALUE_LIMIT as RING_BUFFER_VALUE_LIMIT
+from ring_buffer_oracle import oracle as ring_buffer_oracle
+from hash_map_open_addressing_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH
+from hash_map_open_addressing_oracle import MAX_KEY as HASH_MAP_OPEN_ADDRESSING_MAX_KEY
+from hash_map_open_addressing_oracle import MAX_OPERATIONS as HASH_MAP_OPEN_ADDRESSING_MAX_OPERATIONS
+from hash_map_open_addressing_oracle import MAX_VALUE as HASH_MAP_OPEN_ADDRESSING_MAX_VALUE
+from hash_map_open_addressing_oracle import oracle as hash_map_open_addressing_oracle
+from hash_map_separate_chaining_oracle import MAX_ENTRIES as HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES
+from hash_map_separate_chaining_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH
+from hash_map_separate_chaining_oracle import MAX_KEY as HASH_MAP_SEPARATE_CHAINING_MAX_KEY
+from hash_map_separate_chaining_oracle import MAX_OPERATIONS as HASH_MAP_SEPARATE_CHAINING_MAX_OPERATIONS
+from hash_map_separate_chaining_oracle import MAX_VALUE as HASH_MAP_SEPARATE_CHAINING_MAX_VALUE
+from hash_map_separate_chaining_oracle import expected_result as hash_map_separate_chaining_oracle
+from two_pointer_technique_oracle import MAX_NODES as TWO_POINTER_TECHNIQUE_MAX_NODES
+from two_pointer_technique_oracle import expected_result as two_pointer_technique_oracle
+from two_pset_oracle import ELEMENT_LIMIT as TWO_PSET_ELEMENT_LIMIT
+from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
+from two_pset_oracle import MAX_OPERATIONS as TWO_PSET_MAX_OPERATIONS
+from two_pset_oracle import oracle as two_pset_oracle
+from greedy_graph_coloring_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH
+from greedy_graph_coloring_oracle import MAX_VERTICES as GREEDY_GRAPH_COLORING_MAX_VERTICES
+from greedy_graph_coloring_oracle import expected_result as greedy_graph_coloring_oracle
+from greedy_best_first_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_BEST_FIRST_INPUT_LENGTH
+from greedy_best_first_oracle import expected_result as greedy_best_first_oracle
+from grow_only_set_oracle import MAX_INPUT_LENGTH as MAX_GROW_ONLY_SET_INPUT_LENGTH
+from grow_only_set_oracle import MAX_OPERATIONS as GROW_ONLY_SET_MAX_OPERATIONS
+from grow_only_set_oracle import expected_result as grow_only_set_oracle
+from k_folds_oracle import MAX_INPUT_LENGTH as MAX_K_FOLDS_INPUT_LENGTH
+from k_folds_oracle import MAX_FOLDS as K_FOLDS_MAX_FOLDS
+from k_folds_oracle import MAX_SAMPLES as K_FOLDS_MAX_SAMPLES
+from k_folds_oracle import expected_result as k_folds_oracle
+from greedy_item_selection_by_value_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_ITEM_SELECTION_INPUT_LENGTH
+from greedy_item_selection_by_value_oracle import MAX_ITEMS as GREEDY_ITEM_SELECTION_MAX_ITEMS
+from greedy_item_selection_by_value_oracle import expected_result as greedy_item_selection_by_value_oracle
+from greedy_unbounded_knapsack_by_value_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_UNBOUNDED_KNAPSACK_INPUT_LENGTH
+from greedy_unbounded_knapsack_by_value_oracle import MAX_ITEMS as GREEDY_UNBOUNDED_KNAPSACK_MAX_ITEMS
+from greedy_unbounded_knapsack_by_value_oracle import expected_result as greedy_unbounded_knapsack_by_value_oracle
+from greedy_min_vertex_cover_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_MIN_VERTEX_COVER_INPUT_LENGTH
+from greedy_min_vertex_cover_oracle import MAX_VERTICES as GREEDY_MIN_VERTEX_COVER_MAX_VERTICES
+from greedy_min_vertex_cover_oracle import expected_result as greedy_min_vertex_cover_oracle
 from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGTH
 from push_relabel_oracle import MAX_VERTICES as MAX_PUSH_RELABEL_VERTICES
 from push_relabel_oracle import MAX_CAPACITY as MAX_PUSH_RELABEL_CAPACITY
@@ -479,6 +565,7 @@ ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "proble
 ALGORITHMS += ("sort_the_odd",)
 ALGORITHMS += ("depth_first_search_tic_tac_toe",)
 ALGORITHMS += ("dynamic_coin_change_solver",)
+ALGORITHMS += ("count_consonants",)
 ALGORITHMS += ("merge_sorted",)
 ALGORITHMS += ("merge_ksorted_arrays",)
 ALGORITHMS += ("jort_sort",)
@@ -511,6 +598,27 @@ ALGORITHMS += ("elastic_collision2_d",)
 ALGORITHMS += ("first_fundamental_form",)
 ALGORITHMS += ("erosion_operation", "rgbhsvconversion", "star_delta_conversions")
 ALGORITHMS += ("frequent_pattern_growth",)
+ALGORITHMS += ("gomory_hu_tree", "graph_enumeration")
+ALGORITHMS += ("check_anagram", "abbreviation", "monotonic_array")
+ALGORITHMS += ("greedy_min_vertex_cover",)
+ALGORITHMS += ("greedy_graph_coloring", "greedy_item_selection_by_value")
+ALGORITHMS += ("greedy_best_first",)
+ALGORITHMS += ("grow_only_set",)
+ALGORITHMS += ("k_folds",)
+ALGORITHMS += ("greedy_unbounded_knapsack_by_value",)
+ALGORITHMS += ("jaro_winkler_distance",)
+ALGORITHMS += ("smallest_range",)
+ALGORITHMS += ("lazy_segment_tree_range_set_max",)
+ALGORITHMS += ("lazy_segment_tree_range_add_sum",)
+ALGORITHMS += ("queue_using_array",)
+ALGORITHMS += ("queue_using_array2",)
+ALGORITHMS += ("heap_generic",)
+ALGORITHMS += ("two_phase_commit",)
+ALGORITHMS += ("ring_buffer",)
+ALGORITHMS += ("hash_map_open_addressing",)
+ALGORITHMS += ("hash_map_separate_chaining",)
+ALGORITHMS += ("two_pointer_technique",)
+ALGORITHMS += ("two_pset",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -946,7 +1054,116 @@ def problem107_oracle(values: list[int]) -> int:
     return total_weight - tree_weight
 
 
+def unpack_ascii_string_pair(values: list[int], maximum_length: int,
+                             target_uppercase_only: bool = False) -> tuple[list[int], list[int]] | None:
+    if len(values) < 2 or any(type(value) is not int for value in values):
+        return None
+    first_length, second_length = values[:2]
+    if (not 0 <= first_length <= maximum_length
+            or not 0 <= second_length <= maximum_length
+            or len(values) != 2 + first_length + second_length):
+        return None
+    first = values[2:2 + first_length]
+    second = values[2 + first_length:]
+    is_source_letter = lambda code: 65 <= code <= 90 or 97 <= code <= 122
+    is_target_letter = (lambda code: 65 <= code <= 90) if target_uppercase_only else is_source_letter
+    if not all(is_source_letter(code) for code in first) or not all(is_target_letter(code) for code in second):
+        return None
+    return first, second
+
+
+def check_anagram_oracle(values: list[int]) -> int:
+    pair = unpack_ascii_string_pair(values, 1024)
+    if pair is None:
+        return -1
+    first, second = pair
+    first_normalized = [code + 32 if 65 <= code <= 90 else code for code in first]
+    second_normalized = [code + 32 if 65 <= code <= 90 else code for code in second]
+    if first_normalized == second_normalized:
+        return 0
+    first_counts = [0] * 26
+    second_counts = [0] * 26
+    for code in first_normalized:
+        first_counts[code - 97] += 1
+    for code in second_normalized:
+        second_counts[code - 97] += 1
+    return int(first_counts == second_counts)
+
+
+def abbreviation_oracle(values: list[int]) -> int:
+    pair = unpack_ascii_string_pair(values, 128, target_uppercase_only=True)
+    if pair is None:
+        return -1
+    source, target = pair
+    possible = [True] + [False] * len(target)
+    for code in source:
+        next_possible = possible.copy() if 97 <= code <= 122 else [False] * (len(target) + 1)
+        uppercase = code - 32 if 97 <= code <= 122 else code
+        for target_index in range(len(target)):
+            if possible[target_index] and target[target_index] == uppercase:
+                next_possible[target_index + 1] = True
+        possible = next_possible
+    return int(possible[len(target)])
+
+
+def monotonic_array_oracle(values: list[int]) -> int:
+    if len(values) > 256:
+        return -1
+    return int(all(left <= right for left, right in zip(values, values[1:]))
+               or all(left >= right for left, right in zip(values, values[1:])))
+
+
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "check_anagram":
+        return check_anagram_oracle(values)
+    if algorithm == "abbreviation":
+        return abbreviation_oracle(values)
+    if algorithm == "monotonic_array":
+        return monotonic_array_oracle(values)
+    if algorithm == "graph_enumeration":
+        return graph_enumeration_oracle(values)
+    if algorithm == "greedy_graph_coloring":
+        return greedy_graph_coloring_oracle(values)
+    if algorithm == "greedy_best_first":
+        return greedy_best_first_oracle(values)
+    if algorithm == "grow_only_set":
+        return grow_only_set_oracle(values)
+    if algorithm == "k_folds":
+        return k_folds_oracle(values)
+    if algorithm == "greedy_item_selection_by_value":
+        return greedy_item_selection_by_value_oracle(values)
+    if algorithm == "greedy_unbounded_knapsack_by_value":
+        return greedy_unbounded_knapsack_by_value_oracle(values)
+    if algorithm == "greedy_min_vertex_cover":
+        return greedy_min_vertex_cover_oracle(values)
+    if algorithm == "jaro_winkler_distance":
+        return jaro_winkler_distance_oracle(values)
+    if algorithm == "smallest_range":
+        return smallest_range_oracle(values)
+    if algorithm == "lazy_segment_tree_range_set_max":
+        return lazy_segment_tree_range_set_max_oracle(values)
+    if algorithm == "lazy_segment_tree_range_add_sum":
+        return lazy_segment_tree_range_add_sum_oracle(values)
+    if algorithm == "queue_using_array":
+        return queue_using_array_oracle(values)
+    if algorithm == "queue_using_array2":
+        return queue_using_array2_oracle(values)
+    if algorithm == "heap_generic":
+        return heap_generic_oracle(values)
+    if algorithm == "two_phase_commit":
+        return two_phase_commit_oracle(values)
+    if algorithm == "ring_buffer":
+        return ring_buffer_oracle(values)
+    if algorithm == "hash_map_open_addressing":
+        return hash_map_open_addressing_oracle(values)
+    if algorithm == "hash_map_separate_chaining":
+        return hash_map_separate_chaining_oracle(values)
+    if algorithm == "two_pointer_technique":
+        return two_pointer_technique_oracle(values)
+    if algorithm == "two_pset":
+        return two_pset_oracle(values)
+    if algorithm == "gomory_hu_tree":
+        return gomory_hu_tree_oracle(values)
     if algorithm == "frequent_pattern_growth":
         return frequent_pattern_growth_oracle(values)
     if algorithm == "generalized_esd":
@@ -1073,6 +1290,17 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return undirected_cycle_check_oracle(values)
     if algorithm == "count_homogenous":
         return count_homogenous_oracle(values)
+    if algorithm == "count_consonants":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 4096
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or any(not 32 <= value <= 126 for value in values)
+                or values == [48]):
+            return -1
+        return sum(
+            1 for value in values
+            if (65 <= value <= 90 or 97 <= value <= 122)
+            and (value | 32) not in (97, 101, 105, 111, 117)
+        )
     if algorithm == "max_area_of_island":
         return max_area_of_island_oracle(values)
     if algorithm == "directed_dfs_forest_count":
@@ -1548,6 +1776,809 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                      (1, 9, 1, 1), (I64_MIN, 1, 1, 0), (I64_MAX, 1, 1, 0))
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "greedy_min_vertex_cover":
+        # Exhaust every simple graph through five vertices, then add seeded larger cases.
+        for vertex_count in range(1, 6):
+            edge_pairs = [(left, right) for left in range(vertex_count)
+                          for right in range(left + 1, vertex_count)]
+            for edge_selection in range(1 << len(edge_pairs)):
+                masks = [0] * vertex_count
+                for edge_index, (left, right) in enumerate(edge_pairs):
+                    if edge_selection & (1 << edge_index):
+                        masks[left] |= 1 << right
+                        masks[right] |= 1 << left
+                values = (vertex_count, *masks)
+                cases[values] = oracle(algorithm, list(values))
+        rng_graph = random.Random(20261016)
+        for _ in range(256):
+            vertex_count = rng_graph.randint(6, GREEDY_MIN_VERTEX_COVER_MAX_VERTICES)
+            masks = [0] * vertex_count
+            for left in range(vertex_count):
+                for right in range(left + 1, vertex_count):
+                    if rng_graph.randrange(2):
+                        masks[left] |= 1 << right
+                        masks[right] |= 1 << left
+            values = (vertex_count, *masks)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (17, *([0] * 16)), (1, 0, 0), (2, 0),
+            (1, 1), (2, 2, 0), (2, 4, 0), (2, -1, 0),
+            (1, I64_MIN), (1, I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= MAX_GREEDY_MIN_VERTEX_COVER_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "k_folds":
+        rng_folds = random.Random(20261016)
+        for _ in range(256):
+            values = (rng_folds.randint(1, K_FOLDS_MAX_SAMPLES),
+                      rng_folds.randint(1, K_FOLDS_MAX_FOLDS))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (0, 1), (1, 0), (13, 1), (1, 13),
+                     (-1, 2), (2, -1), (I64_MIN, 1), (1, I64_MAX))
+        for values in malformed:
+            if len(values) <= MAX_K_FOLDS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "grow_only_set":
+        rng_set = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_set.randint(0, GROW_ONLY_SET_MAX_OPERATIONS)
+            operations = []
+            for _ in range(operation_count):
+                opcode = rng_set.randrange(8)
+                argument = rng_set.randint(0, 15) if opcode <= 3 else 0
+                operations.extend((opcode, argument))
+            values = (operation_count, *operations)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (-1,), (13,), (1, 8, 0),
+                     (1, 0, -1), (1, 0, 16), (1, 4, 1), (1, 6, 2),
+                     (2, 0, 1), (1, I64_MIN), (1, I64_MAX))
+        for values in malformed:
+            if len(values) <= MAX_GROW_ONLY_SET_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "greedy_best_first":
+        rng_grid = random.Random(20261016)
+        for _ in range(256):
+            rows = rng_grid.randint(1, 3)
+            columns = rng_grid.randint(1, 3)
+            masks = [rng_grid.randrange(1 << columns) for _ in range(rows)]
+            start = rng_grid.randrange(rows * columns)
+            goal = rng_grid.randrange(rows * columns)
+            masks[start // columns] &= ~(1 << (start % columns))
+            masks[goal // columns] &= ~(1 << (goal % columns))
+            values = (rows, columns, start // columns, start % columns,
+                      goal // columns, goal % columns, *masks)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (0, 1, 0, 0, 0, 0, 0), (1, 4, 0, 0, 0, 0, 0),
+                     (2, 2, 0, 0, 1, 1, 0), (2, 2, 0, 0, 2, 1, 0, 0),
+                     (2, 2, 0, 0, 1, 1, 4, 0), (1, 1, 0, 0, 0, 0, 1))
+        for values in malformed:
+            if len(values) <= MAX_GREEDY_BEST_FIRST_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "greedy_graph_coloring":
+        for vertex_count in range(0, 6):
+            edge_pairs = [(left, right) for left in range(vertex_count)
+                          for right in range(left + 1, vertex_count)]
+            for edge_selection in range(1 << len(edge_pairs)):
+                masks = [0] * vertex_count
+                for edge_index, (left, right) in enumerate(edge_pairs):
+                    if edge_selection & (1 << edge_index):
+                        masks[left] |= 1 << right
+                        masks[right] |= 1 << left
+                values = (vertex_count, *masks)
+                cases[values] = oracle(algorithm, list(values))
+        rng_color = random.Random(20261016)
+        for _ in range(256):
+            vertex_count = rng_color.randint(6, GREEDY_GRAPH_COLORING_MAX_VERTICES)
+            masks = [0] * vertex_count
+            for left in range(vertex_count):
+                for right in range(left + 1, vertex_count):
+                    if rng_color.randrange(2):
+                        masks[left] |= 1 << right
+                        masks[right] |= 1 << left
+            values = (vertex_count, *masks)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (15, *([0] * 15)), (1, 0, 0), (2, 2, 0),
+                     (2, 4, 0), (1, 1), (2, -1, 0), (3, 1))
+        for values in malformed:
+            if len(values) <= MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "greedy_item_selection_by_value":
+        rng_items = random.Random(20261016)
+        for _ in range(256):
+            item_count = rng_items.randint(0, GREEDY_ITEM_SELECTION_MAX_ITEMS)
+            capacity = rng_items.randint(0, 1_000_000)
+            item_values = [rng_items.randint(0, 1_000_000) for _ in range(item_count)]
+            item_weights = [rng_items.randint(1, 1_000_000) for _ in range(item_count)]
+            values = (capacity, item_count, *item_values, *item_weights)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (-1, 0), (1_000_001, 0), (1, 9),
+                     (5, 2, 4, 3, 1),
+                     (5, 1, -1, 1), (5, 1, 10, 0),
+                     (5, 1, I64_MIN, 1), (5, 1, 1, I64_MAX))
+        for values in malformed:
+            if len(values) <= MAX_GREEDY_ITEM_SELECTION_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "greedy_unbounded_knapsack_by_value":
+        rng_unbounded = random.Random(20261016)
+        for _ in range(256):
+            item_count = rng_unbounded.randint(0, GREEDY_UNBOUNDED_KNAPSACK_MAX_ITEMS)
+            capacity = rng_unbounded.randint(0, 1_000_000)
+            item_values = [rng_unbounded.randint(0, 1_000_000) for _ in range(item_count)]
+            item_weights = [rng_unbounded.randint(1, 1_000_000) for _ in range(item_count)]
+            values = (capacity, item_count, *item_values, *item_weights)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (-1, 0), (1_000_001, 0), (1, 9),
+                     (5, 2, 4, 3, 1), (5, 1, -1, 1), (5, 1, 10, 0),
+                     (5, 1, I64_MIN, 1), (5, 1, 1, I64_MAX))
+        for values in malformed:
+            if len(values) <= MAX_GREEDY_UNBOUNDED_KNAPSACK_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "jaro_winkler_distance":
+        # Exhaust short binary-alphabet pairs to exercise matching and transposition ties.
+        alphabet = (0, 97)
+        short_strings = [tuple()]  # Both empty strings are a valid input pair.
+        for string_length in range(1, 5):
+            for bits in range(1 << string_length):
+                short_strings.append(tuple(
+                    alphabet[(bits >> index) & 1] for index in range(string_length)
+                ))
+        for first in short_strings:
+            for second in short_strings:
+                if len(first) < len(second):
+                    continue
+                values = (len(first), *first, len(second), *second)
+                cases[values] = oracle(algorithm, list(values))
+
+        rng_jaro = random.Random(20261016)
+        alphabet = (0, 65, 97, 127)
+        for _ in range(512):
+            first_length = rng_jaro.randint(0, JARO_WINKLER_DISTANCE_MAX_STRING_LENGTH)
+            second_length = rng_jaro.randint(0, first_length)
+            first = tuple(rng_jaro.choice(alphabet) for _ in range(first_length))
+            second = tuple(rng_jaro.choice(alphabet) for _ in range(second_length))
+            values = (first_length, *first, second_length, *second)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (-1, 0), (33, 0), (0, 1, 65), (1, 65),
+            (1, 65, 0, 0), (2, 65, 66, 1, 65, 66), (1, 128, 1, 128),
+            (1, -1, 1, -1), (1, 65, I64_MIN), (1, 65, I64_MAX),
+            (I64_MIN, 0), (I64_MAX, 0),
+        )
+        for values in malformed:
+            if len(values) <= MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "smallest_range":
+        rng_ranges = random.Random(20261016)
+        for _ in range(256):
+            list_count = rng_ranges.randint(1, SMALLEST_RANGE_MAX_LISTS)
+            packed = [list_count]
+            for _ in range(list_count):
+                values = sorted(
+                    rng_ranges.randint(SMALLEST_RANGE_VALUE_MIN, SMALLEST_RANGE_VALUE_MAX)
+                    for _ in range(rng_ranges.randint(1, SMALLEST_RANGE_MAX_LIST_LENGTH))
+                )
+                packed.extend((len(values), *values))
+            values = tuple(packed)
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise the maximum 16-list, 256-value, 273-element packed layout.
+        packed = [SMALLEST_RANGE_MAX_LISTS]
+        for list_index in range(SMALLEST_RANGE_MAX_LISTS):
+            values = [SMALLEST_RANGE_VALUE_MIN + list_index * SMALLEST_RANGE_MAX_LIST_LENGTH + offset
+                      for offset in range(SMALLEST_RANGE_MAX_LIST_LENGTH)]
+            packed.extend((SMALLEST_RANGE_MAX_LIST_LENGTH, *values))
+        values = tuple(packed)
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (SMALLEST_RANGE_MAX_LISTS + 1, 1, 0), (1,), (1, 0),
+            (1, SMALLEST_RANGE_MAX_LIST_LENGTH + 1, *range(SMALLEST_RANGE_MAX_LIST_LENGTH + 1)),
+            (1, 2, 1), (1, 2, 2, 1), (2, 1, 0), (1, 1, 7, 8),
+            (1, 1, SMALLEST_RANGE_VALUE_MIN - 1),
+            (1, 1, SMALLEST_RANGE_VALUE_MAX + 1),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            (SMALLEST_RANGE_MAX_LISTS, SMALLEST_RANGE_MAX_LIST_LENGTH,
+             *range(SMALLEST_RANGE_MAX_LIST_LENGTH)),
+        )
+        max_input_length = 1 + SMALLEST_RANGE_MAX_LISTS + SMALLEST_RANGE_MAX_VALUES
+        for values in malformed:
+            if len(values) <= max_input_length:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "lazy_segment_tree_range_set_max":
+        rng_lazy_set = random.Random(20261016)
+        for _ in range(256):
+            item_count = rng_lazy_set.randint(1, 32)
+            items = [rng_lazy_set.randint(-LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE,
+                                          LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE)
+                     for _ in range(item_count)]
+            operation_count = rng_lazy_set.randint(0, 48)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                left = rng_lazy_set.randrange(item_count)
+                right = rng_lazy_set.randint(left + 1, item_count)
+                if rng_lazy_set.randrange(2) == 0:
+                    operations.extend((0, left, right))
+                else:
+                    assigned = rng_lazy_set.randint(-LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE,
+                                                    LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE)
+                    operations.extend((1, left, right, assigned))
+            values = tuple((item_count, operation_count, *items, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise both the maximum packed length and maximum weighted query checksum.
+        maximum_items = [LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE] * LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N
+        maximum_length_operations = [1, 0, LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N,
+                                     LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE] * LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS
+        values = tuple((LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N,
+                        LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS,
+                        *maximum_items, *maximum_length_operations))
+        if len(values) != MAX_LAZY_SEGMENT_TREE_RANGE_SET_MAX_INPUT_LENGTH:
+            raise RuntimeError("lazy_segment_tree_range_set_max maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        maximum_query_operations = [0, 0, LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N] * LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS
+        values = tuple((LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_N,
+                        LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS,
+                        *maximum_items, *maximum_query_operations))
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0), (1, 0), (1, -1, 0),
+            (1, 1, 0, 0, 0, 0),
+            (1, 1, 0, 0, 0, 2),
+            (1, 1, 0, 9, 0, 1),
+            (1, 1, 0, 1, 0, 1),
+            (1, 1, 0, 1, 0, 1, LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE + 1),
+            (1, 0, LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_VALUE + 1),
+            (1, 0, 0, 99),
+            (1, LAZY_SEGMENT_TREE_RANGE_SET_MAX_MAX_OPERATIONS + 1, 0),
+            (1, 1, 0, 1, -1, 1, 0),
+            tuple([0] * (MAX_LAZY_SEGMENT_TREE_RANGE_SET_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= 100002:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "lazy_segment_tree_range_add_sum":
+        rng_lazy_add = random.Random(20261016)
+        for _ in range(256):
+            item_count = rng_lazy_add.randint(1, 32)
+            items = [rng_lazy_add.randint(-LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT,
+                                          LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT)
+                     for _ in range(item_count)]
+            operation_count = rng_lazy_add.randint(0, 48)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                left = rng_lazy_add.randrange(item_count)
+                right = rng_lazy_add.randint(left + 1, item_count)
+                if rng_lazy_add.randrange(2) == 0:
+                    delta = rng_lazy_add.randint(-LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT,
+                                                 LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT)
+                    operations.extend((0, left, right, delta))
+                else:
+                    operations.extend((1, left, right, 0))
+            values = tuple((item_count, *items, operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise the maximum 2,306-value packed input and the largest query checksum.
+        maximum_items = [LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT] * LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS
+        maximum_operations = [1, 0, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS, 0] * LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS
+        values = tuple((LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS, *maximum_items,
+                        LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS, *maximum_operations))
+        if len(values) != MAX_LAZY_SEGMENT_TREE_RANGE_ADD_SUM_INPUT_LENGTH:
+            raise RuntimeError("lazy_segment_tree_range_add_sum maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        maximum_single_query_operations = (
+            [0, 0, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS,
+             LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT]
+            * (LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS - 1)
+            + [1, 0, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS, 0]
+        )
+        values = tuple((LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_ITEMS, *maximum_items,
+                        LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS,
+                        *maximum_single_query_operations))
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0), (1, 0), (1, 0, -1),
+            (1, 0, 1, 0, 1, 1, 0),
+            (1, 0, 1, 1, 0, 1, 1),
+            (1, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT + 1, 0),
+            (1, 0, 0, 99), (1, 0, 1, 9, 0, 1, 0),
+            (1, 0, 1, 0, I64_MIN, 1, 0),
+            (1, 0, 1, 0, 0, 1, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_VALUE_LIMIT + 1),
+            (1, 0, LAZY_SEGMENT_TREE_RANGE_ADD_SUM_MAX_OPERATIONS + 1),
+            tuple([0] * (MAX_LAZY_SEGMENT_TREE_RANGE_ADD_SUM_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= 100002:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "queue_using_array":
+        rng_queue = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_queue.randint(0, 64)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                if rng_queue.randrange(2) == 0:
+                    operations.extend((0, rng_queue.randint(-128, 127)))
+                else:
+                    operations.extend((1, 0))
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise the maximum 1,025-value packed input with 512 valid operations.
+        values = tuple((QUEUE_USING_ARRAY_MAX_OPERATIONS, *(1, 0) * QUEUE_USING_ARRAY_MAX_OPERATIONS))
+        if len(values) != MAX_QUEUE_USING_ARRAY_INPUT_LENGTH:
+            raise RuntimeError("queue_using_array maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0), (QUEUE_USING_ARRAY_MAX_OPERATIONS + 1,),
+            (1,), (1, 0), (1, 2, 0), (1, 0, -129), (1, 0, 128),
+            (1, 1, 1), (0, 99),
+            tuple([0] * (MAX_QUEUE_USING_ARRAY_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "queue_using_array2":
+        rng_queue2 = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_queue2.randint(0, 64)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                opcode = rng_queue2.choice((1, 2, 3))
+                value = rng_queue2.randint(-QUEUE_USING_ARRAY2_VALUE_LIMIT,
+                                           QUEUE_USING_ARRAY2_VALUE_LIMIT) if opcode == 1 else 0
+                operations.extend((opcode, value))
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise all 256 operations with repeated full, compact, and reuse phases.
+        operations = []
+        for operation_index in range(QUEUE_USING_ARRAY2_MAX_OPERATIONS):
+            phase = operation_index % 16
+            if phase < 10:
+                operations.extend((1, rng_queue2.randint(-QUEUE_USING_ARRAY2_VALUE_LIMIT,
+                                                           QUEUE_USING_ARRAY2_VALUE_LIMIT)))
+            elif phase < 14:
+                operations.extend((2, 0))
+            else:
+                operations.extend((3, 0))
+        values = tuple((QUEUE_USING_ARRAY2_MAX_OPERATIONS, *operations))
+        if len(values) != MAX_QUEUE_USING_ARRAY2_INPUT_LENGTH:
+            raise RuntimeError("queue_using_array2 maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 99), (QUEUE_USING_ARRAY2_MAX_OPERATIONS + 1,),
+            (1, 1), (1, 0, 0), (1, 1, QUEUE_USING_ARRAY2_VALUE_LIMIT + 1),
+            (1, 1, -QUEUE_USING_ARRAY2_VALUE_LIMIT - 1),
+            (1, 2, 1), (1, 3, -1),
+            tuple([0] * (MAX_QUEUE_USING_ARRAY2_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "heap_generic":
+        rng_heap = random.Random(20261016)
+        for _ in range(256):
+            first_priority = rng_heap.randint(HEAP_GENERIC_MIN_PRIORITY, HEAP_GENERIC_MAX_PRIORITY)
+            second_priority = rng_heap.randint(HEAP_GENERIC_MIN_PRIORITY, HEAP_GENERIC_MAX_PRIORITY)
+            while second_priority == first_priority:
+                second_priority = rng_heap.randint(HEAP_GENERIC_MIN_PRIORITY, HEAP_GENERIC_MAX_PRIORITY)
+            updated_priority = rng_heap.randint(HEAP_GENERIC_MIN_PRIORITY, HEAP_GENERIC_MAX_PRIORITY)
+            while updated_priority == second_priority:
+                updated_priority = rng_heap.randint(HEAP_GENERIC_MIN_PRIORITY, HEAP_GENERIC_MAX_PRIORITY)
+            operations = (
+                0, 0, first_priority,
+                0, 1, second_priority,
+                1, 0, 0,
+                3, 0, updated_priority,
+                4, 1, 0,
+                2, 0, 0,
+            )
+            values = (6, *operations)
+            cases[values] = oracle(algorithm, list(values))
+
+        boundary_values = (
+            3, 0, 0, HEAP_GENERIC_MIN_PRIORITY,
+            0, 1, HEAP_GENERIC_MAX_PRIORITY,
+            1, 0, 0,
+        )
+        cases[boundary_values] = oracle(algorithm, list(boundary_values))
+
+        # Exercise the maximum packed input while all 128 bounded items are live.
+        operations = []
+        for item_id in range(HEAP_GENERIC_MAX_ITEMS):
+            operations.extend((0, item_id, item_id))
+        operations.extend((1, 0, 0) * (HEAP_GENERIC_MAX_OPERATIONS - HEAP_GENERIC_MAX_ITEMS))
+        values = tuple((HEAP_GENERIC_MAX_OPERATIONS, *operations))
+        if len(values) != MAX_HEAP_GENERIC_INPUT_LENGTH:
+            raise RuntimeError("heap_generic maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        too_many_items = [HEAP_GENERIC_MAX_ITEMS + 1]
+        for item_id in range(HEAP_GENERIC_MAX_ITEMS + 1):
+            too_many_items.extend((0, item_id, item_id))
+        malformed = (
+            (), (0, 0), (HEAP_GENERIC_MAX_OPERATIONS + 1,),
+            (1, 0, 0), (1, 9, 0, 0), (1, 1, 1, 0),
+            (1, 0, -1, 0), (1, 0, HEAP_GENERIC_MAX_ID + 1, 1),
+            (1, 0, 1, HEAP_GENERIC_MAX_PRIORITY + 1),
+            (1, 0, 1, HEAP_GENERIC_MIN_PRIORITY - 1),
+            (1, 3, 10, 1), (1, 4, 10, 0),
+            (2, 0, 7, 5, 0, 7, 6),
+            (2, 0, 1, 5, 0, 2, 5),
+            (3, 0, 7, 5, 4, 7, 0, 0, 7, 6),
+            tuple(too_many_items),
+            tuple([0] * (MAX_HEAP_GENERIC_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "two_phase_commit":
+        rng_two_phase = random.Random(20261016)
+        for _ in range(256):
+            participant_count = rng_two_phase.randint(1, TWO_PHASE_COMMIT_MAX_PARTICIPANTS)
+            timeout_ms = rng_two_phase.randint(1, I64_MAX)
+            start_time_ms = rng_two_phase.randint(0, I64_MAX)
+            elapsed_limit = min(timeout_ms, I64_MAX - start_time_ms)
+            elapsed_ms = rng_two_phase.randint(0, elapsed_limit)
+            votes = [rng_two_phase.randrange(3) for _ in range(participant_count)]
+            values = tuple((participant_count, timeout_ms, start_time_ms,
+                            start_time_ms + elapsed_ms, *votes))
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_values = (TWO_PHASE_COMMIT_MAX_PARTICIPANTS,
+                          I64_MAX, 0, I64_MAX,
+                          *([0] * TWO_PHASE_COMMIT_MAX_PARTICIPANTS))
+        if len(maximum_values) != MAX_TWO_PHASE_COMMIT_INPUT_LENGTH:
+            raise RuntimeError("two_phase_commit maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        malformed = (
+            (), (0, 1, 0, 0), (TWO_PHASE_COMMIT_MAX_PARTICIPANTS + 1, 1, 0, 0),
+            (1, 0, 0, 0, 0), (1, -1, 0, 0, 0),
+            (1, 1, -1, 0, 0), (1, 1, 0, -1, 0),
+            (1, 1, 2, 1, 0), (1, 1, 0, 0),
+            (2, 1, 0, 0, 0), (1, 1, 0, 0, 3),
+            (1, 1, 0, 0, 0, 0),
+            tuple([0] * (MAX_TWO_PHASE_COMMIT_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 5 -1\n")
+    elif algorithm == "ring_buffer":
+        rng_ring = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_ring.randint(0, 64)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                opcode = rng_ring.randrange(10)
+                if opcode == 0:
+                    payload = rng_ring.randint(-RING_BUFFER_VALUE_LIMIT, RING_BUFFER_VALUE_LIMIT)
+                elif opcode == 4:
+                    payload = rng_ring.randint(0, RING_BUFFER_VALUE_LIMIT)
+                else:
+                    payload = 0
+                operations.extend((opcode, payload))
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Fill, wrap, and query a full buffer for the maximum 513-value input.
+        operations = []
+        for operation_index in range(RING_BUFFER_MAX_OPERATIONS):
+            phase = operation_index % 16
+            if phase < RING_BUFFER_CAPACITY:
+                operations.extend((0, operation_index - 4))
+            elif phase == 8:
+                operations.extend((1, 0))
+            elif phase == 9:
+                operations.extend((0, operation_index))
+            elif phase == 10:
+                operations.extend((2, 0))
+            elif phase == 11:
+                operations.extend((3, 0))
+            elif phase == 12:
+                operations.extend((4, RING_BUFFER_CAPACITY - 1))
+            elif phase == 13:
+                operations.extend((6, 0))
+            elif phase == 14:
+                operations.extend((7, 0))
+            else:
+                operations.extend((9, 0))
+        values = tuple((RING_BUFFER_MAX_OPERATIONS, *operations))
+        if len(values) != MAX_RING_BUFFER_INPUT_LENGTH:
+            raise RuntimeError("ring_buffer maximum input length mismatch")
+        cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 99), (RING_BUFFER_MAX_OPERATIONS + 1,),
+            (1, 10, 0), (1, 0, RING_BUFFER_VALUE_LIMIT + 1),
+            (1, 0, -RING_BUFFER_VALUE_LIMIT - 1), (1, 2, 1),
+            (1, 4, -1), (1, 4, RING_BUFFER_VALUE_LIMIT + 1),
+            (1, 5, 1), (1, 0),
+            tuple([0] * (MAX_RING_BUFFER_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hash_map_open_addressing":
+        rng_hash_map = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_hash_map.randint(0, 96)
+            operations: list[int] = []
+            present: set[int] = set()
+            for _ in range(operation_count):
+                opcode = rng_hash_map.choice((0, 1, 3, 4))
+                if opcode == 0:
+                    if present and (len(present) >= 64 or rng_hash_map.randrange(3) == 0):
+                        key = rng_hash_map.choice(tuple(present))
+                    else:
+                        key = rng_hash_map.randrange(HASH_MAP_OPEN_ADDRESSING_MAX_KEY + 1)
+                        while key in present:
+                            key = rng_hash_map.randrange(HASH_MAP_OPEN_ADDRESSING_MAX_KEY + 1)
+                        present.add(key)
+                    operations.extend((0, key, rng_hash_map.randint(
+                        -HASH_MAP_OPEN_ADDRESSING_MAX_VALUE,
+                        HASH_MAP_OPEN_ADDRESSING_MAX_VALUE)))
+                elif opcode == 1:
+                    if not present:
+                        key = rng_hash_map.randrange(HASH_MAP_OPEN_ADDRESSING_MAX_KEY + 1)
+                        present.add(key)
+                        operations.extend((0, key, rng_hash_map.randint(
+                            -HASH_MAP_OPEN_ADDRESSING_MAX_VALUE,
+                            HASH_MAP_OPEN_ADDRESSING_MAX_VALUE)))
+                    else:
+                        operations.extend((1, rng_hash_map.choice(tuple(present)), 0))
+                elif opcode == 3:
+                    key = (rng_hash_map.choice(tuple(present)) if present and rng_hash_map.randrange(2)
+                           else rng_hash_map.randrange(HASH_MAP_OPEN_ADDRESSING_MAX_KEY + 1))
+                    operations.extend((3, key, 0))
+                else:
+                    operations.extend((4, 0, 0))
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Hit the full packed-input bound with the active-key cap at exactly 64.
+        operations = []
+        for key in range(64):
+            operations.extend((0, key, key - 32))
+        for operation_index in range(192):
+            key = operation_index % 64
+            if operation_index % 3 == 0:
+                operations.extend((1, key, 0))
+            elif operation_index % 3 == 1:
+                operations.extend((3, key, 0))
+            else:
+                operations.extend((4, 0, 0))
+        maximum_values = tuple((HASH_MAP_OPEN_ADDRESSING_MAX_OPERATIONS, *operations))
+        if len(maximum_values) != MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH:
+            raise RuntimeError("hash_map_open_addressing maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        # At capacity 16, the update must grow first and discard an earlier tombstone.
+        post_growth_tombstone_update = [0]
+        for key in (0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10):
+            post_growth_tombstone_update.extend((0, key, key + 10))
+        post_growth_tombstone_update.extend((2, 0, 0, 0, 11, 21, 0, 16, 999, 1, 16, 0))
+        post_growth_tombstone_update[0] = 16
+        cases[tuple(post_growth_tombstone_update)] = oracle(
+            algorithm, post_growth_tombstone_update)
+
+        too_many_keys = [65]
+        for key in range(65):
+            too_many_keys.extend((0, key, key))
+        malformed = (
+            (), (0, 0), (HASH_MAP_OPEN_ADDRESSING_MAX_OPERATIONS + 1,),
+            (1,), (1, 0), (1, 5, 0, 0),
+            (1, 0, HASH_MAP_OPEN_ADDRESSING_MAX_KEY + 1, 0),
+            (1, 0, 0, HASH_MAP_OPEN_ADDRESSING_MAX_VALUE + 1),
+            (1, 0, 0, -HASH_MAP_OPEN_ADDRESSING_MAX_VALUE - 1),
+            (1, 1, 0, 1), (1, 2, 0, 1), (1, 3, 0, 1),
+            (1, 4, 1, 0), (1, 4, 0, 1),
+            (1, 1, 0, 0), (1, 2, 0, 0),
+            (4, 0, 0, 1, 0, 8, 2, 2, 0, 0, 0, 8, 3),
+            tuple(too_many_keys), (I64_MIN,), (I64_MAX,),
+            tuple([0] * (MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hash_map_separate_chaining":
+        rng_hash_map = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_hash_map.randint(0, 128)
+            operations: list[int] = []
+            present: dict[int, int] = {}
+            for _ in range(operation_count):
+                opcode = rng_hash_map.choice((0, 1, 2, 3, 4))
+                if opcode == 0:
+                    if present and (len(present) >= HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES
+                                    or rng_hash_map.randrange(3) == 0):
+                        key = rng_hash_map.choice(tuple(present))
+                    else:
+                        key = rng_hash_map.randrange(HASH_MAP_SEPARATE_CHAINING_MAX_KEY + 1)
+                        while key in present:
+                            key = rng_hash_map.randrange(HASH_MAP_SEPARATE_CHAINING_MAX_KEY + 1)
+                    value = rng_hash_map.randint(-HASH_MAP_SEPARATE_CHAINING_MAX_VALUE,
+                                                 HASH_MAP_SEPARATE_CHAINING_MAX_VALUE)
+                    operations.extend((0, key, value))
+                    present[key] = value
+                elif opcode in (1, 2):
+                    if not present:
+                        key = rng_hash_map.randrange(HASH_MAP_SEPARATE_CHAINING_MAX_KEY + 1)
+                        operations.extend((3, key, 0))
+                    else:
+                        key = rng_hash_map.choice(tuple(present))
+                        operations.extend((opcode, key, 0))
+                        if opcode == 2:
+                            del present[key]
+                elif opcode == 3:
+                    key = (rng_hash_map.choice(tuple(present))
+                           if present and rng_hash_map.randrange(2)
+                           else rng_hash_map.randrange(HASH_MAP_SEPARATE_CHAINING_MAX_KEY + 1))
+                    operations.extend((3, key, 0))
+                else:
+                    operations.extend((4, 0, 0))
+                    present.clear()
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise the 512-operation, 128-live-entry input bound.
+        operations = []
+        for key in range(HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES):
+            operations.extend((0, key, key - 64))
+        for operation_index in range(
+                HASH_MAP_SEPARATE_CHAINING_MAX_OPERATIONS - HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES):
+            key = operation_index % HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES
+            if operation_index % 2 == 0:
+                operations.extend((1, key, 0))
+            else:
+                operations.extend((3, key, 0))
+        maximum_values = tuple((HASH_MAP_SEPARATE_CHAINING_MAX_OPERATIONS, *operations))
+        if len(maximum_values) != MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH:
+            raise RuntimeError("hash_map_separate_chaining maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        too_many_entries = [HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES + 1]
+        for key in range(HASH_MAP_SEPARATE_CHAINING_MAX_ENTRIES + 1):
+            too_many_entries.extend((0, key, key))
+        malformed = (
+            (), (0, 0), (HASH_MAP_SEPARATE_CHAINING_MAX_OPERATIONS + 1,),
+            (1,), (1, 0), (1, 5, 0, 0),
+            (1, 0, -1, 0),
+            (1, 0, HASH_MAP_SEPARATE_CHAINING_MAX_KEY + 1, 0),
+            (1, 0, 0, HASH_MAP_SEPARATE_CHAINING_MAX_VALUE + 1),
+            (1, 0, 0, -HASH_MAP_SEPARATE_CHAINING_MAX_VALUE - 1),
+            (1, 1, 0, 1), (1, 2, 0, 1), (1, 3, 0, 1),
+            (1, 4, 1, 0), (1, 4, 0, 1),
+            (1, 1, 0, 0), (1, 2, 0, 0),
+            tuple(too_many_entries), (I64_MIN,), (I64_MAX,),
+            (1, I64_MIN, 0, 0), (1, 0, 0, I64_MAX),
+            tuple([0] * (MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "two_pointer_technique":
+        rng_two_pointer = random.Random(20261016)
+        for _ in range(256):
+            node_count = rng_two_pointer.randint(0, TWO_POINTER_TECHNIQUE_MAX_NODES)
+            node_values = [rng_two_pointer.randint(-1_000_000, 1_000_000)
+                           for _ in range(node_count)]
+            operation = rng_two_pointer.randrange(3)
+            if operation == 0:
+                cycle_target = (-1 if node_count == 0 else
+                                rng_two_pointer.randint(-1, node_count - 1))
+                k = 0
+            elif operation == 1:
+                cycle_target, k = -1, 0
+            else:
+                cycle_target = -1
+                k = rng_two_pointer.choice((
+                    rng_two_pointer.randint(1, node_count) if node_count else 1,
+                    0, -1, node_count + 1, I64_MIN, I64_MAX,
+                ))
+            values = tuple((operation, node_count, cycle_target, k, *node_values))
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_nodes = tuple(-1_000_000 if index % 2 == 0 else 1_000_000
+                              for index in range(TWO_POINTER_TECHNIQUE_MAX_NODES))
+        maximum_cases = (
+            (0, TWO_POINTER_TECHNIQUE_MAX_NODES, 63, 0, *maximum_nodes),
+            (1, TWO_POINTER_TECHNIQUE_MAX_NODES, -1, 0, *maximum_nodes),
+            (2, TWO_POINTER_TECHNIQUE_MAX_NODES, -1,
+             TWO_POINTER_TECHNIQUE_MAX_NODES, *maximum_nodes),
+        )
+        for values in maximum_cases:
+            if len(values) != 4 + TWO_POINTER_TECHNIQUE_MAX_NODES:
+                raise RuntimeError("two_pointer_technique maximum input length mismatch")
+            cases[values] = oracle(algorithm, list(values))
+
+        traversal_boundaries = []
+        for node_count in range(1, 17):
+            values = tuple(range(node_count))
+            for cycle_target in range(-1, node_count):
+                traversal_boundaries.append((0, node_count, cycle_target, 0, *values))
+            traversal_boundaries.append((1, node_count, -1, 0, *values))
+            for k in (I64_MIN, -1, 0, 1, node_count, node_count + 1, I64_MAX):
+                traversal_boundaries.append((2, node_count, -1, k, *values))
+        traversal_boundaries.extend(((0, 0, -1, 0), (1, 0, -1, 0),
+                                     (2, 0, -1, I64_MIN)))
+        for values in traversal_boundaries:
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, -1), (3, 0, -1, 0),
+            (0, -1, -1, 0), (1, TWO_POINTER_TECHNIQUE_MAX_NODES + 1, -1, 0),
+            (0, 0, 0, 0), (0, 1, 1, 0, 7),
+            (0, 1, -1, 1, 7), (1, 1, 0, 0, 7), (1, 1, -1, 1, 7),
+            (2, 1, 0, 1, 7), (1, 1, -1, 0),
+            (1, 1, -1, 0, 1_000_001), (1, 1, -1, 0, -1_000_001),
+            (2, 1, -1, I64_MIN, 7), (2, 1, -1, I64_MAX, 7),
+            (1, I64_MIN, -1, 0), (1, I64_MAX, -1, 0),
+            tuple([0] * (4 + TWO_POINTER_TECHNIQUE_MAX_NODES + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "two_pset":
+        rng_two_pset = random.Random(20261016)
+        for _ in range(256):
+            operation_count = rng_two_pset.randint(0, TWO_PSET_MAX_OPERATIONS)
+            operations: list[int] = []
+            for _ in range(operation_count):
+                opcode = rng_two_pset.randrange(5)
+                set_id = rng_two_pset.randrange(2)
+                if opcode in (0, 1, 2):
+                    operations.extend((opcode, set_id,
+                                       rng_two_pset.randint(0, TWO_PSET_ELEMENT_LIMIT), 0))
+                else:
+                    operations.extend((opcode, set_id, 0, rng_two_pset.randrange(2)))
+            values = tuple((operation_count, *operations))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise every opcode at the maximum 1,025-word input length.
+        operations = []
+        for operation_index in range(TWO_PSET_MAX_OPERATIONS):
+            opcode = operation_index % 5
+            set_id = operation_index % 2
+            if opcode in (0, 1, 2):
+                operations.extend((opcode, set_id, operation_index % 64, 0))
+            else:
+                operations.extend((opcode, set_id, 0, (operation_index // 5) % 2))
+        maximum_values = tuple((TWO_PSET_MAX_OPERATIONS, *operations))
+        if len(maximum_values) != MAX_TWO_PSET_INPUT_LENGTH:
+            raise RuntimeError("two_pset maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        malformed = (
+            (), (0, 99), (TWO_PSET_MAX_OPERATIONS + 1,), (1,), (1, 0, 0),
+            (1, 5, 0, 0, 0), (1, 0, 2, -1, 0), (1, 0, 0, -1, 0),
+            (1, 0, 0, TWO_PSET_ELEMENT_LIMIT + 1, 0),
+            (1, 0, 0, 0, 1), (1, 3, 0, 1, 2), (1, 4, 0, 0, 2),
+            (1, 2, 0, 0, 1), (1, I64_MIN, 0, 0, 0),
+            (1, 0, I64_MAX, 0, 0),
+            tuple([0] * (MAX_TWO_PSET_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
     if algorithm in {
         "inorder_successor_of_bst", "frequency_finder", "sort_the_odd",
         "merge_ksorted_arrays", "jort_sort", "substring", "permutation_sort",
@@ -1864,6 +2895,62 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_EDMONDS_KARP_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "graph_enumeration":
+        for n in range(0, 5):
+            labels = list(range(n))
+            if n == 0:
+                values = (0,)
+                cases[values] = oracle(algorithm, list(values))
+            else:
+                import itertools
+                for order in itertools.permutations(labels):
+                    entries = [n, *order]
+                    for label in order:
+                        neighbors = [x for x in order if (label + x) % 2 == 0]
+                        entries.extend((len(neighbors), *neighbors))
+                    values = tuple(entries)
+                    cases[values] = oracle(algorithm, list(values))
+        for _ in range(192):
+            n = rng.randint(1, GRAPH_ENUMERATION_MAX_VERTICES)
+            labels = rng.sample(range(-1000, 1001), n)
+            entries = [n, *labels]
+            for _label in labels:
+                neighbors = [x for x in labels if rng.randrange(3) == 0]
+                entries.extend((len(neighbors), *neighbors))
+            values = tuple(entries)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (0, 5), (1, 3, 0), (2, 1, 1, 0, 0), (1, 1, 1, 9),
+                     (1, 1, -1), (1, 1, GRAPH_ENUMERATION_MAX_DEGREE + 1), (1, 1, 0, 7))
+        for values in malformed:
+            if len(values) <= 1 + GRAPH_ENUMERATION_MAX_VERTICES + GRAPH_ENUMERATION_MAX_VERTICES * (1 + GRAPH_ENUMERATION_MAX_DEGREE):
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "gomory_hu_tree":
+        for vertex_count in range(1, 6):
+            pairs = [(u, v) for u in range(vertex_count) for v in range(u + 1, vertex_count)]
+            for mask in range(1 << len(pairs)):
+                matrix = [0] * (vertex_count * vertex_count)
+                for edge, (u, v) in enumerate(pairs):
+                    if mask & (1 << edge):
+                        matrix[u * vertex_count + v] = matrix[v * vertex_count + u] = 1 + edge % 3
+                values = (vertex_count, *matrix)
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(192):
+            vertex_count = rng.randint(1, MAX_GOMORY_HU_TREE_VERTICES)
+            matrix = [0] * (vertex_count * vertex_count)
+            for u in range(vertex_count):
+                for v in range(u + 1, vertex_count):
+                    weight = rng.randint(0, MAX_GOMORY_HU_TREE_CAPACITY)
+                    matrix[u * vertex_count + v] = matrix[v * vertex_count + u] = weight
+            values = (vertex_count, *matrix)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (0,), (1, 0, 0), (9, *([0] * 81)),
+                     (2, 0, 1, 2, 0), (2, 0, -1, -1, 0),
+                     (2, 0, 1001, 1001, 0), (2, 0, 1, 1))
+        for values in malformed:
+            if len(values) <= MAX_GOMORY_HU_TREE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
     elif algorithm == "dijkstras_two_stack_algorithm":
         for left in range(10):
             for right in range(10):
@@ -2143,6 +3230,64 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             (0, 128), (127, -1),
         )
         for values in invalid_cases:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "check_anagram":
+        small_strings = [tuple(sequence) for length in range(3)
+                         for sequence in product((65, 66, 97, 98), repeat=length)]
+        for first in small_strings:
+            for second in small_strings:
+                values = (len(first), len(second), *first, *second)
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        alphabet = (65, 66, 67, 97, 98, 99)
+        for _ in range(256):
+            first = tuple(rng.choice(alphabet) for _ in range(rng.randint(0, 32)))
+            second = tuple(rng.choice(alphabet) for _ in range(rng.randint(0, 32)))
+            values = (len(first), len(second), *first, *second)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (-1, 0), (0, -1), (1, 1, 65),
+            (1, 1, 49, 65), (1, 1, 65, 33), (0, 0, 65),
+            (I64_MIN, 0), (I64_MAX, 0),
+            (1025, 0, *([97] * 1025)), (0, 1025, *([65] * 1025)),
+            (1025, 1025, *([97] * 2050)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "abbreviation":
+        sources = [tuple(sequence) for length in range(4)
+                   for sequence in product((65, 66, 97, 98), repeat=length)]
+        targets = [tuple(sequence) for length in range(4)
+                   for sequence in product((65, 66), repeat=length)]
+        for source in sources:
+            for target in targets:
+                values = (len(source), len(target), *source, *target)
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        source_alphabet, target_alphabet = (65, 66, 67, 97, 98, 99), (65, 66, 67)
+        for _ in range(256):
+            source = tuple(rng.choice(source_alphabet) for _ in range(rng.randint(0, 64)))
+            target = tuple(rng.choice(target_alphabet) for _ in range(rng.randint(0, 32)))
+            values = (len(source), len(target), *source, *target)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (-1, 0), (0, -1), (1, 1, 65), (1, 1, 33, 65),
+            (1, 1, 97, 97), (0, 0, 65),
+            (129, 0, *([97] * 129)), (0, 129, *([65] * 129)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "monotonic_array":
+        for length in range(7):
+            for values in product((-1, 0, 1), repeat=length):
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            length = rng.randint(0, 256)
+            values = tuple((raw if raw <= I64_MAX else raw - (1 << 64))
+                           for raw in (rng.getrandbits(64) for _ in range(length)))
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((0,) * 257, tuple(range(257))):
             cases[values] = oracle(algorithm, list(values))
     elif algorithm == "is_isomorphic":
         small_strings = [sequence for length in range(5)
@@ -3015,6 +4160,31 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in invalid_cases:
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "count_consonants":
+        contract = workload.get("contract", {})
+        if (contract.get("input") != "A sequence of 1 through 4,096 printable ASCII code values in 32..126."
+                or contract.get("excluded_input") != "The exact one-character string [48]."
+                or contract.get("invalid_input_result") != -1
+                or contract.get("empty_sequence_result") != -1
+                or contract.get("input_mutated") is not False):
+            raise ValueError("count_consonants workload contract disagrees with its scalar oracle")
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            if case.get("input_length") != len(values):
+                raise ValueError(f"count_consonants declared input length differs: {case['id']}")
+
+        cases[(66,) * 4096] = oracle(algorithm, [66] * 4096)
+        rng = random.Random(20261016)
+        for _ in range(256):
+            length = rng.randint(1, 4096)
+            values = tuple(rng.randint(32, 126) for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+        for values in (
+            (31,), (127,), (0,), (-1,), (128,), (I64_MIN,), (I64_MAX,),
+            (65,) * 4097,
+        ):
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
     elif algorithm == "check_cycle":
         for vertex_count in range(4):
             possible_edges = [(origin, destination)

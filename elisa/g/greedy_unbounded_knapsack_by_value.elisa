@@ -1,0 +1,42 @@
+# Greedy unbounded knapsack by stable descending value.
+def greedy_unbounded_knapsack_by_value_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > 18:
+        return -1
+    remaining: mutable i64 = values[0]
+    count_value: i64 = values[1]
+    if remaining < 0 or remaining > 1000000 or count_value < 0 or count_value > 8 or length != 2 + 2 * count_value.usize():
+        return -1
+    count: usize = count_value.usize()
+    item_values: mutable i64[8] = zeroed
+    weights: mutable i64[8] = zeroed
+    order: mutable usize[8] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = values[2 + index]
+        weight: i64 = values[2 + count + index]
+        if value < 0 or value > 1000000 or weight < 1 or weight > 1000000:
+            return -1
+        item_values[index] <- value
+        weights[index] <- weight
+        order[index] <- index
+        index <- index + 1
+    index <- 1
+    while index < count:
+        current: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and item_values[order[position - 1]] < item_values[current]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- current
+        index <- index + 1
+    total_value: mutable i64 = 0
+    index <- 0
+    while index < count:
+        item: usize = order[index]
+        while remaining >= weights[item]:
+            total_value <- total_value + item_values[item]
+            remaining <- remaining - weights[item]
+        index <- index + 1
+    total_value
+
+export fn greedy_unbounded_knapsack_by_value(values: i64&, length: usize) -> i64 = greedy_unbounded_knapsack_by_value_impl

@@ -74,20 +74,30 @@ def corpus(workload: dict) -> tuple[str, int]:
         (1, 0, 10), (1, 0, -1), (1, 1, 2),
     ):
         cases[invalid] = oracle(invalid)
+    capacity_cases = []
     for case in workload["cases"]:
         values = tuple(case["input_values"])
-        result, _output = oracle(values)
+        result, expected_output = oracle(values)
+        capacity = case.get("workspace_bytes", MAX_DIGITS + 1)
+        if result >= 0 and capacity < len(expected_output):
+            result, expected_output = -2, b""
         if result != case["expected_result"]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
-        cases[values] = (result, _output)
+        if case.get("expected_output_hex", "").lower() != expected_output.hex():
+            raise ValueError(f"workload output bytes mismatch: {case['id']}")
+        if "workspace_bytes" in case:
+            capacity_cases.append((values, result, expected_output, capacity))
+        elif result != -2:
+            cases[values] = (result, expected_output)
 
-    records = sorted(cases.items())
-    records.append(((1, 1, 9, 1), (-2, b"")))
+    records = [(values, result, output, MAX_DIGITS + 1)
+               for values, (result, output) in sorted(cases.items())]
+    records.extend(capacity_cases)
     lines = [f"{len(records)}\n"]
-    for values, (result, output) in records:
+    for values, result, output, capacity in records:
         values_text = " " + " ".join(map(str, values))
         encoded = output.hex() if output else "-"
-        lines.append(f"{len(values)} {result} {len(output)}{values_text} {encoded}\n")
+        lines.append(f"{len(values)} {result} {len(output)} {capacity} 0{values_text} {encoded}\n")
     return "".join(lines), len(records)
 
 
@@ -117,12 +127,16 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
         raise RuntimeError("recorder emitted an unexpected number of workload records")
     for case, record in zip(workload["cases"], records):
         values = tuple(case["input_values"])
-        result, _output = oracle(values)
+        result, expected_output = oracle(values)
+        capacity = case.get("workspace_bytes", MAX_DIGITS + 1)
+        if result >= 0 and capacity < len(expected_output):
+            result, expected_output = -2, b""
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
                 or record["workload"]["input_length"] != len(values)
                 or record["workload"]["input_values"] != list(values)
+                or record["workload"]["output_capacity"] != capacity
                 or record["workload"]["expected_result"] != result
                 or record["measurement"]["observed_result"] != result
                 or len(record["measurement"]["samples_ns"]) != 1):

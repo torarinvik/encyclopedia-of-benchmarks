@@ -12,7 +12,7 @@ This benchmark combines C LeetCode 2 and JavaScript `AddTwoNumbers`. Both add de
 
 The C numeric filename `2` is cataloged as the canonical `add_two_numbers` candidate. The JavaScript `add_two_numbers` candidate has the same little-endian digit-list semantics and is recorded as an alias.
 
-Run `python3 benchmarks/verify_add_two_numbers.py --elisa-compiler ../Elisa-compiler/bin/elisac-stage1` to check all nine ports against exhaustive short list pairs, seeded inputs up to maximum length, carry chains, malformed lengths and digits, output-capacity failure, and workload records.
+Run `python3 benchmarks/verify_add_two_numbers.py --elisa-compiler ../Elisa-compiler/bin/elisac-stage1` to check all nine ports against exhaustive short list pairs, seeded inputs up to maximum length, carry chains, malformed lengths and digits, exact workload output bytes, and output-capacity failure.
 
 ## Implementations
 

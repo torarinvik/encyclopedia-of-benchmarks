@@ -1,6 +1,44 @@
+def dancing_links_search(columns: usize, row_count: usize, rows: u64&,
+                         covered: u64, selected: usize,
+                         found: mutable bool&, solution_count: mutable usize&) -> void:
+    full_mask: u64 = (1.u64() << columns) - 1.u64()
+    if covered == full_mask:
+        if not found[selected]:
+            found[selected] <- true
+            solution_count <- solution_count + 1
+        return
+
+    best_column: mutable usize = columns
+    best_count: mutable usize = row_count + 1
+    column: mutable usize = 0
+    while column < columns:
+        bit: u64 = 1.u64() << column
+        if (covered & bit) == 0:
+            candidates: mutable usize = 0
+            row: mutable usize = 0
+            while row < row_count:
+                if (rows[row] & bit) != 0 and (rows[row] & covered) == 0:
+                    candidates <- candidates + 1
+                row <- row + 1
+            if candidates == 0:
+                return
+            if candidates < best_count:
+                best_column <- column
+                best_count <- candidates
+        column <- column + 1
+
+    bit: u64 = 1.u64() << best_column
+    row: mutable usize = 0
+    while row < row_count:
+        row_mask: u64 = rows[row]
+        if (row_mask & bit) != 0 and (row_mask & covered) == 0:
+            dancing_links_search(columns, row_count, rows, covered | row_mask,
+                                 selected | (1.usize() << row), found, solution_count)
+        row <- row + 1
+
 def dancing_links_impl(input: i64&, length: usize,
                        output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 2:
+    if input.is_null() or length < 2 or length > 10:
         return -1
     universe_value: i64 = input[0]
     row_count_value: i64 = input[1]
@@ -11,42 +49,27 @@ def dancing_links_impl(input: i64&, length: usize,
     if length != row_count + 2:
         return -1
     full_mask: i64 = (1 << universe) - 1
-    for row in 0..<row_count:
+    rows: mutable u64[8] = zeroed
+    row: mutable usize = 0
+    while row < row_count:
         mask: i64 = input[row + 2]
         if mask <= 0 or (mask & ~full_mask) != 0:
             return -1
-    selection_limit: usize = 1 << row_count
+        rows[row] <- mask.u64()
+        row <- row + 1
+
+    found: mutable bool[256] = zeroed
     solution_count: mutable usize = 0
-    for selection in 0..<selection_limit:
-        covered: mutable i64 = 0
-        valid: mutable bool = true
-        for row in 0..<row_count:
-            if (selection & (1 << row)) == 0:
-                continue
-            mask: i64 = input[row + 2]
-            if (covered & mask) != 0:
-                valid <- false
-                break
-            covered <- covered | mask
-        if valid and covered == full_mask:
-            solution_count <- solution_count + 1
-    if output_capacity < solution_count or (solution_count > 0 and output == null):
+    dancing_links_search(universe, row_count, &rows[0], 0, 0, &found[0], solution_count)
+    if output_capacity < solution_count or (solution_count > 0 and output.is_null()):
         return -2
     position: mutable usize = 0
-    for selection in 0..<selection_limit:
-        covered: mutable i64 = 0
-        valid: mutable bool = true
-        for row in 0..<row_count:
-            if (selection & (1 << row)) == 0:
-                continue
-            mask: i64 = input[row + 2]
-            if (covered & mask) != 0:
-                valid <- false
-                break
-            covered <- covered | mask
-        if valid and covered == full_mask:
+    selection: mutable usize = 0
+    while selection < 256:
+        if found[selection]:
             output[position] <- selection.u8()
             position <- position + 1
+        selection <- selection + 1
     solution_count.i64()
 
 export fn dancing_links(input: i64&, length: usize, output: mutable u8&,

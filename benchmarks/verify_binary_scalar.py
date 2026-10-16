@@ -27,6 +27,8 @@ U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
 ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "uint53_xor", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation")
+ALGORITHMS += ("arithmetic_left_shift", "arithmetic_right_shift", "unique_paths")
+ALGORITHMS += ("circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication")
 
 FERMAT_MAX_BASE = 1_000_000
 FERMAT_MAX_MODULUS = 1_000_000
@@ -66,6 +68,15 @@ def oracle(left: int, right: int) -> int:
     if type(left) is not int or type(right) is not int or not 0 <= left <= U64_MAX or not 0 <= right <= U64_MAX:
         raise ValueError("inputs must be unsigned 64-bit integers")
     return format(left ^ right, "064b").count("1")
+
+
+def unique_paths_oracle(rows: int, columns: int) -> int:
+    if (type(rows) is not int or type(columns) is not int
+            or not 0 <= rows <= U64_MAX or not 0 <= columns <= U64_MAX):
+        return -1
+    if not 1 <= rows <= 34 or not 1 <= columns <= 34:
+        return -1
+    return math.comb(rows + columns - 2, rows - 1)
 
 
 def gcd_oracle(left: int, right: int) -> int:
@@ -318,6 +329,65 @@ def problem174_lamina_counts(t_limit: int, n_limit: int) -> int:
 
 
 def result(algorithm: str, left: int, right: int) -> int:
+    if algorithm == "binary_multiplication":
+        if not 0 <= left <= 1_000_000_000 or not 0 <= right <= 1_000_000_000:
+            raise ValueError("binary_multiplication oracle inputs must lie within the declared 0..1e9 domain")
+        return left * right
+    if algorithm == "unique_paths":
+        return unique_paths_oracle(left, right)
+    if algorithm == "circular_left_shift":
+        if not 0 <= left <= (1 << 53) - 1 or not 0 <= right <= 53:
+            return -1
+        rotation = right % 53
+        mask = (1 << 53) - 1
+        return ((left << rotation) | (left >> (53 - rotation))) & mask
+    if algorithm in {"arithmetic_left_shift", "arithmetic_right_shift"}:
+        if not 0 <= left <= (1 << 53) - 1 or not 0 <= right <= 53:
+            return -1
+        if algorithm == "arithmetic_left_shift":
+            return (left << right) & ((1 << 53) - 1)
+        msb = left >> 52
+        fill = ((1 << right) - 1) << (53 - right)
+        return (left >> right) | (fill if msb else 0)
+    if algorithm == "bitwise_addition_recursive":
+        if not 0 <= left <= I32_MAX or not 0 <= right <= I32_MAX:
+            return -1
+        return left + right
+    if algorithm == "first_different_bit":
+        if not I32_MIN <= left <= I32_MAX or not I32_MIN <= right <= I32_MAX:
+            return -1
+        difference = (left & 0xFFFFFFFF) ^ (right & 0xFFFFFFFF)
+        return 32 if difference == 0 else (difference & -difference).bit_length() - 1
+    if algorithm == "count_number_of_one_bits":
+        if not 0 <= left <= 0xFFFFFFFF or not 0 <= right <= 2:
+            return -1
+        return bin(left).count("1")
+    if algorithm == "highest_common_factor":
+        if not 0 <= left <= 64 or not 0 <= right <= 64:
+            raise ValueError("highest_common_factor oracle inputs must lie within the declared 0..64 domain")
+        return math.gcd(left, right)
+    if algorithm == "binary_pow":
+        if not I32_MIN <= left <= I32_MAX or not I32_MIN <= right <= I32_MAX:
+            return -2_147_483_649
+        wrapped = pow(left & 0xFFFFFFFF, right, 1 << 32) if right > 0 else 1
+        return wrapped - (1 << 32) if wrapped >= (1 << 31) else wrapped
+    if algorithm == "imply_gate":
+        if left not in (0, 1) or right not in (0, 1):
+            return -1
+        return int(left == 0 or right == 1)
+    if algorithm in {"max_value", "min_value"}:
+        if not I32_MIN <= left <= I32_MAX or not I32_MIN <= right <= I32_MAX:
+            return -1
+        return max(left, right) if algorithm == "max_value" else min(left, right)
+    if algorithm == "xor_swap_two_integers":
+        if not -32768 <= left <= 32767 or not -32768 <= right <= 32767:
+            return -1
+        return (right + 32768) * 65536 + (left + 32768)
+    if algorithm == "recursive_digit_sum":
+        if not 0 <= left <= I64_MAX or not 0 <= right <= 1_000_000:
+            return -1
+        digit_total = sum(int(digit) for digit in str(left)) * right
+        return 0 if digit_total == 0 else 1 + (digit_total - 1) % 9
     if algorithm == "uint53_xor":
         return uint53_xor_expected(left, right)
     if algorithm == "problem124":
@@ -440,6 +510,79 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                       (1000001, 10), (I64_MIN, I64_MAX), (I64_MAX, I64_MAX)})
         rng = random.Random(20261015)
         pairs.update((rng.randrange(-2, 2000), rng.randrange(-2, 13)) for _ in range(64))
+    elif algorithm in {"arithmetic_left_shift", "arithmetic_right_shift", "circular_left_shift"}:
+        numbers = (0, 1, 2, (1 << 52) - 1, 1 << 52,
+                   (1 << 53) - 2, (1 << 53) - 1, 1 << 53, -1)
+        shifts = (0, 1, 2, 51, 52, 53, 54, -1, I64_MIN, I64_MAX)
+        pairs.update((number, shift) for number in numbers for shift in shifts)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(1 << 53), rng.randrange(54)) for _ in range(512))
+    elif algorithm == "bitwise_addition_recursive":
+        edge_values = (-1, 0, 1, 2, I32_MAX - 1, I32_MAX, I32_MAX + 1, I64_MIN, I64_MAX)
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(-1, I32_MAX + 2), rng.randrange(-1, I32_MAX + 2))
+                     for _ in range(512))
+    elif algorithm == "first_different_bit":
+        edge_values = (I64_MIN, I32_MIN - 1, I32_MIN, -1, 0, 1, I32_MAX, I32_MAX + 1, I64_MAX)
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(I32_MIN, I32_MAX + 1),
+                      rng.randrange(I32_MIN, I32_MAX + 1)) for _ in range(512))
+    elif algorithm == "count_number_of_one_bits":
+        numbers = (I64_MIN, -1, 0, 1, 2, 3, 0x55555555, 0xAAAAAAAA,
+                   0x80000000, 0xFFFFFFFF, 0x100000000, I64_MAX, U64_MAX)
+        methods = (I64_MIN, -1, 0, 1, 2, 3, I64_MAX)
+        pairs.update((number, method) for number in numbers for method in methods)
+        rng = random.Random(20261016)
+        pairs.update((rng.getrandbits(32), rng.randrange(3)) for _ in range(512))
+        pairs.update((rng.getrandbits(32), rng.choice((-1, 3))) for _ in range(128))
+    elif algorithm == "highest_common_factor":
+        pairs.update((left, right) for left in range(65) for right in range(65))
+    elif algorithm == "binary_multiplication":
+        boundary_values = (0, 1, 2, 999_999_999, 1_000_000_000)
+        pairs.update((left, right) for left in boundary_values for right in boundary_values)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(1_000_000_001), rng.randrange(1_000_000_001))
+                     for _ in range(512))
+    elif algorithm == "binary_pow":
+        base_edges = (I64_MIN, I32_MIN - 1, I32_MIN, -46341, -2, -1,
+                      0, 1, 2, 3, 46341, I32_MAX, I32_MAX + 1, I64_MAX)
+        exponent_edges = (I64_MIN, I32_MIN, -3, -1, 0, 1, 2, 3, 31, 32, 33,
+                          63, 64, I32_MAX, I32_MAX + 1, I64_MAX)
+        pairs.update((base, exponent) for base in base_edges for exponent in exponent_edges)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(I32_MIN, I32_MAX + 1),
+                      rng.randrange(I32_MIN, I32_MAX + 1)) for _ in range(512))
+    elif algorithm == "imply_gate":
+        edge_values = (I64_MIN, -1, 0, 1, 2, I64_MAX, U64_MAX)
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+    elif algorithm in {"max_value", "min_value"}:
+        edge_values = (I64_MIN, I32_MIN - 1, I32_MIN, -1, 0, 1,
+                       I32_MAX, I32_MAX + 1, I64_MAX)
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(I32_MIN, I32_MAX + 1),
+                      rng.randrange(I32_MIN, I32_MAX + 1)) for _ in range(512))
+    elif algorithm == "xor_swap_two_integers":
+        edge_values = (I64_MIN, -32769, -32768, -1, 0, 1, 32767, 32768, I64_MAX)
+        pairs.update((left, right) for left in edge_values for right in edge_values)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(-32768, 32768), rng.randrange(-32768, 32768))
+                     for _ in range(512))
+    elif algorithm == "recursive_digit_sum":
+        number_edges = (I64_MIN, -1, 0, 1, 9, 10, 99, I64_MAX)
+        repetition_edges = (I64_MIN, -1, 0, 1, 2, 3, 999_999, 1_000_000, 1_000_001, I64_MAX)
+        pairs.update((number, repetitions)
+                     for number in number_edges for repetitions in repetition_edges)
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(I64_MAX + 1), rng.randrange(1_000_001)) for _ in range(512))
+    elif algorithm == "unique_paths":
+        pairs.update((rows, columns) for rows in range(37) for columns in range(37))
+        edge_values = [0, 1, 2, 33, 34, 35, 36, U64_MAX - 1, U64_MAX]
+        pairs.update((rows, columns) for rows in edge_values for columns in edge_values)
+        rng = random.Random(20261015)
+        pairs.update((rng.getrandbits(64), rng.getrandbits(64)) for _ in range(512))
     elif algorithm == "ackermann":
         pairs.update((m, n) for m in range(4) for n in range(6))
         left_edges = [I64_MIN, -1, 0, 1, 3, 4, I64_MAX]
@@ -485,7 +628,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         pairs.update((n_max, rank) for n_max in range(1, 31) for rank in range(1, n_max + 1))
         pairs.update({(0, 0), (0, 1), (1, 0), (10, 11), (100_001, 1),
                       (-1, 1), (1, -1), (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
-    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation"}:
+    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation", "arithmetic_left_shift", "arithmetic_right_shift", "unique_paths", "circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication"}:
         if algorithm == "range_bitwise_and":
             edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
                            I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]

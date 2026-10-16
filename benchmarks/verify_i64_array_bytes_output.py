@@ -33,6 +33,20 @@ from from_sequence_oracle import MAX_NODE_COUNT as FROM_SEQUENCE_MAX_NODE_COUNT
 from from_sequence_oracle import MAX_OUTPUT_BYTES as FROM_SEQUENCE_MAX_OUTPUT_BYTES
 from from_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH
 from from_sequence_oracle import expected_output as from_sequence_oracle
+from graph_adjacency_list_oracle import MAX_OUTPUT_BYTES as GRAPH_ADJACENCY_LIST_MAX_OUTPUT_BYTES
+from graph_adjacency_list_oracle import expected_output as graph_adjacency_list_oracle
+from graph_centrality_oracle import expected_output as graph_centrality_oracle
+from graph_peripherality_oracle import MAX_EDGES as GRAPH_PERIPHERALITY_MAX_EDGES
+from graph_peripherality_oracle import MAX_VERTICES as GRAPH_PERIPHERALITY_MAX_VERTICES
+from graph_peripherality_oracle import MAX_WEIGHT as GRAPH_PERIPHERALITY_MAX_WEIGHT
+from graph_peripherality_oracle import expected_output as graph_peripherality_oracle
+from graph_adjacency_matrix_oracle import MAX_EDGES as GRAPH_ADJACENCY_MATRIX_MAX_EDGES
+from graph_adjacency_matrix_oracle import MAX_INPUT_LENGTH as GRAPH_ADJACENCY_MATRIX_MAX_INPUT_LENGTH
+from graph_adjacency_matrix_oracle import MAX_OPERATIONS as GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS
+from graph_adjacency_matrix_oracle import MAX_OUTPUT_BYTES as GRAPH_ADJACENCY_MATRIX_MAX_OUTPUT_BYTES
+from graph_adjacency_matrix_oracle import MAX_VERTEX_ID_EXCLUSIVE as GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE
+from graph_adjacency_matrix_oracle import MAX_VERTICES as GRAPH_ADJACENCY_MATRIX_MAX_VERTICES
+from graph_adjacency_matrix_oracle import expected_output as graph_adjacency_matrix_oracle
 from gabor_filter_oracle import MAX_KERNEL_SIZE as GABOR_FILTER_MAX_KERNEL_SIZE
 from gabor_filter_oracle import MAX_OUTPUT_BYTES as GABOR_FILTER_MAX_OUTPUT_BYTES
 from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as GABOR_FILTER_MAX_PARSEABLE_INPUT_LENGTH
@@ -746,8 +760,16 @@ WORKSPACE_ALGORITHMS.add("find_month_calendar")
 WORKSPACE_ALGORITHMS.add("top_k_frequent_words")
 WORKSPACE_ALGORITHMS.add("gabor_filter")
 WORKSPACE_ALGORITHMS.add("maskwords")
+WORKSPACE_ALGORITHMS.add("graph_adjacency_list")
 ALGORITHMS = (*ALGORITHMS, "evaluate_expression")
 ALGORITHMS = (*ALGORITHMS, "find_month_calendar")
+ALGORITHMS = (*ALGORITHMS, "graph_adjacency_list")
+ALGORITHMS = (*ALGORITHMS, "graph_centrality")
+ALGORITHMS = (*ALGORITHMS, "graph_peripherality")
+ALGORITHMS = (*ALGORITHMS, "graph_adjacency_matrix")
+WORKSPACE_ALGORITHMS.add("graph_centrality")
+WORKSPACE_ALGORITHMS.add("graph_peripherality")
+WORKSPACE_ALGORITHMS.add("graph_adjacency_matrix")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -7100,9 +7122,33 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "aatree":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
-        default_capacity = 1024
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity != 1024:
+            raise ValueError("aatree workspace must be 1024 bytes")
+        input_contract = workload.get("input", {})
+        if (input_contract.get("kind") != "packed_i64_array"
+                or input_contract.get("encoding") != "[operation_count, then operation_count (opcode, key) pairs]"
+                or input_contract.get("maximum_operations") != 256
+                or input_contract.get("key_range") != "Signed 32-bit integer keys; duplicate inserts and missing removes are invalid."
+                or input_contract.get("opcodes") != {
+                    "0": "insert key", "1": "remove key", "2": "contains key",
+                    "3": "minimum (key slot must be 0)", "4": "maximum (key slot must be 0)",
+                }
+                or input_contract.get("invalid_result") != -1
+                or input_contract.get("capacity_result") != -2):
+            raise ValueError("aatree input contract disagrees with its bounded oracle")
+        output_contract = workload.get("output", {})
+        if (output_contract.get("kind") != "little_endian_signed_i32_array"
+                or output_contract.get("encoding") != "one signed 32-bit little-endian value per operation"
+                or output_contract.get("maximum_output_bytes") != default_capacity
+                or output_contract.get("success_result") != "encoded byte length"
+                or output_contract.get("invalid_input_result") != -1
+                or output_contract.get("insufficient_output_capacity_result") != -2):
+            raise ValueError("aatree output contract disagrees with its bounded oracle")
 
-        def add(values: tuple[int, ...], capacity: int) -> None:
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= default_capacity:
+                raise ValueError("aatree corpus capacity must fit its maximum workspace")
             result, output = recorder_expected_output(list(values), algorithm)
             if result >= 0 and capacity < len(output):
                 result, output = -2, b""
@@ -7134,7 +7180,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for case in workload["cases"]:
             values = tuple(case["input_values"])
             result, output = recorder_expected_output(list(values), algorithm)
-            capacity = case.get("workspace_bytes", len(output))
+            capacity = case.get("workspace_bytes", default_capacity)
             expected_result = (case.get("capacity_error_result", -2)
                                if result >= 0 and capacity < len(output) else result)
             expected_bytes = b"" if result >= 0 and capacity < len(output) else output
@@ -7144,7 +7190,22 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 raise ValueError(f"workload oracle mismatch: {case['id']}")
             add(values, capacity)
 
-        add((1, 0, 1), 3)
+        small_capacity_values = (1, 0, 1)
+        small_capacity_result, small_capacity_output = recorder_expected_output(
+            list(small_capacity_values), algorithm)
+        if (small_capacity_result != 4 or small_capacity_output != b"\x01\x00\x00\x00"):
+            raise ValueError("aatree one-insert short-capacity probe must encode four bytes")
+        add(small_capacity_values, 3)
+        add(small_capacity_values, 4)
+        add((0,), 0)
+
+        maximum_values = pack([(0, key) for key in range(256)])
+        maximum_result, maximum_output = recorder_expected_output(list(maximum_values), algorithm)
+        if maximum_result != default_capacity or len(maximum_output) != default_capacity:
+            raise ValueError("aatree maximum operation stream must encode to 1024 bytes")
+        add(maximum_values, default_capacity - 1)
+        add(maximum_values, default_capacity)
+
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "next_permutation":
@@ -11148,6 +11209,237 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((0,), 0)
 
         null_values = (1, 424_242)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "graph_centrality":
+        if workload.get("workspace", {}).get("bytes") != 16:
+            raise ValueError("graph_centrality workspace must be 16 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = 16) -> None:
+            result, output = graph_centrality_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", 16)
+            result, output = graph_centrality_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"graph_centrality workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        probe = tuple(workload["cases"][0]["input_values"])
+        for capacity in (0, 15, 16):
+            add(probe, capacity)
+        for values in ((), (1,), (0, 0), (17, 0), (2, 1, 0, 0, 1),
+                       (2, 1, 0, 1, 0), (2, 2, 0, 1, 1, 0, 1, 2), tuple([0] * 600)):
+            add(tuple(values))
+        null_values = probe
+        null_key = (null_values, 16)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "graph_adjacency_list":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != GRAPH_ADJACENCY_LIST_MAX_OUTPUT_BYTES:
+            raise ValueError("graph_adjacency_list workspace does not match its output bound")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = graph_adjacency_list_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = graph_adjacency_list_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"graph_adjacency_list workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        capacity_probe = tuple(workload["cases"][0]["input_values"])
+        required = len(graph_adjacency_list_oracle(capacity_probe)[1])
+        for capacity in (0, required - 1, required, default_capacity):
+            add(capacity_probe, capacity)
+        for values in ((), (1,), (1, 0), (1, 0, 0),
+                       (1, 33, *([0] * 33), 0, 0),
+                       (0, 1, 0, 1, 0, 0, 1, 0, 0),
+                       tuple([0] * 600)):
+            add(tuple(values))
+        null_values = tuple(workload["cases"][0]["input_values"])
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "graph_peripherality":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_contract = workload.get("input", {})
+        output_contract = workload.get("output", {})
+        if (type(default_capacity) is not int or default_capacity != 32
+                or input_contract.get("node_count_range") != [1, GRAPH_PERIPHERALITY_MAX_VERTICES]
+                or input_contract.get("edge_count_range") != [0, GRAPH_PERIPHERALITY_MAX_EDGES]
+                or input_contract.get("edge_weight_range") != [1, GRAPH_PERIPHERALITY_MAX_WEIGHT]
+                or output_contract.get("bytes") != default_capacity):
+            raise ValueError("graph_peripherality workload bounds do not match its reviewed oracle")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("graph_peripherality workspace capacity is out of range")
+            result, output = graph_peripherality_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = graph_peripherality_oracle(values)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"graph_peripherality workload capacity is out of range: {case['id']}")
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"graph_peripherality workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        single_node = tuple(workload["cases"][0]["input_values"])
+        for capacity in (0, 31, default_capacity):
+            add(single_node, capacity)
+        cycle_edges = tuple(value for node in range(GRAPH_PERIPHERALITY_MAX_VERTICES)
+                            for value in (node, (node + 1) % GRAPH_PERIPHERALITY_MAX_VERTICES, 1))
+        add((GRAPH_PERIPHERALITY_MAX_VERTICES, GRAPH_PERIPHERALITY_MAX_VERTICES, *cycle_edges))
+        complete_edges = tuple(value for source in range(GRAPH_PERIPHERALITY_MAX_VERTICES)
+                               for destination in range(GRAPH_PERIPHERALITY_MAX_VERTICES)
+                               if source != destination for value in (source, destination, 1))
+        add((GRAPH_PERIPHERALITY_MAX_VERTICES, GRAPH_PERIPHERALITY_MAX_EDGES, *complete_edges))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            node_count = rng.randint(2, GRAPH_PERIPHERALITY_MAX_VERTICES)
+            edges = [(node, (node + 1) % node_count, rng.randint(1, GRAPH_PERIPHERALITY_MAX_WEIGHT))
+                     for node in range(node_count)]
+            present = {(source, destination) for source, destination, _ in edges}
+            candidates = [(source, destination)
+                          for source in range(node_count) for destination in range(node_count)
+                          if source != destination and (source, destination) not in present]
+            rng.shuffle(candidates)
+            for source, destination in candidates[:rng.randint(0, len(candidates))]:
+                edges.append((source, destination, rng.randint(1, GRAPH_PERIPHERALITY_MAX_WEIGHT)))
+            values = (node_count, len(edges), *(value for edge in edges for value in edge))
+            add(values)
+
+        malformed = (
+            (), (0, 0), (GRAPH_PERIPHERALITY_MAX_VERTICES + 1, 0),
+            (GRAPH_PERIPHERALITY_MAX_VERTICES,
+             GRAPH_PERIPHERALITY_MAX_EDGES + 1,
+             *([1, 2, 1] * (GRAPH_PERIPHERALITY_MAX_EDGES + 1))),
+            (2, 1, 0, 1, 0), (2, 1, 0, 0, 1), (2, 1, 0, 2, 1),
+            (2, 1, 0, 1), (2, 2, 0, 1, 1, 0, 1, 2), (2, 1, 0, 1, 1),
+        )
+        for values in malformed:
+            add(tuple(values))
+        null_values = (2, 2, 0, 1, 2, 1, 0, 3)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "graph_adjacency_matrix":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_contract = workload.get("input", {})
+        if (type(default_capacity) is not int
+                or default_capacity != GRAPH_ADJACENCY_MATRIX_MAX_OUTPUT_BYTES
+                or input_contract.get("vertex_id_range") != [0, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1]
+                or input_contract.get("initial_vertex_count_range") != [0, GRAPH_ADJACENCY_MATRIX_MAX_VERTICES]
+                or input_contract.get("initial_edge_count_range") != [0, GRAPH_ADJACENCY_MATRIX_MAX_EDGES]
+                or input_contract.get("operation_count_range") != [0, GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS]):
+            raise ValueError("graph_adjacency_matrix workload bounds do not match its reviewed oracle")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("graph_adjacency_matrix workspace capacity is out of range")
+            result, output = graph_adjacency_matrix_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = graph_adjacency_matrix_oracle(values)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"graph_adjacency_matrix workload capacity is out of range: {case['id']}")
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"graph_adjacency_matrix workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        if len(workload["cases"]) < 1:
+            raise ValueError("graph_adjacency_matrix workload must include at least one case")
+        capacity_probe = tuple(workload["cases"][0]["input_values"])
+        required = len(graph_adjacency_matrix_oracle(capacity_probe)[1])
+        for capacity in (0, required - 1, required, default_capacity):
+            add(capacity_probe, capacity)
+
+        vertices = (0, 2, 4, 6, 8, 10, 12, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1)
+        complete_edges = tuple(value for source in vertices for destination in vertices
+                               for value in (source, destination))
+        maximum_operations = tuple(value for index in range(GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS)
+                                   for value in (5, vertices[index % len(vertices)],
+                                                 vertices[(index + 1) % len(vertices)]))
+        maximum_values = (1, len(vertices), *vertices, GRAPH_ADJACENCY_MATRIX_MAX_EDGES,
+                          *complete_edges, GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS,
+                          *maximum_operations)
+        if len(maximum_values) != GRAPH_ADJACENCY_MATRIX_MAX_INPUT_LENGTH:
+            raise ValueError("graph_adjacency_matrix maximum-bound trace has an incorrect packed length")
+        add(maximum_values, default_capacity - 1)
+        add(maximum_values, default_capacity)
+
+        empty_trace = (1, 0, 0, 4, 0, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1, 0,
+                       4, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1, 0,
+                       6, 0, 0, 4, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1, 0)
+        add(empty_trace)
+        malformed = (
+            (), (1, 0, 0), (2, 0, 0, 0),
+            (1, GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + 1,
+             *range(GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + 1), 0, 0),
+            (1, 1, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE, 0, 0),
+            (1, 2, 31, 31, 0, 0),
+            (1, 0, GRAPH_ADJACENCY_MATRIX_MAX_EDGES + 1,
+             *([0, 0] * (GRAPH_ADJACENCY_MATRIX_MAX_EDGES + 1)), 0),
+            (1, 0, 0, GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS + 1,
+             *([4, 0, 0] * (GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS + 1))),
+            (1, 2, 0, 1, 2, 0, 1, 0, 1, 0),
+            (1, 1, 0, 1, 0, 1, 0),
+            (1, 0, 0, 1, 6, 1, 0), (1, 0, 0, 1, 7, 0, 0),
+        )
+        for values in malformed:
+            add(tuple(values))
+        null_values = (1, 1, GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE - 1, 0, 0)
         null_key = (null_values, default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)

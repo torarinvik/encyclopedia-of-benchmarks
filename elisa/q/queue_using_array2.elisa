@@ -1,0 +1,49 @@
+# Fixed-capacity FIFO that compacts its values after each successful dequeue.
+const MAX_Q: usize = 256
+const MAX_INPUT: usize = 513
+const VALUE_LIMIT: i64 = 1_000_000
+const VALUE_OFFSET: i64 = 1_000_001
+const HASH_MULTIPLIER: i64 = 1_000_003
+const HASH_MODULUS: i64 = 1_000_000_007
+
+def queue_using_array2_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT:
+        return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > MAX_Q.i64():
+        return -1
+    q: usize = q_value.usize()
+    if length != 1 + 2 * q:
+        return -1
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 2]
+        value: i64 = input[2 + i * 2]
+        if opcode == 1:
+            if value < -VALUE_LIMIT or value > VALUE_LIMIT: return -1
+        elif opcode == 2 or opcode == 3:
+            if value != 0: return -1
+        else:
+            return -1
+
+    queue_values: mutable i64[10] = zeroed
+    count: mutable usize = 0
+    hash: mutable i64 = 0
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 2]
+        value: i64 = input[2 + i * 2]
+        if opcode == 1:
+            if count < 10:
+                queue_values[count] <- value
+                count <- count + 1
+        elif opcode == 2 and count > 0:
+            for j in 1..<count:
+                queue_values[j - 1] <- queue_values[j]
+            count <- count - 1
+
+        hash <- (hash * HASH_MULTIPLIER + opcode) % HASH_MODULUS
+        hash <- (hash * HASH_MULTIPLIER + count.i64()) % HASH_MODULUS
+        for j in 0..<count:
+            hash <- (hash * HASH_MULTIPLIER + queue_values[j] + VALUE_OFFSET) % HASH_MODULUS
+    hash
+
+export fn queue_using_array2(input: i64&, length: usize) -> i64 = queue_using_array2_impl

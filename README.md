@@ -14,7 +14,7 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,985 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,064 reviewed source candidates, of which 2,748 map to complete benchmark files; 314 sources are excluded from portable benchmark coverage: 31 invalid and 283 non-benchmarkable. The pinned inventory contains 3,856 candidate records, with 794 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 2,017 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,109 reviewed source candidates, of which 2,782 map to complete benchmark files; 321 sources are excluded from portable benchmark coverage: 31 invalid and 290 non-benchmarkable. The pinned inventory contains 3,857 candidate records, with 754 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
 
 [External merge sorter](benchmarks/e/external_merge_sorter/README.md) follows the pinned C# bottom-up merge passes over sequential stores, modeled with bounded buffers across all nine target languages.
 
@@ -29,6 +29,22 @@ The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [r
 [Gaussian-Legendre quadrature](benchmarks/g/gaussian_legendre/README.md) ports the Fortran orders 1–5 node and weight tables to all nine languages; it is separate from the Java π iteration.
 
 [Gaussian filter](benchmarks/g/gaussian_filter/README.md) ports the pinned Python valid convolution for its 3×3 and 5×5 demo kernels to all nine languages with fixed-point weights for portable byte results.
+
+[Gabor filter kernel](benchmarks/g/gabor_filter/README.md) ports the pinned Python rotated Gaussian-cosine kernel to all nine languages and emits row-major binary32 coefficients.
+
+[Geo location](benchmarks/g/geo_location/README.md) preserves the pinned C# Haversine radius of 6371.01 km and meter-valued output across all nine languages; it has a separate contract from `haversine_distance`.
+
+[Gravitational force](benchmarks/g/gravitational_force/README.md) ports the pinned Java `Gravitation.java` two-dimensional force-vector formula to all nine languages.
+[Greedy minimum vertex cover](benchmarks/g/greedy_min_vertex_cover/README.md) preserves the pinned Python maximum-current-degree heuristic and smallest-ID tie rule across all nine languages.
+[Greedy best-first grid search](benchmarks/g/greedy_best_first/README.md) preserves stable Manhattan-priority expansion and ordered path output.
+[Greedy graph coloring](benchmarks/g/greedy_graph_coloring/README.md) ports the pinned Go degree-first coloring with a deterministic vertex-ID tie rule.
+[Greedy item selection by value](benchmarks/g/greedy_item_selection_by_value/README.md) preserves the pinned Python stable value sort and whole-item capacity scan.
+[Greedy unbounded knapsack by value](benchmarks/g/greedy_unbounded_knapsack_by_value/README.md) ports the pinned Julia routine that repeatedly reuses items in stable descending-value order.
+[Grow-only set](benchmarks/g/grow_only_set/README.md) models the pinned Java GSet add, lookup, subset, and replica-merge operations.
+
+[Gomory–Hu tree](benchmarks/g/gomory_hu_tree/README.md) ports the pinned Java parent-update construction with bounded Edmonds–Karp flows; its result hashes the represented all-pairs minimum-cut matrix.
+
+[Gradient boosting regressor](benchmarks/g/gradient_boosting_regressor/README.md) ports the custom R squared-error model with bounded one-feature stump trees. The separate Python candidate delegates to scikit-learn and is cataloged as an application demo.
 
 [Gaussian Mixture Model](benchmarks/g/gaussian_mixture_model/README.md) ports the pinned Python EM training and prediction core to all nine languages for a deterministic one-dimensional, two-component contract.
 
@@ -64,6 +80,8 @@ The pinned MATLAB-Octave `blobDetection.m` and `BlobUsingVideo.m` demos share an
 [Change brightness](benchmarks/c/change_brightness/README.md) ports the pinned Python per-channel point transform to all nine languages. The shared contract uses integer levels and byte clipping; all ports passed 529 oracle inputs and 12 workload cases.
 
 [Change contrast](benchmarks/c/change_contrast/README.md) ports the pinned Python contrast factor and truncation behavior to all nine languages using exact bounded integer arithmetic. All ports passed 529 oracle inputs and 13 workload cases.
+
+[Circular orbit velocity](benchmarks/c/circular_orbit_velocity/README.md) ports the pinned Java `Gravitation.java` circular-orbit speed formula to all nine languages.
 
 [Conjugate Gradient](benchmarks/c/conjugate_gradient/README.md) ports the pinned Python solver to all nine languages for bounded symmetric positive-definite systems, with an exact rational oracle.
 
@@ -376,6 +394,8 @@ C LeetCode candidate 2304 uses row-by-row dynamic programming to minimize each n
 
 [Stack-Based Depth-First Search](benchmarks/d/depth_first_search_with_stack/README.md) preserves the C++ source's push-time marking and stack-pop traversal order in nine portable ports. All nine passed 2,113 checker cases, including the declared workload, exhaustive small directed graphs, deterministic random graphs, malformed inputs, and capacity failure.
 
+[Iterative Depth-First Search Order](benchmarks/d/depth_first_search_iterative_order/README.md) ports the pinned JavaScript graph traversal to all nine languages, preserving adjacency insertion order, push-time marking, and LIFO visitation. Its contract and workload are in place.
+
 [False Position](benchmarks/f/false_position/README.md) implements the bracket-preserving root-finding update on the pinned `x² - x` function across all nine languages. All nine ports compiled and passed 966 root checks; the contract documents and corrects the C++ helper's bracket-update issue.
 
 [First-Come, First-Served Scheduling](benchmarks/f/fcfs_scheduling/README.md) ports the pinned non-preemptive FCFS scheduler to all nine languages, with arrival-time ordering, process-ID tie-breaking, bounded inputs, and completion/turnaround/waiting output. The Julia `fcfs`, Java `FCFSScheduling`, and Python `first_come_first_served` sources are cataloged as aliases for already ordered, initially available jobs. A checker-only verifier covers exhaustive small schedules and boundary cases.
@@ -406,6 +426,14 @@ C LeetCode candidate 2304 uses row-by-row dynamic programming to minimize each n
 [Turkish-to-Latin Conversion](benchmarks/t/turkish_to_latin_conversion/README.md) ports the pinned Java letter map over validated UTF-8, preserving other Unicode scalars. All nine ports passed 10,254 oracle inputs, including malformed UTF-8 and capacity cases; see [the verifier](benchmarks/verify_turkish_to_latin_conversion.py).
 
 [Graph Coloring by Backtracking](benchmarks/g/graph_coloring_backtracking/README.md) preserves Go’s ascending vertex and color order. The source allows as many colors as vertices, so on loopless graphs the search never backtracks and returns a first-fit coloring rather than a minimum coloring. All nine ports passed 1,355 graph and ABI cases each and recorded ten workload cases; see [the verifier](benchmarks/verify_graph_coloring_backtracking.py).
+
+[Graph adjacency list](benchmarks/g/graph_adjacency_list/README.md) preserves the Python graph ADT’s mutation results, insertion order, directedness, and undirected self-loop behavior across all nine languages.
+
+[Graph adjacency matrix](benchmarks/g/graph_adjacency_matrix/README.md) ports the Python graph ADT’s directed and undirected matrix mutations, vertex reindexing, membership queries, and final row-major matrix across all nine languages.
+
+[Graph peripherality](benchmarks/g/graph_peripherality/README.md) ports the Python all-pairs shortest paths and maximum eccentricity/farness selections to all nine languages, including its disconnected-node infinity behavior.
+
+[Graph centrality](benchmarks/g/graph_centrality/README.md) ports weighted directed all-pairs shortest paths and returns the minimum-eccentricity and harmonic-closeness nodes.
 
 
 [Ascon Digest](benchmarks/a/ascon_digest/README.md) ports both variants from the pinned C# class using portable scalar operations. The ports preserve its fixed 12-round finalization behavior and passed all 433 source-vector, boundary, randomized, invalid-input, and capacity cases in each of the nine languages; see [the verifier](benchmarks/verify_ascon_digest.py).
@@ -569,6 +597,8 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 [K-th order statistic](benchmarks/k/kth_order_statistic/README.md) ports the pinned Python divide-and-conquer quickselect across all nine languages for bounded unique-value inputs.
 [K-th smallest with a max heap](benchmarks/k/kth_smallest_heap/README.md) ports the pinned Rust top-k max-heap algorithm across all nine languages.
 [Log two](benchmarks/l/log_two/README.md) ports the matching JavaScript and TypeScript signed-shift loops across all nine languages, bounded to nonnegative signed-32-bit values.
+[K-fold labels](benchmarks/k/k_folds/README.md) ports the pinned R source deterministic non-list fold assignment across all nine languages.
+
 [K-th element from the end](benchmarks/k/kth_element_from_end/README.md) ports the pinned Python linked-list two-pointer lookup across all nine languages for bounded values.
 [Long division](benchmarks/l/long_division/README.md) ports the pinned Java decimal digit-by-digit repeated-subtraction division across all nine languages for bounded integers.
 [Lee breadth-first search](benchmarks/l/lee_breadth_first_search/README.md) ports the pinned Rust four-neighbor grid BFS across all nine languages and compares shortest path distance.

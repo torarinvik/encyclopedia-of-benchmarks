@@ -1,7 +1,41 @@
-const ALPHABET: [32]u8 = "0123456789bcdefghjkmnpqrstuvwxyz"
 
+def geohash_symbol(index: usize) -> u8:
+    result: mutable u8 = 122
+    if index == 0: result <- 48
+    elif index == 1: result <- 49
+    elif index == 2: result <- 50
+    elif index == 3: result <- 51
+    elif index == 4: result <- 52
+    elif index == 5: result <- 53
+    elif index == 6: result <- 54
+    elif index == 7: result <- 55
+    elif index == 8: result <- 56
+    elif index == 9: result <- 57
+    elif index == 10: result <- 98
+    elif index == 11: result <- 99
+    elif index == 12: result <- 100
+    elif index == 13: result <- 101
+    elif index == 14: result <- 102
+    elif index == 15: result <- 103
+    elif index == 16: result <- 104
+    elif index == 17: result <- 106
+    elif index == 18: result <- 107
+    elif index == 19: result <- 109
+    elif index == 20: result <- 110
+    elif index == 21: result <- 112
+    elif index == 22: result <- 113
+    elif index == 23: result <- 114
+    elif index == 24: result <- 115
+    elif index == 25: result <- 116
+    elif index == 26: result <- 117
+    elif index == 27: result <- 118
+    elif index == 28: result <- 119
+    elif index == 29: result <- 120
+    elif index == 30: result <- 121
+    elif index == 31: result <- 122
+    result
 def geohash_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
-    if v.is_null() or length != 2: return -1
+    if v == null or length != 2: return -1
     if v[0] < -90000000 or v[0] > 90000000 or v[1] < -180000000 or v[1] > 180000000: return -1
     lat: f64 = v[0].f64() / 1000000.0
     lon: f64 = v[1].f64() / 1000000.0
@@ -31,11 +65,11 @@ def geohash_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i
         islon <- not islon
         if bit < 4: bit <- bit + 1
         else:
-            buffer[p] <- ALPHABET[value]
+            buffer[p] <- geohash_symbol(value)
             p <- p + 1
             bit <- 0
             value <- 0
-    if out.is_null() or capacity < 12: return -2
-    for i in 0..12: out[i] <- buffer[i]
+    if out == null or capacity < 12: return -2
+    for i in 0..<12: out[i] <- buffer[i]
     12
 export geohash(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = geohash_impl

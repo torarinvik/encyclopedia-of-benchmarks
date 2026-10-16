@@ -1,0 +1,308 @@
+const MAX_VERTICES: usize = 8
+const MAX_EDGES: usize = 28
+const MAX_OPERATIONS: usize = 128
+const MAX_INPUT_LENGTH: usize = 599
+const MIN_WEIGHT: i64 = -1000000
+const MAX_WEIGHT: i64 = 1000000
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+const RESULT_MASK: u64 = 9223372036854775807
+
+def graph_hash_byte(hash_value: u64, value: u64) -> u64:
+    ((hash_value ^ (value & 255)) * FNV_PRIME)
+
+def graph_hash_i32(hash_value: u64, value: i64) -> u64:
+    hash: mutable u64 = hash_value
+    bits: u64 = if value < 0: (value + 4294967296).u64() else: value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        hash <- graph_hash_byte(hash, (bits >> (byte * 8)) & 255)
+        byte <- byte + 1
+    hash
+
+def graph_hash_u32(hash_value: u64, value: u64) -> u64:
+    hash: mutable u64 = hash_value
+    byte: mutable usize = 0
+    while byte < 4:
+        hash <- graph_hash_byte(hash, (value >> (byte * 8)) & 255)
+        byte <- byte + 1
+    hash
+
+def graph_edge_bit_index(n: usize, u_input: usize, v_input: usize) -> usize:
+    u: mutable usize = u_input
+    v: mutable usize = v_input
+    if u > v:
+        temp: usize = u
+        u <- v
+        v <- temp
+    index: mutable usize = 0
+    first: mutable usize = 0
+    while first < u:
+        index <- index + n - first - 1
+        first <- first + 1
+    index + v - u - 1
+
+def graph_component_count(n: usize, present: mutable bool[64]) -> usize:
+    seen: mutable bool[8] = zeroed
+    count: mutable usize = 0
+    root: mutable usize = 0
+    while root < n:
+        if not seen[root]:
+            count <- count + 1
+            stack: mutable usize[8] = zeroed
+            size: mutable usize = 1
+            seen[root] <- true
+            stack[0] <- root
+            while size > 0:
+                size <- size - 1
+                node: usize = stack[size]
+                neighbor: mutable usize = 0
+                while neighbor < n:
+                    if present[node * 8 + neighbor] and not seen[neighbor]:
+                        seen[neighbor] <- true
+                        stack[size] <- neighbor
+                        size <- size + 1
+                    neighbor <- neighbor + 1
+        root <- root + 1
+    count
+
+def graph_prim_forest(n: usize, present: mutable bool[64], weights: mutable i64[64],
+                      component_total: mutable usize&, edge_mask: mutable u64&) -> void:
+    in_forest: mutable bool[8] = zeroed
+    best_weight: mutable i64[8] = zeroed
+    best_parent: mutable i64[8] = zeroed
+    index: mutable usize = 0
+    while index < 8:
+        best_parent[index] <- -1
+        index <- index + 1
+    component_total <- 0
+    edge_mask <- 0
+    root: mutable usize = 0
+    while root < n:
+        if not in_forest[root]:
+            component_total <- component_total + 1
+            in_forest[root] <- true
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                edge: usize = root * 8 + neighbor
+                if present[edge] and not in_forest[neighbor]:
+                    best_weight[neighbor] <- weights[edge]
+                    best_parent[neighbor] <- root.i64()
+                neighbor <- neighbor + 1
+            while true:
+                selected: mutable i64 = -1
+                candidate: mutable usize = 0
+                while candidate < n:
+                    if not in_forest[candidate] and best_parent[candidate] >= 0 and
+                        (selected < 0 or best_weight[candidate] < best_weight[selected.usize()]):
+                        selected <- candidate.i64()
+                    candidate <- candidate + 1
+                if selected < 0: break
+                parent: usize = best_parent[selected.usize()].usize()
+                bit: usize = graph_edge_bit_index(n, parent, selected.usize())
+                edge_mask <- edge_mask | (1 << bit)
+                in_forest[selected.usize()] <- true
+                best_parent[selected.usize()] <- -1
+                neighbor <- 0
+                while neighbor < n:
+                    edge <- selected.usize() * 8 + neighbor
+                    if present[edge] and not in_forest[neighbor] and
+                        (best_parent[neighbor] < 0 or weights[edge] < best_weight[neighbor]):
+                        best_weight[neighbor] <- weights[edge]
+                        best_parent[neighbor] <- selected
+                    neighbor <- neighbor + 1
+        root <- root + 1
+
+def graph_find_root(parent: mutable usize[8], node_input: usize) -> usize:
+    node: mutable usize = node_input
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    node
+
+def graph_kruskal_forest(n: usize, present: mutable bool[64], weights: mutable i64[64],
+                         component_total: mutable usize&, edge_mask: mutable u64&) -> void:
+    edge_u: mutable usize[28] = zeroed
+    edge_v: mutable usize[28] = zeroed
+    edge_weight: mutable i64[28] = zeroed
+    edge_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v < n:
+            edge: usize = u * 8 + v
+            if present[edge]:
+                edge_u[edge_count] <- u
+                edge_v[edge_count] <- v
+                edge_weight[edge_count] <- weights[edge]
+                edge_count <- edge_count + 1
+            v <- v + 1
+        u <- u + 1
+    index: mutable usize = 1
+    while index < edge_count:
+        key_u: usize = edge_u[index]
+        key_v: usize = edge_v[index]
+        key_weight: i64 = edge_weight[index]
+        j: mutable usize = index
+        while j > 0 and edge_weight[j - 1] > key_weight:
+            edge_u[j] <- edge_u[j - 1]
+            edge_v[j] <- edge_v[j - 1]
+            edge_weight[j] <- edge_weight[j - 1]
+            j <- j - 1
+        edge_u[j] <- key_u
+        edge_v[j] <- key_v
+        edge_weight[j] <- key_weight
+        index <- index + 1
+    parent: mutable usize[8] = zeroed
+    rank: mutable usize[8] = zeroed
+    index <- 0
+    while index < n:
+        parent[index] <- index
+        index <- index + 1
+    component_total <- n
+    edge_mask <- 0
+    index <- 0
+    while index < edge_count:
+        left: usize = graph_find_root(parent, edge_u[index])
+        right: usize = graph_find_root(parent, edge_v[index])
+        if left != right:
+            if rank[left] < rank[right]: parent[left] <- right
+            elif rank[left] > rank[right]: parent[right] <- left
+            else:
+                parent[right] <- left
+                rank[left] <- rank[left] + 1
+            component_total <- component_total - 1
+            bit: usize = graph_edge_bit_index(n, edge_u[index], edge_v[index])
+            edge_mask <- edge_mask | (1 << bit)
+        index <- index + 1
+
+def undirected_graph_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    initial_count_value: i64 = input[1]
+    if n_value < 0 or n_value > 8 or initial_count_value < 0 or initial_count_value > 28: return -1
+    n: usize = n_value.usize()
+    initial_count: usize = initial_count_value.usize()
+    if initial_count > n * (n - 1) / 2: return -1
+    count_position: usize = 2 + 3 * initial_count
+    if count_position >= length: return -1
+    operation_count_value: i64 = input[count_position]
+    if operation_count_value < 0 or operation_count_value > 128 or
+        length != 3 + 3 * initial_count + 4 * operation_count_value.usize(): return -1
+    present: mutable bool[64] = zeroed
+    weights: mutable i64[64] = zeroed
+    edge_index: mutable usize = 0
+    while edge_index < initial_count:
+        position: usize = 2 + 3 * edge_index
+        u_value: i64 = input[position]
+        v_value: i64 = input[position + 1]
+        weight: i64 = input[position + 2]
+        if u_value < 0 or u_value >= v_value or v_value >= n_value or weight < MIN_WEIGHT or weight > MAX_WEIGHT: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if present[u * 8 + v]: return -1
+        first: mutable usize = 0
+        while first < n:
+            second: mutable usize = first + 1
+            while second < n:
+                old: usize = first * 8 + second
+                if present[old] and weights[old] == weight: return -1
+                second <- second + 1
+            first <- first + 1
+        present[u * 8 + v] <- true
+        present[v * 8 + u] <- true
+        weights[u * 8 + v] <- weight
+        weights[v * 8 + u] <- weight
+        edge_index <- edge_index + 1
+
+    hash: mutable u64 = FNV_OFFSET
+    operation: mutable usize = 0
+    while operation < operation_count_value.usize():
+        position: usize = count_position + 1 + 4 * operation
+        opcode: i64 = input[position]
+        u_value: i64 = input[position + 1]
+        v_value: i64 = input[position + 2]
+        weight: i64 = input[position + 3]
+        result_code: mutable u64 = 0
+        if opcode == 0:
+            if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or
+                weight < MIN_WEIGHT or weight > MAX_WEIGHT: return -1
+            u: usize = u_value.usize()
+            v: usize = v_value.usize()
+            index: usize = u * 8 + v
+            reverse: usize = v * 8 + u
+            old_index: usize = if u < v: index else: reverse
+            first <- 0
+            while first < n:
+                second: mutable usize = first + 1
+                while second < n:
+                    other: usize = first * 8 + second
+                    if other != old_index and present[other] and weights[other] == weight: return -1
+                    second <- second + 1
+                first <- first + 1
+            present[index] <- true
+            present[reverse] <- true
+            weights[index] <- weight
+            weights[reverse] <- weight
+        elif opcode == 1 or opcode == 2:
+            if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or weight != 0: return -1
+            u: usize = u_value.usize()
+            v: usize = v_value.usize()
+            index: usize = u * 8 + v
+            reverse: usize = v * 8 + u
+            if opcode == 1:
+                present[index] <- false
+                present[reverse] <- false
+                weights[index] <- 0
+                weights[reverse] <- 0
+            else:
+                result_code <- if present[index]: 1 else: 0
+        elif opcode == 3:
+            if u_value != 0 or v_value != 0 or weight != 0: return -1
+            hash <- graph_hash_byte(hash, opcode.u64())
+            hash <- graph_hash_byte(hash, result_code)
+            hash <- graph_hash_byte(hash, graph_component_count(n, present).u64())
+            operation <- operation + 1
+            continue
+        elif opcode == 4 or opcode == 5 or opcode == 6:
+            if u_value != 0 or v_value != 0 or weight != 0: return -1
+            components: mutable usize = 0
+            mask: mutable u64 = 0
+            if opcode == 5: graph_kruskal_forest(n, present, weights, components, mask)
+            else: graph_prim_forest(n, present, weights, components, mask)
+            hash <- graph_hash_byte(hash, opcode.u64())
+            hash <- graph_hash_byte(hash, result_code)
+            hash <- graph_hash_byte(hash, components.u64())
+            hash <- graph_hash_u32(hash, mask)
+            operation <- operation + 1
+            continue
+        else:
+            return -1
+        hash <- graph_hash_byte(hash, opcode.u64())
+        hash <- graph_hash_byte(hash, result_code)
+        operation <- operation + 1
+
+    active_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < n:
+        v: mutable usize = u + 1
+        while v < n:
+            if present[u * 8 + v]: active_count <- active_count + 1
+            v <- v + 1
+        u <- u + 1
+    hash <- graph_hash_byte(hash, n.u64())
+    hash <- graph_hash_byte(hash, active_count.u64())
+    u <- 0
+    while u < n:
+        v <- u + 1
+        while v < n:
+            index: usize = u * 8 + v
+            if present[index]:
+                hash <- graph_hash_byte(hash, u.u64())
+                hash <- graph_hash_byte(hash, v.u64())
+                hash <- graph_hash_i32(hash, weights[index])
+            v <- v + 1
+        u <- u + 1
+    (hash & RESULT_MASK).i64()
+
+export fn undirected_graph(input: i64&, length: usize) -> i64 = undirected_graph_impl

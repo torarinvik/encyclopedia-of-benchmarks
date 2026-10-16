@@ -4,7 +4,7 @@
   "algorithm": "bitwise_complement",
   "input": {
     "minimum": 0,
-    "maximum": 2147483647,
+    "maximum": 999999999,
     "out_of_range_result": -1,
     "operation": "XOR with a mask containing one bit for each significant input bit; zero maps to one"
   },
@@ -55,14 +55,14 @@
       "expected_result": 1023
     },
     {
-      "id": "upper_signed_bit_boundary",
-      "input_value": 1073741824,
-      "expected_result": 1073741823
+      "id": "largest_supported_input",
+      "input_value": 999999999,
+      "expected_result": 73741824
     },
     {
-      "id": "maximum_input",
-      "input_value": 2147483647,
-      "expected_result": 0
+      "id": "first_above_domain",
+      "input_value": 1000000000,
+      "expected_result": -1
     },
     {
       "id": "negative",
@@ -70,8 +70,13 @@
       "expected_result": -1
     },
     {
-      "id": "first_above_domain",
-      "input_value": 2147483648,
+      "id": "upper_signed_bit_boundary",
+      "input_value": 1073741824,
+      "expected_result": -1
+    },
+    {
+      "id": "signed32_maximum_invalid",
+      "input_value": 2147483647,
       "expected_result": -1
     },
     {

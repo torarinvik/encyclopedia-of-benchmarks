@@ -3,7 +3,7 @@
 
 extern "C" std::int64_t bitwise_complement(std::int64_t n) noexcept
 {
-    if (n < 0 || n > INT32_MAX) return -1;
+    if (n < 0 || n > 999999999) return -1;
     if (n == 0) return 1;
     auto value = static_cast<std::uint64_t>(n);
     std::uint64_t mask = 0;

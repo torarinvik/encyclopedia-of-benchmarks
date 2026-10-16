@@ -1,0 +1,102 @@
+# Sorted-key adjacency conversion, with rows and neighbor order preserved.
+def graph_enumeration_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 1:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 0 or n_value > 16 or length < (1 + n_value).usize():
+        return -1
+    n: usize = n_value.usize()
+    labels: mutable i64[16] = zeroed
+    sorted: mutable i64[16] = zeroed
+    adjacency: mutable i64[512] = zeroed
+    degree: mutable usize[16] = zeroed
+    i: mutable usize = 0
+    j: mutable usize = 0
+    while i < n:
+        labels[i] <- values[1 + i]
+        if labels[i] < -1000000 or labels[i] > 1000000:
+            return -1
+        j <- 0
+        while j < i:
+            if labels[i] == labels[j]:
+                return -1
+            j <- j + 1
+        sorted[i] <- labels[i]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j <- i + 1
+        while j < n:
+            if sorted[j] < sorted[i]:
+                temp: i64 = sorted[i]
+                sorted[i] <- sorted[j]
+                sorted[j] <- temp
+            j <- j + 1
+        i <- i + 1
+    offset: mutable usize = 1 + n
+    i <- 0
+    while i < n:
+        if offset >= length:
+            return -1
+        d: i64 = values[offset]
+        offset <- offset + 1
+        if d < 0 or d > 32 or offset + d.usize() > length:
+            return -1
+        degree[i] <- d.usize()
+        j <- 0
+        while j < degree[i]:
+            neighbor: i64 = values[offset]
+            offset <- offset + 1
+            found: mutable bool = false
+            k: mutable usize = 0
+            while k < n:
+                if labels[k] == neighbor:
+                    found <- true
+                k <- k + 1
+            if not found:
+                return -1
+            adjacency[i * 32 + j] <- neighbor
+            j <- j + 1
+        i <- i + 1
+    if offset != length:
+        return -1
+    hash: mutable u64 = 14695981039346656037
+    value: mutable u64 = (n + 1).u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        hash <- (hash ^ (value & 255)) * 1099511628211
+        value <- value >> 8
+        byte <- byte + 1
+    value <- 0
+    byte <- 0
+    while byte < 8:
+        hash <- (hash ^ (value & 255)) * 1099511628211
+        value <- value >> 8
+        byte <- byte + 1
+    s: mutable usize = 0
+    while s < n:
+        i <- 0
+        while labels[i] != sorted[s]:
+            i <- i + 1
+        value <- degree[i].u64()
+        byte <- 0
+        while byte < 8:
+            hash <- (hash ^ (value & 255)) * 1099511628211
+            value <- value >> 8
+            byte <- byte + 1
+        j <- 0
+        while j < degree[i]:
+            k: mutable usize = 0
+            while sorted[k] != adjacency[i * 32 + j]:
+                k <- k + 1
+            value <- (k + 1).u64()
+            byte <- 0
+            while byte < 8:
+                hash <- (hash ^ (value & 255)) * 1099511628211
+                value <- value >> 8
+                byte <- byte + 1
+            j <- j + 1
+        s <- s + 1
+    hash.i64()
+
+export fn graph_enumeration(values: i64&, length: usize) -> i64 = graph_enumeration_impl

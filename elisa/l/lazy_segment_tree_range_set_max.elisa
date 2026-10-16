@@ -1,0 +1,101 @@
+# Lazy segment tree for range assignment and range maximum.
+const MAX_N: usize = 256
+const MAX_Q: usize = 512
+const MAX_INPUT: usize = 2306
+const CHECKSUM_OFFSET: i64 = 1000001
+
+def build(values: i64&, tree: mutable i64&, node: usize, left: usize, right: usize) -> void:
+    if left == right:
+        tree[node] <- values[left]
+        return
+    mid: usize = left + (right - left) / 2
+    build(values, tree, node * 2, left, mid)
+    build(values, tree, node * 2 + 1, mid + 1, right)
+    tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
+
+def push(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize) -> void:
+    if pending[node] == 0: return
+    tree[node] <- lazy[node]
+    pending[node] <- 0
+    if left != right:
+        child: usize = node * 2
+        lazy[child] <- tree[node]
+        lazy[child + 1] <- tree[node]
+        pending[child] <- 1
+        pending[child + 1] <- 1
+
+def assign_range(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize, ql: usize, qr: usize, value: i64) -> void:
+    push(tree, lazy, pending, node, left, right)
+    if right < ql or left > qr: return
+    if ql <= left and right <= qr:
+        tree[node] <- value
+        if left != right:
+            child: usize = node * 2
+            lazy[child] <- value
+            lazy[child + 1] <- value
+            pending[child] <- 1
+            pending[child + 1] <- 1
+        return
+    mid: usize = left + (right - left) / 2
+    assign_range(tree, lazy, pending, node * 2, left, mid, ql, qr, value)
+    assign_range(tree, lazy, pending, node * 2 + 1, mid + 1, right, ql, qr, value)
+    tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
+
+def range_max(tree: mutable i64&, lazy: mutable i64&, pending: mutable u8&, node: usize, left: usize, right: usize, ql: usize, qr: usize) -> i64:
+    push(tree, lazy, pending, node, left, right)
+    if right < ql or left > qr: return -9223372036854775807 - 1
+    if ql <= left and right <= qr: return tree[node]
+    mid: usize = left + (right - left) / 2
+    a: i64 = range_max(tree, lazy, pending, node * 2, left, mid, ql, qr)
+    b: i64 = range_max(tree, lazy, pending, node * 2 + 1, mid + 1, right, ql, qr)
+    if a > b: a else: b
+
+def lazy_segment_tree_range_set_max_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    nv: i64 = input[0]
+    qv: i64 = input[1]
+    if nv < 1 or nv > MAX_N.i64() or qv < 0 or qv > MAX_Q.i64(): return -1
+    n: usize = nv.usize()
+    q: usize = qv.usize()
+    if length < 2 + n: return -1
+    initial: mutable i64[MAX_N] = zeroed
+    for i in 0..<n:
+        initial[i] <- input[2 + i]
+        if initial[i] < -1000000 or initial[i] > 1000000: return -1
+    offset: mutable usize = 2 + n
+    opcodes: mutable u8[MAX_Q] = zeroed
+    lefts: mutable usize[MAX_Q] = zeroed
+    rights: mutable usize[MAX_Q] = zeroed
+    assigned: mutable i64[MAX_Q] = zeroed
+    for i in 0..<q:
+        if offset >= length: return -1
+        op: i64 = input[offset]
+        width: usize = if op == 0 then 3 else if op == 1 then 4 else 0
+        if width == 0 or offset + width > length: return -1
+        l: i64 = input[offset + 1]
+        r: i64 = input[offset + 2]
+        if l < 0 or l >= r or r > nv: return -1
+        opcodes[i] <- op.u8()
+        lefts[i] <- l.usize()
+        rights[i] <- r.usize()
+        if op == 1:
+            assigned[i] <- input[offset + 3]
+            if assigned[i] < -1000000 or assigned[i] > 1000000: return -1
+        offset <- offset + width
+    if offset != length: return -1
+    tree: mutable i64[1024] = zeroed
+    lazy: mutable i64[1024] = zeroed
+    pending: mutable u8[1024] = zeroed
+    build(&initial[0], &tree[0], 1, 0, n - 1)
+    checksum: mutable i64 = 0
+    ordinal: mutable i64 = 0
+    for i in 0..<q:
+        if opcodes[i] == 1:
+            assign_range(&tree[0], &lazy[0], &pending[0], 1, 0, n - 1, lefts[i], rights[i] - 1, assigned[i])
+        else:
+            answer: i64 = range_max(&tree[0], &lazy[0], &pending[0], 1, 0, n - 1, lefts[i], rights[i] - 1)
+            ordinal <- ordinal + 1
+            checksum <- checksum + ordinal * (answer + CHECKSUM_OFFSET)
+    checksum
+
+export fn lazy_segment_tree_range_set_max(input: i64&, length: usize) -> i64 = lazy_segment_tree_range_set_max_impl

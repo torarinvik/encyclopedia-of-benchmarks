@@ -1,0 +1,18 @@
+# Deterministic contiguous fold labels from the R source's non-list mode.
+def k_folds_impl(values: i64&, length: usize) -> i64:
+    if values == null or length != 2:
+        return -1
+    sample_count: i64 = values[0]
+    fold_count: i64 = values[1]
+    if sample_count < 1 or sample_count > 12 or fold_count < 1 or fold_count > 12:
+        return -1
+    width: i64 = (sample_count + fold_count - 1) / fold_count
+    result_bits: mutable u64 = sample_count.u64() << 48
+    index: mutable usize = 0
+    while index < sample_count.usize():
+        fold: u64 = (index.i64() + width).u64() / width.u64()
+        result_bits <- result_bits | (fold << (4 * index))
+        index <- index + 1
+    result_bits.i64()
+
+export fn k_folds(values: i64&, length: usize) -> i64 = k_folds_impl

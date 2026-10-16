@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "ring-buffer-capacity-8-state-trace-v1",
+  "algorithm": "ring_buffer",
+  "function_symbol": "ring_buffer",
+  "input": {
+    "kind": "signed_i64_array_packed_ring_buffer_operations",
+    "encoding": "[q, (opcode, payload) repeated q times]",
+    "opcodes": {
+      "0": "push value",
+      "1": "pop",
+      "2": "peek front",
+      "3": "peek back",
+      "4": "get FIFO-relative index",
+      "5": "clear",
+      "6": "length",
+      "7": "available capacity",
+      "8": "is empty",
+      "9": "is full"
+    },
+    "operation_count_range": [0, 256],
+    "length_range": [1, 513],
+    "push_value_range": [-1000000, 1000000],
+    "get_index_range": [0, 1000000],
+    "capacity": 8,
+    "status_codes": {
+      "0": "success",
+      "1": "BufferFull",
+      "2": "BufferEmpty",
+      "3": "IndexOutOfBounds"
+    },
+    "invalid_result": -1,
+    "output": "rolling state trace hash with multiplier 1000003 and modulus 1000000007"
+  },
+  "cases": [
+    {
+      "id": "no_operations",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "empty_errors",
+      "input_values": [3, 1, 0, 2, 0, 3, 0],
+      "input_length": 7,
+      "expected_result": 881524806
+    },
+    {
+      "id": "ring_wrap_full_and_queries",
+      "input_values": [19, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 99, 1, 0, 1, 0, 0, 9, 0, 10, 3, 0, 2, 0, 4, 4, 9, 0, 6, 0, 7, 0],
+      "input_length": 39,
+      "expected_result": 537479077
+    },
+    {
+      "id": "clear_and_reuse",
+      "input_values": [10, 0, 21, 0, 22, 0, 23, 5, 0, 8, 0, 9, 0, 7, 0, 0, -7, 2, 0, 1, 0],
+      "input_length": 21,
+      "expected_result": 413547527
+    },
+    {
+      "id": "get_out_of_bounds_preserves_state",
+      "input_values": [3, 0, 4, 4, 1000000, 1, 0],
+      "input_length": 7,
+      "expected_result": 245302750
+    },
+    {
+      "id": "value_boundaries",
+      "input_values": [4, 0, -1000000, 0, 1000000, 4, 0, 3, 0],
+      "input_length": 9,
+      "expected_result": 16080070
+    },
+    {
+      "id": "unknown_opcode",
+      "input_values": [1, 10, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "nonzero_dummy_payload",
+      "input_values": [1, 5, 1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "push_value_above_bound",
+      "input_values": [1, 0, 1000001],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_get_index",
+      "input_values": [1, 4, -1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "get_index_above_bound",
+      "input_values": [1, 4, 1000001],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_operation_payload",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_input",
+      "input_values": [0, 99],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "operation_count_above_bound",
+      "input_values": [257],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

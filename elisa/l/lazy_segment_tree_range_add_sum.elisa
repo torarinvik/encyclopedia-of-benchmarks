@@ -1,0 +1,103 @@
+const MAX_ITEMS: usize = 256
+const MAX_OPERATIONS: usize = 512
+const MAX_INPUT_LENGTH: usize = 2306
+const VALUE_LIMIT: i64 = 1000000
+const QUERY_OFFSET: i64 = 131328000001
+
+def lazy_segment_tree_apply(tree: mutable i64[512], pending: mutable i64[512],
+                             node: usize, segment_length: usize, delta: i64) -> void:
+    tree[node] <- tree[node] + delta * segment_length.i64()
+    pending[node] <- pending[node] + delta
+
+def lazy_segment_tree_push(tree: mutable i64[512], pending: mutable i64[512],
+                            node: usize, segment_length: usize) -> void:
+    if segment_length > 1 and pending[node] != 0:
+        child_length: usize = segment_length / 2
+        lazy_segment_tree_apply(tree, pending, 2 * node, child_length, pending[node])
+        lazy_segment_tree_apply(tree, pending, 2 * node + 1, child_length, pending[node])
+        pending[node] <- 0
+
+def lazy_segment_tree_add(tree: mutable i64[512], pending: mutable i64[512],
+                           node: usize, low: usize, high: usize,
+                           query_low: usize, query_high: usize, delta: i64) -> void:
+    if query_low <= low and high <= query_high:
+        lazy_segment_tree_apply(tree, pending, node, high - low, delta)
+        return
+    lazy_segment_tree_push(tree, pending, node, high - low)
+    middle: usize = (low + high) / 2
+    if query_low < middle:
+        lazy_segment_tree_add(tree, pending, 2 * node, low, middle, query_low, query_high, delta)
+    if query_high > middle:
+        lazy_segment_tree_add(tree, pending, 2 * node + 1, middle, high, query_low, query_high, delta)
+    tree[node] <- tree[2 * node] + tree[2 * node + 1]
+
+def lazy_segment_tree_sum(tree: mutable i64[512], pending: mutable i64[512],
+                           node: usize, low: usize, high: usize,
+                           query_low: usize, query_high: usize) -> i64:
+    if query_low <= low and high <= query_high: return tree[node]
+    lazy_segment_tree_push(tree, pending, node, high - low)
+    middle: usize = (low + high) / 2
+    result: mutable i64 = 0
+    if query_low < middle:
+        result <- result + lazy_segment_tree_sum(tree, pending, 2 * node, low, middle, query_low, query_high)
+    if query_high > middle:
+        result <- result + lazy_segment_tree_sum(tree, pending, 2 * node + 1, middle, high, query_low, query_high)
+    result
+
+def lazy_segment_tree_range_add_sum_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    item_count_value: i64 = values[0]
+    if item_count_value < 1 or item_count_value > MAX_ITEMS.i64(): return -1
+    item_count: usize = item_count_value.usize()
+    if length < item_count + 2: return -1
+    operation_count_value: i64 = values[item_count + 1]
+    if operation_count_value < 0 or operation_count_value > MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = operation_count_value.usize()
+    if length != item_count + 2 + 4 * operation_count: return -1
+
+    index: mutable usize = 0
+    while index < item_count:
+        if values[index + 1] < -VALUE_LIMIT or values[index + 1] > VALUE_LIMIT: return -1
+        index <- index + 1
+    index <- 0
+    while index < operation_count:
+        position: usize = item_count + 2 + 4 * index
+        opcode: i64 = values[position]
+        left: i64 = values[position + 1]
+        right: i64 = values[position + 2]
+        delta: i64 = values[position + 3]
+        if left < 0 or left >= right or right > item_count_value: return -1
+        if opcode == 0:
+            if delta < -VALUE_LIMIT or delta > VALUE_LIMIT: return -1
+        elif opcode == 1:
+            if delta != 0: return -1
+        else: return -1
+        index <- index + 1
+
+    base: mutable usize = 1
+    while base < item_count: base <- base * 2
+    tree: mutable i64[512] = zeroed
+    pending: mutable i64[512] = zeroed
+    index <- 0
+    while index < item_count:
+        tree[base + index] <- values[index + 1]
+        index <- index + 1
+    node: mutable usize = base
+    while node > 1:
+        node <- node - 1
+        tree[node] <- tree[2 * node] + tree[2 * node + 1]
+
+    checksum: mutable i64 = 0
+    index <- 0
+    while index < operation_count:
+        position: usize = item_count + 2 + 4 * index
+        left: usize = values[position + 1].usize()
+        right: usize = values[position + 2].usize()
+        if values[position] == 0:
+            lazy_segment_tree_add(tree, pending, 1, 0, base, left, right, values[position + 3])
+        else:
+            checksum <- checksum + lazy_segment_tree_sum(tree, pending, 1, 0, base, left, right) + QUERY_OFFSET
+        index <- index + 1
+    checksum
+
+export fn lazy_segment_tree_range_add_sum(values: i64&, length: usize) -> i64 = lazy_segment_tree_range_add_sum_impl

@@ -1,0 +1,109 @@
+def graph_peripherality_put(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def graph_peripherality(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graph_peripherality"):
+    if input.is_null() or length < 2: return -1
+    n_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    if n_value < 1 or n_value > 8 or edge_value < 0 or edge_value > 56 or edge_value > n_value * (n_value - 1): return -1
+    if length != 2 + 3 * edge_value.usize(): return -1
+    n: usize = n_value.usize()
+    edge_count: usize = edge_value.usize()
+    distance: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        row: mutable usize = 0
+        while row < n:
+            distance[index * 8 + row] <- 2305843009213693951
+            row <- row + 1
+        distance[index * 8 + index] <- 0
+        index <- index + 1
+    index <- 0
+    while index < edge_count:
+        source_value: i64 = input[2 + 3 * index]
+        destination_value: i64 = input[3 + 3 * index]
+        weight: i64 = input[4 + 3 * index]
+        if source_value < 0 or source_value >= n_value or destination_value < 0 or destination_value >= n_value or source_value == destination_value or weight < 1 or weight > 1000000: return -1
+        source: usize = source_value.usize()
+        destination: usize = destination_value.usize()
+        cell: usize = source * 8 + destination
+        if distance[cell] != 2305843009213693951: return -1
+        distance[cell] <- weight
+        index <- index + 1
+    middle: mutable usize = 0
+    while middle < n:
+        source: mutable usize = 0
+        while source < n:
+            first: i64 = distance[source * 8 + middle]
+            if first != 2305843009213693951:
+                destination: mutable usize = 0
+                while destination < n:
+                    second: i64 = distance[middle * 8 + destination]
+                    if second != 2305843009213693951 and first + second < distance[source * 8 + destination]:
+                        distance[source * 8 + destination] <- first + second
+                    destination <- destination + 1
+            source <- source + 1
+        middle <- middle + 1
+    if n > 1:
+        connect_source: mutable usize = 0
+        while connect_source < n:
+            connect_destination: mutable usize = 0
+            while connect_destination < n:
+                if connect_source != connect_destination and distance[connect_source * 8 + connect_destination] == 2305843009213693951: return -1
+                connect_destination <- connect_destination + 1
+            connect_source <- connect_source + 1
+    peripheral: mutable i64 = -1
+    far: mutable i64 = -1
+    peripheral_infinite: mutable bool = false
+    far_infinite: mutable bool = false
+    any_reachable: mutable bool = false
+    best_eccentricity: mutable i64 = -1
+    best_farness: mutable i64 = -1
+    if n == 1:
+        peripheral <- 0
+        far <- 0
+        best_eccentricity <- 0
+        best_farness <- 0
+    else:
+        source: mutable usize = 0
+        while source < n:
+            found: mutable bool = false
+            eccentricity: mutable i64 = 0
+            farness: mutable i64 = 0
+            destination: mutable usize = 0
+            while destination < n:
+                value: i64 = distance[source * 8 + destination]
+                if destination != source and value != 2305843009213693951 and value != 0:
+                    found <- true
+                    if value > eccentricity: eccentricity <- value
+                    farness <- farness + value
+                destination <- destination + 1
+            if found: any_reachable <- true
+            infinite: bool = not found
+            if peripheral < 0 or (infinite and not peripheral_infinite) or (infinite == peripheral_infinite and (infinite or eccentricity > best_eccentricity or (eccentricity == best_eccentricity and source.i64() < peripheral))):
+                peripheral <- source.i64()
+                peripheral_infinite <- infinite
+                best_eccentricity <- eccentricity
+            if far < 0 or (infinite and not far_infinite) or (infinite == far_infinite and (infinite or farness > best_farness or (farness == best_farness and source.i64() < far))):
+                far <- source.i64()
+                far_infinite <- infinite
+                best_farness <- farness
+            source <- source + 1
+        if not any_reachable:
+            peripheral <- -1
+            far <- -1
+            best_eccentricity <- -1
+            best_farness <- -1
+        else:
+            if peripheral_infinite: best_eccentricity <- -1
+            if far_infinite: best_farness <- -1
+    if output.is_null() or capacity < 32: return -2
+    graph_peripherality_put(output, 0, peripheral)
+    graph_peripherality_put(output, 1, best_eccentricity)
+    graph_peripherality_put(output, 2, far)
+    graph_peripherality_put(output, 3, best_farness)
+    32

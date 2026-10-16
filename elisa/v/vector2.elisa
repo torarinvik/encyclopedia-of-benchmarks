@@ -1,0 +1,83 @@
+extern floor(value: f64) -> f64
+extern fabs(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+
+def vector2_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 6: return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] != values[index]: return -1
+        index <- index + 1
+    if values[0] < 0.0 or values[0] > 10.0 or floor(values[0]) != values[0]: return -1
+    index <- 1
+    while index <= 4:
+        if values[index] < -1000.0 or values[index] > 1000.0: return -1
+        index <- index + 1
+
+    op: usize = values[0].usize()
+    ax: f64 = values[1]
+    ay: f64 = values[2]
+    bx: f64 = values[3]
+    by: f64 = values[4]
+    scalar: f64 = values[5]
+    if op == 1:
+        if scalar < 0.0 or scalar > 2000.0: return -1
+    elif op == 6:
+        if bx != 0.0 or by != 0.0 or scalar < -1000.0 or scalar > 1000.0: return -1
+    elif op == 9:
+        if bx != 0.0 or by != 0.0 or scalar < -6.283185307179586 or scalar > 6.283185307179586: return -1
+    elif scalar != 0.0: return -1
+    if (op == 2 or op == 3) and (bx != 0.0 or by != 0.0): return -1
+
+    result: mutable f64[2] = zeroed
+    result_length: mutable usize = 1
+    if op == 0:
+        if ax == bx and ay == by: result[0] <- 1.0
+    elif op == 1:
+        if fabs(ax - bx) < scalar and fabs(ay - by) < scalar: result[0] <- 1.0
+    elif op == 2:
+        result[0] <- sqrt(ax * ax + ay * ay)
+    elif op == 3:
+        magnitude: f64 = sqrt(ax * ax + ay * ay)
+        if magnitude == 0.0: return -1
+        result_length <- 2
+        result[0] <- ax / magnitude
+        result[1] <- ay / magnitude
+    elif op == 4:
+        result_length <- 2
+        result[0] <- ax + bx
+        result[1] <- ay + by
+    elif op == 5:
+        result_length <- 2
+        result[0] <- ax - bx
+        result[1] <- ay - by
+    elif op == 6:
+        result_length <- 2
+        result[0] <- ax * scalar
+        result[1] <- ay * scalar
+    elif op == 7:
+        dx: f64 = bx - ax
+        dy: f64 = by - ay
+        result[0] <- sqrt(dx * dx + dy * dy)
+    elif op == 8:
+        result[0] <- ax * bx + ay * by
+    elif op == 9:
+        cosine: f64 = cos(scalar)
+        sine: f64 = sin(scalar)
+        result_length <- 2
+        result[0] <- cosine * ax - sine * ay
+        result[1] <- sine * ax + cosine * ay
+    else:
+        result[0] <- atan2(by, bx) - atan2(ay, ax)
+
+    if output == null or capacity < result_length: return -2
+    index <- 0
+    while index < result_length:
+        output[index] <- result[index]
+        index <- index + 1
+    result_length.i64()
+
+export fn vector2(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = vector2_impl

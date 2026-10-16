@@ -1,0 +1,158 @@
+const GRAPH_ADJACENCY_MATRIX_MAX_VERTICES: usize = 8
+const GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE: i64 = 32
+const GRAPH_ADJACENCY_MATRIX_MAX_EDGES: i64 = 64
+const GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS: usize = 24
+const GRAPH_ADJACENCY_MATRIX_MAX_OPERATION_COUNT: i64 = 24
+
+def graph_adjacency_matrix_put(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def graph_adjacency_matrix_find(vertices: i64&, count: usize, value: i64) -> i64:
+    index: mutable usize = 0
+    while index < count:
+        if vertices[index] == value: return index.i64()
+        index <- index + 1
+    -1
+
+def graph_adjacency_matrix_remove(vertices: mutable i64&, matrix: mutable i64&, count: mutable usize&, index: usize) -> void:
+    old_count: usize = count
+    row: mutable usize = index
+    while row + 1 < old_count:
+        vertices[row] <- vertices[row + 1]
+        column: mutable usize = 0
+        while column < old_count:
+            matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column] <- matrix[(row + 1) * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column]
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row + 1 < old_count:
+        column: mutable usize = index
+        while column + 1 < old_count:
+            matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column] <- matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column + 1]
+            column <- column + 1
+        row <- row + 1
+    tail: mutable usize = 0
+    while tail < old_count:
+        matrix[(old_count - 1) * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + tail] <- 0
+        matrix[tail * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + old_count - 1] <- 0
+        tail <- tail + 1
+    count <- old_count - 1
+
+def graph_adjacency_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graph_adjacency_matrix"):
+    if input.is_null() or length < 4: return -1
+    directed_value: i64 = input[0]
+    vertex_count_value: i64 = input[1]
+    if (directed_value != 0 and directed_value != 1) or vertex_count_value < 0 or vertex_count_value > 8: return -1
+    if length < 3 + vertex_count_value.usize(): return -1
+    directed: i64 = directed_value
+    vertex_count: mutable usize = vertex_count_value.usize()
+    vertices: mutable i64[GRAPH_ADJACENCY_MATRIX_MAX_VERTICES] = zeroed
+    matrix: mutable i64[GRAPH_ADJACENCY_MATRIX_MAX_VERTICES * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES] = zeroed
+    position: mutable usize = 2
+    index: mutable usize = 0
+    while index < vertex_count:
+        value: i64 = input[position]
+        position <- position + 1
+        if value < 0 or value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or graph_adjacency_matrix_find(&vertices[0], index, value) >= 0: return -1
+        vertices[index] <- value
+        index <- index + 1
+    if position >= length: return -1
+    edge_count_value: i64 = input[position]
+    position <- position + 1
+    if edge_count_value < 0 or edge_count_value > GRAPH_ADJACENCY_MATRIX_MAX_EDGES or length < position + 2 * edge_count_value.usize() + 1: return -1
+    index <- 0
+    while index < edge_count_value.usize():
+        source_value: i64 = input[position]
+        destination_value: i64 = input[position + 1]
+        position <- position + 2
+        if source_value < 0 or source_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or destination_value < 0 or destination_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE: return -1
+        source: i64 = graph_adjacency_matrix_find(&vertices[0], vertex_count, source_value)
+        destination: i64 = graph_adjacency_matrix_find(&vertices[0], vertex_count, destination_value)
+        if source < 0 or destination < 0 or matrix[source.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + destination.usize()] != 0: return -1
+        matrix[source.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + destination.usize()] <- 1
+        if directed == 0: matrix[destination.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + source.usize()] <- 1
+        index <- index + 1
+    operation_count_value: i64 = input[position]
+    position <- position + 1
+    if operation_count_value < 0 or operation_count_value > GRAPH_ADJACENCY_MATRIX_MAX_OPERATION_COUNT or length != position + 3 * operation_count_value.usize(): return -1
+    operation_count: usize = operation_count_value.usize()
+    results: mutable i64[GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS] = zeroed
+    index <- 0
+    while index < operation_count:
+        operation: i64 = input[position]
+        a_value: i64 = input[position + 1]
+        b_value: i64 = input[position + 2]
+        position <- position + 3
+        if operation == 0:
+            if a_value < 0 or a_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or b_value != 0 or vertex_count >= GRAPH_ADJACENCY_MATRIX_MAX_VERTICES or graph_adjacency_matrix_find(&vertices[0], vertex_count, a_value) >= 0: return -1
+            index2: mutable usize = 0
+            while index2 < GRAPH_ADJACENCY_MATRIX_MAX_VERTICES:
+                matrix[index2 * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + vertex_count] <- 0
+                matrix[vertex_count * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + index2] <- 0
+                index2 <- index2 + 1
+            vertices[vertex_count] <- a_value
+            vertex_count <- vertex_count + 1
+            results[index] <- 1
+        elif operation == 1:
+            if a_value < 0 or a_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or b_value != 0: return -1
+            removed: i64 = graph_adjacency_matrix_find(&vertices[0], vertex_count, a_value)
+            if removed < 0: return -1
+            graph_adjacency_matrix_remove(&vertices[0], &matrix[0], &vertex_count, removed.usize())
+            results[index] <- 1
+        elif operation == 2 or operation == 3 or operation == 5:
+            if a_value < 0 or a_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or b_value < 0 or b_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE: return -1
+            source: i64 = graph_adjacency_matrix_find(&vertices[0], vertex_count, a_value)
+            destination: i64 = graph_adjacency_matrix_find(&vertices[0], vertex_count, b_value)
+            if source < 0 or destination < 0: return -1
+            cell: usize = source.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + destination.usize()
+            present: bool = matrix[cell] != 0
+            if operation == 5:
+                if present: results[index] <- 1
+            elif operation == 2:
+                if present: return -1
+                matrix[cell] <- 1
+                if directed == 0: matrix[destination.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + source.usize()] <- 1
+                results[index] <- 1
+            else:
+                if not present: return -1
+                matrix[cell] <- 0
+                if directed == 0: matrix[destination.usize() * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + source.usize()] <- 0
+                results[index] <- 1
+        elif operation == 4:
+            if a_value < 0 or a_value >= GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE or b_value != 0: return -1
+            if graph_adjacency_matrix_find(&vertices[0], vertex_count, a_value) >= 0: results[index] <- 1
+        elif operation == 6:
+            if a_value != 0 or b_value != 0: return -1
+            vertex_count <- 0
+            index2: mutable usize = 0
+            while index2 < GRAPH_ADJACENCY_MATRIX_MAX_VERTICES * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES:
+                matrix[index2] <- 0
+                index2 <- index2 + 1
+            results[index] <- 1
+        else: return -1
+        index <- index + 1
+
+    words: usize = 2 + operation_count + vertex_count + vertex_count * vertex_count
+    if output.is_null() or capacity < words * 8: return -2
+    graph_adjacency_matrix_put(output, 0, operation_count.i64())
+    index <- 0
+    while index < operation_count:
+        graph_adjacency_matrix_put(output, index + 1, results[index])
+        index <- index + 1
+    graph_adjacency_matrix_put(output, operation_count + 1, vertex_count.i64())
+    index <- 0
+    while index < vertex_count:
+        graph_adjacency_matrix_put(output, operation_count + 2 + index, vertices[index])
+        index <- index + 1
+    row: usize = 0
+    while row < vertex_count:
+        column: usize = 0
+        while column < vertex_count:
+            graph_adjacency_matrix_put(output, operation_count + 2 + vertex_count + row * vertex_count + column, matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column])
+            column <- column + 1
+        row <- row + 1
+    (words * 8).i64()

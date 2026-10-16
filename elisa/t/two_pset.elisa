@@ -1,0 +1,70 @@
+# Two-replica two-phase set with additions and removal tombstones.
+const MAX_Q: usize = 256
+const MAX_INPUT: usize = 1025
+const HASH_MULTIPLIER: i64 = 1_000_003
+const HASH_MODULUS: i64 = 1_000_000_007
+
+def two_pset_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT:
+        return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > MAX_Q.i64():
+        return -1
+    q: usize = q_value.usize()
+    if length != 1 + 4 * q:
+        return -1
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 4]
+        set_id: i64 = input[2 + i * 4]
+        value: i64 = input[3 + i * 4]
+        other_id: i64 = input[4 + i * 4]
+        if opcode >= 0 and opcode <= 2:
+            if set_id < 0 or set_id > 1 or value < 0 or value > 63 or other_id != 0: return -1
+        elif opcode == 3 or opcode == 4:
+            if set_id < 0 or set_id > 1 or value != 0 or other_id < 0 or other_id > 1: return -1
+        else:
+            return -1
+
+    additions: mutable i64[128] = zeroed
+    tombstones: mutable i64[128] = zeroed
+    digest: mutable i64 = 0
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 4]
+        set_id: i64 = input[2 + i * 4]
+        value: i64 = input[3 + i * 4]
+        other_id: i64 = input[4 + i * 4]
+        base: usize = set_id.usize() * 64
+        operation_result: mutable i64 = 0
+        if opcode == 0:
+            additions[base + value.usize()] <- 1
+        elif opcode == 1:
+            index: usize = base + value.usize()
+            if additions[index] != 0 and tombstones[index] == 0: tombstones[index] <- 1
+        elif opcode == 2:
+            index: usize = base + value.usize()
+            if additions[index] != 0 and tombstones[index] == 0: operation_result <- 1
+        elif opcode == 3:
+            other_base: usize = other_id.usize() * 64
+            subset: mutable i64 = 1
+            for e in 0..<64:
+                if (additions[base + e] != 0 and additions[other_base + e] == 0) or
+                   (tombstones[base + e] != 0 and tombstones[other_base + e] == 0):
+                    subset <- 0
+            operation_result <- subset
+        else:
+            other_base: usize = other_id.usize() * 64
+            for e in 0..<64:
+                if additions[base + e] != 0 or additions[other_base + e] != 0: additions[base + e] <- 1
+                if tombstones[base + e] != 0 or tombstones[other_base + e] != 0: tombstones[base + e] <- 1
+
+        digest <- (digest * HASH_MULTIPLIER + opcode) % HASH_MODULUS
+        digest <- (digest * HASH_MULTIPLIER + operation_result) % HASH_MODULUS
+    for set_id in 0..<2:
+        base: usize = set_id * 64
+        for e in 0..<64:
+            digest <- (digest * HASH_MULTIPLIER + additions[base + e]) % HASH_MODULUS
+        for e in 0..<64:
+            digest <- (digest * HASH_MULTIPLIER + tombstones[base + e]) % HASH_MODULUS
+    digest
+
+export fn two_pset(input: i64&, length: usize) -> i64 = two_pset_impl

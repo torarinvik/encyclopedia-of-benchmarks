@@ -1,0 +1,56 @@
+# Fixed-capacity linear FIFO with the source's no-prefix-reuse behavior.
+const MAX_Q: usize = 512
+const MAX_INPUT: usize = 1025
+const CHECKSUM_OFFSET: i64 = 128
+
+def queue_using_array_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT:
+        return -1
+    q_value: i64 = input[0]
+    if q_value < 0 or q_value > MAX_Q.i64():
+        return -1
+    q: usize = q_value.usize()
+    if length != 1 + 2 * q:
+        return -1
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 2]
+        value: i64 = input[2 + i * 2]
+        if opcode == 0:
+            if value < -128 or value > 127: return -1
+        elif opcode == 1:
+            if value != 0: return -1
+        else:
+            return -1
+
+    values: mutable i64[10] = zeroed
+    front: mutable i64 = -1
+    rear: mutable i64 = -1
+    checksum: mutable i64 = 0
+    ordinal: mutable i64 = 0
+    for i in 0..<q:
+        opcode: i64 = input[1 + i * 2]
+        value: i64 = input[2 + i * 2]
+        if opcode == 0:
+            if rear == 9: continue
+            if front == -1 and rear == -1:
+                front <- 0
+                rear <- 0
+                values[0] <- value
+            elif rear < 10:
+                rear <- rear + 1
+                values[rear.usize()] <- value
+        else:
+            dequeued: i64 = 0
+            if front != -1:
+                if front == rear:
+                    dequeued <- values[front.usize()]
+                    front <- -1
+                    rear <- -1
+                else:
+                    dequeued <- values[front.usize()]
+                    front <- front + 1
+            ordinal <- ordinal + 1
+            checksum <- checksum + ordinal * (dequeued + CHECKSUM_OFFSET)
+    checksum
+
+export fn queue_using_array(input: i64&, length: usize) -> i64 = queue_using_array_impl

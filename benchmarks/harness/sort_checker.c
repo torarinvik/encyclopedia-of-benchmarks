@@ -1,4 +1,4 @@
-/* Exhaustive small-input checker for scratch-free sorting implementations. */
+/* Bounded-input checker for scratch-free sorting implementations. */
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported sort symbol>"
 #endif
 
-#define MAX_SORT_LENGTH 6
+#define MAX_SORT_LENGTH 256
 extern void BENCHMARK_FUNCTION(int64_t *values, size_t length);
 
 static int compare_i64(const void *left, const void *right)

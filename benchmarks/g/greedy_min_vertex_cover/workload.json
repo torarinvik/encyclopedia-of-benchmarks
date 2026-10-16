@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "id": "greedy-min-vertex-cover-simple-undirected-v1",
+  "algorithm": "greedy_min_vertex_cover",
+  "function_symbol": "greedy_min_vertex_cover",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[vertex_count, neighbor_mask_0, ..., neighbor_mask_(vertex_count-1)]",
+    "vertex_count_range": [
+      1,
+      16
+    ],
+    "vertex_ids": "zero-based contiguous IDs 0..vertex_count-1",
+    "graph_semantics": "simple undirected graph encoded by symmetric adjacency bitmasks",
+    "self_loops": "invalid",
+    "asymmetric_masks": "invalid",
+    "out_of_range_bits": "invalid",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_vertex_set_bitmask",
+    "meaning": "bit i is set iff vertex i is selected by the source greedy heuristic"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "graphs/greedy_min_vertex_cover.py"
+  },
+  "cases": [
+    {
+      "id": "edgeless_graph",
+      "input_values": [
+        3,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "star_center_first",
+      "input_values": [
+        5,
+        30,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "path_degree_tie",
+      "input_values": [
+        4,
+        2,
+        5,
+        10,
+        4
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "triangle_degree_ties",
+      "input_values": [
+        3,
+        6,
+        5,
+        3
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "disjoint_edges",
+      "input_values": [
+        5,
+        2,
+        1,
+        8,
+        4,
+        0
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "asymmetric_graph_invalid",
+      "input_values": [
+        3,
+        2,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "self_loop_invalid",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "out_of_range_neighbor_bit_invalid",
+      "input_values": [
+        2,
+        4,
+        0
+      ],
+      "expected_result": -1
+    }
+  ]
+}

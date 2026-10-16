@@ -130,7 +130,13 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
-    if algorithm == "imply_gate":
+    if algorithm == "binary_multiplication":
+        left, right = values
+        if not (0 <= left <= 1_000_000_000 and 0 <= right <= 1_000_000_000):
+            raise ValueError("binary_multiplication workload inputs must lie within the declared 0..1e9 domain")
+        if expected != left * right:
+            raise ValueError("binary_multiplication expected_result must equal the bounded product")
+    elif algorithm == "imply_gate":
         left, right = values
         valid = left in (0, 1) and right in (0, 1)
         expected_from_source = int(left == 0 or right == 1) if valid else -1
@@ -140,6 +146,40 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
         expected_from_source = uint53_xor_expected(values[0], values[1])
         if expected != expected_from_source:
             raise ValueError("uint53_xor expected_result must match bounded numeric XOR")
+    elif algorithm == "unique_paths":
+        rows, columns = values
+        if not (0 <= rows <= U64_MAX and 0 <= columns <= U64_MAX):
+            expected_from_source = -1
+        elif not (1 <= rows <= 34 and 1 <= columns <= 34):
+            expected_from_source = -1
+        else:
+            expected_from_source = math.comb(rows + columns - 2, rows - 1)
+        if expected != expected_from_source:
+            raise ValueError("unique_paths expected_result must match the bounded binomial count")
+    elif algorithm == "circular_left_shift":
+        number, shift = values
+        valid = 0 <= number <= (1 << 53) - 1 and 0 <= shift <= 53
+        if not valid:
+            expected_from_source = -1
+        else:
+            rotation = shift % 53
+            mask = (1 << 53) - 1
+            expected_from_source = ((number << rotation) | (number >> (53 - rotation))) & mask
+        if expected != expected_from_source:
+            raise ValueError("circular_left_shift expected_result must match a bounded 53-bit rotation")
+    elif algorithm in {"arithmetic_left_shift", "arithmetic_right_shift"}:
+        number, shift = values
+        valid = 0 <= number <= (1 << 53) - 1 and 0 <= shift <= 53
+        if not valid:
+            expected_from_source = -1
+        elif algorithm == "arithmetic_left_shift":
+            expected_from_source = (number * (1 << shift)) % (1 << 53)
+        else:
+            most_significant_bit = number // (1 << 52)
+            fill = (1 << 53) - (1 << (53 - shift))
+            expected_from_source = most_significant_bit * fill + number // (1 << shift)
+        if expected != expected_from_source:
+            raise ValueError(f"{algorithm} expected_result disagrees with its bounded uint53 shift")
     elif algorithm == "problem800":
         base, degree = values
         expected_from_source = problem800_source_result(base, degree)
@@ -194,7 +234,7 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
     elif algorithm == "count_number_of_one_bits":
         number, method = values
         valid = 0 <= number <= 0xFFFFFFFF and 0 <= method <= 2
-        expected_from_source = number.bit_count() if valid else -1
+        expected_from_source = bin(number).count("1") if valid else -1
         if expected != expected_from_source:
             raise ValueError("count_number_of_one_bits expected_result does not match its selected source variant")
     elif algorithm == "bitwise_addition_recursive":
@@ -235,8 +275,9 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
     elif algorithm == "highest_common_factor":
         left, right = values
         valid = 0 <= left <= 64 and 0 <= right <= 64
-        expected_from_source = math.gcd(left, right) if valid else -1
-        if expected != expected_from_source:
+        if not valid:
+            raise ValueError("highest_common_factor workload inputs must lie within the declared 0..64 domain")
+        if expected != math.gcd(left, right):
             raise ValueError("highest_common_factor expected_result must match bounded subtractive GCD")
     elif algorithm in {"max_value", "min_value"}:
         first, second = values

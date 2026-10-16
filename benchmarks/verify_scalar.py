@@ -61,6 +61,7 @@ from sum_multiples_inclusion_exclusion_oracle import expected_result as sum_mult
 from twos_complement_of_binary_oracle import expected_result as twos_complement_of_binary_oracle
 
 ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "sum_of_divisors", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "isautomorphic", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz", "problem1", "problem2", "problem3", "problem4", "problem5", "problem6", "problem7", "problem8", "problem9", "problem10", "problem10_ruby_prefix", "problem11_sol1", "problem12", "problem12_sol1", "problem13", "problem14", "problem15", "problem15_dp", "problem16", "problem17", "problem19", "problem20", "problem21", "problem23", "problem24", "problem25", "problem26", "problem27", "problem28", "problem29", "problem30", "problem31", "problem31_recursive", "problem32", "problem33", "problem34", "problem35", "problem36", "problem37", "problem38", "problem39", "problem40", "problem41", "problem43", "problem44", "problem45", "problem46", "problem47", "problem48", "problem49", "problem50", "problem51", "problem52", "problem53", "problem55", "problem57", "problem60", "problem62", "problem64", "problem65", "problem68", "problem69", "problem70", "problem72", "problem73", "problem75", "problem76", "problem77", "problem78", "problem79", "problem80", "problem85", "problem86", "problem87", "problem89", "problem95", "problem91", "problem92", "problem94", "problem97", "problem100", "problem101", "problem104", "problem109", "problem111", "problem112", "problem113", "problem114", "problem115", "problem116", "problem117", "problem119", "problem120", "problem121", "problem122", "problem123", "problem125", "problem129", "problem131", "problem135", "problem136", "problem137", "problem138", "problem142", "problem145", "problem164", "problem173", "problem180", "problem187", "problem190", "problem191", "problem203", "problem205", "problem206", "problem234", "problem301", "problem401", "problem493", "problem551", "problem686", "endian_converter", "euler_totient", "byte_encoding_utils", "liouville_lambda", "liouville", "twos_complement_of_binary", "gauss_easter", "leap_year", "check_even", "is_odd", "binary_length", "count_set_bits", "count_leading_zeros", "clear_leftmost_set_bit", "clear_lowest_set_bit", "sum_of_odd_numbers", "sum_multiples_inclusion_exclusion", "carmichael_number", "evil_number", "keith_number", "kynea_numbers", "padovan_sequence", "pell_number", "perrin_number", "smith_number", "sphenic_number", "all_ones_sequence", "all_twos_sequence", "all_threes_sequence", "cubes_sequence")
+ALGORITHMS += ("binary_palindrome_check",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 PROBLEM79_KEYLOG = (319, 680, 180, 690, 129, 620, 762, 689, 762, 318,
@@ -2066,6 +2067,13 @@ def euler_totient_oracle(n: int) -> int:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "binary_palindrome_check":
+        if not -(2**31) <= n <= 2**31 - 1:
+            return -1
+        if n < 0:
+            return 0
+        bits = bin(n)[2:]
+        return int(bits == bits[::-1])
     if algorithm == "sum_multiples_inclusion_exclusion":
         return sum_multiples_inclusion_exclusion_oracle(n)
     if algorithm == "problem12_sol1":
@@ -2791,7 +2799,7 @@ def oracle(algorithm: str, n: int) -> int:
             return -1
         return int(n > 0 and (n & (n - 1)) == 0 and (n & 0x55555555) != 0)
     if algorithm == "bitwise_complement":
-        if not 0 <= n <= 2**31 - 1:
+        if not 0 <= n < 1_000_000_000:
             return -1
         return 1 if n == 0 else n ^ ((1 << n.bit_length()) - 1)
     if algorithm == "palindrome_number":
@@ -3633,10 +3641,17 @@ def corpus(algorithm: str) -> tuple[str, dict]:
             inputs.update([value - 1, value, value + 1])
     elif algorithm == "bitwise_complement":
         inputs.update(range(-8, 4097))
-        inputs.update(rng.randrange(0, 2**31) for _ in range(512))
+        inputs.update(rng.randrange(0, 1_000_000_000) for _ in range(512))
         inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 4, 5,
-                       2**30 - 1, 2**30, 2**30 + 1, 2**31 - 2,
-                       2**31 - 1, 2**31, I64_MAX - 1, I64_MAX])
+                       2**29 - 1, 2**29, 2**29 + 1,
+                       999_999_998, 999_999_999, 1_000_000_000,
+                       2**31 - 1, I64_MAX - 1, I64_MAX])
+    elif algorithm == "binary_palindrome_check":
+        inputs.update(range(-16, 4097))
+        inputs.update([I64_MIN, -(2**31) - 1, -(2**31), -1, 0, 1, 2, 3, 5, 6, 7,
+                       9, 10, 21, 45, 46, 85, (1 << 30) - 1, 1 << 30,
+                       (1 << 30) + 1, 2**31 - 1, 2**31, I64_MAX])
+        inputs.update(rng.randrange(-(2**31), 2**31) for _ in range(512))
     elif algorithm == "aliquot_sum":
         inputs.update(range(513))
         inputs.update(rng.randrange(1, 10001) for _ in range(128))

@@ -71,6 +71,43 @@ from feistel_cipher_normalized_oracle import MAX_INPUT_LENGTH as MAX_FEISTEL_CIP
 from feistel_cipher_normalized_oracle import expected_result as feistel_cipher_normalized_expected
 from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
 from edmonds_karp_oracle import expected_result as edmonds_karp_expected
+from gomory_hu_tree_oracle import MAX_INPUT_LENGTH as MAX_GOMORY_HU_TREE_INPUT_LENGTH
+from gomory_hu_tree_oracle import expected_result as gomory_hu_tree_expected
+from graph_enumeration_oracle import MAX_INPUT_LENGTH as MAX_GRAPH_ENUMERATION_INPUT_LENGTH
+from graph_enumeration_oracle import expected_result as graph_enumeration_expected
+from jaro_winkler_distance_oracle import MAX_INPUT_LENGTH as MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH
+from jaro_winkler_distance_oracle import expected_result as jaro_winkler_distance_expected
+from smallest_range_oracle import MAX_LIST_LENGTH as SMALLEST_RANGE_MAX_LIST_LENGTH
+from smallest_range_oracle import MAX_LISTS as SMALLEST_RANGE_MAX_LISTS
+from smallest_range_oracle import oracle as smallest_range_expected
+from lazy_segment_tree_range_set_max_oracle import MAX_INPUT_LENGTH as MAX_LAZY_SEGMENT_TREE_RANGE_SET_MAX_INPUT_LENGTH
+from lazy_segment_tree_range_set_max_oracle import oracle as lazy_segment_tree_range_set_max_expected
+from lazy_segment_tree_range_add_sum_oracle import MAX_INPUT_LENGTH as MAX_LAZY_SEGMENT_TREE_RANGE_ADD_SUM_INPUT_LENGTH
+from lazy_segment_tree_range_add_sum_oracle import expected_result as lazy_segment_tree_range_add_sum_expected
+from queue_using_array_oracle import MAX_INPUT_LENGTH as MAX_QUEUE_USING_ARRAY_INPUT_LENGTH
+from queue_using_array_oracle import oracle as queue_using_array_expected
+from queue_using_array2_oracle import MAX_INPUT_LENGTH as MAX_QUEUE_USING_ARRAY2_INPUT_LENGTH
+from queue_using_array2_oracle import oracle as queue_using_array2_expected
+from heap_generic_oracle import MAX_INPUT_LENGTH as MAX_HEAP_GENERIC_INPUT_LENGTH
+from heap_generic_oracle import expected_result as heap_generic_expected
+from two_phase_commit_oracle import MAX_INPUT_LENGTH as MAX_TWO_PHASE_COMMIT_INPUT_LENGTH
+from two_phase_commit_oracle import expected_result as two_phase_commit_expected
+from ring_buffer_oracle import MAX_INPUT_LENGTH as MAX_RING_BUFFER_INPUT_LENGTH
+from ring_buffer_oracle import oracle as ring_buffer_expected
+from greedy_graph_coloring_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH
+from greedy_graph_coloring_oracle import expected_result as greedy_graph_coloring_expected
+from greedy_best_first_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_BEST_FIRST_INPUT_LENGTH
+from greedy_best_first_oracle import expected_result as greedy_best_first_expected
+from grow_only_set_oracle import MAX_INPUT_LENGTH as MAX_GROW_ONLY_SET_INPUT_LENGTH
+from grow_only_set_oracle import expected_result as grow_only_set_expected
+from k_folds_oracle import MAX_INPUT_LENGTH as MAX_K_FOLDS_INPUT_LENGTH
+from k_folds_oracle import expected_result as k_folds_expected
+from greedy_item_selection_by_value_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_ITEM_SELECTION_INPUT_LENGTH
+from greedy_item_selection_by_value_oracle import expected_result as greedy_item_selection_by_value_expected
+from greedy_unbounded_knapsack_by_value_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_UNBOUNDED_KNAPSACK_INPUT_LENGTH
+from greedy_unbounded_knapsack_by_value_oracle import expected_result as greedy_unbounded_knapsack_by_value_expected
+from greedy_min_vertex_cover_oracle import MAX_INPUT_LENGTH as MAX_GREEDY_MIN_VERTEX_COVER_INPUT_LENGTH
+from greedy_min_vertex_cover_oracle import expected_result as greedy_min_vertex_cover_expected
 from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGTH
 from push_relabel_oracle import expected_result as push_relabel_expected
 from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
@@ -125,6 +162,14 @@ from flatten_nested_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_NESTED_LI
 from flatten_nested_list_oracle import expected_result as flatten_nested_list_expected
 from generic_hash_map_oracle import MAX_INPUT_LENGTH as MAX_GENERIC_HASH_MAP_INPUT_LENGTH
 from generic_hash_map_oracle import expected_result as generic_hash_map_expected
+from hash_map_open_addressing_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH
+from hash_map_open_addressing_oracle import oracle as hash_map_open_addressing_expected
+from hash_map_separate_chaining_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH
+from hash_map_separate_chaining_oracle import expected_result as hash_map_separate_chaining_expected
+from two_pointer_technique_oracle import MAX_NODES as TWO_POINTER_TECHNIQUE_MAX_NODES
+from two_pointer_technique_oracle import expected_result as two_pointer_technique_expected
+from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
+from two_pset_oracle import oracle as two_pset_expected
 from gcounter_oracle import MAX_INPUT_LENGTH as MAX_GCOUNTER_INPUT_LENGTH
 from gcounter_oracle import expected_result as gcounter_expected
 from generic_heap_oracle import MAX_INPUT_LENGTH as MAX_GENERIC_HEAP_INPUT_LENGTH
@@ -484,6 +529,58 @@ MAX_COINCHANGE_INPUT_LENGTH = MAX_COINCHANGE_COINS + 2
 MAX_DICE_THROW_INPUT_LENGTH = 4  # one extra element keeps the malformed-length workload case
 # Include two trailing values for the 257-edge malformed DFS workload case.
 MAX_DEPTH_FIRST_SEARCH_ITERATIVE_INPUT_LENGTH = MAX_DEPTH_FIRST_SEARCH_ITERATIVE_VALID_INPUT_LENGTH + 2
+
+
+def unpack_ascii_string_pair(values: list[int], maximum_length: int,
+                             target_uppercase_only: bool = False) -> tuple[list[int], list[int]] | None:
+    if (len(values) < 2 or any(type(value) is not int for value in values)):
+        return None
+    first_length, second_length = values[:2]
+    if (not 0 <= first_length <= maximum_length
+            or not 0 <= second_length <= maximum_length
+            or len(values) != 2 + first_length + second_length):
+        return None
+    first = values[2:2 + first_length]
+    second = values[2 + first_length:]
+    is_source_letter = lambda code: 65 <= code <= 90 or 97 <= code <= 122
+    is_target_letter = (lambda code: 65 <= code <= 90) if target_uppercase_only else is_source_letter
+    if not all(is_source_letter(code) for code in first) or not all(is_target_letter(code) for code in second):
+        return None
+    return first, second
+
+
+def check_anagram_expected(values: list[int]) -> int:
+    pair = unpack_ascii_string_pair(values, 1024)
+    if pair is None:
+        return -1
+    first, second = pair
+    first_normalized = [code + 32 if 65 <= code <= 90 else code for code in first]
+    second_normalized = [code + 32 if 65 <= code <= 90 else code for code in second]
+    if first_normalized == second_normalized:
+        return 0
+    first_counts = [0] * 26
+    second_counts = [0] * 26
+    for code in first_normalized:
+        first_counts[code - 97] += 1
+    for code in second_normalized:
+        second_counts[code - 97] += 1
+    return int(first_counts == second_counts)
+
+
+def abbreviation_expected(values: list[int]) -> int:
+    pair = unpack_ascii_string_pair(values, 128, target_uppercase_only=True)
+    if pair is None:
+        return -1
+    source, target = pair
+    possible = [True] + [False] * len(target)
+    for code in source:
+        next_possible = possible.copy() if 97 <= code <= 122 else [False] * (len(target) + 1)
+        uppercase = code - 32 if 97 <= code <= 122 else code
+        for target_index in range(len(target)):
+            if possible[target_index] and target[target_index] == uppercase:
+                next_possible[target_index + 1] = True
+        possible = next_possible
+    return int(possible[len(target)])
 
 
 def same_trees_expected(values: list[int]) -> int:
@@ -859,6 +956,27 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_EWMA_CHANGE_DETECTOR_INPUT_LENGTH if algorithm == "ewma_change_detector" else
                         MAX_FEISTEL_CIPHER_INPUT_LENGTH if algorithm == "feistel_cipher_normalized" else
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
+                        MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
+                        MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH if algorithm == "greedy_graph_coloring" else
+                        MAX_GREEDY_BEST_FIRST_INPUT_LENGTH if algorithm == "greedy_best_first" else
+                        MAX_GROW_ONLY_SET_INPUT_LENGTH if algorithm == "grow_only_set" else
+                        MAX_K_FOLDS_INPUT_LENGTH if algorithm == "k_folds" else
+                        MAX_GREEDY_ITEM_SELECTION_INPUT_LENGTH if algorithm == "greedy_item_selection_by_value" else
+                        MAX_GREEDY_UNBOUNDED_KNAPSACK_INPUT_LENGTH if algorithm == "greedy_unbounded_knapsack_by_value" else
+                        MAX_GREEDY_MIN_VERTEX_COVER_INPUT_LENGTH if algorithm == "greedy_min_vertex_cover" else
+                        MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH if algorithm == "jaro_winkler_distance" else
+                        1 + SMALLEST_RANGE_MAX_LISTS * (SMALLEST_RANGE_MAX_LIST_LENGTH + 1)
+                        if algorithm == "smallest_range" else
+                        MAX_LAZY_SEGMENT_TREE_RANGE_SET_MAX_INPUT_LENGTH
+                        if algorithm == "lazy_segment_tree_range_set_max" else
+                        MAX_LAZY_SEGMENT_TREE_RANGE_ADD_SUM_INPUT_LENGTH
+                        if algorithm == "lazy_segment_tree_range_add_sum" else
+                        MAX_QUEUE_USING_ARRAY_INPUT_LENGTH if algorithm == "queue_using_array" else
+                        MAX_QUEUE_USING_ARRAY2_INPUT_LENGTH if algorithm == "queue_using_array2" else
+                        MAX_HEAP_GENERIC_INPUT_LENGTH if algorithm == "heap_generic" else
+                        MAX_TWO_PHASE_COMMIT_INPUT_LENGTH if algorithm == "two_phase_commit" else
+                        MAX_RING_BUFFER_INPUT_LENGTH if algorithm == "ring_buffer" else
+                        MAX_GOMORY_HU_TREE_INPUT_LENGTH if algorithm == "gomory_hu_tree" else
                         MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
                         MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
                         if algorithm == "count_singly_linked_list_recursion"
@@ -905,6 +1023,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_MONOTONIC_ARRAY_INPUT_LENGTH if algorithm == "monotonic_array"
                         else MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH if algorithm == "flatten_nested_list"
                         else MAX_GENERIC_HASH_MAP_INPUT_LENGTH if algorithm == "generic_hash_map"
+                        else MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH if algorithm == "hash_map_open_addressing"
+                        else MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH if algorithm == "hash_map_separate_chaining"
+                        else 4 + TWO_POINTER_TECHNIQUE_MAX_NODES if algorithm == "two_pointer_technique"
+                        else MAX_TWO_PSET_INPUT_LENGTH if algorithm == "two_pset"
                         else MAX_GCOUNTER_INPUT_LENGTH if algorithm == "gcounter"
                         else MAX_GENERIC_HEAP_INPUT_LENGTH if algorithm == "generic_heap"
                         else MAX_GEOFENCE_INPUT_LENGTH if algorithm == "geofence"
@@ -1238,6 +1360,78 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = edmonds_karp_expected(values)
         if expected != expected_from_source:
             raise ValueError("edmonds_karp expected_result must match the bounded maximum-flow contract")
+    elif algorithm == "gomory_hu_tree":
+        expected_from_source = gomory_hu_tree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("gomory_hu_tree expected_result must match the pairwise minimum-cut signature")
+    elif algorithm == "graph_enumeration":
+        expected_from_source = graph_enumeration_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("graph_enumeration expected_result must match sorted-label adjacency enumeration")
+    elif algorithm == "greedy_graph_coloring":
+        expected_from_source = greedy_graph_coloring_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("greedy_graph_coloring expected_result must match descending-degree first-fit colors and packed map")
+    elif algorithm == "greedy_best_first":
+        expected_from_source = greedy_best_first_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("greedy_best_first expected_result must match stable Manhattan-priority path order")
+    elif algorithm == "grow_only_set":
+        expected_from_source = grow_only_set_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("grow_only_set expected_result must match idempotent adds, directed subset checks, and replica merges")
+    elif algorithm == "k_folds":
+        expected_from_source = k_folds_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_folds expected_result must match the source's deterministic contiguous fold labels")
+    elif algorithm == "greedy_item_selection_by_value":
+        expected_from_source = greedy_item_selection_by_value_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("greedy_item_selection_by_value expected_result must match stable value ordering and whole-item selection")
+    elif algorithm == "greedy_unbounded_knapsack_by_value":
+        expected_from_source = greedy_unbounded_knapsack_by_value_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("greedy_unbounded_knapsack_by_value expected_result must match stable value ordering with unlimited reuse")
+    elif algorithm == "greedy_min_vertex_cover":
+        expected_from_source = greedy_min_vertex_cover_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("greedy_min_vertex_cover expected_result must match maximum-current-degree selection with smallest-ID ties")
+    elif algorithm == "jaro_winkler_distance":
+        expected_from_source = jaro_winkler_distance_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("jaro_winkler_distance expected_result must match the bounded C#-faithful fixed-point distance contract")
+    elif algorithm == "smallest_range":
+        expected_from_source = smallest_range_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("smallest_range expected_result must match the bounded sorted-list interval contract")
+    elif algorithm == "lazy_segment_tree_range_set_max":
+        expected_from_source = lazy_segment_tree_range_set_max_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lazy_segment_tree_range_set_max expected_result must match bounded range-set/range-maximum semantics")
+    elif algorithm == "lazy_segment_tree_range_add_sum":
+        expected_from_source = lazy_segment_tree_range_add_sum_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lazy_segment_tree_range_add_sum expected_result must match bounded range-add/range-sum semantics")
+    elif algorithm == "queue_using_array":
+        expected_from_source = queue_using_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("queue_using_array expected_result must match the bounded fixed-array FIFO contract")
+    elif algorithm == "queue_using_array2":
+        expected_from_source = queue_using_array2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("queue_using_array2 expected_result must match the bounded compacting FIFO state trace")
+    elif algorithm == "heap_generic":
+        expected_from_source = heap_generic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("heap_generic expected_result must match the bounded Python max-heap contract")
+    elif algorithm == "two_phase_commit":
+        expected_from_source = two_phase_commit_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_phase_commit expected_result must match the bounded coordinator state machine")
+    elif algorithm == "ring_buffer":
+        expected_from_source = ring_buffer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ring_buffer expected_result must match the bounded ring-buffer state trace")
     elif algorithm == "push_relabel":
         expected_from_source = push_relabel_expected(values)
         if expected != expected_from_source:
@@ -5379,6 +5573,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = is_isomorphic_expected(values)
         if expected != expected_from_source:
             raise ValueError("is_isomorphic expected_result must match the bounded one-to-one mapping predicate")
+    elif algorithm == "check_anagram":
+        expected_from_source = check_anagram_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("check_anagram expected_result must match case-insensitive distinct-word anagram semantics")
+    elif algorithm == "abbreviation":
+        expected_from_source = abbreviation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("abbreviation expected_result must match the bounded capitalization/deletion recurrence")
     elif algorithm == "is_graph_bipartite":
         expected_from_source = is_graph_bipartite_expected(values)
         if expected != expected_from_source:
@@ -5559,6 +5761,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = generic_hash_map_expected(values)
         if expected != expected_from_source:
             raise ValueError("generic_hash_map expected_result must hash the bounded logical map query trace and final state")
+    elif algorithm == "hash_map_open_addressing":
+        expected_from_source = hash_map_open_addressing_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_map_open_addressing expected_result must match the bounded open-addressing map trace")
+    elif algorithm == "hash_map_separate_chaining":
+        expected_from_source = hash_map_separate_chaining_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_map_separate_chaining expected_result must match the bounded separate-chaining map trace")
+    elif algorithm == "two_pointer_technique":
+        expected_from_source = two_pointer_technique_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_pointer_technique expected_result must match the bounded linked-list traversal contract")
+    elif algorithm == "two_pset":
+        expected_from_source = two_pset_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_pset expected_result must match the two-replica state digest contract")
     elif algorithm == "gcounter":
         expected_from_source = gcounter_expected(values)
         if expected != expected_from_source:

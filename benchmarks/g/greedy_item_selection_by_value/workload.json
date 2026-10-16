@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0.0",
+  "id": "greedy-item-selection-by-value-bounded-scalar-v1",
+  "algorithm": "greedy_item_selection_by_value",
+  "function_symbol": "greedy_item_selection_by_value",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "other/greedy.py"
+  },
+  "cases": [
+    {
+      "id": "empty_items",
+      "input_values": [
+        10,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "all_fit_in_value_order",
+      "input_values": [
+        20,
+        3,
+        7,
+        5,
+        4,
+        3,
+        4,
+        2
+      ],
+      "expected_result": 1112396530465
+    },
+    {
+      "id": "skip_heavy_then_continue",
+      "input_values": [
+        4,
+        4,
+        10,
+        8,
+        7,
+        6,
+        6,
+        2,
+        3,
+        1
+      ],
+      "expected_result": 970662608962
+    },
+    {
+      "id": "stable_tie_keeps_input_order",
+      "input_values": [
+        1,
+        3,
+        9,
+        9,
+        8,
+        2,
+        1,
+        1
+      ],
+      "expected_result": 622770257922
+    },
+    {
+      "id": "zero_value_item_can_be_selected",
+      "input_values": [
+        3,
+        3,
+        0,
+        5,
+        2,
+        2,
+        1,
+        3
+      ],
+      "expected_result": 352187318290
+    },
+    {
+      "id": "capacity_invalid",
+      "input_values": [
+        -1,
+        1,
+        5,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "zero_weight_invalid",
+      "input_values": [
+        5,
+        1,
+        5,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_length_invalid",
+      "input_values": [
+        5,
+        2,
+        4,
+        3,
+        1
+      ],
+      "expected_result": -1
+    }
+  ]
+}

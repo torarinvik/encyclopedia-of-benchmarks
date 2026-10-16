@@ -1,0 +1,55 @@
+const MAX_NODES: usize = 128
+const MAX_INPUT: usize = 132
+
+def next_node(node: i64, n: i64, cycle_target: i64) -> i64:
+    if node < 0: return -1
+    if node + 1 < n: return node + 1
+    cycle_target
+
+def two_pointer_technique_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
+    op: i64 = input[0]
+    n: i64 = input[1]
+    cycle_target: i64 = input[2]
+    k: i64 = input[3]
+    if n < 0 or n > MAX_NODES.i64() or length != 4 + n.usize(): return -1
+    if n == 0 and cycle_target != -1: return -1
+    if n > 0 and (cycle_target < -1 or cycle_target >= n): return -1
+    for i in 0..<n.usize():
+        if input[4 + i] < -1000000 or input[4 + i] > 1000000: return -1
+
+    if op == 0:
+        if k != 0: return -1
+        slow: mutable i64 = 0
+        if n == 0: slow <- -1
+        fast: mutable i64 = slow
+        while fast != -1:
+            slow <- next_node(slow, n, cycle_target)
+            fast <- next_node(fast, n, cycle_target)
+            if fast != -1: fast <- next_node(fast, n, cycle_target)
+            if slow == -1 or fast == -1: break
+            if slow == fast: return 1
+        return 0
+    elif op == 1:
+        if cycle_target != -1 or k != 0: return -1
+        if n == 0: return -2
+        slow: mutable i64 = 0
+        fast: mutable i64 = 0
+        while fast != -1:
+            fast <- next_node(fast, n, cycle_target)
+            if fast == -1: break
+            fast <- next_node(fast, n, cycle_target)
+            slow <- next_node(slow, n, cycle_target)
+        return input[4 + slow.usize()] + 1000001
+    elif op == 2:
+        if cycle_target != -1 or k < 1 or k > n: return -1
+        lead: mutable i64 = 0
+        lag: mutable i64 = 0
+        for _ in 0..<k.usize(): lead <- next_node(lead, n, cycle_target)
+        while lead != -1:
+            lead <- next_node(lead, n, cycle_target)
+            lag <- next_node(lag, n, cycle_target)
+        return input[4 + lag.usize()] + 3000002
+    return -1
+
+export fn two_pointer_technique(input: i64&, length: usize) -> i64 = two_pointer_technique_impl

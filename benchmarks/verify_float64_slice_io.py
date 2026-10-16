@@ -40,12 +40,12 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     values, result_count, _ = valid_case
     records.append((values, -2, [], result_count - 1, 0, 0))
     records.append((values, -2, [], workspace, 0, 1))
-    records.extend((
-        ([0.0] * 4, -1, [], workspace, 0, 0),
-        ([0.0] * 6, -1, [], workspace, 0, 0),
-        (values, -1, [], workspace, 1, 0),
-        ([], -1, [], workspace, 0, 0),
-    ))
+    for invalid_length in (4, 6):
+        invalid_input = [0.0] * invalid_length
+        if ORACLES[algorithm](invalid_input) is None:
+            records.append((invalid_input, -1, [], workspace, 0, 0))
+    records.extend(((values, -1, [], workspace, 1, 0),
+                    ([], -1, [], workspace, 0, 0)))
 
     if algorithm == "fresnel_diffract":
         oracle = ORACLES[algorithm]
@@ -80,6 +80,67 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
 
         add_fresnel_case(values[:-1])
         add_fresnel_case([*values, 0.0])
+    elif algorithm == "softmax":
+        oracle = ORACLES[algorithm]
+        for invalid_logit in (20.000001, -20.000001, math.nan, math.inf, -math.inf):
+            invalid_input = [invalid_logit]
+            if oracle(invalid_input) is not None:
+                raise ValueError("softmax oracle must reject out-of-range and non-finite logits")
+            records.append((invalid_input, -1, [], workspace, 0, 0))
+    elif algorithm == "trig_functions":
+        oracle = ORACLES[algorithm]
+
+        def add_trig_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        # Valid non-finite x is deliberately represented by one NaN output.
+        for special_x in (math.nan, math.inf, -math.inf):
+            add_trig_case([0.0, special_x, 1e-9])
+
+        # Cover the accepted finite x endpoints and the immediately out-of-range values.
+        for boundary_x in (-10_000.0, 10_000.0):
+            add_trig_case([0.0, boundary_x, 1e-9])
+        for invalid_x in (-10_000.000001, 10_000.000001):
+            add_trig_case([0.0, invalid_x, 1e-9])
+
+        for invalid_selector in (-1.0, 8.0, 1.5, math.nan, math.inf):
+            add_trig_case([invalid_selector, 0.0, 1e-9])
+        for invalid_tolerance in (0.0, 0.999e-9, 0.010000001, math.nan, math.inf):
+            add_trig_case([0.0, 0.0, invalid_tolerance])
+
+        # This operation requires exactly three input values.
+        add_trig_case([0.0, 0.0])
+    elif algorithm == "verlet":
+        oracle = ORACLES[algorithm]
+
+        def add_verlet_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        # Every input slot must be finite, even when all other fields are valid.
+        valid_input = [2.0, 0.25, -0.5, 2.0]
+        for index in range(4):
+            for special in (math.nan, math.inf, -math.inf):
+                invalid_input = list(valid_input)
+                invalid_input[index] = special
+                add_verlet_case(invalid_input)
+
+        for invalid_input in (
+            [1.5, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0],
+            [32.5, 0.0, 0.0, 0.0], [2.0, -1.000001, 0.0, 0.0],
+            [2.0, 1.000001, 0.0, 0.0], [2.0, 0.0, -1.000001, 0.0],
+            [2.0, 0.0, 1.000001, 0.0], [2.0, 0.0, 0.0, -1.0],
+            [2.0, 0.0, 0.0, 5.0], [2.0, 0.0, 0.0, 1.5],
+            [2.0, 0.0, 0.0],
+        ):
+            add_verlet_case(invalid_input)
 
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:

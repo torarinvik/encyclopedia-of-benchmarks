@@ -1,0 +1,74 @@
+const MAX_VERTICES: usize = 10
+const MAX_EDGES: usize = 64
+const MAX_DEGREE: usize = 128
+
+def depth_first_search_iterative_order_put(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def depth_first_search_iterative_order_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3: return -1
+    node_count_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    if node_count_value < 1 or node_count_value > 10 or edge_count_value < 0 or edge_count_value > 64: return -1
+    node_count: usize = node_count_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if length != 3 + 2 * edge_count: return -1
+
+    adjacency: mutable usize[11][128] = zeroed
+    degree: mutable usize[11] = zeroed
+    position: mutable usize = 2
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left_value: i64 = input[position]
+        right_value: i64 = input[position + 1]
+        position <- position + 2
+        if left_value < 1 or left_value.i64() > node_count.i64() or right_value < 1 or right_value.i64() > node_count.i64(): return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        adjacency[left][degree[left]] <- right
+        degree[left] <- degree[left] + 1
+        adjacency[right][degree[right]] <- left
+        degree[right] <- degree[right] + 1
+        edge <- edge + 1
+
+    start_value: i64 = input[position]
+    if start_value < 1 or start_value > node_count_value: return -1
+    start: usize = start_value.usize()
+    stack: mutable usize[10] = zeroed
+    order: mutable usize[10] = zeroed
+    visited: mutable bool[11] = zeroed
+    visited[start] <- true
+    stack_size: mutable usize = 1
+    order_count: mutable usize = 0
+    stack[0] <- start
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        vertex: usize = stack[stack_size]
+        order[order_count] <- vertex
+        order_count <- order_count + 1
+        neighbor_index: mutable usize = 0
+        while neighbor_index < degree[vertex]:
+            neighbor: usize = adjacency[vertex][neighbor_index]
+            if not visited[neighbor]:
+                visited[neighbor] <- true
+                stack[stack_size] <- neighbor
+                stack_size <- stack_size + 1
+            neighbor_index <- neighbor_index + 1
+
+    words: usize = order_count + 1
+    if output.is_null() or capacity < words * 8: return -2
+    depth_first_search_iterative_order_put(output, 0, order_count.i64())
+    index: mutable usize = 0
+    while index < order_count:
+        depth_first_search_iterative_order_put(output, index + 1, order[index].i64())
+        index <- index + 1
+    (words * 8).i64()
+
+export fn depth_first_search_iterative_order(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = depth_first_search_iterative_order_impl

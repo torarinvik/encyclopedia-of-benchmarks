@@ -1,0 +1,138 @@
+# Stable Manhattan-priority grid search, with up/left/down/right successors.
+def greedy_best_first_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 7 or length > 9:
+        return -1
+    rows_value: i64 = values[0]
+    columns_value: i64 = values[1]
+    if rows_value < 1 or rows_value > 3 or columns_value < 1 or columns_value > 3 or length != 6 + rows_value.usize():
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    start_row: i64 = values[2]
+    start_column: i64 = values[3]
+    goal_row: i64 = values[4]
+    goal_column: i64 = values[5]
+    if start_row < 0 or start_row >= rows_value or goal_row < 0 or goal_row >= rows_value or start_column < 0 or start_column >= columns_value or goal_column < 0 or goal_column >= columns_value:
+        return -1
+    masks: mutable i64[3] = zeroed
+    row: mutable usize = 0
+    while row < rows:
+        mask: i64 = values[6 + row]
+        if mask < 0 or mask >= (1 << columns_value):
+            return -1
+        masks[row] <- mask
+        row <- row + 1
+    start: usize = start_row.usize() * columns + start_column.usize()
+    goal: usize = goal_row.usize() * columns + goal_column.usize()
+    if (masks[start / columns] & (1 << (start % columns))) != 0 or (masks[goal / columns] & (1 << (goal % columns))) != 0:
+        return -1
+
+    opened: mutable i64[9] = zeroed
+    parent: mutable i64[9] = zeroed
+    closed: mutable i64[9] = zeroed
+    in_open: mutable i64[9] = zeroed
+    index: mutable usize = 0
+    while index < 9:
+        parent[index] <- -1
+        index <- index + 1
+    open_count: mutable usize = 1
+    found: mutable bool = false
+    opened[0] <- start.i64()
+    in_open[start] <- 1
+    while open_count > 0:
+        index <- 1
+        while index < open_count:
+            current: i64 = opened[index]
+            position: mutable usize = index
+            while position > 0:
+                previous: usize = opened[position - 1].usize()
+                current_index: usize = current.usize()
+                previous_row: usize = previous / columns
+                previous_column: usize = previous % columns
+                current_row: usize = current_index / columns
+                current_column: usize = current_index % columns
+                previous_row_distance: mutable usize = 0
+                previous_column_distance: mutable usize = 0
+                current_row_distance: mutable usize = 0
+                current_column_distance: mutable usize = 0
+                if previous_row > goal_row.usize():
+                    previous_row_distance <- previous_row - goal_row.usize()
+                else:
+                    previous_row_distance <- goal_row.usize() - previous_row
+                if previous_column > goal_column.usize():
+                    previous_column_distance <- previous_column - goal_column.usize()
+                else:
+                    previous_column_distance <- goal_column.usize() - previous_column
+                if current_row > goal_row.usize():
+                    current_row_distance <- current_row - goal_row.usize()
+                else:
+                    current_row_distance <- goal_row.usize() - current_row
+                if current_column > goal_column.usize():
+                    current_column_distance <- current_column - goal_column.usize()
+                else:
+                    current_column_distance <- goal_column.usize() - current_column
+                previous_h: usize = previous_row_distance + previous_column_distance
+                current_h: usize = current_row_distance + current_column_distance
+                if previous_h <= current_h:
+                    break
+                opened[position] <- opened[position - 1]
+                position <- position - 1
+            opened[position] <- current
+            index <- index + 1
+        current: usize = opened[0].usize()
+        index <- 1
+        while index < open_count:
+            opened[index - 1] <- opened[index]
+            index <- index + 1
+        open_count <- open_count - 1
+        in_open[current] <- 0
+        if current == goal:
+            found <- true
+            break
+        closed[current] <- 1
+        current_row: usize = current / columns
+        current_column: usize = current % columns
+        direction: mutable usize = 0
+        while direction < 4:
+            child: mutable usize = current
+            valid: mutable bool = true
+            if direction == 0:
+                if current_row == 0: valid <- false
+                else: child <- current - columns
+            elif direction == 1:
+                if current_column == 0: valid <- false
+                else: child <- current - 1
+            elif direction == 2:
+                if current_row + 1 >= rows: valid <- false
+                else: child <- current + columns
+            else:
+                if current_column + 1 >= columns: valid <- false
+                else: child <- current + 1
+            if valid:
+                child_row: usize = child / columns
+                if (masks[child_row] & (1 << (child % columns))) == 0 and closed[child] == 0 and in_open[child] == 0:
+                    parent[child] <- current.i64()
+                    opened[open_count] <- child.i64()
+                    open_count <- open_count + 1
+                    in_open[child] <- 1
+            direction <- direction + 1
+    path: mutable usize[9] = zeroed
+    path_count: mutable usize = 0
+    if found:
+        current_path: mutable i64 = goal.i64()
+        while current_path >= 0 and path_count < 9:
+            path[path_count] <- current_path.usize()
+            path_count <- path_count + 1
+            current_path <- parent[current_path.usize()]
+    else:
+        path[0] <- start
+        path_count <- 1
+    path_encoding: mutable u64 = 0
+    index <- 0
+    while index < path_count:
+        cell: usize = path[path_count - 1 - index]
+        path_encoding <- path_encoding | ((cell + 1).u64() << (4 * index))
+        index <- index + 1
+    ((path_count.u64() << 36) | path_encoding).i64()
+
+export fn greedy_best_first(values: i64&, length: usize) -> i64 = greedy_best_first_impl

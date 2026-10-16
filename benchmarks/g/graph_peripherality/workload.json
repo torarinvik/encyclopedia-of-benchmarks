@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0.0",
+  "id": "graph-peripherality-strongly-connected-directed-weighted-v1",
+  "algorithm": "graph_peripherality",
+  "function_symbol": "graph_peripherality",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[node_count, edge_count, source0, destination0, positive_weight0, ...]",
+    "node_count_range": [
+      1,
+      8
+    ],
+    "edge_count_range": [
+      0,
+      56
+    ],
+    "node_indices": "zero-based contiguous IDs 0..node_count-1",
+    "edge_weight_range": [
+      1,
+      1000000
+    ],
+    "graph_semantics": "directed simple loopless graph; strongly connected when node_count > 1",
+    "duplicate_directed_edges": "invalid",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[peripheral_node, eccentricity, far_node, farness]",
+    "bytes": 32,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 32
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "graphs/graph_peripherality.py"
+  },
+  "cases": [
+    {
+      "id": "single_node",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "weighted_strongly_connected_cycle",
+      "input_values": [
+        3,
+        4,
+        0,
+        1,
+        2,
+        1,
+        0,
+        2,
+        1,
+        2,
+        3,
+        2,
+        1,
+        3
+      ],
+      "input_length": 14,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000050000000000000002000000000000000800000000000000"
+    },
+    {
+      "id": "lowest_index_tie",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        7,
+        1,
+        0,
+        7
+      ],
+      "input_length": 8,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000070000000000000000000000000000000700000000000000"
+    },
+    {
+      "id": "disconnected_invalid",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        4,
+        1,
+        0,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all_isolated_invalid",
+      "input_values": [
+        3,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonpositive_weight_invalid",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self_loop_invalid",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

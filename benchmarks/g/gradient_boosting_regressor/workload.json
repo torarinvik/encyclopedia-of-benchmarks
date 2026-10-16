@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0.0",
+  "id": "r-gradient-boosting-regressor-stump-i64-f64-v1",
+  "algorithm": "gradient_boosting_regressor",
+  "function_symbol": "gradient_boosting_regressor",
+  "description": "Deterministic one-feature squared-error gradient boosting with depth-one regression trees.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[sample_count, estimator_count, learning_rate_micros, query_x, sorted_x..., target_y_milli...]",
+    "sample_count_range": [
+      2,
+      16
+    ],
+    "estimator_count_range": [
+      1,
+      12
+    ],
+    "learning_rate_micros_range": [
+      1,
+      1000000
+    ],
+    "feature_range": [
+      -1000,
+      1000
+    ],
+    "target_milli_range": [
+      -1000000,
+      1000000
+    ],
+    "features": "strictly increasing",
+    "query_feature_range": [
+      -1000,
+      1000
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64_query_prediction",
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12,
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "machine_learning/gradient_boosting.r"
+  },
+  "cases": [
+    {
+      "id": "single_stump_one_round",
+      "input_values": [
+        2,
+        1,
+        100000,
+        1,
+        0,
+        2,
+        0,
+        10000
+      ],
+      "input_length": 8,
+      "expected_result": 4.5
+    },
+    {
+      "id": "multiple_stumps",
+      "input_values": [
+        4,
+        5,
+        500000,
+        3,
+        -3,
+        -1,
+        2,
+        5,
+        9000,
+        1000,
+        7000,
+        12000
+      ],
+      "input_length": 12,
+      "expected_result": 7.261863425925926
+    },
+    {
+      "id": "full_rate_one_round",
+      "input_values": [
+        4,
+        1,
+        1000000,
+        0,
+        -3,
+        -1,
+        2,
+        5,
+        9000,
+        1000,
+        7000,
+        12000
+      ],
+      "input_length": 12,
+      "expected_result": 5.666666666666667
+    },
+    {
+      "id": "constant_target",
+      "input_values": [
+        4,
+        4,
+        250000,
+        0,
+        -4,
+        -1,
+        2,
+        9,
+        2500,
+        2500,
+        2500,
+        2500
+      ],
+      "input_length": 12,
+      "expected_result": 2.5
+    },
+    {
+      "id": "constant_x_for_query_leaf",
+      "input_values": [
+        2,
+        3,
+        250000,
+        -10,
+        -5,
+        5,
+        -3000,
+        9000
+      ],
+      "input_length": 8,
+      "expected_result": -0.46875
+    },
+    {
+      "id": "invalid_order",
+      "input_values": [
+        3,
+        2,
+        500000,
+        1,
+        0,
+        0,
+        2,
+        0,
+        1000,
+        2000
+      ],
+      "input_length": 10,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_learning_rate",
+      "input_values": [
+        2,
+        1,
+        1000001,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": -1e+300
+    }
+  ]
+}

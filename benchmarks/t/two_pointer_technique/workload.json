@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "two-pointer-linked-list-operations-i64-v1",
+  "algorithm": "two_pointer_technique",
+  "function_symbol": "two_pointer_technique",
+  "input": {
+    "kind": "signed_i64_array_packed_linked_list_operation",
+    "encoding": "[op,n,cycle_target,k,value_0,...,value_(n-1)]",
+    "exact_length": "4+n",
+    "node_count_range": [0, 128],
+    "node_value_range": [-1000000, 1000000],
+    "cycle_target": "-1 for null tail; otherwise a node index 0..n-1; empty list requires -1",
+    "operation_codes": {"0": "Floyd cycle detection", "1": "second middle on acyclic list", "2": "1-based n-th from end on acyclic list"},
+    "k_rules": "operations 0 and 1 require k=0; operation 2 accepts any i64 and returns invalid for k<1 or k>n",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "op0: 0/1; op1: value+1000001 (empty=-2); op2: value+3000002",
+    "result_ranges": {"cycle": [0, 1], "empty_middle": -2, "middle": [1, 2000001], "nth_from_end": [2000002, 4000002]},
+    "maximum_encoded_result": 4000002
+  },
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 10, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "cases": [
+    {"id":"cycle-none","input_values":[0,4,-1,0,11,22,33,44],"input_length":8,"expected_result":0},
+    {"id":"cycle-to-head","input_values":[0,4,0,0,11,22,33,44],"input_length":8,"expected_result":1},
+    {"id":"cycle-to-middle","input_values":[0,5,2,0,10,20,30,40,50],"input_length":9,"expected_result":1},
+    {"id":"cycle-empty","input_values":[0,0,-1,0],"input_length":4,"expected_result":0},
+    {"id":"cycle-op-dummy-k","input_values":[0,1,-1,1,7],"input_length":5,"expected_result":-1},
+    {"id":"middle-odd","input_values":[1,5,-1,0,10,20,30,40,50],"input_length":9,"expected_result":1000031},
+    {"id":"middle-even-second","input_values":[1,4,-1,0,10,20,30,40],"input_length":8,"expected_result":1000031},
+    {"id":"middle-empty","input_values":[1,0,-1,0],"input_length":4,"expected_result":-2},
+    {"id":"middle-cycle-invalid","input_values":[1,3,0,0,1,2,3],"input_length":7,"expected_result":-1},
+    {"id":"middle-dummy-k-invalid","input_values":[1,1,-1,-1,7],"input_length":5,"expected_result":-1},
+    {"id":"nth-from-end-first","input_values":[2,4,-1,4,10,20,30,40],"input_length":8,"expected_result":3000012},
+    {"id":"nth-from-end-last","input_values":[2,4,-1,1,10,20,30,40],"input_length":8,"expected_result":3000042},
+    {"id":"nth-from-end-empty","input_values":[2,0,-1,1],"input_length":4,"expected_result":-1},
+    {"id":"nth-invalid-zero","input_values":[2,3,-1,0,1,2,3],"input_length":7,"expected_result":-1},
+    {"id":"nth-invalid-too-large","input_values":[2,3,-1,4,1,2,3],"input_length":7,"expected_result":-1},
+    {"id":"nth-invalid-min-i64","input_values":[2,2,-1,-9223372036854775808,1,2],"input_length":6,"expected_result":-1},
+    {"id":"nth-invalid-max-i64","input_values":[2,2,-1,9223372036854775807,1,2],"input_length":6,"expected_result":-1},
+    {"id":"invalid-op","input_values":[3,0,-1,0],"input_length":4,"expected_result":-1},
+    {"id":"invalid-cycle-target","input_values":[0,2,2,0,1,2],"input_length":6,"expected_result":-1},
+    {"id":"invalid-node-value","input_values":[1,1,-1,0,1000001],"input_length":5,"expected_result":-1},
+    {"id":"invalid-length","input_values":[2,2,-1,1,5],"input_length":5,"expected_result":-1}
+  ]
+}

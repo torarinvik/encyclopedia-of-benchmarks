@@ -2,47 +2,63 @@ package dancing_links
 
 import "core:c"
 
-// Count exact covers and emit selected-row bitmasks in ascending order.
+search :: proc "contextless" (columns, row_count: int, rows: ^[8]u64,
+        covered, selected: u64, found: ^[256]bool, solution_count: ^int) {
+	full_mask := (u64(1) << u32(columns)) - 1
+	if covered == full_mask {
+		index := int(selected)
+		if !found^[index] {
+			found^[index] = true
+			solution_count^ += 1
+		}
+		return
+	}
+	best_column := columns
+	best_count := row_count + 1
+	for column := 0; column < columns; column += 1 {
+		bit := u64(1) << u32(column)
+		if covered & bit != 0 do continue
+		candidates := 0
+		for row := 0; row < row_count; row += 1 {
+			if rows^[row] & bit != 0 && rows^[row] & covered == 0 do candidates += 1
+		}
+		if candidates == 0 do return
+		if candidates < best_count { best_column = column; best_count = candidates }
+	}
+	bit := u64(1) << u32(best_column)
+	for row := 0; row < row_count; row += 1 {
+		if rows^[row] & bit != 0 && rows^[row] & covered == 0 {
+			search(columns, row_count, rows, covered | rows^[row],
+				selected | (u64(1) << u32(row)), found, solution_count)
+		}
+	}
+}
+
+// Count exact covers with Algorithm X's minimum-column recursion.
 @(export)
 dancing_links :: proc "c" (input: [^]i64, length: c.size_t,
 		output: [^]u8, output_capacity: c.size_t) -> i64 {
-	if input == nil || length < 2 do return -1
+	if input == nil || length < 2 || length > 10 do return -1
 	universe_value := input[0]
 	row_count_value := input[1]
 	if universe_value < 1 || universe_value > 8 || row_count_value < 0 || row_count_value > 8 do return -1
-	universe := c.size_t(universe_value)
-	row_count := c.size_t(row_count_value)
-	if length != row_count + 2 do return -1
-	full_mask := (i64(1) << universe) - 1
-	for row: c.size_t = 0; row < row_count; row += 1 {
-		mask := input[row + 2]
-		if mask <= 0 || (mask & ~full_mask) != 0 do return -1
+	if length != c.size_t(row_count_value + 2) do return -1
+	columns := int(universe_value)
+	row_count := int(row_count_value)
+	full_mask := (u64(1) << u32(columns)) - 1
+	rows: [8]u64 = {}
+	for row := 0; row < row_count; row += 1 {
+		value := input[row + 2]
+		if value <= 0 || u64(value) & ~full_mask != 0 do return -1
+		rows[row] = u64(value)
 	}
-	selection_limit := c.size_t(1) << row_count
-	solution_count: c.size_t = 0
-	for selection: c.size_t = 0; selection < selection_limit; selection += 1 {
-		covered: i64 = 0
-		valid := true
-		for row: c.size_t = 0; row < row_count; row += 1 {
-			if (selection & (c.size_t(1) << row)) == 0 do continue
-			mask := input[row + 2]
-			if (covered & mask) != 0 { valid = false; break }
-			covered |= mask
-		}
-		if valid && covered == full_mask do solution_count += 1
-	}
-	if output_capacity < solution_count || (solution_count > 0 && output == nil) do return -2
-	position: c.size_t = 0
-	for selection: c.size_t = 0; selection < selection_limit; selection += 1 {
-		covered: i64 = 0
-		valid := true
-		for row: c.size_t = 0; row < row_count; row += 1 {
-			if (selection & (c.size_t(1) << row)) == 0 do continue
-			mask := input[row + 2]
-			if (covered & mask) != 0 { valid = false; break }
-			covered |= mask
-		}
-		if valid && covered == full_mask {
+	found: [256]bool = {}
+	solution_count := 0
+	search(columns, row_count, &rows, 0, 0, &found, &solution_count)
+	if output_capacity < c.size_t(solution_count) || (solution_count > 0 && output == nil) do return -2
+	position := 0
+	for selection := 0; selection < 256; selection += 1 {
+		if found[selection] {
 			output[position] = u8(selection)
 			position += 1
 		}

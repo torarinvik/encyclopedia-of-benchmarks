@@ -1,0 +1,108 @@
+const INVALID_RESULT: f64 = -1.0e300
+const MAX_SAMPLES: usize = 16
+
+def gradient_boosting_regressor_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 8 or length > 36: return INVALID_RESULT
+    n: i64 = values[0]
+    rounds: i64 = values[1]
+    rate_i: i64 = values[2]
+    query: i64 = values[3]
+    if n < 2 or n > 16 or rounds < 1 or rounds > 12 or rate_i < 1 or rate_i > 1000000: return INVALID_RESULT
+    if length != 4 + (n * 2).usize(): return INVALID_RESULT
+    x: mutable f64[16] = zeroed
+    y: mutable f64[16] = zeroed
+    pred: mutable f64[16] = zeroed
+    residual: mutable f64[16] = zeroed
+    i: mutable usize = 0
+    while i < n.usize():
+        xi: i64 = values[4 + i]
+        yi: i64 = values[4 + n.usize() + i]
+        if xi < -1000 or xi > 1000 or yi < -1000000 or yi > 1000000: return INVALID_RESULT
+        if i > 0 and values[3 + i] >= xi: return INVALID_RESULT
+        x[i] <- xi.f64()
+        y[i] <- yi.f64() / 1000.0
+        i <- i + 1
+    if query < -1000 or query > 1000: return INVALID_RESULT
+    mean: mutable f64 = 0.0
+    i <- 0
+    while i < n.usize():
+        mean <- mean + y[i]
+        i <- i + 1
+    mean <- mean / n.f64()
+    i <- 0
+    while i < n.usize():
+        pred[i] <- mean
+        i <- i + 1
+    qpred: mutable f64 = mean
+    rate: f64 = rate_i.f64() / 1000000.0
+    round: mutable usize = 0
+    while round < rounds.usize():
+        sum: mutable f64 = 0.0
+        i <- 0
+        while i < n.usize():
+            residual[i] <- y[i] - pred[i]
+            sum <- sum + residual[i]
+            i <- i + 1
+        constant: mutable bool = true
+        i <- 1
+        while i < n.usize():
+            if residual[i] != residual[0]: constant <- false
+            i <- i + 1
+        best: mutable f64 = 1.0e300
+        split: mutable usize = n.usize()
+        left: mutable f64 = 0.0
+        right: mutable f64 = 0.0
+        if not constant:
+            s: mutable usize = 0
+            while s + 1 < n.usize():
+                nl: usize = s + 1
+                nr: usize = n.usize() - nl
+                sl: mutable f64 = 0.0
+                sr: mutable f64 = 0.0
+                i <- 0
+                while i < nl:
+                    sl <- sl + residual[i]
+                    i <- i + 1
+                i <- nl
+                while i < n.usize():
+                    sr <- sr + residual[i]
+                    i <- i + 1
+                lm: f64 = sl / nl.f64()
+                rm: f64 = sr / nr.f64()
+                err: mutable f64 = 0.0
+                i <- 0
+                while i < nl:
+                    d: f64 = residual[i] - lm
+                    err <- err + d * d
+                    i <- i + 1
+                i <- nl
+                while i < n.usize():
+                    d: f64 = residual[i] - rm
+                    err <- err + d * d
+                    i <- i + 1
+                if err < best:
+                    best <- err
+                    split <- s
+                    left <- lm
+                    right <- rm
+                s <- s + 1
+        if split == n.usize():
+            leaf: f64 = sum / n.f64()
+            i <- 0
+            while i < n.usize():
+                pred[i] <- pred[i] + rate * leaf
+                i <- i + 1
+            qpred <- qpred + rate * leaf
+        else:
+            threshold: f64 = (x[split] + x[split + 1]) / 2.0
+            i <- 0
+            while i < n.usize():
+                if x[i] <= threshold: pred[i] <- pred[i] + rate * left
+                else: pred[i] <- pred[i] + rate * right
+                i <- i + 1
+            if query.f64() <= threshold: qpred <- qpred + rate * left
+            else: qpred <- qpred + rate * right
+        round <- round + 1
+    qpred
+
+export fn gradient_boosting_regressor(values: i64&, length: usize) -> f64 = gradient_boosting_regressor_impl

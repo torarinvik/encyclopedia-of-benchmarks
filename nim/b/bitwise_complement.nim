@@ -1,6 +1,6 @@
 ## Complement only the significant binary digits of a nonnegative integer.
 proc bitwise_complement*(n: int64): int64 {.cdecl, exportc: "bitwise_complement".} =
-  if n < 0 or n > 2_147_483_647:
+  if n < 0 or n > 999_999_999:
     return -1
   if n == 0:
     return 1

@@ -1,0 +1,23 @@
+extern exp(value: f64) -> f64
+
+def softmax_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length < 1 or length > 64: return -1
+    index: mutable usize = 0
+    while index < length:
+        value: f64 = values[index]
+        if value != value or value < -20.0 or value > 20.0: return -1
+        index <- index + 1
+    if output == null or capacity < length: return -2
+
+    total: mutable f64 = 0.0
+    index <- 0
+    while index < length:
+        total <- total + exp(values[index])
+        index <- index + 1
+    index <- 0
+    while index < length:
+        output[index] <- exp(values[index]) / total
+        index <- index + 1
+    length.i64()
+
+export fn softmax(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = softmax_impl

@@ -108,6 +108,8 @@ from gaussian_oracle import expected_result as gaussian_expected
 from gaussian_legendre_oracle import INVALID_RESULT as GAUSSIAN_LEGENDRE_INVALID_RESULT
 from gaussian_legendre_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH
 from gaussian_legendre_oracle import expected_result as gaussian_legendre_expected
+from gradient_boosting_regressor_oracle import MAX_INPUT_LENGTH as MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH
+from gradient_boosting_regressor_oracle import expected_result as gradient_boosting_regressor_expected
 from hubble_parameter_oracle import INVALID_RESULT as HUBBLE_PARAMETER_INVALID_RESULT
 from hubble_parameter_oracle import expected_result as hubble_parameter_expected
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
@@ -321,6 +323,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
                         MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH if algorithm == "gaussian_legendre" else
+                        MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH if algorithm == "gradient_boosting_regressor" else
                         MAX_MEDIAN_TWO_ARRAY_INPUT_LENGTH if algorithm == "median_two_array" else
                         MAX_KELLY_CRITERION_INPUT_LENGTH if algorithm == "kelly_criterion" else
                         MAX_PRESENT_VALUE_PARSEABLE_INPUT_LENGTH if algorithm == "present_value" else
@@ -478,6 +481,13 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == GAUSSIAN_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("gaussian expected_result must match the source-ordered density formula")
+    elif algorithm == "gradient_boosting_regressor":
+        source_result = gradient_boosting_regressor_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid gradient_boosting_regressor inputs must use the -1e300 sentinel")
+        elif expected == -1e300 or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("gradient_boosting_regressor expected_result must match bounded stump boosting")
     elif algorithm == "gaussian_legendre":
         source_result = gaussian_legendre_expected(values)
         if source_result == GAUSSIAN_LEGENDRE_INVALID_RESULT:

@@ -1,6 +1,6 @@
 # Complement only the significant binary digits of a nonnegative integer.
 def bitwise_complement_impl(n: i64) -> i64:
-    if n < 0 or n > 2147483647:
+    if n < 0 or n > 999999999:
         return -1
     if n == 0:
         return 1

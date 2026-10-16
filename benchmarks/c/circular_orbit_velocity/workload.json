@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "gravitation-circular-orbit-velocity-f64-slice-io-v1",
+  "algorithm": "circular_orbit_velocity",
+  "function_symbol": "circular_orbit_velocity",
+  "workspace": {
+    "elements": 1
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[centralMass,radius]",
+    "central_mass_range": [
+      1e-12,
+      1e+25
+    ],
+    "radius_range": [
+      1e-12,
+      1000000000000.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "sqrt(G*centralMass/radius), the orbital speed",
+    "gravitational_constant": 6.6743e-11,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "unit_mass_unit_radius",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        8.169638914909275e-06
+      ]
+    },
+    {
+      "id": "earth_mass_earth_radius",
+      "input_values": [
+        5.972e+24,
+        6371000.0
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        7909.680821529872
+      ]
+    },
+    {
+      "id": "large_mass_far_orbit",
+      "input_values": [
+        1e+24,
+        1000000000000.0
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        8.169638914909275
+      ]
+    },
+    {
+      "id": "small_bounded_values",
+      "input_values": [
+        1e-12,
+        1e-12
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        8.169638914909275e-06
+      ]
+    },
+    {
+      "id": "zero_mass",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_radius",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "radius_out_of_range",
+      "input_values": [
+        1,
+        10000000000000.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Jarvis scan
 
-This benchmark ports the pinned Rust Jarvis march (gift-wrapping) routine. It reports the convex hull in counter-clockwise order, starting at the leftmost point and breaking ties by the lowest y-coordinate.
+This benchmark ports the pinned Rust Jarvis march (gift-wrapping) routine. It reports the convex hull in counter-clockwise order, starting at the leftmost point and breaking ties by the lowest y-coordinate. The pinned Python and C++ variants implement the same wrapping scan and are cataloged as aliases on their shared input domain.
 
 ## Contract
 
@@ -34,4 +34,6 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithms jarvis_scan
 
 ## Source
 
-[Pinned Rust `jarvis_scan.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/geometry/jarvis_scan.rs)
+- [Pinned Rust `jarvis_scan.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/geometry/jarvis_scan.rs)
+- [Pinned Python `jarvis_march.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/geometry/jarvis_march.py)
+- [Pinned C++ `jarvis_algorithm.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/geometry/jarvis_algorithm.cpp) ([identical copy](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/geometry/jarvis_algorithm.cpp)); its source starts at the first input point with minimum x, so its alias domain requires a unique minimum x and at least three valid points.

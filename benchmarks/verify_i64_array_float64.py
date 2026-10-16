@@ -293,6 +293,9 @@ from finance_ratios_oracle import INVALID_RESULT as FINANCE_RATIOS_INVALID_RESUL
 from finance_ratios_oracle import expected_result as finance_ratios_oracle
 from gaussian_legendre_oracle import INVALID_RESULT as GAUSSIAN_LEGENDRE_INVALID_RESULT
 from gaussian_legendre_oracle import expected_result as gaussian_legendre_oracle
+from gradient_boosting_regressor_oracle import INVALID_RESULT as GRADIENT_BOOSTING_REGRESSOR_INVALID_RESULT
+from gradient_boosting_regressor_oracle import MAX_INPUT_LENGTH as MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH
+from gradient_boosting_regressor_oracle import expected_result as gradient_boosting_regressor_oracle
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -304,6 +307,7 @@ ALGORITHMS += ("line_sweep", "lorentz_transformation_four_vector", "extended_kal
 ALGORITHMS += ("symmetric_derivative",)
 ALGORITHMS += ("return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale")
 ALGORITHMS += ("gaussian_legendre",)
+ALGORITHMS += ("gradient_boosting_regressor",)
 ALGORITHMS += ("fractional_differentiation",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
@@ -321,6 +325,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return symmetric_derivative_oracle(values)
     if algorithm == "fractional_differentiation":
         return fractional_differentiation_oracle(values)
+    if algorithm == "gradient_boosting_regressor":
+        return gradient_boosting_regressor_oracle(values)
     if algorithm == "gaussian_legendre":
         return gaussian_legendre_oracle(values)
     if algorithm == "hubble_parameter":
@@ -2171,6 +2177,23 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = SYMMETRIC_DERIVATIVE_INVALID_RESULT
+    elif algorithm == "gradient_boosting_regressor":
+        rng = random.Random(20261016)
+        for _ in range(256):
+            n = rng.randint(2, 10)
+            xs = sorted(rng.sample(range(-1000, 1001), n))
+            ys = [rng.randint(-1_000_000, 1_000_000) for _ in range(n)]
+            values = (n, rng.randint(1, 8), rng.randint(1, 1_000_000),
+                      rng.randint(-1000, 1000), *xs, *ys)
+            cases[values] = oracle(algorithm, list(values))
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            if case.get("input_length") != len(values):
+                raise ValueError(f"gradient_boosting_regressor input length mismatch: {case['id']}")
+            expected = oracle(algorithm, list(values))
+            if not math.isclose(expected, case["expected_result"], rel_tol=1e-12, abs_tol=1e-9):
+                raise ValueError(f"gradient_boosting_regressor workload mismatch: {case['id']}")
+            cases[values] = expected
     elif algorithm == "gaussian_legendre":
         rng = random.Random(20261016)
         for _ in range(256):
@@ -2238,6 +2261,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "symmetric_derivative": 2,
                     "fractional_differentiation": 4,
                     "gaussian_legendre": 7,
+                    "gradient_boosting_regressor": MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH,
                     "extended_kalman_filter": 0}
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
@@ -2305,6 +2329,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "reverse_polish_notation" else
                    SYMMETRIC_DERIVATIVE_INVALID_RESULT
                    if algorithm == "symmetric_derivative" else
+                   GRADIENT_BOOSTING_REGRESSOR_INVALID_RESULT if algorithm == "gradient_boosting_regressor" else
                    EXTENDED_KALMAN_FILTER_INVALID_RESULT if algorithm == "extended_kalman_filter" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
                    FINANCE_RATIOS_INVALID_RESULT if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"} else

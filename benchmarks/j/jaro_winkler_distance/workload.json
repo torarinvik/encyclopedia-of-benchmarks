@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "csharp-jaro-winkler-distance-ascii-v1",
+  "algorithm": "jaro_winkler_distance",
+  "function_symbol": "jaro_winkler_distance",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[s1_length, s1_ascii..., s2_length, s2_ascii...]",
+    "string_length_range": [0, 32],
+    "ascii_value_range": [0, 127],
+    "required_order": "s1_length >= s2_length",
+    "maximum_input_length": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Jaro-Winkler distance scaled by 1,000,000,000",
+    "scale": 1000000000,
+    "rounding": "nearest integer, ties upward",
+    "valid_result_range": [0, 1000000000],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Strings/Similarity/JaroWinklerDistance.cs",
+    "helper_path": "Algorithms/Strings/Similarity/JaroSimilarity.cs"
+  },
+  "nonmatching_sources": [
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/string/jaro_winkler_distance.rs",
+      "reason": "Returns similarity instead of distance and uses different matching logic"
+    }
+  ],
+  "cases": [
+    {"id": "both-empty", "input_values": [0, 0], "expected_result": 0},
+    {"id": "equal", "input_values": [4, 84, 69, 83, 84, 4, 84, 69, 83, 84], "expected_result": 0},
+    {"id": "empty-second", "input_values": [3, 65, 66, 67, 0], "expected_result": 1000000000},
+    {"id": "no-matches", "input_values": [3, 65, 66, 67, 3, 88, 89, 90], "expected_result": 1000000000},
+    {"id": "hello-world", "input_values": [5, 104, 101, 108, 108, 111, 5, 119, 111, 114, 108, 100], "expected_result": 533333333},
+    {"id": "martha-marhta", "input_values": [6, 109, 97, 114, 116, 104, 97, 6, 109, 97, 114, 104, 116, 97], "expected_result": 38888889},
+    {"id": "single-window-match", "input_values": [4, 88, 65, 66, 67, 1, 65], "expected_result": 250000000},
+    {"id": "prefix-boost", "input_values": [2, 97, 98, 2, 97, 99], "expected_result": 300000000},
+    {"id": "prefix-capped-at-four", "input_values": [5, 97, 98, 99, 100, 120, 5, 97, 98, 99, 100, 121], "expected_result": 80000000},
+    {"id": "transposed-middle", "input_values": [4, 77, 65, 82, 84, 4, 77, 82, 65, 84], "expected_result": 75000000},
+    {"id": "ascii-boundaries", "input_values": [2, 0, 127, 2, 0, 65], "expected_result": 300000000},
+    {"id": "case-sensitive", "input_values": [3, 97, 98, 99, 3, 65, 66, 67], "expected_result": 1000000000},
+    {"id": "maximum-length-equal", "input_values": [32, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 32, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97], "expected_result": 0},
+    {"id": "first-string-shorter", "input_values": [1, 65, 2, 65, 66], "expected_result": -1},
+    {"id": "negative-length", "input_values": [-1, 0], "expected_result": -1},
+    {"id": "length-over-maximum", "input_values": [33, 0, 0], "expected_result": -1},
+    {"id": "invalid-ascii", "input_values": [1, 128, 1, 128], "expected_result": -1},
+    {"id": "negative-ascii", "input_values": [1, -1, 1, -1], "expected_result": -1},
+    {"id": "length-mismatch", "input_values": [2, 65, 66, 1], "expected_result": -1},
+    {"id": "trailing-value", "input_values": [1, 65, 1, 65, 99], "expected_result": -1}
+  ]
+}

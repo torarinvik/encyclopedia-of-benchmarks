@@ -1,0 +1,78 @@
+# Heap traversal for the narrowest interval covering all sorted lists.
+const MAX_INPUT_LENGTH: usize = 273
+
+def less_head(values: i64&, positions: usize&, a: usize, b: usize) -> bool:
+    left: i64 = values[a * 16 + positions[a]]
+    right: i64 = values[b * 16 + positions[b]]
+    left < right or (left == right and a < b)
+
+def sift_down(heap: mutable usize&, size: usize, initial_root: usize, values: i64&, positions: usize&) -> void:
+    root: mutable usize = initial_root
+    while true:
+        child: mutable usize = root * 2 + 1
+        if child >= size:
+            break
+        if child + 1 < size and less_head(values, positions, heap[child + 1], heap[child]):
+            child <- child + 1
+        if not less_head(values, positions, heap[child], heap[root]):
+            break
+        temporary: usize = heap[root]
+        heap[root] <- heap[child]
+        heap[child] <- temporary
+        root <- child
+
+def smallest_range_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH or input[0] < 1 or input[0] > 16:
+        return -1
+    count: usize = input[0].usize()
+    values: mutable i64[256] = zeroed
+    lengths: mutable usize[16] = zeroed
+    positions: mutable usize[16] = zeroed
+    heap: mutable usize[16] = zeroed
+    offset: mutable usize = 1
+    total: mutable usize = 0
+    current_max: mutable i64 = -1000000001
+    for i in 0..<count:
+        if offset >= length or input[offset] < 1 or input[offset] > 16:
+            return -1
+        lengths[i] <- input[offset].usize()
+        offset <- offset + 1
+        if lengths[i] > 256 - total or offset + lengths[i] > length:
+            return -1
+        total <- total + lengths[i]
+        for j in 0..<lengths[i]:
+            value: i64 = input[offset]
+            if value < -1000000000 or value > 1000000000 or (j > 0 and value < values[i * 16 + j - 1]):
+                return -1
+            values[i * 16 + j] <- value
+            offset <- offset + 1
+        heap[i] <- i
+        if values[i * 16] > current_max:
+            current_max <- values[i * 16]
+    if offset != length:
+        return -1
+    heap_size: usize = count
+    start: mutable usize = heap_size / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(&heap[0], heap_size, start, &values[0], &positions[0])
+    best_lo: mutable i64 = 0
+    best_hi: mutable i64 = 0
+    best_width: mutable i64 = 9223372036854775807
+    while true:
+        list: usize = heap[0]
+        lo: i64 = values[list * 16 + positions[list]]
+        width: i64 = current_max - lo
+        if width < best_width:
+            best_width <- width
+            best_lo <- lo
+            best_hi <- current_max
+        positions[list] <- positions[list] + 1
+        if positions[list] == lengths[list]:
+            break
+        if values[list * 16 + positions[list]] > current_max:
+            current_max <- values[list * 16 + positions[list]]
+        sift_down(&heap[0], heap_size, 0, &values[0], &positions[0])
+    (best_lo + 1000000000) * 2000000001 + best_hi + 1000000000
+
+export fn smallest_range(input: i64&, length: usize) -> i64 = smallest_range_impl

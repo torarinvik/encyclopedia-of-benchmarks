@@ -1,0 +1,173 @@
+def graph_adjacency_list_put(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def graph_adjacency_list_find_vertex(order: i64&, count: usize, vertex: i64) -> i64:
+    index: mutable usize = 0
+    while index < count:
+        if order[index] == vertex: return index.i64()
+        index <- index + 1
+    -1
+
+def graph_adjacency_list_find_neighbor(rows: i64&, degrees: i64&, vertex: usize, neighbor: i64) -> i64:
+    index: mutable usize = 0
+    while index < degrees[vertex].usize():
+        if rows[vertex * 34 + index] == neighbor: return index.i64()
+        index <- index + 1
+    -1
+
+def graph_adjacency_list_delete_neighbor(rows: mutable i64&, degrees: mutable i64&, vertex: usize, at: usize) -> void:
+    index: mutable usize = at
+    while index + 1 < degrees[vertex].usize():
+        rows[vertex * 34 + index] <- rows[vertex * 34 + index + 1]
+        index <- index + 1
+    degrees[vertex] <- degrees[vertex] - 1
+
+def graph_adjacency_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4: return -1
+    directed: i64 = input[0]
+    count64: i64 = input[1]
+    if (directed != 0 and directed != 1) or count64 < 0 or count64 > 32 or length < 4 + count64.usize(): return -1
+    count: mutable usize = count64.usize()
+    order: mutable i64[32] = zeroed
+    rows: mutable i64[1088] = zeroed
+    degrees: mutable i64[32] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        vertex: i64 = input[2 + index]
+        if vertex < 0 or vertex >= 32 or graph_adjacency_list_find_vertex(&order[0], index, vertex) >= 0: return -1
+        order[index] <- vertex
+        index <- index + 1
+    cursor: mutable usize = 2 + count
+    edge_count: i64 = input[cursor]
+    cursor <- cursor + 1
+    if edge_count < 0 or edge_count > 1024 or length < cursor + 2 * edge_count.usize() + 1: return -1
+    index <- 0
+    while index < edge_count.usize():
+        from_vertex: i64 = input[cursor]
+        to_vertex: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if from_vertex < 0 or from_vertex >= 32 or to_vertex < 0 or to_vertex >= 32: return -1
+        if graph_adjacency_list_find_vertex(&order[0], count, from_vertex) < 0 or graph_adjacency_list_find_vertex(&order[0], count, to_vertex) < 0: return -1
+        if graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], from_vertex.usize(), to_vertex) >= 0: return -1
+        rows[from_vertex.usize() * 34 + degrees[from_vertex.usize()].usize()] <- to_vertex
+        degrees[from_vertex.usize()] <- degrees[from_vertex.usize()] + 1
+        if directed == 0:
+            rows[to_vertex.usize() * 34 + degrees[to_vertex.usize()].usize()] <- from_vertex
+            degrees[to_vertex.usize()] <- degrees[to_vertex.usize()] + 1
+        index <- index + 1
+    operations64: i64 = input[cursor]
+    cursor <- cursor + 1
+    if operations64 < 0 or operations64 > 64 or length != cursor + 3 * operations64.usize(): return -1
+    operations: usize = operations64.usize()
+    results: mutable i64[64] = zeroed
+    index <- 0
+    while index < operations:
+        operation: i64 = input[cursor]
+        a: i64 = input[cursor + 1]
+        b: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if operation == 0:
+            if a < 0 or a >= 32 or b != 0 or count >= 32 or graph_adjacency_list_find_vertex(&order[0], count, a) >= 0: return -1
+            order[count] <- a
+            degrees[a.usize()] <- 0
+            count <- count + 1
+            results[index] <- 1
+        elif operation == 1:
+            if a < 0 or a >= 32 or b != 0: return -1
+            vertex: usize = a.usize()
+            position: i64 = graph_adjacency_list_find_vertex(&order[0], count, a)
+            if position < 0: return -1
+            if directed == 1:
+                row_index: mutable usize = 0
+                while row_index < count:
+                    u: usize = order[row_index].usize()
+                    neighbor_index: i64 = graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], u, a)
+                    while neighbor_index >= 0:
+                        graph_adjacency_list_delete_neighbor(&rows[0], &degrees[0], u, neighbor_index.usize())
+                        neighbor_index <- graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], u, a)
+                    row_index <- row_index + 1
+            else:
+                while degrees[vertex] > 0:
+                    neighbor: i64 = rows[vertex * 34 + degrees[vertex].usize() - 1]
+                    degrees[vertex] <- degrees[vertex] - 1
+                    if neighbor != a:
+                        reverse_index: i64 = graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], neighbor.usize(), a)
+                        if reverse_index >= 0: graph_adjacency_list_delete_neighbor(&rows[0], &degrees[0], neighbor.usize(), reverse_index.usize())
+            position_usize: mutable usize = position.usize()
+            while position_usize + 1 < count:
+                order[position_usize] <- order[position_usize + 1]
+                position_usize <- position_usize + 1
+            degrees[vertex] <- 0
+            count <- count - 1
+            results[index] <- 1
+        elif operation == 2 or operation == 3 or operation == 5:
+            if a < 0 or a >= 32 or b < 0 or b >= 32: return -1
+            if graph_adjacency_list_find_vertex(&order[0], count, a) < 0 or graph_adjacency_list_find_vertex(&order[0], count, b) < 0: return -1
+            from_id: usize = a.usize()
+            to_id: usize = b.usize()
+            neighbor_index: i64 = graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], from_id, b)
+            if operation == 5:
+                if neighbor_index >= 0: results[index] <- 1
+            elif operation == 2:
+                if neighbor_index >= 0 or degrees[from_id] >= 34 or (directed == 0 and degrees[to_id] >= 34): return -1
+                rows[from_id * 34 + degrees[from_id].usize()] <- b
+                degrees[from_id] <- degrees[from_id] + 1
+                if directed == 0:
+                    rows[to_id * 34 + degrees[to_id].usize()] <- a
+                    degrees[to_id] <- degrees[to_id] + 1
+                results[index] <- 1
+            else:
+                if neighbor_index < 0: return -1
+                graph_adjacency_list_delete_neighbor(&rows[0], &degrees[0], from_id, neighbor_index.usize())
+                if directed == 0:
+                    reverse_index: i64 = graph_adjacency_list_find_neighbor(&rows[0], &degrees[0], to_id, a)
+                    if reverse_index < 0: return -1
+                    graph_adjacency_list_delete_neighbor(&rows[0], &degrees[0], to_id, reverse_index.usize())
+                results[index] <- 1
+        elif operation == 4:
+            if a < 0 or a >= 32 or b != 0: return -1
+            if graph_adjacency_list_find_vertex(&order[0], count, a) >= 0: results[index] <- 1
+        elif operation == 6:
+            if a != 0 or b != 0: return -1
+            count <- 0
+            row: mutable usize = 0
+            while row < 32:
+                degrees[row] <- 0
+                row <- row + 1
+            results[index] <- 1
+        else: return -1
+        index <- index + 1
+    words: mutable usize = 2 + operations
+    index <- 0
+    while index < count:
+        words <- words + 2 + degrees[order[index].usize()].usize()
+        index <- index + 1
+    if output.is_null() or capacity < words * 8: return -2
+    graph_adjacency_list_put(output, 0, operations64)
+    index <- 0
+    while index < operations:
+        graph_adjacency_list_put(output, 1 + index, results[index])
+        index <- index + 1
+    word: mutable usize = 1 + operations
+    graph_adjacency_list_put(output, word, count.i64())
+    word <- word + 1
+    index <- 0
+    while index < count:
+        vertex: usize = order[index].usize()
+        graph_adjacency_list_put(output, word, vertex.i64())
+        word <- word + 1
+        graph_adjacency_list_put(output, word, degrees[vertex])
+        word <- word + 1
+        neighbor_index: mutable usize = 0
+        while neighbor_index < degrees[vertex].usize():
+            graph_adjacency_list_put(output, word, rows[vertex * 34 + neighbor_index])
+            word <- word + 1
+            neighbor_index <- neighbor_index + 1
+        index <- index + 1
+    (words * 8).i64()
+
+export fn graph_adjacency_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_adjacency_list_impl

@@ -1,0 +1,184 @@
+# Build a Gomory-Hu tree and hash its all-pairs cut matrix.
+const MAX_VERTICES: usize = 8
+const MAX_CAPACITY: i64 = 1000
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def gomory_hu_maxflow(capacity: i64&, vertex_count: usize, source: usize, sink: usize,
+    reachable: mutable bool[8]&) -> i64:
+    residual: mutable i64[64] = zeroed
+    row: mutable usize = 0
+    while row < vertex_count:
+        column: mutable usize = 0
+        while column < vertex_count:
+            residual[row * vertex_count + column] <- capacity[row * vertex_count + column]
+            column <- column + 1
+        row <- row + 1
+    total: mutable i64 = 0
+    done: mutable bool = false
+    while not done:
+        path_parent: mutable i64[8] = zeroed
+        vertex: mutable usize = 0
+        while vertex < vertex_count:
+            path_parent[vertex] <- -1
+            vertex <- vertex + 1
+        path_parent[source] <- source.i64()
+        queue: mutable usize[8] = zeroed
+        head: mutable usize = 0
+        queue_end: mutable usize = 1
+        queue[0] <- source
+        while head < queue_end and path_parent[sink] == -1:
+            node: usize = queue[head]
+            head <- head + 1
+            neighbor: mutable usize = 0
+            while neighbor < vertex_count:
+                if residual[node * vertex_count + neighbor] > 0 and path_parent[neighbor] == -1:
+                    path_parent[neighbor] <- node.i64()
+                    if neighbor == sink:
+                        break
+                    queue[queue_end] <- neighbor
+                    queue_end <- queue_end + 1
+                neighbor <- neighbor + 1
+        if path_parent[sink] == -1:
+            done <- true
+        else:
+            amount: mutable i64 = 1000000
+            node: mutable usize = sink
+            while node != source:
+                previous: usize = path_parent[node].usize()
+                if residual[previous * vertex_count + node] < amount:
+                    amount <- residual[previous * vertex_count + node]
+                node <- previous
+            node <- sink
+            while node != source:
+                previous: usize = path_parent[node].usize()
+                residual[previous * vertex_count + node] <- residual[previous * vertex_count + node] - amount
+                residual[node * vertex_count + previous] <- residual[node * vertex_count + previous] + amount
+                node <- previous
+            total <- total + amount
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        reachable[vertex] <- false
+        vertex <- vertex + 1
+    reach_queue: mutable usize[8] = zeroed
+    reach_head: mutable usize = 0
+    reach_end: mutable usize = 1
+    reach_queue[0] <- source
+    reachable[source] <- true
+    while reach_head < reach_end:
+        node: usize = reach_queue[reach_head]
+        reach_head <- reach_head + 1
+        neighbor: mutable usize = 0
+        while neighbor < vertex_count:
+            if not reachable[neighbor] and residual[node * vertex_count + neighbor] > 0:
+                reachable[neighbor] <- true
+                reach_queue[reach_end] <- neighbor
+                reach_end <- reach_end + 1
+            neighbor <- neighbor + 1
+    total
+
+def gomory_hu_tree_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 65:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 8 or length != (1 + n_value * n_value).usize():
+        return -1
+    n: usize = n_value.usize()
+    capacity: mutable i64[64] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            value: i64 = values[1 + row * n + column]
+            if value < 0 or value > MAX_CAPACITY or (row == column and value != 0):
+                return -1
+            capacity[row * n + column] <- value
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row < n:
+        column: mutable usize = row + 1
+        while column < n:
+            if capacity[row * n + column] != capacity[column * n + row]:
+                return -1
+            column <- column + 1
+        row <- row + 1
+
+    parent: mutable usize[8] = zeroed
+    weight: mutable i64[8] = zeroed
+    source: mutable usize = 1
+    while source < n:
+        sink: usize = parent[source]
+        reachable: mutable bool[8] = zeroed
+        flow: i64 = gomory_hu_maxflow(&capacity[0], n, source, sink, &reachable[0])
+        weight[source] <- flow
+        vertex: mutable usize = 0
+        while vertex < n:
+            if vertex != source and parent[vertex] == sink and reachable[vertex]:
+                parent[vertex] <- source
+            vertex <- vertex + 1
+        if sink != 0 and reachable[parent[sink]]:
+            parent[source] <- parent[sink]
+            parent[sink] <- source
+            weight[source] <- weight[sink]
+            weight[sink] <- flow
+        source <- source + 1
+
+    pair: mutable i64[64] = zeroed
+    source <- 0
+    while source < n:
+        previous: mutable i64[8] = zeroed
+        vertex: mutable usize = 0
+        while vertex < n:
+            previous[vertex] <- -2
+            vertex <- vertex + 1
+        queue: mutable usize[8] = zeroed
+        head: mutable usize = 0
+        queue_end: mutable usize = 1
+        queue[0] <- source
+        previous[source] <- -1
+        while head < queue_end:
+            node: usize = queue[head]
+            head <- head + 1
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                adjacent: mutable bool = false
+                if neighbor != node:
+                    if neighbor > 0 and parent[neighbor] == node:
+                        adjacent <- true
+                    elif node > 0 and parent[node] == neighbor:
+                        adjacent <- true
+                if adjacent and previous[neighbor] == -2:
+                    previous[neighbor] <- node.i64()
+                    queue[queue_end] <- neighbor
+                    queue_end <- queue_end + 1
+                neighbor <- neighbor + 1
+        target: mutable usize = 0
+        while target < n:
+            if target != source:
+                node: mutable usize = target
+                minimum: mutable i64 = 1000000
+                while node != source:
+                    previous_node: usize = previous[node].usize()
+                    edge: mutable usize = previous_node
+                    if node > 0 and parent[node] == previous_node:
+                        edge <- node
+                    if weight[edge] < minimum:
+                        minimum <- weight[edge]
+                    node <- previous_node
+                pair[source * n + target] <- minimum
+            target <- target + 1
+        source <- source + 1
+    hash: mutable u64 = FNV_OFFSET
+    index: mutable usize = 0
+    while index < n * n:
+        bits: mutable u64 = pair[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            hash <- (hash ^ (bits & 255)) * FNV_PRIME
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    hash.i64()
+
+export fn gomory_hu_tree(values: i64&, length: usize) -> i64 = gomory_hu_tree_impl

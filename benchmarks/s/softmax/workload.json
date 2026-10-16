@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "softmax-finite-logits-f64-slice-io-v1",
+  "algorithm": "softmax",
+  "function_symbol": "softmax",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/JavaScript",
+      "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+      "path": "Maths/Softmax.js"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "maths/softmax.py"
+    },
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/math/softmax.rs"
+    }
+  ],
+  "excluded_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/machine_learning/Activation Functions/Softmax.m",
+    "reason": "Fixed-grid plotting script, not a reusable vector function."
+  },
+  "workspace": {
+    "elements": 64
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "one-dimensional vector of logits",
+    "length_range": [
+      1,
+      64
+    ],
+    "logit_range": [
+      -20.0,
+      20.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "softmax probabilities exp(logit_i) / sum(exp(logit_j)); implementations may max-shift exponentials for stability",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-05
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-05
+  },
+  "cases": [
+    {
+      "id": "single_zero",
+      "input_values": [
+        0.0
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "uniform_logits",
+      "input_values": [
+        3.0,
+        3.0,
+        3.0,
+        3.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "canonical_vector",
+      "input_values": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output": [
+        0.09003057317038046,
+        0.24472847105479764,
+        0.6652409557748218
+      ]
+    },
+    {
+      "id": "opposite_endpoints",
+      "input_values": [
+        -20.0,
+        20.0
+      ],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output": [
+        4.248354255291589e-18,
+        1.0
+      ]
+    },
+    {
+      "id": "balanced_extremes",
+      "input_values": [
+        -20.0,
+        -10.0,
+        0.0,
+        10.0,
+        20.0
+      ],
+      "input_length": 5,
+      "expected_result": 5,
+      "expected_output": [
+        4.2481613803067925e-18,
+        9.357198133414646e-14,
+        2.0610600462088695e-09,
+        4.5397868608862414e-05,
+        0.9999546000702375
+      ]
+    },
+    {
+      "id": "length_64_alternating",
+      "input_values": [
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0,
+        20.0,
+        -20.0
+      ],
+      "input_length": 64,
+      "expected_result": 64,
+      "expected_output": [
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19,
+        0.03125,
+        1.3276107047786215e-19
+      ]
+    },
+    {
+      "id": "above_logit_range",
+      "input_values": [
+        20.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "below_logit_range",
+      "input_values": [
+        -20.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "description": "One-dimensional softmax over finite bounded logits, with the maximum supported vector length and f32-relevant endpoint cases."
+}

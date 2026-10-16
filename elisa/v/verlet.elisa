@@ -1,0 +1,35 @@
+extern floor(value: f64) -> f64
+
+def verlet_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 4: return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] != values[index]: return -1
+        index <- index + 1
+    if values[0] < 2.0 or values[0] > 32.0 or floor(values[0]) != values[0]: return -1
+    if values[1] < -1.0 or values[1] > 1.0 or values[2] < -1.0 or values[2] > 1.0: return -1
+    if values[3] < 0.0 or values[3] > 4.0 or floor(values[3]) != values[3]: return -1
+
+    n: usize = values[0].usize()
+    code: usize = values[3].usize()
+    dt: f64 = 0.00390625
+    if code == 1: dt <- 0.0078125
+    elif code == 2: dt <- 0.015625
+    elif code == 3: dt <- 0.03125
+    elif code == 4: dt <- 0.0625
+    dt_squared: f64 = dt * dt
+    if output == null or capacity < 2 * n: return -2
+
+    output[0] <- values[1]
+    output[1] <- values[1] + values[2] * dt + 0.5 * (-values[1]) * dt_squared
+    index <- 1
+    while index < n - 1:
+        output[index + 1] <- 2.0 * output[index] - output[index - 1] + (-output[index]) * dt_squared
+        index <- index + 1
+    index <- 0
+    while index < n:
+        output[n + index] <- index.f64() * dt
+        index <- index + 1
+    (2 * n).i64()
+
+export fn verlet(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = verlet_impl

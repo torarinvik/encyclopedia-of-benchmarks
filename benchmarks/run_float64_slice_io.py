@@ -22,6 +22,12 @@ from dimensionality_reduction_lda_oracle import expected_result as dimensionalit
 from dimensionality_reduction_tsne_oracle import expected_result as dimensionality_reduction_tsne_oracle
 from fresnel_diffract_oracle import expected_result as fresnel_diffract_oracle
 from gauss_optimization_oracle import expected_result as gauss_optimization_oracle
+from geo_location_oracle import expected_result as geo_location_oracle
+from gravitational_force_oracle import expected_result as gravitational_force_oracle
+from circular_orbit_velocity_oracle import expected_result as circular_orbit_velocity_oracle
+from softmax_oracle import expected_result as softmax_oracle
+from trig_functions_oracle import expected_result as trig_functions_oracle
+from verlet_oracle import expected_result as verlet_oracle
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -32,6 +38,12 @@ ORACLES = {
     "dimensionality_reduction_tsne": dimensionality_reduction_tsne_oracle,
     "fresnel_diffract": fresnel_diffract_oracle,
     "gauss_optimization": gauss_optimization_oracle,
+    "geo_location": geo_location_oracle,
+    "gravitational_force": gravitational_force_oracle,
+    "circular_orbit_velocity": circular_orbit_velocity_oracle,
+    "softmax": softmax_oracle,
+    "trig_functions": trig_functions_oracle,
+    "verlet": verlet_oracle,
 }
 
 

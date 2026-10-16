@@ -1,0 +1,81 @@
+def graph_centrality_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2: return -1
+    nn: i64 = input[0]
+    ee: i64 = input[1]
+    if nn < 1 or nn > 16 or ee < 0 or ee > nn * (nn - 1): return -1
+    node_count: usize = nn.usize()
+    edge_count: usize = ee.usize()
+    if length != 2 + 3 * edge_count: return -1
+    distances: mutable i64[16][16]
+    inf: i64 = 9223372036854775807
+    i: mutable usize = 0
+    j: mutable usize = 0
+    while i < node_count:
+        j <- 0
+        while j < node_count:
+            distances[i][j] <- inf
+            if i == j: distances[i][j] <- 0
+            j <- j + 1
+        i <- i + 1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        a: i64 = input[2 + 3 * edge]
+        b: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if a < 0 or a >= nn or b < 0 or b >= nn or a == b or weight < 1 or weight > 1000000: return -1
+        if distances[a.usize()][b.usize()] != inf: return -1
+        distances[a.usize()][b.usize()] <- weight
+        edge <- edge + 1
+    k: mutable usize = 0
+    while k < node_count:
+        i <- 0
+        while i < node_count:
+            j <- 0
+            while j < node_count:
+                if distances[i][k] != inf and distances[k][j] != inf and distances[i][k] + distances[k][j] < distances[i][j]:
+                    distances[i][j] <- distances[i][k] + distances[k][j]
+                j <- j + 1
+            i <- i + 1
+        k <- k + 1
+    central: mutable i64 = -1
+    median: mutable i64 = -1
+    best_ecc: mutable i64 = inf
+    best_harmonic: mutable f64 = -1.0
+    if node_count == 1:
+        central <- 0
+        median <- 0
+    else:
+        i <- 0
+        while i < node_count:
+            reachable: mutable bool = false
+            eccentricity: mutable i64 = 0
+            harmonic: mutable f64 = 0.0
+            j <- 0
+            while j < node_count:
+                if i != j and distances[i][j] != inf:
+                    reachable <- true
+                    if distances[i][j] > eccentricity: eccentricity <- distances[i][j]
+                    harmonic <- harmonic + 1.0 / distances[i][j]
+                j <- j + 1
+            if reachable and eccentricity < best_ecc:
+                best_ecc <- eccentricity
+                central <- i.i64()
+            if reachable and harmonic > best_harmonic:
+                best_harmonic <- harmonic
+                median <- i.i64()
+            i <- i + 1
+    if output == null or capacity < 16: return -2
+    value_index: mutable usize = 0
+    value: mutable i64 = 0
+    while value_index < 2:
+        value <- central
+        if value_index == 1: value <- median
+        bits: mutable u64 = value.u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[value_index * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        value_index <- value_index + 1
+    16
+
+export fn graph_centrality(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_centrality_impl

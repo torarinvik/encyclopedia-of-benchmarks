@@ -1,0 +1,120 @@
+const MAX_ITEMS: usize = 256
+const MAX_CAPACITY: usize = 512
+const I32_MAX: i64 = 2147483647
+
+def library_sort_find_index(data: mutable i64[MAX_CAPACITY], occupied: mutable bool[MAX_CAPACITY], capacity: usize, value: i64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = capacity
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        probe: mutable i64 = I32_MAX
+        index: mutable usize = middle
+        while index < capacity:
+            if occupied[index]:
+                probe <- data[index]
+                break
+            index <- index + 1
+        if probe != I32_MAX and probe <= value:
+            low <- middle + 1
+        else:
+            high <- middle
+    low
+
+def library_sort_insert_at_end(data: mutable i64[MAX_CAPACITY], occupied: mutable bool[MAX_CAPACITY], capacity: usize, value: i64) -> void:
+    last: usize = capacity - 1
+    left: mutable i64 = i64(last) - 1
+    while left >= 0 and occupied[left.usize()]:
+        left <- left - 1
+    if left < 0: return
+    index: mutable usize = left.usize()
+    while index < last:
+        data[index] <- data[index + 1]
+        index <- index + 1
+    occupied[left.usize()] <- true
+    data[last] <- value
+
+def library_sort_insert(data: mutable i64[MAX_CAPACITY], occupied: mutable bool[MAX_CAPACITY], capacity: usize, value: i64) -> void:
+    position: usize = library_sort_find_index(data, occupied, capacity, value)
+    if position >= capacity:
+        library_sort_insert_at_end(data, occupied, capacity, value)
+        return
+    if not occupied[position]:
+        data[position] <- value
+        occupied[position] <- true
+        return
+
+    right: mutable usize = position
+    while right < capacity and occupied[right]:
+        right <- right + 1
+    left: mutable i64 = i64(position) - 1
+    while left >= 0 and occupied[left.usize()]:
+        left <- left - 1
+    can_go_right: bool = right < capacity
+    can_go_left: bool = left >= 0
+    if can_go_right and (not can_go_left or right - position <= position - left.usize()):
+        index: mutable usize = right
+        while index > position:
+            data[index] <- data[index - 1]
+            index <- index - 1
+        occupied[right] <- true
+        data[position] <- value
+    else if can_go_left:
+        gap: usize = left.usize()
+        index: mutable usize = gap
+        while index + 1 < position:
+            data[index] <- data[index + 1]
+            index <- index + 1
+        occupied[gap] <- true
+        data[position - 1] <- value
+
+def library_sort_impl(values: mutable i64&, length: usize) -> void:
+    if values.is_null() or length < 2 or length > MAX_ITEMS: return
+    capacity: usize = 2 * length
+    data: mutable i64[MAX_CAPACITY] = zeroed
+    temporary: mutable i64[MAX_ITEMS] = zeroed
+    occupied: mutable bool[MAX_CAPACITY] = zeroed
+    filled: mutable usize = 1
+    next: mutable usize = 1
+    round: mutable usize = 0
+    middle: usize = capacity / 2
+    data[middle] <- values[0]
+    occupied[middle] <- true
+
+    while next < length:
+        batch: mutable usize = 1 << round
+        if batch > length - next: batch <- length - next
+        index: mutable usize = 0
+        while index < batch:
+            library_sort_insert(data, occupied, capacity, values[next + index])
+            filled <- filled + 1
+            index <- index + 1
+        next <- next + batch
+        round <- round + 1
+        if next < length:
+            at: mutable usize = 0
+            index <- 0
+            while index < capacity:
+                if occupied[index]:
+                    temporary[at] <- data[index]
+                    at <- at + 1
+                index <- index + 1
+            index <- 0
+            while index < capacity:
+                occupied[index] <- false
+                index <- index + 1
+            index <- 0
+            while index < filled:
+                slot: usize = index * capacity / filled
+                data[slot] <- temporary[index]
+                occupied[slot] <- true
+                index <- index + 1
+
+    output: mutable usize = 0
+    index: mutable usize = 0
+    while index < capacity:
+        if occupied[index]:
+            values[output] <- data[index]
+            output <- output + 1
+        index <- index + 1
+
+export fn library_sort(values: mutable i64&, length: usize) -> void = library_sort_impl

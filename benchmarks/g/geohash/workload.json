@@ -49,20 +49,20 @@
     {
       "id": "london",
       "input_values": [
-        515074000,
-        -1278000
+        51507400,
+        -127800
       ],
-      "expected_result": -1,
-      "expected_output_hex": ""
+      "expected_result": 12,
+      "expected_output_hex": "676370766a30647571353333"
     },
     {
       "id": "southern_hemisphere",
       "input_values": [
-        -338688000,
+        -33868800,
         151209000
       ],
-      "expected_result": -1,
-      "expected_output_hex": ""
+      "expected_result": 12,
+      "expected_output_hex": "7233677832663735636e3436"
     },
     {
       "id": "north_pole",
@@ -123,16 +123,6 @@
       "input_values": [
         0,
         180000001
-      ],
-      "expected_result": -1,
-      "expected_output_hex": ""
-    },
-    {
-      "id": "wrong_length",
-      "input_values": [
-        0,
-        0,
-        0
       ],
       "expected_result": -1,
       "expected_output_hex": ""

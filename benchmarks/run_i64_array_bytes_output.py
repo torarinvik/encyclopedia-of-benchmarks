@@ -38,6 +38,11 @@ from geohash_oracle import MAX_INPUT_LENGTH as MAX_GEOHASH_INPUT_LENGTH
 from geohash_oracle import expected_output as geohash_expected_output
 from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GABOR_FILTER_PARSEABLE_INPUT_LENGTH
 from gabor_filter_oracle import expected_output as gabor_filter_expected_output
+from graph_adjacency_list_oracle import expected_output as graph_adjacency_list_expected_output
+from graph_adjacency_matrix_oracle import expected_output as graph_adjacency_matrix_expected_output
+from graph_peripherality_oracle import expected_output as graph_peripherality_expected_output
+from graph_centrality_oracle import expected_output as graph_centrality_expected_output
+from depth_first_search_iterative_order_oracle import expected_output as depth_first_search_iterative_order_expected_output
 from maskwords_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MASKWORDS_PARSEABLE_INPUT_LENGTH
 from maskwords_oracle import expected_output as maskwords_expected_output
 from trifid_cipher_oracle import expected_output as trifid_cipher_expected_output
@@ -440,6 +445,11 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'wus_line',
     'words_to_number',
     'word_occurrence',
+    'graph_adjacency_list',
+    'graph_adjacency_matrix',
+    'graph_peripherality',
+    'graph_centrality',
+    'depth_first_search_iterative_order',
     'strip',
     'word_frequency_functions',
     'mean_threshold',
@@ -1453,10 +1463,22 @@ RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_filter')
 RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_mixture_model')
 RECORDER_WORKSPACE_ALGORITHMS.add('gabor_filter')
 RECORDER_WORKSPACE_ALGORITHMS.add('maskwords')
+RECORDER_WORKSPACE_ALGORITHMS.add('aatree')
+RECORDER_WORKSPACE_ALGORITHMS.add('add_two_numbers')
 RECORDER_WORKSPACE_ALGORITHMS.add('longest_consecutive_characters')
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "graph_adjacency_list":
+        return graph_adjacency_list_expected_output(values)
+    if algorithm == "graph_adjacency_matrix":
+        return graph_adjacency_matrix_expected_output(values)
+    if algorithm == "graph_peripherality":
+        return graph_peripherality_expected_output(values)
+    if algorithm == "graph_centrality":
+        return graph_centrality_expected_output(values)
+    if algorithm == "depth_first_search_iterative_order":
+        return depth_first_search_iterative_order_expected_output(values)
     if algorithm == "flip_augmentation":
         return flip_augmentation_expected_output(values)
     if algorithm == "geohash":

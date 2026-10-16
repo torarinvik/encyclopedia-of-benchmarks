@@ -1,0 +1,37 @@
+const MAX_PARTICIPANTS: usize = 64
+const MAX_INPUT: usize = 68
+
+def two_phase_commit_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > MAX_INPUT:
+        return -1
+    participant_count: i64 = input[0]
+    timeout_ms: i64 = input[1]
+    start_time_ms: i64 = input[2]
+    current_time_ms: i64 = input[3]
+    if participant_count < 1 or participant_count > MAX_PARTICIPANTS.i64(): return -1
+    if length != 4 + participant_count.usize(): return -1
+    if timeout_ms < 1: return -1
+    if start_time_ms < 0 or current_time_ms < start_time_ms: return -1
+
+    votes_received: mutable i64 = 0
+    commit_votes: mutable i64 = 0
+    has_abort: mutable bool = false
+    for i in 0..<participant_count.usize():
+        vote: i64 = input[4 + i]
+        if vote < 0 or vote > 2: return -1
+        if vote == 0:
+            votes_received <- votes_received + 1
+            commit_votes <- commit_votes + 1
+        elif vote == 1:
+            votes_received <- votes_received + 1
+            has_abort <- true
+
+    state: i64 = 1
+    if votes_received == participant_count:
+        if has_abort: state <- 3
+        else: state <- 2
+    timed_out: i64 = 0
+    if current_time_ms - start_time_ms > timeout_ms: timed_out <- 1
+    (((state * 65 + votes_received) * 65 + commit_votes) * 2 + timed_out)
+
+export fn two_phase_commit(input: i64&, length: usize) -> i64 = two_phase_commit_impl

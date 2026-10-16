@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "id": "trig-functions-bounded-f64-slice-io-v1",
+  "algorithm": "trig_functions",
+  "function_symbol": "trig_functions",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/math/trig_functions.rs"
+    }
+  ],
+  "workspace": {
+    "elements": 1
+  },
+  "input": {
+    "kind": "float64_array",
+    "encoding": "[selector, x, tolerance]",
+    "length": 3,
+    "selector_range": [
+      0,
+      7
+    ],
+    "selector_mapping": [
+      "sine_radians",
+      "cosine_radians",
+      "sine_degrees",
+      "cosine_degrees",
+      "tangent_radians",
+      "cotangent_radians",
+      "tangent_degrees",
+      "cotangent_degrees"
+    ],
+    "finite_x_range": [
+      -10000.0,
+      10000.0
+    ],
+    "tolerance_range": [
+      1e-09,
+      0.01
+    ],
+    "invalid_input_result": -1,
+    "nonfinite_x_result": "one NaN output"
+  },
+  "output": {
+    "kind": "one_float64",
+    "valid_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "nan_cases": "non-finite x and tangent/cotangent whose rounded denominator is zero",
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "sine_radians",
+      "input_values": [
+        0.0,
+        0.5,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.479426
+      ]
+    },
+    {
+      "id": "cosine_radians",
+      "input_values": [
+        1.0,
+        0.7853981633974483,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.707107
+      ]
+    },
+    {
+      "id": "sine_degrees",
+      "input_values": [
+        2.0,
+        30.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.5
+      ]
+    },
+    {
+      "id": "cosine_degrees",
+      "input_values": [
+        3.0,
+        60.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.5
+      ]
+    },
+    {
+      "id": "tangent_radians",
+      "input_values": [
+        4.0,
+        0.7853981633974483,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "cotangent_radians",
+      "input_values": [
+        5.0,
+        0.7853981633974483,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "tangent_degrees",
+      "input_values": [
+        6.0,
+        45.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "cotangent_degrees",
+      "input_values": [
+        7.0,
+        30.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        1.73205
+      ]
+    },
+    {
+      "id": "multiple_period_reduction",
+      "input_values": [
+        0.0,
+        37.69911184307752,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "negative_radian_cosine",
+      "input_values": [
+        1.0,
+        -3.141592653589793,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        -1.0
+      ]
+    },
+    {
+      "id": "large_degree_reduction",
+      "input_values": [
+        2.0,
+        10000.0,
+        1e-08
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        -0.984808
+      ]
+    },
+    {
+      "id": "looser_series_tolerance",
+      "input_values": [
+        0.0,
+        2.3,
+        0.01
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        0.745936
+      ]
+    },
+    {
+      "id": "tangent_rounded_zero_cosine",
+      "input_values": [
+        4.0,
+        1.5707963267948966,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        "NaN"
+      ]
+    },
+    {
+      "id": "cotangent_zero_sine",
+      "input_values": [
+        5.0,
+        0.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        "NaN"
+      ]
+    },
+    {
+      "id": "tangent_degree_rounded_zero_cosine",
+      "input_values": [
+        6.0,
+        90.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        "NaN"
+      ]
+    },
+    {
+      "id": "cotangent_zero_degree_sine",
+      "input_values": [
+        7.0,
+        0.0,
+        1e-09
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        "NaN"
+      ]
+    },
+    {
+      "id": "invalid_selector_low",
+      "input_values": [
+        -1.0,
+        0.5,
+        1e-06
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_selector_high",
+      "input_values": [
+        8.0,
+        0.5,
+        1e-06
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_fractional_selector",
+      "input_values": [
+        2.5,
+        0.5,
+        1e-06
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_finite_x_range",
+      "input_values": [
+        0.0,
+        10000.0001,
+        1e-06
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_zero_tolerance",
+      "input_values": [
+        1.0,
+        0.5,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_large_tolerance",
+      "input_values": [
+        1.0,
+        0.5,
+        0.010001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_short_layout",
+      "input_values": [
+        0.0,
+        0.5
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_long_layout",
+      "input_values": [
+        0.0,
+        0.5,
+        1e-06,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

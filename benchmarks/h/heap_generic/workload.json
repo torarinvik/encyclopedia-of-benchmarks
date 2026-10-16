@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0.0",
+  "id": "python-heap-generic-bounded-operation-trace-v1",
+  "algorithm": "heap_generic",
+  "function_symbol": "heap_generic",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/heap/heap_generic.py"
+  },
+  "input": {
+    "encoding": "[operation_count, (opcode, item_id, priority)*]",
+    "operation_count_range": [
+      0,
+      512
+    ],
+    "maximum_live_items": 128,
+    "item_id_range": [
+      0,
+      4095
+    ],
+    "priority_range": [
+      -2147483648,
+      2147483647
+    ],
+    "opcodes": {
+      "0": "insert an unused ID with priority",
+      "1": "get maximum item; item_id and priority must be zero",
+      "2": "extract maximum item; item_id and priority must be zero",
+      "3": "update a live ID's priority",
+      "4": "delete a live ID; priority must be zero"
+    },
+    "constraints": [
+      "Each item ID may be inserted only once per trace.",
+      "Priorities of live items must be distinct.",
+      "Empty peek and extract are valid and return no item.",
+      "Malformed inputs return -1."
+    ]
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "FNV-1a-64 over per-operation opcode/presence/result records",
+    "record_encoding": "opcode u8, presence u8, then item_id i32 little-endian and priority i32 little-endian when present",
+    "invalid_input_result": -1,
+    "empty_trace_result": -3750763034362895579
+  },
+  "cases": [
+    {
+      "id": "empty_trace",
+      "input_values": [
+        0
+      ],
+      "expected_result": -3750763034362895579
+    },
+    {
+      "id": "empty_peek_and_extract",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "expected_result": -5966822592242377290
+    },
+    {
+      "id": "single_insert_peek_extract",
+      "input_values": [
+        3,
+        0,
+        7,
+        10,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "expected_result": -1073462626238908306
+    },
+    {
+      "id": "priority_update_delete_and_extract",
+      "input_values": [
+        9,
+        0,
+        1,
+        4,
+        0,
+        2,
+        11,
+        0,
+        3,
+        -3,
+        1,
+        0,
+        0,
+        3,
+        1,
+        14,
+        1,
+        0,
+        0,
+        4,
+        2,
+        0,
+        2,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "expected_result": 130388441282210194
+    },
+    {
+      "id": "lower_priority_repairs_down",
+      "input_values": [
+        5,
+        0,
+        0,
+        30,
+        0,
+        1,
+        20,
+        0,
+        2,
+        10,
+        3,
+        0,
+        5,
+        1,
+        0,
+        0
+      ],
+      "expected_result": -7988932305723971327
+    },
+    {
+      "id": "duplicate_item_id_invalid",
+      "input_values": [
+        2,
+        0,
+        7,
+        5,
+        0,
+        7,
+        6
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "duplicate_live_priority_invalid",
+      "input_values": [
+        2,
+        0,
+        1,
+        5,
+        0,
+        2,
+        5
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "item_id_reuse_invalid",
+      "input_values": [
+        3,
+        0,
+        7,
+        5,
+        4,
+        7,
+        0,
+        0,
+        7,
+        6
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "unknown_opcode_invalid",
+      "input_values": [
+        1,
+        9,
+        0,
+        0
+      ],
+      "expected_result": -1
+    }
+  ]
+}

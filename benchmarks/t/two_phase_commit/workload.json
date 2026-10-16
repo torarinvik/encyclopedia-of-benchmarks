@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "two-phase-commit-coordinator-state-i64-v1",
+  "algorithm": "two_phase_commit",
+  "function_symbol": "two_phase_commit",
+  "input": {
+    "kind": "signed_i64_array_packed_coordinator_votes",
+    "encoding": "[participant_count, timeout_ms, start_time_ms, current_time_ms, vote_0, ..., vote_(n-1)]",
+    "participant_count_range": [1, 64],
+    "timeout_ms_range": [1, 9223372036854775807],
+    "timestamp_range": [0, 9223372036854775807],
+    "current_time_must_be_at_least_start_time": true,
+    "vote_codes": {"0": "commit", "1": "abort", "2": "no response; do not record"},
+    "transaction_id": 1,
+    "maximum_input_length": 68,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "(((state * 65 + votes_received) * 65 + commit_votes) * 2 + timed_out)",
+    "state_codes": {"0": "init", "1": "preparing", "2": "committed", "3": "aborted"},
+    "timeout_comparison": "elapsed_ms > timeout_ms",
+    "timeout_changes_state": false,
+    "maximum_encoded_result": 33799
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "all-commit", "input_values": [3, 100, 100, 150, 0, 0, 0], "input_length": 7, "expected_result": 17296},
+    {"id": "abort-vote-wins", "input_values": [3, 100, 100, 150, 0, 1, 0], "input_length": 7, "expected_result": 25744},
+    {"id": "missing-vote-keeps-preparing", "input_values": [3, 100, 100, 150, 0, 2, 0], "input_length": 7, "expected_result": 8714},
+    {"id": "missing-vote-does-not-count-as-received", "input_values": [1, 100, 0, 101, 2], "input_length": 5, "expected_result": 8451},
+    {"id": "timeout-equality-is-not-timed-out", "input_values": [1, 50, 100, 150, 0], "input_length": 5, "expected_result": 17032},
+    {"id": "timeout-does-not-force-abort", "input_values": [1, 50, 100, 151, 0], "input_length": 5, "expected_result": 17033},
+    {"id": "i64-max-timeout-equality", "input_values": [1, 9223372036854775807, 0, 9223372036854775807, 0], "input_length": 5, "expected_result": 17032},
+    {"id": "i64-max-current-one-ms-equality", "input_values": [1, 1, 9223372036854775806, 9223372036854775807, 0], "input_length": 5, "expected_result": 17032},
+    {"id": "i64-max-current-exceeds-timeout", "input_values": [1, 9223372036854775806, 0, 9223372036854775807, 0], "input_length": 5, "expected_result": 17033},
+    {"id": "maximum-participants", "input_values": [64, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 68, "expected_result": 25348},
+    {"id": "zero-participants", "input_values": [0, 1, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "too-many-participants", "input_values": [65, 1, 0, 0], "input_length": 4, "expected_result": -1},
+    {"id": "zero-timeout", "input_values": [1, 0, 0, 0, 0], "input_length": 5, "expected_result": -1},
+    {"id": "time-before-start", "input_values": [1, 1, 2, 1, 0], "input_length": 5, "expected_result": -1},
+    {"id": "invalid-vote", "input_values": [1, 1, 0, 0, 3], "input_length": 5, "expected_result": -1},
+    {"id": "missing-vote-record", "input_values": [2, 1, 0, 0, 0], "input_length": 5, "expected_result": -1}
+  ]
+}

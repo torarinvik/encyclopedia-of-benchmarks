@@ -1,0 +1,35 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+
+def geo_location_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 4: return -1
+    index: mutable usize = 0
+    while index < 4:
+        value: f64 = values[index]
+        if value != value or value > 1.0e100 or value < -1.0e100: return -1
+        index <- index + 1
+    lat1d: f64 = values[0]
+    lon1d: f64 = values[1]
+    lat2d: f64 = values[2]
+    lon2d: f64 = values[3]
+    if lat1d < -90.0 or lat1d > 90.0 or lat2d < -90.0 or lat2d > 90.0: return -1
+    if lon1d < -180.0 or lon1d > 180.0 or lon2d < -180.0 or lon2d > 180.0: return -1
+    factor: f64 = PI_VALUE / 180.0
+    lat1: f64 = lat1d * factor
+    lon1: f64 = lon1d * factor
+    lat2: f64 = lat2d * factor
+    lon2: f64 = lon2d * factor
+    diff_lat: f64 = lat2 - lat1
+    diff_lon: f64 = lon2 - lon1
+    sin_lat: f64 = sin(diff_lat / 2.0)
+    sin_lon: f64 = sin(diff_lon / 2.0)
+    haversine: f64 = sin_lat * sin_lat + cos(lat1) * cos(lat2) * sin_lon * sin_lon
+    if haversine < 0.0 or haversine > 1.0: return -1
+    if output == null or capacity < 1: return -2
+    output[0] <- 6371010.0 * (2.0 * atan2(sqrt(haversine), sqrt(1.0 - haversine)))
+    1
+
+export fn geo_location(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = geo_location_impl

@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "gravitation-force-vector-f64-slice-io-v1",
+  "algorithm": "gravitational_force",
+  "function_symbol": "gravitational_force",
+  "workspace": {
+    "elements": 2
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[mass1,x1,y1,mass2,x2,y2]",
+    "mass_domain": "each mass is zero or has absolute value from 1e-12 through 1e12",
+    "position_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "minimum_nonzero_squared_separation": 1e-12,
+    "coincident_positions_are_valid": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "[G*m1*m2/distanceSquared * dx/distance, G*m1*m2/distanceSquared * dy/distance], with [0,0] at coincident positions",
+    "gravitational_constant": 6.6743e-11,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "unit_x",
+      "input_values": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        6.6743e-11,
+        0.0
+      ]
+    },
+    {
+      "id": "diagonal",
+      "input_values": [
+        5,
+        3,
+        4,
+        7,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        5.606411999999999e-11,
+        7.475216e-11
+      ]
+    },
+    {
+      "id": "negative_mass",
+      "input_values": [
+        -2,
+        -3,
+        0,
+        4,
+        0,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        1.2814655999999998e-11,
+        1.7086207999999998e-11
+      ]
+    },
+    {
+      "id": "coincident_positions",
+      "input_values": [
+        9,
+        2,
+        -5,
+        7,
+        2,
+        -5
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "zero_mass",
+      "input_values": [
+        0,
+        2,
+        3,
+        1,
+        -1,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "too_close",
+      "input_values": [
+        1,
+        0,
+        0,
+        1,
+        1e-07,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "mass_out_of_range",
+      "input_values": [
+        10000000000000.0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        1,
+        2,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

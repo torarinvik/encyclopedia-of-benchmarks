@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "imply-gate-two-input-v1",
+  "algorithm": "imply_gate",
+  "function_symbol": "imply_gate",
+  "input": {
+    "kind": "two_boolean_integers",
+    "valid_values": [0, 1],
+    "invalid_result": -1,
+    "result": "For valid inputs, 1 iff left is 0 or right is 1; otherwise 0"
+  },
+  "output": {
+    "kind": "boolean_integer",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "false_implies_false", "input_values": [0, 0], "expected_result": 1},
+    {"id": "false_implies_true", "input_values": [0, 1], "expected_result": 1},
+    {"id": "true_implies_false", "input_values": [1, 0], "expected_result": 0},
+    {"id": "true_implies_true", "input_values": [1, 1], "expected_result": 1}
+  ]
+}

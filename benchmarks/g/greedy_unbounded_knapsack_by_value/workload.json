@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "id": "greedy-unbounded-knapsack-by-value-bounded-scalar-v1",
+  "algorithm": "greedy_unbounded_knapsack_by_value",
+  "function_symbol": "greedy_unbounded_knapsack_by_value",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/knapsack/greedy_algorithm.jl"
+  },
+  "cases": [
+    {"id": "empty_items", "input_values": [10, 0], "expected_result": 0},
+    {"id": "zero_capacity", "input_values": [0, 2, 8, 5, 2, 1], "expected_result": 0},
+    {"id": "reuse_highest_value", "input_values": [9, 3, 7, 5, 4, 3, 2, 4], "expected_result": 21},
+    {"id": "skip_nonfitting_then_reuse_next", "input_values": [5, 3, 10, 8, 6, 6, 2, 1], "expected_result": 22},
+    {"id": "stable_value_tie_order", "input_values": [5, 3, 5, 5, 5, 3, 4, 2], "expected_result": 10},
+    {"id": "capacity_invalid", "input_values": [-1, 1, 5, 1], "expected_result": -1},
+    {"id": "zero_weight_invalid", "input_values": [5, 1, 5, 0], "expected_result": -1},
+    {"id": "wrong_length_invalid", "input_values": [5, 2, 4, 3, 1], "expected_result": -1}
+  ]
+}

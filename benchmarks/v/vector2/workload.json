@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "vector2-f64-slice-io-v1",
+  "algorithm": "vector2",
+  "function_symbol": "vector2",
+  "workspace": {
+    "elements": 2
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[op,ax,ay,bx,by,scalar]",
+    "operation_codes": {
+      "0": "equalsExactly",
+      "1": "equalsApproximately",
+      "2": "length",
+      "3": "normalize",
+      "4": "add",
+      "5": "subtract",
+      "6": "multiply",
+      "7": "distance",
+      "8": "dotProduct",
+      "9": "rotate",
+      "10": "angleBetween"
+    },
+    "coordinate_range": [-1000.0, 1000.0],
+    "epsilon_range": [0.0, 2000.0],
+    "scalar_range": [-1000.0, 1000.0],
+    "rotation_angle_range": [-6.283185307179586, 6.283185307179586],
+    "unused_fields_must_be_zero": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "one scalar or boolean-as-0/1 value, or two vector components",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "exact_equal", "input_values": [0.0, 1.0, 2.0, 1.0, 2.0, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [1.0]},
+    {"id": "exact_not_equal", "input_values": [0.0, 1.0, 2.0, 1.0, 2.0000000000000004, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [0.0]},
+    {"id": "approximately_equal_inside_epsilon", "input_values": [1.0, 0.0, 0.0, 0.125, -0.125, 0.25], "input_length": 6, "expected_result": 1, "expected_output": [1.0]},
+    {"id": "approximately_equal_strict_boundary", "input_values": [1.0, 0.0, 0.0, 1.0, 0.0, 1.0], "input_length": 6, "expected_result": 1, "expected_output": [0.0]},
+    {"id": "length_three_four_five", "input_values": [2.0, 3.0, 4.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [5.0]},
+    {"id": "normalize_three_four", "input_values": [3.0, 3.0, 4.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": 2, "expected_output": [0.6, 0.8]},
+    {"id": "add", "input_values": [4.0, 1.25, -2.5, 3.5, 4.25, 0.0], "input_length": 6, "expected_result": 2, "expected_output": [4.75, 1.75]},
+    {"id": "subtract", "input_values": [5.0, 1.0, -2.0, 3.0, 4.0, 0.0], "input_length": 6, "expected_result": 2, "expected_output": [-2.0, -6.0]},
+    {"id": "scalar_multiply", "input_values": [6.0, 1.5, -2.0, 0.0, 0.0, -3.0], "input_length": 6, "expected_result": 2, "expected_output": [-4.5, 6.0]},
+    {"id": "distance", "input_values": [7.0, 1.0, 2.0, 4.0, 6.0, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [5.0]},
+    {"id": "dot_product", "input_values": [8.0, 1.0, 2.0, 3.0, 4.0, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [11.0]},
+    {"id": "rotation_quarter_turn", "input_values": [9.0, 1.0, 0.0, 0.0, 0.0, 1.5707963267948966], "input_length": 6, "expected_result": 2, "expected_output": [0.0, 1.0]},
+    {"id": "angle_between_is_unwrapped", "input_values": [10.0, -1.0, 0.01, -1.0, -0.01, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [-6.263185973806256]},
+    {"id": "zero_vector_normalization_is_invalid", "input_values": [3.0, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "nonzero_unused_vector_field", "input_values": [2.0, 3.0, 4.0, 1.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_operation", "input_values": [2.5, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid_input_length", "input_values": [2.0, 3.0, 4.0, 0.0, 0.0], "input_length": 5, "expected_result": -1, "expected_output": []}
+  ]
+}

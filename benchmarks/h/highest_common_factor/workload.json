@@ -27,62 +27,82 @@
   "cases": [
     {
       "id": "both_zero",
-      "left": 0,
-      "right": 0,
+      "input_values": [
+        0,
+        0
+      ],
       "expected_result": 0
     },
     {
       "id": "left_zero",
-      "left": 0,
-      "right": 42,
+      "input_values": [
+        0,
+        42
+      ],
       "expected_result": 42
     },
     {
       "id": "right_zero",
-      "left": 45,
-      "right": 0,
+      "input_values": [
+        45,
+        0
+      ],
       "expected_result": 45
     },
     {
       "id": "equal_values",
-      "left": 32,
-      "right": 32,
+      "input_values": [
+        32,
+        32
+      ],
       "expected_result": 32
     },
     {
       "id": "nontrivial_factor",
-      "left": 24,
-      "right": 36,
+      "input_values": [
+        24,
+        36
+      ],
       "expected_result": 12
     },
     {
       "id": "coprime_consecutive",
-      "left": 64,
-      "right": 63,
+      "input_values": [
+        64,
+        63
+      ],
       "expected_result": 1
     },
     {
       "id": "repeated_subtraction",
-      "left": 63,
-      "right": 42,
+      "input_values": [
+        63,
+        42
+      ],
       "expected_result": 21
     },
     {
       "id": "shared_factor",
-      "left": 60,
-      "right": 24,
+      "input_values": [
+        60,
+        24
+      ],
       "expected_result": 12
     },
     {
       "id": "common_factor_of_seven",
-      "left": 49,
-      "right": 14,
+      "input_values": [
+        49,
+        14
+      ],
       "expected_result": 7
     },
     {
       "id": "one_divides_other",
-      "left": 64,
-      "right": 32,
+      "input_values": [
+        64,
+        32
+      ],
       "expected_result": 32
     }
   ]

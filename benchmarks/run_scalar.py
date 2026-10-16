@@ -1730,6 +1730,17 @@ def problem117_source_result(length: int) -> int:
 
 
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "binary_palindrome_check":
+        if not -(2**31) <= input_value <= 2**31 - 1:
+            expected_from_source = -1
+        elif input_value < 0:
+            expected_from_source = 0
+        else:
+            bits = bin(input_value)[2:]
+            expected_from_source = int(bits == bits[::-1])
+        if expected_result != expected_from_source:
+            raise ValueError("binary_palindrome_check expected_result must match significant-bit reversal")
+        return
     if algorithm == "sum_multiples_inclusion_exclusion":
         if expected_result != sum_multiples_inclusion_exclusion_expected(input_value):
             raise ValueError("sum_multiples_inclusion_exclusion expected_result must match the direct-scan oracle")

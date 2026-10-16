@@ -1,0 +1,157 @@
+const MAX_OPERATIONS: usize = 256
+const MAX_KEYS: usize = 64
+const MAX_CAPACITY: usize = 1024
+const MAX_INPUT_LENGTH: usize = 769
+const VALUE_OFFSET: i64 = 1000001
+
+def hash_map_open_addressing_place(state: mutable i64&, keys: mutable i64&, mapped_values: mutable i64&,
+                                  capacity: usize, key: i64, value: i64) -> void:
+    index: mutable usize = (key % capacity.i64()).usize()
+    probe: mutable usize = 0
+    while probe < capacity:
+        if state[index] != 1:
+            state[index] <- 1
+            keys[index] <- key
+            mapped_values[index] <- value
+            return
+        if keys[index] == key:
+            mapped_values[index] <- value
+            return
+        index <- (index + 1) % capacity
+        probe <- probe + 1
+
+def hash_map_open_addressing_resize(state: mutable i64&, keys: mutable i64&, mapped_values: mutable i64&,
+                                    capacity: mutable usize&, next_capacity: usize, size: mutable usize&) -> void:
+    old_state: mutable i64[1024] = state
+    old_keys: mutable i64[1024] = keys
+    old_values: mutable i64[1024] = mapped_values
+    old_capacity: usize = capacity
+    i: mutable usize = 0
+    while i < next_capacity:
+        state[i] <- 0
+        keys[i] <- 0
+        mapped_values[i] <- 0
+        i <- i + 1
+    capacity <- next_capacity
+    size <- 0
+    i <- 0
+    while i < old_capacity:
+        if old_state[i] == 1:
+            hash_map_open_addressing_place(state, keys, mapped_values, next_capacity, old_keys[i], old_values[i])
+            size <- size + 1
+        i <- i + 1
+
+def hash_map_open_addressing_find(state: i64&, keys: i64&, capacity: usize, key: i64,
+                                  tombstone: mutable usize&, tomb_before: mutable bool&) -> usize:
+    index: mutable usize = (key % capacity.i64()).usize()
+    tombstone <- capacity
+    tomb_before <- false
+    probe: mutable usize = 0
+    while probe < capacity:
+        if state[index] == 0: return capacity
+        if state[index] == 2:
+            if tombstone == capacity: tombstone <- index
+        else if keys[index] == key:
+            tomb_before <- tombstone != capacity
+            return index
+        index <- (index + 1) % capacity
+        probe <- probe + 1
+    capacity
+
+def hash_map_open_addressing_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > MAX_OPERATIONS.i64() or
+        length != 1 + 3 * operation_count_value.usize(): return -1
+
+    state: mutable i64[1024] = zeroed
+    keys: mutable i64[1024] = zeroed
+    mapped_values: mutable i64[1024] = zeroed
+    capacity: mutable usize = 8
+    size: mutable usize = 0
+    query_sum: mutable i64 = 0
+    query_index: mutable i64 = 0
+    operation: mutable usize = 0
+    while operation < operation_count_value.usize():
+        base: usize = 1 + 3 * operation
+        opcode: i64 = input[base]
+        key: i64 = input[base + 1]
+        value: i64 = input[base + 2]
+        if opcode == 0:
+            if key < 0 or key > 1000000 or value < -1000000 or value > 1000000: return -1
+            tombstone: mutable usize = 0
+            tomb_before: mutable bool = false
+            before: usize = hash_map_open_addressing_find(state, keys, capacity, key, tombstone, tomb_before)
+            if before == capacity and size >= MAX_KEYS: return -1
+            if size >= capacity * 3 / 4:
+                if capacity * 2 > MAX_CAPACITY: return -1
+                hash_map_open_addressing_resize(state, keys, mapped_values, capacity, capacity * 2, size)
+            found: usize = hash_map_open_addressing_find(state, keys, capacity, key, tombstone, tomb_before)
+            if found != capacity:
+                if tomb_before: return -1
+                mapped_values[found] <- value
+            else:
+                index: mutable usize = (key % capacity.i64()).usize()
+                target: mutable usize = tombstone
+                probe: mutable usize = 0
+                while probe < capacity:
+                    if state[index] == 0:
+                        if target == capacity: target <- index
+                        break
+                    index <- (index + 1) % capacity
+                    probe <- probe + 1
+                if target == capacity: return -1
+                state[target] <- 1
+                keys[target] <- key
+                mapped_values[target] <- value
+                size <- size + 1
+        else if opcode == 1 or opcode == 2 or opcode == 3:
+            if key < 0 or key > 1000000 or value != 0: return -1
+            tombstone: mutable usize = 0
+            tomb_before: mutable bool = false
+            found: usize = hash_map_open_addressing_find(state, keys, capacity, key, tombstone, tomb_before)
+            if (opcode == 1 or opcode == 2) and found == capacity: return -1
+            if opcode == 1:
+                query_index <- query_index + 1
+                query_sum <- query_sum + query_index * (mapped_values[found] + VALUE_OFFSET)
+            else if opcode == 2:
+                state[found] <- 2
+                size <- size - 1
+                if capacity > 8 and size.f64() < capacity.f64() * 0.75 / 2.0:
+                    hash_map_open_addressing_resize(state, keys, mapped_values, capacity, capacity / 2, size)
+            else:
+                query_index <- query_index + 1
+                present: mutable i64 = 0
+                if found != capacity: present <- 1
+                query_sum <- query_sum + query_index * (present + VALUE_OFFSET)
+        else if opcode == 4:
+            if key != 0 or value != 0: return -1
+            query_index <- query_index + 1
+            query_sum <- query_sum + query_index * (size.i64() + VALUE_OFFSET)
+        else:
+            return -1
+        operation <- operation + 1
+
+    sorted_keys: mutable i64[64] = zeroed
+    sorted_values: mutable i64[64] = zeroed
+    count: mutable usize = 0
+    index: mutable usize = 0
+    while index < capacity:
+        if state[index] == 1:
+            at: mutable usize = count
+            count <- count + 1
+            while at > 0 and sorted_keys[at - 1] > keys[index]:
+                sorted_keys[at] <- sorted_keys[at - 1]
+                sorted_values[at] <- sorted_values[at - 1]
+                at <- at - 1
+            sorted_keys[at] <- keys[index]
+            sorted_values[at] <- mapped_values[index]
+        index <- index + 1
+    final_state: mutable i64 = 0
+    index <- 0
+    while index < count:
+        final_state <- final_state + (index + 1).i64() * (sorted_keys[index] + 1) * (sorted_values[index] + VALUE_OFFSET)
+        index <- index + 1
+    query_sum + final_state + size.i64()
+
+export fn hash_map_open_addressing(input: i64&, length: usize) -> i64 = hash_map_open_addressing_impl

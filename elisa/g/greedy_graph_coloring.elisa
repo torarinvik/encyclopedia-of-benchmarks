@@ -1,0 +1,73 @@
+# Descending-degree first-fit coloring with a reproducible smallest-ID tie rule.
+def greedy_graph_coloring_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 1 or length > 15:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 14 or length != count_value.usize() + 1:
+        return -1
+    count: usize = count_value.usize()
+    limit: u64 = (u64(1) << count) - 1
+    adjacency: mutable u64[14] = zeroed
+    degree: mutable usize[14] = zeroed
+    order: mutable usize[14] = zeroed
+    colors: mutable usize[14] = zeroed
+    vertex: mutable usize = 0
+    bit_index: mutable usize = 0
+    other: mutable usize = 0
+    while vertex < count:
+        mask_value: i64 = values[vertex + 1]
+        if mask_value < 0 or mask_value.u64() > limit:
+            return -1
+        mask: u64 = mask_value.u64()
+        if (mask & (u64(1) << vertex)) != 0:
+            return -1
+        adjacency[vertex] <- mask
+        order[vertex] <- vertex
+        bit_index <- 0
+        while bit_index < count:
+            if (mask & (u64(1) << bit_index)) != 0:
+                degree[vertex] <- degree[vertex] + 1
+            bit_index <- bit_index + 1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < count:
+        other <- 0
+        while other < count:
+            if ((adjacency[vertex] >> other) & u64(1)) != ((adjacency[other] >> vertex) & u64(1)):
+                return -1
+            other <- other + 1
+        vertex <- vertex + 1
+    index: mutable usize = 1
+    while index < count:
+        current: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and degree[order[position - 1]] < degree[current]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- current
+        index <- index + 1
+    color_count: mutable usize = 0
+    position: mutable usize = 0
+    while position < count:
+        vertex <- order[position]
+        used: mutable u64 = 0
+        other <- 0
+        while other < count:
+            if (adjacency[vertex] & (u64(1) << other)) != 0 and colors[other] != 0:
+                used <- used | (u64(1) << colors[other])
+            other <- other + 1
+        color: mutable usize = 1
+        while (used & (u64(1) << color)) != 0:
+            color <- color + 1
+        colors[vertex] <- color
+        if color > color_count:
+            color_count <- color
+        position <- position + 1
+    encoded: mutable u64 = color_count.u64()
+    vertex <- 0
+    while vertex < count:
+        encoded <- encoded | (colors[vertex].u64() << (4 * (vertex + 1)))
+        vertex <- vertex + 1
+    encoded.i64()
+
+export fn greedy_graph_coloring(values: i64&, length: usize) -> i64 = greedy_graph_coloring_impl

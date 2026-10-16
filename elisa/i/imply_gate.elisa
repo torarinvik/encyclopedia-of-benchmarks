@@ -1,0 +1,6 @@
+def imply_gate_impl(left: u64, right: u64) -> i64:
+    if left > 1 or right > 1: return -1
+    if left == 0 or right == 1: return 1
+    return 0
+
+export fn imply_gate(left: u64, right: u64) -> i64 = imply_gate_impl
