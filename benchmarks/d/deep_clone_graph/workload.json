@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "deep-clone-graph-row-mask-fnv-i64-v1",
+  "algorithm": "deep_clone_graph",
+  "input": {
+    "kind": "i64_array",
+    "encoding": "[node_count, root_index, node_value_0..node_value_(n-1), adjacency_mask_0..adjacency_mask_(n-1)]",
+    "node_count_range": [
+      1,
+      16
+    ],
+    "root_index_range": "[0,n)",
+    "node_value_range": "signed 32-bit",
+    "adjacency_mask_range": "[0,2^n); symmetric rows preserve an undirected graph and self-loops",
+    "invalid_result": -1,
+    "result": "signed i64 cast of FNV-1a-64 over reachable clone node count, root index, then reachable nodes in ascending original id order as (value, adjacency mask) words encoded little-endian"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_isolated",
+      "input_values": [
+        1,
+        0,
+        7,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -5175964415576531741
+    },
+    {
+      "id": "path_duplicate_values",
+      "input_values": [
+        4,
+        0,
+        5,
+        5,
+        -2,
+        9,
+        2,
+        5,
+        10,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": -6967304163013396424
+    },
+    {
+      "id": "cycle",
+      "input_values": [
+        5,
+        2,
+        10,
+        -4,
+        10,
+        8,
+        0,
+        18,
+        5,
+        10,
+        20,
+        9
+      ],
+      "input_length": 12,
+      "expected_result": 8562247447123446177
+    },
+    {
+      "id": "self_loop",
+      "input_values": [
+        3,
+        1,
+        1,
+        1,
+        1,
+        3,
+        7,
+        2
+      ],
+      "input_length": 8,
+      "expected_result": 4777391057023875392
+    },
+    {
+      "id": "reachable_component",
+      "input_values": [
+        4,
+        2,
+        1,
+        1,
+        2,
+        0,
+        2,
+        5,
+        2,
+        8
+      ],
+      "input_length": 10,
+      "expected_result": 4618729742531306883
+    },
+    {
+      "id": "complete_graph",
+      "input_values": [
+        6,
+        4,
+        -3,
+        0,
+        17,
+        17,
+        99,
+        63,
+        63,
+        63,
+        63,
+        63,
+        63,
+        63
+      ],
+      "input_length": 14,
+      "expected_result": 7575252905092293505
+    },
+    {
+      "id": "invalid_asymmetry",
+      "input_values": [
+        2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_mask",
+      "input_values": [
+        2,
+        0,
+        1,
+        2,
+        4,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_length",
+      "input_values": [
+        2,
+        0,
+        1,
+        2,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    }
+  ]
+}

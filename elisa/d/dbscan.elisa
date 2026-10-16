@@ -1,0 +1,70 @@
+def dbscan_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 5 or length > 67: return -1
+    n0: i64 = input[0]
+    eps: i64 = input[1]
+    minimum: i64 = input[2]
+    if n0 < 1 or n0 > 32 or eps < 1 or eps > 2000000 or minimum < 1 or minimum > n0 or length != 3 + 2 * n0.usize(): return -1
+    n: usize = n0.usize()
+    x: mutable i64[32]
+    y: mutable i64[32]
+    labels: mutable i64[32]
+    expanded: mutable bool[32]
+    for i in 0..<n:
+        x[i] <- input[3 + 2*i]
+        y[i] <- input[4 + 2*i]
+        labels[i] <- -1
+        if x[i] < -1000000 or x[i] > 1000000 or y[i] < -1000000 or y[i] > 1000000: return -1
+    for i in 0..<n:
+        for j in 0..<i:
+            if x[i] == x[j] and y[i] == y[j]: return -1
+    if output == null or output_capacity < n: return -2
+    e2: i64 = eps * eps
+    next: mutable i64 = 0
+    for i in 0..<n:
+        if labels[i] >= 0: continue
+        count: mutable usize = 0
+        for j in 0..<n:
+            dx: i64 = x[i] - x[j]
+            dy: i64 = y[i] - y[j]
+            if dx*dx + dy*dy <= e2: count += 1
+        if count < minimum.usize(): continue
+        cluster: i64 = next
+        next += 1
+        labels[i] <- cluster
+        queue: mutable usize[32]
+        queued: mutable bool[32]
+        head: mutable usize = 0
+        queue_end: mutable usize = 0
+        for j in 0..<n:
+            dx: i64 = x[i] - x[j]
+            dy: i64 = y[i] - y[j]
+            if dx*dx + dy*dy <= e2:
+                queue[queue_end] <- j
+                queue_end += 1
+                queued[j] <- true
+        while head < queue_end:
+            q: usize = queue[head]
+            head += 1
+            if labels[q] >= 0 and labels[q] != cluster: continue
+            labels[q] <- cluster
+            if expanded[q]: continue
+            expanded[q] <- true
+            nc: mutable usize = 0
+            for j in 0..<n:
+                dx: i64 = x[q] - x[j]
+                dy: i64 = y[q] - y[j]
+                if dx*dx + dy*dy <= e2: nc += 1
+            if nc >= minimum.usize():
+                for j in 0..<n:
+                    dx: i64 = x[q] - x[j]
+                    dy: i64 = y[q] - y[j]
+                    if dx*dx + dy*dy <= e2 and labels[j] < 0 and not queued[j]:
+                        queue[queue_end] <- j
+                        queue_end += 1
+                        queued[j] <- true
+    for i in 0..<n:
+        if labels[i] < 0: output[i] <- 0
+        else: output[i] <- (labels[i] + 1).u8()
+    n.i64()
+
+export fn dbscan(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dbscan_impl

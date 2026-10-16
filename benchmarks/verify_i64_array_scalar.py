@@ -19,6 +19,17 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
+from wine_problem_recursive_oracle import MAX_ITEMS as WINE_PROBLEM_RECURSIVE_MAX_ITEMS
+from wine_problem_recursive_oracle import MAX_PRICE as WINE_PROBLEM_RECURSIVE_MAX_PRICE
+from wine_problem_recursive_oracle import expected_result as wine_problem_recursive_oracle
+from wine_problem_memoized_oracle import MAX_ITEMS as WINE_PROBLEM_MEMOIZED_MAX_ITEMS
+from wine_problem_memoized_oracle import MAX_PRICE as WINE_PROBLEM_MEMOIZED_MAX_PRICE
+from wine_problem_memoized_oracle import MIN_PRICE as WINE_PROBLEM_MEMOIZED_MIN_PRICE
+from wine_problem_memoized_oracle import expected_result as wine_problem_memoized_oracle
+from wine_problem_tabulated_oracle import MAX_ITEMS as WINE_PROBLEM_TABULATED_MAX_ITEMS
+from wine_problem_tabulated_oracle import MAX_PRICE as WINE_PROBLEM_TABULATED_MAX_PRICE
+from wine_problem_tabulated_oracle import expected_result as wine_problem_tabulated_oracle
 from ceil_in_binary_search_tree_oracle import MAX_NODE_COUNT as MAX_CEIL_IN_BST_NODES
 from ceil_in_binary_search_tree_oracle import expected_result as ceil_in_bst_oracle
 from inorder_successor_of_bst_oracle import INT32_MAX as INORDER_SUCCESSOR_OF_BST_INT32_MAX
@@ -429,6 +440,8 @@ ALGORITHMS += ("improved_simple_sort",)
 ALGORITHMS += ("largest_of_very_large_numbers",)
 ALGORITHMS += ("lexicographical_numbers",)
 ALGORITHMS += ("push_relabel",)
+ALGORITHMS += ("wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated")
+ALGORITHMS += ("deep_clone_graph",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -865,6 +878,14 @@ def problem107_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "deep_clone_graph":
+        return deep_clone_graph_oracle(values)
+    if algorithm == "wine_problem_recursive":
+        return wine_problem_recursive_oracle(values)
+    if algorithm == "wine_problem_memoized":
+        return wine_problem_memoized_oracle(values)
+    if algorithm == "wine_problem_tabulated":
+        return wine_problem_tabulated_oracle(values)
     if algorithm == "edmonds_blossom_algorithm":
         return edmonds_blossom_oracle(values)
     if algorithm == "edmonds_karp":
@@ -1373,7 +1394,43 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         # special NULL records require a positive length and are rejected at parse time.
         cases[()] = oracle(algorithm, [])
     rng = random.Random(20261014)
-    if algorithm == "push_relabel":
+    if algorithm in {"wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated"}:
+        if algorithm == "wine_problem_recursive":
+            max_items = WINE_PROBLEM_RECURSIVE_MAX_ITEMS
+            min_price = 0
+            max_price = WINE_PROBLEM_RECURSIVE_MAX_PRICE
+        elif algorithm == "wine_problem_memoized":
+            max_items = WINE_PROBLEM_MEMOIZED_MAX_ITEMS
+            min_price = WINE_PROBLEM_MEMOIZED_MIN_PRICE
+            max_price = WINE_PROBLEM_MEMOIZED_MAX_PRICE
+        else:
+            max_items = WINE_PROBLEM_TABULATED_MAX_ITEMS
+            min_price = 0
+            max_price = WINE_PROBLEM_TABULATED_MAX_PRICE
+
+        fixed_cases = (
+            (min_price,), (max_price,),
+            tuple([min_price] * max_items), tuple([max_price] * max_items),
+            tuple(range(min_price, min_price + max_items)),
+        )
+        for values in fixed_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(256):
+            length = rng.randint(1, max_items)
+            values = tuple(rng.randint(min_price, max_price) for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), tuple([min_price] * (max_items + 1)),
+            tuple([min_price] * (max_items + 2)),
+            (-1,), (max_price + 1,), (min_price - 1,),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= max_items + 2:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "push_relabel":
         for _ in range(256):
             vertex_count = rng.randint(2, min(10, MAX_PUSH_RELABEL_VERTICES))
             terminal_order = list(range(vertex_count))

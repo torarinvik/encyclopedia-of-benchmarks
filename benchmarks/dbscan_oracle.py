@@ -25,6 +25,10 @@ def expected_output(values: tuple[int, ...] | list[int], output_capacity: int | 
         return -2, b""
 
     points = [(values[3 + 2 * i], values[4 + 2 * i]) for i in range(n)]
+    # The Jupyter source represents points as dictionary keys, so duplicate
+    # coordinates cannot be represented by that source API.
+    if len(set(points)) != n:
+        return INVALID_RESULT, b""
     eps2 = epsilon * epsilon
     neighbors = [[j for j, q in enumerate(points)
                   if (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 <= eps2]

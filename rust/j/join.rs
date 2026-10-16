@@ -1,0 +1,5 @@
+const MAX_OUTPUT:usize=3040;
+#[no_mangle]
+pub unsafe extern "C" fn join(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{
+ if v.is_null()||n<2||n>2115{return -1;}let a=std::slice::from_raw_parts(v,n);let sl=a[0];let count=a[1];if !(0..=32).contains(&sl)||!(0..=32).contains(&count){return -1;}let mut cursor=2usize;if sl as usize>n-cursor{return -1;}let mut sep=[0u8;32];for i in 0..sl as usize{let x=a[cursor];cursor+=1;if !(0..=127).contains(&x){return -1;}sep[i]=x as u8;}let mut result=[0u8;MAX_OUTPUT];let mut written=0usize;for item in 0..count as usize{if cursor>=n{return -1;}let len=a[cursor];cursor+=1;if !(0..=64).contains(&len)||len as usize>n-cursor{return -1;}if item>0{for &b in &sep[..sl as usize]{result[written]=b;written+=1;}}for _ in 0..len as usize{let x=a[cursor];cursor+=1;if !(0..=127).contains(&x){return -1;}result[written]=x as u8;written+=1;}}if cursor!=n{return -1;}if out.is_null()||cap<written{return -2;}std::ptr::copy_nonoverlapping(result.as_ptr(),out,written);written as i64
+}

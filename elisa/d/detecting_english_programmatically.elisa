@@ -1,0 +1,83 @@
+const MAX_INPUT: usize = 172
+
+def detecting_english_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+    count: i64 = input[0]
+    if count < 0 or count > 8: return -1
+    starts: usize[8] = [0; 8]
+    lens: usize[8] = [0; 8]
+    position: mutable usize = 1
+    word: mutable usize = 0
+    while word < count.usize():
+        if position >= length: return -1
+        word_length: i64 = input[position]
+        position <- position + 1
+        if word_length < 1 or word_length > 12 or position + word_length.usize() > length: return -1
+        starts[word] <- position
+        lens[word] <- word_length.usize()
+        index: mutable usize = 0
+        while index < lens[word]:
+            if input[position + index] < 65 or input[position + index] > 90: return -1
+            index <- index + 1
+        if word > 0:
+            k: mutable usize = 0
+            ordering: mutable i64 = 0
+            while k < lens[word - 1] and k < lens[word] and ordering == 0:
+                if input[starts[word - 1] + k] < input[position + k]: ordering <- -1
+                elif input[starts[word - 1] + k] > input[position + k]: ordering <- 1
+                k <- k + 1
+            if ordering == 0:
+                if lens[word - 1] >= lens[word]: return -1
+            elif ordering > 0: return -1
+        position <- position + word_length.usize()
+        word <- word + 1
+    if position >= length: return -1
+    message_length: i64 = input[position]
+    position <- position + 1
+    if message_length < 1 or message_length > 64 or position + message_length.usize() + 2 != length: return -1
+    message_start: usize = position
+    index: mutable usize = 0
+    while index < message_length.usize():
+        if input[message_start + index] < 0 or input[message_start + index] > 127: return -1
+        index <- index + 1
+    position <- position + message_length.usize()
+    word_threshold: i64 = input[position]
+    letter_threshold: i64 = input[position + 1]
+    if word_threshold < 0 or word_threshold > 100 or letter_threshold < 0 or letter_threshold > 100: return -1
+    retained: mutable i64 = 0
+    tokens: mutable i64 = 0
+    hits: mutable i64 = 0
+    token: i64[64] = [0; 64]
+    token_length: mutable usize = 0
+    index <- 0
+    while index <= message_length.usize():
+        character: i64 = if index < message_length.usize(): input[message_start + index] else: 32
+        is_letter: bool = (character >= 65 and character <= 90) or (character >= 97 and character <= 122)
+        is_space: bool = character == 9 or character == 10 or character == 32
+        if index < message_length.usize() and (is_letter or is_space): retained <- retained + 1
+        if is_letter:
+            token[token_length] <- if character >= 97: character - 32 else: character
+            token_length <- token_length + 1
+            index <- index + 1
+        elif not is_space:
+            index <- index + 1
+        elif token_length == 0:
+            index <- index + 1
+        else:
+            tokens <- tokens + 1
+            word <- 0
+            while word < count.usize():
+                if lens[word] == token_length:
+                    k: mutable usize = 0
+                    equal: mutable bool = true
+                    while k < token_length:
+                        if token[k] != input[starts[word] + k]: equal <- false
+                        k <- k + 1
+                    if equal: hits <- hits + 1
+                word <- word + 1
+            token_length <- 0
+            index <- index + 1
+    if tokens > 0 and hits * 100 >= word_threshold * tokens and retained * 100 >= letter_threshold * message_length: return 1
+    return 0
+
+export fn detecting_english_programmatically(input: i64&, length: usize) -> i64 = detecting_english_impl

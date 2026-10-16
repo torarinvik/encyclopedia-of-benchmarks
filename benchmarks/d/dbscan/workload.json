@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "dbscan-stable-2d-integer-euclidean-i64-array-bytes-v1",
+  "algorithm": "dbscan",
+  "function_symbol": "dbscan",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": [
+      "point count",
+      "integer epsilon",
+      "minimum neighbors including self",
+      "x/y coordinate pairs in input order"
+    ],
+    "length_rule": "exactly 3 + 2*point_count",
+    "point_count_range": [
+      1,
+      32
+    ],
+    "epsilon_range": [
+      1,
+      2000000
+    ],
+    "minimum_neighbors_range": [
+      1,
+      "point_count"
+    ],
+    "coordinate_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "coordinate_rule": "points must have distinct coordinates (the Jupyter source uses coordinates as dictionary keys)"
+  },
+  "output": {
+    "kind": "cluster_labels_as_bytes",
+    "shape": [
+      "point count"
+    ],
+    "encoding": "0 means noise; positive byte is zero-based cluster ID plus one",
+    "successful_result": "point count",
+    "cluster_order": "first core point in input order",
+    "neighbor_distance": "squared Euclidean distance <= epsilon squared; integer coordinates and epsilon make comparison exact"
+  },
+  "workspace": {
+    "bytes": 32,
+    "meaning": "Maximum output label bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "two-separated-clusters",
+      "input_values": [
+        6,
+        2,
+        2,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        20,
+        20,
+        21,
+        20,
+        20,
+        21
+      ],
+      "input_length": 15,
+      "expected_result": 6,
+      "expected_output_hex": "010101020202"
+    },
+    {
+      "id": "noise-outlier",
+      "input_values": [
+        4,
+        2,
+        2,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        100,
+        100
+      ],
+      "input_length": 11,
+      "expected_result": 4,
+      "expected_output_hex": "01010100"
+    },
+    {
+      "id": "single-core-chain",
+      "input_values": [
+        5,
+        2,
+        2,
+        0,
+        0,
+        2,
+        0,
+        4,
+        0,
+        6,
+        0,
+        8,
+        0
+      ],
+      "input_length": 13,
+      "expected_result": 5,
+      "expected_output_hex": "0101010101"
+    },
+    {
+      "id": "epsilon-boundary-inclusive",
+      "input_values": [
+        2,
+        5,
+        2,
+        0,
+        0,
+        3,
+        4
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output_hex": "0101"
+    },
+    {
+      "id": "all-noise",
+      "input_values": [
+        3,
+        1,
+        3,
+        0,
+        0,
+        10,
+        10,
+        -10,
+        -10
+      ],
+      "input_length": 9,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "invalid-duplicate-coordinate",
+      "input_values": [
+        2,
+        1,
+        2,
+        7,
+        -2,
+        7,
+        -2
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-zero-epsilon",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-min-points",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-coordinate",
+      "input_values": [
+        1,
+        1,
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-length",
+      "input_values": [
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        2,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 7,
+      "workspace_bytes": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ]
+}

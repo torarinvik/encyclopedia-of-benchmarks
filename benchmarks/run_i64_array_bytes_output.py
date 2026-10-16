@@ -163,6 +163,17 @@ from move_hash_to_end_oracle import expected_output as move_hash_to_end_expected
 from simple_keyword_cypher_oracle_common import MAX_PARSEABLE_INPUT_LENGTH as MAX_SIMPLE_KEYWORD_CYPHER_PARSEABLE_INPUT_LENGTH
 from simple_keyword_cypher_encipher_oracle import expected_output as simple_keyword_cypher_encipher_expected_output
 from simple_keyword_cypher_decipher_oracle import expected_output as simple_keyword_cypher_decipher_expected_output
+from rotate_matrix_oracle_common import MAX_PARSEABLE_LENGTH as ROTATE_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
+from rotate_matrix_90_oracle import expected_output as rotate_matrix_90_expected_output
+from rotate_matrix_180_oracle import expected_output as rotate_matrix_180_expected_output
+from rotate_matrix_270_oracle import expected_output as rotate_matrix_270_expected_output
+from rotate_matrix_transpose_oracle import expected_output as rotate_matrix_transpose_expected_output
+from matrix_transpose_oracle import MAX_PARSEABLE_LENGTH as MATRIX_TRANSPOSE_MAX_PARSEABLE_INPUT_LENGTH
+from matrix_transpose_oracle import expected_output as matrix_transpose_expected_output
+from join_oracle import MAX_PARSEABLE_LENGTH as JOIN_MAX_PARSEABLE_INPUT_LENGTH
+from join_oracle import expected_output as join_expected_output
+from resistor_color_code_oracle import MAX_INPUT_LENGTH as MAX_RESISTOR_COLOR_CODE_INPUT_LENGTH
+from resistor_color_code_oracle import expected_output as resistor_color_code_expected_output
 from move_to_front_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH
 from move_to_front_oracle import expected_output as move_to_front_expected_output
 from word_boggle_oracle import expected_output as word_boggle_expected_output
@@ -262,6 +273,8 @@ from dilation_operation_oracle import MAX_INPUT_LENGTH as MAX_DILATION_OPERATION
 from dilation_operation_oracle import expected_output as dilation_operation_expected_output
 from nearest_neighbor_interpolation_oracle import MAX_INPUT_LENGTH as MAX_NEAREST_NEIGHBOR_INTERPOLATION_INPUT_LENGTH
 from nearest_neighbor_interpolation_oracle import expected_output as nearest_neighbor_interpolation_expected_output
+from dbscan_oracle import MAX_INPUT_LENGTH as MAX_DBSCAN_INPUT_LENGTH
+from dbscan_oracle import expected_output as dbscan_expected_output
 from composite_lfsr_majority_clock_oracle import expected_output as composite_lfsr_majority_clock_expected_output
 from non_empty_subsequences_oracle import MAX_INPUT_LENGTH as MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH
 from non_empty_subsequences_oracle import expected_output as non_empty_subsequences_expected_output
@@ -283,6 +296,10 @@ from horizontal_projectile_motion_oracle import MAX_PARSEABLE_INPUT_LENGTH as MA
 from horizontal_projectile_motion_oracle import expected_output as horizontal_projectile_motion_expected_output
 from dispersion_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_DISPERSION_INPUT_LENGTH
 from dispersion_oracle import expected_output as dispersion_expected_output
+from data_normalization_standardization_oracle import MAX_INPUT_LENGTH as MAX_DATA_NORMALIZATION_STANDARDIZATION_INPUT_LENGTH
+from data_normalization_standardization_oracle import expected_output as data_normalization_standardization_expected_output
+from data_transformations_oracle import MAX_INPUT_LENGTH as MAX_DATA_TRANSFORMATIONS_INPUT_LENGTH
+from data_transformations_oracle import expected_output as data_transformations_expected_output
 from full_wave_rectifier_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FULL_WAVE_RECTIFIER_INPUT_LENGTH
 from full_wave_rectifier_oracle import expected_output as full_wave_rectifier_expected_output
 from iir_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_IIR_FILTER_INPUT_LENGTH
@@ -342,6 +359,145 @@ MAX_BLAKE2B_INPUT_LENGTH = MAX_INPUT_LENGTH + 1
 MAX_ASCON_DIGEST_INPUT_LENGTH = 4098
 MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
+RECORDER_WORKSPACE_ALGORITHMS = {
+    'a1z26_cipher',
+    'a1z26_decipher',
+    'account_merge',
+    'adagrad',
+    'adaline_learning',
+    'adam',
+    'adams_bashforth',
+    'adfgvxcipher',
+    'all_construct',
+    'allocation_number',
+    'association',
+    'atbash_cipher',
+    'auto_correlation',
+    'baconian_cipher',
+    'binary_to_excess3',
+    'booths_algorithm',
+    'charoccurrence',
+    'chebyshev_iteration',
+    'choiceset',
+    'cholesky_decomposition',
+    'chudnovsky_algorithm',
+    'circular_look_scheduling',
+    'circular_scan_scheduling',
+    'combination_sum',
+    'common_characters_frequency_quotient',
+    'complex_arithmetic',
+    'complex_number_multiply',
+    'composite_lfsr_majority_clock',
+    'compress',
+    'conjugate_gradient',
+    'continued_fraction',
+    'convex_hull_graham',
+    'convolution',
+    'convolution_fft',
+    'convolution_neural_network',
+    'convolve_1d',
+    'coordinate_compression',
+    'correlation_matrix_analysis',
+    'count_nucleotide',
+    'cpu_scheduling_algorithms',
+    'cramers_rule_2x2',
+    'crc_polynomial_division',
+    'create_binary_tree_from_inorder_preorder',
+    'cross_correlation',
+    'crossword_puzzle_solver',
+    'crossword_solver',
+    'cursor_linked_list',
+    'cusum_detector',
+    'cyclic',
+    'damped_oscillator',
+    'data_normalization_standardization',
+    'data_transformations',
+    'date_to_day',
+    'dbscan',
+    'depreciation',
+    'depth_first_search_target_route',
+    'dice_thrower',
+    'difference_array',
+    'dilation_operation',
+    'dispersion',
+    'egyptian_fraction',
+    'ema_filter',
+    'euler_modified',
+    'fibonacci_heap',
+    'fisher_yates_shuffle',
+    'flash_sort',
+    'floor_and_ceiling',
+    'full_wave_rectifier',
+    'gauss_elimination',
+    'gauss_seidel_method',
+    'generate_rule_30_grid',
+    'get_products_of_all_other_elements',
+    'graph_coloring',
+    'hampel_filter',
+    'heaps',
+    'heaps_algorithm',
+    'hexa_decimal_to_binary',
+    'hilbert_curve',
+    'hill_encoder',
+    'horizontal_projectile_motion',
+    'iir_filter',
+    'integer_to_english',
+    'intersection_of_two_arrays',
+    'ipconverter',
+    'jarvis_scan',
+    'join',
+    'keyword_shifted_alphabet',
+    'largest_smallest_words',
+    'matrix_transpose',
+    'max_word',
+    'morse_code_converter_decode',
+    'morse_code_converter_encode',
+    'move_hash_to_end',
+    'move_to_front',
+    'nearest_neighbor_interpolation',
+    'non_empty_subsequences',
+    'numeric_string_sort',
+    'ode_forward_euler',
+    'ode_midpoint_euler',
+    'ode_semi_implicit_euler',
+    'ones_complement',
+    'particle_swarm_optimization',
+    'postfix_to_infix',
+    'power_for_huge_numbers',
+    'railway_time_conversion',
+    'range_in_sorted_array',
+    'resistor_color_code',
+    'recursive_shuffler',
+    'remove_duplicate_characters',
+    'remove_duplicate_from_string',
+    'remove_duplicate_words',
+    'reverse_string',
+    'reverse_words_in_string',
+    'rgb_cmyk_conversion',
+    'rgbto_hex',
+    'rotate_matrix_180',
+    'rotate_matrix_270',
+    'rotate_matrix_90',
+    'rotate_matrix_transpose',
+    'serialize_deserialize_binary_tree',
+    'shortest_palindrome',
+    'simple_keyword_cypher_decipher',
+    'simple_keyword_cypher_encipher',
+    'solve_quadratic_equation',
+    'sorted_arrays_intersection',
+    'stalin_sort',
+    'string_compression',
+    'string_switch_case',
+    'swap_case',
+    'text_justification',
+    'two_sat',
+    'union_of_two_arrays',
+    'unique_letters_count',
+    'upper',
+    'word_ladder',
+    'word_ladder_dfs',
+    'yens_kshortest_paths',
+}
 MAX_OUTPUT_CAPACITY = 400004
 MAX_SMALL_INPUT_LENGTH = 66
 MAX_AFFINE_CIPHER_INPUT_LENGTH = 612
@@ -1189,6 +1345,20 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return simple_keyword_cypher_encipher_expected_output(values)
     if algorithm == "simple_keyword_cypher_decipher":
         return simple_keyword_cypher_decipher_expected_output(values)
+    if algorithm == "rotate_matrix_90":
+        return rotate_matrix_90_expected_output(values)
+    if algorithm == "rotate_matrix_180":
+        return rotate_matrix_180_expected_output(values)
+    if algorithm == "rotate_matrix_270":
+        return rotate_matrix_270_expected_output(values)
+    if algorithm == "rotate_matrix_transpose":
+        return rotate_matrix_transpose_expected_output(values)
+    if algorithm == "matrix_transpose":
+        return matrix_transpose_expected_output(values)
+    if algorithm == "join":
+        return join_expected_output(values)
+    if algorithm == "resistor_color_code":
+        return resistor_color_code_expected_output(values)
     if algorithm == "move_to_front":
         return move_to_front_expected_output(values)
 
@@ -5022,6 +5192,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return dilation_operation_expected_output(values)
     if algorithm == "nearest_neighbor_interpolation":
         return nearest_neighbor_interpolation_expected_output(values)
+    if algorithm == "dbscan":
+        return dbscan_expected_output(values)
     if algorithm == "non_empty_subsequences":
         return non_empty_subsequences_expected_output(values)
     if algorithm == "particle_swarm_optimization":
@@ -5040,6 +5212,10 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return horizontal_projectile_motion_expected_output(values)
     if algorithm == "dispersion":
         return dispersion_expected_output(values)
+    if algorithm == "data_normalization_standardization":
+        return data_normalization_standardization_expected_output(values)
+    if algorithm == "data_transformations":
+        return data_transformations_expected_output(values)
     if algorithm == "full_wave_rectifier":
         return full_wave_rectifier_expected_output(values)
     if algorithm == "stalin_sort":
@@ -11675,6 +11851,8 @@ def main() -> int:
                             MAX_RGB_HSV_CONVERSION_INPUT_LENGTH if algorithm == "rgb_hsv_conversion" else
                             MAX_RGB_HSL_CONVERSION_INPUT_LENGTH if algorithm == "rgb_hsl_conversion" else
                             MAX_DISPERSION_INPUT_LENGTH if algorithm == "dispersion" else
+                            MAX_DATA_NORMALIZATION_STANDARDIZATION_INPUT_LENGTH if algorithm == "data_normalization_standardization" else
+                            MAX_DATA_TRANSFORMATIONS_INPUT_LENGTH if algorithm == "data_transformations" else
                             MAX_FULL_WAVE_RECTIFIER_INPUT_LENGTH if algorithm == "full_wave_rectifier" else
                             MAX_STALIN_SORT_INPUT_LENGTH if algorithm == "stalin_sort" else
                             MAX_RAILWAY_TIME_CONVERSION_INPUT_LENGTH if algorithm == "railway_time_conversion" else
@@ -11683,6 +11861,10 @@ def main() -> int:
                             MAX_MORSE_CODE_CONVERTER_DECODE_PARSEABLE_INPUT_LENGTH if algorithm == "morse_code_converter_decode" else
                             MAX_MOVE_HASH_TO_END_PARSEABLE_INPUT_LENGTH if algorithm == "move_hash_to_end" else
                             MAX_SIMPLE_KEYWORD_CYPHER_PARSEABLE_INPUT_LENGTH if algorithm in {"simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher"} else
+                            ROTATE_MATRIX_MAX_PARSEABLE_INPUT_LENGTH if algorithm in {"rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270", "rotate_matrix_transpose"} else
+                            MATRIX_TRANSPOSE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "matrix_transpose" else
+                            JOIN_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "join" else
+                            MAX_RESISTOR_COLOR_CODE_INPUT_LENGTH + 1 if algorithm == "resistor_color_code" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
                             4 if algorithm == "midpoint_integration" else
                             2 if algorithm == "hilbert_curve" else
@@ -11784,6 +11966,7 @@ def main() -> int:
                             MAX_COMPRESS_INPUT_LENGTH if algorithm == "compress" else
                             MAX_DILATION_OPERATION_INPUT_LENGTH if algorithm == "dilation_operation" else
                             MAX_NEAREST_NEIGHBOR_INTERPOLATION_INPUT_LENGTH if algorithm == "nearest_neighbor_interpolation" else
+                            MAX_DBSCAN_INPUT_LENGTH if algorithm == "dbscan" else
                             MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH if algorithm == "non_empty_subsequences" else
                             MAX_PARTICLE_SWARM_INPUT_LENGTH if algorithm == "particle_swarm_optimization" else
                             MAX_CONVOLVE_1D_INPUT_LENGTH if algorithm == "convolve_1d" else
@@ -11849,7 +12032,7 @@ def main() -> int:
                 "logistic_regression_cost_gradient",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft",
-                            "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "n_body_simulation", "nesterov_accelerated_sgd", "orbital_transfer_work"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "n_body_simulation", "nesterov_accelerated_sgd", "orbital_transfer_work"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0
@@ -11859,7 +12042,7 @@ def main() -> int:
         output_capacity = case.get(
             "workspace_bytes",
             workload.get("workspace", {}).get("bytes", len(required_output))
-                            if algorithm in {"fibonacci_heap", "horizontal_projectile_motion", "generate_rule_30_grid", "jarvis_scan", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "graph_coloring", "recursive_shuffler", "fisher_yates_shuffle", "charoccurrence", "coordinate_compression", "flash_sort", "string_compression", "create_binary_tree_from_inorder_preorder", "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "solve_quadratic_equation", "complex_number_multiply", "complex_arithmetic", "cusum_detector", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "composite_lfsr_majority_clock", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "postfix_to_infix", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "swap_case", "string_switch_case", "reverse_string", "common_characters_frequency_quotient", "remove_duplicate_characters", "remove_duplicate_words", "continued_fraction", "account_merge", "adagrad", "adam", "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "gauss_elimination", "convolution_neural_network", "depreciation", "chebyshev_iteration", "choiceset", "chudnovsky_algorithm", "circular_look_scheduling", "circular_scan_scheduling", "adaline_learning", "adams_bashforth", "adfgvxcipher", "upper", "all_construct", "allocation_number", "booths_algorithm", "association", "auto_correlation", "baconian_cipher", "a1z26_cipher", "a1z26_decipher", "date_to_day", "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "get_products_of_all_other_elements", "correlation_matrix_analysis", "euler_modified", "iir_filter", "hilbert_curve", "hill_encoder", "crossword_solver", "crossword_puzzle_solver", "cursor_linked_list", "cyclic", "dispersion", "full_wave_rectifier", "word_ladder", "word_ladder_dfs", "morse_code_converter_encode", "morse_code_converter_decode", "move_to_front", "move_hash_to_end", "simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher", "stalin_sort", "railway_time_conversion", "two_sat", "rgb_cmyk_conversion", "yens_kshortest_paths"} else len(required_output),
+                            if algorithm in RECORDER_WORKSPACE_ALGORITHMS else len(required_output),
         )
         if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
             raise ValueError(f"invalid output capacity in {case['id']}")

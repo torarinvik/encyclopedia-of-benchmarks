@@ -1,0 +1,52 @@
+const MAX_LEN: usize = 7
+fn mix(hash: u64, byte: u8) -> u64:
+    ((hash ^ byte.u64()) * 16777619) & 4294967295
+fn next_perm(a: u8&, length: usize) -> bool:
+    i: mutable usize = length - 1
+    while i > 0 and a[i - 1] >= a[i]: i <- i - 1
+    if i == 0: return false
+    j: mutable usize = length - 1
+    while a[j] <= a[i - 1]: j <- j - 1
+    temporary: mutable u8 = a[i - 1]
+    a[i - 1] <- a[j]
+    a[j] <- temporary
+    left: mutable usize = i
+    right: mutable usize = length - 1
+    while left < right:
+        temporary <- a[left]
+        a[left] <- a[right]
+        a[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    true
+export fn permutate_string(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 8 or input[0] < 1 or input[0] > 7 or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    chars: mutable u8[7]
+    i: mutable usize = 0
+    while i < count:
+        if input[i + 1] < 33 or input[i + 1] > 126: return -1
+        chars[i] <- input[i + 1].u8()
+        j: usize = 0
+        while j < i:
+            if chars[j] == chars[i]: return -1
+            j <- j + 1
+        i <- i + 1
+    i <- 1
+    while i < count:
+        j: mutable usize = i
+        while j > 0 and chars[j - 1] > chars[j]:
+            temporary: u8 = chars[j - 1]
+            chars[j - 1] <- chars[j]
+            chars[j] <- temporary
+            j <- j - 1
+        i <- i + 1
+    hash: mutable u64 = 2166136261
+    repeat:
+        i <- 0
+        while i < count:
+            hash <- mix(hash, chars[i])
+            i <- i + 1
+        hash <- mix(hash, 0)
+        if not next_perm(chars, count): break
+    hash.i64()

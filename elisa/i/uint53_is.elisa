@@ -1,0 +1,5 @@
+def uint53_is_impl(v: i64&, length: usize) -> i64:
+    if length != 1: return -1
+    if v[0] < 0 or v[0] >= 9007199254740992: return 0
+    1
+export fn uint53_is(v: i64&, length: usize) -> i64 = uint53_is_impl

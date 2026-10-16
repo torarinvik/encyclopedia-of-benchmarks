@@ -1,0 +1,18 @@
+def local_binary_pattern_impl(v: i64&, length: usize) -> i64:
+    if length != 9: return -1
+    for i in 0..9:
+        if v[i] < 0 or v[i] > 255: return -1
+    out: mutable i64 = 0
+    for i in 0..8:
+        index: usize = 0
+        if i == 0: index <- 2
+        if i == 1: index <- 5
+        if i == 2: index <- 1
+        if i == 3: index <- 8
+        if i == 4: index <- 7
+        if i == 5: index <- 6
+        if i == 6: index <- 3
+        neighbor: i64 = v[index]
+        if neighbor >= v[4]: out <- out | (1 << i)
+    out
+export fn local_binary_pattern(v: i64&, length: usize) -> i64 = local_binary_pattern_impl

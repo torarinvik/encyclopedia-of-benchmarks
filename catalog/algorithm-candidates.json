@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3853,
+  "candidate_count": 3854,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -23638,7 +23638,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "R",
@@ -23647,7 +23647,10 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/data_preprocessing/data_normalization_standardization.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "data_normalization_standardization",
+      "benchmark_contract": "benchmarks/d/data_normalization_standardization/README.md",
+      "review_notes": "The pinned R script defines both min-max normalization, (x - min(x)) / (max(x) - min(x)), and z-score standardization, (x - mean(x)) / sd(x). The shared contract selects either operation, bounds integer samples, and uses R's sample standard deviation (denominator n - 1); constant samples are excluded because the source expressions divide by zero."
     },
     {
       "candidate_id": "data_processing",
@@ -23694,7 +23697,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -23703,7 +23706,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/data_transformations.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "data_transformations",
+      "benchmark_contract": "benchmarks/d/data_transformations/README.md",
+      "review_notes": "The pinned Python module exposes min-max normalization and z-score standardization. Both round each output to three decimal places; standardization uses statistics.mean and sample statistics.stdev. The benchmark specializes the list input to bounded integers and rejects constant samples because the formulas divide by zero. This rounded Python behavior is separate from the unrounded R data_normalization_standardization benchmark."
     },
     {
       "candidate_id": "date_day_difference",
@@ -23773,8 +23779,18 @@
         "Jupyter",
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Jupyter",
@@ -23797,7 +23813,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/dbscan.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "dbscan",
+      "benchmark_contract": "benchmarks/d/dbscan/workload.json",
+      "review_notes": "Jupyter and Python contain standalone DBSCAN implementations with differing cluster numbering and seed worklists. Benchmark the shared DBSCAN algorithm with a stable bounded integer-coordinate contract; output normalizes noise to zero and cluster IDs to input-order IDs plus one. The separately catalogued R candidate dbscan_clustering is only an external package demo/plot, not a DBSCAN implementation."
     },
     {
       "candidate_id": "dbscan_clustering",
@@ -23806,7 +23825,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "R",
@@ -23815,7 +23834,8 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/clustering_algorithms/dbscan_clustering.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned R file loads the external dbscan package, runs it on the built-in iris dataset, and plots package output. It contains no DBSCAN algorithm implementation to port or benchmark."
     },
     {
       "candidate_id": "dcgan_pytroch",
@@ -24451,7 +24471,8 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "This filename match combines incompatible decision-tree algorithms and must be split before benchmarking. Python implements a one-dimensional regression tree with mean-squared-error splits, positional ordering of training samples, a depth limit, and minimum leaf size. The Jupyter notebook implements a multi-feature classification tree using Gini impurity and numeric >= / categorical equality questions; its example also loads scikit-learn's breast-cancer dataset. R is a short rpart classification demo that depends on external variables and a package. Rust implements a multi-feature ID3-style classifier using entropy/information gain, majority-class leaves, a maximum depth, and minimum split size. The regression and classification contracts differ in target/output type and split criterion; the Gini and entropy classifiers differ in split selection and threshold routing. No source group can be safely mapped to a single existing benchmark or shared workload. Track these as separate candidates if pursued: a bounded one-dimensional regression tree, a Gini classifier (Jupyter), and an entropy/ID3 classifier (Rust); R is an rpart demo with dependency and external-data setup. This record is reviewed for its semantic split, but no unified decision_tree benchmark is claimed.",
       "implementations": [
         {
           "repository": "Jupyter",
@@ -41182,7 +41203,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Lua",
@@ -41191,7 +41212,9 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/bit/uint53/ibits.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/i/ibits/README.md",
+      "review_notes": "The pinned Lua module returns a stateless bit iterator initialized at index 0. It yields the current bit from least significant upward and stops once n < 2^i, so the number of yielded bits is the bit length (0 for n=0). The bounded contract accepts one uint53 value, 0 <= n < 2^53, and returns the iterator yield count."
     },
     {
       "candidate_id": "iblock_cipher_padding",
@@ -42771,7 +42794,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -42780,7 +42803,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/computer_vision/intensity_based_segmentation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/i/intensity_based_segmentation/README.md",
+      "review_notes": "The pinned Python `segment_image` initializes an all-zero label array, then processes thresholds in order. For each threshold index i, every pixel strictly greater than that threshold is overwritten with i+1; thus the last matching threshold determines the label, and threshold ordering is observable. The bounded contract encodes threshold count, thresholds, and flattened grayscale bytes; it packs the resulting labels in base 5 for a scalar benchmark result."
     },
     {
       "candidate_id": "interest",
@@ -43656,7 +43681,7 @@
         "Lua"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Lua",
@@ -43665,7 +43690,9 @@
           "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/bit/uint53/is.lua",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/i/is/README.md",
+      "review_notes": "The pinned Lua function returns true iff the argument has type number, is integral (`x % 1 == 0`), is nonnegative, and is strictly less than 2^53. The bounded one-element signed-integer array contract already guarantees numeric integrality, so its result is 1 exactly for 0 <= n < 2^53 and 0 otherwise; malformed array shape maps to -1."
     },
     {
       "candidate_id": "is_anagram",
@@ -45707,7 +45734,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -45716,7 +45743,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/join.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "join",
+      "benchmark_contract": "benchmarks/j/join/README.md",
+      "review_notes": "The pinned Python join(separator, separated) concatenates the input strings in order, placing the separator only between items; empty lists, separators, and items follow the same join semantics. The bounded benchmark uses ASCII byte strings."
     },
     {
       "candidate_id": "joint_probability_distribution",
@@ -47190,7 +47220,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -47199,7 +47229,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/physics/Kinematics.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/k/kinematics/README.md",
+      "review_notes": "The pinned Java class exposes four SUVAT calculations: u+a*t; u*t+0.5*a*t*t; u*u+2*a*s; and (u+v)/2*t. The benchmark selects them with operation codes 0 through 3 and stores twice the Java double result, yielding exact integer outputs for bounded integer operands. Operands are restricted to [-1000,1000], which keeps intermediate values within exact double/integer ranges and signed 64-bit output."
     },
     {
       "candidate_id": "kinetic_energy",
@@ -51516,7 +51548,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -51525,7 +51557,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/filters/local_binary_pattern.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/l/local_binary_pattern/README.md",
+      "review_notes": "The pinned Python local_binary_value compares eight neighbors with >= center and sums weights 1,2,4,8,16,32,64,128 in the explicit source order [x-1,y+1], [x,y+1], [x-1,y], [x+1,y+1], [x+1,y], [x+1,y-1], [x,y-1], [x-1,y-1]. The bounded contract evaluates the interior center of a 3x3 row-major grayscale patch, so all neighbor accesses are in bounds and the source's negative-index wrap behavior is outside the workload."
     },
     {
       "candidate_id": "local_maximum_point",
@@ -55005,7 +55039,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -55014,7 +55048,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/MatrixTranspose.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "matrix_transpose",
+      "benchmark_contract": "benchmarks/m/matrix_transpose/README.md",
+      "review_notes": "The pinned Java MatrixTranspose.transpose allocates and returns a new matrix with columns-by-rows dimensions. It is tracked separately from Python's in-place transpose operation."
     },
     {
       "candidate_id": "matrix_util",
@@ -65399,7 +65436,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "MATLAB-Octave",
@@ -65408,7 +65445,10 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Parametric_ReLU.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "leaky_relu",
+      "benchmark_contract": "benchmarks/l/leaky_relu/README.md",
+      "review_notes": "The pinned MATLAB-Octave Parametric_ReLU.m is an interactive plotting script whose expression is x*(x>0)+(alpha*x)*(x<0). For finite binary64 x and alpha in [-1e6,1e6], this is equivalent to the caller-supplied-alpha leaky_relu contract: negative x is multiplied by alpha and nonnegative x is unchanged. The source's input prompt and plotting are presentation context, not a distinct scalar algorithm; nonfinite values are outside the shared contract."
     },
     {
       "candidate_id": "paranthesis_matching",
@@ -65668,7 +65708,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -65677,7 +65717,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/partition_linked_list.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/partition_linked_list/README.md",
+      "review_notes": "The pinned Python LinkedList.partition_liked_list walks nodes once, links values less than the pivot into one chain and values greater than or equal to it into another, then joins them. It preserves encounter order within both partitions. The benchmark uses count/pivot/signed-i32 array input, bounds count to 64, and hashes the stable reordered sequence for the scalar-array ABI."
     },
     {
       "candidate_id": "partition_problem",
@@ -65769,7 +65811,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Julia",
@@ -65778,7 +65820,9 @@
           "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/partitions.jl",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/partitions/README.md",
+      "review_notes": "The pinned Julia partitions_recursive rejects negative inputs, returns 1 for n=0, and sums P_k(n) for k=1..n. Its P_k recurrence is P_{k-1}(n-1)+P_k(n-k), with base cases P_0(0)=1, P_1(n)=1, and P_n(n)=1. The benchmark memoizes this recurrence per call, supports n=0..100, and returns exact signed-64-bit counts; out-of-domain values map to INT64_MIN."
     },
     {
       "candidate_id": "pascal_triangle",
@@ -65858,7 +65902,7 @@
         "Ruby"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Ruby",
@@ -65874,7 +65918,9 @@
           "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/pascal_triangle_ii.rb",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/pascal_triangle_ii/README.md",
+      "review_notes": "The pinned Ruby dynamic_programming file defines get_row three times, so its last memory-efficient definition is active: it builds the triangle from row 0 through row_index, sets row endpoints to one, fills interiors from the two values above, and returns the zero-based row. The pinned maths file computes the same row using factorial combinations. The benchmark uses row indices 0..30 and hashes the selected row for the scalar ABI; its bound preserves exact signed-32-bit coefficients."
     },
     {
       "candidate_id": "pascals_triangle",
@@ -66800,7 +66846,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -66809,7 +66855,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/PermutateString.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/p/permutate_string/README.md",
+      "review_notes": "The pinned JavaScript permutate rejects an empty string, builds permutations by inserting each next character at every position, removes duplicate strings, and lexicographically sorts the result. The bounded benchmark uses distinct printable ASCII bytes of length 1..7, so deduplication is behavior-neutral and bytewise ordering matches JavaScript string ordering. The sorted list is serialized by appending a zero byte to each permutation and reduced to a 32-bit FNV-1a hash for the scalar-array ABI; ports enumerate that same lexicographic order with next-permutation steps."
     },
     {
       "candidate_id": "permutation",
@@ -79461,7 +79509,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -79477,7 +79525,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/range_sum_query.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "prefix_sum",
+      "benchmark_contract": "benchmarks/p/prefix_sum/README.md",
+      "review_notes": "The pinned Java RangeSumQuery and Python range_sum_query sources both use prefix sums to answer inclusive range queries. The existing prefix_sum benchmark selector 1 already covers the same one-query semantics, so this candidate aliases prefix_sum rather than introducing a duplicate benchmark."
     },
     {
       "candidate_id": "rank_of_matrix",
@@ -82470,7 +82521,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -82479,7 +82530,20 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/rotate_matrix.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "rotate_matrix_90",
+      "additional_benchmark_names": [
+        "rotate_matrix_180",
+        "rotate_matrix_270",
+        "rotate_matrix_transpose"
+      ],
+      "benchmark_contract": "benchmarks/r/rotate_matrix_90/README.md",
+      "additional_benchmark_contracts": [
+        "benchmarks/r/rotate_matrix_180/README.md",
+        "benchmarks/r/rotate_matrix_270/README.md",
+        "benchmarks/r/rotate_matrix_transpose/README.md"
+      ],
+      "review_notes": "The pinned Python matrix module exposes four separate transforms: 90-degree counterclockwise rotation, 180-degree rotation, 270-degree counterclockwise rotation, and in-place transpose. Each is cataloged as its own benchmark with a bounded nonempty rectangular matrix contract."
     },
     {
       "candidate_id": "rotate_matrix_by90_degrees",
@@ -82488,7 +82552,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -82497,7 +82561,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/RotateMatrixBy90Degrees.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "rotate_matrix_90",
+      "benchmark_contract": "benchmarks/r/rotate_matrix_90/README.md",
+      "review_notes": "The pinned Java implementation transposes a square matrix and reverses row order, matching rotate_matrix_90 on its source domain of square matrices with signed-i32 cells."
     },
     {
       "candidate_id": "rotate_singly_linked_lists",
@@ -86341,7 +86408,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -86350,7 +86417,16 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/simple_keyword_cypher.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "simple_keyword_cypher_encipher",
+      "additional_benchmark_names": [
+        "simple_keyword_cypher_decipher"
+      ],
+      "benchmark_contract": "benchmarks/s/simple_keyword_cypher_encipher/README.md",
+      "additional_benchmark_contracts": [
+        "benchmarks/s/simple_keyword_cypher_decipher/README.md"
+      ],
+      "review_notes": "The pinned Python source defines separate encipher and decipher operations using a keyword-derived substitution alphabet. Both operations are benchmarked independently under the bounded ASCII contracts."
     },
     {
       "candidate_id": "simple_moving_average",
@@ -98991,7 +99067,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -99000,7 +99076,18 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/WineProblem.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "wine_problem_recursive",
+      "additional_benchmark_names": [
+        "wine_problem_memoized",
+        "wine_problem_tabulated"
+      ],
+      "benchmark_contract": "benchmarks/w/wine_problem_recursive/README.md",
+      "additional_benchmark_contracts": [
+        "benchmarks/w/wine_problem_memoized/README.md",
+        "benchmarks/w/wine_problem_tabulated/README.md"
+      ],
+      "review_notes": "The pinned Java WineProblem source exposes uncached recursive, top-down memoized, and bottom-up tabulated solutions to the same left-or-right wine-selling recurrence. They are tracked separately to preserve their distinct dynamic-programming strategies and bounded contracts."
     },
     {
       "candidate_id": "winternitz_signature",
@@ -99177,10 +99264,9 @@
     },
     {
       "candidate_id": "word_ladder",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Python"
+        "Java"
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
@@ -99191,7 +99277,21 @@
           "path": "src/main/java/com/thealgorithms/strings/WordLadder.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/WordLadder.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "review_notes": "The pinned Java WordLadder uses breadth-first search and returns the shortest transformation length. This candidate follows the Java API; the pinned Python DFS path routine is tracked separately as word_ladder_dfs.",
+      "benchmark_name": "word_ladder",
+      "benchmark_contract": "benchmarks/w/word_ladder/README.md"
+    },
+    {
+      "candidate_id": "word_ladder_dfs",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
@@ -99200,7 +99300,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java WordLadder implements BFS and returns the shortest transformation length; the pinned Python word_ladder implements DFS backtracking and returns a first path, mutates its word_set, and can repeat begin_word. The word_ladder benchmark follows the Java API. Python behavior remains a documented distinct variant and is not claimed as a port."
+      "benchmark_name": "word_ladder_dfs",
+      "benchmark_contract": "benchmarks/w/word_ladder_dfs/README.md",
+      "review_notes": "The pinned Python word_ladder performs depth-first backtracking, explores positions left-to-right and replacement letters a-z, removes candidate words while descending, and restores them on backtrack. It returns the first path found and the mutated remaining set; the bounded benchmark preserves this traversal and mutation behavior."
     },
     {
       "candidate_id": "word_occurrence",

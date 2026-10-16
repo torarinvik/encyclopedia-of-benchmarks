@@ -1,0 +1,10 @@
+def ibits_impl(v: i64&, length: usize) -> i64:
+    if length != 1: return -1
+    x: mutable i64 = v[0]
+    if x < 0 or x >= 9007199254740992: return -1
+    count: mutable i64 = 0
+    while x != 0:
+        count <- count + 1
+        x <- x >> 1
+    count
+export fn ibits(v: i64&, length: usize) -> i64 = ibits_impl

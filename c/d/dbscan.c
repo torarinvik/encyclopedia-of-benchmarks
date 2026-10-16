@@ -12,6 +12,7 @@ int64_t dbscan(const int64_t *input, size_t length, uint8_t *output, size_t capa
     uint8_t expanded[MAX_POINTS] = {0};
     size_t n = (size_t)n64;
     for (size_t i=0;i<n;i++) { x[i]=input[3+2*i]; y[i]=input[4+2*i]; if (x[i] < -1000000 || x[i] > 1000000 || y[i] < -1000000 || y[i] > 1000000) return -1; labels[i]=-1; }
+    for (size_t i=0;i<n;i++) for(size_t j=0;j<i;j++) if(x[i]==x[j]&&y[i]==y[j]) return -1;
     if (!output || capacity < n) return -2;
     int64_t eps2=eps*eps, next=0;
     for (size_t i=0;i<n;i++) {

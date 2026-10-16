@@ -46,6 +46,9 @@ from simple_scalar_oracles import smith_number as smith_number_expected
 from simple_scalar_oracles import sphenic_number as sphenic_number_expected
 from simple_scalar_oracles import sum_of_odd_numbers as sum_of_odd_numbers_expected
 from sum_multiples_inclusion_exclusion_oracle import expected_result as sum_multiples_inclusion_exclusion_expected
+from partitions_oracle import expected_result as partitions_expected
+from pascal_triangle_ii_oracle import expected_result as pascal_triangle_ii_expected
+from pi_generator_oracle import expected_result as pi_generator_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -2469,6 +2472,21 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
             expected_from_source = int(proper_divisor_sum > input_value)
         if expected_result != expected_from_source:
             raise ValueError("abundant_number expected_result must match the bounded proper-divisor predicate")
+        return
+    if algorithm == "pi_generator":
+        expected_from_source = pi_generator_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("pi_generator expected_result must hash the pinned spigot decimal string")
+        return
+    if algorithm == "pascal_triangle_ii":
+        expected_from_source = pascal_triangle_ii_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("pascal_triangle_ii expected_result must hash the pinned zero-based Pascal row")
+        return
+    if algorithm == "partitions":
+        expected_from_source = partitions_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("partitions expected_result must match the bounded Julia recursive partition count")
         return
     if algorithm == "integer_partition":
         if not 1 <= input_value <= 300:

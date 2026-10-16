@@ -1,0 +1,48 @@
+def join_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 2115: return -1
+    separator_length: i64 = values[0]
+    item_count: i64 = values[1]
+    if separator_length < 0 or separator_length > 32 or item_count < 0 or item_count > 32: return -1
+    cursor: mutable usize = 2
+    if separator_length.usize() > length - cursor: return -1
+    separator: mutable u8[32] = zeroed
+    i: mutable usize = 0
+    while i < separator_length.usize():
+        x: i64 = values[cursor]
+        cursor <- cursor + 1
+        if x < 0 or x > 127: return -1
+        separator[i] <- x.u8()
+        i <- i + 1
+    result: mutable u8[3040] = zeroed
+    written: mutable usize = 0
+    item: mutable usize = 0
+    x: mutable i64 = 0
+    while item < item_count.usize():
+        if cursor >= length: return -1
+        item_length: i64 = values[cursor]
+        cursor <- cursor + 1
+        if item_length < 0 or item_length > 64 or item_length.usize() > length - cursor: return -1
+        if item > 0:
+            i <- 0
+            while i < separator_length.usize():
+                result[written] <- separator[i]
+                written <- written + 1
+                i <- i + 1
+        i <- 0
+        while i < item_length.usize():
+            x <- values[cursor]
+            cursor <- cursor + 1
+            if x < 0 or x > 127: return -1
+            result[written] <- x.u8()
+            written <- written + 1
+            i <- i + 1
+        item <- item + 1
+    if cursor != length: return -1
+    if output.is_null() or capacity < written: return -2
+    i <- 0
+    while i < written:
+        output[i] <- result[i]
+        i <- i + 1
+    written.i64()
+
+export fn join(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = join_impl

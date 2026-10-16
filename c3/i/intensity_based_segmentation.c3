@@ -1,0 +1,2 @@
+module intensity_based_segmentation;
+fn long intensity_based_segmentation(long*v,usz n) @export("intensity_based_segmentation"){if(v==null||n<2||n>12)return -1;long k=v[0];if(k<0||k>4||n<=(usz)k+1||n>(usz)k+8)return -1;for(usz j=1;j<n;j++)if(v[j]<0||v[j]>255)return -1;long out=0,place=1;for(usz p=(usz)k+1;p<n;p++){long label=0;for(long i=0;i<k;i++)if(v[p]>v[1+(usz)i])label=i+1;out+=label*place;place*=5;}return out;}

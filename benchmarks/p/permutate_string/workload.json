@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "javascript-permutate-string-i64-array-scalar-v1",
+  "algorithm": "permutate_string",
+  "function_symbol": "permutate_string",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[length, distinct printable ASCII byte...]",
+    "text_length_range": [
+      1,
+      7
+    ],
+    "byte_range": [
+      33,
+      126
+    ],
+    "maximum_input_length": 8
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "32-bit FNV-1a hash over the sorted lexicographic permutation list, each permutation followed by a zero byte",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned JavaScript permutate function inserts each new character at every position, removes duplicate strings, and lexicographically sorts the result. The benchmark restricts input to distinct printable ASCII bytes, for which all generated permutations are unique, then hashes the sorted list to fit the scalar-array ABI."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "one_character",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": 1792377636
+    },
+    {
+      "id": "two_unsorted",
+      "input_values": [
+        2,
+        66,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": 866169085
+    },
+    {
+      "id": "three_distinct",
+      "input_values": [
+        3,
+        97,
+        98,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": 2483355341
+    },
+    {
+      "id": "seven_distinct",
+      "input_values": [
+        7,
+        103,
+        97,
+        102,
+        98,
+        101,
+        99,
+        100
+      ],
+      "input_length": 8,
+      "expected_result": 3433776613
+    },
+    {
+      "id": "empty_source_value",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "duplicate_character",
+      "input_values": [
+        3,
+        97,
+        98,
+        97
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "nonprintable_byte",
+      "input_values": [
+        1,
+        32
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_declared_length",
+      "input_values": [
+        2,
+        97
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

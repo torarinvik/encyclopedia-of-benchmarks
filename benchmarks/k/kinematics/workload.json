@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "java-kinematics-suvat-v1",
+  "algorithm": "kinematics",
+  "function_symbol": "kinematics",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[operation,x,y,z]",
+    "operation_range": [
+      0,
+      3
+    ],
+    "operand_range": [
+      -1000,
+      1000
+    ],
+    "maximum_input_length": 4,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "twice the selected Java double result: 2*(u+a*t), 2*u*t+a*t*t, 2*u*u+4*a*s, or (u+v)*t"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/physics/Kinematics.java"
+  },
+  "cases": [
+    {
+      "id": "velocity",
+      "input_values": [
+        0,
+        10,
+        2,
+        3
+      ],
+      "expected_result": 32,
+      "input_length": 4
+    },
+    {
+      "id": "displacement",
+      "input_values": [
+        1,
+        10,
+        2,
+        3
+      ],
+      "expected_result": 78,
+      "input_length": 4
+    },
+    {
+      "id": "velocity_squared",
+      "input_values": [
+        2,
+        10,
+        2,
+        3
+      ],
+      "expected_result": 224,
+      "input_length": 4
+    },
+    {
+      "id": "average_velocity_displacement",
+      "input_values": [
+        3,
+        10,
+        16,
+        3
+      ],
+      "expected_result": 78,
+      "input_length": 4
+    }
+  ]
+}

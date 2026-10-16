@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "python-stable-linked-list-partition-i64-array-scalar-v1",
+  "algorithm": "partition_linked_list",
+  "function_symbol": "partition_linked_list",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[count, pivot, item...]",
+    "count_range": [
+      0,
+      64
+    ],
+    "pivot_range": [
+      -2147483648,
+      2147483647
+    ],
+    "item_range": [
+      -2147483648,
+      2147483647
+    ],
+    "maximum_input_length": 66
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "base-2,000,000,003 rolling hash modulo 1,000,000,007 of the stable sequence of values less than pivot followed by values greater than or equal to pivot",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Python linked-list method walks nodes once, appending each to a less-than-pivot or greater-or-equal chain, then joins the chains. It preserves original order within both groups; the benchmark models the same stable ordering over a bounded array and hashes the result."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "mixed_stable",
+      "input_values": [
+        5,
+        3,
+        3,
+        2,
+        4,
+        1,
+        5
+      ],
+      "input_length": 7,
+      "expected_result": 377866336
+    },
+    {
+      "id": "all_less",
+      "input_values": [
+        4,
+        10,
+        -2,
+        0,
+        5,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": 69970396
+    },
+    {
+      "id": "all_greater_or_equal",
+      "input_values": [
+        4,
+        -5,
+        -5,
+        0,
+        1,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": 69974433
+    },
+    {
+      "id": "duplicates_at_pivot",
+      "input_values": [
+        5,
+        3,
+        3,
+        2,
+        3,
+        4,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 377863672
+    },
+    {
+      "id": "empty_list",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "single_item",
+      "input_values": [
+        1,
+        1,
+        -2
+      ],
+      "input_length": 3,
+      "expected_result": 147483632
+    },
+    {
+      "id": "wrong_count",
+      "input_values": [
+        2,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "outside_i32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

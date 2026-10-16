@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "julia-partitions-recursive-i64-scalar-v1",
+  "algorithm": "partitions",
+  "function_symbol": "partitions",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "n",
+    "n_range": [
+      0,
+      100
+    ]
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of unordered partitions of n into positive summands, with p(0)=1",
+    "invalid_input_result": -9223372036854775808
+  },
+  "source_bound": {
+    "description": "The pinned Julia routine sums P_k(n) for k=1..n and defines P_k(n)=P_{k-1}(n-1)+P_k(n-k), with P_0(0)=1 and base cases P_1(n)=1 and P_n(n)=1. The benchmark memoizes this recursion per call and bounds n to 0..100 so exact results fit signed 64-bit."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "n_1",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "n_2",
+      "input_value": 2,
+      "expected_result": 2
+    },
+    {
+      "id": "n_5",
+      "input_value": 5,
+      "expected_result": 7
+    },
+    {
+      "id": "n_10",
+      "input_value": 10,
+      "expected_result": 42
+    },
+    {
+      "id": "n_20",
+      "input_value": 20,
+      "expected_result": 627
+    },
+    {
+      "id": "n_50",
+      "input_value": 50,
+      "expected_result": 204226
+    },
+    {
+      "id": "n_100",
+      "input_value": 100,
+      "expected_result": 190569292
+    },
+    {
+      "id": "negative_out_of_domain",
+      "input_value": -1,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "above_bound",
+      "input_value": 101,
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

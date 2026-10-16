@@ -1,0 +1,9 @@
+def kinematics_impl(v: i64&, length: usize) -> i64:
+    if length != 4: return -1
+    o: i64 = v[0]; x: i64 = v[1]; y: i64 = v[2]; z: i64 = v[3]
+    if o < 0 or o > 3 or x < -1000 or x > 1000 or y < -1000 or y > 1000 or z < -1000 or z > 1000: return -1
+    if o == 0: return 2 * x + 2 * y * z
+    if o == 1: return 2 * x * z + y * z * z
+    if o == 2: return 2 * x * x + 4 * y * z
+    (x + y) * z
+export fn kinematics(v: i64&, length: usize) -> i64 = kinematics_impl

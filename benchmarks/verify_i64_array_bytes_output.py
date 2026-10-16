@@ -54,6 +54,32 @@ from simple_keyword_cypher_oracle_common import MAX_MESSAGE_LENGTH as MAX_SIMPLE
 from simple_keyword_cypher_oracle_common import MAX_PARSEABLE_INPUT_LENGTH as MAX_SIMPLE_KEYWORD_CYPHER_PARSEABLE_INPUT_LENGTH
 from simple_keyword_cypher_encipher_oracle import expected_output as simple_keyword_cypher_encipher_oracle
 from simple_keyword_cypher_decipher_oracle import expected_output as simple_keyword_cypher_decipher_oracle
+from rotate_matrix_oracle_common import I64_MIN as ROTATE_MATRIX_I64_MIN
+from rotate_matrix_oracle_common import I64_MAX as ROTATE_MATRIX_I64_MAX
+from rotate_matrix_oracle_common import MAX_ROWS as ROTATE_MATRIX_MAX_ROWS
+from rotate_matrix_oracle_common import MAX_COLS as ROTATE_MATRIX_MAX_COLS
+from rotate_matrix_oracle_common import MAX_INPUT_LENGTH as ROTATE_MATRIX_MAX_INPUT_LENGTH
+from rotate_matrix_oracle_common import MAX_PARSEABLE_LENGTH as ROTATE_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
+from rotate_matrix_oracle_common import MAX_OUTPUT_BYTES as ROTATE_MATRIX_MAX_OUTPUT_BYTES
+from rotate_matrix_90_oracle import expected_output as rotate_matrix_90_oracle
+from rotate_matrix_180_oracle import expected_output as rotate_matrix_180_oracle
+from rotate_matrix_270_oracle import expected_output as rotate_matrix_270_oracle
+from rotate_matrix_transpose_oracle import expected_output as rotate_matrix_transpose_oracle
+from matrix_transpose_oracle import I32_MIN as MATRIX_TRANSPOSE_I32_MIN
+from matrix_transpose_oracle import I32_MAX as MATRIX_TRANSPOSE_I32_MAX
+from matrix_transpose_oracle import MAX_ROWS as MATRIX_TRANSPOSE_MAX_ROWS
+from matrix_transpose_oracle import MAX_COLS as MATRIX_TRANSPOSE_MAX_COLS
+from matrix_transpose_oracle import MAX_INPUT_LENGTH as MATRIX_TRANSPOSE_MAX_INPUT_LENGTH
+from matrix_transpose_oracle import MAX_PARSEABLE_LENGTH as MATRIX_TRANSPOSE_MAX_PARSEABLE_INPUT_LENGTH
+from matrix_transpose_oracle import MAX_OUTPUT_BYTES as MATRIX_TRANSPOSE_MAX_OUTPUT_BYTES
+from matrix_transpose_oracle import expected_output as matrix_transpose_oracle
+from join_oracle import MAX_ITEMS as JOIN_MAX_ITEMS
+from join_oracle import MAX_ITEM_LENGTH as JOIN_MAX_ITEM_LENGTH
+from join_oracle import MAX_INPUT_LENGTH as JOIN_MAX_INPUT_LENGTH
+from join_oracle import MAX_OUTPUT_LENGTH as JOIN_MAX_OUTPUT_LENGTH
+from join_oracle import MAX_PARSEABLE_LENGTH as JOIN_MAX_PARSEABLE_INPUT_LENGTH
+from join_oracle import MAX_SEPARATOR_LENGTH as JOIN_MAX_SEPARATOR_LENGTH
+from join_oracle import expected_output as join_oracle
 from move_to_front_oracle import MAX_ALPHABET_LENGTH as MOVE_TO_FRONT_MAX_ALPHABET_LENGTH
 from move_to_front_oracle import MAX_INPUT_LENGTH as MOVE_TO_FRONT_MAX_INPUT_LENGTH
 from move_to_front_oracle import MAX_OUTPUT_LENGTH as MOVE_TO_FRONT_MAX_OUTPUT_LENGTH
@@ -95,6 +121,7 @@ from p_series_oracle import expected_output as p_series_oracle
 from proper_fractions_oracle import expected_output as proper_fractions_oracle
 from sumset_oracle import expected_output as sumset_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
+from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import expected_output as recorder_expected_output
 from common_characters_frequency_quotient_oracle import expected_output as common_characters_frequency_quotient_oracle
 from remove_duplicate_characters_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH
@@ -221,6 +248,10 @@ from nearest_neighbor_interpolation_oracle import MAX_DIMENSION as MAX_NEAREST_N
 from nearest_neighbor_interpolation_oracle import MAX_INPUT_LENGTH as MAX_NEAREST_NEIGHBOR_INPUT_LENGTH
 from nearest_neighbor_interpolation_oracle import MAX_OUTPUT_BYTES as MAX_NEAREST_NEIGHBOR_OUTPUT_BYTES
 from nearest_neighbor_interpolation_oracle import expected_output as nearest_neighbor_interpolation_oracle
+from dbscan_oracle import MAX_INPUT_LENGTH as MAX_DBSCAN_INPUT_LENGTH
+from dbscan_oracle import MAX_OUTPUT_BYTES as MAX_DBSCAN_OUTPUT_BYTES
+from dbscan_oracle import MAX_POINTS as MAX_DBSCAN_POINTS
+from dbscan_oracle import expected_output as dbscan_oracle
 from combination_sum_oracle import MAX_CANDIDATES as MAX_COMBINATION_SUM_CANDIDATES
 from combination_sum_oracle import MAX_PACKED_INPUT_LENGTH as MAX_COMBINATION_SUM_INPUT_LENGTH
 from combination_sum_oracle import MAX_OUTPUT_WORDS as MAX_COMBINATION_SUM_OUTPUT_WORDS
@@ -345,6 +376,12 @@ from dispersion_oracle import MAX_VALUE as DISPERSION_MAX_VALUE
 from dispersion_oracle import MIN_VALUE as DISPERSION_MIN_VALUE
 from dispersion_oracle import OUTPUT_BYTES as DISPERSION_OUTPUT_BYTES
 from dispersion_oracle import expected_output as dispersion_oracle
+from data_normalization_standardization_oracle import MAX_INPUT_LENGTH as MAX_DATA_NORMALIZATION_STANDARDIZATION_INPUT_LENGTH
+from data_normalization_standardization_oracle import MAX_OUTPUT_BYTES as DATA_NORMALIZATION_STANDARDIZATION_MAX_OUTPUT_BYTES
+from data_normalization_standardization_oracle import MAX_SAMPLE_COUNT as DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT
+from data_normalization_standardization_oracle import MAX_VALUE as DATA_NORMALIZATION_STANDARDIZATION_MAX_VALUE
+from data_normalization_standardization_oracle import MIN_VALUE as DATA_NORMALIZATION_STANDARDIZATION_MIN_VALUE
+from data_normalization_standardization_oracle import expected_output as data_normalization_standardization_oracle
 from iir_filter_oracle import CAPACITY_ERROR_RESULT as IIR_FILTER_CAPACITY_ERROR_RESULT
 from iir_filter_oracle import I64_MAX as IIR_FILTER_I64_MAX
 from iir_filter_oracle import I64_MIN as IIR_FILTER_I64_MIN
@@ -407,7 +444,7 @@ ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence"
               "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
               "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
               "serialize_deserialize_binary_tree", "cramers_rule_2x2", "create_binary_tree_from_inorder_preorder",
-              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination")
+              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination")
 ALGORITHMS = (*ALGORITHMS, "recursive_shuffler", "graph_coloring", "fisher_yates_shuffle")
 ALGORITHMS = (*ALGORITHMS, "heaps", "heaps_algorithm")
 ALGORITHMS = (*ALGORITHMS, "cpu_scheduling_algorithms")
@@ -424,6 +461,7 @@ ALGORITHMS = (*ALGORITHMS, "crossword_puzzle_solver")
 ALGORITHMS = (*ALGORITHMS, "cursor_linked_list")
 ALGORITHMS = (*ALGORITHMS, "cyclic")
 ALGORITHMS = (*ALGORITHMS, "dispersion", "iir_filter", "word_ladder", "full_wave_rectifier")
+ALGORITHMS = (*ALGORITHMS, "data_normalization_standardization")
 ALGORITHMS = (*ALGORITHMS, "stalin_sort", "railway_time_conversion", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "rgb_cmyk_conversion")
 ALGORITHMS = (*ALGORITHMS, "word_pattern_matcher")
 ALGORITHMS = (*ALGORITHMS, "two_sat")
@@ -434,6 +472,8 @@ ALGORITHMS = (*ALGORITHMS, "word_ladder_dfs")
 ALGORITHMS = (*ALGORITHMS, "morse_code_converter_encode", "morse_code_converter_decode")
 ALGORITHMS = (*ALGORITHMS, "move_hash_to_end")
 ALGORITHMS = (*ALGORITHMS, "simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher")
+ALGORITHMS = (*ALGORITHMS, "rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270", "rotate_matrix_transpose", "matrix_transpose")
+ALGORITHMS = (*ALGORITHMS, "join")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -468,7 +508,7 @@ WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_uniq
                         "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
                         "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
                         "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination", "create_binary_tree_from_inorder_preorder",
-                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
+                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
 WORKSPACE_ALGORITHMS.update({"recursive_shuffler", "graph_coloring", "fisher_yates_shuffle", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms"})
 WORKSPACE_ALGORITHMS.add("eulerian_path")
 WORKSPACE_ALGORITHMS.add("directed_simple_cycles")
@@ -484,6 +524,7 @@ WORKSPACE_ALGORITHMS.add("cursor_linked_list")
 WORKSPACE_ALGORITHMS.add("cyclic")
 WORKSPACE_ALGORITHMS.add("two_sat")
 WORKSPACE_ALGORITHMS.update({"dispersion", "iir_filter", "word_ladder", "full_wave_rectifier"})
+WORKSPACE_ALGORITHMS.add("data_normalization_standardization")
 WORKSPACE_ALGORITHMS.update({"stalin_sort", "railway_time_conversion"})
 WORKSPACE_ALGORITHMS.add("rgb_hsl_conversion")
 WORKSPACE_ALGORITHMS.add("rgb_hsv_conversion")
@@ -497,6 +538,8 @@ WORKSPACE_ALGORITHMS.add("word_ladder_dfs")
 WORKSPACE_ALGORITHMS.update({"morse_code_converter_encode", "morse_code_converter_decode"})
 WORKSPACE_ALGORITHMS.add("move_hash_to_end")
 WORKSPACE_ALGORITHMS.update({"simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher"})
+WORKSPACE_ALGORITHMS.update({"rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270", "rotate_matrix_transpose", "matrix_transpose"})
+WORKSPACE_ALGORITHMS.add("join")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -1580,6 +1623,155 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm in {"rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270",
+                       "rotate_matrix_transpose", "matrix_transpose"}:
+        oracle_by_algorithm = {
+            "rotate_matrix_90": rotate_matrix_90_oracle,
+            "rotate_matrix_180": rotate_matrix_180_oracle,
+            "rotate_matrix_270": rotate_matrix_270_oracle,
+            "rotate_matrix_transpose": rotate_matrix_transpose_oracle,
+            "matrix_transpose": matrix_transpose_oracle,
+        }
+        oracle = oracle_by_algorithm[algorithm]
+        java_matrix = algorithm == "matrix_transpose"
+        max_input_length = (MATRIX_TRANSPOSE_MAX_INPUT_LENGTH if java_matrix
+                            else ROTATE_MATRIX_MAX_INPUT_LENGTH)
+        max_parseable_input_length = (MATRIX_TRANSPOSE_MAX_PARSEABLE_INPUT_LENGTH if java_matrix
+                                      else ROTATE_MATRIX_MAX_PARSEABLE_INPUT_LENGTH)
+        max_output_bytes = (MATRIX_TRANSPOSE_MAX_OUTPUT_BYTES if java_matrix
+                            else ROTATE_MATRIX_MAX_OUTPUT_BYTES)
+        max_rows = MATRIX_TRANSPOSE_MAX_ROWS if java_matrix else ROTATE_MATRIX_MAX_ROWS
+        max_cols = MATRIX_TRANSPOSE_MAX_COLS if java_matrix else ROTATE_MATRIX_MAX_COLS
+        value_min = MATRIX_TRANSPOSE_I32_MIN if java_matrix else ROTATE_MATRIX_I64_MIN
+        value_max = MATRIX_TRANSPOSE_I32_MAX if java_matrix else ROTATE_MATRIX_I64_MAX
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity < max_output_bytes:
+            raise ValueError(f"invalid {algorithm} output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"{algorithm} workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        fixed_cases = (
+            (1, 1, value_min),
+            (2, 3, 1, 2, 3, 4, 5, 6),
+            (3, 2, value_max, value_min, 0, 1, -1, value_max),
+            (2, 2, 1, 2, 3, 4),
+        )
+        for values in fixed_cases:
+            add(values)
+
+        max_matrix = (max_rows, max_cols, *([value_max] * (max_rows * max_cols)))
+        min_matrix = (max_rows, max_cols, *([value_min] * (max_rows * max_cols)))
+        add(max_matrix)
+        add(min_matrix)
+        for capacity in (0, max_output_bytes - 1, max_output_bytes):
+            add(max_matrix, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            rows = rng.randint(1, max_rows)
+            cols = rng.randint(1, max_cols)
+            values = (rows, cols,
+                      *(rng.randint(value_min, value_max) for _ in range(rows * cols)))
+            add(values)
+
+        malformed = (
+            (), (0,), (1, 0), (0, 1, 5), (max_rows + 1, 1, 5),
+            (1, max_cols + 1, 5), (1, 1), (1, 1, 5, 6),
+            tuple([0] * max_parseable_input_length),
+        )
+        if java_matrix:
+            malformed += ((1, 1, MATRIX_TRANSPOSE_I32_MIN - 1),
+                          (1, 1, MATRIX_TRANSPOSE_I32_MAX + 1))
+        for values in malformed:
+            if len(values) <= max_parseable_input_length:
+                add(values)
+        if max_parseable_input_length != max_input_length + 1:
+            raise ValueError(f"{algorithm} valid/parseable input bounds are inconsistent")
+
+        null_values = (1, 1, value_min + 1)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "join":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity < JOIN_MAX_OUTPUT_LENGTH:
+            raise ValueError("invalid join output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = join_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = join_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"join workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            separator_length = rng.randint(0, JOIN_MAX_SEPARATOR_LENGTH)
+            separator = tuple(rng.randrange(128) for _ in range(separator_length))
+            item_count = rng.randint(0, JOIN_MAX_ITEMS)
+            encoded_items: list[int] = []
+            for _ in range(item_count):
+                item_length = rng.randint(0, JOIN_MAX_ITEM_LENGTH)
+                encoded_items.extend((item_length, *(rng.randrange(128) for _ in range(item_length))))
+            add((separator_length, item_count, *separator, *encoded_items))
+
+        maximum_items = tuple(
+            value
+            for _ in range(JOIN_MAX_ITEMS)
+            for value in (JOIN_MAX_ITEM_LENGTH, *([ord("A")] * JOIN_MAX_ITEM_LENGTH))
+        )
+        capacity_probe = (JOIN_MAX_SEPARATOR_LENGTH, JOIN_MAX_ITEMS,
+                          *([ord("#")] * JOIN_MAX_SEPARATOR_LENGTH), *maximum_items)
+        for capacity in (0, JOIN_MAX_OUTPUT_LENGTH - 1, JOIN_MAX_OUTPUT_LENGTH):
+            add(capacity_probe, capacity)
+
+        for values in ((0, 0), (0, 1, 0), (0, 2, 0, 0), (1, 0, 127)):
+            add(values)
+        malformed = (
+            (), (0,), (-1, 0), (JOIN_MAX_SEPARATOR_LENGTH + 1, 0),
+            (0, -1), (0, JOIN_MAX_ITEMS + 1), (1, 0), (1, 0, 128),
+            (0, 1), (0, 1, -1), (0, 1, JOIN_MAX_ITEM_LENGTH + 1,
+                                   *([ord("A")] * (JOIN_MAX_ITEM_LENGTH + 1))),
+            (0, 1, 1), (0, 0, 65), (0, 1, 1, 128),
+            tuple([0] * JOIN_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= JOIN_MAX_PARSEABLE_INPUT_LENGTH:
+                add(values)
+        if len(capacity_probe) != JOIN_MAX_INPUT_LENGTH:
+            raise ValueError("join maximum input length is inconsistent")
+        if JOIN_MAX_PARSEABLE_INPUT_LENGTH != JOIN_MAX_INPUT_LENGTH + 1:
+            raise ValueError("join valid/parseable input bounds are inconsistent")
+        result, output = join_oracle(list(capacity_probe), default_capacity)
+        if result != JOIN_MAX_OUTPUT_LENGTH or len(output) != JOIN_MAX_OUTPUT_LENGTH:
+            raise ValueError("join maximum output length is inconsistent")
+
+        null_key = ((1, 0, 127), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "word_boggle":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         capacity = workload.get("workspace", {}).get("bytes", 512)
@@ -2550,6 +2742,41 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             (1, 17, *([0] * 17)), (1, 1, 256), (1, 1, 0, 1),
             tuple([1, 1, *([0] * MAX_NEAREST_NEIGHBOR_INPUT_LENGTH)]),
         )
+        for values in malformed:
+            add(values)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "dbscan":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity < MAX_DBSCAN_OUTPUT_BYTES:
+            raise ValueError("invalid DBSCAN output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = dbscan_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = dbscan_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"workload oracle mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            n = rng.randint(1, MAX_DBSCAN_POINTS)
+            points = rng.sample([(x, y) for x in range(-20, 21) for y in range(-20, 21)], n)
+            values = (n, rng.randint(1, 8), rng.randint(1, n),
+                      *(coordinate for point in points for coordinate in point))
+            add(values)
+            add(values, n - 1)
+        malformed = ((), (1, 1, 1), (0, 1, 1, 0, 0),
+                     (1, 0, 1, 0, 0), (1, 1, 0, 0, 0),
+                     (1, 1, 2, 0, 0), (1, 1, 1, 1_000_001, 0), (2, 1, 2, 0, 0, 0, 0),
+                     (2, 1, 1, 0, 0), tuple([1, 1, 1, 0, 0] + [0] * MAX_DBSCAN_INPUT_LENGTH))
         for values in malformed:
             add(values)
         records.extend((values, result, output, capacity)
@@ -7949,6 +8176,76 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "data_normalization_standardization":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < DATA_NORMALIZATION_STANDARDIZATION_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid normalization/standardization output workspace size")
+        absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0)
+        relative_tolerance = workload["output"].get("relative_tolerance", 0.0)
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = data_normalization_standardization_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = data_normalization_standardization_oracle(values)
+            expected_result = -2 if result >= 0 and capacity < len(output) else result
+            actual = (struct.unpack("<" + "d" * (len(output) // 8), output)
+                      if expected_result >= 0 else ())
+            declared = case.get("expected_output", ())
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != expected_result
+                    or not isinstance(declared, list)
+                    or len(declared) != len(actual)
+                    or any(not math.isfinite(value) for value in declared)
+                    or any(abs(value - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for value, expected in zip(declared, actual))):
+                raise ValueError(f"normalization/standardization workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for mode in (0, 1):
+            for count in range(2, 5):
+                for sample in product((-2, 0, 3), repeat=count):
+                    add((mode, count, *sample))
+        rng = random.Random(20261016)
+        for index in range(256):
+            count = rng.randint(2, DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT)
+            sample = [rng.randint(DATA_NORMALIZATION_STANDARDIZATION_MIN_VALUE,
+                                  DATA_NORMALIZATION_STANDARDIZATION_MAX_VALUE)
+                      for _ in range(count)]
+            if min(sample) == max(sample):
+                sample[-1] = sample[-1] - 1 if sample[-1] > DATA_NORMALIZATION_STANDARDIZATION_MIN_VALUE else sample[-1] + 1
+            add((index % 2, count, *sample))
+        add((0, DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT,
+             *range(DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT)))
+        add((1, 4, -9, -1, 2, 12), 31)
+        for malformed in (
+                (), (0,), (0, 1, 4), (2, 2, -1, 1),
+                (0, 2, 1), (1, 3, 1, 1), (0, 3, 5, 5, 5),
+                (0, 2, DATA_NORMALIZATION_STANDARDIZATION_MIN_VALUE - 1,
+                 DATA_NORMALIZATION_STANDARDIZATION_MAX_VALUE),
+                (1, 2, DATA_NORMALIZATION_STANDARDIZATION_MIN_VALUE,
+                 DATA_NORMALIZATION_STANDARDIZATION_MAX_VALUE + 1),
+                (0, 2, -(1 << 63), 1 << 63),
+                (0, DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT + 1,
+                 *range(DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT + 1)),
+                tuple([0, 2, *([1] * DATA_NORMALIZATION_STANDARDIZATION_MAX_SAMPLE_COUNT)])):
+            add(tuple(malformed))
+        sample_input = (1, 4, -9, -1, 2, 12)
+        add(sample_input, len(sample_input[2:]) * 8)
+        add(sample_input, len(sample_input[2:]) * 8 - 1)
+        null_key = ((0, 2, -1, 1), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "iir_filter":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -8448,15 +8745,16 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
         values = case["input_values"]
+        expected_output_length = (
+            len(bytes.fromhex(case["expected_output_hex"])) if "expected_output_hex" in case
+            else len(case.get("expected_output", "").encode("utf-8"))
+        )
+        default_output_capacity = (
+            workload.get("workspace", {}).get("bytes", expected_output_length)
+            if algorithm in RECORDER_WORKSPACE_ALGORITHMS else expected_output_length
+        )
         output_capacity = (
-            case.get(
-                "workspace_bytes",
-                workload.get("workspace", {}).get("bytes")
-                        if algorithm in {"fibonacci_heap", "horizontal_projectile_motion", "heaps", "heaps_algorithm", "graph_coloring", "fisher_yates_shuffle", "charoccurrence", "coordinate_compression", "flash_sort", "string_compression", "create_binary_tree_from_inorder_preorder", "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "recursive_shuffler", "convolution", "damped_oscillator", "difference_array", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "composite_lfsr_majority_clock", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "swap_case", "string_switch_case", "reverse_string", "common_characters_frequency_quotient", "remove_duplicate_characters", "remove_duplicate_words", "continued_fraction", "account_merge", "adagrad", "adam", "cholesky_decomposition", "depreciation", "chebyshev_iteration", "choiceset", "chudnovsky_algorithm", "circular_look_scheduling", "circular_scan_scheduling", "adaline_learning", "adams_bashforth", "adfgvxcipher", "upper", "all_construct", "allocation_number", "booths_algorithm", "association", "auto_correlation", "baconian_cipher", "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "date_to_day", "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "correlation_matrix_analysis", "crossword_solver", "dispersion", "iir_filter", "full_wave_rectifier", "word_ladder", "stalin_sort", "railway_time_conversion", "two_sat"}
-                else (len(bytes.fromhex(case["expected_output_hex"]))
-                      if "expected_output_hex" in case
-                      else len(case.get("expected_output", "").encode("utf-8"))),
-            )
+            case.get("workspace_bytes", default_output_capacity)
             if algorithm in WORKSPACE_ALGORITHMS else None
         )
         if (record["algorithm"] != algorithm

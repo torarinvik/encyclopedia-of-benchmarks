@@ -1,0 +1,1 @@
+export fn kinematics(v:[*]const i64,n:usize)i64{if(n!=4)return -1;const o=v[0];const x=v[1];const y=v[2];const z=v[3];if(o<0 or o>3 or x< -1000 or x>1000 or y< -1000 or y>1000 or z< -1000 or z>1000)return -1;if(o==0)return 2*x+2*y*z;if(o==1)return 2*x*z+y*z*z;if(o==2)return 2*x*x+4*y*z;return (x+y)*z;}

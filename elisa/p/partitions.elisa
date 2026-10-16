@@ -1,0 +1,23 @@
+const MAX_N: i64 = 100
+const STRIDE: usize = 101
+fn count_parts(n: usize, k: usize, memo: i64&) -> i64:
+    if (n == 0 and k == 0) or (n > 0 and k == 1) or n == k: return 1
+    if k == 0 or k > n: return 0
+    index: usize = n * STRIDE + k
+    if memo[index] >= 0: return memo[index]
+    memo[index] <- count_parts(n - 1, k - 1, memo) + count_parts(n - k, k, memo)
+    memo[index]
+export fn partitions(n: i64) -> i64:
+    if n < 0 or n > MAX_N: return -9223372036854775808
+    memo: mutable i64[10201]
+    i: mutable usize = 0
+    while i < 10201:
+        memo[i] <- -1
+        i <- i + 1
+    total: mutable i64 = 0
+    k: mutable usize = 1
+    while k <= n.usize():
+        total <- total + count_parts(n.usize(), k, memo)
+        k <- k + 1
+    if n == 0: return 1
+    total

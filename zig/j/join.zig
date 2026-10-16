@@ -1,0 +1,4 @@
+const MAX_OUTPUT:usize=3040;
+export fn join(v:[*c]const i64,n:usize,out:[*c]u8,cap:usize)i64{
+ if(v==null or n<2 or n>2115)return -1;const sl=v[0];const count=v[1];if(sl<0 or sl>32 or count<0 or count>32)return -1;var cursor:usize=2;if(@as(usize,@intCast(sl))>n-cursor)return -1;var sep=[_]u8{0}**32;for(0..@as(usize,@intCast(sl)))|i|{const x=v[cursor];cursor+=1;if(x<0 or x>127)return -1;sep[i]=@intCast(x);}var result=[_]u8{0}**MAX_OUTPUT;var written:usize=0;for(0..@as(usize,@intCast(count)))|item|{if(cursor>=n)return -1;const len=v[cursor];cursor+=1;if(len<0 or len>64 or @as(usize,@intCast(len))>n-cursor)return -1;if(item>0){for(0..@as(usize,@intCast(sl)))|j|{result[written]=sep[j];written+=1;}}for(0..@as(usize,@intCast(len))) |_|{const x=v[cursor];cursor+=1;if(x<0 or x>127)return -1;result[written]=@intCast(x);written+=1;}}if(cursor!=n)return -1;if(out==null or cap<written)return -2;for(0..written)|i|out[i]=result[i];return @intCast(written);
+}

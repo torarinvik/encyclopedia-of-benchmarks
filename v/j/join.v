@@ -1,0 +1,4 @@
+module main
+const max_output=3040
+@[export: 'join']
+pub fn join(v &i64,n usize,mut output &u8,capacity usize) i64{unsafe{if v==nil||n<2||n>2115{return -1}sl:=v[0];count:=v[1];if sl<0||sl>32||count<0||count>32{return -1}mut cursor:=2;if usize(sl)>n-cursor{return -1}mut sep:=[32]u8{};for i in 0..int(sl){x:=v[cursor];cursor++;if x<0||x>127{return -1};sep[i]=u8(x)}mut result:=[max_output]u8{};mut written:=0;for item in 0..int(count){if cursor>=n{return -1};len:=v[cursor];cursor++;if len<0||len>64||usize(len)>n-cursor{return -1};if item>0{for j in 0..int(sl){result[written]=sep[j];written++}}for _ in 0..int(len){x:=v[cursor];cursor++;if x<0||x>127{return -1};result[written]=u8(x);written++}}if cursor!=n{return -1}if output==nil||capacity<usize(written){return -2}for i in 0..written{output[i]=result[i]}return i64(written)}}

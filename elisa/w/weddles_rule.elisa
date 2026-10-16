@@ -1,0 +1,31 @@
+def weddles_rule_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 9 or length > 387:
+        return -1.0e300
+    panels: i64 = values[0]
+    step_nanounits: i64 = values[1]
+    if panels < 1 or panels > 64 or length != (panels * 6 + 3).usize() or
+            step_nanounits < -1000000000 or step_nanounits > 1000000000:
+        return -1.0e300
+
+    sample_count: i64 = panels * 6 + 1
+    weighted_sum: mutable f64 = 0.0
+    index: mutable i64 = 1
+    while index + 1 < sample_count:
+        sample_micro: i64 = values[index + 2]
+        if sample_micro < -1000000 or sample_micro > 1000000:
+            return -1.0e300
+        weight: i64 = if index % 2 == 0 and index % 3 != 0: 1
+                 else if index % 2 != 0 and index % 3 != 0: 5
+                 else if index % 6 == 0: 2 else: 6
+        weighted_sum <- weighted_sum + weight.f64() * (sample_micro.f64() / 1000000.0)
+        index <- index + 1
+
+    first_micro: i64 = values[2]
+    last_micro: i64 = values[sample_count + 1]
+    if first_micro < -1000000 or first_micro > 1000000 or
+            last_micro < -1000000 or last_micro > 1000000:
+        return -1.0e300
+    step_size: f64 = step_nanounits.f64() / 1000000000.0
+    0.3 * step_size * (weighted_sum + first_micro.f64() / 1000000.0 + last_micro.f64() / 1000000.0)
+
+export fn weddles_rule(values: i64&, length: usize) -> f64 = weddles_rule_impl

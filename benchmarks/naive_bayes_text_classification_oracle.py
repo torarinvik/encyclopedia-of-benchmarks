@@ -26,7 +26,7 @@ def expected_output(values):
         for _ in range(n):
             if pos+2>len(values):return -1,b""
             label,length=values[pos],values[pos+1];pos+=2
-            if label not in (0,1) or not 0<=length<=32 or pos+length>len(values):return -1,b""
+            if label not in (0,1) or not 0<=length<=8 or pos+length>len(values):return -1,b""
             docs.append(_token(values[pos:pos+length]));labels.append(label);pos+=length
         if pos>=len(values):return -1,b""
         qlen=values[pos];pos+=1

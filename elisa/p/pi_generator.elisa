@@ -1,0 +1,33 @@
+const MAX_DIGITS: i64 = 8
+fn mix(hash: u64, byte: u8) -> u64:
+    ((hash ^ byte.u64()) * 16777619) & 4294967295
+export fn pi_generator(digits: i64) -> i64:
+    if digits < 0 or digits > MAX_DIGITS: return -1
+    q: mutable i64 = 1
+    r: mutable i64 = 0
+    t: mutable i64 = 1
+    k: mutable i64 = 1
+    n: mutable i64 = 3
+    m: mutable i64 = 3
+    counter: mutable i64 = 0
+    hash: mutable u64 = 2166136261
+    while counter != digits + 1:
+        if 4 * q + r - t < n * t:
+            hash <- mix(hash, (48 + n).u8())
+            if counter == 0: hash <- mix(hash, 46)
+            if digits == counter: break
+            counter <- counter + 1
+            next_r: i64 = 10 * (r - n * t)
+            n <- (10 * (3 * q + r)) / t - 10 * n
+            q <- q * 10
+            r <- next_r
+        else:
+            next_r: i64 = (2 * q + r) * m
+            next_n: i64 = (q * (7 * k) + 2 + r * m) / (t * m)
+            q <- q * k
+            t <- t * m
+            m <- m + 2
+            k <- k + 1
+            n <- next_n
+            r <- next_r
+    hash.i64()

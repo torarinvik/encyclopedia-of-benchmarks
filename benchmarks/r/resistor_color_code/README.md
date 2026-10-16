@@ -6,10 +6,10 @@ This benchmark adapts the pinned [TheAlgorithms/Python `electronics/resistor_col
 
 - Input is `[byte_length, ASCII bytes...]`, where the payload is a comma-separated list of 3 through 6 exact color names with no spaces. Names are case-sensitive and must be one of `Black,Brown,Red,Orange,Yellow,Green,Blue,Violet,Grey,White,Gold,Silver`. The payload is at most 41 bytes. Invalid shape, non-ASCII bytes, unknown colors, or colors invalid for their band role return `-1`.
 - The first two bands (3/4-band resistors) or first three bands (5/6-band resistors) are significant digits and must use `Black` through `White`. The next band is a multiplier (`Black` through `Silver`). Four-or-more-band resistors require a tolerance color from `Brown,Red,Orange,Yellow,Green,Blue,Violet,Grey,Gold,Silver`; 6-band resistors require a final temperature color from `Black` through `Grey`.
-- Output is the UTF-8 encoding of the exact `resistance` string returned by Python, without the surrounding dictionary. It includes `Ω`, `±`, and the source's trailing space for 3–5 bands. Positive-power multipliers produce integer resistance text; Gold/Silver multipliers preserve Python's float spelling (for example `1.0`, `0.5`, `0.05`). Insufficient output capacity returns `-2`; success returns the number of UTF-8 bytes written.
+- Output is the UTF-8 encoding of the exact `resistance` string returned by Python, without the surrounding dictionary. It includes `Ω`, `±`, and the source's trailing space for 3–5 bands. Positive-power multipliers produce integer resistance text; Gold/Silver multipliers preserve Python's shortest float spelling, including binary floating-point tails such as `0.30000000000000004`. Insufficient output capacity returns `-2`; success returns the number of UTF-8 bytes written.
 - The source raises `ValueError` for invalid band counts, colors, or role assignments. This ABI maps those invalid inputs to `-1`.
 
-The independent oracle is [`benchmarks/resistor_color_code_oracle.py`](../../resistor_color_code_oracle.py). Its workload covers 3–6 bands, leading zero digits, integer and fractional multipliers/tolerances, temperature coefficients, invalid role assignments, and output capacity.
+The independent oracle is [`benchmarks/resistor_color_code_oracle.py`](../../resistor_color_code_oracle.py). Its workload covers 3–6 bands, leading zero digits, integer and fractional multipliers/tolerances (including Python float-repr artifacts), temperature coefficients, invalid role assignments, and output capacity.
 
 ## Implementations
 

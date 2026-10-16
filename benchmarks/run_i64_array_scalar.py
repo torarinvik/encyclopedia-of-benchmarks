@@ -21,6 +21,16 @@ from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from deep_clone_graph_oracle import MAX_INPUT_LENGTH as MAX_DEEP_CLONE_GRAPH_INPUT_LENGTH
+from deep_clone_graph_oracle import expected_result as deep_clone_graph_expected
+from wine_problem_recursive_oracle import MAX_ITEMS as WINE_PROBLEM_RECURSIVE_MAX_ITEMS
+from wine_problem_recursive_oracle import expected_result as wine_problem_recursive_expected
+from wine_problem_memoized_oracle import MAX_ITEMS as WINE_PROBLEM_MEMOIZED_MAX_ITEMS
+from wine_problem_memoized_oracle import expected_result as wine_problem_memoized_expected
+from wine_problem_tabulated_oracle import MAX_ITEMS as WINE_PROBLEM_TABULATED_MAX_ITEMS
+from wine_problem_tabulated_oracle import expected_result as wine_problem_tabulated_expected
+from detecting_english_programmatically_oracle import MAX_INPUT_LENGTH as MAX_DETECTING_ENGLISH_INPUT_LENGTH
+from detecting_english_programmatically_oracle import expected_result as detecting_english_expected
 from nimply_gate_oracle import expected_result as nimply_gate_expected
 from naive_knapsack_solver_oracle import expected_result as naive_knapsack_solver_expected
 from ones_and_zeros_oracle import MAX_INPUT_LENGTH as MAX_ONES_AND_ZEROS_INPUT_LENGTH
@@ -80,6 +90,8 @@ from palindrome_singly_linked_list_oracle import MAX_INPUT_LENGTH as MAX_PALINDR
 from palindrome_singly_linked_list_oracle import expected_result as palindrome_singly_linked_list_expected
 from pattern_matching_oracle import MAX_INPUT_LENGTH as MAX_PATTERN_MATCHING_INPUT_LENGTH
 from pattern_matching_oracle import expected_result as pattern_matching_expected
+from permutate_string_oracle import MAX_INPUT_LENGTH as MAX_PERMUTATE_STRING_INPUT_LENGTH
+from permutate_string_oracle import expected_result as permutate_string_expected
 from two_pointer_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTER_INPUT_LENGTH
 from two_pointer_oracle import expected_result as two_pointer_expected
 from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
@@ -120,6 +132,8 @@ from find_kth_number_oracle import expected_result as find_kth_number_expected
 from non_repeating_element_oracle import MAX_INPUT_LENGTH as MAX_NON_REPEATING_ELEMENT_INPUT_LENGTH
 from non_repeating_element_oracle import expected_result as non_repeating_element_expected
 from partition_problem_oracle import MAX_ITEMS as MAX_PARTITION_PROBLEM_ITEMS
+from partition_linked_list_oracle import MAX_INPUT_LENGTH as MAX_PARTITION_LINKED_LIST_INPUT_LENGTH
+from partition_linked_list_oracle import expected_result as partition_linked_list_expected
 from partition_problem_oracle import expected_result as partition_problem_expected
 from in_static_equilibrium_oracle import MAX_INPUT_LENGTH as MAX_IN_STATIC_EQUILIBRIUM_INPUT_LENGTH
 from in_static_equilibrium_oracle import expected_result as in_static_equilibrium_expected
@@ -255,6 +269,16 @@ from linear_diophantine_eqn_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_DIOPHAN
 from linear_diophantine_eqn_oracle import expected_result as linear_diophantine_eqn_expected
 from local_maximum_point_oracle import MAX_INPUT_LENGTH as MAX_LOCAL_MAXIMUM_POINT_INPUT_LENGTH
 from local_maximum_point_oracle import expected_result as local_maximum_point_expected
+from local_binary_pattern_oracle import MAX_INPUT_LENGTH as MAX_LOCAL_BINARY_PATTERN_INPUT_LENGTH
+from local_binary_pattern_oracle import expected_result as local_binary_pattern_expected
+from ibits_oracle import MAX_INPUT_LENGTH as MAX_IBITS_INPUT_LENGTH
+from ibits_oracle import expected_result as ibits_expected
+from kinematics_oracle import MAX_INPUT_LENGTH as MAX_KINEMATICS_INPUT_LENGTH
+from kinematics_oracle import expected_result as kinematics_expected
+from intensity_based_segmentation_oracle import MAX_INPUT_LENGTH as MAX_INTENSITY_BASED_SEGMENTATION_INPUT_LENGTH
+from intensity_based_segmentation_oracle import expected_result as intensity_based_segmentation_expected
+from is_oracle import MAX_INPUT_LENGTH as MAX_IS_INPUT_LENGTH
+from is_oracle import expected_result as is_expected
 from linear_diophantine_equations_solver_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH
 from linear_diophantine_equations_solver_oracle import expected_result as linear_diophantine_equations_solver_expected
 from kth_element_from_end_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_FROM_END_INPUT_LENGTH
@@ -784,10 +808,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PERFECT_NUMBERS_INPUT_LENGTH if algorithm == "perfect_numbers"
                         else MAX_PALINDROME_WITH_STACK_INPUT_LENGTH if algorithm == "palindrome_with_stack"
                         else MAX_PARSE_NESTED_BRACKETS_INPUT_LENGTH if algorithm == "parse_nested_brackets"
+                        else MAX_PARTITION_LINKED_LIST_INPUT_LENGTH if algorithm == "partition_linked_list"
                         else MAX_PARTITION_INPUT_LENGTH if algorithm == "partition"
                         else MAX_PEAK_INPUT_LENGTH if algorithm == "peak"
                         else MAX_PARSE_DATE_INPUT_LENGTH if algorithm == "parse_date"
                         else MAX_PALINDROME_SINGLY_LINKED_LIST_INPUT_LENGTH if algorithm == "palindrome_singly_linked_list"
+                        else MAX_PERMUTATE_STRING_INPUT_LENGTH if algorithm == "permutate_string"
                         else MAX_PATTERN_MATCHING_INPUT_LENGTH if algorithm == "pattern_matching"
                         else MAX_CAR_POOL_INPUT_LENGTH if algorithm == "car_pool"
                         else MAX_BLOB_DETECTION_INPUT_LENGTH
@@ -834,6 +860,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_EGG_DROPPING_INPUT_LENGTH if algorithm == "egg_dropping"
                         else MAX_SUBARRAY_SUM_EQUALS_K_INPUT_LENGTH
                         if algorithm == "subarray_sum_equals_k"
+                        else MAX_DEEP_CLONE_GRAPH_INPUT_LENGTH if algorithm == "deep_clone_graph"
                         else MAX_N_IN_A_ROW_INPUT_LENGTH if algorithm == "n_in_a_row_board_status"
                         else MAX_SLIDING_WINDOW_INPUT_LENGTH
                         if algorithm in {"min_sum_ksize_subarray", "max_sum_sliding_window"}
@@ -909,6 +936,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_LARGEST_SQUARE_AREA_IN_MATRIX_INPUT_LENGTH if algorithm == "largest_square_area_in_matrix"
                         else MAX_LINEAR_DIOPHANTINE_EQN_INPUT_LENGTH if algorithm == "linear_diophantine_eqn"
                         else MAX_LOCAL_MAXIMUM_POINT_INPUT_LENGTH if algorithm == "local_maximum_point"
+                        else MAX_LOCAL_BINARY_PATTERN_INPUT_LENGTH if algorithm == "local_binary_pattern"
+                        else MAX_IBITS_INPUT_LENGTH if algorithm == "ibits"
+                        else MAX_KINEMATICS_INPUT_LENGTH if algorithm == "kinematics"
+                        else MAX_INTENSITY_BASED_SEGMENTATION_INPUT_LENGTH if algorithm == "intensity_based_segmentation"
+                        else MAX_IS_INPUT_LENGTH if algorithm == "is"
                         else MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH if algorithm == "linear_diophantine_equations_solver"
                         else MAX_KAHN_INPUT_LENGTH if algorithm == "kahn"
                         else MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH if algorithm == "hex_to_oct"
@@ -1019,12 +1051,21 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PARSE_INTEGER_INPUT_LENGTH if algorithm == "parse_integer"
                         else MAX_SADDLEBACK_SEARCH_INPUT_LENGTH if algorithm == "saddleback_search"
                         else MAX_PARTITION_PROBLEM_ITEMS + 1 if algorithm == "partition_problem"
+                        else WINE_PROBLEM_RECURSIVE_MAX_ITEMS + 2 if algorithm == "wine_problem_recursive"
+                        else WINE_PROBLEM_MEMOIZED_MAX_ITEMS + 2 if algorithm == "wine_problem_memoized"
+                        else WINE_PROBLEM_TABULATED_MAX_ITEMS + 2 if algorithm == "wine_problem_tabulated"
+                        else MAX_DETECTING_ENGLISH_INPUT_LENGTH
+                        if algorithm == "detecting_english_programmatically"
                         else 516 if algorithm == "euler" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "euler":
+    if algorithm == "detecting_english_programmatically":
+        expected_from_source = detecting_english_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("detecting_english_programmatically expected_result must match the bounded dictionary contract")
+    elif algorithm == "euler":
         if len(values) < 4:
             expected_from_source = -2
         else:
@@ -1296,6 +1337,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = largest_of_very_large_numbers_expected(values)
         if expected != expected_from_source:
             raise ValueError("largest_of_very_large_numbers expected_result must match the bounded logarithmic comparison")
+    elif algorithm == "wine_problem_recursive":
+        expected_from_source = wine_problem_recursive_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("wine_problem_recursive expected_result must match the bounded endpoint-sale recurrence")
+    elif algorithm == "wine_problem_memoized":
+        expected_from_source = wine_problem_memoized_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("wine_problem_memoized expected_result must match the bounded endpoint-sale recurrence")
+    elif algorithm == "wine_problem_tabulated":
+        expected_from_source = wine_problem_tabulated_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("wine_problem_tabulated expected_result must match the bounded endpoint-sale recurrence")
     elif algorithm == "lexicographical_numbers":
         expected_from_source = lexicographical_numbers_expected(values)
         if expected != expected_from_source:
@@ -1368,6 +1421,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = linear_diophantine_equations_solver_expected(values)
         if expected != expected_from_source:
             raise ValueError("linear_diophantine_equations_solver expected_result must match the bounded Java extended-Euclidean solution branch")
+    elif algorithm == "is":
+        expected_from_source = is_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("is expected_result must match the bounded Lua uint53 predicate")
+    elif algorithm == "intensity_based_segmentation":
+        expected_from_source = intensity_based_segmentation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("intensity_based_segmentation expected_result must match the bounded Python ordered threshold overwrites")
+    elif algorithm == "kinematics":
+        expected_from_source = kinematics_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kinematics expected_result must match the bounded Java SUVAT equations scaled by two")
+    elif algorithm == "ibits":
+        expected_from_source = ibits_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ibits expected_result must match the bounded Lua bit-iterator yield count")
+    elif algorithm == "local_binary_pattern":
+        expected_from_source = local_binary_pattern_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("local_binary_pattern expected_result must match the bounded Python neighbor ordering")
     elif algorithm == "local_maximum_point":
         expected_from_source = local_maximum_point_expected(values)
         if expected != expected_from_source:
@@ -5230,6 +5303,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = parse_nested_brackets_expected(values)
         if expected != expected_from_source:
             raise ValueError("parse_nested_brackets expected_result must match the bounded depth-first tag traversal")
+    elif algorithm == "partition_linked_list":
+        expected_from_source = partition_linked_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("partition_linked_list expected_result must hash the stable less-than/pivot groups")
     elif algorithm == "partition":
         expected_from_source = partition_expected(values)
         if expected != expected_from_source:
@@ -5246,10 +5323,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = palindrome_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("palindrome_singly_linked_list expected_result must match Java's optimized integer-node comparison")
+    elif algorithm == "permutate_string":
+        expected_from_source = permutate_string_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("permutate_string expected_result must hash the sorted unique ASCII permutations")
     elif algorithm == "pattern_matching":
         expected_from_source = pattern_matching_expected(values)
         if expected != expected_from_source:
             raise ValueError("pattern_matching expected_result must match the bounded case-sensitive first-match search")
+    elif algorithm == "deep_clone_graph":
+        expected_from_source = deep_clone_graph_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("deep_clone_graph expected_result must match the reachable cloned graph fingerprint")
     return values
 
 

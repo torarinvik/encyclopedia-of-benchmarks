@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "python-pi-generator-spigot-i64-scalar-v1",
+  "algorithm": "pi_generator",
+  "function_symbol": "pi_generator",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "encoding": "number of decimal digits after the point",
+    "digits_range": [
+      0,
+      8
+    ]
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "32-bit FNV-1a hash of the ASCII decimal string returned by the pinned spigot",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Python calculate_pi uses the Rabinowitz-Wagon spigot state (q,r,t,k,n,m), appending digit n and a decimal point after the first digit until the requested fractional digit count is reached. The benchmark preserves the loop and limits precision to 8 digits for portable signed-64-bit intermediates."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "0_fractional_digits",
+      "input_value": 0,
+      "expected_result": 2180007940
+    },
+    {
+      "id": "1_fractional_digits",
+      "input_value": 1,
+      "expected_result": 3259083631
+    },
+    {
+      "id": "3_fractional_digits",
+      "input_value": 3,
+      "expected_result": 5173328
+    },
+    {
+      "id": "5_fractional_digits",
+      "input_value": 5,
+      "expected_result": 1689936306
+    },
+    {
+      "id": "8_fractional_digits",
+      "input_value": 8,
+      "expected_result": 2806855189
+    },
+    {
+      "id": "negative_precision",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound",
+      "input_value": 9,
+      "expected_result": -1
+    }
+  ]
+}

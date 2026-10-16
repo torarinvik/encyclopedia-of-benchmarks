@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn intensity_based_segmentation(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>12{return -1;}let a=unsafe{std::slice::from_raw_parts(v,n)};let k=a[0];if !(0..=4).contains(&k)||n<=k as usize+1||n>k as usize+8||a[1..].iter().any(|&x|!(0..=255).contains(&x)){return -1;}let(mut out,mut place)=(0,1);for p in k as usize+1..n{let mut label=0;for i in 0..k as usize{if a[p]>a[1+i]{label=i as i64+1;}}out+=label*place;place*=5;}out}

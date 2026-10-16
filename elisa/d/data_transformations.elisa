@@ -1,0 +1,75 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const data_transformations_max_sample_count: usize = 128
+
+def data_transformations_round_three_decimals(value: f64) -> f64:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    negative: bool = (bits >> 63) != 0
+    exponent: i64 = ((bits >> 52) & 2047).i64()
+    fraction: u64 = bits & ((u64(1) << 52) - 1)
+    significand: u64 = fraction
+    if exponent != 0: significand <- significand | (u64(1) << 52)
+    exponent2: i64 = -1074
+    if exponent != 0: exponent2 <- exponent - 1023 - 52
+    scaled: u64 = significand * 1000
+    rounded: mutable u64 = 0
+    if exponent2 >= 0:
+        rounded <- scaled << exponent2.usize()
+    else:
+        shift: usize = (-exponent2).usize()
+        if shift < 64:
+            rounded <- scaled >> shift
+            if shift > 0:
+                remainder: u64 = scaled & ((u64(1) << shift) - 1)
+                half: u64 = u64(1) << (shift - 1)
+                if remainder > half or (remainder == half and (rounded & 1) != 0): rounded <- rounded + 1
+    result: f64 = rounded.f64() / 1000.0
+    if negative: return -result
+    return result
+
+def data_transformations_put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def data_transformations_impl(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > data_transformations_max_sample_count + 2: return -1
+    mode: i64 = values[0]
+    count_value: i64 = values[1]
+    if (mode != 0 and mode != 1) or count_value < 2 or count_value > 128 or length != count_value.usize() + 2: return -1
+    count: usize = count_value.usize()
+    minimum: mutable i64 = values[2]
+    maximum: mutable i64 = values[2]
+    sum: mutable i64 = 0
+    sum_squares: mutable i64 = 0
+    for index in 0..<count:
+        value: i64 = values[index + 2]
+        if value < -100000 or value > 100000: return -1
+        if value < minimum: minimum <- value
+        if value > maximum: maximum <- value
+        sum <- sum + value
+        sum_squares <- sum_squares + value * value
+    if minimum == maximum: return -1
+    output_bytes: usize = count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    if mode == 0:
+        span: f64 = (maximum - minimum).f64()
+        for index in 0..<count:
+            normalized: f64 = (values[index + 2] - minimum).f64() / span
+            data_transformations_put_f64_le(data_transformations_round_three_decimals(normalized), output, index * 8)
+    else:
+        average: f64 = sum.f64() / count.f64()
+        variance_numerator: i64 = count.i64() * sum_squares - sum * sum
+        variance_denominator: f64 = (count * (count - 1)).f64()
+        deviation: f64 = sqrt(variance_numerator.f64() / variance_denominator)
+        for index in 0..<count:
+            standardized: f64 = (values[index + 2].f64() - average) / deviation
+            data_transformations_put_f64_le(data_transformations_round_three_decimals(standardized), output, index * 8)
+    output_bytes.i64()
+
+export fn data_transformations(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = data_transformations_impl

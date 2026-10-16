@@ -1,0 +1,2 @@
+fn mix(h:u32,b:u8)u32{return (h^b)*%16777619;}
+export fn pi_generator(digits:i64)i64{if(digits<0 or digits>8)return -1;var q:i64=1;var r:i64=0;var t:i64=1;var k:i64=1;var n:i64=3;var m:i64=3;var counter:i64=0;var h:u32=2166136261;while(counter!=digits+1){if(4*q+r-t<n*t){h=mix(h,@intCast(48+n));if(counter==0)h=mix(h,'.');if(digits==counter)break;counter+=1;const nr=10*(r-n*t);n=(10*(3*q+r))/t-10*n;q*=10;r=nr;}else{const nr=(2*q+r)*m;const nn=(q*(7*k)+2+(r*m))/(t*m);q*=k;t*=m;m+=2;k+=1;n=nn;r=nr;}}return @intCast(h);}

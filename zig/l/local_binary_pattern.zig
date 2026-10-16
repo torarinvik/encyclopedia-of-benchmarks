@@ -1,0 +1,1 @@
+export fn local_binary_pattern(v:[*]const i64,n:usize)i64{if(n!=9)return -1;for(0..9)|i|{if(v[i]<0 or v[i]>255)return -1;}const ix=[_]usize{2,5,1,8,7,6,3,0};var out:i64=0;for(0..8)|i|{if(v[ix[i]]>=v[4])out|=@as(i64,1)<<@intCast(i);}return out;}

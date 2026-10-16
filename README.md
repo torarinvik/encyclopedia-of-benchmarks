@@ -14,7 +14,7 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,841 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,886 reviewed source candidates, of which 2,575 map to complete benchmark files; 299 sources are excluded from portable benchmark coverage: 28 invalid and 271 non-benchmarkable. The pinned inventory contains 3,853 candidate records, with 979 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 1,853 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,902 reviewed source candidates, of which 2,588 map to complete benchmark files; 300 sources are excluded from portable benchmark coverage: 28 invalid and 272 non-benchmarkable. The pinned inventory contains 3,854 candidate records, with 966 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
 
 
 [Directed simple cycles](benchmarks/d/directed_simple_cycles/README.md) ports the pinned Java DFS enumerator to all nine languages, preserving directed-cycle contents and source traversal order.
@@ -196,6 +196,9 @@ C LeetCode candidates 461 and 485 are reviewed aliases of hamming_distance and m
 
 [Count Segments in a String](benchmarks/c/count_segments/README.md) ports C LeetCode 434 to all nine languages. The explicit-length byte contract passed 8,722 oracle arrays per language and recorded all 15 workload cases.
 
+
+[Data normalization and standardization](benchmarks/d/data_normalization_standardization/README.md) ports the pinned R min-max and sample-standardization functions to all nine languages, preserving the sample-SD denominator.
+[Data transformations](benchmarks/d/data_transformations/README.md) ports the pinned Python min-max and sample-standardization functions to all nine languages, including the source's three-decimal ties-to-even rounding.
 
 [Detect Capital Usage](benchmarks/d/detect_capital_usage/README.md) captures both C LeetCode 520 implementations: uppercase counting and repeated whole-word scans. Both variants passed 33,295 oracle arrays per language across all nine languages and recorded 17 workload cases each.
 
@@ -532,3 +535,8 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 [Linear Diophantine equation solvability](benchmarks/l/linear_diophantine_eqn/README.md) ports the matching Dart recursive-gcd and MATLAB/Octave gcd-divisibility checks across all nine languages.
 [Local maximum point](benchmarks/l/local_maximum_point/README.md) ports the pinned JavaScript divide-and-conquer peak search across all nine languages, preserving its midpoint tie-branch behavior.
 [Linear Diophantine equations solver](benchmarks/l/linear_diophantine_equations_solver/README.md) ports the pinned Java extended-Euclidean particular-solution solver across all nine languages and packs its bounded solution pair.
+[Lua uint53 predicate](benchmarks/i/is/README.md) ports the pinned integral, nonnegative, below-2^53 check across all nine languages.
+[Intensity based segmentation](benchmarks/i/intensity_based_segmentation/README.md) ports the pinned Python ordered-threshold overwrite behavior across all nine languages and packs bounded pixel labels.
+[Kinematics](benchmarks/k/kinematics/README.md) ports the four pinned Java SUVAT formulas across all nine languages with a bounded, exactly scaled integer result.
+[Lua uint53 bit iterator](benchmarks/i/ibits/README.md) ports the pinned least-significant-first iterator across all nine languages and reports its bounded yield count.
+[Local binary pattern](benchmarks/l/local_binary_pattern/README.md) ports the pinned Python neighbor comparisons and weight order across all nine languages for a bounded interior 3x3 patch.
