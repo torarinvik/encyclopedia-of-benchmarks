@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-single-bit-manipulation-operations-i64-v1",
+  "algorithm": "single_bit_manipulation_operations",
+  "function_symbol": "single_bit_manipulation_operations",
+  "description": "Apply one of six pinned source bit operations to a bounded signed 32-bit number.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[opcode,number,position]",
+    "exact_length": 3,
+    "opcode_values": {
+      "0": "set_bit",
+      "1": "clear_bit",
+      "2": "flip_bit",
+      "3": "is_bit_set",
+      "4": "get_bit",
+      "5": "clear_least_significant_set_bit"
+    },
+    "number_range": [
+      -2147483648,
+      2147483647
+    ],
+    "position_range_for_opcodes_0_to_4": [
+      0,
+      31
+    ],
+    "opcode_5_position": -1,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "exact Python integer result; boolean results encoded as 0 or 1",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "bit_manipulation/single_bit_manipulation_operations.py",
+    "methods": "set_bit,clear_bit,flip_bit,is_bit_set,get_bit,clear_least_significant_set_bit"
+  },
+  "cases": [
+    {
+      "id": "set_bit",
+      "input_values": [
+        0,
+        13,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 15
+    },
+    {
+      "id": "clear_bit",
+      "input_values": [
+        1,
+        18,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 16
+    },
+    {
+      "id": "flip_bit",
+      "input_values": [
+        2,
+        5,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 7
+    },
+    {
+      "id": "is_bit_set_true",
+      "input_values": [
+        3,
+        10,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "is_bit_set_false",
+      "input_values": [
+        3,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "get_bit",
+      "input_values": [
+        4,
+        10,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "clear_lsb",
+      "input_values": [
+        5,
+        44,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": 40
+    },
+    {
+      "id": "clear_lsb_negative",
+      "input_values": [
+        5,
+        -5,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -6
+    },
+    {
+      "id": "set_position_31",
+      "input_values": [
+        0,
+        0,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 2147483648
+    },
+    {
+      "id": "invalid_opcode",
+      "input_values": [
+        6,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_position",
+      "input_values": [
+        2,
+        0,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_lsb_position",
+      "input_values": [
+        5,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "number_outside_i32",
+      "input_values": [
+        0,
+        2147483648,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

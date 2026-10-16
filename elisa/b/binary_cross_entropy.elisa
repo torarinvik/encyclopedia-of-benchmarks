@@ -1,0 +1,27 @@
+extern fn double log(double value);
+const INVALID_RESULT: f64 = -1.0e300
+def binary_cross_entropy_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() || length < 1 || length > 513:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 1 || count > 256 || length != (1 + 2 * count).usize():
+        return INVALID_RESULT
+    count_usize: usize = count.usize()
+    index: mutable usize = 0
+    while index < count_usize:
+        label: i64 = values[1 + index]
+        probability: i64 = values[1 + count_usize + index]
+        if (label != 0 && label != 1) || probability < 0 || probability > 1000000:
+            return INVALID_RESULT
+        index <- index + 1
+    total: mutable f64 = 0.0
+    index <- 0
+    while index < count_usize:
+        label: f64 = values[1 + index].f64()
+        probability: mutable f64 = values[1 + count_usize + index].f64() / 1000000.0
+        if probability < 1e-15: probability <- 1e-15
+        if probability > 1.0 - 1e-15: probability <- 1.0 - 1e-15
+        total <- total - label * log(probability) - (1.0 - label) * log(1.0 - probability)
+        index <- index + 1
+    total / count.f64()
+export fn binary_cross_entropy(values: i64&, length: usize) -> f64 = binary_cross_entropy_impl

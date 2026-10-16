@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "transposition-cipher-route-ascii-v1",
+  "algorithm": "transposition_cipher",
+  "function_symbol": "transposition_cipher",
+  "input": {
+    "kind": "signed_i64_array_packed_route_transposition_ascii",
+    "length_range": [
+      6,
+      259
+    ],
+    "text_length_range": [
+      3,
+      256
+    ],
+    "key_range": [
+      2,
+      255
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "mode_values": {
+      "0": "encrypt",
+      "1": "decrypt"
+    },
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "raw transformed ASCII bytes without a terminator or CLI pipe suffix"
+  },
+  "workspace": {
+    "bytes": 256,
+    "reason": "The reusable transform returns at most the 256-byte input message."
+  },
+  "cases": [
+    {
+      "id": "pinned_python_encrypt_example",
+      "input_values": [
+        0,
+        6,
+        13,
+        72,
+        97,
+        114,
+        115,
+        104,
+        105,
+        108,
+        32,
+        68,
+        97,
+        114,
+        106,
+        105
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "486c696120724473616872696a"
+    },
+    {
+      "id": "pinned_python_decrypt_example",
+      "input_values": [
+        1,
+        6,
+        13,
+        72,
+        108,
+        105,
+        97,
+        32,
+        114,
+        68,
+        115,
+        97,
+        104,
+        114,
+        105,
+        106
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "4861727368696c204461726a69"
+    },
+    {
+      "id": "uneven_columns_encrypt",
+      "input_values": [
+        0,
+        4,
+        8,
+        65,
+        32,
+        32,
+        66,
+        32,
+        67,
+        32,
+        32
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "4120204320204220"
+    },
+    {
+      "id": "uneven_columns_decrypt",
+      "input_values": [
+        1,
+        4,
+        8,
+        65,
+        32,
+        32,
+        67,
+        32,
+        32,
+        66,
+        32
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "4120204220432020"
+    },
+    {
+      "id": "key_two_encrypt",
+      "input_values": [
+        0,
+        2,
+        7,
+        0,
+        32,
+        127,
+        1,
+        65,
+        90,
+        32
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "007f412020015a"
+    },
+    {
+      "id": "key_two_decrypt",
+      "input_values": [
+        1,
+        2,
+        7,
+        0,
+        127,
+        65,
+        32,
+        32,
+        1,
+        90
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "00207f01415a20"
+    },
+    {
+      "id": "key_n_minus_one_encrypt",
+      "input_values": [
+        0,
+        6,
+        7,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "41474243444546"
+    },
+    {
+      "id": "ascii_control_and_high_boundary",
+      "input_values": [
+        0,
+        2,
+        6,
+        0,
+        1,
+        31,
+        32,
+        126,
+        127
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "001f7e01207f"
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2,
+        2,
+        3,
+        65,
+        66,
+        67
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_key_too_small",
+      "input_values": [
+        0,
+        1,
+        3,
+        65,
+        66,
+        67
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_key_not_less_than_length",
+      "input_values": [
+        0,
+        3,
+        3,
+        65,
+        66,
+        67
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_length_below_minimum",
+      "input_values": [
+        0,
+        2,
+        2,
+        65,
+        66
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_declared_length",
+      "input_values": [
+        0,
+        2,
+        4,
+        65,
+        66,
+        67
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii_byte",
+      "input_values": [
+        0,
+        2,
+        3,
+        65,
+        128,
+        67
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

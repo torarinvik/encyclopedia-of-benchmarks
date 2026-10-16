@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+static void put64(std::uint8_t*out,std::size_t*p,std::int64_t x){std::uint64_t v=(std::uint64_t)x;for(std::size_t j=0;j<8;j++){out[(*p)++]=(std::uint8_t)v;v>>=8;}}
+extern "C" std::int64_t swap_nodes(const std::int64_t*input,std::size_t length,std::uint8_t*output,std::size_t capacity){if(input==NULL||length<3)return -1;std::int64_t nn=input[0];if(nn<0||nn>64||length!=(std::size_t)nn+3)return -1;std::size_t n=(std::size_t)nn;for(std::size_t i=0;i<n;i++)if(input[1+i]<(-2147483647LL-1)||input[1+i]>2147483647LL)return -1;std::int64_t a=input[1+n],b=input[2+n];if(a<(-2147483647LL-1)||a>2147483647LL||b<(-2147483647LL-1)||b>2147483647LL)return -1;std::size_t need=8+8*n;if(output==NULL||capacity<need)return -2;std::size_t ia=n,ib=n;if(a!=b){for(std::size_t i=0;i<n;i++){if(ia==n&&input[1+i]==a)ia=i;if(ib==n&&input[1+i]==b)ib=i;}}
+ std::size_t pos=0;put64(output,&pos,nn);for(std::size_t i=0;i<n;i++){std::int64_t x=input[1+i];if(a!=b&&ia<n&&ib<n){if(i==ia)x=b;else if(i==ib)x=a;}put64(output,&pos,x);}return (std::int64_t)pos;}

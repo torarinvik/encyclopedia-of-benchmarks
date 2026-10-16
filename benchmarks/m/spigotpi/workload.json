@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-go-spigotpi-digit-array-v1",
+  "algorithm": "spigotpi",
+  "function_symbol": "spigotpi",
+  "description": "Return the requested number of leading decimal digits of pi as ASCII bytes.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n]",
+    "exact_packed_length": 1,
+    "maximum_input_values_for_malformed_cases": 2,
+    "n_range": [
+      0,
+      256
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "n ASCII decimal digit bytes of pi, beginning with 3 and with no decimal point",
+    "maximum_bytes": 256,
+    "successful_result": "output byte length",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "reason": "The output is exactly n bytes for n in 0 through 256."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Go",
+    "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+    "path": "math/pi/spigotpi.go",
+    "method": "Spigot(n)"
+  },
+  "oracle_method": "Independent Chudnovsky-series computation using Python Decimal.",
+  "cases": [
+    {
+      "id": "zero_digits",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "description": "The empty digit request returns an empty byte sequence."
+    },
+    {
+      "id": "first_digit",
+      "input_values": [
+        1
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "33"
+    },
+    {
+      "id": "two_digits",
+      "input_values": [
+        2
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "3331"
+    },
+    {
+      "id": "ten_digits",
+      "input_values": [
+        10
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "33313431353932363534"
+    },
+    {
+      "id": "medium_precision",
+      "input_values": [
+        50
+      ],
+      "expected_result": 50,
+      "expected_output_hex": "3331343135393236353335383937393332333834363236343333383332373935303238383431393731363933393933373531"
+    },
+    {
+      "id": "maximum_precision",
+      "input_values": [
+        256
+      ],
+      "expected_result": 256,
+      "expected_output_hex": "33313431353932363533353839373933323338343632363433333833323739353032383834313937313639333939333735313035383230393734393434353932333037383136343036323836323038393938363238303334383235333432313137303637393832313438303836353133323832333036363437303933383434363039353530353832323331373235333539343038313238343831313137343530323834313032373031393338353231313035353539363434363232393438393534393330333831393634343238383130393735363635393333343436313238343735363438323333373836373833313635323731323031393039313435363439"
+    },
+    {
+      "id": "missing_count",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_count",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_above_limit",
+      "input_values": [
+        257
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

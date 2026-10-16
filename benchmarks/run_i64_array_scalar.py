@@ -226,6 +226,8 @@ from persistent_segment_tree_oracle import MAX_INPUT_LENGTH as MAX_PERSISTENT_SE
 from persistent_segment_tree_oracle import expected_result as persistent_segment_tree_expected
 from matrix_based_game_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_BASED_GAME_INPUT_LENGTH
 from matrix_based_game_oracle import expected_result as matrix_based_game_expected
+from kth_element_finder_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH
+from kth_element_finder_oracle import expected_result as kth_element_finder_expected
 from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
 from submatrix_oracle import expected_result as submatrix_expected
 from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
@@ -993,7 +995,8 @@ def problem54_player_one_wins(values: list[int]) -> int:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
+    max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
+                        MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
                         MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
                         MAX_EROSION_OPERATION_INPUT_LENGTH if algorithm == "erosion_operation" else
                         MAX_EDMONDS_INPUT_LENGTH if algorithm == "edmonds" else
@@ -5990,6 +5993,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = erosion_operation_expected(values)
         if expected != expected_from_source:
             raise ValueError("erosion_operation expected_result must match the bounded binary cross-kernel erosion")
+    elif algorithm == "kth_element_finder":
+        expected_from_source = kth_element_finder_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kth_element_finder expected_result must match the bounded heap selection contract")
     return values
 
 

@@ -1,0 +1,94 @@
+def merkle_gcd(a_value: u64, b_value: u64) -> u64:
+    a: mutable u64 = a_value
+    b: mutable u64 = b_value
+    while b != 0:
+        remainder: u64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def merkle_add_mod(a: u64, b: u64, modulus: u64) -> u64:
+    if a >= modulus - b:
+        a - (modulus - b)
+    else:
+        a + b
+
+def merkle_mul_mod(a_value: u64, b_value: u64, modulus: u64) -> u64:
+    a: mutable u64 = a_value % modulus
+    b: mutable u64 = b_value
+    result: mutable u64 = 0
+    while b != 0:
+        if (b & 1) != 0: result <- merkle_add_mod(result, a, modulus)
+        b <- b >> 1
+        if b != 0: a <- merkle_add_mod(a, a, modulus)
+    result
+
+def merkle_inverse_mod(value: u64, modulus: u64) -> u64:
+    old_r: mutable u64 = modulus
+    r: mutable u64 = value % modulus
+    old_t: mutable u64 = 0
+    t: mutable u64 = 1
+    while r != 0:
+        quotient: u64 = old_r / r
+        next_r: u64 = old_r % r
+        product: u64 = merkle_mul_mod(quotient % modulus, t, modulus)
+        next_t: u64 = if old_t >= product: old_t - product else: modulus - (product - old_t)
+        old_r <- r
+        r <- next_r
+        old_t <- t
+        t <- next_t
+    old_t
+
+def merkle_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def merkle_hellman_cryptosystem_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 12 or length > 43: return -1
+    if input[0] < 0 or input[0] > 127 or input[10] < 1 or input[10] > 32: return -1
+    draw_count: usize = input[10].usize()
+    if length != 11 + draw_count: return -1
+
+    easy: mutable u64[8] = zeroed
+    total: mutable u64 = 1.u64() << 32
+    for index in 0..8:
+        if input[1 + index] < 0 or input[1 + index] > 4294967295: return -1
+        easy[index] <- total + input[1 + index].u64()
+        total <- total + easy[index]
+    if input[9] < 0 or input[9] > 4294967295: return -1
+    modulus: u64 = total + input[9].u64()
+    for index in 0..draw_count:
+        draw_value: i64 = input[11 + index]
+        if draw_value < 0 or draw_value.u64() > modulus: return -1
+        divisor: u64 = merkle_gcd(draw_value.u64(), modulus)
+        if index + 1 < draw_count and divisor == 1: return -1
+        if index + 1 == draw_count and divisor != 1: return -1
+    if output == null or capacity < 17: return -2
+
+    multiplier: u64 = input[10 + draw_count].u64()
+    hard: mutable u64[8] = zeroed
+    for index in 0..8: hard[index] <- merkle_mul_mod(multiplier, easy[index], modulus)
+    message: u64 = input[0].u64()
+    ciphertext: mutable u64 = 0
+    bit_index: mutable i32 = 7
+    while bit_index >= 0:
+        if ((message >> bit_index.u32()) & 1) != 0:
+            ciphertext <- ciphertext + hard[7 - bit_index.usize()]
+        bit_index <- bit_index - 1
+
+    inverse: u64 = merkle_inverse_mod(multiplier, modulus)
+    residue: mutable u64 = merkle_mul_mod(inverse, ciphertext % modulus, modulus)
+    decoded: mutable u8 = 0
+    for index in 0..8:
+        weight: u64 = easy[7 - index]
+        if residue >= weight:
+            residue <- residue - weight
+            decoded <- decoded | (1.u8() << index.u32())
+    if residue != 0 or decoded.u64() != message: return -1
+    merkle_put_i64(output, 0, ciphertext.i64())
+    merkle_put_i64(output, 8, 1)
+    output[16] <- decoded
+    17
+
+export fn merkle_hellman_cryptosystem(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =
+    merkle_hellman_cryptosystem_impl

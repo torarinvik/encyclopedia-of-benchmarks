@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "merkle_tree-python-i64-array-bytes-v1",
+  "algorithm": "merkle_tree",
+  "function_symbol": "merkle_tree",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[leaf_count,(byte_length,ASCII bytes...)*]",
+    "leaf_count_range": [
+      1,
+      16
+    ],
+    "exact_packed_length": "1 + leaf_count + sum(leaf byte lengths)",
+    "maximum_packed_values": 1041,
+    "byte_length_range": [
+      0,
+      64
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_merkle_root",
+    "encoding": "64 lowercase ASCII hexadecimal bytes",
+    "meaning": "SHA-256 each leaf's raw bytes; hash ASCII lowercase hexadecimal child digests in pairs, duplicating an odd final child",
+    "maximum_output_bytes": 64,
+    "success_result": "number of root bytes written (64)",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 64
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "one_empty_leaf",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "65336230633434323938666331633134396166626634633839393666623932343237616534316534363439623933346361343935393931623738353262383535"
+    },
+    {
+      "id": "three_leaves",
+      "input_values": [
+        3,
+        2,
+        97,
+        98,
+        1,
+        99,
+        0
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "35646132633836646639343965663362383364626531636237636266383366383933323639633235323566306333383361303238326533366132306131386433"
+    },
+    {
+      "id": "odd_five_leaves",
+      "input_values": [
+        5,
+        1,
+        97,
+        1,
+        98,
+        1,
+        99,
+        1,
+        100,
+        1,
+        101
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "33363135653538363736386537303633353165333236373336653434363535346334393132336430653234633136396433656366396237393161383236333662"
+    },
+    {
+      "id": "invalid_empty_leaf_list",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_non_ascii",
+      "input_values": [
+        1,
+        1,
+        128
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_truncated_leaf",
+      "input_values": [
+        1,
+        2,
+        97
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_too_many_leaves",
+      "input_values": [
+        17,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        1,
+        1,
+        97
+      ],
+      "expected_result": -2,
+      "workspace_bytes": 63
+    }
+  ]
+}

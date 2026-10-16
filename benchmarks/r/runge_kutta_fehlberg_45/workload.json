@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "runge-kutta-fehlberg-45-fixed-step-i64-float64-v1",
+  "algorithm": "runge_kutta_fehlberg_45",
+  "function_symbol": "runge_kutta_fehlberg_45",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[function_id, y0_micro, x0_micro, h_micro, x_end_micro]",
+    "scale": 1000000,
+    "function_ids": {
+      "0": "y",
+      "1": "x",
+      "2": "x+y",
+      "3": "(x-y)/2",
+      "4": "1+y*y"
+    },
+    "coordinate_and_state_range_micro": [
+      -1000000,
+      1000000
+    ],
+    "step_size_range_micro": [
+      10000,
+      250000
+    ],
+    "function_4_additional_domain": "x0 >= 0 and y0 <= 0",
+    "step_count": "floor",
+    "maximum_steps": 64,
+    "exact_length": 5,
+    "maximum_length_values": 5,
+    "maximum_packed_bytes": 40,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "final y value after the pinned fixed-step update order",
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/numerical_analysis/runge_kutta_fehlberg_45.py",
+    "method": "runge_kutta_fehlberg_45"
+  },
+  "cases": [
+    {
+      "id": "exponential_growth",
+      "input_values": [
+        0,
+        500000,
+        0,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 0.824360631888241
+    },
+    {
+      "id": "derivative_x_signed_interval",
+      "input_values": [
+        1,
+        250000,
+        -500000,
+        125000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 0.2499999999999999
+    },
+    {
+      "id": "derivative_x_plus_y",
+      "input_values": [
+        2,
+        0,
+        0,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 0.14872126377648226
+    },
+    {
+      "id": "linear_decay_signed_interval",
+      "input_values": [
+        3,
+        300000,
+        -500000,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 0.19828584694479276
+    },
+    {
+      "id": "tangent_ode_safe_domain",
+      "input_values": [
+        4,
+        -250000,
+        0,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 0.2606975585426792
+    },
+    {
+      "id": "nonintegral_step_count",
+      "input_values": [
+        0,
+        250000,
+        100000,
+        200000,
+        630000
+      ],
+      "input_length": 5,
+      "expected_result": 0.3729561373259217
+    },
+    {
+      "id": "substep_interval",
+      "input_values": [
+        0,
+        0,
+        0,
+        250000,
+        100000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_function_id",
+      "input_values": [
+        5,
+        0,
+        0,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_reversed_interval",
+      "input_values": [
+        0,
+        0,
+        500000,
+        100000,
+        -500000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_too_many_steps",
+      "input_values": [
+        0,
+        0,
+        -1000000,
+        10000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_tangent_domain",
+      "input_values": [
+        4,
+        100000,
+        -500000,
+        100000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_step_size",
+      "input_values": [
+        0,
+        0,
+        0,
+        5000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,60 @@
+# Count the mines in each cell's eight surrounding positions on a rectangular board.
+const MS_MAX_DIM: usize = 32
+const MS_MAX_CELLS: usize = MS_MAX_DIM * MS_MAX_DIM
+const MS_MAX_OUTPUT: usize = 8 + 8 * MS_MAX_CELLS
+
+def ms_write_i64(output: mutable u8&, position_value: usize, value: i64) -> usize:
+    position: mutable usize = position_value
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[position] <- ((bits >> (8 * byte)) & 255).u8()
+        position <- position + 1
+    position
+
+def minesweeper_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > 2 + MS_MAX_CELLS:
+        return -1
+    rows_value: i64 = input[0]
+    cols_value: i64 = input[1]
+    if rows_value < 1 or rows_value > MS_MAX_DIM.i64() or cols_value < 1 or cols_value > MS_MAX_DIM.i64():
+        return -1
+    rows: usize = rows_value.usize()
+    cols: usize = cols_value.usize()
+    count: usize = rows * cols
+    if length != 2 + count:
+        return -1
+
+    cells: mutable u8[MS_MAX_CELLS] = zeroed
+    for index in 0..<count:
+        value: i64 = input[2 + index]
+        if value != 0 and value != 1:
+            return -1
+        cells[index] <- value.u8()
+
+    neighbors: mutable u8[MS_MAX_CELLS] = zeroed
+    for row in 0..<rows:
+        for col in 0..<cols:
+            mines: mutable usize = 0
+            row_start: usize = if row == 0: 0 else: row - 1
+            row_end: usize = if row + 1 < rows: row + 1 else: rows - 1
+            col_start: usize = if col == 0: 0 else: col - 1
+            col_end: usize = if col + 1 < cols: col + 1 else: cols - 1
+            for neighbor_row in row_start..<(row_end + 1):
+                for neighbor_col in col_start..<(col_end + 1):
+                    if neighbor_row != row or neighbor_col != col:
+                        if cells[neighbor_row * cols + neighbor_col] == 1:
+                            mines <- mines + 1
+            neighbors[row * cols + col] <- mines.u8()
+
+    needed: usize = 8 + 8 * count
+    if output == null or output_capacity < needed:
+        return -2
+    written: mutable usize = 0
+    written <- ms_write_i64(output, written, count.i64())
+    for index in 0..<count:
+        written <- ms_write_i64(output, written, neighbors[index].i64())
+    written.i64()
+
+export fn minesweeper(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = minesweeper_impl

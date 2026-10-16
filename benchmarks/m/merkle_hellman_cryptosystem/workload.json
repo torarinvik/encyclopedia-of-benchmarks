@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-ruby-merkle-hellman-one-byte-v1",
+  "algorithm": "merkle_hellman_cryptosystem",
+  "function_symbol": "merkle_hellman_cryptosystem",
+  "description": "Build an eight-item Merkle-Hellman knapsack from explicit RNG draws, encrypt one ASCII byte, and decrypt it.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[message_byte,weight_rand[8],modulus_rand,a_draw_count,a_draws[a_draw_count]]",
+    "exact_length": "11 + a_draw_count",
+    "message_byte_range": [0, 127],
+    "random_draw_range": [0, 4294967295],
+    "a_draw_range": "inclusive 0..generated_modulus",
+    "a_draw_count_range": [1, 32],
+    "maximum_packed_values": 43,
+    "maximum_serialized_bytes": 344,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "ciphertext little-endian i64, decoded length little-endian i64, decoded ASCII byte",
+    "maximum_bytes": 17,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 17,
+    "reason": "A successful call emits one ciphertext, the decoded byte count, and one decoded byte."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Ruby",
+    "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+    "path": "ciphers/merkle_hellman_cryptosystem.rb",
+    "class": "MerkleHellman"
+  },
+  "cases": [
+    {
+      "id": "ascii_A_with_rejected_multiplier_draw",
+      "input_values": [65, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": 17,
+      "expected_output_hex": "9cffffff85000000010000000000000041"
+    },
+    {
+      "id": "ascii_del_with_rejected_multiplier_draw",
+      "input_values": [127, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": 17,
+      "expected_output_hex": "9cfffffff901000001000000000000007f"
+    },
+    {
+      "id": "ascii_nul_with_rejected_multiplier_draw",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": 17,
+      "expected_output_hex": "0000000000000000010000000000000000"
+    },
+    {
+      "id": "invalid_early_coprime_draw",
+      "input_values": [65, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 3, 5],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_final_non_coprime_draw",
+      "input_values": [65, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 2],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_random_draw_bound",
+      "input_values": [65, 4294967296, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_ascii_message",
+      "input_values": [128, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [65, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2, 3],
+      "input_length": 13,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 16
+    },
+    {
+      "id": "truncated_multiplier_draws",
+      "input_values": [65, 0, 0, 0, 0, 0, 0, 0, 0, 100, 2, 2],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

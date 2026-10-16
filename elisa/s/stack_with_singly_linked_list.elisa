@@ -1,0 +1,91 @@
+const STACK_MAX_OPERATIONS: usize = 64
+const STACK_MAX_INPUT_LENGTH: usize = 129
+const STACK_MAX_OUTPUT_BYTES: usize = 1536
+
+def stack_singly_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def stack_singly_write_record(output: mutable u8&, offset: usize,
+                              opcode: i64, tag: i64, value: i64) -> void:
+    stack_singly_write_i64(output, offset, opcode)
+    stack_singly_write_i64(output, offset + 8, tag)
+    stack_singly_write_i64(output, offset + 16, value)
+
+def stack_with_singly_linked_list_impl(input: i64&, length: usize,
+                                       output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > STACK_MAX_INPUT_LENGTH: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    opcodes: mutable i64[64] = zeroed
+    arguments: mutable i64[64] = zeroed
+    cursor: mutable usize = 1
+    index: mutable usize = 0
+    while index < count:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        opcodes[index] <- opcode
+        if opcode == 1:
+            if cursor >= length: return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -2147483648 or value > 2147483647: return -1
+            arguments[index] <- value
+        else:
+            if opcode < 2 or opcode > 5: return -1
+        index <- index + 1
+    if cursor != length: return -1
+
+    node_values: mutable i64[65] = zeroed
+    next_ids: mutable usize[65] = zeroed
+    buffer: mutable u8[1536] = zeroed
+    node_count: mutable usize = 0
+    head: mutable usize = 0
+    written: mutable usize = 0
+    index <- 0
+    while index < count:
+        opcode: i64 = opcodes[index]
+        tag: mutable i64 = 2
+        value: mutable i64 = 0
+        if opcode == 1:
+            node_count <- node_count + 1
+            node_values[node_count] <- arguments[index]
+            next_ids[node_count] <- head
+            head <- node_count
+        else:
+            if opcode == 2 or opcode == 3:
+                if head == 0:
+                    stack_singly_write_record(buffer[0], written, opcode, 4, 2)
+                    written <- written + 24
+                    break
+                tag <- 0
+                value <- node_values[head]
+                if opcode == 2: head <- next_ids[head]
+            else:
+                if opcode == 4:
+                    head <- 0
+                else:
+                    tag <- 0
+                    node: mutable usize = head
+                    while node != 0:
+                        value <- value + 1
+                        node <- next_ids[node]
+        stack_singly_write_record(buffer[0], written, opcode, tag, value)
+        written <- written + 24
+        index <- index + 1
+
+    if output == null or capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- buffer[index]
+        index <- index + 1
+    written.i64()
+
+export fn stack_with_singly_linked_list(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = stack_with_singly_linked_list_impl

@@ -249,6 +249,26 @@ from move_to_front_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MOVE_TO_FRONT
 from move_to_front_oracle import expected_output as move_to_front_expected_output
 from rail_fence_oracle import MAX_INPUT_LENGTH as MAX_RAIL_FENCE_PARSEABLE_INPUT_LENGTH
 from rail_fence_oracle import expected_output as rail_fence_expected_output
+from merkle_tree_oracle import MAX_INPUT_LENGTH as MAX_MERKLE_TREE_INPUT_LENGTH
+from merkle_tree_oracle import expected_result as merkle_tree_expected_output
+from sum_of_subsets_oracle import MAX_INPUT_LENGTH as MAX_SUM_OF_SUBSETS_INPUT_LENGTH
+from sum_of_subsets_oracle import expected_result as sum_of_subsets_expected_output
+from swap_nodes_oracle import MAX_INPUT_LENGTH as SWAP_NODES_MAX_INPUT_LENGTH
+from swap_nodes_oracle import expected_result as swap_nodes_expected_output
+from xor_linked_list_oracle import MAX_INPUT_LENGTH as XOR_LINKED_LIST_MAX_INPUT_LENGTH
+from xor_linked_list_oracle import expected_output as xor_linked_list_expected_output
+from sierpinski_carpet_oracle import MAX_INPUT_LENGTH as SIERPINSKI_CARPET_MAX_INPUT_LENGTH
+from sierpinski_carpet_oracle import expected_output as sierpinski_carpet_expected_output
+from simple_blockchain_oracle import MAX_INPUT_VALUES as SIMPLE_BLOCKCHAIN_MAX_INPUT_LENGTH
+from simple_blockchain_oracle import expected_result as simple_blockchain_expected_output
+from map_reduce_oracle import MAX_INPUT_LENGTH as MAX_MAP_REDUCE_INPUT_LENGTH
+from map_reduce_oracle import expected_output as map_reduce_expected_output
+from transposition_cipher_oracle import MAX_INPUT_LENGTH as MAX_TRANSPOSITION_CIPHER_INPUT_LENGTH
+from transposition_cipher_oracle import expected_output as transposition_cipher_expected_output
+from spigotpi_oracle import MAX_INPUT_LENGTH as MAX_SPIGOTPI_INPUT_LENGTH
+from spigotpi_oracle import expected_output as spigotpi_expected_output
+from median_finder_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_FINDER_INPUT_LENGTH
+from median_finder_oracle import expected_output as median_finder_expected_output
 from word_boggle_oracle import expected_output as word_boggle_expected_output
 from dancing_links_oracle import expected_output as dancing_links_expected_output
 from convolution_neural_network_oracle import expected_output as convolution_neural_network_expected_output
@@ -1471,6 +1491,16 @@ RECORDER_WORKSPACE_ALGORITHMS.add('aatree')
 RECORDER_WORKSPACE_ALGORITHMS.add('add_two_numbers')
 RECORDER_WORKSPACE_ALGORITHMS.add('longest_consecutive_characters')
 RECORDER_WORKSPACE_ALGORITHMS.add('rail_fence')
+RECORDER_WORKSPACE_ALGORITHMS.add('map_reduce')
+RECORDER_WORKSPACE_ALGORITHMS.add('transposition_cipher')
+RECORDER_WORKSPACE_ALGORITHMS.add('spigotpi')
+RECORDER_WORKSPACE_ALGORITHMS.add('median_finder')
+RECORDER_WORKSPACE_ALGORITHMS.add('merkle_tree')
+RECORDER_WORKSPACE_ALGORITHMS.add('sum_of_subsets')
+RECORDER_WORKSPACE_ALGORITHMS.add('swap_nodes')
+RECORDER_WORKSPACE_ALGORITHMS.add('xor_linked_list')
+RECORDER_WORKSPACE_ALGORITHMS.add('sierpinski_carpet')
+RECORDER_WORKSPACE_ALGORITHMS.add('simple_blockchain')
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
@@ -1554,6 +1584,26 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return move_to_front_expected_output(values)
     if algorithm == "rail_fence":
         return rail_fence_expected_output(values)
+    if algorithm == "merkle_tree":
+        return merkle_tree_expected_output(values)
+    if algorithm == "sum_of_subsets":
+        return sum_of_subsets_expected_output(values)
+    if algorithm == "swap_nodes":
+        return swap_nodes_expected_output(values)
+    if algorithm == "xor_linked_list":
+        return xor_linked_list_expected_output(values)
+    if algorithm == "sierpinski_carpet":
+        return sierpinski_carpet_expected_output(values)
+    if algorithm == "simple_blockchain":
+        return simple_blockchain_expected_output(values)
+    if algorithm == "map_reduce":
+        return map_reduce_expected_output(values)
+    if algorithm == "transposition_cipher":
+        return transposition_cipher_expected_output(values)
+    if algorithm == "spigotpi":
+        return spigotpi_expected_output(values)
+    if algorithm == "median_finder":
+        return median_finder_expected_output(values)
 
     if algorithm == "word_boggle":
         return word_boggle_expected_output(values)
@@ -12110,6 +12160,16 @@ def main() -> int:
                             1 + 3 * UNIFORM_CROSSOVER_MAX_COUNT if algorithm == "uniform_crossover" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
                             MAX_RAIL_FENCE_PARSEABLE_INPUT_LENGTH if algorithm == "rail_fence" else
+                            MAX_MERKLE_TREE_INPUT_LENGTH if algorithm == "merkle_tree" else
+                            MAX_SUM_OF_SUBSETS_INPUT_LENGTH if algorithm == "sum_of_subsets" else
+                            SWAP_NODES_MAX_INPUT_LENGTH if algorithm == "swap_nodes" else
+                            XOR_LINKED_LIST_MAX_INPUT_LENGTH if algorithm == "xor_linked_list" else
+                            SIERPINSKI_CARPET_MAX_INPUT_LENGTH if algorithm == "sierpinski_carpet" else
+                            SIMPLE_BLOCKCHAIN_MAX_INPUT_LENGTH if algorithm == "simple_blockchain" else
+                            MAX_MAP_REDUCE_INPUT_LENGTH + 1 if algorithm == "map_reduce" else
+                            MAX_TRANSPOSITION_CIPHER_INPUT_LENGTH + 1 if algorithm == "transposition_cipher" else
+                            MAX_SPIGOTPI_INPUT_LENGTH if algorithm == "spigotpi" else
+                            MAX_MEDIAN_FINDER_INPUT_LENGTH if algorithm == "median_finder" else
                             4 if algorithm == "midpoint_integration" else
                             2 if algorithm == "hilbert_curve" else
                             74 if algorithm == "hill_encoder" else
@@ -12293,7 +12353,7 @@ def main() -> int:
                 "logistic_regression_python_binary_gd", "logistic_regression_rust_binary_gd",
                 "logistic_regression_cost_gradient",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
-                "particle_swarm_optimization", "convolve_1d", "convolution_fft",
+                "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder",
                 "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0

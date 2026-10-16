@@ -1,0 +1,29 @@
+def put64(output: mutable u8&, pos: mutable usize&, value: i64):
+    bits: u64 = value.u64()
+    for j in 0..<8: output[pos] <- ((bits >> (8*j)) & 255).u8(); pos <- pos+1
+
+def swap_nodes_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 3: return -1
+    n0: i64 = input[0]
+    if n0 < 0 || n0 > 64 || length != (n0+3).usize(): return -1
+    n: usize = n0.usize()
+    for i in 0..<n:
+        if input[1+i] < -2147483648 || input[1+i] > 2147483647: return -1
+    a: i64 = input[1+n]; b: i64 = input[2+n]
+    if a < -2147483648 || a > 2147483647 || b < -2147483648 || b > 2147483647: return -1
+    need: usize = 8+8*n
+    if output == null || capacity < need: return -2
+    ia: mutable usize = n; ib: mutable usize = n
+    if a != b:
+        for i in 0..<n:
+            if ia == n && input[1+i] == a: ia <- i
+            if ib == n && input[1+i] == b: ib <- i
+    pos: mutable usize = 0; put64(output,pos,n0)
+    for i in 0..<n:
+        x: mutable i64 = input[1+i]
+        if ia < n && ib < n:
+            if i == ia: x <- b
+            else if i == ib: x <- a
+        put64(output,pos,x)
+    pos.i64()
+export fn swap_nodes(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = swap_nodes_impl

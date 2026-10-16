@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-binary-cross-entropy-fixed-point-v1",
+  "algorithm": "binary_cross_entropy",
+  "function_symbol": "binary_cross_entropy",
+  "description": "Mean binary cross entropy over bounded probability and binary-label vectors.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, labels[n], probability_scaled[n]]",
+    "meaning": "n followed by n binary labels and n probabilities scaled by 1,000,000",
+    "maximum_packed_values": 513,
+    "invalid_result": -1e+300,
+    "n_range": [
+      1,
+      256
+    ],
+    "probability_scale": 1000000,
+    "label_range": [
+      0,
+      1
+    ],
+    "probability_scaled_range": [
+      0,
+      1000000
+    ]
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "mean binary cross entropy after clipping probabilities to [1e-15, 1 - 1e-15]",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/loss_functions.py",
+    "method": "binary_cross_entropy(y_true, y_pred)"
+  },
+  "cases": [
+    {
+      "id": "mixed_labels",
+      "input_values": [
+        4,
+        1,
+        0,
+        1,
+        0,
+        800000,
+        250000,
+        900000,
+        300000
+      ],
+      "input_length": 9,
+      "expected_result": 0.24321527084063732
+    },
+    {
+      "id": "probability_endpoints",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 34.53917619362578
+    },
+    {
+      "id": "quarter_probabilities",
+      "input_values": [
+        2,
+        0,
+        1,
+        250000,
+        750000
+      ],
+      "input_length": 5,
+      "expected_result": 0.2876820724517809
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        2,
+        1,
+        1,
+        500000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_label",
+      "input_values": [
+        1,
+        2,
+        500000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "probability_above_one",
+      "input_values": [
+        1,
+        1,
+        1000001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

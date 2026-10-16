@@ -128,6 +128,50 @@ from density_oracle import expected_result as density_expected
 from hinge_loss_oracle import INVALID_RESULT as HINGE_LOSS_INVALID_RESULT
 from hinge_loss_oracle import MAX_INPUT_LENGTH as MAX_HINGE_LOSS_INPUT_LENGTH
 from hinge_loss_oracle import expected_result as hinge_loss_expected
+from mean_squared_error_oracle import INVALID_RESULT as MEAN_SQUARED_ERROR_INVALID_RESULT
+from mean_squared_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH
+from mean_squared_error_oracle import expected_result as mean_squared_error_expected
+from mean_squared_logarithmic_error_oracle import INVALID_RESULT as MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT
+from mean_squared_logarithmic_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH
+from mean_squared_logarithmic_error_oracle import expected_result as mean_squared_logarithmic_error_expected
+from mean_absolute_percentage_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+from mean_absolute_percentage_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+from mean_absolute_percentage_error_oracle import expected_result as mean_absolute_percentage_error_expected
+from symmetric_mean_absolute_percentage_error_oracle import INVALID_RESULT as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+from symmetric_mean_absolute_percentage_error_oracle import MAX_INPUT_LENGTH as MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+from symmetric_mean_absolute_percentage_error_oracle import expected_result as symmetric_mean_absolute_percentage_error_expected
+from gaussian_negative_log_likelihood_loss_oracle import INVALID_RESULT as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT
+from gaussian_negative_log_likelihood_loss_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH
+from gaussian_negative_log_likelihood_loss_oracle import expected_result as gaussian_negative_log_likelihood_loss_expected
+from perplexity_loss_oracle import INVALID_RESULT as PERPLEXITY_LOSS_INVALID_RESULT
+from perplexity_loss_oracle import MAX_INPUT_LENGTH as MAX_PERPLEXITY_LOSS_INPUT_LENGTH
+from perplexity_loss_oracle import expected_result as perplexity_loss_expected
+from connectionist_temporal_classification_loss_oracle import INVALID_RESULT as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT
+from connectionist_temporal_classification_loss_oracle import MAX_INPUT_LENGTH as MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH
+from connectionist_temporal_classification_loss_oracle import expected_result as connectionist_temporal_classification_loss_expected
+from kullback_leibler_divergence_oracle import INVALID_RESULT as KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT
+from kullback_leibler_divergence_oracle import MAX_INPUT_LENGTH as MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH
+from kullback_leibler_divergence_oracle import expected_result as kullback_leibler_divergence_expected
+from mean_absolute_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_ERROR_INVALID_RESULT
+from mean_absolute_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
+from mean_absolute_error_oracle import expected_result as mean_absolute_error_expected
+from smooth_l1_loss_oracle import INVALID_RESULT as SMOOTH_L1_LOSS_INVALID_RESULT
+from smooth_l1_loss_oracle import MAX_INPUT_LENGTH as MAX_SMOOTH_L1_LOSS_INPUT_LENGTH
+from smooth_l1_loss_oracle import expected_result as smooth_l1_loss_expected
+from binary_cross_entropy_oracle import INVALID_RESULT as BINARY_CROSS_ENTROPY_INVALID_RESULT
+from binary_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH
+from binary_cross_entropy_oracle import expected_result as binary_cross_entropy_expected
+from binary_focal_cross_entropy_oracle import INVALID_RESULT as BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+from binary_focal_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+from binary_focal_cross_entropy_oracle import expected_result as binary_focal_cross_entropy_expected
+from categorical_cross_entropy_oracle import INVALID_RESULT as CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+from categorical_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH
+from categorical_cross_entropy_oracle import expected_result as categorical_cross_entropy_expected
+from categorical_focal_cross_entropy_oracle import INVALID_RESULT as CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+from categorical_focal_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+from categorical_focal_cross_entropy_oracle import expected_result as categorical_focal_cross_entropy_expected
+from sparse_categorical_cross_entropy_oracle import INVALID_RESULT as SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+from sparse_categorical_cross_entropy_oracle import sparse_categorical_cross_entropy as sparse_categorical_cross_entropy_expected
 from collaborative_filtering_oracle import MAX_PEARSON_INPUT_LENGTH
 from collaborative_filtering_oracle import MAX_PREDICTION_INPUT_LENGTH
 from collaborative_filtering_oracle import PEARSON_INVALID_RESULT
@@ -292,6 +336,7 @@ from symmetric_derivative_oracle import expected_result as symmetric_derivative_
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
+MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = 2 + 32 + 32 * 32
 
 
 def finance_ratio_expected(values: list[int], algorithm: str) -> float:
@@ -322,6 +367,21 @@ def finance_ratio_expected(values: list[int], algorithm: str) -> float:
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
+                        MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "sparse_categorical_cross_entropy" else
+                        MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "categorical_focal_cross_entropy" else
+                        MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "categorical_cross_entropy" else
+                        MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "binary_focal_cross_entropy" else
+                        MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "binary_cross_entropy" else
+                        MAX_SMOOTH_L1_LOSS_INPUT_LENGTH if algorithm == "smooth_l1_loss" else
+                        MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH if algorithm == "mean_absolute_error" else
+                        MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "mean_absolute_percentage_error" else
+                        MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "symmetric_mean_absolute_percentage_error" else
+                        MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH if algorithm == "gaussian_negative_log_likelihood_loss" else
+                        MAX_PERPLEXITY_LOSS_INPUT_LENGTH if algorithm == "perplexity_loss" else
+                        MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH if algorithm == "connectionist_temporal_classification_loss" else
+                        MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH if algorithm == "kullback_leibler_divergence" else
+                        MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH if algorithm == "mean_squared_logarithmic_error" else
+                        MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH if algorithm == "mean_squared_error" else
                         MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH if algorithm == "gaussian_legendre" else
                         MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH if algorithm == "gradient_boosting_regressor" else
                         MAX_MEDIAN_TWO_ARRAY_INPUT_LENGTH if algorithm == "median_two_array" else
@@ -592,6 +652,126 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == HINGE_LOSS_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("hinge_loss expected_result must match the ordered average hinge loss")
+    elif algorithm == "mean_squared_error":
+        source_result = mean_squared_error_expected(values)
+        if source_result == MEAN_SQUARED_ERROR_INVALID_RESULT:
+            if expected != MEAN_SQUARED_ERROR_INVALID_RESULT:
+                raise ValueError("invalid mean_squared_error inputs must use the -1e300 result sentinel")
+        elif expected == MEAN_SQUARED_ERROR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mean_squared_error expected_result must match the fixed-point mean squared residual")
+    elif algorithm == "mean_squared_logarithmic_error":
+        source_result = mean_squared_logarithmic_error_expected(values)
+        if source_result == MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT:
+            if expected != MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT:
+                raise ValueError("invalid mean_squared_logarithmic_error inputs must use the -1e300 result sentinel")
+        elif expected == MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mean_squared_logarithmic_error expected_result must match the mean squared log1p residual")
+    elif algorithm == "mean_absolute_percentage_error":
+        source_result = mean_absolute_percentage_error_expected(values)
+        if source_result == MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT:
+            if expected != MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT:
+                raise ValueError("invalid mean_absolute_percentage_error inputs must use the -1e300 result sentinel")
+        elif expected == MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mean_absolute_percentage_error expected_result must match the epsilon-adjusted mean absolute ratio")
+    elif algorithm == "symmetric_mean_absolute_percentage_error":
+        source_result = symmetric_mean_absolute_percentage_error_expected(values)
+        if source_result == SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT:
+            if expected != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT:
+                raise ValueError("invalid symmetric_mean_absolute_percentage_error inputs must use the -1e300 result sentinel")
+        elif expected == SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("symmetric_mean_absolute_percentage_error expected_result must match the symmetric mean absolute ratio")
+    elif algorithm == "gaussian_negative_log_likelihood_loss":
+        source_result = gaussian_negative_log_likelihood_loss_expected(values)
+        if source_result == GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT:
+            if expected != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT:
+                raise ValueError("invalid gaussian_negative_log_likelihood_loss inputs must use the -1e300 result sentinel")
+        elif expected == GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("gaussian_negative_log_likelihood_loss expected_result must match the ordered mean without the Gaussian constant")
+    elif algorithm == "perplexity_loss":
+        source_result = perplexity_loss_expected(values)
+        if source_result == PERPLEXITY_LOSS_INVALID_RESULT:
+            if expected != PERPLEXITY_LOSS_INVALID_RESULT:
+                raise ValueError("invalid perplexity_loss inputs must use the -1e300 result sentinel")
+        elif expected == PERPLEXITY_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("perplexity_loss expected_result must match batch-mean sentence perplexity")
+    elif algorithm == "connectionist_temporal_classification_loss":
+        source_result = connectionist_temporal_classification_loss_expected(values)
+        if source_result == CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT:
+            if expected != CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT:
+                raise ValueError("invalid connectionist_temporal_classification_loss inputs must use the -1e300 result sentinel")
+        elif expected == CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("connectionist_temporal_classification_loss expected_result must match the source forward log-probability dynamic program")
+    elif algorithm == "kullback_leibler_divergence":
+        source_result = kullback_leibler_divergence_expected(values)
+        if source_result == KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT:
+            if expected != KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT:
+                raise ValueError("invalid kullback_leibler_divergence inputs must use the -1e300 result sentinel")
+        elif expected == KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("kullback_leibler_divergence expected_result must match the unnormalized source-order sum")
+    elif algorithm == "mean_absolute_error":
+        source_result = mean_absolute_error_expected(values)
+        if source_result == MEAN_ABSOLUTE_ERROR_INVALID_RESULT:
+            if expected != MEAN_ABSOLUTE_ERROR_INVALID_RESULT:
+                raise ValueError("invalid mean_absolute_error inputs must use the -1e300 result sentinel")
+        elif expected == MEAN_ABSOLUTE_ERROR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mean_absolute_error expected_result must match the fixed-point mean absolute residual")
+    elif algorithm == "smooth_l1_loss":
+        source_result = smooth_l1_loss_expected(values)
+        if source_result == SMOOTH_L1_LOSS_INVALID_RESULT:
+            if expected != SMOOTH_L1_LOSS_INVALID_RESULT:
+                raise ValueError("invalid smooth_l1_loss inputs must use the -1e300 result sentinel")
+        elif expected == SMOOTH_L1_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("smooth_l1_loss expected_result must match the beta=1.0 piecewise mean")
+    elif algorithm == "binary_cross_entropy":
+        source_result = binary_cross_entropy_expected(values)
+        if source_result == BINARY_CROSS_ENTROPY_INVALID_RESULT:
+            if expected != BINARY_CROSS_ENTROPY_INVALID_RESULT:
+                raise ValueError("invalid binary_cross_entropy inputs must use the -1e300 result sentinel")
+        elif expected == BINARY_CROSS_ENTROPY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("binary_cross_entropy expected_result must match clipped binary log loss")
+    elif algorithm == "binary_focal_cross_entropy":
+        source_result = binary_focal_cross_entropy_expected(values)
+        if source_result == BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT:
+            if expected != BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT:
+                raise ValueError("invalid binary_focal_cross_entropy inputs must use the -1e300 result sentinel")
+        elif expected == BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("binary_focal_cross_entropy expected_result must match clipped focal log loss")
+    elif algorithm == "categorical_cross_entropy":
+        source_result = categorical_cross_entropy_expected(values)
+        if source_result == CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT:
+            if expected != CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT:
+                raise ValueError("invalid categorical_cross_entropy inputs must use the -1e300 result sentinel")
+        elif expected == CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("categorical_cross_entropy expected_result must match the summed row cross entropy")
+    elif algorithm == "categorical_focal_cross_entropy":
+        source_result = categorical_focal_cross_entropy_expected(values)
+        if source_result == CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT:
+            if expected != CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT:
+                raise ValueError("invalid categorical_focal_cross_entropy inputs must use the -1e300 result sentinel")
+        elif expected == CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("categorical_focal_cross_entropy expected_result must match mean per-row focal loss")
+    elif algorithm == "sparse_categorical_cross_entropy":
+        source_result = sparse_categorical_cross_entropy_expected(values)
+        if source_result == SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT:
+            if expected != SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT:
+                raise ValueError("invalid sparse_categorical_cross_entropy inputs must use the -1e300 sentinel")
+        elif expected == SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("sparse_categorical_cross_entropy expected_result must match summed selected-class loss")
     elif algorithm == "collaborative_filtering":
         source_result = expected_prediction(values)
         if source_result == PREDICTION_INVALID_RESULT:

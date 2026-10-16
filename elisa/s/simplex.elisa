@@ -1,0 +1,129 @@
+const SIMPLEX_INVALID_RESULT: f64 = -1.0e300
+const SIMPLEX_MAX_FINITE: f64 = 1.7976931348623157e308
+
+def simplex_is_finite(value: f64) -> bool:
+    value == value and value < SIMPLEX_MAX_FINITE and value > -SIMPLEX_MAX_FINITE
+
+def simplex_impl(input: i64&, length: usize) -> f64:
+    if input == null or length < 4 or length > 132: return SIMPLEX_INVALID_RESULT
+    n_vars_value: i64 = input[0]
+    n_artificial_value: i64 = input[1]
+    n_rows_value: i64 = input[2]
+    n_cols_value: i64 = input[3]
+    if n_vars_value < 2 or n_vars_value > 4 or n_artificial_value < 0 or n_artificial_value > 2 or
+        n_rows_value < 3 or n_rows_value > 8 or n_cols_value < n_vars_value + n_artificial_value + 1 or
+        n_cols_value > 16: return SIMPLEX_INVALID_RESULT
+    rows: mutable usize = n_rows_value.usize()
+    cols: mutable usize = n_cols_value.usize()
+    artificial: mutable usize = n_artificial_value.usize()
+    if length != 4 + rows * cols: return SIMPLEX_INVALID_RESULT
+    tableau: mutable f64[128] = zeroed
+    row: mutable usize = 0
+    while row < rows:
+        col: mutable usize = 0
+        while col < cols:
+            tableau[row * 16 + col] <- input[4 + row * cols + col].f64() / 1000000.0
+            col <- col + 1
+        if tableau[row * 16 + cols - 1] < 0.0: return SIMPLEX_INVALID_RESULT
+        row <- row + 1
+
+    phase_one: mutable bool = artificial != 0
+    finished: mutable bool = false
+    iteration: mutable usize = 0
+    while iteration < 100:
+        if finished:
+            result: f64 = tableau[cols - 1]
+            if result < 0.0: result <- -result
+            if simplex_is_finite(result): return result
+            return SIMPLEX_INVALID_RESULT
+        stages: usize = if phase_one: 2 else: 1
+        sign: f64 = if phase_one: 1.0 else: -1.0
+        pivot_col: mutable usize = 0
+        best: mutable f64 = sign * tableau[0]
+        col <- 1
+        while col + 1 < cols:
+            score: f64 = sign * tableau[col]
+            if score > best:
+                best <- score
+                pivot_col <- col
+            col <- col + 1
+        if best <= 0.0:
+            if phase_one:
+                compacted: mutable f64[128] = zeroed
+                first_artificial: usize = cols - artificial - 1
+                row <- 1
+                while row < rows:
+                    new_col: mutable usize = 0
+                    col <- 0
+                    while col < cols:
+                        if col < first_artificial or col >= cols - 1:
+                            compacted[(row - 1) * 16 + new_col] <- tableau[row * 16 + col]
+                            new_col <- new_col + 1
+                        col <- col + 1
+                    row <- row + 1
+                rows <- rows - 1
+                cols <- cols - artificial
+                artificial <- 0
+                row <- 0
+                while row < rows:
+                    col <- 0
+                    while col < cols:
+                        tableau[row * 16 + col] <- compacted[row * 16 + col]
+                        col <- col + 1
+                    row <- row + 1
+                phase_one <- false
+            else:
+                finished <- true
+            iteration <- iteration + 1
+            continue
+
+        found: mutable bool = false
+        pivot_row: mutable usize = 0
+        best_ratio: mutable f64 = 0.0
+        row <- stages
+        while row < rows:
+            divisor: f64 = tableau[row * 16 + pivot_col]
+            if divisor > 0.0:
+                ratio: f64 = tableau[row * 16 + cols - 1] / divisor
+                if not simplex_is_finite(ratio): return SIMPLEX_INVALID_RESULT
+                if not found or ratio < best_ratio:
+                    found <- true
+                    best_ratio <- ratio
+                    pivot_row <- row
+            row <- row + 1
+        if not found: return SIMPLEX_INVALID_RESULT
+
+        pivot: f64 = tableau[pivot_row * 16 + pivot_col]
+        normalized: mutable f64[16] = zeroed
+        col <- 0
+        while col < cols:
+            normalized[col] <- tableau[pivot_row * 16 + col] / pivot
+            col <- col + 1
+        column_values: mutable f64[8] = zeroed
+        row <- 0
+        while row < rows:
+            column_values[row] <- tableau[row * 16 + pivot_col]
+            row <- row + 1
+        row <- 0
+        while row < rows:
+            coefficient: f64 = column_values[row]
+            col <- 0
+            while col < cols:
+                tableau[row * 16 + col] <- tableau[row * 16 + col] - coefficient * normalized[col]
+                col <- col + 1
+            row <- row + 1
+        col <- 0
+        while col < cols:
+            tableau[pivot_row * 16 + col] <- normalized[col]
+            col <- col + 1
+        row <- 0
+        while row < rows:
+            col <- 0
+            while col < cols:
+                if not simplex_is_finite(tableau[row * 16 + col]): return SIMPLEX_INVALID_RESULT
+                col <- col + 1
+            row <- row + 1
+        iteration <- iteration + 1
+    SIMPLEX_INVALID_RESULT
+
+export fn simplex(input: i64&, length: usize) -> f64 = simplex_impl

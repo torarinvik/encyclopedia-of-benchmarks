@@ -1,0 +1,47 @@
+def sierpinski_carpet_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sierpinski_carpet_is_filled(row_value: usize, col_value: usize) -> bool:
+    row: mutable usize = row_value
+    col: mutable usize = col_value
+    while row != 0 or col != 0:
+        if row % 3 == 1 and col % 3 == 1: return false
+        row <- row / 3
+        col <- col / 3
+    true
+
+def sierpinski_carpet_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 3: return -1
+    depth: i64 = input[0]
+    filled: i64 = input[1]
+    hole: i64 = input[2]
+    if depth < 0 or depth > 4 or filled < 32 or filled > 126 or hole < 32 or hole > 126 or filled == hole:
+        return -1
+    side: mutable usize = 1
+    level: mutable i64 = 0
+    while level < depth:
+        side <- side * 3
+        level <- level + 1
+    needed: usize = 8 + side * side + side - 1
+    if output == null or capacity < needed: return -2
+    sierpinski_carpet_write_i64(output, 0, side.i64())
+    out: mutable usize = 8
+    row: mutable usize = 0
+    while row < side:
+        col: mutable usize = 0
+        while col < side:
+            output[out] <- (if sierpinski_carpet_is_filled(row, col): filled else: hole).u8()
+            out <- out + 1
+            col <- col + 1
+        if row + 1 < side:
+            output[out] <- 10.u8()
+            out <- out + 1
+        row <- row + 1
+    needed.i64()
+
+export fn sierpinski_carpet(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sierpinski_carpet_impl

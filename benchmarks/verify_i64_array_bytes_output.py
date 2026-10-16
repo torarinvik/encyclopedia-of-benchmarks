@@ -185,6 +185,88 @@ from rail_fence_oracle import MAX_RAILS as RAIL_FENCE_MAX_RAILS
 from rail_fence_oracle import MAX_TEXT_LENGTH as RAIL_FENCE_MAX_TEXT_LENGTH
 from rail_fence_oracle import MIN_RAILS as RAIL_FENCE_MIN_RAILS
 from rail_fence_oracle import expected_output as rail_fence_oracle
+from merkle_tree_oracle import MAX_ASCII_BYTE as MERKLE_TREE_MAX_ASCII_BYTE
+from merkle_tree_oracle import MAX_INPUT_LENGTH as MAX_MERKLE_TREE_INPUT_LENGTH
+from merkle_tree_oracle import MAX_LEAF_BYTES as MERKLE_TREE_MAX_LEAF_BYTES
+from merkle_tree_oracle import MAX_LEAF_COUNT as MERKLE_TREE_MAX_LEAF_COUNT
+from merkle_tree_oracle import MAX_OUTPUT_BYTES as MERKLE_TREE_MAX_OUTPUT_BYTES
+from merkle_tree_oracle import MIN_LEAF_COUNT as MERKLE_TREE_MIN_LEAF_COUNT
+from merkle_tree_oracle import I64_MAX as MERKLE_TREE_I64_MAX
+from merkle_tree_oracle import I64_MIN as MERKLE_TREE_I64_MIN
+from merkle_tree_oracle import expected_result as merkle_tree_oracle
+from sum_of_subsets_oracle import MAX_INPUT_LENGTH as SUM_OF_SUBSETS_MAX_INPUT_LENGTH
+from sum_of_subsets_oracle import MAX_N as SUM_OF_SUBSETS_MAX_N
+from sum_of_subsets_oracle import MAX_OUTPUT_BYTES as SUM_OF_SUBSETS_MAX_OUTPUT_BYTES
+from sum_of_subsets_oracle import MAX_SUBSETS as SUM_OF_SUBSETS_MAX_SUBSETS
+from sum_of_subsets_oracle import MAX_TARGET as SUM_OF_SUBSETS_MAX_TARGET
+from sum_of_subsets_oracle import MAX_VALUE as SUM_OF_SUBSETS_MAX_VALUE
+from sum_of_subsets_oracle import MIN_N as SUM_OF_SUBSETS_MIN_N
+from sum_of_subsets_oracle import I64_MAX as SUM_OF_SUBSETS_I64_MAX
+from sum_of_subsets_oracle import I64_MIN as SUM_OF_SUBSETS_I64_MIN
+from sum_of_subsets_oracle import expected_result as sum_of_subsets_oracle
+from swap_nodes_oracle import MAX_INPUT_LENGTH as SWAP_NODES_MAX_INPUT_LENGTH
+from swap_nodes_oracle import MAX_I32 as SWAP_NODES_MAX_I32
+from swap_nodes_oracle import MAX_N as SWAP_NODES_MAX_N
+from swap_nodes_oracle import MAX_OUTPUT_BYTES as SWAP_NODES_MAX_OUTPUT_BYTES
+from swap_nodes_oracle import MIN_I32 as SWAP_NODES_MIN_I32
+from swap_nodes_oracle import MIN_N as SWAP_NODES_MIN_N
+from swap_nodes_oracle import I64_MAX as SWAP_NODES_I64_MAX
+from swap_nodes_oracle import I64_MIN as SWAP_NODES_I64_MIN
+from swap_nodes_oracle import expected_result as swap_nodes_oracle
+from xor_linked_list_oracle import MAX_COUNT as XOR_LINKED_LIST_MAX_COUNT
+from xor_linked_list_oracle import MAX_INPUT_LENGTH as XOR_LINKED_LIST_MAX_INPUT_LENGTH
+from xor_linked_list_oracle import MAX_OUTPUT_BYTES as XOR_LINKED_LIST_MAX_OUTPUT_BYTES
+from xor_linked_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as XOR_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+from xor_linked_list_oracle import MAX_VALID_INPUT_LENGTH as XOR_LINKED_LIST_MAX_VALID_INPUT_LENGTH
+from xor_linked_list_oracle import I32_MAX as XOR_LINKED_LIST_I32_MAX
+from xor_linked_list_oracle import I32_MIN as XOR_LINKED_LIST_I32_MIN
+from xor_linked_list_oracle import I64_MAX as XOR_LINKED_LIST_I64_MAX
+from xor_linked_list_oracle import I64_MIN as XOR_LINKED_LIST_I64_MIN
+from xor_linked_list_oracle import expected_output as xor_linked_list_oracle
+from sierpinski_carpet_oracle import MAX_DEPTH as SIERPINSKI_CARPET_MAX_DEPTH
+from sierpinski_carpet_oracle import MAX_INPUT_LENGTH as SIERPINSKI_CARPET_MAX_INPUT_LENGTH
+from sierpinski_carpet_oracle import MAX_OUTPUT_BYTES as SIERPINSKI_CARPET_MAX_OUTPUT_BYTES
+from sierpinski_carpet_oracle import MAX_PARSEABLE_INPUT_LENGTH as SIERPINSKI_CARPET_MAX_PARSEABLE_INPUT_LENGTH
+from sierpinski_carpet_oracle import MAX_SIDE as SIERPINSKI_CARPET_MAX_SIDE
+from sierpinski_carpet_oracle import MIN_DEPTH as SIERPINSKI_CARPET_MIN_DEPTH
+from sierpinski_carpet_oracle import PRINTABLE_ASCII_MAX as SIERPINSKI_CARPET_ASCII_MAX
+from sierpinski_carpet_oracle import PRINTABLE_ASCII_MIN as SIERPINSKI_CARPET_ASCII_MIN
+from sierpinski_carpet_oracle import VALID_INPUT_LENGTH as SIERPINSKI_CARPET_VALID_INPUT_LENGTH
+from sierpinski_carpet_oracle import I64_MAX as SIERPINSKI_CARPET_I64_MAX
+from sierpinski_carpet_oracle import I64_MIN as SIERPINSKI_CARPET_I64_MIN
+from sierpinski_carpet_oracle import expected_output as sierpinski_carpet_oracle
+from simple_blockchain_oracle import MAX_CHAIN_LEN as SIMPLE_BLOCKCHAIN_MAX_CHAIN_LEN
+from simple_blockchain_oracle import MAX_DATA_BYTE as SIMPLE_BLOCKCHAIN_MAX_DATA_BYTE
+from simple_blockchain_oracle import MAX_DATA_LEN as SIMPLE_BLOCKCHAIN_MAX_DATA_LEN
+from simple_blockchain_oracle import MAX_DIFFICULTY as SIMPLE_BLOCKCHAIN_MAX_DIFFICULTY
+from simple_blockchain_oracle import MAX_INPUT_BYTES as SIMPLE_BLOCKCHAIN_MAX_INPUT_BYTES
+from simple_blockchain_oracle import MAX_INPUT_VALUES as SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES
+from simple_blockchain_oracle import MAX_OUTPUT_BYTES as SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES
+from simple_blockchain_oracle import MAX_TIMESTAMP as SIMPLE_BLOCKCHAIN_MAX_TIMESTAMP
+from simple_blockchain_oracle import MIN_CHAIN_LEN as SIMPLE_BLOCKCHAIN_MIN_CHAIN_LEN
+from simple_blockchain_oracle import MIN_DATA_BYTE as SIMPLE_BLOCKCHAIN_MIN_DATA_BYTE
+from simple_blockchain_oracle import MIN_DIFFICULTY as SIMPLE_BLOCKCHAIN_MIN_DIFFICULTY
+from simple_blockchain_oracle import NONCE_ATTEMPTS as SIMPLE_BLOCKCHAIN_NONCE_ATTEMPTS
+from simple_blockchain_oracle import I64_MAX as SIMPLE_BLOCKCHAIN_I64_MAX
+from simple_blockchain_oracle import I64_MIN as SIMPLE_BLOCKCHAIN_I64_MIN
+from simple_blockchain_oracle import expected_result as simple_blockchain_oracle
+from map_reduce_oracle import MAX_INPUT_LENGTH as MAP_REDUCE_MAX_INPUT_LENGTH
+from map_reduce_oracle import MAX_OUTPUT_BYTES as MAP_REDUCE_MAX_OUTPUT_BYTES
+from map_reduce_oracle import expected_output as map_reduce_oracle
+from transposition_cipher_oracle import MAX_INPUT_LENGTH as TRANSPOSITION_CIPHER_MAX_INPUT_LENGTH
+from transposition_cipher_oracle import MAX_OUTPUT_BYTES as TRANSPOSITION_CIPHER_MAX_OUTPUT_BYTES
+from transposition_cipher_oracle import MAX_TEXT_LENGTH as TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH
+from transposition_cipher_oracle import expected_output as transposition_cipher_oracle
+from spigotpi_oracle import MAX_DIGITS as SPIGOTPI_MAX_DIGITS
+from spigotpi_oracle import MAX_INPUT_LENGTH as SPIGOTPI_MAX_INPUT_LENGTH
+from spigotpi_oracle import MAX_OUTPUT_BYTES as SPIGOTPI_MAX_OUTPUT_BYTES
+from spigotpi_oracle import expected_output as spigotpi_oracle
+from median_finder_oracle import MAX_COUNT as MEDIAN_FINDER_MAX_COUNT
+from median_finder_oracle import MAX_INPUT_LENGTH as MEDIAN_FINDER_MAX_INPUT_LENGTH
+from median_finder_oracle import MAX_OUTPUT_BYTES as MEDIAN_FINDER_MAX_OUTPUT_BYTES
+from median_finder_oracle import MAX_VALUE as MEDIAN_FINDER_MAX_VALUE
+from median_finder_oracle import MIN_VALUE as MEDIAN_FINDER_MIN_VALUE
+from median_finder_oracle import expected_output as median_finder_oracle
 from word_boggle_oracle import expected_output as word_boggle_oracle
 from choiceset_oracle import MAX_OPERATIONS as MAX_CHOICESET_OPERATIONS
 from choiceset_oracle import expected_output as choiceset_oracle
@@ -641,6 +723,16 @@ ALGORITHMS = (*ALGORITHMS, "word_boggle")
 ALGORITHMS = (*ALGORITHMS, "trifid_cipher")
 ALGORITHMS = (*ALGORITHMS, "move_to_front")
 ALGORITHMS = (*ALGORITHMS, "rail_fence")
+ALGORITHMS = (*ALGORITHMS, "merkle_tree")
+ALGORITHMS = (*ALGORITHMS, "sum_of_subsets")
+ALGORITHMS = (*ALGORITHMS, "swap_nodes")
+ALGORITHMS = (*ALGORITHMS, "xor_linked_list")
+ALGORITHMS = (*ALGORITHMS, "sierpinski_carpet")
+ALGORITHMS = (*ALGORITHMS, "simple_blockchain")
+ALGORITHMS = (*ALGORITHMS, "map_reduce")
+ALGORITHMS = (*ALGORITHMS, "transposition_cipher")
+ALGORITHMS = (*ALGORITHMS, "spigotpi")
+ALGORITHMS = (*ALGORITHMS, "median_finder")
 ALGORITHMS = (*ALGORITHMS, "word_ladder_dfs")
 ALGORITHMS = (*ALGORITHMS, "morse_code_converter_encode", "morse_code_converter_decode")
 ALGORITHMS = (*ALGORITHMS, "move_hash_to_end")
@@ -742,6 +834,16 @@ WORKSPACE_ALGORITHMS.add("word_boggle")
 WORKSPACE_ALGORITHMS.add("trifid_cipher")
 WORKSPACE_ALGORITHMS.add("move_to_front")
 WORKSPACE_ALGORITHMS.add("rail_fence")
+WORKSPACE_ALGORITHMS.add("merkle_tree")
+WORKSPACE_ALGORITHMS.add("sum_of_subsets")
+WORKSPACE_ALGORITHMS.add("swap_nodes")
+WORKSPACE_ALGORITHMS.add("xor_linked_list")
+WORKSPACE_ALGORITHMS.add("sierpinski_carpet")
+WORKSPACE_ALGORITHMS.add("simple_blockchain")
+WORKSPACE_ALGORITHMS.add("map_reduce")
+WORKSPACE_ALGORITHMS.add("transposition_cipher")
+WORKSPACE_ALGORITHMS.add("spigotpi")
+WORKSPACE_ALGORITHMS.add("median_finder")
 WORKSPACE_ALGORITHMS.add("word_ladder_dfs")
 WORKSPACE_ALGORITHMS.update({"morse_code_converter_encode", "morse_code_converter_decode"})
 WORKSPACE_ALGORITHMS.add("move_hash_to_end")
@@ -1705,17 +1807,652 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "simple_blockchain":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        mining_spec = workload.get("mining", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY
+                or SIMPLE_BLOCKCHAIN_MAX_INPUT_BYTES != 8 * SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES
+                or SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES
+                != 3 + (SIMPLE_BLOCKCHAIN_MAX_CHAIN_LEN - 1)
+                * (2 + SIMPLE_BLOCKCHAIN_MAX_DATA_LEN)
+                or SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES
+                != 24 + 88 * SIMPLE_BLOCKCHAIN_MAX_CHAIN_LEN):
+            raise ValueError("simple_blockchain workspace or bounds do not match its reviewed contract")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[difficulty,chain_len,genesis_timestamp_sec,(timestamp_sec,data_len,ASCII_bytes...)*(chain_len-1)]"
+                or input_spec.get("difficulty_range") != [SIMPLE_BLOCKCHAIN_MIN_DIFFICULTY,
+                                                             SIMPLE_BLOCKCHAIN_MAX_DIFFICULTY]
+                or input_spec.get("chain_length_includes_genesis_range") != [SIMPLE_BLOCKCHAIN_MIN_CHAIN_LEN,
+                                                                               SIMPLE_BLOCKCHAIN_MAX_CHAIN_LEN]
+                or input_spec.get("timestamp_seconds_range") != [0, SIMPLE_BLOCKCHAIN_MAX_TIMESTAMP]
+                or input_spec.get("extension_data_length_range") != [0, SIMPLE_BLOCKCHAIN_MAX_DATA_LEN]
+                or input_spec.get("data_byte_range") != [SIMPLE_BLOCKCHAIN_MIN_DATA_BYTE,
+                                                            SIMPLE_BLOCKCHAIN_MAX_DATA_BYTE]
+                or input_spec.get("exact_length_required") is not True
+                or input_spec.get("maximum_length_values") != SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES
+                or input_spec.get("maximum_packed_bytes") != SIMPLE_BLOCKCHAIN_MAX_INPUT_BYTES
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "mixed_little_endian_i64_and_ascii_bytes"
+                or output_spec.get("encoding") != "[status=0 i64le,chain_len i64le,(index i64le,timestamp_sec i64le,nonce i64le,hash 64 lowercase ASCII hex bytes)*chain_len,valid i64le]"
+                or output_spec.get("success_result") != "number of output bytes written"
+                or output_spec.get("bytes_written_formula") != "24 + 88*chain_len"
+                or output_spec.get("maximum_bytes") != SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("nonce_exhaustion_result") != -3
+                or output_spec.get("error_outputs") != "no bytes written"
+                or mining_spec.get("nonce_attempt_count") != SIMPLE_BLOCKCHAIN_NONCE_ATTEMPTS
+                or mining_spec.get("nonce_values_tested") != [0, SIMPLE_BLOCKCHAIN_NONCE_ATTEMPTS - 1]
+                or mining_spec.get("hash") != "SHA-256 over UTF-8 of separator-free index + Python float timestamp spelling N.0 + ASCII data + previous_hash + decimal nonce"
+                or mining_spec.get("first_matching_nonce_required") is not True
+                or mining_spec.get("difficulty_prefix") != "one or two leading ASCII zeroes"
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("simple_blockchain workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("simple_blockchain output capacity is out of range")
+            result, output = simple_blockchain_oracle(values, capacity)
+            if result >= 0 and (result != len(output)
+                                or result > SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES):
+                raise ValueError("simple_blockchain oracle output exceeds its reviewed bound")
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"simple_blockchain workload capacity is out of range: {case['id']}")
+            result, output = simple_blockchain_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"simple_blockchain workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_input_and_output"), None)
+        if maximum_case is None:
+            raise ValueError("simple_blockchain workload is missing its maximum-bound fixture")
+        maximum_values = tuple(maximum_case["input_values"])
+        maximum_result, maximum_output = simple_blockchain_oracle(maximum_values)
+        if (maximum_result != SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES
+                or len(maximum_output) != SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES):
+            raise ValueError("simple_blockchain maximum chain does not match its output bound")
+        for capacity in (0, SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES - 1,
+                         SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES,
+                         SIMPLE_BLOCKCHAIN_MAX_OUTPUT_BYTES + 1):
+            add(maximum_values, capacity)
+
+        minimum_byte_probe = (SIMPLE_BLOCKCHAIN_MIN_DIFFICULTY, 2, 0,
+                              1, 2, SIMPLE_BLOCKCHAIN_MIN_DATA_BYTE,
+                              SIMPLE_BLOCKCHAIN_MAX_DATA_BYTE)
+        add(minimum_byte_probe)
+
+        rng_simple_blockchain = random.Random(20261016)
+        for _ in range(32):
+            difficulty = rng_simple_blockchain.randint(SIMPLE_BLOCKCHAIN_MIN_DIFFICULTY,
+                                                       SIMPLE_BLOCKCHAIN_MAX_DIFFICULTY)
+            chain_len = rng_simple_blockchain.randint(SIMPLE_BLOCKCHAIN_MIN_CHAIN_LEN, 4)
+            values = [difficulty, chain_len,
+                      rng_simple_blockchain.randint(0, SIMPLE_BLOCKCHAIN_MAX_TIMESTAMP)]
+            for _ in range(1, chain_len):
+                data_len = rng_simple_blockchain.randint(0, 16)
+                values.extend((rng_simple_blockchain.randint(0, SIMPLE_BLOCKCHAIN_MAX_TIMESTAMP),
+                               data_len))
+                values.extend(rng_simple_blockchain.randint(SIMPLE_BLOCKCHAIN_MIN_DATA_BYTE,
+                                                            SIMPLE_BLOCKCHAIN_MAX_DATA_BYTE)
+                              for _ in range(data_len))
+            add(tuple(values))
+
+        malformed = (
+            (), (1,), (0, 1, 0), (SIMPLE_BLOCKCHAIN_MIN_DIFFICULTY - 1, 1, 0),
+            (SIMPLE_BLOCKCHAIN_MAX_DIFFICULTY + 1, 1, 0),
+            (1, SIMPLE_BLOCKCHAIN_MIN_CHAIN_LEN - 1, 0),
+            (1, SIMPLE_BLOCKCHAIN_MAX_CHAIN_LEN + 1, 0),
+            (1, 1, -1), (1, 1, SIMPLE_BLOCKCHAIN_MAX_TIMESTAMP + 1),
+            (1, 2, 0, 1, 1, -1), (1, 2, 0, 1, 1, SIMPLE_BLOCKCHAIN_MAX_DATA_BYTE + 1),
+            (1, 2, 0, 1, SIMPLE_BLOCKCHAIN_MAX_DATA_LEN + 1,
+             *([0] * (SIMPLE_BLOCKCHAIN_MAX_DATA_LEN + 1))),
+            (1, 2, 0, 1, 2, 65), (1, 2, 0, 1, 2, 65, 66, 99),
+            (1, 2, 0, 1, 2, 65), (1, 1, 0, 1),
+            (SIMPLE_BLOCKCHAIN_I64_MIN,), (SIMPLE_BLOCKCHAIN_I64_MAX,),
+            tuple([1, 1, 0] + [0] * (SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES - 3)),
+        )
+        for values in malformed:
+            if len(values) <= SIMPLE_BLOCKCHAIN_MAX_INPUT_VALUES:
+                add(tuple(values))
+
+        null_values = (SIMPLE_BLOCKCHAIN_I64_MIN,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "sierpinski_carpet":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        workspace_spec = workload.get("workspace", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != SIERPINSKI_CARPET_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY
+                or SIERPINSKI_CARPET_MAX_OUTPUT_BYTES
+                != 8 + SIERPINSKI_CARPET_MAX_SIDE ** 2 + SIERPINSKI_CARPET_MAX_SIDE - 1):
+            raise ValueError("sierpinski_carpet workspace must match its reviewed output bound")
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[depth, filled_byte, hole_byte]"
+                or input_spec.get("depth_range") != [SIERPINSKI_CARPET_MIN_DEPTH,
+                                                        SIERPINSKI_CARPET_MAX_DEPTH]
+                or input_spec.get("printable_ascii_byte_range") != [SIERPINSKI_CARPET_ASCII_MIN,
+                                                                      SIERPINSKI_CARPET_ASCII_MAX]
+                or input_spec.get("filled_and_hole_bytes_must_differ") is not True
+                or input_spec.get("exact_packed_length") != SIERPINSKI_CARPET_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_valid_input_length") != SIERPINSKI_CARPET_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != SIERPINSKI_CARPET_MAX_PARSEABLE_INPUT_LENGTH
+                or SIERPINSKI_CARPET_MAX_INPUT_LENGTH != SIERPINSKI_CARPET_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("kind") != "i64_little_endian_prefix_and_ascii_raster"
+                or output_spec.get("layout") != "side length as an 8-byte signed i64 little-endian value, then newline-separated raster rows without a trailing newline"
+                or output_spec.get("maximum_output_bytes") != SIERPINSKI_CARPET_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_spec.get("meaning") != "Maximum output capacity, including the 8-byte side-length prefix."
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("sierpinski_carpet workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("sierpinski_carpet output capacity is out of range")
+            cases[(values, capacity)] = sierpinski_carpet_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"sierpinski_carpet workload capacity is out of range: {case['id']}")
+            result, output = sierpinski_carpet_oracle(values, capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or ("expected_output_hex" in case
+                        and case["expected_output_hex"].lower() != output.hex())):
+                raise ValueError(f"sierpinski_carpet workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for depth in range(SIERPINSKI_CARPET_MIN_DEPTH,
+                           SIERPINSKI_CARPET_MAX_DEPTH + 1):
+            add((depth, 35, 32))
+            add((depth, 46, 35))
+
+        rng_sierpinski_carpet = random.Random(20261016)
+        for _ in range(64):
+            depth = rng_sierpinski_carpet.randint(SIERPINSKI_CARPET_MIN_DEPTH,
+                                                  SIERPINSKI_CARPET_MAX_DEPTH)
+            filled = rng_sierpinski_carpet.randint(SIERPINSKI_CARPET_ASCII_MIN,
+                                                   SIERPINSKI_CARPET_ASCII_MAX)
+            hole = rng_sierpinski_carpet.randint(SIERPINSKI_CARPET_ASCII_MIN,
+                                                 SIERPINSKI_CARPET_ASCII_MAX)
+            while hole == filled:
+                hole = rng_sierpinski_carpet.randint(SIERPINSKI_CARPET_ASCII_MIN,
+                                                     SIERPINSKI_CARPET_ASCII_MAX)
+            add((depth, filled, hole))
+
+        maximum_values = (SIERPINSKI_CARPET_MAX_DEPTH, 46, 35)
+        probe_result, probe_output = sierpinski_carpet_oracle(maximum_values)
+        if (probe_result != len(probe_output)
+                or len(probe_output) != SIERPINSKI_CARPET_MAX_OUTPUT_BYTES):
+            raise ValueError("sierpinski_carpet maximum raster does not match its reviewed bound")
+        for capacity in (0, len(probe_output) - 1, len(probe_output),
+                         len(probe_output) + 1):
+            add(maximum_values, capacity)
+
+        malformed = (
+            (), (1, 35), (1, 35, 32, 9),
+            (-1, 35, 32), (SIERPINSKI_CARPET_MAX_DEPTH + 1, 35, 32),
+            (SIERPINSKI_CARPET_I64_MIN, 35, 32),
+            (SIERPINSKI_CARPET_I64_MAX, 35, 32),
+            (1, SIERPINSKI_CARPET_ASCII_MIN - 1, 35),
+            (1, 35, SIERPINSKI_CARPET_ASCII_MAX + 1),
+            (1, 35, 35),
+            (1, SIERPINSKI_CARPET_I64_MIN, 35),
+            (1, 35, SIERPINSKI_CARPET_I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= SIERPINSKI_CARPET_MAX_PARSEABLE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = (SIERPINSKI_CARPET_I64_MIN,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "xor_linked_list":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        workspace_spec = workload.get("workspace", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != XOR_LINKED_LIST_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("xor_linked_list workspace must match its reviewed output bound")
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, value_0, ..., value_(n-1)]"
+                or input_spec.get("count_range") != [0, XOR_LINKED_LIST_MAX_COUNT]
+                or input_spec.get("value_range") != [XOR_LINKED_LIST_I32_MIN,
+                                                        XOR_LINKED_LIST_I32_MAX]
+                or input_spec.get("exact_packed_length") != "1 + n"
+                or input_spec.get("maximum_valid_input_length") != XOR_LINKED_LIST_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != XOR_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+                or XOR_LINKED_LIST_MAX_INPUT_LENGTH != XOR_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("kind") != "i64_little_endian_records"
+                or output_spec.get("layout") != "n as i64 little-endian followed by n widened signed i64 values in forward traversal order"
+                or output_spec.get("maximum_output_bytes") != XOR_LINKED_LIST_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_spec.get("meaning") != "maximum output size, including the 8-byte count prefix"
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("xor_linked_list workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("xor_linked_list output capacity is out of range")
+            cases[(values, capacity)] = xor_linked_list_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"xor_linked_list workload capacity is out of range: {case['id']}")
+            result, output = xor_linked_list_oracle(values, capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or ("expected_output_hex" in case
+                        and case["expected_output_hex"].lower() != output.hex())):
+                raise ValueError(f"xor_linked_list workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        add((0,))
+        add((1, 42))
+        add((5, 7, -2, 7, 0, 7))
+        add((2, XOR_LINKED_LIST_I32_MIN, XOR_LINKED_LIST_I32_MAX))
+
+        maximum_values = (XOR_LINKED_LIST_MAX_COUNT,
+                         *range(XOR_LINKED_LIST_MAX_COUNT))
+        add(maximum_values)
+
+        rng_xor_linked_list = random.Random(20261016)
+        for _ in range(128):
+            count = rng_xor_linked_list.randint(0, XOR_LINKED_LIST_MAX_COUNT)
+            items = tuple(rng_xor_linked_list.randint(-5, 5) for _ in range(count))
+            add((count, *items))
+
+        for capacity in (0, XOR_LINKED_LIST_MAX_OUTPUT_BYTES - 1,
+                         XOR_LINKED_LIST_MAX_OUTPUT_BYTES,
+                         XOR_LINKED_LIST_MAX_OUTPUT_BYTES + 1):
+            add(maximum_values, capacity)
+
+        malformed = (
+            (), (-1,), (XOR_LINKED_LIST_I64_MIN,), (XOR_LINKED_LIST_I64_MAX,),
+            (XOR_LINKED_LIST_MAX_COUNT + 1,), (3, 1, 2), (1, 42, 99),
+            (0, 0), (1, XOR_LINKED_LIST_I32_MAX + 1),
+            (1, XOR_LINKED_LIST_I32_MIN - 1),
+            (1, XOR_LINKED_LIST_I64_MIN), (1, XOR_LINKED_LIST_I64_MAX),
+            tuple([0] * XOR_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= XOR_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = (XOR_LINKED_LIST_I64_MIN, 0)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "swap_nodes":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != SWAP_NODES_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("swap_nodes workspace must match its reviewed output bound")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n,values[0..n],value_a,value_b]"
+                or input_spec.get("n_range") != [SWAP_NODES_MIN_N, SWAP_NODES_MAX_N]
+                or input_spec.get("value_range") != [SWAP_NODES_MIN_I32, SWAP_NODES_MAX_I32]
+                or input_spec.get("target_range") != [SWAP_NODES_MIN_I32, SWAP_NODES_MAX_I32]
+                or input_spec.get("exact_packed_length") != "3 + n"
+                or input_spec.get("maximum_packed_values") != SWAP_NODES_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "i64_le_array"
+                or output_spec.get("encoding") != "i64le element count followed by final values as i64le"
+                or output_spec.get("meaning") != "the final input-order values after swapping the data fields of the first nodes matching both requested values; unchanged when either is absent or both targets are equal"
+                or output_spec.get("maximum_output_bytes") != SWAP_NODES_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "number of output bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("swap_nodes workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("swap_nodes output capacity is out of range")
+            cases[(values, capacity)] = swap_nodes_oracle(list(values), capacity)
+
+        def pack(items: tuple[int, ...], value_a: int, value_b: int) -> tuple[int, ...]:
+            return (len(items), *items, value_a, value_b)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("swap_nodes workload capacity is out of range")
+            result, output = swap_nodes_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"swap_nodes workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        add(pack((), 1, 2))
+        add(pack((1,), 1, 2))
+        add(pack((1, 2), 1, 2))
+        add(pack((5, 1, 2, 1, 2), 1, 2))
+        add(pack((5, 1, 2, 1, 2), 2, 2))
+        add(pack((1, 2, 3), 1, 9))
+        add(pack((SWAP_NODES_MIN_I32, SWAP_NODES_MAX_I32),
+                 SWAP_NODES_MIN_I32, SWAP_NODES_MAX_I32))
+
+        maximum_items = tuple((index % 9) - 4 for index in range(SWAP_NODES_MAX_N))
+        maximum_values = pack(maximum_items, -4, 4)
+        add(maximum_values)
+
+        rng_swap_nodes = random.Random(20261016)
+        for _ in range(128):
+            n = rng_swap_nodes.randint(SWAP_NODES_MIN_N, SWAP_NODES_MAX_N)
+            items = tuple(rng_swap_nodes.randint(-5, 5) for _ in range(n))
+            value_a = rng_swap_nodes.randint(-5, 5)
+            value_b = rng_swap_nodes.randint(-5, 5)
+            add(pack(items, value_a, value_b))
+
+        for capacity in (0, SWAP_NODES_MAX_OUTPUT_BYTES - 1,
+                         SWAP_NODES_MAX_OUTPUT_BYTES,
+                         SWAP_NODES_MAX_OUTPUT_BYTES + 1):
+            add(maximum_values, capacity)
+
+        malformed = (
+            (), (0,), (-1, 0, 0), (SWAP_NODES_MAX_N + 1,
+                                   *([0] * (SWAP_NODES_MAX_N - 1)), 0, 0),
+            (0, 1, 2, 3), (1, 5, 5),
+            (1, SWAP_NODES_MAX_I32 + 1, 0, 0),
+            (1, SWAP_NODES_MIN_I32 - 1, 0, 0),
+            (0, 0, SWAP_NODES_MAX_I32 + 1),
+            (0, 0, SWAP_NODES_MIN_I32 - 1),
+            (1, 0, SWAP_NODES_I64_MIN, 1),
+            (1, 0, SWAP_NODES_I64_MAX, 1),
+            tuple([0] * SWAP_NODES_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= SWAP_NODES_MAX_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = (0,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "sum_of_subsets":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != SUM_OF_SUBSETS_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("sum_of_subsets workspace must match its reviewed output bound")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n,target,values[0..n]]"
+                or input_spec.get("n_range") != [SUM_OF_SUBSETS_MIN_N, SUM_OF_SUBSETS_MAX_N]
+                or input_spec.get("target_range") != [0, SUM_OF_SUBSETS_MAX_TARGET]
+                or input_spec.get("value_range") != [0, SUM_OF_SUBSETS_MAX_VALUE]
+                or input_spec.get("exact_packed_length") != "2 + n"
+                or input_spec.get("maximum_packed_values") != SUM_OF_SUBSETS_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "counted_i64_le_records"
+                or output_spec.get("encoding") != "i64le solution_count, then for each solution i64le length followed by i64le values in DFS order"
+                or output_spec.get("meaning") != "all index-distinct subsets that sum to target in include-by-index depth-first order; stop each branch when its current sum equals target"
+                or output_spec.get("maximum_subsets") != SUM_OF_SUBSETS_MAX_SUBSETS
+                or output_spec.get("maximum_output_bytes") != SUM_OF_SUBSETS_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "number of output bytes written"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("sum_of_subsets workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("sum_of_subsets output capacity is out of range")
+            cases[(values, capacity)] = sum_of_subsets_oracle(list(values), capacity)
+
+        def pack(numbers: tuple[int, ...], target: int) -> tuple[int, ...]:
+            return (len(numbers), target, *numbers)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("sum_of_subsets workload capacity is out of range")
+            result, output = sum_of_subsets_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"sum_of_subsets workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for n in (SUM_OF_SUBSETS_MIN_N, 1, 2, 3, SUM_OF_SUBSETS_MAX_N):
+            numbers = tuple((index * 7 + 3) % 11 for index in range(n))
+            add(pack(numbers, 0))
+            add(pack(numbers, sum(numbers)))
+            add(pack(numbers, sum(numbers) + 1))
+
+        add(pack((), 0))
+        add(pack((0,), 0))
+        add(pack((0,), 1))
+        add(pack((0, 4, 0), 4))
+        add(pack((0, 4, 0), 0))
+        add(pack((2, 2, 3, 3), 5))
+        add(pack((1,) * SUM_OF_SUBSETS_MAX_N, 5))
+        add(pack((SUM_OF_SUBSETS_MAX_VALUE,) * SUM_OF_SUBSETS_MAX_N,
+                 SUM_OF_SUBSETS_MAX_TARGET))
+        add(pack((0,) * SUM_OF_SUBSETS_MAX_N, 0))
+
+        rng_sum_of_subsets = random.Random(20261016)
+        for _ in range(128):
+            n = rng_sum_of_subsets.randint(SUM_OF_SUBSETS_MIN_N,
+                                           SUM_OF_SUBSETS_MAX_N)
+            numbers = tuple(rng_sum_of_subsets.randint(0, SUM_OF_SUBSETS_MAX_VALUE)
+                            for _ in range(n))
+            target = rng_sum_of_subsets.randint(0, SUM_OF_SUBSETS_MAX_TARGET)
+            add(pack(numbers, target))
+
+        capacity_probe = pack((1,) * SUM_OF_SUBSETS_MAX_N, 5)
+        probe_result, probe_output = sum_of_subsets_oracle(list(capacity_probe))
+        if (probe_result != len(probe_output)
+                or len(probe_output) > SUM_OF_SUBSETS_MAX_OUTPUT_BYTES):
+            raise ValueError("sum_of_subsets probe exceeds its reviewed output bound")
+        for capacity in (0, len(probe_output) - 1, len(probe_output),
+                         len(probe_output) + 1, SUM_OF_SUBSETS_MAX_OUTPUT_BYTES - 1,
+                         SUM_OF_SUBSETS_MAX_OUTPUT_BYTES):
+            add(capacity_probe, capacity)
+
+        malformed = (
+            (), (0,), (-1, 0), (SUM_OF_SUBSETS_I64_MIN, 0),
+            (SUM_OF_SUBSETS_I64_MAX, 0), (1,), (1, 1), (0, 0, 0),
+            (SUM_OF_SUBSETS_MAX_N + 1, 0, *([0] * SUM_OF_SUBSETS_MAX_N)),
+            (0, -1), (0, SUM_OF_SUBSETS_MAX_TARGET + 1),
+            (1, 1, -1), (1, 1, SUM_OF_SUBSETS_MAX_VALUE + 1),
+            (1, SUM_OF_SUBSETS_I64_MIN, 0),
+            (1, SUM_OF_SUBSETS_I64_MAX, 0),
+            (1, 1, SUM_OF_SUBSETS_I64_MIN),
+            (1, 1, SUM_OF_SUBSETS_I64_MAX),
+            tuple([0] * SUM_OF_SUBSETS_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= SUM_OF_SUBSETS_MAX_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = (0,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "merkle_tree":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (type(default_capacity) is not int
+                or default_capacity != MERKLE_TREE_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("merkle_tree workspace must match its reviewed root size")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[leaf_count,(byte_length,ASCII bytes...)*]"
+                or input_spec.get("leaf_count_range") != [MERKLE_TREE_MIN_LEAF_COUNT,
+                                                            MERKLE_TREE_MAX_LEAF_COUNT]
+                or input_spec.get("byte_length_range") != [0, MERKLE_TREE_MAX_LEAF_BYTES]
+                or input_spec.get("byte_range") != [0, MERKLE_TREE_MAX_ASCII_BYTE]
+                or input_spec.get("exact_packed_length") != "1 + leaf_count + sum(leaf byte lengths)"
+                or input_spec.get("maximum_packed_values") != MAX_MERKLE_TREE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "ascii_merkle_root"
+                or output_spec.get("encoding") != "64 lowercase ASCII hexadecimal bytes"
+                or output_spec.get("meaning") != "SHA-256 each leaf's raw bytes; hash ASCII lowercase hexadecimal child digests in pairs, duplicating an odd final child"
+                or output_spec.get("maximum_output_bytes") != MERKLE_TREE_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "number of root bytes written (64)"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
+            raise ValueError("merkle_tree workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("merkle_tree output capacity is out of range")
+            cases[(values, capacity)] = merkle_tree_oracle(list(values), capacity)
+
+        def pack(leaves: tuple[tuple[int, ...], ...]) -> tuple[int, ...]:
+            packed = [len(leaves)]
+            for leaf in leaves:
+                packed.extend((len(leaf), *leaf))
+            return tuple(packed)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("merkle_tree workload capacity is out of range")
+            result, output = merkle_tree_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"merkle_tree workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for count in (1, 2, 3, 4, 5, 8, MERKLE_TREE_MAX_LEAF_COUNT):
+            add(pack(tuple(() for _ in range(count))))
+            add(pack(tuple((index % 128,) for index in range(count))))
+            add(pack(tuple(tuple((index * 37 + leaf * 11) % 128
+                                 for index in range((leaf * 7) % (MERKLE_TREE_MAX_LEAF_BYTES + 1)))
+                            for leaf in range(count))))
+
+        maximum_leaves = tuple(tuple((leaf * 13 + offset) % 128
+                                     for offset in range(MERKLE_TREE_MAX_LEAF_BYTES))
+                               for leaf in range(MERKLE_TREE_MAX_LEAF_COUNT))
+        add(pack(maximum_leaves))
+
+        rng_merkle_tree = random.Random(20261016)
+        for _ in range(128):
+            count = rng_merkle_tree.randint(MERKLE_TREE_MIN_LEAF_COUNT,
+                                            MERKLE_TREE_MAX_LEAF_COUNT)
+            leaves = tuple(tuple(rng_merkle_tree.randrange(MERKLE_TREE_MAX_ASCII_BYTE + 1)
+                                 for _ in range(rng_merkle_tree.randint(0, MERKLE_TREE_MAX_LEAF_BYTES)))
+                           for _ in range(count))
+            add(pack(leaves))
+
+        capacity_probe = pack((tuple(range(MERKLE_TREE_MAX_LEAF_BYTES)),))
+        for capacity in (0, MERKLE_TREE_MAX_OUTPUT_BYTES - 1,
+                         MERKLE_TREE_MAX_OUTPUT_BYTES,
+                         MERKLE_TREE_MAX_OUTPUT_BYTES + 1):
+            add(capacity_probe, capacity)
+
+        malformed = (
+            (), (0,), (-1,), (MERKLE_TREE_MAX_LEAF_COUNT + 1, *([0] * MERKLE_TREE_MAX_LEAF_COUNT)),
+            (1,), (1, -1), (1, MERKLE_TREE_MAX_LEAF_BYTES + 1),
+            (1, 2, 65), (1, 1, -1), (1, 1, MERKLE_TREE_MAX_ASCII_BYTE + 1),
+            (1, 1, MERKLE_TREE_I64_MIN), (1, 1, MERKLE_TREE_I64_MAX),
+            (1, 0, 65), (1, 0, 0, 1),
+            tuple([0] * MAX_MERKLE_TREE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MERKLE_TREE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = (0,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "rail_fence":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        workspace_spec = workload.get("workspace", {})
+        measurement = workload.get("measurement", {})
         if (type(default_capacity) is not int
-                or default_capacity < RAIL_FENCE_MAX_TEXT_LENGTH
+                or default_capacity != RAIL_FENCE_MAX_TEXT_LENGTH
                 or default_capacity > MAX_OUTPUT_CAPACITY):
             raise ValueError("invalid rail_fence output workspace size")
-        if (workload.get("input", {}).get("maximum_parseable_input_length")
-                != RAIL_FENCE_MAX_PARSEABLE_INPUT_LENGTH
-                or workload.get("output", {}).get("maximum_output_bytes")
-                != RAIL_FENCE_MAX_TEXT_LENGTH):
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[mode, rails, byte_length, ascii_bytes...]"
+                or input_spec.get("mode_values") != {"0": "encrypt", "1": "decrypt"}
+                or input_spec.get("rails_range") != [RAIL_FENCE_MIN_RAILS, RAIL_FENCE_MAX_RAILS]
+                or input_spec.get("byte_length_range") != [0, RAIL_FENCE_MAX_TEXT_LENGTH]
+                or input_spec.get("byte_range") != [0, 127]
+                or input_spec.get("exact_packed_length") != "3 + byte_length"
+                or input_spec.get("maximum_valid_input_length") != 3 + RAIL_FENCE_MAX_TEXT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != RAIL_FENCE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("kind") != "raw_ascii_bytes"
+                or output_spec.get("encoding") != "Exact Rail Fence cipher text bytes; no terminator."
+                or output_spec.get("maximum_output_bytes") != RAIL_FENCE_MAX_TEXT_LENGTH
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workspace_spec.get("bytes") != RAIL_FENCE_MAX_TEXT_LENGTH
+                or workspace_spec.get("meaning") != "Maximum output capacity in raw bytes."
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"):
             raise ValueError("rail_fence workload bounds do not match its reviewed contract")
 
         def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
@@ -1769,6 +2506,298 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(tuple(values))
 
         null_values = (17, RAIL_FENCE_MIN_RAILS, 0)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "map_reduce":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (type(default_capacity) is not int
+                or default_capacity != MAP_REDUCE_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("map_reduce workspace must match the reviewed output bound")
+        if (input_spec.get("kind") != "raw_ascii_byte_array"
+                or input_spec.get("minimum_length") != 0
+                or input_spec.get("maximum_length") != MAP_REDUCE_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_input_values_for_malformed_cases")
+                != MAP_REDUCE_MAX_INPUT_LENGTH + 1
+                or output_spec.get("kind") != "byte_sequence"
+                or output_spec.get("maximum_bytes") != MAP_REDUCE_MAX_OUTPUT_BYTES
+                or output_spec.get("insufficient_capacity_result") != -2):
+            raise ValueError("map_reduce workload bounds do not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("map_reduce output capacity exceeds the output bounds")
+            cases[(values, capacity)] = map_reduce_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = map_reduce_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"map_reduce workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng_map_reduce = random.Random(20261016)
+        valid_bytes = (*range(32, 127), 9, 10, 11, 12, 13)
+        for length in (0, 1, 2, 3, 31, 127, 128, 255, MAP_REDUCE_MAX_INPUT_LENGTH):
+            values = tuple(valid_bytes[index % len(valid_bytes)] for index in range(length))
+            add(values)
+        for _ in range(128):
+            length = rng_map_reduce.randint(0, MAP_REDUCE_MAX_INPUT_LENGTH)
+            values = tuple(rng_map_reduce.choice(valid_bytes) for _ in range(length))
+            add(values)
+
+        for values in ((), (97,), (97, 32, 98), (97, 32, 97),
+                       (0,), (1,), (31,), (127,), (128,), (255,), (256,), (-1,),
+                       tuple([65] * (MAP_REDUCE_MAX_INPUT_LENGTH + 1))):
+            add(tuple(values))
+
+        for capacity in (0, 2, 3, 4):
+            add((), capacity)
+        for capacity in (0, 3, 4, 5):
+            add((97,), capacity)
+
+        null_key = ((), default_capacity)
+        cases[null_key] = map_reduce_oracle([], default_capacity)
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "transposition_cipher":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        if (type(default_capacity) is not int
+                or default_capacity != TRANSPOSITION_CIPHER_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("transposition_cipher workspace must match the reviewed output bound")
+        if (input_spec.get("kind") != "signed_i64_array_packed_route_transposition_ascii"
+                or input_spec.get("length_range") != [6, TRANSPOSITION_CIPHER_MAX_INPUT_LENGTH]
+                or input_spec.get("text_length_range") != [3, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH]
+                or input_spec.get("key_range") != [2, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH - 1]
+                or input_spec.get("byte_range") != [0, 127]
+                or input_spec.get("mode_values") != {"0": "encrypt", "1": "decrypt"}
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("insufficient_capacity_result") != -2):
+            raise ValueError("transposition_cipher workload bounds do not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("transposition_cipher output capacity exceeds the output bounds")
+            cases[(values, capacity)] = transposition_cipher_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = transposition_cipher_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"transposition_cipher workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng_transposition_cipher = random.Random(20261016)
+        for text_length in (3, 4, 5, 7, 8, 15, 16, 31, 32, 63, 64,
+                            127, 128, 255, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH):
+            keys = {2, text_length // 2, text_length - 1}
+            text = tuple((index * 37 + 11) % 128 for index in range(text_length))
+            for key in sorted(value for value in keys if 2 <= value < text_length):
+                for mode in (0, 1):
+                    add((mode, key, text_length, *text))
+        for _ in range(128):
+            text_length = rng_transposition_cipher.randint(3, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH)
+            key = rng_transposition_cipher.randint(2, text_length - 1)
+            mode = rng_transposition_cipher.randrange(2)
+            text = tuple(rng_transposition_cipher.randrange(128) for _ in range(text_length))
+            add((mode, key, text_length, *text))
+
+        capacity_probe = (0, 2, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH,
+                          *(index % 128 for index in range(TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH)))
+        for capacity in (0, TRANSPOSITION_CIPHER_MAX_OUTPUT_BYTES - 1,
+                         TRANSPOSITION_CIPHER_MAX_OUTPUT_BYTES,
+                         TRANSPOSITION_CIPHER_MAX_OUTPUT_BYTES + 1):
+            add(capacity_probe, capacity)
+        minimum_probe = (1, 2, 3, 65, 0, 127)
+        for capacity in (0, 2, 3, 4):
+            add(minimum_probe, capacity)
+
+        malformed = (
+            (), (0,), (2, 2, 3, 65, 66, 67),
+            (0, 1, 3, 65, 66, 67), (0, 3, 3, 65, 66, 67),
+            (0, 2, 2, 65, 66), (0, 2, 4, 65, 66, 67),
+            (0, 2, 3, 65, -1, 67), (0, 2, 3, 65, 128, 67),
+            (0, 2, 3, 65, 67),
+            (0, 2, TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH + 1,
+             *([65] * (TRANSPOSITION_CIPHER_MAX_TEXT_LENGTH + 1))),
+            tuple([0] * (TRANSPOSITION_CIPHER_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (17, 2, 3, 65, 66, 67)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "spigotpi":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (type(default_capacity) is not int
+                or default_capacity != SPIGOTPI_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("spigotpi workspace must match the reviewed output bound")
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n]"
+                or input_spec.get("exact_packed_length") != 1
+                or input_spec.get("maximum_input_values_for_malformed_cases") != SPIGOTPI_MAX_INPUT_LENGTH
+                or input_spec.get("n_range") != [0, SPIGOTPI_MAX_DIGITS]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "byte_sequence"
+                or output_spec.get("maximum_bytes") != SPIGOTPI_MAX_OUTPUT_BYTES
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("errors_leave_output_untouched") is not True):
+            raise ValueError("spigotpi workload bounds do not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("spigotpi output capacity exceeds the output bounds")
+            cases[(values, capacity)] = spigotpi_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = spigotpi_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"spigotpi workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for digits in range(SPIGOTPI_MAX_DIGITS + 1):
+            add((digits,))
+
+        for capacity in (0, 1, SPIGOTPI_MAX_DIGITS - 1,
+                         SPIGOTPI_MAX_DIGITS, SPIGOTPI_MAX_DIGITS + 1):
+            add((SPIGOTPI_MAX_DIGITS,), capacity)
+        for capacity in (0, 1, 2):
+            add((1,), capacity)
+        add((0,), 0)
+
+        malformed = (
+            (), (SPIGOTPI_MAX_DIGITS + 1,), (-1,), (SPIGOTPI_MAX_DIGITS, 0),
+            (2, 3), (-(1 << 63),),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = ((1 << 63) - 1,)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "median_finder":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (type(default_capacity) is not int
+                or default_capacity != MEDIAN_FINDER_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("median_finder workspace must match the reviewed output bound")
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, value0, ..., value(n-1)]"
+                or input_spec.get("exact_packed_length") != "n + 1"
+                or input_spec.get("maximum_values") != MEDIAN_FINDER_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_values_for_malformed_cases") != MEDIAN_FINDER_MAX_INPUT_LENGTH
+                or input_spec.get("n_range") != [1, MEDIAN_FINDER_MAX_COUNT]
+                or input_spec.get("value_range") != [MEDIAN_FINDER_MIN_VALUE, MEDIAN_FINDER_MAX_VALUE]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("maximum_bytes") != MEDIAN_FINDER_MAX_OUTPUT_BYTES
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("absolute_tolerance") != 0.0
+                or output_spec.get("relative_tolerance") != 0.0):
+            raise ValueError("median_finder workload bounds do not match its reviewed contract")
+
+        absolute_tolerance = output_spec.get("absolute_tolerance", 0.0)
+        relative_tolerance = output_spec.get("relative_tolerance", 0.0)
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("median_finder output capacity exceeds the output bounds")
+            cases[(values, capacity)] = median_finder_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = median_finder_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"median_finder workload mismatch: {case['id']}")
+            expected_vector = case.get("expected_output")
+            oracle_vector = ([struct.unpack_from("<d", output, offset)[0]
+                              for offset in range(0, len(output), 8)]
+                             if result >= 0 else [])
+            if (not isinstance(expected_vector, list)
+                    or len(expected_vector) != len(oracle_vector)
+                    or any(abs(actual - expected)
+                           > absolute_tolerance + relative_tolerance * abs(expected)
+                           for actual, expected in zip(expected_vector, oracle_vector))):
+                raise ValueError(f"median_finder float64 vector mismatch: {case['id']}")
+            add(values, capacity)
+
+        for count in (1, 2, 3, 4, 16, 32, MEDIAN_FINDER_MAX_COUNT):
+            ascending = tuple(MEDIAN_FINDER_MIN_VALUE
+                              + (MEDIAN_FINDER_MAX_VALUE - MEDIAN_FINDER_MIN_VALUE) * index
+                              // max(1, count - 1) for index in range(count))
+            patterns = (ascending, tuple(reversed(ascending)),
+                        tuple([42] * count),
+                        tuple(MEDIAN_FINDER_MIN_VALUE if index % 2 == 0
+                              else MEDIAN_FINDER_MAX_VALUE for index in range(count)))
+            for values in patterns:
+                add((count, *values))
+
+        rng_median_finder = random.Random(20261016)
+        for _ in range(128):
+            count = rng_median_finder.randint(1, MEDIAN_FINDER_MAX_COUNT)
+            values = tuple(rng_median_finder.randint(MEDIAN_FINDER_MIN_VALUE,
+                                                      MEDIAN_FINDER_MAX_VALUE)
+                           for _ in range(count))
+            add((count, *values))
+
+        capacity_probe = (MEDIAN_FINDER_MAX_COUNT,
+                          *(MEDIAN_FINDER_MIN_VALUE if index % 2 == 0
+                            else MEDIAN_FINDER_MAX_VALUE
+                            for index in range(MEDIAN_FINDER_MAX_COUNT)))
+        for capacity in (0, MEDIAN_FINDER_MAX_OUTPUT_BYTES - 1,
+                         MEDIAN_FINDER_MAX_OUTPUT_BYTES,
+                         MEDIAN_FINDER_MAX_OUTPUT_BYTES + 1):
+            add(capacity_probe, capacity)
+        for capacity in (0, 7, 8, 9):
+            add((1, 0), capacity)
+
+        malformed = (
+            (), (1,), (0,), (MEDIAN_FINDER_MAX_COUNT + 1,), (2, 9),
+            (1, 0, 1, 2), (MEDIAN_FINDER_MAX_COUNT, *([0] * (MEDIAN_FINDER_MAX_COUNT - 1))),
+            (1, MEDIAN_FINDER_MIN_VALUE - 1), (1, MEDIAN_FINDER_MAX_VALUE + 1),
+            tuple([0] * MEDIAN_FINDER_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (1, 1_234_567)
         null_key = (null_values, default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)

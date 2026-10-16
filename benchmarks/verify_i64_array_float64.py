@@ -296,6 +296,118 @@ from gaussian_legendre_oracle import expected_result as gaussian_legendre_oracle
 from gradient_boosting_regressor_oracle import INVALID_RESULT as GRADIENT_BOOSTING_REGRESSOR_INVALID_RESULT
 from gradient_boosting_regressor_oracle import MAX_INPUT_LENGTH as MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH
 from gradient_boosting_regressor_oracle import expected_result as gradient_boosting_regressor_oracle
+from mean_squared_error_oracle import INVALID_RESULT as MEAN_SQUARED_ERROR_INVALID_RESULT
+from mean_squared_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH
+from mean_squared_error_oracle import MAX_COUNT as MEAN_SQUARED_ERROR_MAX_COUNT
+from mean_squared_error_oracle import MAX_PARSED_COUNT as MEAN_SQUARED_ERROR_MAX_PARSED_COUNT
+from mean_squared_error_oracle import MAX_SAMPLE as MEAN_SQUARED_ERROR_MAX_SAMPLE
+from mean_squared_error_oracle import SCALE as MEAN_SQUARED_ERROR_SCALE
+from mean_squared_error_oracle import expected_result as mean_squared_error_oracle
+from mean_squared_logarithmic_error_oracle import INVALID_RESULT as MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT
+from mean_squared_logarithmic_error_oracle import MAX_COUNT as MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT
+from mean_squared_logarithmic_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH
+from mean_squared_logarithmic_error_oracle import MAX_SAMPLE as MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE
+from mean_squared_logarithmic_error_oracle import MIN_SAMPLE as MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE
+from mean_squared_logarithmic_error_oracle import SCALE as MEAN_SQUARED_LOGARITHMIC_ERROR_SCALE
+from mean_squared_logarithmic_error_oracle import expected_result as mean_squared_logarithmic_error_oracle
+from mean_absolute_percentage_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+from mean_absolute_percentage_error_oracle import MAX_COUNT as MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT
+from mean_absolute_percentage_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+from mean_absolute_percentage_error_oracle import MAX_SAMPLE as MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE
+from mean_absolute_percentage_error_oracle import MIN_SAMPLE as MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE
+from mean_absolute_percentage_error_oracle import SCALE as MEAN_ABSOLUTE_PERCENTAGE_ERROR_SCALE
+from mean_absolute_percentage_error_oracle import EPSILON as MEAN_ABSOLUTE_PERCENTAGE_ERROR_EPSILON
+from mean_absolute_percentage_error_oracle import expected_result as mean_absolute_percentage_error_oracle
+from symmetric_mean_absolute_percentage_error_oracle import INVALID_RESULT as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+from symmetric_mean_absolute_percentage_error_oracle import MAX_COUNT as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT
+from symmetric_mean_absolute_percentage_error_oracle import MAX_INPUT_LENGTH as MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+from symmetric_mean_absolute_percentage_error_oracle import MAX_SAMPLE as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE
+from symmetric_mean_absolute_percentage_error_oracle import MIN_SAMPLE as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE
+from symmetric_mean_absolute_percentage_error_oracle import SCALE as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_SCALE
+from symmetric_mean_absolute_percentage_error_oracle import EPSILON as SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_EPSILON
+from symmetric_mean_absolute_percentage_error_oracle import expected_result as symmetric_mean_absolute_percentage_error_oracle
+from gaussian_negative_log_likelihood_loss_oracle import INVALID_RESULT as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT
+from gaussian_negative_log_likelihood_loss_oracle import MAX_COUNT as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT
+from gaussian_negative_log_likelihood_loss_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH
+from gaussian_negative_log_likelihood_loss_oracle import MAX_TARGET_MICRO as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO
+from gaussian_negative_log_likelihood_loss_oracle import MIN_VARIANCE_NANO as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO
+from gaussian_negative_log_likelihood_loss_oracle import MAX_VARIANCE_NANO as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO
+from gaussian_negative_log_likelihood_loss_oracle import TARGET_SCALE as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_TARGET_SCALE
+from gaussian_negative_log_likelihood_loss_oracle import VARIANCE_SCALE as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_VARIANCE_SCALE
+from gaussian_negative_log_likelihood_loss_oracle import EPSILON as GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_EPSILON
+from gaussian_negative_log_likelihood_loss_oracle import expected_result as gaussian_negative_log_likelihood_loss_oracle
+from perplexity_loss_oracle import INVALID_RESULT as PERPLEXITY_LOSS_INVALID_RESULT
+from perplexity_loss_oracle import MAX_BATCH as PERPLEXITY_LOSS_MAX_BATCH
+from perplexity_loss_oracle import MAX_INPUT_LENGTH as MAX_PERPLEXITY_LOSS_INPUT_LENGTH
+from perplexity_loss_oracle import MAX_TIME as PERPLEXITY_LOSS_MAX_TIME
+from perplexity_loss_oracle import MAX_VOCAB as PERPLEXITY_LOSS_MAX_VOCAB
+from perplexity_loss_oracle import MIN_BATCH as PERPLEXITY_LOSS_MIN_BATCH
+from perplexity_loss_oracle import MIN_TIME as PERPLEXITY_LOSS_MIN_TIME
+from perplexity_loss_oracle import MIN_VOCAB as PERPLEXITY_LOSS_MIN_VOCAB
+from perplexity_loss_oracle import PROBABILITY_SCALE as PERPLEXITY_LOSS_PROBABILITY_SCALE
+from perplexity_loss_oracle import EPSILON as PERPLEXITY_LOSS_EPSILON
+from perplexity_loss_oracle import expected_result as perplexity_loss_oracle
+from connectionist_temporal_classification_loss_oracle import INVALID_RESULT as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT
+from connectionist_temporal_classification_loss_oracle import MAX_CLASSES as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES
+from connectionist_temporal_classification_loss_oracle import MAX_INPUT_LENGTH as MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH
+from connectionist_temporal_classification_loss_oracle import MAX_TARGET as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET
+from connectionist_temporal_classification_loss_oracle import MAX_TIME as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME
+from connectionist_temporal_classification_loss_oracle import MIN_CLASSES as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_CLASSES
+from connectionist_temporal_classification_loss_oracle import MIN_TARGET as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TARGET
+from connectionist_temporal_classification_loss_oracle import MIN_TIME as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TIME
+from connectionist_temporal_classification_loss_oracle import PROBABILITY_SCALE as CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE
+from connectionist_temporal_classification_loss_oracle import expected_result as connectionist_temporal_classification_loss_oracle
+from kullback_leibler_divergence_oracle import INVALID_RESULT as KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT
+from kullback_leibler_divergence_oracle import MAX_COUNT as KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT
+from kullback_leibler_divergence_oracle import MAX_INPUT_LENGTH as MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH
+from kullback_leibler_divergence_oracle import SCALE as KULLBACK_LEIBLER_DIVERGENCE_SCALE
+from kullback_leibler_divergence_oracle import expected_result as kullback_leibler_divergence_oracle
+from mean_absolute_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_ERROR_INVALID_RESULT
+from mean_absolute_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
+from mean_absolute_error_oracle import MAX_COUNT as MEAN_ABSOLUTE_ERROR_MAX_COUNT
+from mean_absolute_error_oracle import MAX_PARSED_COUNT as MEAN_ABSOLUTE_ERROR_MAX_PARSED_COUNT
+from mean_absolute_error_oracle import MAX_SAMPLE as MEAN_ABSOLUTE_ERROR_MAX_SAMPLE
+from mean_absolute_error_oracle import SCALE as MEAN_ABSOLUTE_ERROR_SCALE
+from mean_absolute_error_oracle import expected_result as mean_absolute_error_oracle
+from smooth_l1_loss_oracle import INVALID_RESULT as SMOOTH_L1_LOSS_INVALID_RESULT
+from smooth_l1_loss_oracle import MAX_INPUT_LENGTH as MAX_SMOOTH_L1_LOSS_INPUT_LENGTH
+from smooth_l1_loss_oracle import MAX_COUNT as SMOOTH_L1_LOSS_MAX_COUNT
+from smooth_l1_loss_oracle import MAX_PARSED_COUNT as SMOOTH_L1_LOSS_MAX_PARSED_COUNT
+from smooth_l1_loss_oracle import MAX_SAMPLE as SMOOTH_L1_LOSS_MAX_SAMPLE
+from smooth_l1_loss_oracle import SCALE as SMOOTH_L1_LOSS_SCALE
+from smooth_l1_loss_oracle import BETA as SMOOTH_L1_LOSS_BETA
+from smooth_l1_loss_oracle import expected_result as smooth_l1_loss_oracle
+from binary_cross_entropy_oracle import INVALID_RESULT as BINARY_CROSS_ENTROPY_INVALID_RESULT
+from binary_cross_entropy_oracle import MAX_COUNT as BINARY_CROSS_ENTROPY_MAX_COUNT
+from binary_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH
+from binary_cross_entropy_oracle import MAX_PROBABILITY as BINARY_CROSS_ENTROPY_MAX_PROBABILITY
+from binary_cross_entropy_oracle import EPSILON as BINARY_CROSS_ENTROPY_EPSILON
+from binary_cross_entropy_oracle import expected_result as binary_cross_entropy_oracle
+from binary_focal_cross_entropy_oracle import INVALID_RESULT as BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+from binary_focal_cross_entropy_oracle import MAX_COUNT as BINARY_FOCAL_CROSS_ENTROPY_MAX_COUNT
+from binary_focal_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+from binary_focal_cross_entropy_oracle import MAX_PROBABILITY as BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+from binary_focal_cross_entropy_oracle import EPSILON as BINARY_FOCAL_CROSS_ENTROPY_EPSILON
+from binary_focal_cross_entropy_oracle import ALPHA as BINARY_FOCAL_CROSS_ENTROPY_ALPHA
+from binary_focal_cross_entropy_oracle import GAMMA as BINARY_FOCAL_CROSS_ENTROPY_GAMMA
+from binary_focal_cross_entropy_oracle import expected_result as binary_focal_cross_entropy_oracle
+from categorical_cross_entropy_oracle import INVALID_RESULT as CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+from categorical_cross_entropy_oracle import MAX_BATCH as CATEGORICAL_CROSS_ENTROPY_MAX_BATCH
+from categorical_cross_entropy_oracle import MAX_CLASSES as CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES
+from categorical_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH
+from categorical_cross_entropy_oracle import MAX_PROBABILITY as CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY
+from categorical_cross_entropy_oracle import EPSILON as CATEGORICAL_CROSS_ENTROPY_EPSILON
+from categorical_cross_entropy_oracle import expected_result as categorical_cross_entropy_oracle
+from categorical_focal_cross_entropy_oracle import INVALID_RESULT as CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+from categorical_focal_cross_entropy_oracle import MAX_BATCH as CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH
+from categorical_focal_cross_entropy_oracle import MAX_CLASSES as CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES
+from categorical_focal_cross_entropy_oracle import MAX_INPUT_LENGTH as MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+from categorical_focal_cross_entropy_oracle import MAX_PROBABILITY as CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+from categorical_focal_cross_entropy_oracle import EPSILON as CATEGORICAL_FOCAL_CROSS_ENTROPY_EPSILON
+from categorical_focal_cross_entropy_oracle import expected_result as categorical_focal_cross_entropy_oracle
+from sparse_categorical_cross_entropy_oracle import INVALID_RESULT as SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+from sparse_categorical_cross_entropy_oracle import EPSILON as SPARSE_CATEGORICAL_CROSS_ENTROPY_EPSILON
+from sparse_categorical_cross_entropy_oracle import sparse_categorical_cross_entropy as sparse_categorical_cross_entropy_oracle
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -309,7 +421,28 @@ ALGORITHMS += ("return_on_investment", "debt_to_equity", "gross_profit_margin", 
 ALGORITHMS += ("gaussian_legendre",)
 ALGORITHMS += ("gradient_boosting_regressor",)
 ALGORITHMS += ("fractional_differentiation",)
+ALGORITHMS += ("mean_squared_error",)
+ALGORITHMS += ("mean_squared_logarithmic_error",)
+ALGORITHMS += ("mean_absolute_percentage_error",)
+ALGORITHMS += ("symmetric_mean_absolute_percentage_error",)
+ALGORITHMS += ("gaussian_negative_log_likelihood_loss",)
+ALGORITHMS += ("perplexity_loss",)
+ALGORITHMS += ("connectionist_temporal_classification_loss",)
+ALGORITHMS += ("kullback_leibler_divergence",)
+ALGORITHMS += ("mean_absolute_error",)
+ALGORITHMS += ("smooth_l1_loss",)
+ALGORITHMS += ("binary_cross_entropy",)
+ALGORITHMS += ("binary_focal_cross_entropy",)
+ALGORITHMS += ("categorical_cross_entropy",)
+ALGORITHMS += ("categorical_focal_cross_entropy",)
+ALGORITHMS += ("sparse_categorical_cross_entropy",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
+MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
+MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY = 1_000_000
+MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = (
+    2 + MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH
+    + MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH * MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES)
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
 MAX_TERNARY_ENDPOINT_MILLI = 100_000
@@ -327,6 +460,36 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return fractional_differentiation_oracle(values)
     if algorithm == "gradient_boosting_regressor":
         return gradient_boosting_regressor_oracle(values)
+    if algorithm == "mean_squared_error":
+        return mean_squared_error_oracle(values)
+    if algorithm == "mean_squared_logarithmic_error":
+        return mean_squared_logarithmic_error_oracle(values)
+    if algorithm == "mean_absolute_percentage_error":
+        return mean_absolute_percentage_error_oracle(values)
+    if algorithm == "symmetric_mean_absolute_percentage_error":
+        return symmetric_mean_absolute_percentage_error_oracle(values)
+    if algorithm == "gaussian_negative_log_likelihood_loss":
+        return gaussian_negative_log_likelihood_loss_oracle(values)
+    if algorithm == "perplexity_loss":
+        return perplexity_loss_oracle(values)
+    if algorithm == "connectionist_temporal_classification_loss":
+        return connectionist_temporal_classification_loss_oracle(values)
+    if algorithm == "kullback_leibler_divergence":
+        return kullback_leibler_divergence_oracle(values)
+    if algorithm == "mean_absolute_error":
+        return mean_absolute_error_oracle(values)
+    if algorithm == "smooth_l1_loss":
+        return smooth_l1_loss_oracle(values)
+    if algorithm == "binary_cross_entropy":
+        return binary_cross_entropy_oracle(values)
+    if algorithm == "binary_focal_cross_entropy":
+        return binary_focal_cross_entropy_oracle(values)
+    if algorithm == "categorical_cross_entropy":
+        return categorical_cross_entropy_oracle(values)
+    if algorithm == "categorical_focal_cross_entropy":
+        return categorical_focal_cross_entropy_oracle(values)
+    if algorithm == "sparse_categorical_cross_entropy":
+        return sparse_categorical_cross_entropy_oracle(values)
     if algorithm == "gaussian_legendre":
         return gaussian_legendre_oracle(values)
     if algorithm == "hubble_parameter":
@@ -466,7 +629,1155 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError(f"published workload disagrees with the oracle: {case['id']}")
         cases[tuple(values)] = source_result
 
-    if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
+    if algorithm == "categorical_focal_cross_entropy":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "mean over rows of summed categorical focal loss with unit class weights "
+            "and gamma=2")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[B, C, one_hot[B*C], probability_scaled[B*C]]"
+                or input_spec.get("meaning") != "batch size and class count, then row-major one-hot labels and row-major probabilities scaled by 1,000,000"
+                or input_spec.get("maximum_packed_values") != MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+                or input_spec.get("invalid_result") != CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+                or input_spec.get("batch_range") != [1, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH]
+                or input_spec.get("class_range") != [2, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES]
+                or input_spec.get("probability_scale") != CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("probability_row_sum") != CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("one_hot_value_range") != [0, 1]
+                or input_spec.get("probability_scaled_range") != [0, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY]
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("invalid_result") != CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12
+                or workload.get("pinned_source", {}).get("method")
+                != "categorical_focal_cross_entropy(y_true, y_pred, alpha=None, gamma=2)"
+                or CATEGORICAL_FOCAL_CROSS_ENTROPY_EPSILON != CATEGORICAL_CROSS_ENTROPY_EPSILON):
+            raise ValueError("categorical_focal_cross_entropy workload metadata does not match its reviewed contract")
+
+        def add(batch: int, classes: int, labels: tuple[int, ...],
+                probabilities: tuple[int, ...]) -> None:
+            if len(labels) != batch * classes or len(probabilities) != batch * classes:
+                raise ValueError("categorical_focal_cross_entropy generated rows must fill the declared batch shape")
+            values = (batch, classes, *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        def one_hot(batch: int, classes: int, selected: tuple[int, ...]) -> tuple[int, ...]:
+            return tuple(int(column == selected[row])
+                         for row in range(batch) for column in range(classes))
+
+        def probability_rows(batch: int, classes: int,
+                             rng: random.Random | None = None) -> tuple[int, ...]:
+            rows: list[int] = []
+            for _ in range(batch):
+                remaining = CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+                row = []
+                for _ in range(classes - 1):
+                    value = (rng.randint(0, remaining) if rng is not None else 0)
+                    row.append(value)
+                    remaining -= value
+                row.append(remaining)
+                if rng is not None:
+                    rng.shuffle(row)
+                rows.extend(row)
+            return tuple(rows)
+
+        for batch, classes in ((1, 2), (2, 3), (17, 8),
+                                (CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH,
+                                 CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES)):
+            selected = tuple(index % classes for index in range(batch))
+            labels = one_hot(batch, classes, selected)
+            add(batch, classes, labels, probability_rows(batch, classes))
+            endpoints = tuple(value for _ in range(batch)
+                              for value in ((0, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY)
+                                            + (0,) * (classes - 2)))
+            add(batch, classes, labels, endpoints)
+            uniform_base, uniform_remainder = divmod(
+                CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY, classes)
+            uniform_row = tuple(uniform_base + int(column < uniform_remainder)
+                                for column in range(classes))
+            add(batch, classes, labels, uniform_row * batch)
+
+        rng_categorical_focal_cross_entropy = random.Random(20261016)
+        for _ in range(96):
+            batch = rng_categorical_focal_cross_entropy.randint(
+                1, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH)
+            classes = rng_categorical_focal_cross_entropy.randint(
+                2, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES)
+            selected = tuple(rng_categorical_focal_cross_entropy.randrange(classes)
+                             for _ in range(batch))
+            labels = one_hot(batch, classes, selected)
+            probabilities = probability_rows(batch, classes, rng_categorical_focal_cross_entropy)
+            add(batch, classes, labels, probabilities)
+
+        malformed = (
+            (), (1,), (0, 2), (CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH + 1, 2),
+            (1, 1), (1, CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES + 1),
+            (1, 2, 1, 0, 500_000), (1, 2, 2, 0, 500_000, 500_000),
+            (1, 2, 1, 0, 400_000, 400_000),
+            (1, 2, 1, 0, -1, 1_000_001),
+            (1, 2, 1, 0, I64_MIN, I64_MAX),
+            (CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_BATCH + 1,
+             CATEGORICAL_FOCAL_CROSS_ENTROPY_MAX_CLASSES,
+             *([0] * (MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH - 2))),
+            tuple([0] * MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "categorical_cross_entropy":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "sum of -label * ln(clipped probability) over all rows and classes, "
+            f"clipping to [{CATEGORICAL_CROSS_ENTROPY_EPSILON:g}, 1]")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[B, C, one_hot[B*C], probability_scaled[B*C]]"
+                or input_spec.get("meaning") != "batch size and class count, then row-major one-hot labels and row-major probabilities scaled by 1,000,000"
+                or input_spec.get("maximum_packed_values") != MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH
+                or input_spec.get("invalid_result") != CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+                or input_spec.get("batch_range") != [1, CATEGORICAL_CROSS_ENTROPY_MAX_BATCH]
+                or input_spec.get("class_range") != [2, CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES]
+                or input_spec.get("probability_scale") != CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("probability_row_sum") != CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("one_hot_value_range") != [0, 1]
+                or input_spec.get("probability_scaled_range") != [0, CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY]
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("invalid_result") != CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("categorical_cross_entropy workload metadata does not match its reviewed contract")
+
+        def add(batch: int, classes: int, labels: tuple[int, ...],
+                probabilities: tuple[int, ...]) -> None:
+            if len(labels) != batch * classes or len(probabilities) != batch * classes:
+                raise ValueError("categorical_cross_entropy generated rows must fill the declared batch shape")
+            values = (batch, classes, *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        def one_hot(batch: int, classes: int, selected: tuple[int, ...]) -> tuple[int, ...]:
+            return tuple(int(column == selected[row])
+                         for row in range(batch) for column in range(classes))
+
+        def probability_rows(batch: int, classes: int,
+                             rng: random.Random | None = None) -> tuple[int, ...]:
+            rows: list[int] = []
+            for _ in range(batch):
+                remaining = CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY
+                row = []
+                for _ in range(classes - 1):
+                    value = (rng.randint(0, remaining) if rng is not None else 0)
+                    row.append(value)
+                    remaining -= value
+                row.append(remaining)
+                if rng is not None:
+                    rng.shuffle(row)
+                rows.extend(row)
+            return tuple(rows)
+
+        for batch, classes in ((1, 2), (2, 3), (17, 8),
+                                (CATEGORICAL_CROSS_ENTROPY_MAX_BATCH,
+                                 CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES)):
+            selected = tuple(index % classes for index in range(batch))
+            labels = one_hot(batch, classes, selected)
+            add(batch, classes, labels, probability_rows(batch, classes))
+            endpoints = tuple(value for _ in range(batch)
+                              for value in ((0, CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY)
+                                            + (0,) * (classes - 2)))
+            add(batch, classes, labels, endpoints)
+            uniform_base, uniform_remainder = divmod(
+                CATEGORICAL_CROSS_ENTROPY_MAX_PROBABILITY, classes)
+            uniform_row = tuple(uniform_base + int(column < uniform_remainder)
+                                for column in range(classes))
+            uniform = uniform_row * batch
+            add(batch, classes, labels, uniform)
+
+        rng_categorical_cross_entropy = random.Random(20261016)
+        for _ in range(96):
+            batch = rng_categorical_cross_entropy.randint(1, CATEGORICAL_CROSS_ENTROPY_MAX_BATCH)
+            classes = rng_categorical_cross_entropy.randint(2, CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES)
+            selected = tuple(rng_categorical_cross_entropy.randrange(classes) for _ in range(batch))
+            labels = one_hot(batch, classes, selected)
+            probabilities = probability_rows(batch, classes, rng_categorical_cross_entropy)
+            add(batch, classes, labels, probabilities)
+
+        malformed = (
+            (), (1,), (0, 2), (CATEGORICAL_CROSS_ENTROPY_MAX_BATCH + 1, 2),
+            (1, 1), (1, CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES + 1),
+            (1, 2, 1, 0, 500_000), (1, 2, 2, 0, 500_000, 500_000),
+            (1, 2, 1, 0, 400_000, 400_000),
+            (1, 2, 1, 0, -1, 1_000_001),
+            (1, 2, 1, 0, I64_MIN, I64_MAX),
+            (CATEGORICAL_CROSS_ENTROPY_MAX_BATCH + 1,
+             CATEGORICAL_CROSS_ENTROPY_MAX_CLASSES,
+             *([0] * (MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH - 2))),
+            tuple([0] * MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "binary_focal_cross_entropy":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_meaning = (
+            "mean binary focal cross entropy after clipping probabilities, "
+            f"with alpha={BINARY_FOCAL_CROSS_ENTROPY_ALPHA:g} "
+            f"and gamma={BINARY_FOCAL_CROSS_ENTROPY_GAMMA:g}")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, labels[n], probability_scaled[n]]"
+                or input_spec.get("meaning") != "n followed by n binary labels and n probabilities scaled by 1,000,000"
+                or input_spec.get("maximum_packed_values") != MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH
+                or input_spec.get("invalid_result") != BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+                or input_spec.get("n_range") != [1, BINARY_FOCAL_CROSS_ENTROPY_MAX_COUNT]
+                or input_spec.get("probability_scale") != BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("label_range") != [0, 1]
+                or input_spec.get("probability_scaled_range") != [0, BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY]
+                or BINARY_FOCAL_CROSS_ENTROPY_EPSILON != BINARY_CROSS_ENTROPY_EPSILON
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != expected_meaning
+                or output_spec.get("invalid_result") != BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("binary_focal_cross_entropy workload metadata does not match its reviewed contract")
+
+        def add(labels: tuple[int, ...], probabilities: tuple[int, ...]) -> None:
+            if len(labels) != len(probabilities):
+                raise ValueError("binary_focal_cross_entropy generated pairs must have equal lengths")
+            values = (len(labels), *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, BINARY_FOCAL_CROSS_ENTROPY_MAX_COUNT):
+            alternating_labels = tuple(index % 2 for index in range(count))
+            positive_labels = tuple([1] * count)
+            negative_labels = tuple([0] * count)
+            boundary_probabilities = tuple(
+                (0, 1, BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY - 1,
+                 BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY)[index % 4]
+                for index in range(count))
+            add(alternating_labels, boundary_probabilities)
+            add(positive_labels, (0,) * count)
+            add(negative_labels, (BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY,) * count)
+            add(alternating_labels, (BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY // 2,) * count)
+
+        rng_binary_focal_cross_entropy = random.Random(20261016)
+        for _ in range(128):
+            count = rng_binary_focal_cross_entropy.randint(1, BINARY_FOCAL_CROSS_ENTROPY_MAX_COUNT)
+            labels = tuple(rng_binary_focal_cross_entropy.randrange(2) for _ in range(count))
+            probabilities = tuple(rng_binary_focal_cross_entropy.randint(
+                0, BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY) for _ in range(count))
+            add(labels, probabilities)
+
+        malformed = (
+            (), (0,), (-1,), (BINARY_FOCAL_CROSS_ENTROPY_MAX_COUNT + 1,
+                               *([0] * (MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH - 1))),
+            (1,), (1, 1), (1, 1, 500_000, 0),
+            (1, 2, 500_000), (1, 1, -1),
+            (1, 1, BINARY_FOCAL_CROSS_ENTROPY_MAX_PROBABILITY + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            tuple([0] * MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "binary_cross_entropy":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, labels[n], probability_scaled[n]]"
+                or input_spec.get("meaning") != "n followed by n binary labels and n probabilities scaled by 1,000,000"
+                or input_spec.get("maximum_packed_values") != MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH
+                or input_spec.get("invalid_result") != BINARY_CROSS_ENTROPY_INVALID_RESULT
+                or input_spec.get("n_range") != [1, BINARY_CROSS_ENTROPY_MAX_COUNT]
+                or input_spec.get("probability_scale") != BINARY_CROSS_ENTROPY_MAX_PROBABILITY
+                or input_spec.get("label_range") != [0, 1]
+                or input_spec.get("probability_scaled_range") != [0, BINARY_CROSS_ENTROPY_MAX_PROBABILITY]
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != (
+                    "mean binary cross entropy after clipping probabilities to "
+                    f"[{BINARY_CROSS_ENTROPY_EPSILON:g}, 1 - {BINARY_CROSS_ENTROPY_EPSILON:g}]")
+                or output_spec.get("invalid_result") != BINARY_CROSS_ENTROPY_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("binary_cross_entropy workload metadata does not match its reviewed contract")
+
+        def add(labels: tuple[int, ...], probabilities: tuple[int, ...]) -> None:
+            if len(labels) != len(probabilities):
+                raise ValueError("binary_cross_entropy generated labels and probabilities must have equal lengths")
+            values = (len(labels), *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, BINARY_CROSS_ENTROPY_MAX_COUNT):
+            alternating_labels = tuple(index % 2 for index in range(count))
+            positive_labels = tuple([1] * count)
+            negative_labels = tuple([0] * count)
+            boundary_probabilities = tuple(
+                (0, 1, BINARY_CROSS_ENTROPY_MAX_PROBABILITY - 1,
+                 BINARY_CROSS_ENTROPY_MAX_PROBABILITY)[index % 4]
+                for index in range(count))
+            add(alternating_labels, boundary_probabilities)
+            add(positive_labels, (0,) * count)
+            add(negative_labels, (BINARY_CROSS_ENTROPY_MAX_PROBABILITY,) * count)
+            add(positive_labels, (BINARY_CROSS_ENTROPY_MAX_PROBABILITY // 2,) * count)
+
+        rng_binary_cross_entropy = random.Random(20261016)
+        for _ in range(128):
+            count = rng_binary_cross_entropy.randint(1, BINARY_CROSS_ENTROPY_MAX_COUNT)
+            labels = tuple(rng_binary_cross_entropy.randrange(2) for _ in range(count))
+            probabilities = tuple(rng_binary_cross_entropy.randint(0, BINARY_CROSS_ENTROPY_MAX_PROBABILITY)
+                                  for _ in range(count))
+            add(labels, probabilities)
+
+        malformed = (
+            (), (0,), (-1,), (BINARY_CROSS_ENTROPY_MAX_COUNT + 1,
+                               *([0] * (MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH - 1))),
+            (1,), (1, 1), (1, 1, 500_000, 0),
+            (1, 2, 500_000), (1, 1, -1),
+            (1, 1, BINARY_CROSS_ENTROPY_MAX_PROBABILITY + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            tuple([0] * MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "smooth_l1_loss":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        beta_spec = input_spec.get("beta", {})
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, true_scaled[0..n], predicted_scaled[0..n]]"
+                or input_spec.get("scale_per_physical_unit") != SMOOTH_L1_LOSS_SCALE
+                or input_spec.get("n_range") != [1, SMOOTH_L1_LOSS_MAX_COUNT]
+                or input_spec.get("parser_n_maximum") != SMOOTH_L1_LOSS_MAX_PARSED_COUNT
+                or input_spec.get("sample_micro_range") != [-SMOOTH_L1_LOSS_MAX_SAMPLE,
+                                                               SMOOTH_L1_LOSS_MAX_SAMPLE]
+                or input_spec.get("maximum_packed_values") != MAX_SMOOTH_L1_LOSS_INPUT_LENGTH
+                or beta_spec.get("source_default") != SMOOTH_L1_LOSS_BETA
+                or beta_spec.get("benchmark_value") != SMOOTH_L1_LOSS_BETA
+                or beta_spec.get("quadratic_condition") != "absolute_residual < beta"
+                or beta_spec.get("linear_condition") != "absolute_residual >= beta"
+                or input_spec.get("invalid_result") != SMOOTH_L1_LOSS_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("invalid_result") != SMOOTH_L1_LOSS_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("smooth_l1_loss workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if len(true_values) != len(predicted_values):
+                raise ValueError("smooth_l1_loss generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, SMOOTH_L1_LOSS_MAX_COUNT):
+            identical = tuple(index * 1000 - (count * 500) for index in range(count))
+            opposite = tuple(SMOOTH_L1_LOSS_MAX_SAMPLE if index % 2 == 0
+                             else -SMOOTH_L1_LOSS_MAX_SAMPLE for index in range(count))
+            small_residual = tuple(index - count for index in range(count))
+            add(identical, identical)
+            add((-SMOOTH_L1_LOSS_MAX_SAMPLE,) * count,
+                (SMOOTH_L1_LOSS_MAX_SAMPLE,) * count)
+            add(opposite, tuple(-value for value in opposite))
+            add(small_residual, tuple(value + 1 for value in small_residual))
+
+        add((0,), (int(SMOOTH_L1_LOSS_BETA * SMOOTH_L1_LOSS_SCALE) - 1,))
+        add((0,), (int(SMOOTH_L1_LOSS_BETA * SMOOTH_L1_LOSS_SCALE),))
+        add((-1,), (int(SMOOTH_L1_LOSS_BETA * SMOOTH_L1_LOSS_SCALE),))
+        add((0, 0, -1), (999_999, 1_000_000, 1_000_000))
+
+        rng_smooth_l1_loss = random.Random(20261016)
+        for _ in range(128):
+            count = rng_smooth_l1_loss.randint(1, SMOOTH_L1_LOSS_MAX_COUNT)
+            true_values = tuple(rng_smooth_l1_loss.randint(-SMOOTH_L1_LOSS_MAX_SAMPLE,
+                                                           SMOOTH_L1_LOSS_MAX_SAMPLE)
+                                for _ in range(count))
+            predicted_values = tuple(rng_smooth_l1_loss.randint(-SMOOTH_L1_LOSS_MAX_SAMPLE,
+                                                                SMOOTH_L1_LOSS_MAX_SAMPLE)
+                                     for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (SMOOTH_L1_LOSS_MAX_PARSED_COUNT + 1,),
+            (1,), (2, 100, 200, 100), (1, 100, 200, 300),
+            (1, SMOOTH_L1_LOSS_MAX_SAMPLE + 1, 0),
+            (1, -SMOOTH_L1_LOSS_MAX_SAMPLE - 1, 0),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (SMOOTH_L1_LOSS_MAX_PARSED_COUNT,
+             *([0] * (2 * SMOOTH_L1_LOSS_MAX_PARSED_COUNT)),),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SMOOTH_L1_LOSS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mean_absolute_error":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, true_scaled[0..n], predicted_scaled[0..n]]"
+                or input_spec.get("scale_per_physical_unit") != MEAN_ABSOLUTE_ERROR_SCALE
+                or input_spec.get("n_range") != [1, MEAN_ABSOLUTE_ERROR_MAX_COUNT]
+                or input_spec.get("parser_n_maximum") != MEAN_ABSOLUTE_ERROR_MAX_PARSED_COUNT
+                or input_spec.get("sample_micro_range") != [-MEAN_ABSOLUTE_ERROR_MAX_SAMPLE,
+                                                               MEAN_ABSOLUTE_ERROR_MAX_SAMPLE]
+                or input_spec.get("maximum_packed_values") != MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
+                or input_spec.get("invalid_result") != MEAN_ABSOLUTE_ERROR_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("invalid_result") != MEAN_ABSOLUTE_ERROR_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("mean_absolute_error workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if len(true_values) != len(predicted_values):
+                raise ValueError("mean_absolute_error generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, MEAN_ABSOLUTE_ERROR_MAX_COUNT):
+            identical = tuple(index * 1000 - (count * 500) for index in range(count))
+            opposite = tuple(MEAN_ABSOLUTE_ERROR_MAX_SAMPLE if index % 2 == 0
+                             else -MEAN_ABSOLUTE_ERROR_MAX_SAMPLE for index in range(count))
+            unit_residual = tuple(index - count for index in range(count))
+            shifted = tuple(value + 1 for value in unit_residual)
+            add(identical, identical)
+            add((-MEAN_ABSOLUTE_ERROR_MAX_SAMPLE,) * count,
+                (MEAN_ABSOLUTE_ERROR_MAX_SAMPLE,) * count)
+            add(opposite, tuple(-value for value in opposite))
+            add(unit_residual, shifted)
+
+        rng_mean_absolute_error = random.Random(20261016)
+        for _ in range(128):
+            count = rng_mean_absolute_error.randint(1, MEAN_ABSOLUTE_ERROR_MAX_COUNT)
+            true_values = tuple(rng_mean_absolute_error.randint(-MEAN_ABSOLUTE_ERROR_MAX_SAMPLE,
+                                                                MEAN_ABSOLUTE_ERROR_MAX_SAMPLE)
+                                for _ in range(count))
+            predicted_values = tuple(rng_mean_absolute_error.randint(-MEAN_ABSOLUTE_ERROR_MAX_SAMPLE,
+                                                                     MEAN_ABSOLUTE_ERROR_MAX_SAMPLE)
+                                     for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (MEAN_ABSOLUTE_ERROR_MAX_PARSED_COUNT + 1,),
+            (1,), (2, 100, 200, 100), (1, 100, 200, 300),
+            (1, MEAN_ABSOLUTE_ERROR_MAX_SAMPLE + 1, 0),
+            (1, -MEAN_ABSOLUTE_ERROR_MAX_SAMPLE - 1, 0),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (MEAN_ABSOLUTE_ERROR_MAX_PARSED_COUNT,
+             *([0] * (2 * MEAN_ABSOLUTE_ERROR_MAX_PARSED_COUNT)),),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mean_squared_error":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, true_scaled[0..n], predicted_scaled[0..n]]"
+                or input_spec.get("scale_per_physical_unit") != MEAN_SQUARED_ERROR_SCALE
+                or input_spec.get("n_range") != [1, MEAN_SQUARED_ERROR_MAX_COUNT]
+                or input_spec.get("parser_n_maximum") != MEAN_SQUARED_ERROR_MAX_PARSED_COUNT
+                or input_spec.get("sample_micro_range") != [-MEAN_SQUARED_ERROR_MAX_SAMPLE,
+                                                               MEAN_SQUARED_ERROR_MAX_SAMPLE]
+                or input_spec.get("maximum_packed_values") != MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH
+                or input_spec.get("invalid_result") != MEAN_SQUARED_ERROR_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("invalid_result") != MEAN_SQUARED_ERROR_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("mean_squared_error workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if len(true_values) != len(predicted_values):
+                raise ValueError("mean_squared_error generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, MEAN_SQUARED_ERROR_MAX_COUNT):
+            identical = tuple(index * 1000 - (count * 500) for index in range(count))
+            opposite = tuple(MEAN_SQUARED_ERROR_MAX_SAMPLE if index % 2 == 0
+                             else -MEAN_SQUARED_ERROR_MAX_SAMPLE for index in range(count))
+            unit_residual = tuple(index - count for index in range(count))
+            shifted = tuple(value + 1 for value in unit_residual)
+            add(identical, identical)
+            add((-MEAN_SQUARED_ERROR_MAX_SAMPLE,) * count,
+                (MEAN_SQUARED_ERROR_MAX_SAMPLE,) * count)
+            add(opposite, tuple(-value for value in opposite))
+            add(unit_residual, shifted)
+
+        rng_mean_squared_error = random.Random(20261016)
+        for _ in range(128):
+            count = rng_mean_squared_error.randint(1, MEAN_SQUARED_ERROR_MAX_COUNT)
+            true_values = tuple(rng_mean_squared_error.randint(-MEAN_SQUARED_ERROR_MAX_SAMPLE,
+                                                               MEAN_SQUARED_ERROR_MAX_SAMPLE)
+                                for _ in range(count))
+            predicted_values = tuple(rng_mean_squared_error.randint(-MEAN_SQUARED_ERROR_MAX_SAMPLE,
+                                                                    MEAN_SQUARED_ERROR_MAX_SAMPLE)
+                                     for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (MEAN_SQUARED_ERROR_MAX_PARSED_COUNT + 1,),
+            (1,), (2, 100, 200, 100), (1, 100, 200, 300),
+            (1, MEAN_SQUARED_ERROR_MAX_SAMPLE + 1, 0),
+            (1, -MEAN_SQUARED_ERROR_MAX_SAMPLE - 1, 0),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (MEAN_SQUARED_ERROR_MAX_PARSED_COUNT,
+             *([0] * (2 * MEAN_SQUARED_ERROR_MAX_PARSED_COUNT)),),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mean_squared_logarithmic_error":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "arithmetic mean of squared differences between ln(1 + y_true) and ln(1 + y_pred)")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, y_true_scaled[0..n], y_pred_scaled[0..n]]"
+                or input_spec.get("scale") != MEAN_SQUARED_LOGARITHMIC_ERROR_SCALE
+                or input_spec.get("minimum_count") != 1
+                or input_spec.get("maximum_count") != MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT
+                or input_spec.get("maximum_packed_values") != MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH
+                or input_spec.get("value_scaled_range") != [MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE,
+                                                               MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE]
+                or input_spec.get("invalid_input_result") != MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "Mean Squared Logarithmic Error"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("invalid_input_result") != MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("mean_squared_logarithmic_error workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if not 1 <= len(true_values) <= MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT:
+                raise ValueError("mean_squared_logarithmic_error generated count is outside the reviewed bounds")
+            if len(true_values) != len(predicted_values):
+                raise ValueError("mean_squared_logarithmic_error generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT):
+            identical = tuple(MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE + index % 2
+                              for index in range(count))
+            opposite = tuple(MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE if index % 2 == 0
+                             else MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE
+                             for index in range(count))
+            shifted = tuple(value + 1 for value in identical)
+            add(identical, identical)
+            add((MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE,) * count,
+                (MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE,) * count)
+            add(opposite, tuple(reversed(opposite)))
+            add(identical, shifted)
+
+        rng_mean_squared_logarithmic_error = random.Random(20261016)
+        for _ in range(128):
+            count = rng_mean_squared_logarithmic_error.randint(
+                1, MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT)
+            true_values = tuple(rng_mean_squared_logarithmic_error.randint(
+                MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE,
+                MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE) for _ in range(count))
+            predicted_values = tuple(rng_mean_squared_logarithmic_error.randint(
+                MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE,
+                MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE) for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT + 1,),
+            (1,), (1, 0, 0, 0),
+            (1, MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE - 1, 0),
+            (1, MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE + 1, 0),
+            (1, 0, MEAN_SQUARED_LOGARITHMIC_ERROR_MIN_SAMPLE - 1),
+            (1, 0, MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_SAMPLE + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT + 1,
+             *([0] * (2 * MEAN_SQUARED_LOGARITHMIC_ERROR_MAX_COUNT)),),
+            tuple([0] * MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mean_absolute_percentage_error":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "mean of abs((safe y_true - y_pred) / safe y_true), where safe y_true is epsilon when y_true is zero")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, y_true_scaled[0..n], y_pred_scaled[0..n]]"
+                or input_spec.get("scale") != MEAN_ABSOLUTE_PERCENTAGE_ERROR_SCALE
+                or input_spec.get("minimum_count") != 1
+                or input_spec.get("maximum_count") != MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT
+                or input_spec.get("maximum_packed_values") != MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+                or input_spec.get("value_scaled_range") != [MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                                                               MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE]
+                or input_spec.get("invalid_input_result") != MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "Mean Absolute Percentage Error"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("epsilon") != MEAN_ABSOLUTE_PERCENTAGE_ERROR_EPSILON
+                or output_spec.get("invalid_input_result") != MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("mean_absolute_percentage_error workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if not 1 <= len(true_values) <= MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT:
+                raise ValueError("mean_absolute_percentage_error generated count is outside the reviewed bounds")
+            if len(true_values) != len(predicted_values):
+                raise ValueError("mean_absolute_percentage_error generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT):
+            add((0,) * count, (0,) * count)
+            add((0,) * count, (MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE,) * count)
+            add((0,) * count, (MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,) * count)
+            boundary_true = tuple(MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE if index % 2 == 0
+                                  else MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE
+                                  for index in range(count))
+            boundary_predicted = tuple(-value for value in boundary_true)
+            add(boundary_true, boundary_predicted)
+            add(boundary_true, boundary_true)
+
+        rng_mean_absolute_percentage_error = random.Random(20261016)
+        for _ in range(128):
+            count = rng_mean_absolute_percentage_error.randint(
+                1, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT)
+            true_values = tuple(rng_mean_absolute_percentage_error.randint(
+                MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE) for _ in range(count))
+            predicted_values = tuple(rng_mean_absolute_percentage_error.randint(
+                MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE) for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT + 1,),
+            (1,), (1, 0, 0, 0),
+            (1, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE - 1, 0),
+            (1, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE + 1, 0),
+            (1, 0, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE - 1),
+            (1, 0, MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT + 1,
+             *([0] * (2 * MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT)),),
+            tuple([0] * MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "symmetric_mean_absolute_percentage_error":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "mean of abs(y_true - y_pred) / ((abs(y_true) + abs(y_pred)) / 2), replacing an exactly-zero denominator with epsilon")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, y_true_scaled[0..n], y_pred_scaled[0..n]]"
+                or input_spec.get("scale") != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_SCALE
+                or input_spec.get("minimum_count") != 1
+                or input_spec.get("maximum_count") != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT
+                or input_spec.get("maximum_packed_values") != MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH
+                or input_spec.get("value_scaled_range") != [SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                                                               SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE]
+                or input_spec.get("invalid_input_result") != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "Symmetric Mean Absolute Percentage Error"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("epsilon") != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_EPSILON
+                or output_spec.get("invalid_input_result") != SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("symmetric_mean_absolute_percentage_error workload metadata does not match its reviewed contract")
+
+        def add(true_values: tuple[int, ...], predicted_values: tuple[int, ...]) -> None:
+            if not 1 <= len(true_values) <= SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT:
+                raise ValueError("symmetric_mean_absolute_percentage_error generated count is outside the reviewed bounds")
+            if len(true_values) != len(predicted_values):
+                raise ValueError("symmetric_mean_absolute_percentage_error generated pairs must have equal lengths")
+            values = (len(true_values), *true_values, *predicted_values)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT):
+            add((0,) * count, (0,) * count)
+            add((0,) * count, (SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE,) * count)
+            add((0,) * count, (SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,) * count)
+            boundary_true = tuple(SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE
+                                  if index % 2 == 0
+                                  else SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE
+                                  for index in range(count))
+            add(boundary_true, tuple(-value for value in boundary_true))
+            add(boundary_true, boundary_true)
+        add((-1, 0, 1), (0, -1, 1))
+
+        rng_symmetric_mean_absolute_percentage_error = random.Random(20261016)
+        for _ in range(128):
+            count = rng_symmetric_mean_absolute_percentage_error.randint(
+                1, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT)
+            true_values = tuple(rng_symmetric_mean_absolute_percentage_error.randint(
+                SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE) for _ in range(count))
+            predicted_values = tuple(rng_symmetric_mean_absolute_percentage_error.randint(
+                SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE,
+                SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE) for _ in range(count))
+            add(true_values, predicted_values)
+
+        malformed = (
+            (), (0,), (-1,), (SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT + 1,),
+            (1,), (1, 0, 0, 0),
+            (1, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE - 1, 0),
+            (1, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE + 1, 0),
+            (1, 0, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MIN_SAMPLE - 1),
+            (1, 0, SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_SAMPLE + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT + 1,
+             *([0] * (2 * SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_MAX_COUNT)),),
+            tuple([0] * MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "gaussian_negative_log_likelihood_loss":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_definition = (
+            "ordered mean of 0.5*log(max(variance,1e-6)) + "
+            "0.5*(target-expectation)^2/max(variance,1e-6); omit the Gaussian normalizing constant")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, y_true_micro[0..n], expectation_micro[0..n], variance_nano[0..n]]"
+                or input_spec.get("count_range") != [1, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT]
+                or input_spec.get("target_expectation_micro_range") != [-GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO,
+                                                                           GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO]
+                or input_spec.get("target_expectation_scale") != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_TARGET_SCALE
+                or input_spec.get("variance_nano_range") != [GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO,
+                                                               GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO]
+                or input_spec.get("variance_scale") != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_VARIANCE_SCALE
+                or input_spec.get("variance_floor") != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_EPSILON
+                or input_spec.get("exact_length") != "1 + 3*n"
+                or input_spec.get("maximum_packed_values") != MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH
+                or input_spec.get("invalid_result") != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_output_definition
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-12
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("gaussian_negative_log_likelihood_loss workload metadata does not match its reviewed contract")
+
+        def add(targets: tuple[int, ...], expectations: tuple[int, ...],
+                variances: tuple[int, ...]) -> None:
+            count = len(targets)
+            if not 1 <= count <= GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT:
+                raise ValueError("gaussian_negative_log_likelihood_loss generated count is outside the reviewed bounds")
+            if len(expectations) != count or len(variances) != count:
+                raise ValueError("gaussian_negative_log_likelihood_loss generated arrays must have equal lengths")
+            values = (count, *targets, *expectations, *variances)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 17, 64, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT):
+            exact = tuple((index - count // 2) * 1000 for index in range(count))
+            opposite = tuple(GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO
+                             if index % 2 == 0
+                             else -GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO
+                             for index in range(count))
+            add(exact, exact, (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO,) * count)
+            add(opposite, tuple(-value for value in opposite),
+                (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO,) * count)
+            add((0,) * count, (0,) * count,
+                (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO,) * count)
+            add((0,) * count, (0,) * count,
+                (int(GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_EPSILON
+                     * GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_VARIANCE_SCALE),) * count)
+            add((GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO,) * count,
+                (-GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO,) * count,
+                (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO,) * count)
+
+        rng_gaussian_negative_log_likelihood_loss = random.Random(20261016)
+        for _ in range(128):
+            count = rng_gaussian_negative_log_likelihood_loss.randint(
+                1, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT)
+            targets = tuple(rng_gaussian_negative_log_likelihood_loss.randint(
+                -GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO,
+                GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO) for _ in range(count))
+            expectations = tuple(rng_gaussian_negative_log_likelihood_loss.randint(
+                -GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO,
+                GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO) for _ in range(count))
+            variances = tuple(rng_gaussian_negative_log_likelihood_loss.randint(
+                GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO,
+                GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO) for _ in range(count))
+            add(targets, expectations, variances)
+
+        malformed = (
+            (), (0,), (-1,), (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT + 1,),
+            (1, 0, 0), (1, 0, 0, 1, 1),
+            (1, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO + 1, 0, 1),
+            (1, -GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO - 1, 0, 1),
+            (1, 0, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO + 1, 1),
+            (1, 0, -GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_TARGET_MICRO - 1, 1),
+            (1, 0, 0, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MIN_VARIANCE_NANO - 1),
+            (1, 0, 0, GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_VARIANCE_NANO + 1),
+            (1, I64_MIN, 0, 1), (1, I64_MAX, 0, 1),
+            (1, 0, I64_MIN, 1), (1, 0, I64_MAX, 1),
+            (1, 0, 0, I64_MIN), (1, 0, 0, I64_MAX),
+            (GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT + 1,
+             *([0] * (3 * GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_MAX_COUNT)),),
+            tuple([0] * MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "perplexity_loss":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_definition = (
+            "mean over batch of exp(-ordered_mean_over_time(log(clip(target_probability,1e-7,1))))")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[batch, time, vocab, labels[batch*time], probabilities_micro[batch*time*vocab]]"
+                or input_spec.get("batch_range") != [PERPLEXITY_LOSS_MIN_BATCH, PERPLEXITY_LOSS_MAX_BATCH]
+                or input_spec.get("time_range") != [PERPLEXITY_LOSS_MIN_TIME, PERPLEXITY_LOSS_MAX_TIME]
+                or input_spec.get("vocab_range") != [PERPLEXITY_LOSS_MIN_VOCAB, PERPLEXITY_LOSS_MAX_VOCAB]
+                or input_spec.get("label_range") != "0..vocab-1"
+                or input_spec.get("probability_micro_range") != [0, PERPLEXITY_LOSS_PROBABILITY_SCALE]
+                or input_spec.get("probability_scale") != PERPLEXITY_LOSS_PROBABILITY_SCALE
+                or input_spec.get("probability_row_sum") != PERPLEXITY_LOSS_PROBABILITY_SCALE
+                or input_spec.get("exact_length") != "3 + batch*time + batch*time*vocab"
+                or input_spec.get("maximum_packed_values") != MAX_PERPLEXITY_LOSS_INPUT_LENGTH
+                or input_spec.get("invalid_result") != PERPLEXITY_LOSS_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_output_definition
+                or output_spec.get("epsilon") != PERPLEXITY_LOSS_EPSILON
+                or output_spec.get("absolute_tolerance") != 1e-10
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != PERPLEXITY_LOSS_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-10
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("perplexity_loss workload metadata does not match its reviewed contract")
+
+        def add(batch: int, time: int, vocab: int, labels: tuple[int, ...],
+                probabilities: tuple[int, ...]) -> None:
+            token_count = batch * time
+            if not (PERPLEXITY_LOSS_MIN_BATCH <= batch <= PERPLEXITY_LOSS_MAX_BATCH
+                    and PERPLEXITY_LOSS_MIN_TIME <= time <= PERPLEXITY_LOSS_MAX_TIME
+                    and PERPLEXITY_LOSS_MIN_VOCAB <= vocab <= PERPLEXITY_LOSS_MAX_VOCAB):
+                raise ValueError("perplexity_loss generated dimensions are outside the reviewed bounds")
+            if len(labels) != token_count or len(probabilities) != token_count * vocab:
+                raise ValueError("perplexity_loss generated labels/probabilities do not match the declared shape")
+            values = (batch, time, vocab, *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        def normalized_rows(token_count: int, vocab: int,
+                            rng: random.Random | None = None) -> tuple[int, ...]:
+            rows: list[int] = []
+            for _ in range(token_count):
+                remaining = PERPLEXITY_LOSS_PROBABILITY_SCALE
+                row: list[int] = []
+                for _ in range(vocab - 1):
+                    value = rng.randint(0, remaining) if rng is not None else 0
+                    row.append(value)
+                    remaining -= value
+                row.append(remaining)
+                if rng is not None:
+                    rng.shuffle(row)
+                rows.extend(row)
+            return tuple(rows)
+
+        shapes = ((1, 1, 2), (1, 2, 4), (2, 3, 3), (4, 8, 8),
+                  (PERPLEXITY_LOSS_MAX_BATCH, PERPLEXITY_LOSS_MAX_TIME,
+                   PERPLEXITY_LOSS_MAX_VOCAB))
+        for batch, time, vocab in shapes:
+            token_count = batch * time
+            labels = tuple(index % vocab for index in range(token_count))
+            add(batch, time, vocab, labels, normalized_rows(token_count, vocab))
+            zero_selected_rows = tuple(value for _ in range(token_count)
+                                       for value in ((0, PERPLEXITY_LOSS_PROBABILITY_SCALE)
+                                                     + (0,) * (vocab - 2)))
+            add(batch, time, vocab, tuple([0] * token_count), zero_selected_rows)
+            full_selected_rows = tuple(value for _ in range(token_count)
+                                       for value in ((PERPLEXITY_LOSS_PROBABILITY_SCALE,)
+                                                     + (0,) * (vocab - 1)))
+            add(batch, time, vocab, tuple([0] * token_count), full_selected_rows)
+
+        rng_perplexity_loss = random.Random(20261016)
+        for _ in range(128):
+            batch = rng_perplexity_loss.randint(PERPLEXITY_LOSS_MIN_BATCH,
+                                                PERPLEXITY_LOSS_MAX_BATCH)
+            time = rng_perplexity_loss.randint(PERPLEXITY_LOSS_MIN_TIME,
+                                               PERPLEXITY_LOSS_MAX_TIME)
+            vocab = rng_perplexity_loss.randint(PERPLEXITY_LOSS_MIN_VOCAB,
+                                                PERPLEXITY_LOSS_MAX_VOCAB)
+            token_count = batch * time
+            labels = tuple(rng_perplexity_loss.randrange(vocab) for _ in range(token_count))
+            probabilities = normalized_rows(token_count, vocab, rng_perplexity_loss)
+            add(batch, time, vocab, labels, probabilities)
+
+        malformed = (
+            (), (1,), (1, 1), (0, 1, 2), (PERPLEXITY_LOSS_MAX_BATCH + 1, 1, 2),
+            (1, PERPLEXITY_LOSS_MAX_TIME + 1, 2),
+            (1, 1, PERPLEXITY_LOSS_MAX_VOCAB + 1), (1, 0, 2), (1, 1, 1),
+            (1, 1, 2, 0, 1_000_000),
+            (1, 1, 2, 0, 1_000_000, 0, 0),
+            (1, 1, 2, 2, 1_000_000, 0),
+            (1, 1, 2, 0, 500_000, 400_000),
+            (1, 1, 2, 0, -1, 1_000_001),
+            (1, 1, 2, I64_MIN, 1_000_000, 0),
+            (1, 1, 2, I64_MAX, 1_000_000, 0),
+            (PERPLEXITY_LOSS_MAX_BATCH + 1, PERPLEXITY_LOSS_MAX_TIME,
+             PERPLEXITY_LOSS_MAX_VOCAB,
+             *([0] * (MAX_PERPLEXITY_LOSS_INPUT_LENGTH - 3))),
+            tuple([0] * MAX_PERPLEXITY_LOSS_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_PERPLEXITY_LOSS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "connectionist_temporal_classification_loss":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_definition = (
+            "source forward log-probability dynamic program and negative logaddexp of the final blank and target states")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[time, classes, target_length, targets[0..target_length], probabilities_micro[time*classes]]"
+                or input_spec.get("time_range") != [CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TIME,
+                                                      CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME]
+                or input_spec.get("classes_range") != [CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_CLASSES,
+                                                         CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES]
+                or input_spec.get("target_length_range") != [CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TARGET,
+                                                               CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET]
+                or input_spec.get("blank_class") != 0
+                or input_spec.get("target_range") != "1..classes-1"
+                or input_spec.get("alignment_condition") != "time >= target_length + adjacent_equal_target_pairs"
+                or input_spec.get("probability_micro_range") != [1, CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE]
+                or input_spec.get("probability_scale") != CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE
+                or input_spec.get("probability_row_sum") != CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE
+                or input_spec.get("exact_length") != "3 + target_length + time*classes"
+                or input_spec.get("maximum_packed_values") != MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH
+                or input_spec.get("invalid_result") != CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_output_definition
+                or output_spec.get("absolute_tolerance") != 1e-10
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-10
+                or measurement.get("relative_tolerance") != 1e-12):
+            raise ValueError("connectionist_temporal_classification_loss workload metadata does not match its reviewed contract")
+
+        def add(time: int, classes: int, targets: tuple[int, ...],
+                probabilities: tuple[int, ...]) -> None:
+            target_length = len(targets)
+            if not (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TIME <= time
+                    <= CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME
+                    and CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_CLASSES <= classes
+                    <= CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES
+                    and CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TARGET <= target_length
+                    <= CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET):
+                raise ValueError("connectionist_temporal_classification_loss generated dimensions are outside the reviewed bounds")
+            if len(probabilities) != time * classes:
+                raise ValueError("connectionist_temporal_classification_loss probabilities do not match the declared shape")
+            values = (time, classes, target_length, *targets, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        def normalized_rows(time: int, classes: int,
+                            rng: random.Random | None = None,
+                            selected_columns: tuple[int, ...] | None = None) -> tuple[int, ...]:
+            rows: list[int] = []
+            for step in range(time):
+                remaining = CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE - classes
+                row = []
+                for _ in range(classes - 1):
+                    value = rng.randint(0, remaining) if rng is not None else 0
+                    row.append(value + 1)
+                    remaining -= value
+                row.append(remaining + 1)
+                if rng is not None:
+                    rng.shuffle(row)
+                if selected_columns is not None:
+                    selected = selected_columns[step]
+                    row = [1] * classes
+                    row[selected] = CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_PROBABILITY_SCALE - (classes - 1)
+                rows.extend(row)
+            return tuple(rows)
+
+        shapes = (
+            (1, 2, (1,)),
+            (2, 2, (1,)),
+            (3, 2, (1, 1)),
+            (2, 3, (1, 2)),
+            (8, 5, (1, 2, 3, 4)),
+            (31, 2, (1,) * 16),
+            (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME,
+             CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES,
+             tuple(1 + (index % (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES - 1))
+                   for index in range(CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET))),
+        )
+        for time, classes, targets in shapes:
+            blank_selected = (0,) * time
+            target_selected = tuple(targets[step % len(targets)] for step in range(time))
+            add(time, classes, targets, normalized_rows(time, classes))
+            add(time, classes, targets, normalized_rows(time, classes, selected_columns=blank_selected))
+            add(time, classes, targets, normalized_rows(time, classes, selected_columns=target_selected))
+
+        rng_connectionist_temporal_classification_loss = random.Random(20261016)
+        for _ in range(128):
+            classes = rng_connectionist_temporal_classification_loss.randint(
+                CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_CLASSES,
+                CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES)
+            target_length = rng_connectionist_temporal_classification_loss.randint(
+                CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TARGET,
+                CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET)
+            targets = tuple(rng_connectionist_temporal_classification_loss.randint(1, classes - 1)
+                            for _ in range(target_length))
+            adjacent_repeats = sum(targets[index] == targets[index - 1]
+                                   for index in range(1, target_length))
+            minimum_time = target_length + adjacent_repeats
+            time = rng_connectionist_temporal_classification_loss.randint(
+                max(CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TIME, minimum_time),
+                CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME)
+            probabilities = normalized_rows(time, classes,
+                                            rng_connectionist_temporal_classification_loss)
+            add(time, classes, targets, probabilities)
+
+        malformed = (
+            (), (1,), (1, 2), (0, 2, 1),
+            (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME + 1, 2, 1),
+            (1, CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_CLASSES - 1, 1),
+            (1, CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES + 1, 1),
+            (1, 2, CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MIN_TARGET - 1),
+            (1, 2, CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET + 1),
+            (1, 2, 1, 1, 1_000_000),
+            (1, 2, 1, 1, 1_000_000, 1),
+            (1, 2, 1, 1, 500_000, 500_000, 123),
+            (1, 2, 1, 0, 500_000, 500_000),
+            (1, 2, 1, 2, 500_000, 500_000),
+            (2, 2, 2, 1, 1, 500_000, 500_000, 500_000, 500_000),
+            (1, 2, 1, 1, 0, 1_000_000),
+            (1, 2, 1, 1, 1_000_001, 0),
+            (1, 2, 1, 1, I64_MIN, I64_MAX),
+            (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME + 1,
+             CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES,
+             CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET,
+             *([1] * CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TARGET),
+             *([0] * (CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_TIME
+                      * CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_MAX_CLASSES))),
+            tuple([0] * MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "kullback_leibler_divergence":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_output_definition = (
+            "source_order_sum_i(target_scaled[i]/1000000 * ln(target_scaled[i]/prediction_scaled[i])) for nonzero targets")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n, target_scaled[0..n], prediction_scaled[0..n]]"
+                or input_spec.get("minimum_count") != 1
+                or input_spec.get("maximum_count") != KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT
+                or input_spec.get("maximum_packed_values") != MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH
+                or input_spec.get("exact_length") != "1 + 2*n"
+                or input_spec.get("scale") != KULLBACK_LEIBLER_DIVERGENCE_SCALE
+                or input_spec.get("target_scaled_range") != [0, KULLBACK_LEIBLER_DIVERGENCE_SCALE]
+                or input_spec.get("prediction_scaled_range") != [0, KULLBACK_LEIBLER_DIVERGENCE_SCALE]
+                or input_spec.get("prediction_constraint") != "prediction_scaled > 0 whenever the corresponding target_scaled > 0"
+                or input_spec.get("invalid_input_result") != KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_output_definition
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_input_result") != KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or pinned_source.get("repository") != "TheAlgorithms/Python"
+                or pinned_source.get("commit") != "e1a2a8b016001309a73d5fec4818c35cca139795"
+                or pinned_source.get("path") != "machine_learning/loss_functions.py"
+                or pinned_source.get("method") != "kullback_leibler_divergence"):
+            raise ValueError("kullback_leibler_divergence workload metadata does not match its reviewed contract")
+
+        def add(targets: tuple[int, ...], predictions: tuple[int, ...]) -> None:
+            count = len(targets)
+            if not 1 <= count <= KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT:
+                raise ValueError("kullback_leibler_divergence generated count is outside the reviewed bounds")
+            if len(predictions) != count:
+                raise ValueError("kullback_leibler_divergence generated vectors must have equal lengths")
+            values = (count, *targets, *predictions)
+            cases[values] = oracle(algorithm, list(values))
+
+        for count in (1, 2, 3, 16, KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT):
+            targets = tuple((index * 15_485_863) % (KULLBACK_LEIBLER_DIVERGENCE_SCALE + 1)
+                            for index in range(count))
+            predictions = tuple(value if value > 0 else 0 for value in targets)
+            nonzero_predictions = tuple(
+                KULLBACK_LEIBLER_DIVERGENCE_SCALE - index % 13
+                for index in range(count))
+            add(targets, predictions)
+            add((0,) * count, nonzero_predictions)
+            add((KULLBACK_LEIBLER_DIVERGENCE_SCALE,) * count, (1,) * count)
+            add((KULLBACK_LEIBLER_DIVERGENCE_SCALE // 2,) * count,
+                (KULLBACK_LEIBLER_DIVERGENCE_SCALE,) * count)
+
+        rng_kullback_leibler_divergence = random.Random(20261016)
+        for _ in range(128):
+            count = rng_kullback_leibler_divergence.randint(1, KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT)
+            targets = tuple(rng_kullback_leibler_divergence.randint(
+                0, KULLBACK_LEIBLER_DIVERGENCE_SCALE) for _ in range(count))
+            predictions = []
+            for target in targets:
+                prediction = rng_kullback_leibler_divergence.randint(
+                    0, KULLBACK_LEIBLER_DIVERGENCE_SCALE)
+                if target > 0 and prediction == 0:
+                    prediction = 1
+                predictions.append(prediction)
+            add(targets, tuple(predictions))
+
+        malformed = (
+            (), (0,), (-1,), (KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT + 1,),
+            (1,), (2, 100, 200, 100), (1, 100, 200, 100),
+            (1, -1, 0), (1, KULLBACK_LEIBLER_DIVERGENCE_SCALE + 1, 1),
+            (1, 0, -1), (1, 0, KULLBACK_LEIBLER_DIVERGENCE_SCALE + 1),
+            (1, 1, 0),
+            (1, I64_MIN, 1), (1, I64_MAX, 1),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            (KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT + 1,
+             *([0] * (2 * KULLBACK_LEIBLER_DIVERGENCE_MAX_COUNT)),),
+            tuple([0] * MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
         rng = random.Random(20261016)
         for _ in range(256):
             if algorithm == "return_on_investment":
@@ -2194,6 +3505,101 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             if not math.isclose(expected, case["expected_result"], rel_tol=1e-12, abs_tol=1e-9):
                 raise ValueError(f"gradient_boosting_regressor workload mismatch: {case['id']}")
             cases[values] = expected
+    elif algorithm == "sparse_categorical_cross_entropy":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_output_meaning = (
+            "sum over rows of -ln(clip(selected probability, 1e-15, 1))")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[batch, classes, labels[0..batch], probabilities_scaled[0..batch*classes]]"
+                or input_spec.get("scale") != MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY
+                or input_spec.get("maximum_packed_values") != MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+                or input_spec.get("minimum_batch") != 1
+                or input_spec.get("maximum_batch") != MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH
+                or input_spec.get("minimum_classes") != 1
+                or input_spec.get("maximum_classes") != MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES
+                or input_spec.get("probability_scaled_range") != [0, MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY]
+                or input_spec.get("probability_row_sum_scaled") != MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY
+                or input_spec.get("label_range") != "[0, classes)"
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "Sparse Categorical Cross-Entropy"
+                or output_spec.get("meaning") != expected_output_meaning
+                or output_spec.get("epsilon") != SPARSE_CATEGORICAL_CROSS_ENTROPY_EPSILON
+                or output_spec.get("invalid_input_result") != SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("sparse_categorical_cross_entropy workload metadata does not match its reviewed contract")
+
+        def add(batch: int, classes: int, labels: tuple[int, ...],
+                probabilities: tuple[int, ...]) -> None:
+            if len(labels) != batch or len(probabilities) != batch * classes:
+                raise ValueError("sparse_categorical_cross_entropy generated rows must match the declared shape")
+            values = (batch, classes, *labels, *probabilities)
+            cases[values] = oracle(algorithm, list(values))
+
+        def probability_rows(batch: int, classes: int,
+                             rng: random.Random | None = None) -> tuple[int, ...]:
+            rows: list[int] = []
+            for _ in range(batch):
+                remaining = MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY
+                row = []
+                for _ in range(classes - 1):
+                    value = rng.randint(0, remaining) if rng is not None else 0
+                    row.append(value)
+                    remaining -= value
+                row.append(remaining)
+                if rng is not None:
+                    rng.shuffle(row)
+                rows.extend(row)
+            return tuple(rows)
+
+        shapes = ((1, 1), (1, 2), (2, 3), (16, 16),
+                  (MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH,
+                   MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES))
+        for batch, classes in shapes:
+            labels = tuple(index % classes for index in range(batch))
+            add(batch, classes, labels, probability_rows(batch, classes))
+            if classes > 1:
+                endpoint_row = ((0, MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY)
+                                + (0,) * (classes - 2))
+                add(batch, classes, tuple([0] * batch), endpoint_row * batch)
+            base, remainder = divmod(MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY,
+                                     classes)
+            uniform_row = tuple(base + int(column < remainder) for column in range(classes))
+            add(batch, classes, labels, uniform_row * batch)
+
+        rng_sparse_categorical_cross_entropy = random.Random(20261016)
+        for _ in range(96):
+            batch = rng_sparse_categorical_cross_entropy.randint(
+                1, MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH)
+            classes = rng_sparse_categorical_cross_entropy.randint(
+                1, MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES)
+            labels = tuple(rng_sparse_categorical_cross_entropy.randrange(classes)
+                           for _ in range(batch))
+            probabilities = probability_rows(batch, classes, rng_sparse_categorical_cross_entropy)
+            add(batch, classes, labels, probabilities)
+
+        malformed = (
+            (), (1,), (0, 1), (1, 0),
+            (MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH + 1, 2),
+            (1, MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES + 1),
+            (1, 2, 0, 1_000_000),
+            (1, 1, 0, 1_000_000, 0),
+            (1, 1, 1, 1_000_000),
+            (1, 2, 0, 500_000, 400_000),
+            (1, 2, 0, -1, 1_000_001),
+            (1, 2, 0, I64_MIN, I64_MAX),
+            (MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH + 1,
+             MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES,
+             *([0] * (MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH - 2))),
+            tuple([0] * MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
     elif algorithm == "gaussian_legendre":
         rng = random.Random(20261016)
         for _ in range(256):
@@ -2262,6 +3668,21 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "fractional_differentiation": 4,
                     "gaussian_legendre": 7,
                     "gradient_boosting_regressor": MAX_GRADIENT_BOOSTING_REGRESSOR_INPUT_LENGTH,
+                    "mean_squared_error": MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH,
+                    "mean_squared_logarithmic_error": MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH,
+                    "mean_absolute_percentage_error": MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH,
+                    "symmetric_mean_absolute_percentage_error": MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH,
+                    "gaussian_negative_log_likelihood_loss": MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH,
+                    "perplexity_loss": MAX_PERPLEXITY_LOSS_INPUT_LENGTH,
+                    "connectionist_temporal_classification_loss": MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH,
+                    "kullback_leibler_divergence": MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH,
+                    "mean_absolute_error": MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH,
+                    "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
+                    "binary_cross_entropy": MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH,
+                    "binary_focal_cross_entropy": MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,
+                    "categorical_cross_entropy": MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH,
+                    "categorical_focal_cross_entropy": MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,
+                    "sparse_categorical_cross_entropy": MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH,
                     "extended_kalman_filter": 0}
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
@@ -2331,6 +3752,21 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "symmetric_derivative" else
                    GRADIENT_BOOSTING_REGRESSOR_INVALID_RESULT if algorithm == "gradient_boosting_regressor" else
                    EXTENDED_KALMAN_FILTER_INVALID_RESULT if algorithm == "extended_kalman_filter" else
+                   MEAN_SQUARED_ERROR_INVALID_RESULT if algorithm == "mean_squared_error" else
+                   MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT if algorithm == "mean_squared_logarithmic_error" else
+                   MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT if algorithm == "mean_absolute_percentage_error" else
+                   SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT if algorithm == "symmetric_mean_absolute_percentage_error" else
+                   GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INVALID_RESULT if algorithm == "gaussian_negative_log_likelihood_loss" else
+                   PERPLEXITY_LOSS_INVALID_RESULT if algorithm == "perplexity_loss" else
+                   CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT if algorithm == "connectionist_temporal_classification_loss" else
+                   KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT if algorithm == "kullback_leibler_divergence" else
+                   MEAN_ABSOLUTE_ERROR_INVALID_RESULT if algorithm == "mean_absolute_error" else
+                   SMOOTH_L1_LOSS_INVALID_RESULT if algorithm == "smooth_l1_loss" else
+                   BINARY_CROSS_ENTROPY_INVALID_RESULT if algorithm == "binary_cross_entropy" else
+                   BINARY_FOCAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "binary_focal_cross_entropy" else
+                   CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "categorical_cross_entropy" else
+                   CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "categorical_focal_cross_entropy" else
+                   SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "sparse_categorical_cross_entropy" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
                    FINANCE_RATIOS_INVALID_RESULT if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"} else
                    INVALID_RESULT)

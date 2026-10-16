@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-simultaneous-linear-equation-solver-recursive-elimination-v1",
+  "algorithm": "simultaneous_linear_equation_solver",
+  "function_symbol": "simultaneous_linear_equation_solver",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, augmented[n*(n+1)]_row_major_milli...]",
+    "equation_count_range": [
+      1,
+      5
+    ],
+    "coefficient_physical_range": [
+      -100,
+      100
+    ],
+    "coefficient_scale": 1000,
+    "exact_packed_length": "1+n*(n+1)",
+    "maximum_valid_input_length": 31,
+    "maximum_parseable_input_length": 31,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "i64_little_endian_records",
+    "layout": "n as signed i64 LE followed by n solution ticks, where each tick represents 1e-5",
+    "rounding": "Python round(solution, 5) ties-to-even semantics; exact halfway cases use the fused multiply-add residual",
+    "maximum_output_bytes": 48,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 48,
+    "meaning": "Maximum output capacity for n=5."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/simultaneous_linear_equation_solver.py"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 40
+  },
+  "cases": [
+    {
+      "input_length": 3,
+      "workspace_bytes": 48,
+      "id": "single_equation",
+      "input_values": [
+        1,
+        2000,
+        1000
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "010000000000000050c3000000000000"
+    },
+    {
+      "input_length": 7,
+      "workspace_bytes": 48,
+      "id": "two_equation_source_example",
+      "input_values": [
+        2,
+        1000,
+        2000,
+        3000,
+        4000,
+        5000,
+        6000
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "02000000000000006079feffffffffff400d030000000000"
+    },
+    {
+      "input_length": 13,
+      "workspace_bytes": 48,
+      "id": "three_equation_zero_pivot_source_example",
+      "input_values": [
+        3,
+        0,
+        -3000,
+        1000,
+        7000,
+        3000,
+        2000,
+        -1000,
+        11000,
+        5000,
+        1000,
+        -2000,
+        12000
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "030000000000000000c4090000000000c0d4010000000000a02c100000000000"
+    },
+    {
+      "input_length": 31,
+      "workspace_bytes": 48,
+      "id": "five_variable_source_example",
+      "input_values": [
+        5,
+        2000,
+        1000,
+        1000,
+        1000,
+        1000,
+        4000,
+        1000,
+        2000,
+        1000,
+        1000,
+        1000,
+        5000,
+        1000,
+        1000,
+        2000,
+        1000,
+        1000,
+        6000,
+        1000,
+        1000,
+        1000,
+        2000,
+        1000,
+        7000,
+        1000,
+        1000,
+        1000,
+        1000,
+        2000,
+        8000
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "05000000000000006079feffffffffff0000000000000000a086010000000000400d030000000000e093040000000000"
+    },
+    {
+      "input_length": 3,
+      "workspace_bytes": 15,
+      "id": "capacity_too_small",
+      "input_values": [
+        1,
+        2000,
+        1000
+      ],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 3,
+      "workspace_bytes": 48,
+      "id": "zero_single_pivot",
+      "input_values": [
+        1,
+        0,
+        1000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 7,
+      "workspace_bytes": 48,
+      "id": "no_full_row_for_initial_reorder",
+      "input_values": [
+        2,
+        0,
+        2000,
+        3000,
+        4000,
+        0,
+        6000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 7,
+      "workspace_bytes": 48,
+      "id": "singular_system",
+      "input_values": [
+        2,
+        1000,
+        2000,
+        3000,
+        2000,
+        4000,
+        6000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 1,
+      "workspace_bytes": 48,
+      "id": "invalid_equation_count_zero",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 1,
+      "workspace_bytes": 48,
+      "id": "equation_count_above_limit",
+      "input_values": [
+        6
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 2,
+      "workspace_bytes": 48,
+      "id": "missing_matrix_value",
+      "input_values": [
+        2,
+        1000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 4,
+      "workspace_bytes": 48,
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        2000,
+        1000,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 3,
+      "workspace_bytes": 48,
+      "id": "coefficient_out_of_range",
+      "input_values": [
+        1,
+        100001,
+        1000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

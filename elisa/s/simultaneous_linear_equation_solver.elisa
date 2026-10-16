@@ -1,0 +1,140 @@
+extern floor(value: f64) -> f64
+extern fma(first: f64, second: f64, third: f64) -> f64
+
+const MAX_EQUATIONS: usize = 5
+const MAX_INPUT_LENGTH: usize = 31
+const MAX_OUTPUT_BYTES: usize = 48
+const I64_LIMIT: f64 = 9.223372036854775808e18
+
+def simultaneous_equation_finite(value: f64) -> bool:
+    value == value and value < 1.7976931348623157e308 and value > -1.7976931348623157e308
+
+def simultaneous_equation_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 5: return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * (n + 1): return -1
+
+    matrix: mutable f64[30] = zeroed
+    has_zero: mutable bool = false
+    row: mutable usize = 0
+    while row < n:
+        col: mutable usize = 0
+        while col <= n:
+            raw: i64 = input[1 + row * (n + 1) + col]
+            if raw < -100000 or raw > 100000: return -1
+            matrix[row * 6 + col] <- raw.f64() / 1000.0
+            if raw == 0: has_zero <- true
+            col <- col + 1
+        row <- row + 1
+
+    if n == 1:
+        if matrix[0] == 0.0: return -1
+    else:
+        if has_zero:
+            full_row: mutable usize = n
+            row <- 0
+            while row < n and full_row == n:
+                col <- 0
+                all_nonzero: mutable bool = true
+                while col <= n:
+                    if matrix[row * 6 + col] == 0.0: all_nonzero <- false
+                    col <- col + 1
+                if all_nonzero: full_row <- row
+                row <- row + 1
+            if full_row == n: return -1
+            if full_row != 0:
+                col <- 0
+                while col <= n:
+                    temp: f64 = matrix[full_row * 6 + col]
+                    row <- full_row
+                    while row > 0:
+                        matrix[row * 6 + col] <- matrix[(row - 1) * 6 + col]
+                        row <- row - 1
+                    matrix[col] <- temp
+                    col <- col + 1
+
+        level: mutable usize = 0
+        while level + 2 <= n:
+            if matrix[level * 6 + level] == 0.0: return -1
+            row <- level
+            while row < n:
+                magnitude: f64 = matrix[row * 6 + level]
+                if magnitude != 0.0:
+                    col <- level
+                    while col <= n:
+                        matrix[row * 6 + col] <- matrix[row * 6 + col] / magnitude
+                        col <- col + 1
+                row <- row + 1
+            first_row: mutable f64[6] = zeroed
+            col <- level
+            while col <= n:
+                first_row[col] <- matrix[level * 6 + col]
+                col <- col + 1
+            row <- level + 1
+            while row < n:
+                if matrix[row * 6 + level] != 0.0:
+                    col <- level
+                    while col <= n:
+                        matrix[row * 6 + col] <- first_row[col] - matrix[row * 6 + col]
+                        col <- col + 1
+                row <- row + 1
+            level <- level + 1
+
+    row <- 0
+    while row < n:
+        col <- row
+        while col <= n:
+            if not simultaneous_equation_finite(matrix[row * 6 + col]): return -1
+            col <- col + 1
+        row <- row + 1
+
+    solutions: mutable f64[5] = zeroed
+    row <- n
+    while row > 0:
+        row <- row - 1
+        if matrix[row * 6 + row] == 0.0: return -1
+        value: mutable f64 = matrix[row * 6 + n]
+        col <- row + 1
+        while col < n:
+            value <- value - matrix[row * 6 + col] * solutions[col]
+            col <- col + 1
+        value <- value / matrix[row * 6 + row]
+        if not simultaneous_equation_finite(value): return -1
+        solutions[row] <- value
+
+    buffer: mutable u8[48] = zeroed
+    simultaneous_equation_write_i64(buffer[0], 0, n_value)
+    row <- 0
+    while row < n:
+        scaled: f64 = solutions[row] * 100000.0
+        if not simultaneous_equation_finite(scaled) or scaled < -I64_LIMIT or scaled >= I64_LIMIT: return -1
+        lower: f64 = floor(scaled)
+        midpoint: f64 = lower + 0.5
+        exact_side: f64 = fma(solutions[row], 100000.0, -midpoint)
+        if not simultaneous_equation_finite(exact_side): return -1
+        rounded: mutable i64 = lower.i64()
+        if exact_side > 0.0 or (exact_side == 0.0 and rounded % 2 != 0):
+            rounded <- rounded + 1
+        simultaneous_equation_write_i64(buffer[0], 8 + row * 8, rounded)
+        row <- row + 1
+
+    needed: usize = 8 + 8 * n
+    if output.is_null() or capacity < needed: return -2
+    row <- 0
+    while row < needed:
+        output[row] <- buffer[row]
+        row <- row + 1
+    needed.i64()
+
+export fn simultaneous_linear_equation_solver(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = simultaneous_equation_impl

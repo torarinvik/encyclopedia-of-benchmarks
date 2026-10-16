@@ -1,0 +1,52 @@
+const MAX_TEXT: usize = 256
+const MAX_INPUT: usize = 259
+
+def transposition_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 6 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    key64: i64 = input[1]
+    n64: i64 = input[2]
+    if (mode != 0 and mode != 1) or n64 < 3 or n64 > 256 or key64 < 2 or key64 >= n64: return -1
+    n: usize = n64.usize()
+    key: usize = key64.usize()
+    if length != 3 + n: return -1
+    for i in 0..<n:
+        if input[3 + i] < 0 or input[3 + i] > 127: return -1
+    if output == null or output_capacity < n: return -2
+
+    transformed: mutable u8[MAX_TEXT] = zeroed
+    if mode == 0:
+        written: mutable usize = 0
+        for column in 0..<key:
+            index: mutable usize = column
+            while index < n:
+                transformed[written] <- input[3 + index].u8()
+                written <- written + 1
+                index <- index + key
+    else:
+        columns: usize = (n + key - 1) / key
+        shaded: usize = columns * key - n
+        final_column_rows: usize = key - shaded
+        offsets: mutable usize[MAX_TEXT] = zeroed
+        seen: mutable usize[MAX_TEXT] = zeroed
+        total: mutable usize = 0
+        for column in 0..<columns:
+            offsets[column] <- total
+            if column + 1 == columns:
+                total <- total + final_column_rows
+            else:
+                total <- total + key
+        row: mutable usize = 0
+        column: mutable usize = 0
+        for i in 0..<n:
+            position: usize = offsets[column] + seen[column]
+            transformed[position] <- input[3 + i].u8()
+            seen[column] <- seen[column] + 1
+            column <- column + 1
+            if column == columns or (column == columns - 1 and row >= final_column_rows):
+                column <- 0
+                row <- row + 1
+    for i in 0..<n: output[i] <- transformed[i]
+    n.i64()
+
+export fn transposition_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = transposition_cipher_impl

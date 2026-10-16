@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "mean_absolute_percentage_error-python-source-v1",
+  "algorithm": "mean_absolute_percentage_error",
+  "function_symbol": "mean_absolute_percentage_error",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, y_true_scaled[0..n], y_pred_scaled[0..n]]",
+    "scale": 1000000,
+    "invalid_input_result": -1e+300,
+    "minimum_count": 1,
+    "maximum_count": 64,
+    "maximum_packed_values": 129,
+    "value_scaled_range": [
+      -1000000,
+      1000000
+    ],
+    "notes": "MAPE replaces decoded zero targets with epsilon 1e-15."
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Mean Absolute Percentage Error",
+    "meaning": "mean of abs((safe y_true - y_pred) / safe y_true), where safe y_true is epsilon when y_true is zero",
+    "epsilon": 1e-15,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "cases": [
+    {
+      "id": "basic",
+      "input_values": [
+        3,
+        1000000,
+        500000,
+        250000,
+        900000,
+        600000,
+        300000
+      ],
+      "input_length": 7,
+      "expected_result": 0.16666666666666663
+    },
+    {
+      "id": "zero_target",
+      "input_values": [
+        2,
+        0,
+        1000000,
+        500000,
+        500000
+      ],
+      "input_length": 5,
+      "expected_result": 249999999999999.72
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_truncated",
+      "input_values": [
+        1,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_extra",
+      "input_values": [
+        1,
+        1000000,
+        1000000,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_out_of_range",
+      "input_values": [
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_below_range",
+      "input_values": [
+        1,
+        -1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,110 @@
+const MAX_CELLS: usize = 1089
+
+def min_cost_string_conversion_put_i64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    index: mutable usize = 0
+    while index < 8:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def min_cost_string_conversion_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or length > 70: return -1
+    src_arg: i64 = input[0]
+    if src_arg < 0 or src_arg > 32: return -1
+    src: usize = src_arg.usize()
+    dst_pos: usize = src + 1
+    if dst_pos >= length: return -1
+    dst_arg: i64 = input[dst_pos]
+    if dst_arg < 0 or dst_arg > 32: return -1
+    dst: usize = dst_arg.usize()
+    if length != 6 + src + dst: return -1
+    target: usize = dst_pos + 1
+    costs_pos: usize = target + dst
+    index: usize = 0
+    while index < src:
+        if input[1 + index] < 0 or input[1 + index] > 127: return -1
+        index <- index + 1
+    index <- 0
+    while index < dst:
+        if input[target + index] < 0 or input[target + index] > 127: return -1
+        index <- index + 1
+    index <- 0
+    while index < 4:
+        if input[costs_pos + index] < -1000 or input[costs_pos + index] > 1000: return -1
+        index <- index + 1
+    copy_cost: i64 = input[costs_pos]
+    replace_cost: i64 = input[costs_pos + 1]
+    delete_cost: i64 = input[costs_pos + 2]
+    insert_cost: i64 = input[costs_pos + 3]
+    rows: usize = src + 1
+    cols: usize = dst + 1
+    cells: usize = rows * cols
+    dp: mutable i64[MAX_CELLS] = zeroed
+    codes: mutable i64[MAX_CELLS] = zeroed
+    chars_a: mutable i64[MAX_CELLS] = zeroed
+    chars_b: mutable i64[MAX_CELLS] = zeroed
+    index <- 1
+    while index < cols:
+        dp[index] <- dp[index - 1] + insert_cost
+        codes[index] <- 4
+        chars_b[index] <- input[target + index - 1]
+        index <- index + 1
+    index <- 1
+    while index < rows:
+        cell: usize = index * cols
+        dp[cell] <- dp[cell - cols] + delete_cost
+        codes[cell] <- 3
+        chars_a[cell] <- input[index]
+        index <- index + 1
+    i: mutable usize = 1
+    while i < rows:
+        j: mutable usize = 1
+        while j < cols:
+            cell: usize = i * cols + j
+            a: i64 = input[i]
+            b: i64 = input[target + j - 1]
+            same: bool = a == b
+            best: mutable i64 = dp[cell - cols - 1] + (if same: copy_cost else: replace_cost)
+            op: mutable i64 = if same: 1 else: 2
+            char_a: mutable i64 = a
+            char_b: mutable i64 = if same: 0 else: b
+            deletion: i64 = dp[cell - cols] + delete_cost
+            if deletion < best:
+                best <- deletion
+                op <- 3
+                char_a <- a
+                char_b <- 0
+            insertion: i64 = dp[cell - 1] + insert_cost
+            if insertion < best:
+                best <- insertion
+                op <- 4
+                char_a <- 0
+                char_b <- b
+            dp[cell] <- best
+            codes[cell] <- op
+            chars_a[cell] <- char_a
+            chars_b[cell] <- char_b
+            j <- j + 1
+        i <- i + 1
+    needed: usize = 32 + cells * 32
+    if output == null or capacity < needed: return -2
+    position: mutable usize = 0
+    min_cost_string_conversion_put_i64(output, position&, rows.i64())
+    min_cost_string_conversion_put_i64(output, position&, cols.i64())
+    index <- 0
+    while index < cells:
+        min_cost_string_conversion_put_i64(output, position&, dp[index])
+        index <- index + 1
+    min_cost_string_conversion_put_i64(output, position&, rows.i64())
+    min_cost_string_conversion_put_i64(output, position&, cols.i64())
+    index <- 0
+    while index < cells:
+        min_cost_string_conversion_put_i64(output, position&, codes[index])
+        min_cost_string_conversion_put_i64(output, position&, chars_a[index])
+        min_cost_string_conversion_put_i64(output, position&, chars_b[index])
+        index <- index + 1
+    position.i64()
+
+export fn min_cost_string_conversion(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = min_cost_string_conversion_impl

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-categorical-cross-entropy-fixed-point-v1",
+  "algorithm": "categorical_cross_entropy",
+  "function_symbol": "categorical_cross_entropy",
+  "description": "Sum categorical cross entropy over a bounded one-hot batch.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[B, C, one_hot[B*C], probability_scaled[B*C]]",
+    "meaning": "batch size and class count, then row-major one-hot labels and row-major probabilities scaled by 1,000,000",
+    "maximum_packed_values": 2050,
+    "invalid_result": -1e+300,
+    "batch_range": [
+      1,
+      64
+    ],
+    "class_range": [
+      2,
+      16
+    ],
+    "probability_scale": 1000000,
+    "probability_row_sum": 1000000,
+    "one_hot_value_range": [
+      0,
+      1
+    ],
+    "probability_scaled_range": [
+      0,
+      1000000
+    ]
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "sum of -label * ln(clipped probability) over all rows and classes, clipping to [1e-15, 1]",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/loss_functions.py",
+    "method": "categorical_cross_entropy(y_true, y_pred)"
+  },
+  "cases": [
+    {
+      "id": "three_class_batch",
+      "input_values": [
+        2,
+        3,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        700000,
+        200000,
+        100000,
+        100000,
+        800000,
+        100000
+      ],
+      "input_length": 14,
+      "expected_result": 0.5798184952529422
+    },
+    {
+      "id": "clipped_zero_probability",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        0,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 34.538776394910684
+    },
+    {
+      "id": "two_class_batch",
+      "input_values": [
+        2,
+        2,
+        1,
+        0,
+        0,
+        1,
+        600000,
+        400000,
+        300000,
+        700000
+      ],
+      "input_length": 10,
+      "expected_result": 0.8675005677047232
+    },
+    {
+      "id": "probability_row_sum_mismatch",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        400000,
+        400000
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "non_one_hot_row",
+      "input_values": [
+        1,
+        2,
+        1,
+        1,
+        500000,
+        500000
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "truncated_payload",
+      "input_values": [
+        1,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

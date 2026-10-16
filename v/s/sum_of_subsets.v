@@ -1,0 +1,6 @@
+module sum_of_subsets
+const max_n=10
+fn visit(nums []i64,target i64,start int,current i64,remaining i64,mut path []i64,mut solutions [][]i64){if current>target||remaining+current<target{return}if current==target{solutions<<path.clone();return}for i:=start;i<nums.len;i++{path<<nums[i];visit(nums,target,i+1,current+nums[i],remaining-nums[i],mut path,mut solutions);path.delete(path.len-1)}}
+fn put64(out &u8,mut pos int,x i64){u:=u64(x);unsafe{for j in 0..8{out[pos]=u8((u>>(8*j))&255);pos++}}}
+@[export: 'sum_of_subsets']
+pub fn sum_of_subsets(input &i64,length usize,output &u8,capacity usize) i64 {unsafe{if input==nil||length<2{return -1};n0:=input[0];target:=input[1];if n0<0||n0>10||length!=usize(n0+2)||target<0||target>250{return -1};n:=int(n0);mut nums:=[]i64{len:n};mut rem:=i64(0);for i in 0..n{x:=input[2+i];if x<0||x>50{return -1};nums[i]=x;rem+=x};mut path:=[]i64{};mut solutions:=[][]i64{};visit(nums,target,0,0,rem,mut path,mut solutions);mut need:=8;for row in solutions{need+=8+8*row.len};if output==nil||capacity<usize(need){return -2};mut pos:=0;put64(output,mut pos,i64(solutions.len));for row in solutions{put64(output,mut pos,i64(row.len));for x in row{put64(output,mut pos,x)}};return i64(pos)}}

@@ -1,0 +1,79 @@
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 531
+const MAX_STATES: usize = 33
+const NEG_INF: f64 = -1.0e300
+const INVALID_RESULT: f64 = -1.0e300
+
+def logaddexp_value(left: f64, right: f64) -> f64:
+    if left <= NEG_INF / 2.0: return right
+    if right <= NEG_INF / 2.0: return left
+    larger: mutable f64 = left
+    smaller: mutable f64 = right
+    if right > left:
+        larger = right
+        smaller = left
+    larger + log(1.0 + exp(smaller - larger))
+
+def connectionist_temporal_classification_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    time_value: i64 = values[0]
+    classes_value: i64 = values[1]
+    target_value: i64 = values[2]
+    if time_value < 1 or time_value > 32 or classes_value < 2 or classes_value > 16 or target_value < 1 or target_value > 16:
+        return INVALID_RESULT
+    time: usize = time_value.usize()
+    classes: usize = classes_value.usize()
+    target_length: usize = target_value.usize()
+    probability_base: usize = 3 + target_length
+    if length != probability_base + time * classes: return INVALID_RESULT
+    repeated: mutable usize = 0
+    i: mutable usize = 0
+    while i < target_length:
+        target: i64 = values[3 + i]
+        if target < 1 or target >= classes_value: return INVALID_RESULT
+        if i > 0 and target == values[3 + i - 1]: repeated <- repeated + 1
+        i <- i + 1
+    if time < target_length + repeated: return INVALID_RESULT
+    t: mutable usize = 0
+    while t < time:
+        row_sum: mutable i64 = 0
+        c: mutable usize = 0
+        while c < classes:
+            p: i64 = values[probability_base + t * classes + c]
+            if p < 1 or p > 1000000: return INVALID_RESULT
+            row_sum <- row_sum + p
+            c <- c + 1
+        if row_sum != 1000000: return INVALID_RESULT
+        t <- t + 1
+    states: usize = 2 * target_length + 1
+    extended: mutable i64[MAX_STATES] = zeroed
+    previous: mutable f64[MAX_STATES] = zeroed
+    current: mutable f64[MAX_STATES] = zeroed
+    s: mutable usize = 0
+    while s < states:
+        if s % 2 == 0: extended[s] = 0
+        else: extended[s] = values[3 + s / 2]
+        previous[s] <- NEG_INF
+        s <- s + 1
+    previous[0] <- log(values[probability_base].f64() / 1000000.0)
+    previous[1] <- log(values[probability_base + extended[1].usize()].f64() / 1000000.0)
+    t <- 1
+    while t < time:
+        s <- 0
+        while s < states:
+            incoming: mutable f64 = previous[s]
+            if s > 0: incoming <- logaddexp_value(incoming, previous[s - 1])
+            if s > 1 and extended[s] != extended[s - 2]: incoming <- logaddexp_value(incoming, previous[s - 2])
+            p: f64 = values[probability_base + t * classes + extended[s].usize()].f64() / 1000000.0
+            current[s] <- incoming + log(p)
+            s <- s + 1
+        s <- 0
+        while s < states:
+            previous[s] <- current[s]
+            s <- s + 1
+        t <- t + 1
+    -logaddexp_value(previous[states - 1], previous[states - 2])
+
+export fn connectionist_temporal_classification_loss(values: i64&, length: usize) -> f64 = connectionist_temporal_classification_loss_impl

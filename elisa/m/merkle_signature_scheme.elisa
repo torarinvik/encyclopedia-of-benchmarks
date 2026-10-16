@@ -1,0 +1,195 @@
+const MAX_INPUT_LENGTH: usize = 8192
+const MAX_PADDED_LENGTH: usize = 8256
+
+def sha256_add32(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & 0xFFFF_FFFF.u64()).u32()
+
+def sha256_rotr(value: u32, amount: usize) -> u32:
+    (value >> amount) | (value << (32 - amount))
+
+def sha256_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or (length > 0 and input == null):
+        return -1
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    constants: u32[64] = [
+        0x428A2F98,0x71374491,0xB5C0FBCF,0xE9B5DBA5,0x3956C25B,0x59F111F1,0x923F82A4,0xAB1C5ED5,
+        0xD807AA98,0x12835B01,0x243185BE,0x550C7DC3,0x72BE5D74,0x80DEB1FE,0x9BDC06A7,0xC19BF174,
+        0xE49B69C1,0xEFBE4786,0x0FC19DC6,0x240CA1CC,0x2DE92C6F,0x4A7484AA,0x5CB0A9DC,0x76F988DA,
+        0x983E5152,0xA831C66D,0xB00327C8,0xBF597FC7,0xC6E00BF3,0xD5A79147,0x06CA6351,0x14292967,
+        0x27B70A85,0x2E1B2138,0x4D2C6DFC,0x53380D13,0x650A7354,0x766A0ABB,0x81C2C92E,0x92722C85,
+        0xA2BFE8A1,0xA81A664B,0xC24B8B70,0xC76C51A3,0xD192E819,0xD6990624,0xF40E3585,0x106AA070,
+        0x19A4C116,0x1E376C08,0x2748774C,0x34B0BCB5,0x391C0CB3,0x4ED8AA4A,0x5B9CCA4F,0x682E6FF3,
+        0x748F82EE,0x78A5636F,0x84C87814,0x8CC70208,0x90BEFFFA,0xA4506CEB,0xBEF9A3F7,0xC67178F2]
+    padded: mutable u8[MAX_PADDED_LENGTH] = zeroed
+    for index in 0..<length:
+        padded[index] <- input[index].u8()
+    padded[length] <- 128
+    blocks: usize = (length + 9 + 63) / 64
+    padded_length: usize = blocks * 64
+    bit_length: u64 = length.u64() * 8
+    for index in 0..<8:
+        padded[padded_length - 1 - index] <- ((bit_length >> (8 * index)) & 255).u8()
+    state: mutable u32[8] = [0x6A09E667,0xBB67AE85,0x3C6EF372,0xA54FF53A,0x510E527F,0x9B05688C,0x1F83D9AB,0x5BE0CD19]
+    for block in 0..<blocks:
+        words: mutable u32[64] = zeroed
+        for index in 0..<16:
+            position: usize = block * 64 + index * 4
+            words[index] <- (padded[position].u32() << 24) | (padded[position + 1].u32() << 16) | (padded[position + 2].u32() << 8) | padded[position + 3].u32()
+        for index in 16..<64:
+            x: u32 = words[index - 15]
+            y: u32 = words[index - 2]
+            s0: u32 = sha256_rotr(x, 7) ^ sha256_rotr(x, 18) ^ (x >> 3)
+            s1: u32 = sha256_rotr(y, 17) ^ sha256_rotr(y, 19) ^ (y >> 10)
+            words[index] <- sha256_add32(sha256_add32(sha256_add32(s1, words[index - 7]), s0), words[index - 16])
+        a: mutable u32 = state[0]
+        b: mutable u32 = state[1]
+        c: mutable u32 = state[2]
+        d: mutable u32 = state[3]
+        e: mutable u32 = state[4]
+        f: mutable u32 = state[5]
+        g: mutable u32 = state[6]
+        h: mutable u32 = state[7]
+        for index in 0..<64:
+            s1: u32 = sha256_rotr(e, 6) ^ sha256_rotr(e, 11) ^ sha256_rotr(e, 25)
+            choose: u32 = (e & f) ^ ((~e) & g)
+            t1: u32 = sha256_add32(sha256_add32(sha256_add32(sha256_add32(h, s1), choose), constants[index]), words[index])
+            s0: u32 = sha256_rotr(a, 2) ^ sha256_rotr(a, 13) ^ sha256_rotr(a, 22)
+            majority: u32 = (a & b) ^ (a & c) ^ (b & c)
+            t2: u32 = sha256_add32(s0, majority)
+            h <- g
+            g <- f
+            f <- e
+            e <- sha256_add32(d, t1)
+            d <- c
+            c <- b
+            b <- a
+            a <- sha256_add32(t1, t2)
+        state[0] <- sha256_add32(state[0], a)
+        state[1] <- sha256_add32(state[1], b)
+        state[2] <- sha256_add32(state[2], c)
+        state[3] <- sha256_add32(state[3], d)
+        state[4] <- sha256_add32(state[4], e)
+        state[5] <- sha256_add32(state[5], f)
+        state[6] <- sha256_add32(state[6], g)
+        state[7] <- sha256_add32(state[7], h)
+    if output == null or capacity < 32:
+        return -2
+    for word in 0..<8:
+        for byte in 0..<4:
+            output[word * 4 + byte] <- ((state[word] >> (24 - 8 * byte)) & 255).u8()
+    32
+
+export fn sha256(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sha256_impl
+
+
+def merkle_signature_scheme_verify(input: i64&, height: usize, w: usize, msg_len: usize, leaf_index: usize, sig_pos: usize, pk_pos: usize, auth_pos: usize, root_pos: usize, l: usize) -> i64:
+    digest: mutable u8[32] = zeroed
+    current: mutable u8[32] = zeroed
+    if sha256(&input[3], msg_len, &digest[0], 32) != 32: return 0
+    log_w: usize = if w == 4: 2 else if w == 16: 4 else: 8
+    len1: usize = if w == 4: 128 else if w == 16: 64 else: 32
+    len2: usize = l - len1
+    mask: usize = w - 1
+    digits: mutable u8[133] = zeroed
+    digit: mutable usize = 0
+    checksum: mutable i64 = 0
+    byte: usize = 0
+    while byte < 32:
+        part: usize = 0
+        while part < 8 / log_w:
+            shift: usize = 8 - log_w * (part + 1)
+            value: u8 = ((digest[byte] >> shift) & mask.u8())
+            digits[digit] <- value
+            checksum <- checksum + (mask.i64() - value.i64())
+            digit <- digit + 1
+            part <- part + 1
+        byte <- byte + 1
+    index: mutable usize = 0
+    while index < len2:
+        digits[len1 + len2 - 1 - index] <- (checksum & mask.i64()).u8()
+        checksum <- checksum >> log_w
+        index <- index + 1
+    chain: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < l:
+        j: mutable usize = 0
+        while j < 32:
+            chain[j] <- input[sig_pos + 32 * i + j]
+            j <- j + 1
+        step: mutable usize = 0
+        while step < w - 1 - digits[i].usize():
+            if sha256(&chain[0], 32, &current[0], 32) != 32: return 0
+            j <- 0
+            while j < 32:
+                chain[j] <- current[j].i64()
+                j <- j + 1
+            step <- step + 1
+        j <- 0
+        while j < 32:
+            if chain[j].u8() != input[pk_pos + 32 * i + j].u8(): return 0
+            j <- j + 1
+        i <- i + 1
+    if sha256(&input[pk_pos], 32 * l, &digest[0], 32) != 32: return 0
+    pair: mutable i64[64] = zeroed
+    index <- leaf_index
+    level: mutable usize = 0
+    while level < height:
+        j <- 0
+        while j < 32:
+            left: i64 = digest[j].i64()
+            right: i64 = input[auth_pos + 32 * level + j]
+            if index % 2 == 0:
+                pair[j] <- left
+                pair[32 + j] <- right
+            else:
+                pair[j] <- right
+                pair[32 + j] <- left
+            j <- j + 1
+        if sha256(&pair[0], 64, &digest[0], 32) != 32: return 0
+        index <- index >> 1
+        level <- level + 1
+    j <- 0
+    while j < 32:
+        if digest[j].i64() != input[root_pos + j]: return 0
+        j <- j + 1
+    1
+
+def merkle_signature_scheme_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 8932: return -1
+    h_arg: i64 = input[0]
+    w_arg: i64 = input[1]
+    msg_arg: i64 = input[2]
+    if h_arg < 2 or h_arg > 10 or (w_arg != 4 and w_arg != 16 and w_arg != 256) or msg_arg < 0 or msg_arg > 64: return -1
+    height: usize = h_arg.usize()
+    w: usize = w_arg.usize()
+    msg: usize = msg_arg.usize()
+    l: usize = if w == 4: 133 else if w == 16: 67 else: 34
+    index_pos: usize = 3 + msg
+    expected: usize = 4 + msg + 64 * l + 32 * height + 32
+    if length != expected: return -1
+    i: mutable usize = 0
+    while i < msg:
+        if input[3 + i] < 0 or input[3 + i] > 127: return -1
+        i <- i + 1
+    index_value: i64 = input[index_pos]
+    if index_value < 0 or index_value.u64() >= (1.u64() << height): return -1
+    sig_pos: usize = index_pos + 1
+    pk_pos: usize = sig_pos + 32 * l
+    auth_pos: usize = pk_pos + 32 * l
+    root_pos: usize = auth_pos + 32 * height
+    i <- sig_pos
+    while i < length:
+        if input[i] < 0 or input[i] > 255: return -1
+        i <- i + 1
+    if output == null or capacity < 8: return -2
+    valid: i64 = merkle_signature_scheme_verify(input, height, w, msg, index_value.usize(), sig_pos, pk_pos, auth_pos, root_pos, l)
+    i <- 0
+    while i < 8:
+        output[i] <- 0
+        i <- i + 1
+    output[0] <- valid.u8()
+    8
+
+export fn merkle_signature_scheme(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = merkle_signature_scheme_impl

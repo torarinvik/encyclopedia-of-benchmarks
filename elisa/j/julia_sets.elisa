@@ -1,0 +1,48 @@
+extern memcpy(destination: mutable u32&, source: f32&, length: usize) -> mutable u32&
+
+def julia_sets_put_f32(output: mutable u8&, offset: usize, value: f32) -> void:
+    bits: mutable u32 = 0
+    memcpy(&bits, &value, 4)
+    for byte in 0..4: output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def julia_sets_finite(value: f32) -> bool:
+    value == value and value.f64() <= 3.4028234663852886e38 and value.f64() >= -3.4028234663852886e38
+
+def julia_sets_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 68: return -1
+    iterations: i64 = input[0]
+    cr_units: i64 = input[1]
+    ci_units: i64 = input[2]
+    count_value: i64 = input[3]
+    if iterations < 0 or iterations > 8 or count_value < 0 or count_value > 32: return -1
+    if cr_units < -128 or cr_units > 128 or ci_units < -128 or ci_units > 128: return -1
+    count: usize = count_value.usize()
+    if length != 4 + 2 * count: return -1
+    for index in 0..2 * count:
+        if input[4 + index] < -128 or input[4 + index] > 128: return -1
+    needed: usize = 8 * count
+    if output == null or capacity < needed: return -2
+
+    cr: f32 = cr_units.f32() / 16.0.f32()
+    ci: f32 = ci_units.f32() / 16.0.f32()
+    computed: mutable f32[64] = zeroed
+    for point in 0..count:
+        real: mutable f32 = input[4 + 2 * point].f32() / 16.0.f32()
+        imag: mutable f32 = input[5 + 2 * point].f32() / 16.0.f32()
+        for step in 0..iterations:
+            real_square: f32 = real * real
+            imag_square: f32 = imag * imag
+            real_imag: f32 = real * imag
+            imag_real: f32 = imag * real
+            next_real: f32 = (real_square - imag_square) + cr
+            next_imag: f32 = (real_imag + imag_real) + ci
+            if not julia_sets_finite(next_real) or not julia_sets_finite(next_imag): return -1
+            real <- next_real
+            imag <- next_imag
+        computed[2 * point] <- real
+        computed[2 * point + 1] <- imag
+    for component in 0..2 * count:
+        julia_sets_put_f32(output, component * 4, computed[component])
+    needed.i64()
+
+export fn julia_sets(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = julia_sets_impl

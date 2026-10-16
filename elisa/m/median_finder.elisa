@@ -1,0 +1,85 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def median_finder_heap_push(heap: mutable i64[32], count: mutable usize&, is_max: bool, value: i64) -> void:
+    index: mutable usize = count
+    heap[index] <- value
+    count <- count + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        ordered: bool = if is_max: heap[parent] >= heap[index] else: heap[parent] <= heap[index]
+        if ordered: break
+        temporary: i64 = heap[parent]
+        heap[parent] <- heap[index]
+        heap[index] <- temporary
+        index <- parent
+
+def median_finder_heap_pop(heap: mutable i64[32], count: mutable usize&, is_max: bool) -> i64:
+    result: i64 = heap[0]
+    count <- count - 1
+    heap[0] <- heap[count]
+    index: mutable usize = 0
+    while true:
+        left: usize = index * 2 + 1
+        right: usize = left + 1
+        best: mutable usize = index
+        if left < count:
+            better: bool = if is_max: heap[left] > heap[best] else: heap[left] < heap[best]
+            if better: best <- left
+        if right < count:
+            better: bool = if is_max: heap[right] > heap[best] else: heap[right] < heap[best]
+            if better: best <- right
+        if best == index: break
+        temporary: i64 = heap[index]
+        heap[index] <- heap[best]
+        heap[best] <- temporary
+        index <- best
+    result
+
+def median_finder_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def median_finder_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 65: return -1
+    count: i64 = input[0]
+    if count < 1 or count > 64 or length != count.usize() + 1: return -1
+    index: mutable usize = 0
+    while index < count.usize():
+        if input[index + 1] < -1_000_000 or input[index + 1] > 1_000_000: return -1
+        index <- index + 1
+    required: usize = count.usize() * 8
+    if output_capacity < required: return -2
+
+    lower: mutable i64[32] = zeroed
+    upper: mutable i64[32] = zeroed
+    lower_count: mutable usize = 0
+    upper_count: mutable usize = 0
+    index <- 0
+    while index < count.usize():
+        value: i64 = input[index + 1]
+        if lower_count == 32 and lower_count > upper_count and value <= lower[0]:
+            median_finder_heap_push(upper, upper_count, false,
+                median_finder_heap_pop(lower, lower_count, true))
+            median_finder_heap_push(lower, lower_count, true, value)
+        else:
+            if lower_count == 0 or value <= lower[0]: median_finder_heap_push(lower, lower_count, true, value)
+            else: median_finder_heap_push(upper, upper_count, false, value)
+            if lower_count > upper_count + 1:
+                median_finder_heap_push(upper, upper_count, false,
+                    median_finder_heap_pop(lower, lower_count, true))
+            else if upper_count > lower_count:
+                median_finder_heap_push(lower, lower_count, true,
+                    median_finder_heap_pop(upper, upper_count, false))
+        median: f64 = if lower_count == upper_count:
+            (lower[0].f64() + upper[0].f64()) / 2.0
+        else:
+            lower[0].f64()
+        median_finder_write_f64(output, index * 8, median)
+        index <- index + 1
+    count.i64() * 8
+
+export fn median_finder(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = median_finder_impl

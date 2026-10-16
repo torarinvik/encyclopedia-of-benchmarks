@@ -1,0 +1,36 @@
+const MAX_INPUT: usize = 284
+const MAX_TEXT: usize = 256
+
+def simple_substitution_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 28 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    n64: i64 = input[27]
+    if (mode != 0 and mode != 1) or n64 < 0 or n64 > 256 or length != 28 + n64.usize(): return -1
+    seen: mutable bool[26] = zeroed
+    for i in 0..<26:
+        value: i64 = input[1 + i]
+        if value < 65 or value > 90 or seen[(value - 65).usize()]: return -1
+        seen[(value - 65).usize()] <- true
+    n: usize = n64.usize()
+    for i in 0..<n:
+        if input[28 + i] < 0 or input[28 + i] > 127: return -1
+    if output == null or output_capacity < n: return -2
+    for i in 0..<n:
+        ch: i64 = input[28 + i]
+        lower: bool = ch >= 97 and ch <= 122
+        upper: bool = ch >= 65 and ch <= 90
+        if not lower and not upper:
+            output[i] <- ch.u8()
+        else:
+            index: i64 = ch - (if lower: 97 else: 65)
+            mapped: i64 = index
+            if mode == 0:
+                mapped <- input[1 + index.usize()] - 65
+            else:
+                mapped <- 0
+                while mapped < 26 and input[1 + mapped.usize()] != 65 + index:
+                    mapped <- mapped + 1
+            output[i] <- ((if lower: 97 else: 65) + mapped).u8()
+    n.i64()
+
+export fn simple_substitution_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = simple_substitution_cipher_impl

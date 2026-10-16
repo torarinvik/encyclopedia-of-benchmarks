@@ -1,0 +1,29 @@
+extern log(value: f64) -> f64
+const MAX_COUNT: i64 = 64
+const SCALE: f64 = 1000000.0
+const INVALID_RESULT: f64 = -1.0e300
+
+def kullback_leibler_divergence_impl(values: i64&, length: usize) -> f64:
+    if length < 3 or length > 129: return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > MAX_COUNT: return INVALID_RESULT
+    count: usize = usize(count_value)
+    if length != 1 + 2 * count: return INVALID_RESULT
+
+    for i in 0..count:
+        target: i64 = values[1 + i]
+        prediction: i64 = values[1 + count + i]
+        if target < 0 or target > 1000000 or prediction < 0 or prediction > 1000000 or (target > 0 and prediction == 0):
+            return INVALID_RESULT
+
+    total: mutable f64 = 0.0
+    for i in 0..count:
+        target_scaled: i64 = values[1 + i]
+        if target_scaled == 0: continue
+        prediction_scaled: i64 = values[1 + count + i]
+        target: f64 = target_scaled.f64() / SCALE
+        prediction: f64 = prediction_scaled.f64() / SCALE
+        total <- total + target * log(target / prediction)
+    total
+
+export fn kullback_leibler_divergence(values: i64&, length: usize) -> f64 = kullback_leibler_divergence_impl

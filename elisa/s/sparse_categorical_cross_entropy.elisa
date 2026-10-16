@@ -1,0 +1,27 @@
+extern fn double log(double value);
+extern fn double log1p(double value);
+extern fn double fabs(double value);
+const INVALID_RESULT: f64 = -1.0e300
+fn sparse_categorical_cross_entropy_impl(values: i64&, length: usize) -> f64:
+    if values == null || length < 2: return INVALID_RESULT
+    batch: i64 = values[0]; classes: i64 = values[1]
+    if batch < 1 || batch > 32 || classes < 1 || classes > 32: return INVALID_RESULT
+    b: usize = batch.usize(); c: usize = classes.usize()
+    if length != 2 + b + b*c: return INVALID_RESULT
+    for r: usize = 0; r < b; r = r + 1:
+        label: i64 = values[2+r]
+        if label < 0 || label >= classes: return INVALID_RESULT
+        sum: i64 = 0
+        for col: usize = 0; col < c; col = col + 1:
+            x: i64 = values[2+b+r*c+col]
+            if x < 0 || x > 1000000: return INVALID_RESULT
+            sum = sum + x
+        if sum != 1000000: return INVALID_RESULT
+    total: f64 = 0.0
+    for r: usize = 0; r < b; r = r + 1:
+        idx: usize = 2+b+r*c+values[2+r].usize()
+        p: f64 = values[idx].f64()/1000000.0
+        if p < 1e-15: p = 1e-15
+        total = total - log(p)
+    return total
+export fn sparse_categorical_cross_entropy(values: i64&, length: usize) -> f64 = sparse_categorical_cross_entropy_impl

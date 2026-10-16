@@ -1,0 +1,122 @@
+# Count bounded ASCII tokens in insertion order, matching the pinned Java routine.
+const MAX_INPUT: usize = 256
+const MAX_WORDS: usize = 128
+const TABLE_SIZE: usize = 512
+
+def map_reduce_is_space(value: i64) -> bool:
+    value == 9 or value == 10 or value == 11 or value == 12 or value == 13 or value == 32
+
+def map_reduce_hash(input: i64&, start: usize, length: usize) -> usize:
+    hash: mutable usize = 0
+    for offset in 0..<length:
+        hash <- (hash * 31 + input[start + offset].usize()) % 1000003
+    hash
+
+def map_reduce_equal(input: i64&, start: usize, length: usize,
+        other_start: usize, other_length: usize) -> bool:
+    if length != other_length:
+        return false
+    for offset in 0..<length:
+        if input[start + offset] != input[other_start + offset]:
+            return false
+    true
+
+def map_reduce_write_count(count_value: usize, output: mutable u8&, position_value: usize) -> usize:
+    digits: mutable u8[3]
+    digit_count: mutable usize = 0
+    remaining: mutable usize = count_value
+    while true:
+        digits[digit_count] <- (48 + remaining % 10).u8()
+        digit_count <- digit_count + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    position: mutable usize = position_value
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        output[position] <- digits[digit_count]
+        position <- position + 1
+    position
+
+def map_reduce_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length > MAX_INPUT or (length != 0 and input == null):
+        return -1
+    for index in 0..<length:
+        value: i64 = input[index]
+        if not map_reduce_is_space(value) and (value < 32 or value > 126):
+            return -1
+
+    starts: mutable usize[MAX_WORDS] = zeroed
+    lengths: mutable usize[MAX_WORDS] = zeroed
+    counts: mutable usize[MAX_WORDS] = zeroed
+    table: mutable usize[TABLE_SIZE] = zeroed
+    unique_count: mutable usize = 0
+    begin: mutable usize = 0
+    ending: mutable usize = length
+    while begin < ending and input[begin] <= 32:
+        begin <- begin + 1
+    while ending > begin and input[ending - 1] <= 32:
+        ending <- ending - 1
+
+    if begin == ending:
+        starts[0] <- 0
+        lengths[0] <- 0
+        counts[0] <- 1
+        unique_count <- 1
+        table[0] <- 1
+    else:
+        cursor: mutable usize = begin
+        while cursor < ending:
+            while cursor < ending and map_reduce_is_space(input[cursor]):
+                cursor <- cursor + 1
+            if cursor == ending:
+                break
+            start: usize = cursor
+            while cursor < ending and not map_reduce_is_space(input[cursor]):
+                cursor <- cursor + 1
+            token_length: usize = cursor - start
+            slot: mutable usize = map_reduce_hash(input, start, token_length) % TABLE_SIZE
+            while table[slot] != 0:
+                item: usize = table[slot] - 1
+                if map_reduce_equal(input, start, token_length, starts[item], lengths[item]):
+                    counts[item] <- counts[item] + 1
+                    break
+                slot <- (slot + 1) % TABLE_SIZE
+            if table[slot] == 0:
+                starts[unique_count] <- start
+                lengths[unique_count] <- token_length
+                counts[unique_count] <- 1
+                table[slot] <- unique_count + 1
+                unique_count <- unique_count + 1
+
+    required: mutable usize = 0
+    for item in 0..<unique_count:
+        digits: mutable usize = 1
+        value: mutable usize = counts[item]
+        while value >= 10:
+            value <- value / 10
+            digits <- digits + 1
+        required <- required + lengths[item] + 2 + digits
+        if item != 0:
+            required <- required + 1
+    if output == null or output_capacity < required:
+        return -2
+
+    written: mutable usize = 0
+    for item in 0..<unique_count:
+        if item != 0:
+            output[written] <- 44.u8()
+            written <- written + 1
+        for offset in 0..<lengths[item]:
+            output[written] <- input[starts[item] + offset].u8()
+            written <- written + 1
+        output[written] <- 58.u8()
+        written <- written + 1
+        output[written] <- 32.u8()
+        written <- written + 1
+        written <- map_reduce_write_count(counts[item], output, written)
+    written.i64()
+
+export fn map_reduce(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = map_reduce_impl

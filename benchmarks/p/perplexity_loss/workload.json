@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "python-perplexity-loss-fixed-point-i64-v1",
+  "algorithm": "perplexity_loss",
+  "function_symbol": "perplexity_loss",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[batch, time, vocab, labels[batch*time], probabilities_micro[batch*time*vocab]]",
+    "batch_range": [1, 8],
+    "time_range": [1, 16],
+    "vocab_range": [2, 16],
+    "label_range": "0..vocab-1",
+    "probability_micro_range": [0, 1000000],
+    "probability_scale": 1000000,
+    "probability_row_sum": 1000000,
+    "exact_length": "3 + batch*time + batch*time*vocab",
+    "maximum_packed_values": 2179,
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "mean over batch of exp(-ordered_mean_over_time(log(clip(target_probability,1e-7,1))))",
+    "epsilon": 1e-7,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_token_target_probability", "input_values": [1, 1, 2, 0, 750000, 250000], "input_length": 6, "expected_result": 1.3333333333333333},
+    {"id": "uniform_four_class_sequence", "input_values": [1, 2, 4, 0, 3, 250000, 250000, 250000, 250000, 250000, 250000, 250000, 250000], "input_length": 13, "expected_result": 4.0},
+    {"id": "sentence_perplexity_then_batch_mean", "input_values": [2, 2, 2, 0, 1, 1, 1, 750000, 250000, 250000, 750000, 500000, 500000, 500000, 500000], "input_length": 15, "expected_result": 1.6666666666666667},
+    {"id": "zero_target_probability_clipped", "input_values": [1, 1, 2, 0, 0, 1000000], "input_length": 6, "expected_result": 10000000.0},
+    {"id": "invalid_label_at_vocab_size", "input_values": [1, 1, 2, 2, 1000000, 0], "input_length": 6, "expected_result": -1e300},
+    {"id": "invalid_probability_row_sum", "input_values": [1, 1, 2, 0, 500000, 250000], "input_length": 6, "expected_result": -1e300},
+    {"id": "invalid_zero_batch", "input_values": [0, 1, 2], "input_length": 3, "expected_result": -1e300},
+    {"id": "invalid_packed_length", "input_values": [1, 1, 2, 0, 1000000], "input_length": 5, "expected_result": -1e300}
+  ]
+}

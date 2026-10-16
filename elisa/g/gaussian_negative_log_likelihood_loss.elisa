@@ -1,0 +1,30 @@
+extern log(value: f64) -> f64
+
+const MAX_COUNT: i64 = 256
+const MAX_INPUT_LENGTH: usize = 769
+const INVALID_RESULT: f64 = -1.0e300
+
+def gaussian_negative_log_likelihood_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 4 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 1 or count > MAX_COUNT or length != 1 + (3 * count).usize(): return INVALID_RESULT
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count.usize():
+        y_scaled: i64 = values[1 + index]
+        mu_scaled: i64 = values[1 + count.usize() + index]
+        variance_nano: i64 = values[1 + 2 * count.usize() + index]
+        if y_scaled < -1000000 or y_scaled > 1000000 or mu_scaled < -1000000 or mu_scaled > 1000000 or variance_nano < 1 or variance_nano > 1000000000:
+            return INVALID_RESULT
+        y: f64 = y_scaled.f64() / 1000000.0
+        mu: f64 = mu_scaled.f64() / 1000000.0
+        variance: mutable f64 = variance_nano.f64() / 1000000000.0
+        if variance < 1e-6: variance <- 1e-6
+        residual: f64 = y - mu
+        loss_var: f64 = 0.5 * log(variance)
+        loss_exp: f64 = 0.5 * ((residual * residual) / variance)
+        total <- total + loss_var + loss_exp
+        index <- index + 1
+    total / count.f64()
+
+export fn gaussian_negative_log_likelihood_loss(values: i64&, length: usize) -> f64 = gaussian_negative_log_likelihood_loss_impl

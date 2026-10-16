@@ -1,0 +1,26 @@
+def smooth_l1_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 1 or length > 515:
+        return -1.0e300
+    count: i64 = values[0]
+    if count < 0 or count > 257 or length != (1 + 2 * count).usize() or count == 0 or count > 256:
+        return -1.0e300
+    count_usize: usize = count.usize()
+    index: mutable usize = 0
+    while index < count_usize * 2:
+        if values[1 + index] < -1000000 or values[1 + index] > 1000000:
+            return -1.0e300
+        index <- index + 1
+    total: mutable f64 = 0.0
+    index <- 0
+    while index < count_usize:
+        difference: f64 = values[1 + index].f64() / 1000000.0 -
+                          values[1 + count_usize + index].f64() / 1000000.0
+        residual: f64 = if difference < 0.0: -difference else: difference
+        if residual < 1.0:
+            total <- total + 0.5 * residual * residual / 1.0
+        else:
+            total <- total + residual - 0.5
+        index <- index + 1
+    total / count.f64()
+
+export fn smooth_l1_loss(values: i64&, length: usize) -> f64 = smooth_l1_loss_impl

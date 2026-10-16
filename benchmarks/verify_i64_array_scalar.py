@@ -654,6 +654,12 @@ from matrix_based_game_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_BASED_GAME_I
 from matrix_based_game_oracle import MAX_DIMENSION as MATRIX_BASED_GAME_MAX_DIMENSION
 from matrix_based_game_oracle import MAX_MOVES as MATRIX_BASED_GAME_MAX_MOVES
 from matrix_based_game_oracle import expected_result as matrix_based_game_oracle
+from kth_element_finder_oracle import INVALID_RESULT as KTH_ELEMENT_FINDER_INVALID_RESULT
+from kth_element_finder_oracle import MAX_INPUT_LENGTH as KTH_ELEMENT_FINDER_MAX_INPUT_LENGTH
+from kth_element_finder_oracle import MAX_N as KTH_ELEMENT_FINDER_MAX_N
+from kth_element_finder_oracle import MAX_VALUE as KTH_ELEMENT_FINDER_MAX_VALUE
+from kth_element_finder_oracle import MIN_VALUE as KTH_ELEMENT_FINDER_MIN_VALUE
+from kth_element_finder_oracle import expected_result as kth_element_finder_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("sort_the_odd",)
@@ -736,6 +742,7 @@ ALGORITHMS += ("select_bits",)
 ALGORITHMS += ("matrix_equalization",)
 ALGORITHMS += ("persistent_segment_tree",)
 ALGORITHMS += ("matrix_based_game",)
+ALGORITHMS += ("kth_element_finder",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_IMMUTABLE_HASH_MAP_INPUT_LENGTH = 1 + 3 * IMMUTABLE_HASH_MAP_MAX_OPERATIONS
@@ -1326,6 +1333,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return persistent_segment_tree_oracle(values)
     if algorithm == "matrix_based_game":
         return matrix_based_game_oracle(values)
+    if algorithm == "kth_element_finder":
+        return kth_element_finder_oracle(values)
     if algorithm == "gomory_hu_tree":
         return gomory_hu_tree_oracle(values)
     if algorithm == "frequent_pattern_growth":
@@ -1925,7 +1934,61 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                                 (case["expected_result"] for case in workload["cases"])):
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
-    if algorithm == "frequent_pattern_growth":
+    if algorithm == "kth_element_finder":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (input_spec.get("kind") != "signed_i64_integer_array"
+                or input_spec.get("encoding") != "[mode, n, k, value_0, ..., value_(n-1)]"
+                or input_spec.get("mode") != "0 selects kth largest with a size-k min-heap; 1 selects kth smallest with a size-k max-heap"
+                or input_spec.get("n_range") != f"1..{KTH_ELEMENT_FINDER_MAX_N}"
+                or input_spec.get("k_range") != "1..n"
+                or input_spec.get("value_range") != [KTH_ELEMENT_FINDER_MIN_VALUE,
+                                                        KTH_ELEMENT_FINDER_MAX_VALUE]
+                or input_spec.get("maximum_input_length") != KTH_ELEMENT_FINDER_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != KTH_ELEMENT_FINDER_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("invalid_input_result") != KTH_ELEMENT_FINDER_INVALID_RESULT):
+            raise ValueError("kth_element_finder workload metadata does not match its reviewed contract")
+
+        def add(mode: int, values: tuple[int, ...], k_values: tuple[int, ...]) -> None:
+            n = len(values)
+            for k in sorted(set(k_values)):
+                packed = (mode, n, k, *values)
+                cases[packed] = oracle(algorithm, list(packed))
+
+        for n in (1, 2, 3, 4, 16, 64, KTH_ELEMENT_FINDER_MAX_N):
+            ascending = tuple(range(-(n // 2), -(n // 2) + n))
+            patterns = (ascending, tuple(reversed(ascending)), tuple([17] * n),
+                        tuple(KTH_ELEMENT_FINDER_MIN_VALUE if index % 2 == 0
+                              else KTH_ELEMENT_FINDER_MAX_VALUE for index in range(n)))
+            for values in patterns:
+                for mode in (0, 1):
+                    add(mode, values, (1, (n + 1) // 2, n))
+
+        rng_kth_element_finder = random.Random(20261016)
+        for _ in range(128):
+            n = rng_kth_element_finder.randint(1, KTH_ELEMENT_FINDER_MAX_N)
+            values = tuple(rng_kth_element_finder.randint(KTH_ELEMENT_FINDER_MIN_VALUE,
+                                                          KTH_ELEMENT_FINDER_MAX_VALUE)
+                           for _ in range(n))
+            add(rng_kth_element_finder.randrange(2), values,
+                (1, rng_kth_element_finder.randint(1, n), n))
+
+        malformed = (
+            (), (0,), (0, 1), (2, 1, 1, 9), (0, 0, 1),
+            (1, KTH_ELEMENT_FINDER_MAX_N + 1, 1), (0, 3, 0, 1, 2, 3),
+            (1, 3, 4, 1, 2, 3), (0, 3, 2, 1, 2),
+            (1, 2, 1, 4, 5, 6),
+            (0, 3, 1, KTH_ELEMENT_FINDER_MIN_VALUE - 1, 0, 1),
+            (1, 3, 2, KTH_ELEMENT_FINDER_MAX_VALUE + 1, 0, 1),
+            (0, 1, 1, I64_MIN), (1, 1, 1, I64_MAX),
+            tuple([0] * KTH_ELEMENT_FINDER_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= KTH_ELEMENT_FINDER_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {KTH_ELEMENT_FINDER_INVALID_RESULT}\n")
+    elif algorithm == "frequent_pattern_growth":
         rng = random.Random(20261016)
         for _ in range(256):
             transaction_count = rng.randint(1, 32)

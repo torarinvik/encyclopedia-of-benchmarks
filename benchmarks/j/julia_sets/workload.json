@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-julia-sets-complex64-v1",
+  "algorithm": "julia_sets",
+  "function_symbol": "julia_sets",
+  "description": "Apply a bounded number of quadratic complex64 Julia iterations to supplied starting points.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[iterations,c_re_sixteenths,c_im_sixteenths,count,(z_re_sixteenths,z_im_sixteenths)*count]",
+    "exact_length": "4 + 2*count",
+    "iterations_range": [0, 8],
+    "component_range": [-128, 128],
+    "component_scale": 16,
+    "count_range": [0, 32],
+    "maximum_packed_values": 68,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "per input point, final real then imaginary IEEE-754 binary32 little-endian; no header",
+    "success_result": "number of bytes written",
+    "bytes_per_point": 8,
+    "maximum_bytes": 256,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "reason": "At most 32 complex points, each represented by two binary32 values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "fractals/julia_sets.py",
+    "method": "iterate_function(eval_quadratic_polynomial, ...)"
+  },
+  "cases": [
+    {
+      "id": "zero_iterations_preserves_order",
+      "input_values": [0, 0, 0, 2, 8, -8, -8, 8],
+      "input_length": 8,
+      "expected_result": 16,
+      "expected_output_hex": "0000003f000000bf000000bf0000003f"
+    },
+    {
+      "id": "bounded_quadratic_trajectory",
+      "input_values": [2, 0, 0, 1, 8, 0],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0000803d00000000"
+    },
+    {
+      "id": "escaping_quadratic_trajectory",
+      "input_values": [1, 0, 0, 1, 32, 0],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0000804000000000"
+    },
+    {
+      "id": "complex_parameter_update",
+      "input_values": [2, 0, 8, 1, 0, 0],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "000080be0000003f"
+    },
+    {
+      "id": "component_limits_at_zero_iterations",
+      "input_values": [0, 128, -128, 1, 128, -128],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "00000041000000c1"
+    },
+    {
+      "id": "maximum_iterations_and_parameter_limits_with_no_points",
+      "input_values": [8, 128, -128, 0],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [0, 0, 0, 1, 8, 0],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    },
+    {
+      "id": "invalid_component",
+      "input_values": [0, 129, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_iteration_count",
+      "input_values": [9, 0, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_points",
+      "input_values": [0, 0, 0, 33],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_point",
+      "input_values": [1, 0, 0, 1, 8],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonfinite_trajectory",
+      "input_values": [8, 0, 0, 1, 128, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

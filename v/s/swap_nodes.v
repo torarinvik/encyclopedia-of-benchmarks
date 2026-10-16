@@ -1,0 +1,4 @@
+module swap_nodes
+fn put64(out &u8,mut pos int,x i64){u:=u64(x);unsafe{for j in 0..8{out[pos]=u8((u>>(8*j))&255);pos++}}}
+@[export: 'swap_nodes']
+pub fn swap_nodes(input &i64,length usize,output &u8,capacity usize) i64 {unsafe{if input==nil||length<3{return -1};n0:=input[0];if n0<0||n0>64||length!=usize(n0+3){return -1};n:=int(n0);mut vals:=[]i64{len:n};for i in 0..n{x:=input[1+i];if x< -2147483648||x>2147483647{return -1};vals[i]=x};a:=input[1+n];b:=input[2+n];if a< -2147483648||a>2147483647||b< -2147483648||b>2147483647{return -1};need:=8+8*n;if output==nil||capacity<usize(need){return -2};if a!=b{ia:=n;ib:=n;for i in 0..n{if ia==n&&vals[i]==a{ia=i};if ib==n&&vals[i]==b{ib=i}};if ia<n&&ib<n{vals[ia]=b;vals[ib]=a}};mut pos:=0;put64(output,mut pos,n0);for x in vals{put64(output,mut pos,x)};return i64(pos)}}

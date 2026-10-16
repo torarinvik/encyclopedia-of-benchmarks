@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "python-kullback-leibler-divergence-sum-v1",
+  "algorithm": "kullback_leibler_divergence",
+  "function_symbol": "kullback_leibler_divergence",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, target_scaled[0..n], prediction_scaled[0..n]]",
+    "minimum_count": 1,
+    "maximum_count": 64,
+    "maximum_packed_values": 129,
+    "exact_length": "1 + 2*n",
+    "scale": 1000000,
+    "target_scaled_range": [0, 1000000],
+    "prediction_scaled_range": [0, 1000000],
+    "prediction_constraint": "prediction_scaled > 0 whenever the corresponding target_scaled > 0",
+    "invalid_input_result": -1e300,
+    "notes": "Zero-target terms are omitted. The pinned source does not require either vector to sum to one; an all-zero target vector returns zero."
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "source_order_sum_i(target_scaled[i]/1000000 * ln(target_scaled[i]/prediction_scaled[i])) for nonzero targets",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/loss_functions.py",
+    "method": "kullback_leibler_divergence"
+  },
+  "cases": [
+    {"id":"pinned_zero_target","input_values":[3,0,400000,600000,300000,300000,400000],"input_length":7,"expected_result":0.35835189384561095},
+    {"id":"pinned_fractional_distribution","input_values":[3,200000,300000,500000,300000,300000,400000],"input_length":7,"expected_result":0.030478754035472025},
+    {"id":"identical_distribution","input_values":[3,333333,333333,333334,333333,333333,333334],"input_length":7,"expected_result":0.0},
+    {"id":"single_exact_probability","input_values":[1,750000,750000],"input_length":3,"expected_result":0.0},
+    {"id":"all_zero_targets","input_values":[3,0,0,0,0,0,0],"input_length":7,"expected_result":0.0},
+    {"id":"zero_target_zero_prediction","input_values":[2,0,500000,0,500000],"input_length":5,"expected_result":0.0},
+    {"id":"one_nonzero_target","input_values":[2,0,1000000,0,500000],"input_length":5,"expected_result":0.6931471805599453},
+    {"id":"micro_probability_equal","input_values":[2,1,999999,1,999999],"input_length":5,"expected_result":0.0},
+    {"id":"largest_ratio","input_values":[1,1000000,1],"input_length":3,"expected_result":13.815510557964274},
+    {"id":"negative_without_normalization","input_values":[1,500000,1000000],"input_length":3,"expected_result":-0.34657359027997264},
+    {"id":"unequal_mass_source_formula","input_values":[2,200000,800000,400000,600000],"input_length":5,"expected_result":0.09151622184943578},
+    {"id":"zero_target_terms_preserve_order","input_values":[4,200000,0,300000,500000,100000,0,500000,400000],"input_length":9,"expected_result":0.096953524639296712},
+    {"id":"invalid_empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid_zero_count","input_values":[0],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid_count_above_bound","input_values":[65],"input_length":1,"expected_result":-1e300},
+    {"id":"invalid_truncated","input_values":[2,500000,500000,250000],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid_extra","input_values":[1,500000,500000,0],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid_negative_target","input_values":[1,-1,500000],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_target_above_scale","input_values":[1,1000001,500000],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_negative_prediction","input_values":[1,500000,-1],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_prediction_above_scale","input_values":[1,500000,1000001],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_zero_prediction_for_positive_target","input_values":[1,1,0],"input_length":3,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

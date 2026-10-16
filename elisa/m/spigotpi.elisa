@@ -1,0 +1,54 @@
+# Generate leading decimal digits with the pinned spigot recurrence.
+const MAX_DIGITS: usize = 256
+const MAX_BOXES: usize = 854
+
+def spigotpi_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length != 1 or input == null or input[0] < 0 or input[0] > 256:
+        return -1
+    digit_count: usize = input[0].usize()
+    if output == null or output_capacity < digit_count:
+        return -2
+    if digit_count == 0:
+        return 0
+
+    boxes: usize = digit_count * 10 / 3
+    remainders: mutable i64[MAX_BOXES] = zeroed
+    for item in 0..<boxes:
+        remainders[item] <- 2
+    digits_held: mutable usize = 0
+    for index in 0..<digit_count:
+        carried_over: mutable i64 = 0
+        sum: mutable i64 = 0
+        cursor: mutable usize = boxes
+        while cursor > 0:
+            cursor <- cursor - 1
+            j: usize = cursor
+            remainders[j] <- remainders[j] * 10
+            sum <- remainders[j] + carried_over
+            denominator: i64 = (j * 2 + 1).i64()
+            quotient: i64 = sum / denominator
+            remainders[j] <- sum % denominator
+            carried_over <- quotient * j.i64()
+        remainders[0] <- sum % 10
+        q: mutable i64 = sum / 10
+        if q == 9:
+            digits_held <- digits_held + 1
+        elif q == 10:
+            q <- 0
+            offset: mutable usize = 1
+            while offset <= digits_held:
+                position: usize = index - offset
+                if output[position] == 57.u8():
+                    output[position] <- 48.u8()
+                else:
+                    output[position] <- output[position] + 1.u8()
+                offset <- offset + 1
+            digits_held <- 1
+        else:
+            digits_held <- 1
+        output[index] <- (48 + q).u8()
+    digit_count.i64()
+
+export fn spigotpi(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = spigotpi_impl

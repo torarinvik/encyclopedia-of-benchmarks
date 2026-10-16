@@ -1,0 +1,44 @@
+extern ceil(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const INVALID: f64 = -1.0e300
+def derivative(id: i64, x: f64, y: f64) -> f64:
+    if id == 0: return y
+    if id == 1: return x
+    if id == 2: return x + y
+    if id == 3: return (x - y) / 2.0
+    1.0 + y * y
+def finite(value: f64) -> bool:
+    value == value and value >= -1.0e300 and value <= 1.0e300
+def gill_step(id: i64, x: f64, y: f64, h: f64, out: mutable f64&) -> bool:
+    root2: f64 = sqrt(2.0)
+    k1: f64 = h * derivative(id, x, y)
+    k2: f64 = h * derivative(id, x + h / 2.0, y + k1 / 2.0)
+    k3: f64 = h * derivative(id, x + h / 2.0, y + (-0.5 + 1.0 / root2) * k1 + (1.0 - 1.0 / root2) * k2)
+    k4: f64 = h * derivative(id, x + h, y - (1.0 / root2) * k2 + (1.0 + 1.0 / root2) * k3)
+    out <- y + (k1 + (2.0 - root2) * k2 + (2.0 + root2) * k3 + k4) / 6.0
+    finite(k1) and finite(k2) and finite(k3) and finite(k4) and finite(out)
+def runge_kutta_gills_impl(input: i64&, length: usize) -> f64:
+    if input == null or length != 5: return INVALID
+    id: i64 = input[0]
+    ym: i64 = input[1]
+    xm: i64 = input[2]
+    hm: i64 = input[3]
+    em: i64 = input[4]
+    if id < 0 or id > 4 or ym < -1000000 or ym > 1000000 or xm < -1000000 or xm > 1000000 or em < -1000000 or em > 1000000 or hm < 10000 or hm > 250000 or em <= xm: return INVALID
+    y: mutable f64 = ym.f64() / 1000000.0
+    x: mutable f64 = xm.f64() / 1000000.0
+    h: f64 = hm.f64() / 1000000.0
+    ending: f64 = em.f64() / 1000000.0
+    if id == 4 and (x < 0.0 or y > 0.0): return INVALID
+    ratio: f64 = (ending - x) / h
+    steps: usize = ratio.usize()
+    if steps < 1 or steps > 64: return INVALID
+    for i in 0..<steps:
+        next: mutable f64 = 0.0
+        if not gill_step(id, x, y, h, next): return INVALID
+        y <- next
+        x <- x + h
+        if not finite(x): return INVALID
+    y
+export fn runge_kutta_gills(input: i64&, length: usize) -> f64 = runge_kutta_gills_impl

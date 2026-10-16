@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "python-sierpinski-carpet-base3-raster-i64-array-bytes-output-v1",
+  "algorithm": "sierpinski_carpet",
+  "function_symbol": "sierpinski_carpet",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[depth, filled_byte, hole_byte]",
+    "depth_range": [0, 4],
+    "printable_ascii_byte_range": [32, 126],
+    "filled_and_hole_bytes_must_differ": true,
+    "exact_packed_length": 3,
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "i64_little_endian_prefix_and_ascii_raster",
+    "layout": "side length as an 8-byte signed i64 little-endian value, then newline-separated raster rows without a trailing newline",
+    "maximum_output_bytes": 6649,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 6649,
+    "meaning": "Maximum output capacity, including the 8-byte side-length prefix."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "fractals/sierpinski_carpet.py"
+  },
+  "cases": [
+    {
+      "id": "depth_zero_single_cell",
+      "input_values": [0, 35, 32],
+      "input_length": 3,
+      "workspace_bytes": 9,
+      "expected_result": 9,
+      "expected_output_hex": "010000000000000023"
+    },
+    {
+      "id": "depth_one_classic_carpet",
+      "input_values": [1, 35, 32],
+      "input_length": 3,
+      "workspace_bytes": 19,
+      "expected_result": 19,
+      "expected_output_hex": "03000000000000002323230a2320230a232323"
+    },
+    {
+      "id": "depth_two_alternate_bytes",
+      "input_values": [2, 46, 35],
+      "input_length": 3,
+      "workspace_bytes": 97,
+      "expected_result": 97
+    },
+    {
+      "id": "maximum_depth",
+      "input_values": [4, 46, 35],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": 6649
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [1, 35, 32],
+      "input_length": 3,
+      "workspace_bytes": 18,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_depth",
+      "input_values": [-1, 35, 32],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "depth_above_limit",
+      "input_values": [5, 35, 32],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "identical_fill_and_hole_bytes",
+      "input_values": [0, 33, 33],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonprintable_filled_byte",
+      "input_values": [1, 31, 35],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonprintable_hole_byte",
+      "input_values": [1, 35, 127],
+      "input_length": 3,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_hole_byte",
+      "input_values": [1, 35],
+      "input_length": 2,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 35, 32, 9],
+      "input_length": 4,
+      "workspace_bytes": 6649,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 20
+  }
+}

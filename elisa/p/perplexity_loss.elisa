@@ -1,0 +1,50 @@
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 2179
+const INVALID_RESULT: f64 = -1.0e300
+
+def perplexity_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    batch_value: i64 = values[0]
+    time_value: i64 = values[1]
+    vocab_value: i64 = values[2]
+    if batch_value < 1 or batch_value > 8 or time_value < 1 or time_value > 16 or vocab_value < 2 or vocab_value > 16:
+        return INVALID_RESULT
+    batch: usize = batch_value.usize()
+    time: usize = time_value.usize()
+    vocab: usize = vocab_value.usize()
+    tokens: usize = batch * time
+    probability_base: usize = 3 + tokens
+    if length != probability_base + tokens * vocab: return INVALID_RESULT
+    row: mutable usize = 0
+    while row < tokens:
+        label: i64 = values[3 + row]
+        if label < 0 or label >= vocab_value: return INVALID_RESULT
+        row_sum: mutable i64 = 0
+        c: mutable usize = 0
+        while c < vocab:
+            p: i64 = values[probability_base + row * vocab + c]
+            if p < 0 or p > 1000000: return INVALID_RESULT
+            row_sum <- row_sum + p
+            c <- c + 1
+        if row_sum != 1000000: return INVALID_RESULT
+        row <- row + 1
+    batch_total: mutable f64 = 0.0
+    sentence: mutable usize = 0
+    while sentence < batch:
+        log_total: mutable f64 = 0.0
+        step: mutable usize = 0
+        while step < time:
+            token_row: usize = sentence * time + step
+            label: usize = values[3 + token_row].usize()
+            probability: mutable f64 = values[probability_base + token_row * vocab + label].f64() / 1000000.0
+            if probability < 1e-7: probability <- 1e-7
+            if probability > 1.0: probability <- 1.0
+            log_total <- log_total + log(probability)
+            step <- step + 1
+        batch_total <- batch_total + exp(-(log_total / time.f64()))
+        sentence <- sentence + 1
+    batch_total / batch.f64()
+
+export fn perplexity_loss(values: i64&, length: usize) -> f64 = perplexity_loss_impl

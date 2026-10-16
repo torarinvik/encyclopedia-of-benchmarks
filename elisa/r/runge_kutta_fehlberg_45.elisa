@@ -1,0 +1,44 @@
+extern ceil(value: f64) -> f64
+
+const INVALID: f64 = -1.0e300
+def derivative(id: i64, x: f64, y: f64) -> f64:
+    if id == 0: return y
+    if id == 1: return x
+    if id == 2: return x + y
+    if id == 3: return (x - y) / 2.0
+    1.0 + y * y
+def finite(value: f64) -> bool:
+    value == value and value >= -1.0e300 and value <= 1.0e300
+def fehlberg_step(id: i64, x: f64, y: f64, h: f64, out: mutable f64&) -> bool:
+    k1: f64 = h * derivative(id, x, y)
+    k2: f64 = h * derivative(id, x + h / 4.0, y + k1 / 4.0)
+    k3: f64 = h * derivative(id, x + (3.0 / 8.0) * h, y + (3.0 / 32.0) * k1 + (9.0 / 32.0) * k2)
+    k4: f64 = h * derivative(id, x + (12.0 / 13.0) * h, y + (1932.0 / 2197.0) * k1 - (7200.0 / 2197.0) * k2 + (7296.0 / 2197.0) * k3)
+    k5: f64 = h * derivative(id, x + h, y + (439.0 / 216.0) * k1 - 8.0 * k2 + (3680.0 / 513.0) * k3 - (845.0 / 4104.0) * k4)
+    k6: f64 = h * derivative(id, x + h / 2.0, y - (8.0 / 27.0) * k1 + 2.0 * k2 - (3544.0 / 2565.0) * k3 + (1859.0 / 4104.0) * k4 - (11.0 / 40.0) * k5)
+    out <- y + (16.0 / 135.0) * k1 + (6656.0 / 12825.0) * k3 + (28561.0 / 56430.0) * k4 - (9.0 / 50.0) * k5 + (2.0 / 55.0) * k6
+    finite(k1) and finite(k2) and finite(k3) and finite(k4) and finite(k5) and finite(k6) and finite(out)
+def runge_kutta_fehlberg_45_impl(input: i64&, length: usize) -> f64:
+    if input == null or length != 5: return INVALID
+    id: i64 = input[0]
+    ym: i64 = input[1]
+    xm: i64 = input[2]
+    hm: i64 = input[3]
+    em: i64 = input[4]
+    if id < 0 or id > 4 or ym < -1000000 or ym > 1000000 or xm < -1000000 or xm > 1000000 or em < -1000000 or em > 1000000 or hm < 10000 or hm > 250000 or em <= xm: return INVALID
+    y: mutable f64 = ym.f64() / 1000000.0
+    x: mutable f64 = xm.f64() / 1000000.0
+    h: f64 = hm.f64() / 1000000.0
+    ending: f64 = em.f64() / 1000000.0
+    if id == 4 and (x < 0.0 or y > 0.0): return INVALID
+    ratio: f64 = (ending - x) / h
+    steps: usize = ratio.usize()
+    if steps < 1 or steps > 64: return INVALID
+    for i in 0..<steps:
+        next: mutable f64 = 0.0
+        if not fehlberg_step(id, x, y, h, next): return INVALID
+        y <- next
+        x <- h + x
+        if not finite(x): return INVALID
+    y
+export fn runge_kutta_fehlberg_45(input: i64&, length: usize) -> f64 = runge_kutta_fehlberg_45_impl

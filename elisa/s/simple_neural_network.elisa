@@ -1,0 +1,14 @@
+extern fn double exp(double value)
+const INVALID_RESULT: f64 = -1.0e300
+def simple_neural_network_impl(values: i64&, length: usize) -> f64:
+    if values == null || length != 3: return INVALID_RESULT
+    expected: i64 = values[0]; initial: i64 = values[1]; count: i64 = values[2]
+    if expected < 0 || expected > 100 || initial < 1 || initial > 199 || initial % 2 != 1 || count < 1 || count > 65536: return INVALID_RESULT
+    target: f64 = expected.f64()/100.0; weight: mutable f64 = initial.f64(); layer: mutable f64 = 0.0
+    for i in 0..<count.usize():
+        layer <- 1.0/(1.0+exp(-0.02*weight))
+        error: f64 = target-layer
+        delta: f64 = error*layer*(1.0-layer)
+        weight <- weight+0.02*delta
+    layer*100.0
+export fn simple_neural_network(values: i64&, length: usize) -> f64 = simple_neural_network_impl

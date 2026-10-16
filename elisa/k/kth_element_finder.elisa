@@ -1,0 +1,46 @@
+const INVALID_RESULT: i64 = -9223372036854775808
+
+def sift_down(heap: mutable i64&, heap_size: usize, root0: usize, min_heap: bool) -> void:
+    root: mutable usize = root0
+    while true:
+        best: mutable usize = root
+        left: usize = root * 2 + 1
+        right: usize = left + 1
+        if left < heap_size:
+            if (min_heap and heap[left] < heap[best]) or (not min_heap and heap[left] > heap[best]): best <- left
+        if right < heap_size:
+            if (min_heap and heap[right] < heap[best]) or (not min_heap and heap[right] > heap[best]): best <- right
+        if best == root: break
+        temporary: i64 = heap[root]
+        heap[root] <- heap[best]
+        heap[best] <- temporary
+        root <- best
+
+def kth_element_finder_impl(input: i64&, length: usize) -> i64:
+    if length < 4 or length > 259: return INVALID_RESULT
+    mode: i64 = input[0]
+    n_value: i64 = input[1]
+    k_value: i64 = input[2]
+    if (mode != 0 and mode != 1) or n_value < 1 or n_value > 256 or k_value < 1 or k_value > n_value:
+        return INVALID_RESULT
+    n: usize = usize(n_value)
+    k: usize = usize(k_value)
+    if length != n + 3: return INVALID_RESULT
+    for i in 0..n:
+        if input[i + 3] < -1000000 or input[i + 3] > 1000000: return INVALID_RESULT
+
+    min_heap: bool = mode == 0
+    heap: mutable [i64; 256] = [0; 256]
+    for i in 0..k: heap[i] <- input[i + 3]
+    start: mutable usize = k / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(&heap[0], k, start, min_heap)
+    for i in k..n:
+        value: i64 = input[i + 3]
+        if (min_heap and value > heap[0]) or (not min_heap and value < heap[0]):
+            heap[0] <- value
+            sift_down(&heap[0], k, 0, min_heap)
+    heap[0]
+
+export fn kth_element_finder(input: i64&, length: usize) -> i64 = kth_element_finder_impl
