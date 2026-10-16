@@ -1,0 +1,134 @@
+const MAX_DOCS: usize = 256
+const MAX_WORDS_PER_DOC: usize = 256
+const MAX_TOTAL_WORDS: usize = 4096
+const MAX_QUERY_TERMS: usize = 16
+const MAX_INPUT: usize = 4627
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def inverted_index_hash_i64(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    shift: mutable usize = 0
+    while shift < 64:
+        result <- (result ^ ((bits >> shift) & 255.u64())) * FNV_PRIME
+        shift <- shift + 8
+    result
+
+def inverted_index_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT:
+        return -1
+    doc_count64: i64 = input[0]
+    if doc_count64 < 0 or doc_count64 > MAX_DOCS.i64():
+        return -1
+    doc_count: usize = doc_count64.usize()
+    seen_docs: mutable bool[MAX_DOCS] = zeroed
+    posting_heads: mutable i32[65536] = zeroed
+    posting_next: mutable i32[MAX_TOTAL_WORDS] = zeroed
+    posting_doc: mutable u8[MAX_TOTAL_WORDS] = zeroed
+    word: mutable usize = 0
+    while word < 65536:
+        posting_heads[word] <- -1
+        word <- word + 1
+    posting_count: mutable usize = 0
+    total_words: mutable usize = 0
+    cursor: mutable usize = 1
+
+    document: mutable usize = 0
+    while document < doc_count:
+        if cursor > length or length - cursor < 2:
+            return -1
+        doc_id64: i64 = input[cursor]
+        word_count64: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if doc_id64 < 0 or doc_id64 >= MAX_DOCS.i64() or word_count64 < 1 or word_count64 > MAX_WORDS_PER_DOC.i64():
+            return -1
+        input_doc_id: usize = doc_id64.usize()
+        word_count: usize = word_count64.usize()
+        if seen_docs[input_doc_id] or word_count > length - cursor or total_words > MAX_TOTAL_WORDS - word_count:
+            return -1
+        seen_docs[input_doc_id] <- true
+        total_words <- total_words + word_count
+        word_index: mutable usize = 0
+        while word_index < word_count:
+            word64: i64 = input[cursor]
+            cursor <- cursor + 1
+            if word64 < 0 or word64 > 65535:
+                return -1
+            word_id: usize = word64.usize()
+            duplicate: mutable bool = false
+            input_edge: mutable i32 = posting_heads[word_id]
+            while input_edge >= 0:
+                if posting_doc[input_edge.usize()] == input_doc_id.u8():
+                    duplicate <- true
+                    break
+                input_edge <- posting_next[input_edge.usize()]
+            if not duplicate:
+                if posting_count >= MAX_TOTAL_WORDS:
+                    return -1
+                posting_doc[posting_count] <- input_doc_id.u8()
+                posting_next[posting_count] <- posting_heads[word_id]
+                posting_heads[word_id] <- posting_count.i32()
+                posting_count <- posting_count + 1
+            word_index <- word_index + 1
+        document <- document + 1
+
+    if cursor > length or length - cursor < 2:
+        return -1
+    operation: i64 = input[cursor]
+    term_count64: i64 = input[cursor + 1]
+    cursor <- cursor + 2
+    if (operation != 0 and operation != 1) or term_count64 < 1 or term_count64 > MAX_QUERY_TERMS.i64() or term_count64.usize() != length - cursor:
+        return -1
+    term_count: usize = term_count64.usize()
+    terms: mutable usize[MAX_QUERY_TERMS] = zeroed
+    term_index: mutable usize = 0
+    while term_index < term_count:
+        term64: i64 = input[cursor + term_index]
+        if term64 < 0 or term64 > 65535:
+            return -1
+        terms[term_index] <- term64.usize()
+        term_index <- term_index + 1
+
+    result_flags: mutable bool[MAX_DOCS] = zeroed
+    term_flags: mutable bool[MAX_DOCS] = zeroed
+    doc_id: mutable usize = 0
+    while doc_id < MAX_DOCS:
+        result_flags[doc_id] <- operation == 0 and seen_docs[doc_id]
+        doc_id <- doc_id + 1
+    term_index <- 0
+    while term_index < term_count:
+        doc_id <- 0
+        while doc_id < MAX_DOCS:
+            term_flags[doc_id] <- false
+            doc_id <- doc_id + 1
+        query_edge: mutable i32 = posting_heads[terms[term_index]]
+        while query_edge >= 0:
+            term_flags[posting_doc[query_edge.usize()].usize()] <- true
+            query_edge <- posting_next[query_edge.usize()]
+        doc_id <- 0
+        while doc_id < MAX_DOCS:
+            if operation == 0:
+                result_flags[doc_id] <- result_flags[doc_id] and term_flags[doc_id]
+            else:
+                result_flags[doc_id] <- result_flags[doc_id] or term_flags[doc_id]
+            doc_id <- doc_id + 1
+        term_index <- term_index + 1
+
+    result_ids: mutable i64[MAX_DOCS] = zeroed
+    result_count: mutable usize = 0
+    result_doc_id: mutable usize = 0
+    while result_doc_id < MAX_DOCS:
+        if result_flags[result_doc_id]:
+            result_ids[result_count] <- result_doc_id.i64()
+            result_count <- result_count + 1
+        result_doc_id <- result_doc_id + 1
+
+    hash: mutable u64 = inverted_index_hash_i64(FNV_OFFSET, result_count.i64())
+    index: mutable usize = 0
+    while index < result_count:
+        hash <- inverted_index_hash_i64(hash, result_ids[index])
+        index <- index + 1
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn inverted_index(input: i64&, length: usize) -> i64 = inverted_index_impl

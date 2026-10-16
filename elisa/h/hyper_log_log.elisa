@@ -1,0 +1,42 @@
+const MAX_COUNT: i64 = 1024
+
+extern ceil(value: f64) -> f64
+
+def hyper_log_log_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 1025:
+        return -1
+    count: i64 = input[0]
+    if count < 1 or count > MAX_COUNT or length != (count + 1).usize():
+        return -1
+    for i in 0..<count:
+        if input[1 + i] < 1 or input[1 + i] > 65535:
+            return -1
+
+    registers: mutable u8[65536] = zeroed
+    seen: mutable u8[65536] = zeroed
+    touched: mutable u16[1024] = zeroed
+    touched_count: mutable usize = 0
+    for i in 0..<count:
+        value: i64 = input[1 + i]
+        index: usize = value.usize()
+        bits: mutable u32 = value.u32()
+        rank: mutable u8 = 0
+        while (bits & 1.u32()) == 0.u32():
+            rank <- rank + 1.u8()
+            bits <- bits >> 1
+        if seen[index] == 0.u8():
+            seen[index] <- 1.u8()
+            touched[touched_count] <- index.u16()
+            touched_count <- touched_count + 1
+        if rank > registers[index]:
+            registers[index] <- rank
+
+    z: mutable f64 = 0.0
+    for i in 0..<touched_count:
+        index: usize = touched[i].usize()
+        denominator: f64 = (1.u32() << registers[index]).f64()
+        z <- z + 1.0 / denominator
+    k: f64 = touched_count.f64()
+    ceil(0.673 * k * (k / z)).i64()
+
+export fn hyper_log_log(input: i64&, length: usize) -> i64 = hyper_log_log_impl

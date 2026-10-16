@@ -1,0 +1,115 @@
+def matrix_based_game_is_symbol(value: i64) -> bool:
+    (value >= 48 and value <= 57) or
+    (value >= 65 and value <= 90) or
+    (value >= 97 and value <= 122)
+
+def matrix_based_game_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > 194:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 8:
+        return -1
+    n: usize = n_value.usize()
+    cells: usize = n * n
+    move_count_index: usize = 1 + cells
+    if length < move_count_index + 1:
+        return -1
+    move_count_value: i64 = values[move_count_index]
+    if move_count_value < 0 or move_count_value > 64:
+        return -1
+    move_count: usize = move_count_value.usize()
+    if length != 2 + cells + 2 * move_count:
+        return -1
+
+    board: mutable i64[64] = zeroed
+    visited: mutable bool[64] = zeroed
+    stack: mutable usize[64] = zeroed
+    for index in 0..<cells:
+        if not matrix_based_game_is_symbol(values[1 + index]):
+            return -1
+        board[index] <- values[1 + index]
+    for move in 0..<move_count:
+        x: i64 = values[move_count_index + 1 + 2 * move]
+        y: i64 = values[move_count_index + 2 + 2 * move]
+        if x < 0 or x >= n_value or y < 0 or y >= n_value:
+            return -1
+
+    total_score: mutable i64 = 0
+    for move in 0..<move_count:
+        x: usize = values[move_count_index + 1 + 2 * move].usize()
+        y: usize = values[move_count_index + 2 + 2 * move].usize()
+        start_row: usize = n - 1 - y
+        start: usize = start_row * n + x
+        color: i64 = board[start]
+        if color == -1:
+            continue
+
+        for index in 0..<cells:
+            visited[index] <- false
+        stack_count: mutable usize = 0
+        stack[stack_count] <- start
+        stack_count <- stack_count + 1
+        visited[start] <- true
+        component_size: mutable i64 = 0
+        while stack_count > 0:
+            stack_count <- stack_count - 1
+            current: usize = stack[stack_count]
+            row: usize = current / n
+            col: usize = current % n
+            if row > 0:
+                neighbor: usize = current - n
+                if not visited[neighbor] and board[neighbor] == color:
+                    visited[neighbor] <- true
+                    stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+            if row + 1 < n:
+                neighbor: usize = current + n
+                if not visited[neighbor] and board[neighbor] == color:
+                    visited[neighbor] <- true
+                    stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+            if col > 0:
+                neighbor: usize = current - 1
+                if not visited[neighbor] and board[neighbor] == color:
+                    visited[neighbor] <- true
+                    stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+            if col + 1 < n:
+                neighbor: usize = current + 1
+                if not visited[neighbor] and board[neighbor] == color:
+                    visited[neighbor] <- true
+                    stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+            board[current] <- -1
+            component_size <- component_size + 1
+        total_score <- total_score + component_size * (component_size + 1) / 2
+
+        for col in 0..<n:
+            target_row: mutable usize = n
+            row_cursor: mutable usize = n
+            while row_cursor > 0:
+                row_cursor <- row_cursor - 1
+                value: i64 = board[row_cursor * n + col]
+                if value != -1:
+                    target_row <- target_row - 1
+                    board[target_row * n + col] <- value
+            for row in 0..<target_row:
+                board[row * n + col] <- -1
+        write_col: mutable usize = 0
+        for col in 0..<n:
+            nonempty: mutable bool = false
+            for row in 0..<n:
+                if board[row * n + col] != -1:
+                    nonempty <- true
+            if not nonempty:
+                continue
+            if write_col != col:
+                for row in 0..<n:
+                    board[row * n + write_col] <- board[row * n + col]
+            write_col <- write_col + 1
+        for col in write_col..<n:
+            for row in 0..<n:
+                board[row * n + col] <- -1
+    total_score
+
+export fn matrix_based_game(values: i64&, length: usize) -> i64 = matrix_based_game_impl

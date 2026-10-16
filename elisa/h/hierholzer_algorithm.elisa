@@ -1,0 +1,110 @@
+def hierholzer_algorithm_fnv_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte in 0..<8:
+        result <- (result ^ ((bits >> (byte * 8)) & 255.u64())) * 1099511628211.u64()
+    result
+
+def hierholzer_algorithm_record_hash(has_circuit: i64, route: i64&, route_count: usize) -> i64:
+    hash: mutable u64 = hierholzer_algorithm_fnv_word(14695981039346656037.u64(), has_circuit)
+    hash <- hierholzer_algorithm_fnv_word(hash, route_count.i64())
+    for index in 0..<route_count:
+        hash <- hierholzer_algorithm_fnv_word(hash, route[route_count - index - 1])
+    (hash & 9223372036854775807.u64()).i64()
+
+def hierholzer_algorithm_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 514:
+        return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 0 or n64 > 8 or m64 < 0 or m64 > 256:
+        return -1
+    vertices: usize = n64.usize()
+    edges: usize = m64.usize()
+    if (vertices == 0 and edges != 0) or length != 2 + 2 * edges:
+        return -1
+
+    adjacency: mutable i64[4096] = zeroed
+    degree: mutable usize[8] = zeroed
+    for edge in 0..<edges:
+        left: i64 = input[2 + 2 * edge]
+        right: i64 = input[3 + 2 * edge]
+        if left < 0 or left >= n64 or right < 0 or right >= n64:
+            return -1
+        u: usize = left.usize()
+        v: usize = right.usize()
+        adjacency[u * 512 + degree[u]] <- right
+        degree[u] <- degree[u] + 1
+        adjacency[v * 512 + degree[v]] <- left
+        degree[v] <- degree[v] + 1
+
+    odd_count: mutable usize = 0
+    first_nonempty: mutable i64 = -1
+    for vertex in 0..<vertices:
+        if degree[vertex] > 0 and first_nonempty < 0:
+            first_nonempty <- vertex.i64()
+        if degree[vertex] % 2 != 0:
+            odd_count <- odd_count + 1
+    empty_route: mutable i64[513] = zeroed
+    if odd_count != 0:
+        return hierholzer_algorithm_record_hash(0, empty_route, 0)
+    if vertices == 0:
+        return hierholzer_algorithm_record_hash(1, empty_route, 0)
+    if first_nonempty < 0:
+        empty_route[0] <- 0
+        return hierholzer_algorithm_record_hash(1, empty_route, 1)
+
+    reached: mutable bool[8] = zeroed
+    queue: mutable i64[8] = zeroed
+    q_head: mutable usize = 0
+    q_tail: mutable usize = 0
+    start: usize = first_nonempty.usize()
+    queue[q_tail] <- first_nonempty
+    q_tail <- q_tail + 1
+    reached[start] <- true
+    while q_head < q_tail:
+        u: usize = queue[q_head].usize()
+        q_head <- q_head + 1
+        for index in 0..<degree[u]:
+            v: usize = adjacency[u * 512 + index].usize()
+            if not reached[v]:
+                reached[v] <- true
+                queue[q_tail] <- v.i64()
+                q_tail <- q_tail + 1
+    for vertex in 0..<vertices:
+        if degree[vertex] > 0 and not reached[vertex]:
+            return hierholzer_algorithm_record_hash(0, empty_route, 0)
+
+    stack: mutable i64[513] = zeroed
+    route_reverse: mutable i64[513] = zeroed
+    top: mutable usize = 1
+    stack[0] <- first_nonempty
+    route_count: mutable usize = 0
+    while top > 0:
+        u: usize = stack[top - 1].usize()
+        if degree[u] > 0:
+            v: usize = adjacency[u * 512]
+            for index in 1..<degree[u]:
+                adjacency[u * 512 + index - 1] <- adjacency[u * 512 + index]
+            degree[u] <- degree[u] - 1
+            reciprocal: mutable usize = 513
+            for index in 0..<degree[v]:
+                if adjacency[v * 512 + index] == u.i64():
+                    reciprocal <- index
+                    break
+            if reciprocal == 513:
+                return -1
+            for index in reciprocal + 1..<degree[v]:
+                adjacency[v * 512 + index - 1] <- adjacency[v * 512 + index]
+            degree[v] <- degree[v] - 1
+            stack[top] <- v.i64()
+            top <- top + 1
+        else:
+            top <- top - 1
+            route_reverse[route_count] <- u.i64()
+            route_count <- route_count + 1
+    if route_count != edges + 1:
+        return hierholzer_algorithm_record_hash(0, empty_route, 0)
+    hierholzer_algorithm_record_hash(1, route_reverse, route_count)
+
+export fn hierholzer_algorithm(input: i64&, length: usize) -> i64 = hierholzer_algorithm_impl

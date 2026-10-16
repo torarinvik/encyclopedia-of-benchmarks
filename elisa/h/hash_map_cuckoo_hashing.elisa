@@ -1,0 +1,70 @@
+const MAX_INPUT_LENGTH: usize = 130
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def hash_map_cuckoo_hashing_fnv_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte in 0..<8:
+        result <- (result ^ ((bits >> (byte * 8)) & 255.u64())) * FNV_PRIME
+    result
+
+def hash_map_cuckoo_hashing_hash1(key: i64, capacity: usize) -> usize:
+    value: mutable i64 = key % capacity.i64()
+    if value < 0: value <- value + capacity.i64()
+    value.usize()
+
+def hash_map_cuckoo_hashing_hash2(key: i64, capacity: usize) -> usize:
+    magnitude: i64 = key
+    if magnitude < 0: magnitude <- -magnitude
+    quotient_magnitude: i64 = magnitude / capacity.i64()
+    quotient: mutable i64 = quotient_magnitude
+    if key < 0: quotient <- -quotient
+    value: mutable i64 = quotient % capacity.i64()
+    if value < 0: value <- value + capacity.i64()
+    value.usize()
+
+def hash_map_cuckoo_hashing_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    capacity_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if capacity_value < 16 or capacity_value > 256 or count_value < 0 or count_value > 128: return -1
+    capacity: usize = capacity_value.usize()
+    if (capacity & (capacity - 1)) != 0 or length != count_value.usize() + 2: return -1
+    count: usize = count_value.usize()
+    keys: mutable i64[128] = zeroed
+    buckets: mutable usize[128] = zeroed
+    for i in 0..<count:
+        key: i64 = input[2 + i]
+        if key < -2147483647 or key > 2147483647: return -1
+        keys[i] <- key
+        buckets[i] <- hash_map_cuckoo_hashing_hash1(key, capacity)
+        for j in 0..<i:
+            if keys[j] == key: return -1
+
+    class_a: bool = false
+    if count == 2 and buckets[0] == buckets[1] and
+        hash_map_cuckoo_hashing_hash2(keys[0], capacity) != buckets[0]:
+        class_a <- true
+    class_b: bool = true
+    for i in 0..<count:
+        for j in 0..<i:
+            if buckets[i] == buckets[j]: class_b <- false
+    if not class_a and not class_b: return -1
+
+    positions: mutable i64[128] = zeroed
+    final_capacity: mutable usize = capacity
+    if class_a:
+        positions[0] <- hash_map_cuckoo_hashing_hash2(keys[0], capacity).i64()
+        positions[1] <- buckets[0].i64()
+    else:
+        while count * 10 > final_capacity * 7: final_capacity <- final_capacity * 2
+        for i in 0..<count:
+            positions[i] <- hash_map_cuckoo_hashing_hash1(keys[i], final_capacity).i64()
+
+    hash: mutable u64 = hash_map_cuckoo_hashing_fnv_word(FNV_OFFSET, count_value)
+    for i in 0..<count:
+        hash <- hash_map_cuckoo_hashing_fnv_word(hash, positions[i])
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn hash_map_cuckoo_hashing(input: i64&, length: usize) -> i64 = hash_map_cuckoo_hashing_impl

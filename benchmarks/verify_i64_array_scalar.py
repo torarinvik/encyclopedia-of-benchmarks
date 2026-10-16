@@ -549,6 +549,51 @@ from rgbhex_oracle import expected_result as rgbhex_oracle
 from kasai_algorithm_oracle import MAX_INPUT_LENGTH as MAX_KASAI_ALGORITHM_INPUT_LENGTH
 from kasai_algorithm_oracle import MAX_LENGTH as KASAI_ALGORITHM_MAX_LENGTH
 from kasai_algorithm_oracle import expected_result as kasai_algorithm_oracle
+from transposition_oracle import MAX_INPUT as MAX_TRANSPOSITION_INPUT_LENGTH
+from transposition_oracle import expected_result as transposition_oracle
+from lzw_oracle import MAX_CODES as LZW_MAX_CODES
+from lzw_oracle import MAX_INPUT_LENGTH as MAX_LZW_INPUT_LENGTH
+from lzw_oracle import MAX_ITEMS as LZW_MAX_ITEMS
+from lzw_oracle import MAX_OUTPUT as LZW_MAX_OUTPUT
+from lzw_oracle import expected_result as lzw_oracle
+from hierholzer_algorithm_oracle import MAX_EDGES as HIERHOLZER_MAX_EDGES
+from hierholzer_algorithm_oracle import MAX_INPUT as MAX_HIERHOLZER_INPUT_LENGTH
+from hierholzer_algorithm_oracle import MAX_VERTICES as HIERHOLZER_MAX_VERTICES
+from hierholzer_algorithm_oracle import expected_result as hierholzer_algorithm_oracle
+from inverted_index_oracle import MAX_DOCS as INVERTED_INDEX_MAX_DOCS
+from inverted_index_oracle import MAX_ID as INVERTED_INDEX_MAX_ID
+from inverted_index_oracle import MAX_INPUT_LENGTH as MAX_INVERTED_INDEX_INPUT_LENGTH
+from inverted_index_oracle import MAX_QUERY_TERMS as INVERTED_INDEX_MAX_QUERY_TERMS
+from inverted_index_oracle import MAX_TOTAL_WORDS as INVERTED_INDEX_MAX_TOTAL_WORDS
+from inverted_index_oracle import MAX_WORDS_PER_DOC as INVERTED_INDEX_MAX_WORDS_PER_DOC
+from inverted_index_oracle import expected_result as inverted_index_oracle
+from hash_set_oracle import MAX_IDS as HASH_SET_MAX_IDS
+from hash_set_oracle import MAX_INPUT_LENGTH as MAX_HASH_SET_INPUT_LENGTH
+from hash_set_oracle import expected_result as hash_set_oracle
+from hyper_log_log_oracle import MAX_COUNT as HYPER_LOG_LOG_MAX_COUNT
+from hyper_log_log_oracle import MAX_INPUT_LENGTH as MAX_HYPER_LOG_LOG_INPUT_LENGTH
+from hyper_log_log_oracle import MAX_VALUE as HYPER_LOG_LOG_MAX_VALUE
+from hyper_log_log_oracle import expected_result as hyper_log_log_oracle
+from immutable_hash_map_oracle import INT32_MAX as IMMUTABLE_HASH_MAP_INT32_MAX
+from immutable_hash_map_oracle import INT32_MIN as IMMUTABLE_HASH_MAP_INT32_MIN
+from immutable_hash_map_oracle import MAX_OPERATIONS as IMMUTABLE_HASH_MAP_MAX_OPERATIONS
+from immutable_hash_map_oracle import expected_result as immutable_hash_map_oracle
+from hash_map_cuckoo_hashing_oracle import INT_MAX as CUCKOO_HASHING_INT_MAX
+from hash_map_cuckoo_hashing_oracle import INT_MIN as CUCKOO_HASHING_INT_MIN
+from hash_map_cuckoo_hashing_oracle import MAX_INPUT as MAX_CUCKOO_HASHING_INPUT_LENGTH
+from hash_map_cuckoo_hashing_oracle import MAX_KEYS as CUCKOO_HASHING_MAX_KEYS
+from hash_map_cuckoo_hashing_oracle import expected_result as hash_map_cuckoo_hashing_oracle
+from johnson_shortest_paths_oracle import MAX_EDGES as JOHNSON_SHORTEST_PATHS_MAX_EDGES
+from johnson_shortest_paths_oracle import MAX_INPUT_LENGTH as MAX_JOHNSON_SHORTEST_PATHS_INPUT_LENGTH
+from johnson_shortest_paths_oracle import MAX_VERTICES as JOHNSON_SHORTEST_PATHS_MAX_VERTICES
+from johnson_shortest_paths_oracle import MAX_WEIGHT as JOHNSON_SHORTEST_PATHS_MAX_WEIGHT
+from johnson_shortest_paths_oracle import expected_result as johnson_shortest_paths_oracle
+from look_scheduling_oracle import INT32_MAX as LOOK_SCHEDULING_INT32_MAX
+from look_scheduling_oracle import INT32_MIN as LOOK_SCHEDULING_INT32_MIN
+from look_scheduling_oracle import MAX_INPUT_LENGTH as MAX_LOOK_SCHEDULING_INPUT_LENGTH
+from look_scheduling_oracle import MAX_REQUESTS as LOOK_SCHEDULING_MAX_REQUESTS
+from look_scheduling_oracle import MAX_TRACK as LOOK_SCHEDULING_MAX_TRACK
+from look_scheduling_oracle import expected_result as look_scheduling_oracle
 from two_pset_oracle import ELEMENT_LIMIT as TWO_PSET_ELEMENT_LIMIT
 from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
 from two_pset_oracle import MAX_OPERATIONS as TWO_PSET_MAX_OPERATIONS
@@ -592,6 +637,23 @@ from rgbhsvconversion_oracle import MAX_INPUT_LENGTH as MAX_RGBHSVCONVERSION_INP
 from rgbhsvconversion_oracle import expected_result as rgbhsvconversion_oracle
 from star_delta_conversions_oracle import MAX_INPUT_LENGTH as MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH
 from star_delta_conversions_oracle import expected_result as star_delta_conversions_oracle
+from matrix_rank_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_RANK_INPUT_LENGTH
+from matrix_rank_oracle import expected_result as matrix_rank_oracle
+from select_bits_oracle import MAX_INPUT_LENGTH as MAX_SELECT_BITS_INPUT_LENGTH
+from select_bits_oracle import MAX_UINT53 as SELECT_BITS_MAX_UINT53
+from select_bits_oracle import expected_result as select_bits_oracle
+from matrix_equalization_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_EQUALIZATION_INPUT_LENGTH
+from matrix_equalization_oracle import MAX_VECTOR_LENGTH as MATRIX_EQUALIZATION_MAX_VECTOR_LENGTH
+from matrix_equalization_oracle import expected_result as matrix_equalization_oracle
+from persistent_segment_tree_oracle import MAX_INPUT_LENGTH as MAX_PERSISTENT_SEGMENT_TREE_INPUT_LENGTH
+from persistent_segment_tree_oracle import MAX_N as PERSISTENT_SEGMENT_TREE_MAX_N
+from persistent_segment_tree_oracle import MAX_Q as PERSISTENT_SEGMENT_TREE_MAX_Q
+from persistent_segment_tree_oracle import MAX_VALUE as PERSISTENT_SEGMENT_TREE_MAX_VALUE
+from persistent_segment_tree_oracle import expected_result as persistent_segment_tree_oracle
+from matrix_based_game_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_BASED_GAME_INPUT_LENGTH
+from matrix_based_game_oracle import MAX_DIMENSION as MATRIX_BASED_GAME_MAX_DIMENSION
+from matrix_based_game_oracle import MAX_MOVES as MATRIX_BASED_GAME_MAX_MOVES
+from matrix_based_game_oracle import expected_result as matrix_based_game_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("sort_the_odd",)
@@ -658,9 +720,25 @@ ALGORITHMS += ("job_scheduling_with_deadline",)
 ALGORITHMS += ("pareto_optimization",)
 ALGORITHMS += ("rgbhex",)
 ALGORITHMS += ("kasai_algorithm",)
+ALGORITHMS += ("transposition",)
+ALGORITHMS += ("lzw",)
+ALGORITHMS += ("hierholzer_algorithm",)
+ALGORITHMS += ("inverted_index",)
+ALGORITHMS += ("hash_set",)
+ALGORITHMS += ("hyper_log_log",)
+ALGORITHMS += ("immutable_hash_map",)
+ALGORITHMS += ("hash_map_cuckoo_hashing",)
+ALGORITHMS += ("johnson_shortest_paths",)
+ALGORITHMS += ("look_scheduling",)
 ALGORITHMS += ("two_pset",)
+ALGORITHMS += ("matrix_rank",)
+ALGORITHMS += ("select_bits",)
+ALGORITHMS += ("matrix_equalization",)
+ALGORITHMS += ("persistent_segment_tree",)
+ALGORITHMS += ("matrix_based_game",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
+MAX_IMMUTABLE_HASH_MAP_INPUT_LENGTH = 1 + 3 * IMMUTABLE_HASH_MAP_MAX_OPERATIONS
 
 
 def lcm_oracle(values: list[int]) -> int:
@@ -1216,8 +1294,38 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return rgbhex_oracle(values)
     if algorithm == "kasai_algorithm":
         return kasai_algorithm_oracle(values)
+    if algorithm == "transposition":
+        return transposition_oracle(values)
+    if algorithm == "lzw":
+        return lzw_oracle(values)
+    if algorithm == "hierholzer_algorithm":
+        return hierholzer_algorithm_oracle(values)
+    if algorithm == "inverted_index":
+        return inverted_index_oracle(values)
+    if algorithm == "hash_set":
+        return hash_set_oracle(values)
+    if algorithm == "hyper_log_log":
+        return hyper_log_log_oracle(values)
+    if algorithm == "immutable_hash_map":
+        return immutable_hash_map_oracle(values)
+    if algorithm == "hash_map_cuckoo_hashing":
+        return hash_map_cuckoo_hashing_oracle(values)
+    if algorithm == "johnson_shortest_paths":
+        return johnson_shortest_paths_oracle(values)
+    if algorithm == "look_scheduling":
+        return look_scheduling_oracle(values)
     if algorithm == "two_pset":
         return two_pset_oracle(values)
+    if algorithm == "matrix_rank":
+        return matrix_rank_oracle(values)
+    if algorithm == "select_bits":
+        return select_bits_oracle(values)
+    if algorithm == "matrix_equalization":
+        return matrix_equalization_oracle(values)
+    if algorithm == "persistent_segment_tree":
+        return persistent_segment_tree_oracle(values)
+    if algorithm == "matrix_based_game":
+        return matrix_based_game_oracle(values)
     if algorithm == "gomory_hu_tree":
         return gomory_hu_tree_oracle(values)
     if algorithm == "frequent_pattern_growth":
@@ -2900,6 +3008,422 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             (2, 65, 66, 0, 0), (2, 66, 65, 0, 1),
             (2, 65, 66, -1, 1), (2, 65, 66, 0, 2),
             tuple([0] * (MAX_KASAI_ALGORITHM_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "transposition":
+        rng_transposition = random.Random(20261016)
+        key_letters = (*range(ord("A"), ord("Z") + 1),
+                       *range(ord("a"), ord("z") + 1))
+        max_key = tuple(ord(char) for char in "Aa" * 16)
+        max_text = tuple(ord("A") + index % 26 for index in range(512))
+        for mode in (0, 1):
+            values = (mode, 32, *max_key, 512, *max_text)
+            if len(values) != MAX_TRANSPOSITION_INPUT_LENGTH:
+                raise RuntimeError("transposition maximum input length mismatch")
+            cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(256):
+            mode = rng_transposition.randrange(2)
+            key_length = rng_transposition.randint(1, 32)
+            key = tuple(rng_transposition.choice(key_letters) for _ in range(key_length))
+            text_length = rng_transposition.randint(1, 512)
+            text = [rng_transposition.randint(32, 126) for _ in range(text_length)]
+            if mode == 0 and text[-1] == 32:
+                text[-1] = 65
+            values = (mode, key_length, *key, text_length, *text)
+            if len(values) > MAX_TRANSPOSITION_INPUT_LENGTH:
+                raise RuntimeError("transposition generated input exceeds its reviewed bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (2, 1, 65, 1, 65), (0, 0, 65, 1, 65),
+            (0, 33, *([65] * 33), 1, 65),
+            (0, 1, 49, 1, 65), (0, 1, 65, 0), (1, 1, 65, 0),
+            (0, 1, 65, 1, 31), (1, 1, 65, 1, 127),
+            (0, 1, 65, 2, 65), (0, 1, 65, 1, 32),
+            (0, 1, 65, 513, *([65] * 513)),
+            (I64_MIN, 1, 65, 1, 65), (I64_MAX, 1, 65, 1, 65),
+            (0, I64_MIN, 65, 1, 65), (0, I64_MAX, 65, 1, 65),
+            (0, 1, I64_MIN, 1, 65), (0, 1, I64_MAX, 1, 65),
+            tuple([0] * (MAX_TRANSPOSITION_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "lzw":
+        if not any(len(case["input_values"]) == MAX_LZW_INPUT_LENGTH
+                   and case["input_values"][0] == 0
+                   and case["input_values"][1] == LZW_MAX_ITEMS
+                   for case in workload["cases"]):
+            raise RuntimeError("lzw maximum-size compression fixture is missing")
+
+        rng_lzw = random.Random(20261016)
+        for _ in range(128):
+            count = rng_lzw.randint(0, 512)
+            payload = tuple(rng_lzw.randrange(128) for _ in range(count))
+            values = (0, count, *payload)
+            cases[values] = oracle(algorithm, list(values))
+        for _ in range(128):
+            count = rng_lzw.randint(0, 512)
+            # Initial dictionary literals always form a valid ASCII code stream.
+            payload = tuple(rng_lzw.randrange(128) for _ in range(count))
+            values = (1, count, *payload)
+            cases[values] = oracle(algorithm, list(values))
+
+        # Consecutive KwKwK codes grow phrase lengths 1..360 (64,980 bytes).
+        # The reset literal adds 1 byte; codes 616..646 add lengths 2..32,
+        # totaling 527 more bytes. The final 28 literals reach exactly 65,536.
+        boundary_codes = [65, *range(256, 615), 0, *range(616, 647), *([65] * 28)]
+        if (len(boundary_codes) != 420
+                or 360 * 361 // 2 + 1 + sum(range(2, 33)) + 28 != LZW_MAX_OUTPUT):
+            raise RuntimeError("lzw exact output-boundary fixture mismatch")
+        boundary_values = (1, len(boundary_codes), *boundary_codes)
+        cases[boundary_values] = oracle(algorithm, list(boundary_values))
+        over_boundary_values = (1, len(boundary_codes) + 1, *boundary_codes, 65)
+        cases[over_boundary_values] = oracle(algorithm, list(over_boundary_values))
+
+        malformed = (
+            (), (0,), (2, 0), (0, -1), (0, 1, 128), (0, 1, -1),
+            (1, 1, 128), (1, 1, LZW_MAX_CODES + 1), (1, 1, -1),
+            (1, 2, 65, 300), (1, 2, 65, 4352), (0, 0, 65), (1, 0, 0),
+            (I64_MIN, 0), (I64_MAX, 0), (0, 1, I64_MIN), (0, 1, I64_MAX),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            (0, LZW_MAX_ITEMS + 1, *([0] * (LZW_MAX_ITEMS + 1))),
+            tuple([0] * (MAX_LZW_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hierholzer_algorithm":
+        if not any(len(case["input_values"]) == MAX_HIERHOLZER_INPUT_LENGTH
+                   and case["input_values"][:2] == [1, HIERHOLZER_MAX_EDGES]
+                   for case in workload["cases"]):
+            raise RuntimeError("hierholzer_algorithm maximum-edge fixture is missing")
+
+        rng_hierholzer = random.Random(20261016)
+        for _ in range(128):
+            vertex_count = rng_hierholzer.randint(0, HIERHOLZER_MAX_VERTICES)
+            edge_count = 0 if vertex_count == 0 else rng_hierholzer.randint(0, 32)
+            edges = [rng_hierholzer.randrange(vertex_count)
+                     for _ in range(2 * edge_count)]
+            values = (vertex_count, edge_count, *edges)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (-1, 0), (HIERHOLZER_MAX_VERTICES + 1, 0),
+            (1, HIERHOLZER_MAX_EDGES + 1), (0, 1, 0, 0),
+            (2, 1, 0), (2, 1, 0, 2), (2, 1, -1, 0),
+            (1, 0, 0), tuple([0] * (MAX_HIERHOLZER_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "inverted_index":
+        rng_inverted_index = random.Random(20261016)
+
+        def pack_index(documents, operation, terms):
+            values = [len(documents)]
+            for doc_id, words in documents:
+                values.extend((doc_id, len(words), *words))
+            values.extend((operation, len(terms), *terms))
+            return tuple(values)
+
+        for _ in range(128):
+            document_count = rng_inverted_index.randint(0, 32)
+            document_ids = rng_inverted_index.sample(range(INVERTED_INDEX_MAX_DOCS), document_count)
+            documents = []
+            indexed_terms = []
+            for doc_id in document_ids:
+                word_count = rng_inverted_index.randint(1, 16)
+                words = tuple(rng_inverted_index.randint(0, 255) for _ in range(word_count))
+                documents.append((doc_id, words))
+                indexed_terms.extend(words)
+            operation = rng_inverted_index.randrange(2)
+            term_count = rng_inverted_index.randint(1, min(INVERTED_INDEX_MAX_QUERY_TERMS, 8))
+            terms = tuple(
+                rng_inverted_index.choice(indexed_terms)
+                if indexed_terms and rng_inverted_index.randrange(4) != 0
+                else rng_inverted_index.randint(0, 255)
+                for _ in range(term_count)
+            )
+            values = pack_index(documents, operation, terms)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_documents = [
+            (doc_id, tuple(range(16))) for doc_id in range(INVERTED_INDEX_MAX_DOCS)
+        ]
+        maximum_values = pack_index(maximum_documents, 0, tuple(range(16)))
+        if (sum(len(words) for _, words in maximum_documents) != INVERTED_INDEX_MAX_TOTAL_WORDS
+                or len(maximum_values) != MAX_INVERTED_INDEX_INPUT_LENGTH):
+            raise RuntimeError("inverted_index maximum-size fixture length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        maximum_document_words = pack_index(
+            [(0, tuple(range(INVERTED_INDEX_MAX_WORDS_PER_DOC)))], 1, tuple(range(16))
+        )
+        cases[maximum_document_words] = oracle(algorithm, list(maximum_document_words))
+
+        overflow_documents = [
+            (doc_id, tuple([0] * (17 if doc_id == 0 else 16)))
+            for doc_id in range(INVERTED_INDEX_MAX_DOCS)
+        ]
+        over_total_words = pack_index(overflow_documents, 0, (0,))
+        if (sum(len(words) for _, words in overflow_documents)
+                != INVERTED_INDEX_MAX_TOTAL_WORDS + 1
+                or len(over_total_words) > MAX_INVERTED_INDEX_INPUT_LENGTH):
+            raise RuntimeError("inverted_index total-word overflow fixture exceeds input cap")
+
+        malformed = (
+            (), (0,), (0, 0, 1), (0, 2, 1, 7), (0, 0, 0),
+            (-1, 0, 1, 7), (INVERTED_INDEX_MAX_DOCS + 1, 0, 1, 7),
+            (1, INVERTED_INDEX_MAX_DOCS, 1, 7, 0, 1, 7),
+            (2, 0, 1, 1, 0, 1, 2, 0, 1, 1),
+            (1, 0, 0, 0, 1, 7),
+            (1, 0, INVERTED_INDEX_MAX_WORDS_PER_DOC + 1,
+             *range(INVERTED_INDEX_MAX_WORDS_PER_DOC + 1), 0, 1, 7),
+            (1, 0, 1, -1, 0, 1, 7),
+            (0, 0, INVERTED_INDEX_MAX_QUERY_TERMS + 1,
+             *([0] * (INVERTED_INDEX_MAX_QUERY_TERMS + 1))),
+            (0, 0, 1, INVERTED_INDEX_MAX_ID + 1),
+            (0, 0, 1, 7, 8),
+            (1, 0, 2, 1),
+            over_total_words,
+            tuple([0] * (MAX_INVERTED_INDEX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hash_set":
+        if not any(len(case["input_values"]) == MAX_HASH_SET_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise RuntimeError("hash_set maximum-size workload fixture is missing")
+
+        rng_hash_set = random.Random(20261016)
+        for _ in range(256):
+            add_count = rng_hash_set.randint(0, HASH_SET_MAX_IDS)
+            query_count = rng_hash_set.randint(0, HASH_SET_MAX_IDS)
+            add_ids = tuple(rng_hash_set.randrange(HASH_SET_MAX_IDS) for _ in range(add_count))
+            query_ids = tuple(rng_hash_set.randrange(HASH_SET_MAX_IDS) for _ in range(query_count))
+            values = (add_count, *add_ids, query_count, *query_ids)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 1), (-1, 0), (HASH_SET_MAX_IDS + 1, 0),
+            (1, 0), (0, -1), (0, HASH_SET_MAX_IDS + 1),
+            (1, HASH_SET_MAX_IDS, 0), (0, 1, HASH_SET_MAX_IDS),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            tuple([0] * (MAX_HASH_SET_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hyper_log_log":
+        if not any(len(case["input_values"]) == MAX_HYPER_LOG_LOG_INPUT_LENGTH
+                   and case["input_values"][0] == HYPER_LOG_LOG_MAX_COUNT
+                   for case in workload["cases"]):
+            raise RuntimeError("hyper_log_log maximum-count workload fixture is missing")
+
+        rng_hyper_log_log = random.Random(20261016)
+        for _ in range(128):
+            count = rng_hyper_log_log.randint(1, min(HYPER_LOG_LOG_MAX_COUNT, 256))
+            values = [rng_hyper_log_log.randint(1, HYPER_LOG_LOG_MAX_VALUE)
+                      for _ in range(count)]
+            if values and rng_hyper_log_log.randrange(2) == 0:
+                values[-1] = values[0]
+            packed = (count, *values)
+            cases[packed] = oracle(algorithm, list(packed))
+
+        malformed = (
+            (), (0,), (0, 1), (-1, 1), (2, 1),
+            (HYPER_LOG_LOG_MAX_COUNT + 1,
+             *([1] * HYPER_LOG_LOG_MAX_COUNT)),
+            (1, 0), (1, HYPER_LOG_LOG_MAX_VALUE + 1),
+            (1, I64_MIN), (1, I64_MAX),
+            tuple([1] * (MAX_HYPER_LOG_LOG_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "immutable_hash_map":
+        if not any(len(case["input_values"]) == MAX_IMMUTABLE_HASH_MAP_INPUT_LENGTH
+                   and case["input_values"][0] == IMMUTABLE_HASH_MAP_MAX_OPERATIONS
+                   for case in workload["cases"]):
+            raise RuntimeError("immutable_hash_map maximum-operation workload fixture is missing")
+
+        rng_immutable_hash_map = random.Random(20261016)
+        key_bounds = (
+            IMMUTABLE_HASH_MAP_INT32_MIN, IMMUTABLE_HASH_MAP_INT32_MAX,
+            -1, 0, 1,
+        )
+        for _ in range(128):
+            operation_count = rng_immutable_hash_map.randint(0, 64)
+            operations = []
+            seen_keys = []
+            for _ in range(operation_count):
+                operation = rng_immutable_hash_map.randrange(4)
+                if seen_keys and rng_immutable_hash_map.randrange(3) == 0:
+                    key = rng_immutable_hash_map.choice(seen_keys)
+                elif rng_immutable_hash_map.randrange(3) == 0:
+                    key = rng_immutable_hash_map.choice(key_bounds)
+                else:
+                    key = rng_immutable_hash_map.randint(
+                        IMMUTABLE_HASH_MAP_INT32_MIN, IMMUTABLE_HASH_MAP_INT32_MAX
+                    )
+                if operation == 0:
+                    value = rng_immutable_hash_map.choice((
+                        IMMUTABLE_HASH_MAP_INT32_MIN, IMMUTABLE_HASH_MAP_INT32_MAX,
+                        -7, -1, 1, 7,
+                    ))
+                else:
+                    value = rng_immutable_hash_map.randint(
+                        IMMUTABLE_HASH_MAP_INT32_MIN, IMMUTABLE_HASH_MAP_INT32_MAX
+                    )
+                operations.extend((operation, key, value))
+                if operation == 0:
+                    seen_keys.append(key)
+            values = (operation_count, *operations)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (-1,), (IMMUTABLE_HASH_MAP_MAX_OPERATIONS + 1,
+                        *([0] * (3 * IMMUTABLE_HASH_MAP_MAX_OPERATIONS))),
+            (1, 0, 0), (1, 4, 0, 1), (1, 0, IMMUTABLE_HASH_MAP_INT32_MIN - 1, 1),
+            (1, 0, IMMUTABLE_HASH_MAP_INT32_MAX + 1, 1),
+            (1, 0, 0, IMMUTABLE_HASH_MAP_INT32_MIN - 1),
+            (1, 0, 0, IMMUTABLE_HASH_MAP_INT32_MAX + 1),
+            (1, 0, 0, 0), (1, I64_MIN, 0, 1), (1, I64_MAX, 0, 1),
+            tuple([0] * (MAX_IMMUTABLE_HASH_MAP_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "hash_map_cuckoo_hashing":
+        required_fixtures = {
+            "one_safe_relocation", "load_factor_growth", "growth_rehashes_to_new_bucket",
+        }
+        if not required_fixtures.issubset({case.get("id") for case in workload["cases"]}):
+            raise RuntimeError("hash_map_cuckoo_hashing relocation/growth workload fixtures are missing")
+
+        maximum_values = (256, CUCKOO_HASHING_MAX_KEYS, *range(CUCKOO_HASHING_MAX_KEYS))
+        if len(maximum_values) != MAX_CUCKOO_HASHING_INPUT_LENGTH:
+            raise RuntimeError("hash_map_cuckoo_hashing maximum-size fixture length mismatch")
+        maximum_expected = oracle(algorithm, list(maximum_values))
+        if maximum_expected == -1:
+            raise RuntimeError("hash_map_cuckoo_hashing maximum-size fixture is outside the distinct-bucket domain")
+        cases[maximum_values] = maximum_expected
+
+        rng_cuckoo = random.Random(20261016)
+        for _ in range(128):
+            capacity = rng_cuckoo.choice((16, 32, 64, 128, 256))
+            key_count = rng_cuckoo.randint(0, min(CUCKOO_HASHING_MAX_KEYS, capacity))
+            buckets = rng_cuckoo.sample(range(capacity), key_count)
+            keys = tuple(bucket - capacity if rng_cuckoo.randrange(2) else bucket
+                         for bucket in buckets)
+            values = (capacity, key_count, *keys)
+            expected = oracle(algorithm, list(values))
+            if expected == -1:
+                raise RuntimeError("hash_map_cuckoo_hashing seeded distinct-bucket fixture is invalid")
+            cases[values] = expected
+
+        malformed = (
+            (), (16,), (16, -1), (16, CUCKOO_HASHING_MAX_KEYS + 1, *([0] * CUCKOO_HASHING_MAX_KEYS)),
+            (15, 0), (8, 0), (512, 0),
+            (16, 2, 1), (16, 2, 1, 1), (16, 1, CUCKOO_HASHING_INT_MIN),
+            (16, 1, CUCKOO_HASHING_INT_MIN - 1),
+            (16, 1, CUCKOO_HASHING_INT_MAX + 1),
+            (16, 3, 0, 16, 32), (16, 2, 17, 33),
+            (256, 1, I64_MIN), (256, 1, I64_MAX),
+            tuple([0] * (MAX_CUCKOO_HASHING_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "johnson_shortest_paths":
+        if not any(len(case["input_values"]) == MAX_JOHNSON_SHORTEST_PATHS_INPUT_LENGTH
+                   and case["input_values"][1] == JOHNSON_SHORTEST_PATHS_MAX_EDGES
+                   for case in workload["cases"]):
+            raise RuntimeError("johnson_shortest_paths maximum-edge workload fixture is missing")
+
+        rng_johnson = random.Random(20261016)
+        for _ in range(128):
+            vertex_count = rng_johnson.randint(1, 16)
+            potentials = [rng_johnson.randint(-8, 8) for _ in range(vertex_count)]
+            edge_count = rng_johnson.randint(0, min(64, JOHNSON_SHORTEST_PATHS_MAX_EDGES))
+            edges = []
+            for _ in range(edge_count):
+                origin = rng_johnson.randrange(vertex_count)
+                destination = rng_johnson.randrange(vertex_count)
+                reduced_weight = rng_johnson.randint(0, 16)
+                weight = (reduced_weight + potentials[destination]
+                          - potentials[origin])
+                if not -JOHNSON_SHORTEST_PATHS_MAX_WEIGHT <= weight <= JOHNSON_SHORTEST_PATHS_MAX_WEIGHT:
+                    raise RuntimeError("johnson_shortest_paths potential-generated weight exceeds its bound")
+                edges.extend((origin + 1, destination + 1, weight))
+            values = (vertex_count, edge_count, *edges)
+            cases[values] = oracle(algorithm, list(values))
+
+        boundary_weights = (
+            (2, 1, 1, 2, -JOHNSON_SHORTEST_PATHS_MAX_WEIGHT),
+            (2, 1, 1, 2, JOHNSON_SHORTEST_PATHS_MAX_WEIGHT),
+        )
+        for values in boundary_weights:
+            cases[values] = oracle(algorithm, list(values))
+
+        negative_cycle = (3, 3, 1, 2, -1, 2, 3, -1, 3, 1, 1)
+        malformed = (
+            (), (1,), (0, 0), (JOHNSON_SHORTEST_PATHS_MAX_VERTICES + 1, 0),
+            (1, -1), (1, JOHNSON_SHORTEST_PATHS_MAX_EDGES + 1),
+            (2, 1, 1, 2), (2, 1, 1, 2, 1, 0),
+            (2, 1, 0, 2, 1), (2, 1, 1, 3, 1),
+            (2, 1, 1, 2, -JOHNSON_SHORTEST_PATHS_MAX_WEIGHT - 1),
+            (2, 1, 1, 2, JOHNSON_SHORTEST_PATHS_MAX_WEIGHT + 1),
+            negative_cycle, (1, 1, 1, 1, I64_MIN), (1, 1, 1, 1, I64_MAX),
+            tuple([0] * (MAX_JOHNSON_SHORTEST_PATHS_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "look_scheduling":
+        if not any(len(case["input_values"]) == MAX_LOOK_SCHEDULING_INPUT_LENGTH
+                   and case["input_values"][3] == LOOK_SCHEDULING_MAX_REQUESTS
+                   for case in workload["cases"]):
+            raise RuntimeError("look_scheduling maximum-request workload fixture is missing")
+
+        rng_look_scheduling = random.Random(20261016)
+        for _ in range(128):
+            max_track = rng_look_scheduling.randint(1, LOOK_SCHEDULING_MAX_TRACK)
+            start = rng_look_scheduling.randrange(max_track)
+            direction = rng_look_scheduling.randrange(2)
+            request_count = rng_look_scheduling.randint(0, 256)
+            requests = []
+            for _ in range(request_count):
+                selector = rng_look_scheduling.randrange(5)
+                if selector == 0:
+                    request = rng_look_scheduling.randint(
+                        LOOK_SCHEDULING_INT32_MIN, LOOK_SCHEDULING_INT32_MAX
+                    )
+                elif selector == 1:
+                    request = -1
+                elif selector == 2:
+                    request = max_track
+                else:
+                    request = rng_look_scheduling.randrange(max_track)
+                requests.append(request)
+            values = (max_track, start, direction, request_count, *requests)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0, 0, 0, 0), (LOOK_SCHEDULING_MAX_TRACK + 1, 0, 0, 0),
+            (1, -1, 0, 0), (1, 1, 0, 0), (1, 0, 2, 0),
+            (1, 0, 0, -1), (1, 0, 0, LOOK_SCHEDULING_MAX_REQUESTS + 1,
+                            *([0] * LOOK_SCHEDULING_MAX_REQUESTS)),
+            (1, 0, 0, 1), (1, 0, 0, 0, 0),
+            (1, 0, 0, 1, LOOK_SCHEDULING_INT32_MIN - 1),
+            (1, 0, 0, 1, LOOK_SCHEDULING_INT32_MAX + 1),
+            (1, 0, 0, 1, I64_MIN), (1, 0, 0, 1, I64_MAX),
+            tuple([0] * (MAX_LOOK_SCHEDULING_INPUT_LENGTH + 1)),
         )
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))
@@ -6846,6 +7370,205 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 4 -1\n")
+    if algorithm == "matrix_based_game":
+        def add_game_case(n: int, cells: tuple[int, ...], moves: list[tuple[int, int]]) -> None:
+            flattened_moves = tuple(value for move in moves for value in move)
+            values = (n, *cells, len(moves), *flattened_moves)
+            cases[values] = oracle(algorithm, list(values))
+
+        for n in (1, 2, 3, 4, MATRIX_BASED_GAME_MAX_DIMENSION):
+            all_one_symbol = (65,) * (n * n)
+            add_game_case(n, all_one_symbol, [(0, 0), (n - 1, n - 1)])
+            distinct_symbols = tuple(65 + index % 26 for index in range(n * n))
+            add_game_case(n, distinct_symbols, [(0, 0), (n - 1, n - 1), (n // 2, n // 2)])
+            alternating_symbols = tuple(65 + ((row + col) & 1)
+                                        for row in range(n) for col in range(n))
+            add_game_case(n, alternating_symbols, [(0, 0), (0, 0), (n - 1, 0), (0, n - 1)])
+        max_dimension = MATRIX_BASED_GAME_MAX_DIMENSION
+        max_moves = MATRIX_BASED_GAME_MAX_MOVES
+        max_cells = (65,) * (max_dimension * max_dimension)
+        max_move_stream = [((index % max_dimension), ((index // 2) % max_dimension))
+                           for index in range(max_moves)]
+        add_game_case(max_dimension, max_cells, max_move_stream)
+
+        rng_game = random.Random(20261016)
+        alphabet = (48, 49, 50, 65, 66, 67, 97, 98)
+        for _ in range(256):
+            n = rng_game.randint(1, max_dimension)
+            cells = tuple(rng_game.choice(alphabet) for _ in range(n * n))
+            move_count = rng_game.randint(0, max_moves)
+            moves = [(rng_game.randrange(n), rng_game.randrange(n))
+                     for _ in range(move_count)]
+            add_game_case(n, cells, moves)
+        malformed = (
+            (), (0, 0), (max_dimension + 1, 0), (1,), (1, 65),
+            (1, 45, 0), (1, 255, 0), (1, 65, -1), (1, 65, max_moves + 1),
+            (1, 65, 1, 1, 0), (1, 65, 1, 0, 1), (1, 65, 0, 0),
+            tuple([0] * MAX_MATRIX_BASED_GAME_INPUT_LENGTH),
+            tuple([0] * (MAX_MATRIX_BASED_GAME_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    if algorithm == "persistent_segment_tree":
+        def add_tree_case(n: int, initial: tuple[int, ...], operations: list[tuple[int, int, int, int]]) -> None:
+            flattened_operations = tuple(value for operation in operations for value in operation)
+            values = (n, len(operations), *initial, *flattened_operations)
+            cases[values] = oracle(algorithm, list(values))
+
+        for n in (1, 2, 3, 8, 16, 64):
+            initial = tuple((index % 7) - 3 for index in range(n))
+            add_tree_case(n, initial, [])
+            add_tree_case(n, initial, [(1, 0, 0, n - 1)])
+            add_tree_case(n, initial, [
+                (0, 0, 0, -1000),
+                (1, 1, 0, n - 1),
+                (0, 0, n - 1, 1000),
+                (1, 2, 0, n - 1),
+            ])
+        maximum_operations = [
+            ((0, operation_index // 2, operation_index % PERSISTENT_SEGMENT_TREE_MAX_N,
+              (operation_index % (2 * PERSISTENT_SEGMENT_TREE_MAX_VALUE + 1))
+              - PERSISTENT_SEGMENT_TREE_MAX_VALUE)
+             if operation_index % 2 == 0 else
+             (1, operation_index // 2, 0, PERSISTENT_SEGMENT_TREE_MAX_N - 1))
+            for operation_index in range(PERSISTENT_SEGMENT_TREE_MAX_Q)
+        ]
+        add_tree_case(
+            PERSISTENT_SEGMENT_TREE_MAX_N,
+            tuple((index % 11) - 5 for index in range(PERSISTENT_SEGMENT_TREE_MAX_N)),
+            maximum_operations,
+        )
+        rng_persistent = random.Random(20261016)
+        for _ in range(256):
+            n = rng_persistent.randint(1, PERSISTENT_SEGMENT_TREE_MAX_N)
+            operation_count = rng_persistent.randint(0, PERSISTENT_SEGMENT_TREE_MAX_Q)
+            initial = tuple(rng_persistent.randint(-PERSISTENT_SEGMENT_TREE_MAX_VALUE,
+                                                    PERSISTENT_SEGMENT_TREE_MAX_VALUE)
+                            for _ in range(n))
+            versions = [list(initial)]
+            operations = []
+            for _ in range(operation_count):
+                if rng_persistent.randrange(2):
+                    base_version = rng_persistent.randrange(len(versions))
+                    index = rng_persistent.randrange(n)
+                    value = rng_persistent.randint(-PERSISTENT_SEGMENT_TREE_MAX_VALUE,
+                                                   PERSISTENT_SEGMENT_TREE_MAX_VALUE)
+                    operations.append((0, base_version, index, value))
+                    next_version = versions[base_version].copy()
+                    next_version[index] = value
+                    versions.append(next_version)
+                else:
+                    version = rng_persistent.randrange(len(versions))
+                    left = rng_persistent.randrange(n)
+                    right = rng_persistent.randint(left, n - 1)
+                    operations.append((1, version, left, right))
+            add_tree_case(n, initial, operations)
+        malformed = (
+            (), (1,), (0, 0, 0), (65, 0, *([0] * 65)), (1, -1, 0),
+            (1, 0, 1001), (1, 0, -1001), (1, 1, 0),
+            (1, 1, 0, 2, 0, 0, 0),
+            (1, 1, 0, 0, 1, 0, 0),
+            (1, 1, 0, 0, 0, 1, 0),
+            (1, 1, 0, 1, 0, 0, 1),
+            (1, 1, 0, 0, 0, 0, 1001),
+            tuple([0] * (MAX_PERSISTENT_SEGMENT_TREE_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    if algorithm == "matrix_equalization":
+        rng_equalization = random.Random(20261016)
+        for vector_length in (1, 2, 3, 4, 8, 16, 32, 64):
+            patterns = (
+                (0,) * vector_length,
+                tuple(index % 3 for index in range(vector_length)),
+                tuple(index for index in range(vector_length)),
+                tuple(-index for index in range(vector_length)),
+            )
+            for step_size in sorted({1, max(1, vector_length // 2), vector_length}):
+                for vector in patterns:
+                    values = (step_size, *vector)
+                    cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            vector_length = rng_equalization.randint(1, MATRIX_EQUALIZATION_MAX_VECTOR_LENGTH)
+            step_size = rng_equalization.randint(1, vector_length)
+            vector = tuple(rng_equalization.randint(I64_MIN, I64_MAX)
+                           for _ in range(vector_length))
+            values = (step_size, *vector)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (1,), (0, 0), (-1, 0), (2, 0),
+            (1, *([0] * (MATRIX_EQUALIZATION_MAX_VECTOR_LENGTH + 1))),
+            (0, I64_MIN), (I64_MIN, 0), (I64_MAX, 0),
+            tuple([0] * MAX_MATRIX_EQUALIZATION_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    if algorithm == "select_bits":
+        boundary_numbers = (0, 1, 2, (1 << 26) - 1, 1 << 26,
+                            (1 << 52) - 1, 1 << 52, SELECT_BITS_MAX_UINT53)
+        bit_positions = (1, 2, 26, 52, 53)
+        for number in boundary_numbers:
+            values = (number,)
+            cases[values] = oracle(algorithm, list(values))
+            for first in bit_positions:
+                values = (number, first)
+                cases[values] = oracle(algorithm, list(values))
+                for last in bit_positions:
+                    values = (number, first, last)
+                    cases[values] = oracle(algorithm, list(values))
+        rng_bits = random.Random(20261016)
+        for _ in range(128):
+            number = rng_bits.getrandbits(53)
+            form = rng_bits.randrange(3)
+            if form == 0:
+                values = (number,)
+            elif form == 1:
+                values = (number, rng_bits.randint(1, 53))
+            else:
+                values = (number, rng_bits.randint(1, 53), rng_bits.randint(1, 53))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0, 1, 2, 3), tuple([0] * (MAX_SELECT_BITS_INPUT_LENGTH + 1)),
+            (-1,), (SELECT_BITS_MAX_UINT53 + 1,), (I64_MIN,), (I64_MAX,),
+            (7, 0), (7, 54), (7, 1, 0), (7, 1, 54),
+            (7, I64_MIN), (7, I64_MAX), (7, 1, I64_MIN), (7, 1, I64_MAX),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "matrix_rank":
+        for rows in range(1, 9):
+            for cols in range(1, 9):
+                patterns = (
+                    (0,) * (rows * cols),
+                    tuple(1 for _ in range(rows * cols)),
+                    tuple(1 if row == col else 0
+                          for row in range(rows) for col in range(cols)),
+                    tuple((row + col) & 1
+                          for row in range(rows) for col in range(cols)),
+                )
+                for cells in patterns:
+                    values = (rows, cols, *cells)
+                    cases[values] = oracle(algorithm, list(values))
+        rng_matrix = random.Random(20261016)
+        for _ in range(128):
+            rows, cols = rng_matrix.randint(1, 8), rng_matrix.randint(1, 8)
+            cells = tuple(rng_matrix.randrange(2) for _ in range(rows * cols))
+            values = (rows, cols, *cells)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (1,), (0, 1), (1, 0), (9, 1), (1, 9),
+            (1, 1), (2, 2, 1, 0, 0), (1, 1, 0, 1),
+            (1, 1, -1), (1, 1, 2), (I64_MIN, 1), (I64_MAX, 1),
+            tuple([0] * MAX_MATRIX_RANK_INPUT_LENGTH),
+            tuple([0] * (MAX_MATRIX_RANK_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

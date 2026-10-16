@@ -1,0 +1,95 @@
+const MAX_REQUESTS: usize = 4096
+const MAX_TRACK: usize = 256
+const MAX_INPUT: usize = 4100
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def look_hash_i64(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    shift: mutable usize = 0
+    while shift < 64:
+        result <- (result ^ ((bits >> shift) & 255.u64())) * FNV_PRIME
+        shift <- shift + 8
+    result
+
+def look_scheduling_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT:
+        return -1
+    max_track64: i64 = input[0]
+    start64: i64 = input[1]
+    direction: i64 = input[2]
+    count64: i64 = input[3]
+    if max_track64 < 1 or max_track64 > MAX_TRACK.i64() or start64 < 0 or start64 >= max_track64 or (direction != 0 and direction != 1) or count64 < 0 or count64 > MAX_REQUESTS.i64() or length != (count64 + 4).usize():
+        return -1
+    max_track: usize = max_track64.usize()
+    start: usize = start64.usize()
+    count: usize = count64.usize()
+    lower_counts: mutable usize[MAX_TRACK] = zeroed
+    upper_counts: mutable usize[MAX_TRACK] = zeroed
+    farthest: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        request: i64 = input[4 + index]
+        if request < -2147483648 or request > 2147483647:
+            return -1
+        if request >= 0 and request < max_track64:
+            track: usize = request.usize()
+            if track < start:
+                lower_counts[track] <- lower_counts[track] + 1
+            else:
+                upper_counts[track] <- upper_counts[track] + 1
+            if request > farthest:
+                farthest <- request
+        index <- index + 1
+
+    route: mutable i64[MAX_REQUESTS] = zeroed
+    route_count: mutable usize = 0
+    track: mutable usize = start
+    repeat: mutable usize = 0
+    if direction == 1:
+        track <- start
+        while track < max_track:
+            repeat <- 0
+            while repeat < upper_counts[track]:
+                route[route_count] <- track.i64()
+                route_count <- route_count + 1
+                repeat <- repeat + 1
+            track <- track + 1
+        track <- start
+        while track > 0:
+            track <- track - 1
+            repeat <- 0
+            while repeat < lower_counts[track]:
+                route[route_count] <- track.i64()
+                route_count <- route_count + 1
+                repeat <- repeat + 1
+    else:
+        track <- start
+        while track > 0:
+            track <- track - 1
+            repeat <- 0
+            while repeat < lower_counts[track]:
+                route[route_count] <- track.i64()
+                route_count <- route_count + 1
+                repeat <- repeat + 1
+        track <- start
+        while track < max_track:
+            repeat <- 0
+            while repeat < upper_counts[track]:
+                route[route_count] <- track.i64()
+                route_count <- route_count + 1
+                repeat <- repeat + 1
+            track <- track + 1
+
+    hash: mutable u64 = look_hash_i64(FNV_OFFSET, route_count.i64())
+    index <- 0
+    while index < route_count:
+        hash <- look_hash_i64(hash, route[index])
+        index <- index + 1
+    hash <- look_hash_i64(hash, if direction == 1 then 0 else 1)
+    hash <- look_hash_i64(hash, farthest)
+    hash <- look_hash_i64(hash, start64)
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn look_scheduling(input: i64&, length: usize) -> i64 = look_scheduling_impl

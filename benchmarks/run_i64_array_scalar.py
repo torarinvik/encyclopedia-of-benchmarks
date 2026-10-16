@@ -184,6 +184,26 @@ from rgbhex_oracle import MAX_INPUT_LENGTH as MAX_RGBHEX_INPUT_LENGTH
 from rgbhex_oracle import expected_result as rgbhex_expected
 from kasai_algorithm_oracle import MAX_INPUT_LENGTH as MAX_KASAI_ALGORITHM_INPUT_LENGTH
 from kasai_algorithm_oracle import expected_result as kasai_algorithm_expected
+from transposition_oracle import MAX_INPUT as MAX_TRANSPOSITION_INPUT_LENGTH
+from transposition_oracle import expected_result as transposition_expected
+from lzw_oracle import MAX_INPUT_LENGTH as MAX_LZW_INPUT_LENGTH
+from lzw_oracle import expected_result as lzw_expected
+from hierholzer_algorithm_oracle import MAX_INPUT as MAX_HIERHOLZER_INPUT_LENGTH
+from hierholzer_algorithm_oracle import expected_result as hierholzer_algorithm_expected
+from inverted_index_oracle import MAX_INPUT_LENGTH as MAX_INVERTED_INDEX_INPUT_LENGTH
+from inverted_index_oracle import expected_result as inverted_index_expected
+from hash_set_oracle import MAX_INPUT_LENGTH as MAX_HASH_SET_INPUT_LENGTH
+from hash_set_oracle import expected_result as hash_set_expected
+from hyper_log_log_oracle import MAX_INPUT_LENGTH as MAX_HYPER_LOG_LOG_INPUT_LENGTH
+from hyper_log_log_oracle import expected_result as hyper_log_log_expected
+from immutable_hash_map_oracle import MAX_OPERATIONS as IMMUTABLE_HASH_MAP_MAX_OPERATIONS
+from immutable_hash_map_oracle import expected_result as immutable_hash_map_expected
+from hash_map_cuckoo_hashing_oracle import MAX_INPUT as MAX_CUCKOO_HASHING_INPUT_LENGTH
+from hash_map_cuckoo_hashing_oracle import expected_result as hash_map_cuckoo_hashing_expected
+from johnson_shortest_paths_oracle import MAX_INPUT_LENGTH as MAX_JOHNSON_SHORTEST_PATHS_INPUT_LENGTH
+from johnson_shortest_paths_oracle import expected_result as johnson_shortest_paths_expected
+from look_scheduling_oracle import MAX_INPUT_LENGTH as MAX_LOOK_SCHEDULING_INPUT_LENGTH
+from look_scheduling_oracle import expected_result as look_scheduling_expected
 from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
 from two_pset_oracle import oracle as two_pset_expected
 from gcounter_oracle import MAX_INPUT_LENGTH as MAX_GCOUNTER_INPUT_LENGTH
@@ -196,6 +216,16 @@ from monotonic_array_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_ARRAY_INPUT
 from monotonic_array_oracle import expected_result as monotonic_array_expected
 from star_delta_conversions_oracle import MAX_INPUT_LENGTH as MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH
 from star_delta_conversions_oracle import expected_result as star_delta_conversions_expected
+from matrix_rank_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_RANK_INPUT_LENGTH
+from matrix_rank_oracle import expected_result as matrix_rank_expected
+from select_bits_oracle import MAX_INPUT_LENGTH as MAX_SELECT_BITS_INPUT_LENGTH
+from select_bits_oracle import expected_result as select_bits_expected
+from matrix_equalization_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_EQUALIZATION_INPUT_LENGTH
+from matrix_equalization_oracle import expected_result as matrix_equalization_expected
+from persistent_segment_tree_oracle import MAX_INPUT_LENGTH as MAX_PERSISTENT_SEGMENT_TREE_INPUT_LENGTH
+from persistent_segment_tree_oracle import expected_result as persistent_segment_tree_expected
+from matrix_based_game_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_BASED_GAME_INPUT_LENGTH
+from matrix_based_game_oracle import expected_result as matrix_based_game_expected
 from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
 from submatrix_oracle import expected_result as submatrix_expected
 from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
@@ -1050,7 +1080,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PARETO_OPTIMIZATION_INPUT_LENGTH if algorithm == "pareto_optimization"
                         else MAX_RGBHEX_INPUT_LENGTH if algorithm == "rgbhex"
                         else MAX_KASAI_ALGORITHM_INPUT_LENGTH if algorithm == "kasai_algorithm"
+                        else MAX_TRANSPOSITION_INPUT_LENGTH if algorithm == "transposition"
+                        else MAX_LZW_INPUT_LENGTH if algorithm == "lzw"
+                        else MAX_HIERHOLZER_INPUT_LENGTH + 1 if algorithm == "hierholzer_algorithm"
+                        else MAX_INVERTED_INDEX_INPUT_LENGTH + 1 if algorithm == "inverted_index"
+                        else MAX_HASH_SET_INPUT_LENGTH + 1 if algorithm == "hash_set"
+                        else MAX_HYPER_LOG_LOG_INPUT_LENGTH + 1 if algorithm == "hyper_log_log"
+                        else 2 + 3 * IMMUTABLE_HASH_MAP_MAX_OPERATIONS
+                        if algorithm == "immutable_hash_map"
+                        else MAX_CUCKOO_HASHING_INPUT_LENGTH + 1
+                        if algorithm == "hash_map_cuckoo_hashing"
+                        else MAX_JOHNSON_SHORTEST_PATHS_INPUT_LENGTH + 1
+                        if algorithm == "johnson_shortest_paths"
+                        else MAX_LOOK_SCHEDULING_INPUT_LENGTH + 1
+                        if algorithm == "look_scheduling"
                         else MAX_TWO_PSET_INPUT_LENGTH if algorithm == "two_pset"
+                        else MAX_MATRIX_RANK_INPUT_LENGTH if algorithm == "matrix_rank"
+                        else MAX_SELECT_BITS_INPUT_LENGTH + 1 if algorithm == "select_bits"
+                        else MAX_MATRIX_EQUALIZATION_INPUT_LENGTH if algorithm == "matrix_equalization"
+                        else MAX_PERSISTENT_SEGMENT_TREE_INPUT_LENGTH if algorithm == "persistent_segment_tree"
+                        else MAX_MATRIX_BASED_GAME_INPUT_LENGTH if algorithm == "matrix_based_game"
                         else MAX_GCOUNTER_INPUT_LENGTH if algorithm == "gcounter"
                         else MAX_GENERIC_HEAP_INPUT_LENGTH if algorithm == "generic_heap"
                         else MAX_GEOFENCE_INPUT_LENGTH if algorithm == "geofence"
@@ -5829,10 +5878,70 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = kasai_algorithm_expected(values)
         if expected != expected_from_source:
             raise ValueError("kasai_algorithm expected_result must match the bounded suffix-array LCP checksum")
+    elif algorithm == "transposition":
+        expected_from_source = transposition_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("transposition expected_result must match the bounded Go rune-block cipher")
+    elif algorithm == "lzw":
+        expected_from_source = lzw_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lzw expected_result must match the bounded ASCII compression/decompression contract")
+    elif algorithm == "hierholzer_algorithm":
+        expected_from_source = hierholzer_algorithm_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hierholzer_algorithm expected_result must match the bounded source-order Eulerian circuit contract")
+    elif algorithm == "inverted_index":
+        expected_from_source = inverted_index_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("inverted_index expected_result must match the bounded sorted-document posting-list contract")
+    elif algorithm == "hash_set":
+        expected_from_source = hash_set_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_set expected_result must match the bounded stable-key membership trace contract")
+    elif algorithm == "hyper_log_log":
+        expected_from_source = hyper_log_log_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hyper_log_log expected_result must match the bounded touched-register estimate contract")
+    elif algorithm == "immutable_hash_map":
+        expected_from_source = immutable_hash_map_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("immutable_hash_map expected_result must match the bounded persistent operation trace contract")
+    elif algorithm == "hash_map_cuckoo_hashing":
+        expected_from_source = hash_map_cuckoo_hashing_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_map_cuckoo_hashing expected_result must match the bounded safe Cuckoo-table contract")
+    elif algorithm == "johnson_shortest_paths":
+        expected_from_source = johnson_shortest_paths_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("johnson_shortest_paths expected_result must match the bounded all-pairs distance contract")
+    elif algorithm == "look_scheduling":
+        expected_from_source = look_scheduling_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("look_scheduling expected_result must match the bounded one-call LOOK route and state contract")
     elif algorithm == "two_pset":
         expected_from_source = two_pset_expected(values)
         if expected != expected_from_source:
             raise ValueError("two_pset expected_result must match the two-replica state digest contract")
+    elif algorithm == "matrix_rank":
+        expected_from_source = matrix_rank_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("matrix_rank expected_result must match the bounded binary matrix-rank contract")
+    elif algorithm == "select_bits":
+        expected_from_source = select_bits_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("select_bits expected_result must match the bounded uint53 bit-slice contract")
+    elif algorithm == "matrix_equalization":
+        expected_from_source = matrix_equalization_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("matrix_equalization expected_result must match the bounded minimum-update contract")
+    elif algorithm == "persistent_segment_tree":
+        expected_from_source = persistent_segment_tree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("persistent_segment_tree expected_result must match the versioned range-sum digest contract")
+    elif algorithm == "matrix_based_game":
+        expected_from_source = matrix_based_game_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("matrix_based_game expected_result must match the bounded component-removal score contract")
     elif algorithm == "gcounter":
         expected_from_source = gcounter_expected(values)
         if expected != expected_from_source:

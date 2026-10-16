@@ -180,6 +180,11 @@ from move_to_front_oracle import MAX_TEXT_LENGTH as MOVE_TO_FRONT_MAX_TEXT_LENGT
 from move_to_front_oracle import I64_MAX as MOVE_TO_FRONT_I64_MAX
 from move_to_front_oracle import I64_MIN as MOVE_TO_FRONT_I64_MIN
 from move_to_front_oracle import expected_output as move_to_front_oracle
+from rail_fence_oracle import MAX_INPUT_LENGTH as RAIL_FENCE_MAX_PARSEABLE_INPUT_LENGTH
+from rail_fence_oracle import MAX_RAILS as RAIL_FENCE_MAX_RAILS
+from rail_fence_oracle import MAX_TEXT_LENGTH as RAIL_FENCE_MAX_TEXT_LENGTH
+from rail_fence_oracle import MIN_RAILS as RAIL_FENCE_MIN_RAILS
+from rail_fence_oracle import expected_output as rail_fence_oracle
 from word_boggle_oracle import expected_output as word_boggle_oracle
 from choiceset_oracle import MAX_OPERATIONS as MAX_CHOICESET_OPERATIONS
 from choiceset_oracle import expected_output as choiceset_oracle
@@ -635,6 +640,7 @@ ALGORITHMS = (*ALGORITHMS, "two_sat")
 ALGORITHMS = (*ALGORITHMS, "word_boggle")
 ALGORITHMS = (*ALGORITHMS, "trifid_cipher")
 ALGORITHMS = (*ALGORITHMS, "move_to_front")
+ALGORITHMS = (*ALGORITHMS, "rail_fence")
 ALGORITHMS = (*ALGORITHMS, "word_ladder_dfs")
 ALGORITHMS = (*ALGORITHMS, "morse_code_converter_encode", "morse_code_converter_decode")
 ALGORITHMS = (*ALGORITHMS, "move_hash_to_end")
@@ -735,6 +741,7 @@ WORKSPACE_ALGORITHMS.add("word_pattern_matcher")
 WORKSPACE_ALGORITHMS.add("word_boggle")
 WORKSPACE_ALGORITHMS.add("trifid_cipher")
 WORKSPACE_ALGORITHMS.add("move_to_front")
+WORKSPACE_ALGORITHMS.add("rail_fence")
 WORKSPACE_ALGORITHMS.add("word_ladder_dfs")
 WORKSPACE_ALGORITHMS.update({"morse_code_converter_encode", "morse_code_converter_decode"})
 WORKSPACE_ALGORITHMS.add("move_hash_to_end")
@@ -1694,6 +1701,75 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 add(values)
 
         null_key = ((0, 0, 0), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "rail_fence":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < RAIL_FENCE_MAX_TEXT_LENGTH
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("invalid rail_fence output workspace size")
+        if (workload.get("input", {}).get("maximum_parseable_input_length")
+                != RAIL_FENCE_MAX_PARSEABLE_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_output_bytes")
+                != RAIL_FENCE_MAX_TEXT_LENGTH):
+            raise ValueError("rail_fence workload bounds do not match its reviewed contract")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = rail_fence_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = rail_fence_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"rail_fence workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng_rail_fence = random.Random(20261016)
+        for rails in range(RAIL_FENCE_MIN_RAILS, RAIL_FENCE_MAX_RAILS + 1):
+            for text_length in sorted({0, 1, max(0, rails - 1), rails, rails + 1,
+                                       64, RAIL_FENCE_MAX_TEXT_LENGTH}):
+                text = tuple((32 + index * 37) % 128 for index in range(text_length))
+                for mode in (0, 1):
+                    values = (mode, rails, text_length, *text)
+                    add(values)
+        for _ in range(128):
+            mode = rng_rail_fence.randrange(2)
+            rails = rng_rail_fence.randint(RAIL_FENCE_MIN_RAILS, RAIL_FENCE_MAX_RAILS)
+            text_length = rng_rail_fence.randint(0, RAIL_FENCE_MAX_TEXT_LENGTH)
+            text = tuple(rng_rail_fence.randrange(128) for _ in range(text_length))
+            values = (mode, rails, text_length, *text)
+            add(values)
+
+        capacity_probe = (0, 5, RAIL_FENCE_MAX_TEXT_LENGTH,
+                          *((index * 37) % 128 for index in range(RAIL_FENCE_MAX_TEXT_LENGTH)))
+        for capacity in (0, RAIL_FENCE_MAX_TEXT_LENGTH - 1,
+                         RAIL_FENCE_MAX_TEXT_LENGTH,
+                         RAIL_FENCE_MAX_TEXT_LENGTH + 1):
+            add(capacity_probe, capacity)
+        add((1, RAIL_FENCE_MAX_RAILS, 0), 0)
+
+        malformed = (
+            (), (0,), (2, 2, 0), (0, 0, 0), (0, 1, 0),
+            (0, RAIL_FENCE_MAX_RAILS + 1, 0),
+            (0, 2, -1), (0, 2, RAIL_FENCE_MAX_TEXT_LENGTH + 1),
+            (0, 2), (0, 2, 1), (0, 2, 0, 65),
+            (0, 2, 1, -1), (0, 2, 1, 128),
+            (0, 2, RAIL_FENCE_MAX_TEXT_LENGTH,
+             *([65] * (RAIL_FENCE_MAX_TEXT_LENGTH + 1))),
+            tuple([0] * RAIL_FENCE_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (17, RAIL_FENCE_MIN_RAILS, 0)
+        null_key = (null_values, default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)

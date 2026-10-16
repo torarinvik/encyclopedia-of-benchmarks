@@ -1,0 +1,95 @@
+# Bounded Johnson all-pairs shortest paths for the pinned R contract.
+const MAX_VERTICES: usize = 32
+const MAX_EDGES: usize = 256
+const MAX_INPUT_LENGTH: usize = 770
+const MAX_QUEUE: usize = 257
+const UNREACHABLE: i64 = 9223372036854775807
+const UNREACHABLE_SENTINEL: i64 = 4611686018427387904
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def johnson_shortest_paths_fnv_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte in 0..<8:
+        octet: u64 = (bits >> (byte * 8)) & 255.u64()
+        result <- (result ^ octet) * FNV_PRIME
+    result
+
+def johnson_shortest_paths_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    vertex_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    if vertex_value < 1 or vertex_value > 32 or edge_value < 0 or edge_value > 256: return -1
+    vertices: usize = vertex_value.usize()
+    edges: usize = edge_value.usize()
+    if length != 2 + 3 * edges: return -1
+
+    edge_from: mutable usize[256] = zeroed
+    edge_to: mutable usize[256] = zeroed
+    edge_weight: mutable i64[256] = zeroed
+    for edge in 0..<edges:
+        from_value: i64 = input[2 + 3 * edge]
+        to_value: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if from_value < 1 or from_value > vertex_value or to_value < 1 or to_value > vertex_value or weight < -32 or weight > 32: return -1
+        edge_from[edge] <- (from_value - 1).usize()
+        edge_to[edge] <- (to_value - 1).usize()
+        edge_weight[edge] <- weight
+
+    potential: mutable i64[32] = zeroed
+    for iteration in 1..<vertices:
+        updated: mutable bool = false
+        for edge in 0..<edges:
+            from: usize = edge_from[edge]
+            to: usize = edge_to[edge]
+            candidate: i64 = potential[from] + edge_weight[edge]
+            if candidate < potential[to]:
+                potential[to] <- candidate
+                updated <- true
+        if not updated: break
+    for edge in 0..<edges:
+        if potential[edge_from[edge]] + edge_weight[edge] < potential[edge_to[edge]]: return -1
+
+    result: mutable u64 = FNV_OFFSET_BASIS
+    for source in 0..<vertices:
+        distance: mutable i64[32] = zeroed
+        visited: mutable bool[32] = zeroed
+        for vertex in 0..<vertices: distance[vertex] <- UNREACHABLE
+        distance[source] <- 0
+        queue_vertices: mutable usize[257] = zeroed
+        queue_distances: mutable i64[257] = zeroed
+        queue_length: mutable usize = 1
+        queue_vertices[0] <- source
+        queue_distances[0] <- 0
+        while queue_length > 0:
+            minimum: mutable usize = 0
+            for index in 1..<queue_length:
+                if queue_distances[index] < queue_distances[minimum]: minimum <- index
+            current: usize = queue_vertices[minimum]
+            for index in (minimum + 1)..<queue_length:
+                queue_vertices[index - 1] <- queue_vertices[index]
+                queue_distances[index - 1] <- queue_distances[index]
+            queue_length <- queue_length - 1
+            if visited[current]: continue
+            visited[current] <- true
+
+            for edge in 0..<edges:
+                if edge_from[edge] != current: continue
+                next: usize = edge_to[edge]
+                reweighted: i64 = edge_weight[edge] + potential[current] - potential[next]
+                candidate: i64 = distance[current] + reweighted
+                if not visited[next] and candidate < distance[next]:
+                    distance[next] <- candidate
+                    queue_vertices[queue_length] <- next
+                    queue_distances[queue_length] <- candidate
+                    queue_length <- queue_length + 1
+
+        for destination in 0..<vertices:
+            output: i64 = UNREACHABLE_SENTINEL
+            if distance[destination] != UNREACHABLE:
+                output <- distance[destination] - potential[source] + potential[destination]
+            result <- johnson_shortest_paths_fnv_word(result, output)
+    (result & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn johnson_shortest_paths(input: i64&, length: usize) -> i64 = johnson_shortest_paths_impl

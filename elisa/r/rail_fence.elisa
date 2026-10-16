@@ -1,0 +1,65 @@
+def rail_fence_rail(position: usize, rails: usize) -> usize:
+    period: usize = 2 * (rails - 1)
+    phase: usize = position % period
+    if phase < rails:
+        return phase
+    return period - phase
+
+def rail_fence_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 3 or length > 260:
+        return -1
+    mode: i64 = input[0]
+    raw_rails: i64 = input[1]
+    raw_length: i64 = input[2]
+    if mode < 0 or mode > 1 or raw_rails < 2 or raw_rails > 8:
+        return -1
+    if raw_length < 0 or raw_length > 256:
+        return -1
+    rails: usize = raw_rails.usize()
+    byte_length: usize = raw_length.usize()
+    if length != byte_length + 3:
+        return -1
+    index: usize = 0
+    while index < byte_length:
+        value: i64 = input[index + 3]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+    if output == null or output_capacity < byte_length:
+        return -2
+
+    if mode == 0:
+        out_index: usize = 0
+        rail: usize = 0
+        while rail < rails:
+            index <- 0
+            while index < byte_length:
+                if rail_fence_rail(index, rails) == rail:
+                    output[out_index] <- input[index + 3].u8()
+                    out_index <- out_index + 1
+                index <- index + 1
+            rail <- rail + 1
+        return byte_length.i64()
+
+    counts: mutable usize[8] = zeroed
+    starts: mutable usize[8] = zeroed
+    used: mutable usize[8] = zeroed
+    current_rail: usize = 0
+    index <- 0
+    while index < byte_length:
+        current_rail <- rail_fence_rail(index, rails)
+        counts[current_rail] <- counts[current_rail] + 1
+        index <- index + 1
+    current_rail <- 1
+    while current_rail < rails:
+        starts[current_rail] <- starts[current_rail - 1] + counts[current_rail - 1]
+        current_rail <- current_rail + 1
+    index <- 0
+    while index < byte_length:
+        current_rail <- rail_fence_rail(index, rails)
+        output[index] <- input[3 + starts[current_rail] + used[current_rail]].u8()
+        used[current_rail] <- used[current_rail] + 1
+        index <- index + 1
+    byte_length.i64()
+
+export fn rail_fence(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rail_fence_impl

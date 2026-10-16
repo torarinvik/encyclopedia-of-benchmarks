@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "matrix-based-game-ascii-board-i64-v1",
+  "algorithm": "matrix_based_game",
+  "function_symbol": "matrix_based_game",
+  "input": {
+    "kind": "signed_i64_array_packed_ascii_board_and_moves",
+    "encoding": "[n,row_major_ascii_cells...,move_count,x0,y0,...]",
+    "exact_length": "2 + n*n + 2*move_count",
+    "n_range": [1, 8],
+    "cell_ascii_ranges": [[48, 57], [65, 90], [97, 122]],
+    "move_count_range": [0, 64],
+    "coordinate_range": "[0,n-1]",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar_score",
+    "encoding": "sum of k*(k+1)/2 over removed components",
+    "maximum_encoded_result": 2080
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "single_cell", "input_values": [1, 65, 1, 0, 0], "expected_result": 1},
+    {"id": "remove_all_then_select_empty", "input_values": [2, 65, 65, 65, 65, 2, 0, 0, 1, 1], "expected_result": 10},
+    {"id": "lower_left_coordinate", "input_values": [2, 65, 66, 65, 67, 1, 0, 0], "expected_result": 3},
+    {"id": "gravity_and_column_compaction", "input_values": [3, 65, 66, 65, 66, 66, 66, 65, 66, 65, 3, 1, 1, 1, 1, 1, 0], "expected_result": 25},
+    {"id": "empty_selection_after_gravity", "input_values": [2, 65, 66, 67, 67, 2, 0, 0, 0, 1], "expected_result": 3},
+    {"id": "no_moves", "input_values": [2, 65, 66, 67, 68, 0], "expected_result": 0},
+    {"id": "digit_symbol", "input_values": [1, 55, 1, 0, 0], "expected_result": 1},
+    {"id": "zero_dimension", "input_values": [0, 0], "expected_result": -1},
+    {"id": "non_alphanumeric_symbol", "input_values": [1, 45, 0], "expected_result": -1},
+    {"id": "coordinate_out_of_bounds", "input_values": [1, 65, 1, 1, 0], "expected_result": -1},
+    {"id": "move_count_too_large", "input_values": [1, 65, 65], "expected_result": -1},
+    {"id": "incomplete_move", "input_values": [1, 65, 1, 0], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,172 @@
+const MAX_ITEMS: usize = 4096
+const MAX_CODES: usize = 4352
+const MAX_OUTPUT: usize = 65536
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def lzw_hash_i64(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    shift: mutable usize = 0
+    while shift < 64:
+        byte: u64 = ((bits >> shift) & 255.u64())
+        result <- (result ^ byte) * FNV_PRIME
+        shift <- shift + 8
+    result
+
+def lzw_hash_record(mode: i64, count: usize, values: i64&) -> i64:
+    hash: mutable u64 = lzw_hash_i64(FNV_OFFSET, mode)
+    hash <- lzw_hash_i64(hash, count.i64())
+    index: mutable usize = 0
+    while index < count:
+        hash <- lzw_hash_i64(hash, values[index])
+        index <- index + 1
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+def lzw_expand(code: i64, dictionary_size: i64, prefix: i32&, suffix: u8&, phrase: mutable u8&) -> i64:
+    length: mutable usize = 0
+    current: mutable i64 = code
+    while current >= 256:
+        if current >= dictionary_size or length >= MAX_CODES:
+            return -1
+        phrase[length] <- suffix[current.usize()]
+        length <- length + 1
+        current <- prefix[current.usize()].i64()
+        if current < 0:
+            return -1
+    if current < 0 or current > 255 or length >= MAX_CODES:
+        return -1
+    phrase[length] <- current.u8()
+    length <- length + 1
+    left: mutable usize = 0
+    right: mutable usize = length - 1
+    while left < right:
+        byte: u8 = phrase[left]
+        phrase[left] <- phrase[right]
+        phrase[right] <- byte
+        left <- left + 1
+        right <- right - 1
+    length.i64()
+
+def lzw_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_ITEMS + 2:
+        return -1
+    mode: i64 = input[0]
+    count64: i64 = input[1]
+    if (mode != 0 and mode != 1) or count64 < 0 or count64 > MAX_ITEMS.i64() or length != (count64 + 2).usize():
+        return -1
+    count: usize = count64.usize()
+
+    prefix: mutable i32[MAX_CODES] = zeroed
+    next_sibling: mutable i32[MAX_CODES] = zeroed
+    first_child: mutable i32[MAX_CODES] = zeroed
+    suffix: mutable u8[MAX_CODES] = zeroed
+    first_symbol: mutable u8[MAX_CODES] = zeroed
+    index: mutable usize = 0
+    while index < MAX_CODES:
+        prefix[index] <- -1
+        next_sibling[index] <- -1
+        first_child[index] <- -1
+        index <- index + 1
+    code: mutable usize = 0
+    while code < 256:
+        suffix[code] <- code.u8()
+        first_symbol[code] <- code.u8()
+        code <- code + 1
+
+    if mode == 0:
+        index <- 0
+        while index < count:
+            if input[2 + index] < 0 or input[2 + index] > 127:
+                return -1
+            index <- index + 1
+        codes: mutable i64[MAX_ITEMS] = zeroed
+        code_count: mutable usize = 0
+        if count > 0:
+            dictionary_size: mutable i64 = 256
+            current: mutable i64 = input[2]
+            index <- 1
+            while index < count:
+                byte: i64 = input[2 + index]
+                match: mutable i64 = first_child[current.usize()].i64()
+                while match >= 0 and suffix[match.usize()] != byte.u8():
+                    match <- next_sibling[match.usize()].i64()
+                if match >= 0:
+                    current <- match
+                else:
+                    codes[code_count] <- current
+                    code_count <- code_count + 1
+                    if dictionary_size >= MAX_CODES.i64():
+                        return -1
+                    prefix[dictionary_size.usize()] <- current.i32()
+                    suffix[dictionary_size.usize()] <- byte.u8()
+                    first_symbol[dictionary_size.usize()] <- first_symbol[current.usize()]
+                    next_sibling[dictionary_size.usize()] <- first_child[current.usize()]
+                    first_child[current.usize()] <- dictionary_size.i32()
+                    dictionary_size <- dictionary_size + 1
+                    current <- byte
+                index <- index + 1
+            codes[code_count] <- current
+            code_count <- code_count + 1
+        lzw_hash_record(0, code_count, &codes[0])
+    else:
+        index <- 0
+        while index < count:
+            if input[2 + index] < 0 or input[2 + index] >= MAX_CODES.i64():
+                return -1
+            index <- index + 1
+        if count == 0:
+            return lzw_hash_record(1, 0, &input[0])
+        first_code: i64 = input[2]
+        if first_code > 127:
+            return -1
+        decoded: mutable u8[MAX_OUTPUT] = zeroed
+        phrase: mutable u8[MAX_CODES] = zeroed
+        decoded[0] <- first_code.u8()
+        decoded_length: mutable usize = 1
+        dictionary_size: mutable i64 = 256
+        previous: mutable i64 = first_code
+        index <- 1
+        while index < count:
+            current_code: i64 = input[2 + index]
+            phrase_length: mutable i64 = 0
+            if current_code < dictionary_size:
+                phrase_length <- lzw_expand(current_code, dictionary_size, &prefix[0], &suffix[0], &phrase[0])
+                if phrase_length < 0:
+                    return -1
+            else if current_code == dictionary_size:
+                phrase_length <- lzw_expand(previous, dictionary_size, &prefix[0], &suffix[0], &phrase[0])
+                if phrase_length < 0 or phrase_length.usize() >= MAX_CODES:
+                    return -1
+                phrase[phrase_length.usize()] <- first_symbol[previous.usize()]
+                phrase_length <- phrase_length + 1
+            else:
+                return -1
+            phrase_count: usize = phrase_length.usize()
+            if decoded_length > MAX_OUTPUT - phrase_count:
+                return -1
+            position: mutable usize = 0
+            while position < phrase_count:
+                if phrase[position] > 127:
+                    return -1
+                decoded[decoded_length + position] <- phrase[position]
+                position <- position + 1
+            decoded_length <- decoded_length + phrase_count
+            if dictionary_size >= MAX_CODES.i64():
+                return -1
+            next_byte: u8 = if current_code == dictionary_size then first_symbol[previous.usize()] else first_symbol[current_code.usize()]
+            prefix[dictionary_size.usize()] <- previous.i32()
+            suffix[dictionary_size.usize()] <- next_byte
+            first_symbol[dictionary_size.usize()] <- first_symbol[previous.usize()]
+            dictionary_size <- dictionary_size + 1
+            previous <- current_code
+            index <- index + 1
+        hash: mutable u64 = lzw_hash_i64(FNV_OFFSET, 1)
+        hash <- lzw_hash_i64(hash, decoded_length.i64())
+        index <- 0
+        while index < decoded_length:
+            hash <- lzw_hash_i64(hash, decoded[index].i64())
+            index <- index + 1
+        (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn lzw(input: i64&, length: usize) -> i64 = lzw_impl

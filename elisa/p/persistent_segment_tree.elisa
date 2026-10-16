@@ -1,0 +1,105 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_INPUT: usize = 322
+const NODE_CAP: usize = 640
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+struct PersistentNode:
+    sum: i64
+    left: i64
+    right: i64
+
+def persistent_make_node(nodes: mutable PersistentNode&, used: mutable usize&, sum: i64, left: i64, right: i64) -> i64:
+    if used >= NODE_CAP: return -1
+    index: i64 = used.i64()
+    nodes[used].sum <- sum
+    nodes[used].left <- left
+    nodes[used].right <- right
+    used <- used + 1
+    index
+
+def persistent_build(nodes: mutable PersistentNode&, used: mutable usize&, values: i64&, left: usize, right: usize) -> i64:
+    if left == right: return persistent_make_node(nodes, used, values[left], -1, -1)
+    mid: usize = left + (right - left) / 2
+    a: i64 = persistent_build(nodes, used, values, left, mid)
+    b: i64 = persistent_build(nodes, used, values, mid + 1, right)
+    if a < 0 or b < 0: return -1
+    persistent_make_node(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, a, b)
+
+def persistent_point_set(nodes: mutable PersistentNode&, used: mutable usize&, root: i64, left: usize, right: usize, index: usize, value: i64) -> i64:
+    if left == right: return persistent_make_node(nodes, used, value, -1, -1)
+    mid: usize = left + (right - left) / 2
+    a: mutable i64 = nodes[root.usize()].left
+    b: mutable i64 = nodes[root.usize()].right
+    if index <= mid:
+        a <- persistent_point_set(nodes, used, a, left, mid, index, value)
+    else:
+        b <- persistent_point_set(nodes, used, b, mid + 1, right, index, value)
+    if a < 0 or b < 0: return -1
+    persistent_make_node(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, a, b)
+
+def persistent_range_sum(nodes: PersistentNode&, node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64:
+    if ql <= left and right <= qr: return nodes[node.usize()].sum
+    mid: usize = left + (right - left) / 2
+    total: mutable i64 = 0
+    if ql <= mid:
+        total <- total + persistent_range_sum(nodes, nodes[node.usize()].left, left, mid, ql, qr)
+    if qr > mid:
+        total <- total + persistent_range_sum(nodes, nodes[node.usize()].right, mid + 1, right, ql, qr)
+    total
+
+def persistent_hash_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte_index in 0..<8:
+        octet: u64 = (bits >> (byte_index * 8)).u8().u64()
+        result <- (result ^ octet) * FNV_PRIME
+    result
+
+def persistent_segment_tree_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > 64 or q64 < 0 or q64 > 64: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + n + 4 * q: return -1
+    for i in 0..<n:
+        if input[2 + i] < -1000 or input[2 + i] > 1000: return -1
+
+    nodes: mutable PersistentNode[NODE_CAP] = zeroed
+    used: mutable usize = 0
+    roots: mutable i64[MAX_Q + 1] = zeroed
+    roots[0] <- persistent_build(&nodes[0], used, &input[2], 0, n - 1)
+    if roots[0] < 0: return -1
+    versions: mutable usize = 1
+    query_count: mutable usize = 0
+    query_sums: mutable i64[MAX_Q] = zeroed
+    offset: mutable usize = 2 + n
+    for _ in 0..<q:
+        op: i64 = input[offset]
+        a: i64 = input[offset + 1]
+        b: i64 = input[offset + 2]
+        c: i64 = input[offset + 3]
+        offset <- offset + 4
+        if op == 0:
+            if a < 0 or a >= versions.i64() or b < 0 or b >= n64 or c < -1000 or c > 1000: return -1
+            next: i64 = persistent_point_set(&nodes[0], used, roots[a.usize()], 0, n - 1, b.usize(), c)
+            if next < 0: return -1
+            roots[versions] <- next
+            versions <- versions + 1
+        elif op == 1:
+            if a < 0 or a >= versions.i64() or b < 0 or c < b or c >= n64: return -1
+            query_sums[query_count] <- persistent_range_sum(nodes[0], roots[a.usize()], 0, n - 1, b.usize(), c.usize())
+            query_count <- query_count + 1
+        else:
+            return -1
+
+    hash: mutable u64 = FNV_OFFSET
+    hash <- persistent_hash_word(hash, versions.i64())
+    hash <- persistent_hash_word(hash, query_count.i64())
+    for i in 0..<query_count: hash <- persistent_hash_word(hash, query_sums[i])
+    (hash & 0x7fffffffffffffff).i64()
+
+export fn persistent_segment_tree(input: i64&, length: usize) -> i64 = persistent_segment_tree_impl

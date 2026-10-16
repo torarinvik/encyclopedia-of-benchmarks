@@ -1,0 +1,40 @@
+# Minimum updates needed to equalize a vector with a fixed step size.
+const MAX_VECTOR_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+
+def matrix_equalization_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    vector_length: usize = length - 1
+    if vector_length > MAX_VECTOR_LENGTH:
+        return -1
+    step_value: i64 = input[0]
+    if step_value < 1 or step_value > vector_length.i64():
+        return -1
+    step_size: usize = step_value.usize()
+    minimum_updates: mutable usize = vector_length
+
+    target_index: mutable usize = 0
+    while target_index < vector_length:
+        seen: mutable bool = false
+        previous: mutable usize = 0
+        while previous < target_index:
+            if input[previous + 1] == input[target_index + 1]:
+                seen <- true
+                break
+            previous <- previous + 1
+        if not seen:
+            updates: mutable usize = 0
+            index: mutable usize = 0
+            while index < vector_length:
+                if input[index + 1] == input[target_index + 1]:
+                    index <- index + 1
+                else:
+                    updates <- updates + 1
+                    index <- index + step_size
+            if updates < minimum_updates:
+                minimum_updates <- updates
+        target_index <- target_index + 1
+    minimum_updates.i64()
+
+export fn matrix_equalization(input: i64&, length: usize) -> i64 = matrix_equalization_impl

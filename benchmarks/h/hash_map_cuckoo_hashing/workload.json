@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "hash-map-cuckoo-hashing-java-bounded-i64-array-scalar-v1",
+  "algorithm": "hash_map_cuckoo_hashing",
+  "function_symbol": "hash_map_cuckoo_hashing",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_length": 130,
+    "layout": "[initial_capacity, key_count, signed_i32_keys...]",
+    "exact_length": "key_count + 2",
+    "initial_capacity": "power of two in 16..256",
+    "key_count_range": [0, 128],
+    "key_domain": "unique signed i32 values excluding INT_MIN",
+    "safe_classes": [
+      "exactly two keys with equal initial h1 buckets and h2(first_key) different from that bucket",
+      "all initial h1 buckets pairwise distinct"
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "low 63 bits of wrapping FNV-1a-64 over record [size, findKeyInTable(key_0), ..., findKeyInTable(key_n)] as signed i64 little-endian words",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"empty_table","input_values":[16,0],"input_length":2,"expected_result":2938590176187398597},
+    {"id":"single_key","input_values":[16,1,42],"input_length":3,"expected_result":7993273937335365998},
+    {"id":"one_safe_relocation","input_values":[16,2,1,17],"input_length":4,"expected_result":3469684062029917606},
+    {"id":"load_factor_growth","input_values":[16,12,0,1,2,3,4,5,6,7,8,9,10,11],"input_length":14,"expected_result":8360608871292023497},
+    {"id":"growth_rehashes_to_new_bucket","input_values":[16,12,17,2,3,4,5,6,7,8,9,10,11,12],"input_length":14,"expected_result":8530013755806614101},
+    {"id":"negative_signed_keys","input_values":[16,3,-1,-2,-3],"input_length":5,"expected_result":4955622726592275242},
+    {"id":"reject_collision_cycle_class","input_values":[16,3,1,17,33],"input_length":5,"expected_result":-1},
+    {"id":"reject_duplicate_key","input_values":[16,2,5,5],"input_length":4,"expected_result":-1},
+    {"id":"reject_empty_slot_sentinel","input_values":[16,1,-2147483648],"input_length":3,"expected_result":-1},
+    {"id":"reject_non_power_two_capacity","input_values":[24,1,1],"input_length":3,"expected_result":-1},
+    {"id":"reject_wrong_length","input_values":[16,1,1,2],"input_length":4,"expected_result":-1}
+  ]
+}

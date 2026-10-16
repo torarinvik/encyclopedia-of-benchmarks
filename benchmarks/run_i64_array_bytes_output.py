@@ -247,6 +247,8 @@ from double_ended_selection_sort_oracle import MAX_PARSEABLE_LENGTH as DOUBLE_EN
 from double_ended_selection_sort_oracle import expected_output as double_ended_selection_sort_expected_output
 from move_to_front_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH
 from move_to_front_oracle import expected_output as move_to_front_expected_output
+from rail_fence_oracle import MAX_INPUT_LENGTH as MAX_RAIL_FENCE_PARSEABLE_INPUT_LENGTH
+from rail_fence_oracle import expected_output as rail_fence_expected_output
 from word_boggle_oracle import expected_output as word_boggle_expected_output
 from dancing_links_oracle import expected_output as dancing_links_expected_output
 from convolution_neural_network_oracle import expected_output as convolution_neural_network_expected_output
@@ -1468,6 +1470,7 @@ RECORDER_WORKSPACE_ALGORITHMS.add('maskwords')
 RECORDER_WORKSPACE_ALGORITHMS.add('aatree')
 RECORDER_WORKSPACE_ALGORITHMS.add('add_two_numbers')
 RECORDER_WORKSPACE_ALGORITHMS.add('longest_consecutive_characters')
+RECORDER_WORKSPACE_ALGORITHMS.add('rail_fence')
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
@@ -1549,6 +1552,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return double_ended_selection_sort_expected_output(values)
     if algorithm == "move_to_front":
         return move_to_front_expected_output(values)
+    if algorithm == "rail_fence":
+        return rail_fence_expected_output(values)
 
     if algorithm == "word_boggle":
         return word_boggle_expected_output(values)
@@ -12104,6 +12109,7 @@ def main() -> int:
                             MAX_LONGEST_CONSECUTIVE_CHARACTERS_INPUT_LENGTH if algorithm == "longest_consecutive_characters" else
                             1 + 3 * UNIFORM_CROSSOVER_MAX_COUNT if algorithm == "uniform_crossover" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
+                            MAX_RAIL_FENCE_PARSEABLE_INPUT_LENGTH if algorithm == "rail_fence" else
                             4 if algorithm == "midpoint_integration" else
                             2 if algorithm == "hilbert_curve" else
                             74 if algorithm == "hill_encoder" else

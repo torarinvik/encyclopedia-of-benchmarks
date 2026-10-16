@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "matrix-rank-binary-rectangular-i64-v1",
+  "algorithm": "matrix_rank",
+  "function_symbol": "matrix_rank",
+  "input": {
+    "kind": "signed_i64_array_packed_binary_matrix",
+    "encoding": "[rows,cols,row_major_cells...]",
+    "exact_length": "2 + rows*cols",
+    "rows_range": [1, 8],
+    "cols_range": [1, 8],
+    "cell_values": [0, 1],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar_matrix_rank",
+    "encoding": "integer rank in 0..min(rows,cols)",
+    "maximum_encoded_result": 8
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_cell_zero", "input_values": [1, 1, 0], "expected_result": 0},
+    {"id": "one_cell_one", "input_values": [1, 1, 1], "expected_result": 1},
+    {"id": "dependent_rows", "input_values": [2, 2, 1, 1, 1, 1], "expected_result": 1},
+    {"id": "full_rank_two_by_two", "input_values": [2, 2, 1, 0, 0, 1], "expected_result": 2},
+    {"id": "pivot_skips_first_row", "input_values": [2, 2, 0, 1, 1, 0], "expected_result": 2},
+    {"id": "tall_rectangular_rank_two", "input_values": [3, 2, 1, 0, 0, 1, 1, 1], "expected_result": 2},
+    {"id": "wide_rectangular_rank_two", "input_values": [2, 3, 1, 0, 1, 0, 1, 1], "expected_result": 2},
+    {"id": "rank_one_rectangular", "input_values": [3, 4, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0], "expected_result": 1},
+    {
+      "id": "zero_eight_by_eight",
+      "input_values": [8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_result": 0
+    },
+    {
+      "id": "identity_eight_by_eight",
+      "input_values": [8, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      "expected_result": 8
+    },
+    {"id": "row_count_zero", "input_values": [0, 2], "expected_result": -1},
+    {"id": "column_count_too_large", "input_values": [1, 9], "expected_result": -1},
+    {"id": "nonbinary_cell", "input_values": [1, 2, 0, 2], "expected_result": -1},
+    {"id": "length_mismatch", "input_values": [2, 2, 1, 0, 0], "expected_result": -1}
+  ]
+}

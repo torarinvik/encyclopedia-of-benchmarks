@@ -27,7 +27,8 @@
   },
   "cases": [
     {"id":"encrypt_duplicate_key","input_values":[0,5,66,97,66,97,97,11,72,69,76,76,79,32,87,79,82,76,68],"input_length":19,"expected_result":4368863934955275498},
-    {"id":"decrypt_partial_block","input_values":[1,5,66,97,66,97,97,15,69,76,79,72,32,87,76,68,82,32,76,79,32,72,69],"input_length":23,"expected_result":8358440889788587302},
+    {"id":"encrypt_exact_width_full_padding","input_values":[0,3,107,101,121,6,65,66,67,68,69,70],"input_length":12,"expected_result":5686995833696698875},
+    {"id":"decrypt_partial_block","input_values":[1,5,66,97,66,97,97,14,69,76,79,72,32,87,76,68,82,32,76,79,32,72],"input_length":22,"expected_result":8479938410296130371},
     {"id":"reject_plaintext_trailing_space","input_values":[0,3,107,101,121,4,65,66,32,32],"input_length":10,"expected_result":-1},
     {"id":"reject_non_letter_key","input_values":[0,3,107,49,121,3,65,66,67],"input_length":9,"expected_result":-1},
     {"id":"reject_mismatched_length","input_values":[0,3,107,101,121,4,65,66,67],"input_length":9,"expected_result":-1}
