@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0.0",
+  "id": "fortran-gaussian-legendre-cubic-i64-array-f64-v1",
+  "algorithm": "gaussian_legendre",
+  "function_symbol": "gaussian_legendre",
+  "description": "Bounded cubic polynomial integration using the pinned 1-5 point Gauss-Legendre tables.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[order,a_milli,b_milli,c0_milli,c1_milli,c2_milli,c3_milli]",
+    "maximum_input_length": 7,
+    "order_range": [
+      1,
+      5
+    ],
+    "interval_endpoint_range": [
+      -5000,
+      5000
+    ],
+    "polynomial_coefficient_range": [
+      -10000,
+      10000
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64_integral_estimate",
+    "relative_tolerance": 1e-09,
+    "absolute_tolerance": 1e-09,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-09,
+    "absolute_tolerance": 1e-09,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Fortran",
+    "commit": "c91199703b78bd2181051b01bd5269740e41e121",
+    "path": "modules/maths/numerical_integration/gaussian_legendre.f90"
+  },
+  "cases": [
+    {
+      "id": "order_one_constant",
+      "input_values": [
+        1,
+        -1000,
+        1000,
+        1000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 2.0
+    },
+    {
+      "id": "order_two_linear",
+      "input_values": [
+        2,
+        -1000,
+        2000,
+        0,
+        1000,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 1.5
+    },
+    {
+      "id": "order_three_quadratic",
+      "input_values": [
+        3,
+        0,
+        2000,
+        1000,
+        2000,
+        -1000,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 3.3333333335514057
+    },
+    {
+      "id": "order_four_cubic",
+      "input_values": [
+        4,
+        -2000,
+        3000,
+        -1000,
+        500,
+        -250,
+        125
+      ],
+      "input_length": 7,
+      "expected_result": -4.635416666640951
+    },
+    {
+      "id": "order_five_cubic",
+      "input_values": [
+        5,
+        -3500,
+        4500,
+        5000,
+        -4000,
+        3000,
+        -2000
+      ],
+      "input_length": 7,
+      "expected_result": 28.000000001399954
+    },
+    {
+      "id": "reversed_interval",
+      "input_values": [
+        2,
+        2000,
+        -1000,
+        1000,
+        500,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -3.75
+    },
+    {
+      "id": "invalid_zero_order",
+      "input_values": [
+        0,
+        -1000,
+        1000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_order_above_table",
+      "input_values": [
+        6,
+        -1000,
+        1000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_endpoint_bound",
+      "input_values": [
+        3,
+        -5001,
+        1000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_coefficient_bound",
+      "input_values": [
+        5,
+        -1000,
+        1000,
+        0,
+        0,
+        10001,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_short_input",
+      "input_values": [
+        2,
+        0,
+        1000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    }
+  ]
+}

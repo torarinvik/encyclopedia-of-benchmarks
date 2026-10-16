@@ -1,6 +1,7 @@
 module flatten_nested_list;
 fn long flatten_nested_list(long* v, usz n) @export("flatten_nested_list") {
-    long open = -9223372036854775808, close = open + 1;
+    long open = -9223372036854775808;
+    long close = open + 1;
     if (v == null || n == 0 || n > 255 || v[0] != open) return -1;
     int depth = 0; bool closed = false; ulong h = 0xcbf29ce484222325;
     for (usz i=0;i<n;i++) {

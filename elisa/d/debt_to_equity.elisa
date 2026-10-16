@@ -1,0 +1,11 @@
+# Cross-platform scalar implementation of debt_to_equity.
+const INVALID_RESULT: f64 = -1.0e300
+
+export fn debt_to_equity(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 2:
+        return INVALID_RESULT
+    debt: i64 = input[0]
+    equity: i64 = input[1]
+    if debt < 0 or debt > 1000000 or equity < 1 or equity > 1000000:
+        return INVALID_RESULT
+    return debt.f64() / equity.f64()

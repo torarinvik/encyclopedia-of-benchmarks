@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "maclaurin-csharp-error-threshold-v1",
+  "algorithm": "maclaurin",
+  "function_symbol": "maclaurin",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[mode, x_milli, error_milli]",
+    "modes": {
+      "0": "exp",
+      "1": "sin",
+      "2": "cos"
+    },
+    "x_milli_range": [
+      -2000,
+      2000
+    ],
+    "error_milli_range": [
+      1,
+      250
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "definition": "source ErrorTermWrapper result; adds the previous coefficient before computing the next and stops when the new term magnitude is <= error"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "exp_positive",
+      "input_values": [
+        0,
+        1500,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 4.4775390625
+    },
+    {
+      "id": "exp_negative",
+      "input_values": [
+        0,
+        -1250,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.2873213026258681
+    },
+    {
+      "id": "exp_zero",
+      "input_values": [
+        0,
+        0,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "sin_positive",
+      "input_values": [
+        1,
+        1250,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 0.9499104817708334
+    },
+    {
+      "id": "sin_negative",
+      "input_values": [
+        1,
+        -2000,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -0.9079365079365079
+    },
+    {
+      "id": "sin_small_stops_before_first_term",
+      "input_values": [
+        1,
+        1,
+        250
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "cos_positive",
+      "input_values": [
+        2,
+        750,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 0.73193359375
+    },
+    {
+      "id": "cos_zero",
+      "input_values": [
+        2,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "cos_negative",
+      "input_values": [
+        2,
+        -1500,
+        20
+      ],
+      "input_length": 3,
+      "expected_result": 0.0859375
+    },
+    {
+      "id": "exp_tight_threshold",
+      "input_values": [
+        0,
+        2000,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 7.3887125220458545
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        3,
+        0,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_out_of_range",
+      "input_values": [
+        0,
+        2001,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "error_zero",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "error_one",
+      "input_values": [
+        1,
+        0,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "wrong_length",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

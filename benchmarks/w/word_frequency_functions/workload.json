@@ -294,6 +294,18 @@
       "workspace_bytes": 20
     },
     {
+      "id": "idf_zero_df_and_zero_n_raises_zero_division_first",
+      "input_values": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "03000000",
+      "workspace_bytes": 20
+    },
+    {
       "id": "idf_smoothed_zero_n_source_value_error",
       "input_values": [
         2,

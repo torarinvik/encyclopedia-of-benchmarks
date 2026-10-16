@@ -1,0 +1,22 @@
+extern sin(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MIN_X_NANOUNITS: i64 = -6300000000
+const MAX_X_NANOUNITS: i64 = 6300000000
+const DEFAULT_STEP: f64 = 1.0e-10
+const INVALID_RESULT: f64 = -1.0e300
+
+def symmetric_derivative_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2: return INVALID_RESULT
+    function_id: i64 = values[0]
+    x_nanounits: i64 = values[1]
+    if (function_id != 0 and function_id != 1) or x_nanounits < MIN_X_NANOUNITS or x_nanounits > MAX_X_NANOUNITS:
+        return INVALID_RESULT
+
+    x: f64 = x_nanounits.f64() / 1000000000.0
+    if function_id == 0:
+        (sin(x + DEFAULT_STEP) - sin(x - DEFAULT_STEP)) / (2.0 * DEFAULT_STEP)
+    else:
+        (exp(x + DEFAULT_STEP) - exp(x - DEFAULT_STEP)) / (2.0 * DEFAULT_STEP)
+
+export fn symmetric_derivative(values: i64&, length: usize) -> f64 = symmetric_derivative_impl

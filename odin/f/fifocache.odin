@@ -1,0 +1,4 @@
+package fifocache
+import "core:c"
+@(export)
+fifocache :: proc "c" (a: [^]i64,n:c.size_t,o:[^]u8,cap:c.size_t)->i64{if a==nil||n<2||n>26 do return -1;cval:=a[0];ops:=a[1];if cval<1||cval>6||ops<0||ops>8||n!=2+3*c.size_t(ops) do return -1;k:=[6]i64{};v:=[6]i64{};q:=[8]u8{};z:=0;g:=0;h:=u8(0);m:=u8(0);for i:=0;i<int(ops);i+=1{op:=a[2+3*i];key:=a[3+3*i];value:=a[4+3*i];if key<0||key>15||(op!=0&&op!=1)do return -1;if op==0{if value<0||value>255 do return -1;j:=0;for j<z&&k[j]!=key{j+=1};if j<z{for t:=j+1;t<z;t+=1{k[t-1]=k[t];v[t-1]=v[t]};z-=1};if z==int(cval){for t:=1;t<z;t+=1{k[t-1]=k[t];v[t-1]=v[t]};z-=1};k[z]=key;v[z]=value;z+=1}else{if value!=0 do return -1;j:=0;for j<z&&k[j]!=key{j+=1};if j<z{h+=1;q[g]=u8(v[j])}else{m+=1;q[g]=255};g+=1}};need:=4+g+2*z;if o==nil||cap<c.size_t(need)do return -2;o[0]=h;o[1]=m;o[2]=u8(z);o[3]=u8(g);for i:=0;i<g;i+=1{o[4+i]=q[i]};for i:=0;i<z;i+=1{o[4+g+2*i]=u8(k[i]);o[5+g+2*i]=u8(v[i])};return i64(need)}

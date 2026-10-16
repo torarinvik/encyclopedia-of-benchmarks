@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "id": "elu-matlab-octave-scalar-f64-pair-v1",
+  "algorithm": "elu",
+  "function_symbol": "elu",
+  "description": "Apply the pinned MATLAB-Octave ELU expression to one scalar input.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["x", "alpha"],
+    "x_minimum": -100.0,
+    "x_maximum": 100.0,
+    "alpha_minimum": -1000000.0,
+    "alpha_maximum": 1000000.0,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "alpha * (exp(x) - 1) if x < 0, otherwise x",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"negative_default_alpha","input_values":[-3.0,1.0],"expected_result":-0.9502129316321361},
+    {"id":"negative_scaled_alpha","input_values":[-3.0,2.5],"expected_result":-2.3755323290803403},
+    {"id":"negative_alpha","input_values":[-3.0,-0.25],"expected_result":0.23755323290803403},
+    {"id":"negative_near_zero","input_values":[-0.000001,2.0],"expected_result":-0.000001999999000079633},
+    {"id":"positive_identity","input_values":[4.5,100.0],"expected_result":4.5},
+    {"id":"zero","input_values":[0.0,-1000000.0],"expected_result":0.0},
+    {"id":"negative_zero","input_values":[-0.0,1.0],"expected_result":-0.0},
+    {"id":"lower_x_bound","input_values":[-100.0,1000000.0],"expected_result":-1000000.0},
+    {"id":"negative_alpha_bound","input_values":[-100.0,-1000000.0],"expected_result":1000000.0},
+    {"id":"x_below_bound","input_values":[-100.0001,1.0],"expected_result":-1e300},
+    {"id":"alpha_above_bound","input_values":[-1.0,1000001.0],"expected_result":-1e300}
+  ]
+}

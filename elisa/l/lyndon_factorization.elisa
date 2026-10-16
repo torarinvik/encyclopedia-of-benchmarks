@@ -1,0 +1,37 @@
+const MAX_SEQUENCE_LENGTH: usize = 256
+
+def lyndon_factorization_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_SEQUENCE_LENGTH + 1:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 256 or length != n_value.usize() + 1:
+        return -1
+    n: usize = n_value.usize()
+    for i in 0..<n |input|:
+        if input[i + 1] < 97 or input[i + 1] > 122:
+            return -1
+    required: usize = n * 2
+    if capacity < required or (required > 0 and output.is_null()):
+        return -2
+    start: mutable usize = 0
+    out: mutable usize = 0
+    while start < n |start, out, input, output|:
+        candidate: mutable usize = start + 1
+        matched: mutable usize = start
+        while candidate < n and input[matched + 1] <= input[candidate + 1] |candidate, matched, start, input|:
+            if input[matched + 1] < input[candidate + 1]:
+                matched <- start
+            else:
+                matched <- matched + 1
+            candidate <- candidate + 1
+        factor_length: usize = candidate - matched
+        while start <= matched |start, matched, out, input, output|:
+            for j in 0..<factor_length |j, start, out, input, output|:
+                output[out] <- input[start + j + 1].u8()
+                out <- out + 1
+            output[out] <- 0u8
+            out <- out + 1
+            start <- start + factor_length
+    out.i64()
+
+export fn lyndon_factorization(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lyndon_factorization_impl

@@ -8,6 +8,8 @@ MAX_TERM = 128
 MAX_TEXT = 4096
 MAX_COUNT = 1_000_000
 MAX_INPUT = 1 + 1 + MAX_TERM + 1 + MAX_TEXT
+MAX_PARSEABLE_INPUT_LENGTH = MAX_INPUT + 1
+MAX_OUTPUT_BYTES = 20
 PUNCTUATION = set(b"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
 
 
@@ -15,7 +17,7 @@ def _pack(kind: int, *values: int) -> bytes:
     return struct.pack("<I", kind) + b"".join(struct.pack("<q", value) for value in values)
 
 
-def expected_output(values: list[int], output_capacity: int = 20) -> tuple[int, bytes]:
+def expected_output(values: list[int], output_capacity: int = MAX_OUTPUT_BYTES) -> tuple[int, bytes]:
     if (not isinstance(values, list) or len(values) < 1 or len(values) > MAX_INPUT
             or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63) for value in values)):
         return -1, b""

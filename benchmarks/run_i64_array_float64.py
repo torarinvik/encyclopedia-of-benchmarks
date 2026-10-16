@@ -18,6 +18,9 @@ import sys
 
 from build_abi import ROOT, sha256_file
 from gradient_descent_oracle import expected_result as gradient_descent_expected
+from extended_kalman_filter_oracle import INVALID_RESULT as EXTENDED_KALMAN_FILTER_INVALID_RESULT
+from extended_kalman_filter_oracle import MAX_INPUT_LENGTH as MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH
+from extended_kalman_filter_oracle import expected_result as extended_kalman_filter_expected
 from complementary_filter_oracle import INVALID_RESULT as COMPLEMENTARY_FILTER_INVALID_RESULT
 from complementary_filter_oracle import expected_result as complementary_filter_expected
 from comp_filt_oracle import INVALID_RESULT as COMP_FILT_INVALID_RESULT
@@ -49,6 +52,9 @@ from line_sweep_oracle import expected_result as line_sweep_expected
 from leftist_heap_oracle import INVALID_RESULT as LEFTIST_HEAP_INVALID_RESULT
 from leftist_heap_oracle import MAX_INPUT_LENGTH as MAX_LEFTIST_HEAP_INPUT_LENGTH
 from leftist_heap_oracle import expected_result as leftist_heap_expected
+from maclaurin_oracle import INVALID_RESULT as MACLAURIN_INVALID_RESULT
+from maclaurin_oracle import MAX_INPUT_LENGTH as MAX_MACLAURIN_INPUT_LENGTH
+from maclaurin_oracle import expected_result as maclaurin_expected
 from lamberts_ellipsoidal_distance_oracle import INVALID_RESULT as LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT
 from lamberts_ellipsoidal_distance_oracle import MAX_INPUT_LENGTH as MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
 from lamberts_ellipsoidal_distance_oracle import expected_result as lamberts_ellipsoidal_distance_expected
@@ -99,6 +105,9 @@ from arithmetic_mean_oracle import INVALID_RESULT as ARITHMETIC_MEAN_INVALID_RES
 from arithmetic_mean_oracle import expected_result as arithmetic_mean_expected
 from gaussian_oracle import INVALID_RESULT as GAUSSIAN_INVALID_RESULT
 from gaussian_oracle import expected_result as gaussian_expected
+from gaussian_legendre_oracle import INVALID_RESULT as GAUSSIAN_LEGENDRE_INVALID_RESULT
+from gaussian_legendre_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH
+from gaussian_legendre_oracle import expected_result as gaussian_legendre_expected
 from hubble_parameter_oracle import INVALID_RESULT as HUBBLE_PARAMETER_INVALID_RESULT
 from hubble_parameter_oracle import expected_result as hubble_parameter_expected
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
@@ -152,6 +161,9 @@ from exponential_dist_oracle import MAX_INPUT_LENGTH as MAX_EXPONENTIAL_DIST_INP
 from exponential_dist_oracle import expected_result as exponential_dist_expected
 from expected_shortfall_oracle import INVALID_RESULT as EXPECTED_SHORTFALL_INVALID_RESULT
 from expected_shortfall_oracle import MAX_INPUT_LENGTH as MAX_EXPECTED_SHORTFALL_INPUT_LENGTH
+from federated_averaging_oracle import INVALID_RESULT as FEDERATED_AVERAGING_INVALID_RESULT
+from federated_averaging_oracle import MAX_INPUT_LENGTH as MAX_FEDERATED_AVERAGING_INPUT_LENGTH
+from federated_averaging_oracle import expected_result as federated_averaging_expected
 from expected_shortfall_oracle import expected_result as expected_shortfall_expected
 from time_converter_oracle import INVALID_RESULT as TIME_CONVERTER_INVALID_RESULT
 from time_converter_oracle import MAX_INPUT_LENGTH as MAX_TIME_CONVERTER_INPUT_LENGTH
@@ -272,14 +284,43 @@ from pythagoras_oracle import expected_result as pythagoras_expected
 from pow_oracle import INVALID_RESULT as POW_INVALID_RESULT
 from pow_oracle import MAX_INPUT_LENGTH as POW_MAX_INPUT_LENGTH
 from pow_oracle import expected_result as pow_expected
+from symmetric_derivative_oracle import INVALID_RESULT as SYMMETRIC_DERIVATIVE_INVALID_RESULT
+from symmetric_derivative_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH
+from symmetric_derivative_oracle import expected_result as symmetric_derivative_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
 
 
+def finance_ratio_expected(values: list[int], algorithm: str) -> float:
+    """Evaluate the bounded scalar formulas from the Rust finance_ratios module."""
+    invalid = -1e300
+    if algorithm == "return_on_investment":
+        if (len(values) != 2 or not -1_000_000 <= values[0] <= 1_000_000
+                or not 1 <= values[1] <= 1_000_000):
+            return invalid
+        return (float(values[0]) - float(values[1])) / float(values[1])
+    if algorithm == "debt_to_equity":
+        if (len(values) != 2 or not 0 <= values[0] <= 1_000_000
+                or not 1 <= values[1] <= 1_000_000):
+            return invalid
+        return float(values[0]) / float(values[1])
+    if algorithm == "gross_profit_margin":
+        if (len(values) != 2 or not 1 <= values[0] <= 1_000_000
+                or not 0 <= values[1] <= 1_000_000):
+            return invalid
+        return (float(values[0]) - float(values[1])) / float(values[0])
+    if (len(values) != 3 or not -1_000_000 <= values[0] <= 1_000_000
+            or not 0 <= values[1] <= 1_000_000
+            or not 1 <= values[2] <= 1_000_000):
+        return invalid
+    return (float(values[0]) - float(values[1])) / float(values[2])
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
+                        MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH if algorithm == "gaussian_legendre" else
                         MAX_MEDIAN_TWO_ARRAY_INPUT_LENGTH if algorithm == "median_two_array" else
                         MAX_KELLY_CRITERION_INPUT_LENGTH if algorithm == "kelly_criterion" else
                         MAX_PRESENT_VALUE_PARSEABLE_INPUT_LENGTH if algorithm == "present_value" else
@@ -314,6 +355,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "huber_loss" else
                         MAX_HUBER_LOSS_MATH_INPUT_LENGTH
                         if algorithm == "huber_loss_math" else
+                        MAX_FEDERATED_AVERAGING_INPUT_LENGTH if algorithm == "federated_averaging" else
                         MAX_EXPONENTIAL_DIST_INPUT_LENGTH
                         if algorithm == "exponential_dist" else
                         MAX_EXPECTED_SHORTFALL_INPUT_LENGTH
@@ -351,6 +393,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "lorentz_transformation_four_vector" else
                         MAX_LINE_SWEEP_INPUT_LENGTH if algorithm == "line_sweep" else
                         MAX_LEFTIST_HEAP_INPUT_LENGTH if algorithm == "leftist_heap" else
+                        MAX_MACLAURIN_INPUT_LENGTH if algorithm == "maclaurin" else
                         MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH if algorithm == "peak_signal_to_noise_ratio" else
                         MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
                         if algorithm == "lamberts_ellipsoidal_distance" else
@@ -364,6 +407,8 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         IC_555_TIMER_MAX_INPUT_LENGTH if algorithm == "ic_555_timer" else
                         PYTHAGORAS_MAX_INPUT_LENGTH if algorithm == "pythagoras" else
                         POW_MAX_INPUT_LENGTH if algorithm == "pow" else
+                        MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH if algorithm == "extended_kalman_filter" else
+                        MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH if algorithm == "symmetric_derivative" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -433,6 +478,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == GAUSSIAN_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("gaussian expected_result must match the source-ordered density formula")
+    elif algorithm == "gaussian_legendre":
+        source_result = gaussian_legendre_expected(values)
+        if source_result == GAUSSIAN_LEGENDRE_INVALID_RESULT:
+            if expected != GAUSSIAN_LEGENDRE_INVALID_RESULT:
+                raise ValueError("invalid gaussian_legendre inputs must use the -1e300 result sentinel")
+        elif expected == GAUSSIAN_LEGENDRE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-9, abs_tol=1e-9):
+            raise ValueError("gaussian_legendre expected_result must match the pinned quadrature tables")
     elif algorithm == "maclaurin_series":
         source_result = maclaurin_series_expected(values)
         if source_result == MACLAURIN_SERIES_INVALID_RESULT:
@@ -672,6 +725,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-6):
             raise ValueError("lorentz_transformation_four_vector expected_result must match the selected bounded x-boost component")
+    elif algorithm == "extended_kalman_filter":
+        source_result = extended_kalman_filter_expected(values)
+        if source_result == EXTENDED_KALMAN_FILTER_INVALID_RESULT:
+            if expected != EXTENDED_KALMAN_FILTER_INVALID_RESULT:
+                raise ValueError("invalid extended_kalman_filter inputs must use the -1e300 result sentinel")
+        elif expected == EXTENDED_KALMAN_FILTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("extended_kalman_filter expected_result must match the bounded nonlinear EKF trace")
     elif algorithm == "line_sweep":
         source_result = line_sweep_expected(values)
         if source_result == LINE_SWEEP_INVALID_RESULT:
@@ -679,6 +740,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                 raise ValueError("invalid line_sweep inputs must use the -1e300 result sentinel")
         elif expected == LINE_SWEEP_INVALID_RESULT or expected != source_result:
             raise ValueError("line_sweep expected_result must match the pinned inclusive integer range-overlap scan")
+    elif algorithm == "maclaurin":
+        source_result = maclaurin_expected(values)
+        if source_result == MACLAURIN_INVALID_RESULT:
+            if expected != MACLAURIN_INVALID_RESULT:
+                raise ValueError("invalid maclaurin inputs must use the -1e300 result sentinel")
+        elif expected == MACLAURIN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("maclaurin expected_result must match the pinned C# error-threshold wrapper")
     elif algorithm == "leftist_heap":
         source_result = leftist_heap_expected(values)
         if source_result == LEFTIST_HEAP_INVALID_RESULT:
@@ -2166,6 +2235,29 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == POW_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("pow expected_result must match the pinned repeated-multiplication loop")
+    elif algorithm == "federated_averaging":
+        source_result = federated_averaging_expected(values)
+        if source_result == FEDERATED_AVERAGING_INVALID_RESULT:
+            if expected != FEDERATED_AVERAGING_INVALID_RESULT:
+                raise ValueError("invalid federated_averaging inputs must use the -1e300 result sentinel")
+        elif expected == FEDERATED_AVERAGING_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("federated_averaging expected_result must match normalized weighted aggregation")
+    elif algorithm == "symmetric_derivative":
+        source_result = symmetric_derivative_expected(values)
+        if source_result == SYMMETRIC_DERIVATIVE_INVALID_RESULT:
+            if expected != SYMMETRIC_DERIVATIVE_INVALID_RESULT:
+                raise ValueError("invalid symmetric_derivative inputs must use the -1e300 result sentinel")
+        elif expected == SYMMETRIC_DERIVATIVE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-6, abs_tol=1e-3):
+            raise ValueError("symmetric_derivative expected_result must match the pinned centered quotient")
+    elif algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
+        source_result = finance_ratio_expected(values, algorithm)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError(f"invalid {algorithm} inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError(f"{algorithm} expected_result must match the pinned scalar formula")
     return values, float(expected)
 
 

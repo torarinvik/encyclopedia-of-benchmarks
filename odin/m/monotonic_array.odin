@@ -1,10 +1,16 @@
 package monotonic_array
+
 @(export)
-monotonic_array :: proc "c" (v: [^]i64, n: u64) -> i64 {
- if n>256||(v==nil&&n>0) do return -1
- inc,dec:=true,true
- for i:=u64(0);i<n;i+=1{if v[i]<-1000000000||v[i]>1000000000 do return -1}
- for i:=u64(1);i<n;i+=1{if v[i-1]>v[i] do inc=false;if v[i-1]<v[i] do dec=false}
- if inc||dec do return 1
- return 0
+is_monotonic :: proc "c" (values: [^]i64, length: u64) -> i64 {
+    if length > 256 || (values == nil && length != 0) do return -1
+
+    for i := u64(1); i < length; i += 1 {
+        if values[i - 1] > values[i] {
+            for j := u64(1); j < length; j += 1 {
+                if values[j - 1] < values[j] do return 0
+            }
+            return 1
+        }
+    }
+    return 1
 }

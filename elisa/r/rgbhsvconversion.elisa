@@ -1,0 +1,47 @@
+extern floor(x: f64) -> f64
+const INVALID: i64 = -1
+def round_even(x: f64) -> i64:
+    base: i64 = floor(x).i64()
+    fraction: f64 = x - base.f64()
+    if fraction < 0.5: return base
+    if fraction > 0.5: return base + 1
+    if (base & 1) == 0: return base
+    base + 1
+def rgbhsvconversion_impl(v: i64&, n: usize) -> i64:
+    if v.is_null() or n != 4: return INVALID
+    if v[0] == 0:
+        if v[1] < 0 or v[1] > 360000 or v[2] < 0 or v[2] > 1000 or v[3] < 0 or v[3] > 1000: return INVALID
+        hue: f64 = v[1].f64() / 1000.0; saturation: f64 = v[2].f64() / 1000.0; value: f64 = v[3].f64() / 1000.0
+        chroma: f64 = value * saturation; section: f64 = hue / 60.0
+        remainder: f64 = section - floor(section / 2.0) * 2.0
+        second: f64 = chroma * (1.0 - (remainder - 1.0).abs()); match: f64 = value - chroma
+        red: f64; green: f64; blue: f64
+        if section <= 1.0:
+            red <- chroma + match; green <- second + match; blue <- match
+        else if section <= 2.0:
+            red <- second + match; green <- chroma + match; blue <- match
+        else if section <= 3.0:
+            red <- match; green <- chroma + match; blue <- second + match
+        else if section <= 4.0:
+            red <- match; green <- second + match; blue <- chroma + match
+        else if section <= 5.0:
+            red <- second + match; green <- match; blue <- chroma + match
+        else:
+            red <- chroma + match; green <- match; blue <- second + match
+        (round_even(255.0 * red) << 16) | (round_even(255.0 * green) << 8) | round_even(255.0 * blue)
+    else:
+        if v[0] != 1 or v[1] < 0 or v[1] > 255 or v[2] < 0 or v[2] > 255 or v[3] < 0 or v[3] > 255: return INVALID
+        red: f64 = v[1].f64() / 255.0; green: f64 = v[2].f64() / 255.0; blue: f64 = v[3].f64() / 255.0
+        maximum: f64 = red; if green > maximum: maximum <- green; if blue > maximum: maximum <- blue
+        minimum: f64 = red; if green < minimum: minimum <- green; if blue < minimum: minimum <- blue
+        chroma: f64 = maximum - minimum; saturation: f64 = 0.0
+        if maximum != 0.0: saturation <- chroma / maximum
+        hue: mutable f64 = 0.0
+        if chroma != 0.0:
+            if maximum == red: hue <- 60.0 * ((green - blue) / chroma)
+            else if maximum == green: hue <- 60.0 * (2.0 + (blue - red) / chroma)
+            else: hue <- 60.0 * (4.0 + (red - green) / chroma)
+        hue <- hue + 360.0 - floor((hue + 360.0) / 360.0) * 360.0
+        qh: i64 = round_even(hue * 1000.0); qs: i64 = round_even(saturation * 1000000.0); qv: i64 = round_even(maximum * 1000000.0)
+        (qh << 40) | (qs << 20) | qv
+export fn rgbhsvconversion(v: i64&, n: usize) -> i64 = rgbhsvconversion_impl

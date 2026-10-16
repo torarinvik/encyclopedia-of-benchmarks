@@ -1,0 +1,25 @@
+def federated_averaging_impl(input: i64&, length: usize) -> f64:
+    invalid: f64 = -1.0e300
+    if length < 3 or length > 17:
+        return invalid
+    clients_value: i64 = input[0]
+    if clients_value < 1 or clients_value > 8 or length != 1 + (2 * clients_value).usize():
+        return invalid
+    clients: usize = clients_value.usize()
+    total: mutable f64 = 0.0
+    for i in 0..<clients:
+        weight: i64 = input[1 + i]
+        if weight < 0 or weight > 1000:
+            return invalid
+        total <- total + weight.f64()
+    if total <= 0.0:
+        return invalid
+    result: mutable f64 = 0.0
+    for i in 0..<clients:
+        value: i64 = input[1 + clients + i]
+        if value < -1000 or value > 1000:
+            return invalid
+        normalized: f64 = input[1 + i].f64() / total
+        result <- result + normalized * value.f64()
+    result
+export federated_averaging(input: i64&, length: usize) -> f64 = federated_averaging_impl

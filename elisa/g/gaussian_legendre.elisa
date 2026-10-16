@@ -1,0 +1,69 @@
+# Bounded Gauss-Legendre quadrature using the pinned Fortran tables.
+const INVALID_RESULT: f64 = -1.0e300
+
+def gaussian_legendre_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 7: return INVALID_RESULT
+    order: i64 = values[0]
+    if order < 1 or order > 5 or values[1] < -5000 or values[1] > 5000: return INVALID_RESULT
+    if values[2] < -5000 or values[2] > 5000: return INVALID_RESULT
+    index: mutable usize = 3
+    while index < 7:
+        if values[index] < -10000 or values[index] > 10000: return INVALID_RESULT
+        index <- index + 1
+
+    nodes: mutable f64[5] = zeroed
+    weights: mutable f64[5] = zeroed
+    if order == 1:
+        nodes[0] <- 0.0
+        weights[0] <- 2.0
+    if order == 2:
+        nodes[0] <- -0.5773502692
+        nodes[1] <- 0.5773502692
+        weights[0] <- 1.0
+        weights[1] <- 1.0
+    if order == 3:
+        nodes[0] <- -0.7745966692
+        nodes[1] <- 0.0
+        nodes[2] <- 0.7745966692
+        weights[0] <- 0.5555555556
+        weights[1] <- 0.8888888889
+        weights[2] <- 0.5555555556
+    if order == 4:
+        nodes[0] <- -0.8611363116
+        nodes[1] <- -0.3399810436
+        nodes[2] <- 0.3399810436
+        nodes[3] <- 0.8611363116
+        weights[0] <- 0.3478548451
+        weights[1] <- 0.6521451549
+        weights[2] <- 0.6521451549
+        weights[3] <- 0.3478548451
+    if order == 5:
+        nodes[0] <- -0.9061798459
+        nodes[1] <- -0.5384693101
+        nodes[2] <- 0.0
+        nodes[3] <- 0.5384693101
+        nodes[4] <- 0.9061798459
+        weights[0] <- 0.2369268851
+        weights[1] <- 0.4786286705
+        weights[2] <- 0.5688888889
+        weights[3] <- 0.4786286705
+        weights[4] <- 0.2369268851
+
+    a: f64 = values[1].f64() / 1000.0
+    b: f64 = values[2].f64() / 1000.0
+    c0: f64 = values[3].f64() / 1000.0
+    c1: f64 = values[4].f64() / 1000.0
+    c2: f64 = values[5].f64() / 1000.0
+    c3: f64 = values[6].f64() / 1000.0
+    weighted_sum: mutable f64 = 0.0
+    index <- 0
+    while index < order.usize():
+        x: f64 = (b + a) / 2.0 + (b - a) * nodes[index] / 2.0
+        x2: f64 = x * x
+        x3: f64 = x2 * x
+        function_value: f64 = c0 + c1 * x + c2 * x2 + c3 * x3
+        weighted_sum <- weighted_sum + weights[index] * function_value
+        index <- index + 1
+    weighted_sum * (b - a) / 2.0
+
+export fn gaussian_legendre(values: i64&, length: usize) -> f64 = gaussian_legendre_impl

@@ -1,6 +1,15 @@
-export fn monotonic_array(v:[*]const i64,n:usize)i64{
- if(n>256)return -1;var inc=true;var dec=true;
- for(0..n)|i|{if(v[i]<-1000000000 or v[i]>1000000000)return -1;}
- for(1..n)|i|{if(v[i-1]>v[i])inc=false;if(v[i-1]<v[i])dec=false;}
- return if(inc or dec) 1 else 0;
+export fn is_monotonic(values: ?[*]const i64, length: usize) i64 {
+    if (length > 256) return -1;
+    if (values == null) return if (length == 0) 1 else -1;
+    const items = values.?;
+
+    for (1..length) |i| {
+        if (items[i - 1] > items[i]) {
+            for (1..length) |j| {
+                if (items[j - 1] < items[j]) return 0;
+            }
+            return 1;
+        }
+    }
+    return 1;
 }

@@ -1,0 +1,52 @@
+def fresnel_diffract_impl(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_len != 12 or input[0] != 4.0 or input[1] != 1.0 or input[2] != 1.0 or input[3] != 16.0: return -1
+    i: mutable usize = 4
+    j: mutable usize = 0
+    while i < 12:
+        x: f64 = input[i]
+        if x != x or x > 100.0 or x < -100.0: return -1
+        i <- i + 1
+    if output == null or output_capacity < 8: return -2
+    xr: mutable f64[4] = [input[6], input[7], input[4], input[5]]
+    xi: mutable f64[4] = [input[10], input[11], input[8], input[9]]
+    cr: mutable f64[4] = [1.0, 0.0, -1.0, 0.0]
+    si: mutable f64[4] = [0.0, -1.0, 0.0, 1.0]
+    fr: mutable f64[4] = zeroed
+    fi: mutable f64[4] = zeroed
+    k: mutable usize = 0
+    while k < 4:
+        j <- 0
+        while j < 4:
+            t: usize = (k*j) & 3
+            fr[k] <- fr[k] + xr[j]*cr[t] - xi[j]*si[t]
+            fi[k] <- fi[k] + xr[j]*si[t] + xi[j]*cr[t]
+            j <- j+1
+        k <- k+1
+    k <- 1
+    while k < 4:
+        fr[k] <- -fr[k]
+        fi[k] <- -fi[k]
+        k <- k+2
+    zr: mutable f64[4] = zeroed
+    zi: mutable f64[4] = zeroed
+    j <- 0
+    while j < 4:
+        k <- 0
+        while k < 4:
+            t: usize = (k*j) & 3
+            s: f64 = -si[t]
+            zr[j] <- zr[j] + (fr[k]*cr[t]-fi[k]*s)*0.25
+            zi[j] <- zi[j] + (fr[k]*s+fi[k]*cr[t])*0.25
+            k <- k+1
+        j <- j+1
+    output[0] <- zr[2]
+    output[1] <- zr[3]
+    output[2] <- zr[0]
+    output[3] <- zr[1]
+    output[4] <- zi[2]
+    output[5] <- zi[3]
+    output[6] <- zi[0]
+    output[7] <- zi[1]
+    return 8
+
+export fn fresnel_diffract(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64 = fresnel_diffract_impl

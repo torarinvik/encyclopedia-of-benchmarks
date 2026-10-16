@@ -25,9 +25,20 @@ import subprocess
 import sys
 
 from build_abi import ROOT, sha256_file
+from external_merge_sorter_oracle import MAX_INPUT_LENGTH as MAX_EXTERNAL_MERGE_SORTER_INPUT_LENGTH
+from external_merge_sorter_oracle import expected_output as external_merge_sorter_expected_output
+from flip_augmentation_oracle import MAX_INPUT_LENGTH as MAX_FLIP_AUGMENTATION_INPUT_LENGTH
+from flip_augmentation_oracle import expected_output as flip_augmentation_expected_output
+from flatten_multilevel_linked_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_LINKED_LIST_INPUT_LENGTH
+from flatten_multilevel_linked_list_oracle import expected_output as flatten_multilevel_linked_list_expected_output
+from from_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH
+from from_sequence_oracle import expected_output as from_sequence_expected_output
 from trifid_cipher_oracle import expected_output as trifid_cipher_expected_output
+from fft_bluestein_oracle import expected_output as fft_bluestein_expected_output
 from double_point_crossover_oracle import expected_result as double_point_crossover_expected_output
 from dynamicarray_oracle import expected_output as dynamicarray_expected_output
+from fifocache_oracle import MAX_INPUT_LENGTH as MAX_FIFOCACHE_INPUT_LENGTH
+from fifocache_oracle import expected_output as fifocache_expected_output
 from uniform_crossover_oracle import MAX_COUNT as UNIFORM_CROSSOVER_MAX_COUNT
 from uniform_crossover_oracle import expected_result as uniform_crossover_expected_output
 from welsh_powell_oracle import MAX_VALIDATION_LENGTH as MAX_WELSH_POWELL_INPUT_LENGTH
@@ -40,6 +51,14 @@ from word_occurrence_oracle import expected_result as word_occurrence_expected_o
 from word_occurrence_oracle import MAX_INPUT as MAX_WORD_OCCURRENCE_BYTE_LENGTH
 from strip_oracle import MAX_INPUT_LENGTH as MAX_STRIP_INPUT_LENGTH
 from strip_oracle import expected_output as strip_expected_output
+from word_frequency_functions_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_WORD_FREQUENCY_FUNCTIONS_PARSEABLE_INPUT_LENGTH
+from word_frequency_functions_oracle import expected_output as word_frequency_functions_expected_output
+from mean_threshold_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MEAN_THRESHOLD_PARSEABLE_INPUT_LENGTH
+from mean_threshold_oracle import expected_output as mean_threshold_expected_output
+from evaluate_expression_oracle import MAX_PARSEABLE_VALUES as MAX_EVALUATE_EXPRESSION_PARSEABLE_INPUT_LENGTH
+from evaluate_expression_oracle import expected_output as evaluate_expression_expected_output
+from find_month_calendar_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FIND_MONTH_CALENDAR_PARSEABLE_INPUT_LENGTH
+from find_month_calendar_oracle import expected_output as find_month_calendar_expected_output
 from ngram_oracle import MAX_INPUT_LENGTH as MAX_NGRAM_INPUT_LENGTH
 from ngram_oracle import expected_output as ngram_expected_output
 from hilbert_curve_oracle import expected_output as hilbert_curve_expected_output
@@ -95,6 +114,8 @@ from nysiis_encoder_oracle import expected_output as nysiis_encoder_expected_out
 from prefix_function_oracle import MAX_INPUT_LENGTH as PREFIX_FUNCTION_MAX_INPUT_LENGTH
 from prefix_function_oracle import expected_output as prefix_function_expected_output
 from reverse_array_oracle import expected_result as reverse_array_expected
+from lyndon_factorization_oracle import MAX_INPUT_LENGTH as MAX_LYNDON_FACTORIZATION_INPUT_LENGTH
+from lyndon_factorization_oracle import expected_output as lyndon_factorization_expected_output
 from pairwise_iteration_oracle import MAX_INPUT_LENGTH as MAX_PAIRWISE_ITERATION_INPUT_LENGTH
 from pairwise_iteration_oracle import expected_output as pairwise_iteration_expected_output
 from postfix_to_infix_oracle import MAX_INPUT_LENGTH as MAX_POSTFIX_TO_INFIX_INPUT_LENGTH
@@ -400,9 +421,12 @@ MAX_ASCON_DIGEST_INPUT_LENGTH = 4098
 MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 RECORDER_WORKSPACE_ALGORITHMS = {
+    'fifocache',
     'elliptic_curve_key_exchange',
     'iso10126_d2_padding',
     'dynamicarray',
+    'flatten_multilevel_linked_list',
+    'flip_augmentation',
     'double_point_crossover',
     'uniform_crossover',
     'welsh_powell',
@@ -410,9 +434,17 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'words_to_number',
     'word_occurrence',
     'strip',
+    'word_frequency_functions',
+    'mean_threshold',
+    'evaluate_expression',
+    'find_month_calendar',
     'gramian',
     'generate_sub_sets',
+    'generate_subsets_recursive',
+    'gaussian_elimination_pivoting',
+    'gauss_jordan',
     'top_k_frequent_words',
+    'fft_bluestein',
     'jacobi_iteration_method',
     'a1z26_cipher',
     'a1z26_decipher',
@@ -589,6 +621,8 @@ from gramian_oracle import MAX_INPUT_LENGTH as MAX_GRAMIAN_INPUT_LENGTH
 from gramian_oracle import expected_output as gramian_expected_output
 from generate_sub_sets_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GENERATE_SUB_SETS_PARSEABLE_INPUT_LENGTH
 from generate_sub_sets_oracle import expected_output as generate_sub_sets_expected_output
+from generate_subsets_recursive_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GENERATE_SUBSETS_RECURSIVE_PARSEABLE_INPUT_LENGTH
+from generate_subsets_recursive_oracle import expected_output as generate_subsets_recursive_expected_output
 from top_k_frequent_words_oracle import expected_output as top_k_frequent_words_expected_output
 from jacobi_iteration_method_oracle import MAX_INPUT_LENGTH as MAX_JACOBI_ITERATION_METHOD_INPUT_LENGTH
 from jacobi_iteration_method_oracle import expected_output as jacobi_iteration_method_expected_output
@@ -1400,7 +1434,19 @@ def round_half_away_from_zero(value: float) -> int:
     return math.floor(scaled + 0.5) if scaled >= 0.0 else math.ceil(scaled - 0.5)
 
 
+RECORDER_WORKSPACE_ALGORITHMS.add('from_sequence')
+RECORDER_WORKSPACE_ALGORITHMS.add('lyndon_factorization')
+
+
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "flip_augmentation":
+        return flip_augmentation_expected_output(values)
+    if algorithm == "from_sequence":
+        return from_sequence_expected_output(values)
+    if algorithm == "flatten_multilevel_linked_list":
+        return flatten_multilevel_linked_list_expected_output(values)
+    if algorithm == "external_merge_sorter":
+        return external_merge_sorter_expected_output(values)
     if algorithm == "double_point_crossover":
         return double_point_crossover_expected_output(values)
     if algorithm == "uniform_crossover":
@@ -1640,6 +1686,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return gramian_expected_output(values)
     if algorithm == "generate_sub_sets":
         return generate_sub_sets_expected_output(values)
+    if algorithm == "generate_subsets_recursive":
+        return generate_subsets_recursive_expected_output(values)
     if algorithm == "jacobi_iteration_method":
         return jacobi_iteration_method_expected_output(values)
     if algorithm == "gaussian_elimination_pivoting":
@@ -2941,6 +2989,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                     (alive == 1 and neighbors in (2, 3)) or (alive == 0 and neighbors == 3)
                 )
         return len(output), bytes(output)
+
+    if algorithm == "fft_bluestein":
+        return fft_bluestein_expected_output(values)
 
     if algorithm == "fast_fourier_transform":
         if (not isinstance(values, list) or len(values) < 1
@@ -4434,8 +4485,18 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
 
     if algorithm == "dynamicarray":
         return dynamicarray_expected_output(values)
+    if algorithm == "fifocache":
+        return fifocache_expected_output(values)
     if algorithm == "strip":
         return strip_expected_output(values)
+    if algorithm == "word_frequency_functions":
+        return word_frequency_functions_expected_output(values)
+    if algorithm == "mean_threshold":
+        return mean_threshold_expected_output(values)
+    if algorithm == "evaluate_expression":
+        return evaluate_expression_expected_output(values)
+    if algorithm == "find_month_calendar":
+        return find_month_calendar_expected_output(values)
 
     if algorithm == "decimal_to_fraction":
         if (not isinstance(values, list) or len(values) != 2
@@ -7964,6 +8025,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
     if algorithm == "reverse_array":
         result, output = reverse_array_expected(values)
         return result, output
+
+    if algorithm == "lyndon_factorization":
+        return lyndon_factorization_expected_output(values)
 
     if algorithm == "pairwise_iteration":
         return pairwise_iteration_expected_output(values)
@@ -11935,7 +11999,11 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = case.get("input_values")
-        max_input_length = (MAX_IIR_FILTER_INPUT_LENGTH if algorithm == "iir_filter" else
+        max_input_length = (MAX_EXTERNAL_MERGE_SORTER_INPUT_LENGTH if algorithm == "external_merge_sorter" else
+                            MAX_FLIP_AUGMENTATION_INPUT_LENGTH if algorithm == "flip_augmentation" else
+                            MAX_FLATTEN_MULTILEVEL_LINKED_LIST_INPUT_LENGTH if algorithm == "flatten_multilevel_linked_list" else
+                            MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH if algorithm == "from_sequence" else
+                            MAX_IIR_FILTER_INPUT_LENGTH if algorithm == "iir_filter" else
                             MAX_RGB_CMYK_CONVERSION_INPUT_LENGTH if algorithm == "rgb_cmyk_conversion" else
                             MAX_HSV_TO_RGB_CONVERSION_INPUT_LENGTH if algorithm == "hsv_to_rgb_conversion" else
                             MAX_RGB_HSV_CONVERSION_INPUT_LENGTH if algorithm == "rgb_hsv_conversion" else
@@ -11960,9 +12028,15 @@ def main() -> int:
                             MAX_WUS_LINE_INPUT_LENGTH if algorithm == "wus_line" else
                             MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1 if algorithm == "words_to_number" else
                             MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1 if algorithm == "word_occurrence" else
+                            MAX_LYNDON_FACTORIZATION_INPUT_LENGTH if algorithm == "lyndon_factorization" else
                             MAX_STRIP_INPUT_LENGTH if algorithm == "strip" else
+                            MAX_WORD_FREQUENCY_FUNCTIONS_PARSEABLE_INPUT_LENGTH if algorithm == "word_frequency_functions" else
+                            MAX_MEAN_THRESHOLD_PARSEABLE_INPUT_LENGTH if algorithm == "mean_threshold" else
+                            MAX_EVALUATE_EXPRESSION_PARSEABLE_INPUT_LENGTH if algorithm == "evaluate_expression" else
+                            MAX_FIND_MONTH_CALENDAR_PARSEABLE_INPUT_LENGTH if algorithm == "find_month_calendar" else
                             MAX_GRAMIAN_INPUT_LENGTH if algorithm == "gramian" else
                             MAX_GENERATE_SUB_SETS_PARSEABLE_INPUT_LENGTH if algorithm == "generate_sub_sets" else
+                            MAX_GENERATE_SUBSETS_RECURSIVE_PARSEABLE_INPUT_LENGTH if algorithm == "generate_subsets_recursive" else
                             MAX_JACOBI_ITERATION_METHOD_INPUT_LENGTH if algorithm == "jacobi_iteration_method" else
                             MAX_GAUSSIAN_ELIMINATION_PIVOTING_INPUT_LENGTH if algorithm == "gaussian_elimination_pivoting" else
                             MAX_GAUSS_JORDAN_INPUT_LENGTH if algorithm == "gauss_jordan" else
@@ -12136,6 +12210,7 @@ def main() -> int:
                             25 if algorithm == "xtea" else
                             18 if algorithm == "ipv6_converter" else
                             34 if algorithm == "hamming_code" else
+                            MAX_FIFOCACHE_INPUT_LENGTH if algorithm == "fifocache" else
                             MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -12164,12 +12239,22 @@ def main() -> int:
         )
         if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
             raise ValueError(f"invalid output capacity in {case['id']}")
-        if algorithm == "compress":
+        if algorithm == "generate_subsets_recursive":
+            expected_count, expected = generate_subsets_recursive_expected_output(values, output_capacity)
+        elif algorithm == "compress":
             expected_count, expected = compress_expected_output(values, output_capacity)
         elif algorithm == "union_of_two_arrays":
             first_length = values[0] if values else -1
             second_position = 1 + first_length if type(first_length) is int and first_length >= 0 else len(values)
             required_capacity = (first_length + values[second_position]) * 4 if second_position < len(values) else 0
+            if required_count == -1:
+                expected_count, expected = -1, b""
+            elif output_capacity < required_capacity:
+                expected_count, expected = -2, b""
+            else:
+                expected_count, expected = required_count, required_output
+        elif algorithm == "lyndon_factorization":
+            required_capacity = 2 * values[0] if values and type(values[0]) is int and 0 <= values[0] <= 256 else 0
             if required_count == -1:
                 expected_count, expected = -1, b""
             elif output_capacity < required_capacity:

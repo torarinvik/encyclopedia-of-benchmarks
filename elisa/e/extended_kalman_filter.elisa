@@ -1,0 +1,54 @@
+export fn extended_kalman_filter(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 10 or length > 17: return -1.0e300
+    steps: i64 = values[0]
+    if steps < 1 or steps > 8 or length != (9 + steps).usize(): return -1.0e300
+    index: mutable usize = 1
+    while index < 9:
+        if values[index] < -10000 or values[index] > 10000: return -1.0e300
+        index <- index + 1
+    index <- 9
+    while index < length:
+        if values[index] < -10000 or values[index] > 10000: return -1.0e300
+        index <- index + 1
+    x: mutable f64 = values[1].f64() / 1000.0
+    y: mutable f64 = values[2].f64() / 1000.0
+    p00: mutable f64 = values[3].f64() / 1000.0
+    p01: mutable f64 = values[4].f64() / 1000.0
+    p11: mutable f64 = values[5].f64() / 1000.0
+    q0: f64 = values[6].f64() / 1000.0
+    q1: f64 = values[7].f64() / 1000.0
+    r: f64 = values[8].f64() / 1000.0
+    if values[1] < -2000 or values[1] > 2000 or values[2] < -2000 or values[2] > 2000 or p00 <= 0.0 or p11 <= 0.0 or p00 * p11 <= p01 * p01 or q0 < 0.0 or q1 < 0.0 or r <= 0.0 or r > 10.0: return -1.0e300
+    t: mutable usize = 0
+    while t < steps.usize():
+        f10: f64 = 0.1 * x
+        nx: f64 = x + 0.1 * y
+        ny: f64 = y + 0.05 * x * x
+        a: f64 = p00 + 0.2 * p01 + 0.01 * p11 + q0
+        b: f64 = f10 * p00 + (1.0 + 0.1 * f10) * p01 + 0.1 * p11
+        c: f64 = f10 * f10 * p00 + 2.0 * f10 * p01 + p11 + q1
+        x <- nx
+        y <- ny
+        p00 <- a
+        p01 <- b
+        p11 <- c
+        h0: f64 = 0.1 * x
+        residual: f64 = values[9 + t].f64() / 1000.0 - (0.05 * x * x + y)
+        innovation_covariance: f64 = h0 * h0 * p00 + 2.0 * h0 * p01 + p11 + r
+        if innovation_covariance <= 0.0: return -1.0e300
+        k0: f64 = (p00 * h0 + p01) / innovation_covariance
+        k1: f64 = (p01 * h0 + p11) / innovation_covariance
+        x <- x + k0 * residual
+        y <- y + k1 * residual
+        a00: f64 = 1.0 - k0 * h0
+        a01: f64 = -k0
+        a10: f64 = -k1 * h0
+        a11: f64 = 1.0 - k1
+        z00: f64 = a00 * a00 * p00 + 2.0 * a00 * a01 * p01 + a01 * a01 * p11 + k0 * k0 * r
+        z01: f64 = a00 * a10 * p00 + (a00 * a11 + a01 * a10) * p01 + a01 * a11 * p11 + k0 * k1 * r
+        z11: f64 = a10 * a10 * p00 + 2.0 * a10 * a11 * p01 + a11 * a11 * p11 + k1 * k1 * r
+        p00 <- z00
+        p01 <- z01
+        p11 <- z11
+        t <- t + 1
+    return x

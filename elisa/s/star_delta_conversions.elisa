@@ -1,0 +1,27 @@
+extern floor(x: f64) -> f64
+const INVALID: i64 = -1
+def star_delta_conversions_impl(v: i64&, n: usize) -> i64:
+    if v.is_null() or n != 4 or (v[0] != 0 and v[0] != 1): return INVALID
+    i: mutable usize = 1
+    while i < 4:
+        if v[i] < 1000 or v[i] > 100000: return INVALID
+        i <- i + 1
+    a: f64 = v[1].f64(); b: f64 = v[2].f64(); c: f64 = v[3].f64()
+    out: f64[3]
+    if v[0] == 0:
+        pair_sum: f64 = a * b + b * c + c * a
+        out = [pair_sum / a, pair_sum / b, pair_sum / c]
+    else:
+        total: f64 = a + b + c
+        out = [b * c / total, c * a / total, a * b / total]
+    h: mutable u64 = 14695981039346656037.u64()
+    for value in out:
+        q: i64 = floor(value + 0.5).i64()
+        bits: u64 = q.u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            byte: u64 = (bits >> (8 * byte_index)) & 255.u64()
+            h <- (h ^ byte) * 1099511628211.u64()
+            byte_index <- byte_index + 1
+    h.i64()
+export fn star_delta_conversions(v: i64&, n: usize) -> i64 = star_delta_conversions_impl

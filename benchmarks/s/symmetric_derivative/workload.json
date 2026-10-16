@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "symmetric-derivative-default-step-sin-exp-i64-f64-v1",
+  "algorithm": "symmetric_derivative",
+  "function_symbol": "symmetric_derivative",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[function_id, x_nanounits], x = x_nanounits / 1e9",
+    "valid_length": 2,
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "function_ids": {
+      "0": "sin",
+      "1": "exp"
+    },
+    "x_nanounits_range": [
+      -6300000000,
+      6300000000
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "(f(x+h) - f(x-h)) / (2*h), where f is the selected callback and h is the source default 1e-10",
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 0.001,
+    "relative_tolerance": 1e-06
+  },
+  "source_bound": {
+    "source": "TheAlgorithms/Dart maths/symmetric_derivative.dart at 73da8ab4ea413eee9bf29aa2263157d86060f871",
+    "callback_domain": "The source main demonstrates sin and exp; the benchmark fixes that callable family to sin (function id 0) and exp (function id 1).",
+    "step": "The optional source parameter is fixed to its default h=1e-10.",
+    "x_normalization": "The signed integer x_nanounits is divided by 1e9 to form x; its magnitude is at most 6.3e9, below the exact-integer limit 2^53 for binary64.",
+    "formula": "Evaluate the selected callback at x+h and x-h and divide their difference by 2*h."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 0.001,
+    "relative_tolerance": 1e-06,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "sin_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "sin_negative_one",
+      "input_values": [
+        0,
+        -1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.5403022473871033
+    },
+    {
+      "id": "sin_one",
+      "input_values": [
+        0,
+        1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.5403022473871033
+    },
+    {
+      "id": "sin_domain_low",
+      "input_values": [
+        0,
+        -6300000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.9998587027770789
+    },
+    {
+      "id": "sin_domain_high",
+      "input_values": [
+        0,
+        6300000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.9998587027770789
+    },
+    {
+      "id": "pinned_sin_pi",
+      "input_values": [
+        0,
+        3141592654
+      ],
+      "input_length": 2,
+      "expected_result": -1.0000000827403712
+    },
+    {
+      "id": "pinned_sin_two_pi",
+      "input_values": [
+        0,
+        6283185307
+      ],
+      "input_length": 2,
+      "expected_result": 1.000000082740371
+    },
+    {
+      "id": "exp_zero",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1.000000082740371
+    },
+    {
+      "id": "exp_negative_one",
+      "input_values": [
+        1,
+        -1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.3678796156592057
+    },
+    {
+      "id": "exp_one",
+      "input_values": [
+        1,
+        1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 2.7182811557224795
+    },
+    {
+      "id": "pinned_exp_three",
+      "input_values": [
+        1,
+        3000000000
+      ],
+      "input_length": 2,
+      "expected_result": 20.085551000192936
+    },
+    {
+      "id": "exp_domain_low",
+      "input_values": [
+        1,
+        -6300000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.001836304545921319
+    },
+    {
+      "id": "exp_domain_high",
+      "input_values": [
+        1,
+        6300000000
+      ],
+      "input_length": 2,
+      "expected_result": 544.5718898045016
+    },
+    {
+      "id": "malformed_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_x",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_value",
+      "input_values": [
+        0,
+        1000000000,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_function_id",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_function_id",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_below_domain",
+      "input_values": [
+        0,
+        -6300000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_above_domain",
+      "input_values": [
+        1,
+        6300000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

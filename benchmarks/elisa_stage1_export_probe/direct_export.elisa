@@ -1,0 +1,8 @@
+export fn dsa_verify(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1: return -1
+    value: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        value <- value + input[index]
+        index <- index + 1
+    return value

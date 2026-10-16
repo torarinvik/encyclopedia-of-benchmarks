@@ -2,37 +2,50 @@ const OPEN: i64 = -9223372036854775808
 const CLOSE: i64 = -9223372036854775807
 const OFFSET: u64 = 14695981039346656037
 const PRIME: u64 = 1099511628211
-fn flatten_nested_list_signed_hash(h: u64) -> i64:
-    sign: u64 = 9223372036854775808.u64()
-    if h < sign: return h.i64()
-    magnitude: u64 = 18446744073709551615.u64() - h + 1.u64()
-    if magnitude == sign: return -9223372036854775807 - 1
+
+def flatten_nested_list_signed_hash(h: u64) -> i64:
+    sign: u64 = 9223372036854775808
+    if h < sign:
+        return h.i64()
+    magnitude: u64 = 18446744073709551615 - h + 1
+    if magnitude == sign:
+        return -9223372036854775807 - 1
     -magnitude.i64()
+
 def flatten_nested_list_impl(v: i64&, n: usize) -> i64:
-    if v.is_null() or n == 0 or n > 255 or v[0] != OPEN: return -1
-    depth: mutable usize = 0; closed: mutable bool = false; h: mutable u64 = OFFSET
+    if v == null or n == 0 or n > 255 or v[0] != OPEN:
+        return -1
+    depth: mutable usize = 0
+    closed: mutable bool = false
+    h: mutable u64 = OFFSET
     i: mutable usize = 0
     while i < n:
         x: i64 = v[i]
         if x == OPEN:
-            if closed or (depth == 0 and i != 0): return -1
+            if closed or (depth == 0 and i != 0):
+                return -1
             depth <- depth + 1
-            if depth > 16: return -1
-        else if x == CLOSE:
-            if depth == 0: return -1
+            if depth > 16:
+                return -1
+        elif x == CLOSE:
+            if depth == 0:
+                return -1
             depth <- depth - 1
             if depth == 0:
                 closed <- true
-                if i + 1 != n: return -1
+                if i + 1 != n:
+                    return -1
         else:
-            if depth == 0 or x < -1000000 or x > 1000000: return -1
+            if depth == 0 or x < -1000000 or x > 1000000:
+                return -1
             bits: u64 = x.u64()
             b: mutable usize = 0
             while b < 8:
-                byte: u64 = (bits >> (8 * b)) & 255.u64()
+                byte: u64 = (bits >> (8 * b)) & 255
                 h <- (h ^ byte) * PRIME
                 b <- b + 1
         i <- i + 1
-    if depth != 0 or not closed: return -1
+    if depth != 0 or not closed:
+        return -1
     flatten_nested_list_signed_hash(h)
-export fn flatten_nested_list(v: i64&, n: usize) -> i64 = flatten_nested_list_impl
+export flatten_nested_list(v: i64&, n: usize) -> i64 = flatten_nested_list_impl

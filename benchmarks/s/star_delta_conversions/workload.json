@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "python-star-delta-conversions-i64-array-i64-v1",
+  "algorithm": "star_delta_conversions",
+  "function_symbol": "star_delta_conversions",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation, A, B, C], where operation 0 is star-to-delta and 1 is delta-to-star; impedances are positive fixed-thousandths",
+    "entry_range": [
+      0,
+      100000
+    ],
+    "maximum_input_length": 4,
+    "impedance_range": [
+      1000,
+      100000
+    ]
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "signed FNV-1a 64-bit hash of the three converted impedances rounded to thousandths and encoded as 8-byte little-endian signed values; -1 is invalid",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Positive real impedances only; formulas and output order follow the pinned Python functions. Complex impedance and source exceptions for invalid inputs are outside this bounded contract."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "star_symmetric",
+      "input_values": [
+        0,
+        2000,
+        2000,
+        2000
+      ],
+      "expected_result": 6576351264089129288
+    },
+    {
+      "id": "star_unequal",
+      "input_values": [
+        0,
+        2000,
+        1000,
+        1000
+      ],
+      "expected_result": 3403786271227545358
+    },
+    {
+      "id": "delta_unequal",
+      "input_values": [
+        1,
+        3000,
+        5000,
+        7000
+      ],
+      "expected_result": -7832045367107755539
+    },
+    {
+      "id": "delta_symmetric",
+      "input_values": [
+        1,
+        6000,
+        6000,
+        6000
+      ],
+      "expected_result": 2442950743918923320
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        2,
+        3000,
+        4000,
+        5000
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_zero_impedance",
+      "input_values": [
+        0,
+        0,
+        4000,
+        5000
+      ],
+      "expected_result": -1
+    }
+  ]
+}

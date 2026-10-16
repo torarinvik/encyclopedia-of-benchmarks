@@ -8,6 +8,8 @@ The scalar result is the signed FNV-1a 64-bit hash of the flattened leaves, each
 
 The pinned Clojure file provides both a recursive `flatten-1` and a tail-recursive `flatten-2`. Both recursively splice collections and produce the same left-to-right leaf sequence. The package implements the shared sequence behavior; it does not benchmark Clojure collection allocation.
 
+This is distinct from `flatten_multilevel_linked_list`, which rewires child-linked nodes, and `flatten_binarytree_to_linkedlist`, which changes a binary tree into a rightward chain. Here the input is an arbitrarily nested list tree and the operation emits its scalar leaves in depth-first order.
+
 The C ABI entry point is:
 
 ```c

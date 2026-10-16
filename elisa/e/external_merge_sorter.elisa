@@ -1,0 +1,77 @@
+# Bottom-up merge passes over two bounded buffers, modeling sequential stores.
+const MAX_VALUES: usize = 4096
+
+def merge_pass(source: i64&, destination: mutable i64&, length: usize, width: usize) -> void:
+    start: mutable usize = 0
+    while start < length:
+        middle: mutable usize = start + width
+        if middle > length:
+            middle <- length
+        end_index: mutable usize = middle + width
+        if end_index > length:
+            end_index <- length
+        left: mutable usize = start
+        right: mutable usize = middle
+        output_index: mutable usize = start
+        while left < middle and right < end_index:
+            if source[left] < source[right]:
+                destination[output_index] <- source[left]
+                left <- left + 1
+            else:
+                destination[output_index] <- source[right]
+                right <- right + 1
+            output_index <- output_index + 1
+        while left < middle:
+            destination[output_index] <- source[left]
+            left <- left + 1
+            output_index <- output_index + 1
+        while right < end_index:
+            destination[output_index] <- source[right]
+            right <- right + 1
+            output_index <- output_index + 1
+        start <- start + width * 2
+
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+        byte <- byte + 1
+
+def external_merge_sorter_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length > MAX_VALUES or (length != 0 and input.is_null()):
+        return -1
+    output_bytes: usize = length * 8
+    if output.is_null() or output_capacity < output_bytes:
+        return -2
+
+    primary: mutable i64[MAX_VALUES] = zeroed
+    temporary: mutable i64[MAX_VALUES] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        primary[index] <- input[index]
+        index <- index + 1
+    source_is_primary: mutable bool = true
+    width: mutable usize = 1
+    while width < length:
+        if source_is_primary:
+            merge_pass(&primary[0], &temporary[0], length, width)
+        else:
+            merge_pass(&temporary[0], &primary[0], length, width)
+        source_is_primary <- not source_is_primary
+        if width > length / 2:
+            break
+        width <- width * 2
+
+    index <- 0
+    while index < length:
+        if source_is_primary:
+            store_i64_le(primary[index], output, index * 8)
+        else:
+            store_i64_le(temporary[index], output, index * 8)
+        index <- index + 1
+    output_bytes.i64()
+
+export fn external_merge_sorter(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = external_merge_sorter_impl

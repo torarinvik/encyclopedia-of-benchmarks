@@ -1,0 +1,47 @@
+def append_i64(buffer: mutable u8&, position: usize, value: i64) -> usize:
+    digits: mutable u8[20]
+    digit_count: mutable i64 = 0
+    magnitude: mutable u64 = if value < 0: (-(value+1)).u64()+1 else: value.u64()
+    while true:
+        digits[digit_count] <- (48+(magnitude%10).i64()).u8()
+        digit_count <- digit_count+1
+        magnitude <- magnitude/10
+        if magnitude == 0: break
+    p: mutable usize = position
+    buffer[p] <- 60
+    p <- p+1
+    if value < 0:
+        buffer[p] <- 45
+        p <- p+1
+    while digit_count > 0:
+        digit_count <- digit_count-1
+        buffer[p] <- digits[digit_count]
+        p <- p+1
+    buffer[p] <- 62
+    p <- p+1
+    buffer[p] <- 32
+    buffer[p+1] <- 45
+    buffer[p+2] <- 45
+    buffer[p+3] <- 45
+    buffer[p+4] <- 62
+    buffer[p+5] <- 32
+    p+6
+
+def from_sequence_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 2 or length > 129: return -1
+    count: i64 = v[0]
+    if count < 1 or count > 128 or length != (count+1).usize(): return -1
+    buffer: mutable u8[3589]
+    position: mutable usize = 0
+    for i in 0..count: position <- append_i64(buffer, position, v[i+1])
+    buffer[position] <- 60
+    buffer[position+1] <- 69
+    buffer[position+2] <- 78
+    buffer[position+3] <- 68
+    buffer[position+4] <- 62
+    position <- position+5
+    if out.is_null() or capacity < position: return -2
+    for i in 0..position: out[i] <- buffer[i]
+    position.i64()
+
+export from_sequence(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = from_sequence_impl

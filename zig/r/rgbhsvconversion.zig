@@ -1,0 +1,7 @@
+fn re(x:f64)i64{const f=@floor(x);const q:i64=@intFromFloat(f);const d=x-f;if(d<0.5)return q;if(d>0.5)return q+1;return if((q&1)==0)q else q+1;}
+export fn rgbhsvconversion(v:?[*]const i64,n:usize)i64{
+ if(v==null or n!=4)return -1;
+ const input=v.?;
+ if(input[0]==0){if(input[1]<0 or input[1]>360000 or input[2]<0 or input[2]>1000 or input[3]<0 or input[3]>1000)return -1;const h=@as(f64,@floatFromInt(input[1]))/1000.0;const s=@as(f64,@floatFromInt(input[2]))/1000.0;const value=@as(f64,@floatFromInt(input[3]))/1000.0;const c=value*s;const sec=h/60.0;const rem=sec-@floor(sec/2.0)*2.0;const x=c*(1.0-@abs(rem-1.0));const m=value-c;var r:f64=0;var g:f64=0;var b:f64=0;if(sec<=1){r=c+m;g=x+m;b=m;}else if(sec<=2){r=x+m;g=c+m;b=m;}else if(sec<=3){r=m;g=c+m;b=x+m;}else if(sec<=4){r=m;g=x+m;b=c+m;}else if(sec<=5){r=x+m;g=m;b=c+m;}else{r=c+m;g=m;b=x+m;}return(re(255*r)<<16)|(re(255*g)<<8)|re(255*b);}
+ if(input[0]!=1 or input[1]<0 or input[1]>255 or input[2]<0 or input[2]>255 or input[3]<0 or input[3]>255)return -1;const r=@as(f64,@floatFromInt(input[1]))/255.0;const g=@as(f64,@floatFromInt(input[2]))/255.0;const b=@as(f64,@floatFromInt(input[3]))/255.0;const mx=@max(r,@max(g,b));const mn=@min(r,@min(g,b));const c=mx-mn;const s=if(mx==0) 0.0 else c/mx;var h:f64=0;if(c==0){h=0;}else if(mx==r){h=60*((g-b)/c);}else if(mx==g){h=60*(2+(b-r)/c);}else{h=60*(4+(r-g)/c);}h=h+360-@floor((h+360)/360.0)*360.0;const qh=re(h*1000);const qs=re(s*1000000);const qv=re(mx*1000000);return(qh<<40)|(qs<<20)|qv;
+}

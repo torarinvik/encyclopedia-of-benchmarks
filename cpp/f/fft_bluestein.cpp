@@ -1,0 +1,10 @@
+#include <math.h>
+#include <stddef.h>
+#include <stdint.h>
+extern "C" {
+static void store64(uint8_t *o,size_t p,int64_t v){uint64_t x=(uint64_t)v;for(size_t b=0;b<8;b++){o[p+b]=(uint8_t)x;x>>=8;}}
+static int64_t quant(double x){double z=x*1000000.0;return (int64_t)(z>=0?floor(z+0.5):ceil(z-0.5));}
+static void fft(double *r,double *im,size_t n,int inv){size_t j=0;for(size_t i=1;i<n;i++){size_t bit=n>>1;while(j&bit){j^=bit;bit>>=1;}j^=bit;if(i<j){double t=r[i];r[i]=r[j];r[j]=t;t=im[i];im[i]=im[j];im[j]=t;}}for(size_t len=2;len<=n;len*=2){double a=(inv?1:-1)*6.2831853071795864769/(double)len,cr=cos(a),ci=sin(a);for(size_t s=0;s<n;s+=len){double wr=1,wi=0;for(size_t k=0;k<len/2;k++){size_t u=s+k,v=u+len/2;double pr=wr*r[v]-wi*im[v],pi=wr*im[v]+wi*r[v],ur=r[u],ui=im[u];r[u]=ur+pr;im[u]=ui+pi;r[v]=ur-pr;im[v]=ui-pi;double nr=wr*cr-wi*ci;wi=wr*ci+wi*cr;wr=nr;}}}if(inv)for(size_t i=0;i<n;i++){r[i]/=(double)n;im[i]/=(double)n;}}
+int64_t fft_bluestein(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<2||n>9)return -1;int64_t m=v[0];if(m<1||m>8||n!=(size_t)m+1)return -1;for(int i=0;i<m;i++)if(v[i+1]<-8||v[i+1]>8)return -1;size_t z=1,need=(size_t)(3*m-2);while(z<need)z*=2;size_t bytes=(size_t)m*16;if(!out||cap<bytes)return -2;double ar[32]={0},ai[32]={0},br[32]={0},bi[32]={0};double pi=3.14159265358979323846;for(int j=0;j<m;j++){double a=-pi*(double)j*(double)j/(double)m;ar[j]=(double)v[j+1]*cos(a);ai[j]=(double)v[j+1]*sin(a);}for(int k=-(m-1);k<=m-1;k++){double a=pi*(double)k*(double)k/(double)m;size_t ix=(size_t)(k+m-1);br[ix]=cos(a);bi[ix]=sin(a);}fft(ar,ai,z,0);fft(br,bi,z,0);for(size_t i=0;i<z;i++){double x=ar[i]*br[i]-ai[i]*bi[i];ai[i]=ar[i]*bi[i]+ai[i]*br[i];ar[i]=x;}fft(ar,ai,z,1);for(int k=0;k<m;k++){double a=-pi*(double)k*(double)k/(double)m,cr=cos(a),ci=sin(a);double re=ar[k+m-1]*cr-ai[k+m-1]*ci,im=ar[k+m-1]*ci+ai[k+m-1]*cr;store64(out,16*k,quant(re));store64(out,16*k+8,quant(im));}return (int64_t)bytes;}
+
+}

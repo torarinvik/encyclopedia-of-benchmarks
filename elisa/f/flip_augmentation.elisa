@@ -1,0 +1,68 @@
+# Flip grayscale pixels and reflect normalized bounding-box centers.
+const MAX_INPUT_LENGTH: usize = 340
+const MAX_OUTPUT_BYTES: usize = 576
+const COORDINATE_SCALE: i64 = 1000000
+
+def store_i32_le(value: i32, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255.u32()).u8()
+        byte <- byte + 1
+
+def flip_augmentation_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    width_value: i64 = values[0]
+    height_value: i64 = values[1]
+    flip_type_value: i64 = values[2]
+    box_count_value: i64 = values[3]
+    if width_value < 1 or width_value > 16 or height_value < 1 or height_value > 16: return -1
+    if (flip_type_value != 0 and flip_type_value != 1) or box_count_value < 0 or box_count_value > 16: return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    flip_type: usize = flip_type_value.usize()
+    box_count: usize = box_count_value.usize()
+    pixel_count: usize = width * height
+    if length != 4 + pixel_count + 5 * box_count: return -1
+    index: mutable usize = 0
+    while index < pixel_count:
+        pixel: i64 = values[4 + index]
+        if pixel < 0 or pixel > 255: return -1
+        index <- index + 1
+    box: mutable usize = 0
+    while box < box_count:
+        base: usize = 4 + pixel_count + 5 * box
+        if values[base] < 0 or values[base] > 2147483647: return -1
+        field: mutable usize = 1
+        while field < 5:
+            coordinate: i64 = values[base + field]
+            if coordinate < 0 or coordinate > COORDINATE_SCALE: return -1
+            field <- field + 1
+        box <- box + 1
+
+    output_bytes: usize = pixel_count + 20 * box_count
+    if output.is_null() or output_capacity < output_bytes: return -2
+    row: mutable usize = 0
+    while row < height:
+        column: mutable usize = 0
+        while column < width:
+            source_row: usize = if flip_type == 0: height - 1 - row else: row
+            source_column: usize = if flip_type == 1: width - 1 - column else: column
+            output[row * width + column] <- values[4 + source_row * width + source_column].u8()
+            column <- column + 1
+        row <- row + 1
+    box <- 0
+    while box < box_count:
+        base: usize = 4 + pixel_count + 5 * box
+        output_base: usize = pixel_count + 20 * box
+        field <- 0
+        while field < 5:
+            value: mutable i64 = values[base + field]
+            if flip_type == 1 and field == 1: value <- COORDINATE_SCALE - value
+            if flip_type == 0 and field == 2: value <- COORDINATE_SCALE - value
+            store_i32_le(value.i32(), output, output_base + 4 * field)
+            field <- field + 1
+        box <- box + 1
+    output_bytes.i64()
+
+export fn flip_augmentation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = flip_augmentation_impl

@@ -23,7 +23,9 @@ _Static_assert(sizeof(double) == sizeof(uint64_t) && DBL_MANT_DIG == 53 && DBL_M
 
 static int read_f64(double *value)
 {
-    return scanf("%lf", value) == 1 && isfinite(*value);
+    /* Inputs may include NaN or infinity so implementations can reject them
+       according to their own ABI contract. */
+    return scanf("%lf", value) == 1;
 }
 
 static int read_expected_f64(double *value)

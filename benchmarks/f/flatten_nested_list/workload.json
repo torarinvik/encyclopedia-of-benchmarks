@@ -22,7 +22,7 @@
     "description": "Equivalent leaf order of the pinned Clojure recursive flatten-1 and tail-recursive flatten-2; collections flatten recursively, leaves preserve left-to-right order."
   },
   "measurement": {
-    "comparison_model": "scalar_call",
+    "comparison_model": "i64_array_scalar_call",
     "absolute_tolerance": 0,
     "relative_tolerance": 0,
     "sample_count": 7,

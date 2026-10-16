@@ -1,8 +1,18 @@
 module monotonic_array;
-fn long monotonic_array(long* v, ulong n) @export("monotonic_array") {
- if(n>256||(v==null&&n>0))return -1;
- bool inc=true,dec=true;
- for(ulong i=0;i<n;i++)if(v[i]<-1000000000||v[i]>1000000000)return -1;
- for(ulong i=1;i<n;i++){if(v[i-1]>v[i])inc=false;if(v[i-1]<v[i])dec=false;}
- return inc||dec;
+
+fn long is_monotonic(long* values, ulong length) @export("is_monotonic") {
+    if (length > 256 || (values == null && length != 0)) {
+        return -1;
+    }
+    for (ulong i = 1; i < length; i++) {
+        if (values[i - 1] > values[i]) {
+            for (ulong j = 1; j < length; j++) {
+                if (values[j - 1] < values[j]) {
+                    return 0;
+                }
+            }
+            return 1;
+        }
+    }
+    return 1;
 }

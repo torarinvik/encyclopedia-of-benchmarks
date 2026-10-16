@@ -57,6 +57,8 @@ from linear_recurrence_matrix_oracle import expected_result as linear_recurrence
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
+from erosion_operation_oracle import MAX_INPUT_LENGTH as MAX_EROSION_OPERATION_INPUT_LENGTH
+from erosion_operation_oracle import expected_result as erosion_operation_expected
 from edmonds_oracle import expected_result as edmonds_expected
 from enigma_machine2_oracle import MAX_INPUT_LENGTH as MAX_ENIGMA_MACHINE2_INPUT_LENGTH
 from enigma_machine2_oracle import expected_result as enigma_machine2_expected
@@ -122,6 +124,14 @@ from flatten_nested_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_NESTED_LI
 from flatten_nested_list_oracle import expected_result as flatten_nested_list_expected
 from monotonic_array_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_ARRAY_INPUT_LENGTH
 from monotonic_array_oracle import expected_result as monotonic_array_expected
+from star_delta_conversions_oracle import MAX_INPUT_LENGTH as MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH
+from star_delta_conversions_oracle import expected_result as star_delta_conversions_expected
+from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
+from submatrix_oracle import expected_result as submatrix_expected
+from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
+from first_fundamental_form_oracle import expected_result as first_fundamental_form_expected
+from rgbhsvconversion_oracle import MAX_INPUT_LENGTH as MAX_RGBHSVCONVERSION_INPUT_LENGTH
+from rgbhsvconversion_oracle import expected_result as rgbhsvconversion_expected
 from two_pointer_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTER_INPUT_LENGTH
 from two_pointer_oracle import expected_result as two_pointer_expected
 from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
@@ -833,6 +843,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
                         MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
+                        MAX_EROSION_OPERATION_INPUT_LENGTH if algorithm == "erosion_operation" else
                         MAX_EDMONDS_INPUT_LENGTH if algorithm == "edmonds" else
                         MAX_ENIGMA_MACHINE2_INPUT_LENGTH if algorithm == "enigma_machine2" else
                         MAX_EQUAL_LOUDNESS_FILTER_INPUT_LENGTH if algorithm == "equal_loudness_filter" else
@@ -878,6 +889,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PEAK_INPUT_LENGTH if algorithm == "peak"
                         else MAX_PARSE_DATE_INPUT_LENGTH if algorithm == "parse_date"
                         else MAX_PALINDROME_SINGLY_LINKED_LIST_INPUT_LENGTH if algorithm == "palindrome_singly_linked_list"
+                        else MAX_RGBHSVCONVERSION_INPUT_LENGTH if algorithm == "rgbhsvconversion"
+                        else MAX_SUBMATRIX_INPUT_LENGTH if algorithm == "submatrix"
+                        else MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH if algorithm == "first_fundamental_form"
+                        else MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH if algorithm == "star_delta_conversions"
                         else MAX_MONOTONIC_ARRAY_INPUT_LENGTH if algorithm == "monotonic_array"
                         else MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH if algorithm == "flatten_nested_list"
                         else MAX_ELASTIC_COLLISION2D_INPUT_LENGTH if algorithm == "elastic_collision2_d"
@@ -5499,6 +5514,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = palindrome_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("palindrome_singly_linked_list expected_result must match Java's optimized integer-node comparison")
+    elif algorithm == "rgbhsvconversion":
+        expected_from_source = rgbhsvconversion_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rgbhsvconversion expected_result must match the bounded C# RGB/HSV conversion outputs")
+    elif algorithm == "submatrix":
+        expected_from_source = submatrix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("submatrix expected_result must hash the selected bounded row-major rectangle")
+    elif algorithm == "first_fundamental_form":
+        expected_from_source = first_fundamental_form_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("first_fundamental_form expected_result must hash the bounded exact E/F/G polynomial coefficients")
+    elif algorithm == "star_delta_conversions":
+        expected_from_source = star_delta_conversions_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("star_delta_conversions expected_result must hash the bounded positive-real conversion outputs")
     elif algorithm == "monotonic_array":
         expected_from_source = monotonic_array_expected(values)
         if expected != expected_from_source:
@@ -5539,6 +5570,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = double_hash_hash_table_expected(values)
         if expected != expected_from_source:
             raise ValueError("double_hash_hash_table expected_result must match the successful double-hash table operations")
+    elif algorithm == "erosion_operation":
+        expected_from_source = erosion_operation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("erosion_operation expected_result must match the bounded binary cross-kernel erosion")
     return values
 
 

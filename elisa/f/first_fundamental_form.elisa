@@ -1,0 +1,65 @@
+def feed_hash(hash_value: i64, value: i64) -> i64:
+    bits: mutable u64 = hash_value.u64()
+    encoded: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        mixed: u64 = bits ^ ((encoded >> (byte * 8)) & 255)
+        low: u64 = mixed & 0xffffffff
+        high: u64 = mixed >> 32
+        product: u64 = low * 435
+        upper: u64 = (high * 435 + (product >> 32) + ((mixed & 0xffffff) << 8)) & 0xffffffff
+        bits <- (upper << 32) | (product & 0xffffffff)
+        byte <- byte + 1
+    bits.i64()
+
+def first_fundamental_form_impl(values: i64&, length: usize) -> i64:
+    if length != 18:
+        return -1
+    i: mutable usize = 0
+    while i < 18:
+        if values[i] < -100 or values[i] > 100:
+            return -1
+        i <- i + 1
+    ru: mutable i64[9] = zeroed
+    rv: mutable i64[9] = zeroed
+    i <- 0
+    while i < 3:
+        base: usize = 6 * i
+        ru[3 * i] <- values[base + 1]
+        ru[3 * i + 1] <- 2 * values[base + 3]
+        ru[3 * i + 2] <- values[base + 4]
+        rv[3 * i] <- values[base + 2]
+        rv[3 * i + 1] <- values[base + 4]
+        rv[3 * i + 2] <- 2 * values[base + 5]
+        i <- i + 1
+    out: mutable i64[18] = zeroed
+    i <- 0
+    while i < 3:
+        a: usize = 3 * i
+        out[0] <- out[0] + ru[a] * ru[a]
+        out[1] <- out[1] + ru[a] * ru[a + 1] + ru[a + 1] * ru[a]
+        out[2] <- out[2] + ru[a] * ru[a + 2] + ru[a + 2] * ru[a]
+        out[3] <- out[3] + ru[a + 1] * ru[a + 1]
+        out[4] <- out[4] + ru[a + 1] * ru[a + 2] + ru[a + 2] * ru[a + 1]
+        out[5] <- out[5] + ru[a + 2] * ru[a + 2]
+        out[6] <- out[6] + ru[a] * rv[a]
+        out[7] <- out[7] + ru[a] * rv[a + 1] + ru[a + 1] * rv[a]
+        out[8] <- out[8] + ru[a] * rv[a + 2] + ru[a + 2] * rv[a]
+        out[9] <- out[9] + ru[a + 1] * rv[a + 1]
+        out[10] <- out[10] + ru[a + 1] * rv[a + 2] + ru[a + 2] * rv[a + 1]
+        out[11] <- out[11] + ru[a + 2] * rv[a + 2]
+        out[12] <- out[12] + rv[a] * rv[a]
+        out[13] <- out[13] + rv[a] * rv[a + 1] + rv[a + 1] * rv[a]
+        out[14] <- out[14] + rv[a] * rv[a + 2] + rv[a + 2] * rv[a]
+        out[15] <- out[15] + rv[a + 1] * rv[a + 1]
+        out[16] <- out[16] + rv[a + 1] * rv[a + 2] + rv[a + 2] * rv[a + 1]
+        out[17] <- out[17] + rv[a + 2] * rv[a + 2]
+        i <- i + 1
+    hash_value: mutable i64 = 0xCBF29CE484222325.i64()
+    i <- 0
+    while i < 18:
+        hash_value <- feed_hash(hash_value, out[i])
+        i <- i + 1
+    hash_value
+
+export fn first_fundamental_form(values: i64&, length: usize) -> i64 = first_fundamental_form_impl

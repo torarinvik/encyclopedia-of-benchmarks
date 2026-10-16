@@ -1,0 +1,177 @@
+def dimensionality_reduction_tsne(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_len != 5 or input[0] != 1.0 or input[1] != 3.0: return -1
+    i: mutable usize = 2
+    j: mutable usize = 0
+    k: mutable usize = 0
+    iter: mutable usize = 0
+    total: mutable f64 = 0.0
+    while i < 5:
+        x: f64 = input[i]
+        if x != x or x > 100.0 or x < -100.0: return -1
+        i <- i + 1
+    if output == null or output_capacity < 3: return -2
+    dist: mutable f64[9] = zeroed
+    cond: mutable f64[9] = zeroed
+    high: mutable f64[9] = zeroed
+    q: mutable f64[9] = zeroed
+    den: mutable f64[9] = zeroed
+    i <- 0
+    while i < 3:
+        j <- 0
+        while j < 3:
+            delta: f64 = input[2+i] - input[2+j]
+            dist[i*3+j] <- delta*delta
+            j <- j+1
+        i <- i+1
+    i <- 0
+    while i < 3:
+        beta: mutable f64 = 1.0
+        lower: mutable f64 = 0.0
+        upper: mutable f64 = 0.0
+        has_lower: mutable bool = false
+        has_upper: mutable bool = false
+        iter <- 0
+        while iter < 50:
+            e: mutable f64[3] = zeroed
+            total <- 0.0
+            j <- 0
+            while j < 3:
+                if i != j:
+                    z: mutable f64 = -dist[i*3+j]*beta
+                    if z < -40.0: e[j] <- 0.0
+                    else:
+                        scale: mutable usize = 0
+                        while z < -0.5:
+                            z <- z/2.0
+                            scale <- scale+1
+                        term: mutable f64 = 1.0
+                        value: mutable f64 = 1.0
+                        k <- 1
+                        while k < 20:
+                            term <- term*z/k
+                            value <- value+term
+                            k <- k+1
+                        while scale > 0:
+                            value <- value*value
+                            scale <- scale-1
+                        e[j] <- value
+                total <- total+e[j]
+                j <- j+1
+            if total == 0.0: break
+            entropy: mutable f64 = 0.0
+            j <- 0
+            while j < 3:
+                if e[j] > 0.0:
+                    probability: f64 = e[j]/total
+                    z: mutable f64 = probability+1e-12
+                    exponent: mutable f64 = 0.0
+                    while z < 1.0:
+                        z <- z*2.0
+                        exponent <- exponent-1.0
+                    while z >= 2.0:
+                        z <- z/2.0
+                        exponent <- exponent+1.0
+                    ratio: f64 = (z-1.0)/(z+1.0)
+                    power: mutable f64 = ratio
+                    ln: mutable f64 = 0.0
+                    k <- 1
+                    while k < 32:
+                        ln <- ln+power/k
+                        power <- power*ratio*ratio
+                        k <- k+2
+                    log2value: f64 = (2.0*ln+exponent*0.6931471805599453)/0.6931471805599453
+                    entropy <- entropy-probability*log2value
+                j <- j+1
+            z: mutable f64 = entropy*0.6931471805599453
+            scale2: mutable usize = 0
+            while z > 0.5:
+                z <- z/2.0
+                scale2 <- scale2+1
+            term2: mutable f64 = 1.0
+            current: mutable f64 = 1.0
+            k <- 1
+            while k < 24:
+                term2 <- term2*z/k
+                current <- current+term2
+                k <- k+1
+            while scale2 > 0:
+                current <- current*current
+                scale2 <- scale2-1
+            if current-1.5 < 0.00001 and current-1.5 > -0.00001:
+                j <- 0
+                while j < 3:
+                    cond[i*3+j] <- e[j]/total
+                    j <- j+1
+                break
+            if current > 1.5:
+                lower <- beta
+                has_lower <- true
+                if has_upper: beta <- (beta+upper)/2.0
+                else: beta <- beta*2.0
+            else:
+                upper <- beta
+                has_upper <- true
+                if has_lower: beta <- (beta+lower)/2.0
+                else: beta <- beta/2.0
+            if iter == 49:
+                j <- 0
+                while j < 3:
+                    cond[i*3+j] <- e[j]/total
+                    j <- j+1
+            iter <- iter+1
+        i <- i+1
+    i <- 0
+    while i < 3:
+        j <- 0
+        while j < 3:
+            value: f64 = (cond[i*3+j]+cond[j*3+i])/6.0
+            if value < 1e-12: value <- 1e-12
+            high[i*3+j] <- value
+            j <- j+1
+        i <- i+1
+    y: mutable f64[3] = [0.000030471707975443136, -0.00010399841062404956, 0.00007504511958064573]
+    momentum: mutable f64[3] = zeroed
+    iter <- 0
+    while iter < 5:
+        total <- 0.0
+        i <- 0
+        while i < 3:
+            j <- 0
+            while j < 3:
+                delta: f64 = y[i]-y[j]
+                den[i*3+j] <- 1.0+delta*delta
+                if i == j: q[i*3+j] <- 0.0
+                else: q[i*3+j] <- 1.0/den[i*3+j]
+                total <- total+q[i*3+j]
+                j <- j+1
+            i <- i+1
+        i <- 0
+        while i < 3:
+            j <- 0
+            while j < 3:
+                if total != 0.0: q[i*3+j] <- q[i*3+j]/total
+                if q[i*3+j] < 1e-12: q[i*3+j] <- 1e-12
+                j <- j+1
+            i <- i+1
+        gradient: mutable f64[3] = zeroed
+        i <- 0
+        while i < 3:
+            j <- 0
+            while j < 3:
+                gradient[i] <- gradient[i]+(high[i*3+j]-q[i*3+j])*(1.0/den[i*3+j])*(y[i]-y[j])
+                j <- j+1
+            gradient[i] <- gradient[i]*4.0
+            i <- i+1
+        i <- 0
+        while i < 3:
+            momentum[i] <- 0.5*momentum[i]-10.0*gradient[i]
+            y[i] <- y[i]+momentum[i]
+            i <- i+1
+        iter <- iter+1
+    i <- 0
+    while i < 3:
+        output[i] <- y[i]
+        i <- i+1
+    return 3
+
+export fn dimensionality_reduction_tsne(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64 = dimensionality_reduction_tsne

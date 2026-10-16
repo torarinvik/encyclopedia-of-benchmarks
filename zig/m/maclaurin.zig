@@ -1,0 +1,4 @@
+const std=@import("std");const BAD:f64=-1.0e300;
+fn fact(n:i64) f64{var f:f64=1;var i:i64=2;while(i<=n):(i+=1)f*=@floatFromInt(i);return f;}
+fn term(m:i64,x:f64,i:i64) f64{var e=i;var sign:f64=1;if(m==1){e=2*i+1;if(@mod(i,2)!=0)sign=-1;}else if(m==2){e=2*i;if(@mod(i,2)!=0)sign=-1;}if(m==0)return std.math.pow(f64,x,@floatFromInt(e))/fact(e);return sign/fact(e)*std.math.pow(f64,x,@floatFromInt(e));}
+export fn maclaurin(v:[*]const i64,n:usize) f64{if(n!=3)return BAD;const m,xm,em=.{v[0],v[1],v[2]};if(m<0 or m>2 or xm< -2000 or xm>2000 or em<1 or em>250)return BAD;const x:f64=@as(f64,@floatFromInt(xm))/1000.0;const threshold:f64=@as(f64,@floatFromInt(em))/1000.0;var coefficient:f64=0;var result:f64=0;var i:i64=0;while(i<32):(i+=1){result+=coefficient;coefficient=term(m,x,i);if(@abs(coefficient)<=threshold)return result;}return BAD;}

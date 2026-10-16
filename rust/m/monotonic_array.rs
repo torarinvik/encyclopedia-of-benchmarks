@@ -1,8 +1,22 @@
-use std::slice;
 #[no_mangle]
-pub extern "C" fn monotonic_array(v:*const i64,n:usize)->i64{
- if n>256|| (v.is_null()&&n>0){return -1}
- if n==0{return 1}let a=unsafe{slice::from_raw_parts(v,n)};
- if a.iter().any(|x|*x< -1_000_000_000||*x>1_000_000_000){return -1}
- let(inc,dec)=a.windows(2).fold((true,true),|(up,down),w|(up&&w[0]<=w[1],down&&w[0]>=w[1]));if inc||dec{1}else{0}
+pub extern "C" fn is_monotonic(values: *const i64, length: usize) -> i64 {
+    if length > 256 || (values.is_null() && length != 0) {
+        return -1;
+    }
+
+    for i in 1..length {
+        let current = unsafe { *values.add(i) };
+        let previous = unsafe { *values.add(i - 1) };
+        if previous > current {
+            for j in 1..length {
+                let next = unsafe { *values.add(j) };
+                let prior = unsafe { *values.add(j - 1) };
+                if prior < next {
+                    return 0;
+                }
+            }
+            return 1;
+        }
+    }
+    1
 }

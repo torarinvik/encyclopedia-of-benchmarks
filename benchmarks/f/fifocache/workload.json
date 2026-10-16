@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "java-fifocache-zero-ttl-put-get-i64-array-bytes-v1",
+  "algorithm": "fifocache",
+  "function_symbol": "fifocache",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": [
+      "capacity",
+      "operation_count",
+      "opcode_key_value triples"
+    ],
+    "maximum_capacity": 6,
+    "maximum_operations": 8,
+    "opcodes": {
+      "put_or_overwrite": 0,
+      "get": 1
+    },
+    "key_range": [
+      0,
+      15
+    ],
+    "value_range": [
+      0,
+      255
+    ],
+    "get_value_field": 0
+  },
+  "output": {
+    "kind": "bytes",
+    "layout": [
+      "hits",
+      "misses",
+      "final_size",
+      "get_count",
+      "get_results",
+      "FIFO key_value pairs"
+    ],
+    "miss_value": 255,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "maximum_output_bytes": 24
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java"
+  },
+  "cases": [
+    {
+      "id": "fifo_eviction_and_queries",
+      "input_values": [
+        2,
+        6,
+        0,
+        1,
+        10,
+        0,
+        2,
+        20,
+        1,
+        1,
+        0,
+        0,
+        3,
+        30,
+        1,
+        1,
+        0,
+        1,
+        2,
+        0
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "020102030aff140214031e",
+      "input_length": 20,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "overwrite_moves_to_tail",
+      "input_values": [
+        2,
+        5,
+        0,
+        1,
+        10,
+        0,
+        2,
+        20,
+        0,
+        1,
+        11,
+        1,
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "02000202140b0214010b",
+      "input_length": 17,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "miss_on_empty_cache",
+      "input_values": [
+        1,
+        1,
+        1,
+        5,
+        0
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "00010001ff",
+      "input_length": 5,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "put_only_final_order",
+      "input_values": [
+        3,
+        4,
+        0,
+        1,
+        10,
+        0,
+        2,
+        20,
+        0,
+        3,
+        30,
+        0,
+        4,
+        40
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "000003000214031e0428",
+      "input_length": 14,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "zero_operations",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "00000000",
+      "input_length": 2,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "invalid_zero_capacity",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "invalid_operation_count_mismatch",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "invalid_get_value",
+      "input_values": [
+        1,
+        1,
+        1,
+        5,
+        9
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 5,
+      "workspace_bytes": 22
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        1,
+        1,
+        1,
+        5,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 5,
+      "workspace_bytes": 4
+    }
+  ],
+  "workspace": {
+    "bytes": 24,
+    "meaning": "Maximum encoded hit/miss and FIFO cache state for eight operations"
+  }
+}

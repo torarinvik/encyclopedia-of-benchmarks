@@ -1,0 +1,43 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern fabs(value: f64) -> f64
+const BAD: f64 = -1.0e300
+
+def fact(n: i64) -> f64:
+    f: mutable f64 = 1.0
+    i: mutable i64 = 2
+    while i <= n:
+        f <- f * i.f64()
+        i <- i + 1
+    f
+
+def term(mode: i64, x: f64, i: i64) -> f64:
+    e: i64 = i
+    sign: mutable f64 = 1.0
+    if mode == 1:
+        e <- 2 * i + 1
+        if i % 2 != 0: sign <- -1.0
+    elif mode == 2:
+        e <- 2 * i
+        if i % 2 != 0: sign <- -1.0
+    if mode == 0: pow(x, e.f64()) / fact(e)
+    else: sign / fact(e) * pow(x, e.f64())
+
+def maclaurin_impl(v: i64&, length: usize) -> f64:
+    if length != 3: return BAD
+    mode: i64 = v[0]
+    xm: i64 = v[1]
+    em: i64 = v[2]
+    if mode < 0 or mode > 2 or xm < -2000 or xm > 2000 or em < 1 or em > 250: return BAD
+    x: f64 = xm.f64() / 1000.0
+    error: f64 = em.f64() / 1000.0
+    coefficient: mutable f64 = 0.0
+    result: mutable f64 = 0.0
+    i: mutable i64 = 0
+    while i < 32 |coefficient, result, i, mode, x, error|:
+        result <- result + coefficient
+        coefficient <- term(mode, x, i)
+        if fabs(coefficient) <= error: return result
+        i <- i + 1
+    BAD
+
+export fn maclaurin(v: i64&, length: usize) -> f64 = maclaurin_impl

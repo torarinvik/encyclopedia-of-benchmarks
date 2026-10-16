@@ -1,0 +1,12 @@
+# Cross-platform scalar implementation of earnings_per_sale.
+const INVALID_RESULT: f64 = -1.0e300
+
+export fn earnings_per_sale(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 3:
+        return INVALID_RESULT
+    net_income: i64 = input[0]
+    preferred_dividend: i64 = input[1]
+    average_shares: i64 = input[2]
+    if net_income < -1000000 or net_income > 1000000 or preferred_dividend < 0 or preferred_dividend > 1000000 or average_shares < 1 or average_shares > 1000000:
+        return INVALID_RESULT
+    return (net_income.f64() - preferred_dividend.f64()) / average_shares.f64()

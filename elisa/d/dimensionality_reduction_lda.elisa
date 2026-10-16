@@ -1,0 +1,99 @@
+def dimensionality_reduction_lda_impl(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_len < 16 or input[0] != 2.0 or input[2] != 2.0 or input[3] != 1.0: return -1
+    samples: mutable usize = 0
+    sample_f: mutable f64 = 0.0
+    if input_len == 16 and input[1] == 4.0:
+        samples <- 4
+        sample_f <- 4.0
+    elif input_len == 19 and input[1] == 5.0:
+        samples <- 5
+        sample_f <- 5.0
+    elif input_len == 22 and input[1] == 6.0:
+        samples <- 6
+        sample_f <- 6.0
+    elif input_len == 25 and input[1] == 7.0:
+        samples <- 7
+        sample_f <- 7.0
+    elif input_len == 28 and input[1] == 8.0:
+        samples <- 8
+        sample_f <- 8.0
+    else: return -1
+    base: usize = 4 + 2 * samples
+    count0: mutable usize = 0
+    count1: mutable usize = 0
+    count0f: mutable f64 = 0.0
+    count1f: mutable f64 = 0.0
+    mx0: mutable f64 = 0.0
+    my0: mutable f64 = 0.0
+    mx1: mutable f64 = 0.0
+    my1: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < samples:
+        xvalue: f64 = input[4+i]
+        yvalue: f64 = input[4+samples+i]
+        label: f64 = input[base+i]
+        if xvalue != xvalue or yvalue != yvalue or xvalue > 10000.0 or xvalue < -10000.0 or yvalue > 10000.0 or yvalue < -10000.0: return -1
+        if label == 0.0:
+            count0 <- count0 + 1
+            count0f <- count0f + 1.0
+            mx0 <- mx0 + xvalue
+            my0 <- my0 + yvalue
+        elif label == 1.0:
+            count1 <- count1 + 1
+            count1f <- count1f + 1.0
+            mx1 <- mx1 + xvalue
+            my1 <- my1 + yvalue
+        else: return -1
+        i <- i + 1
+    if count0 < 2 or count1 < 2: return -1
+    mx0 <- mx0 / count0f
+    my0 <- my0 / count0f
+    mx1 <- mx1 / count1f
+    my1 <- my1 / count1f
+    a: mutable f64 = 0.0
+    b: mutable f64 = 0.0
+    d: mutable f64 = 0.0
+    i <- 0
+    while i < samples:
+        dx: mutable f64 = input[4+i] - mx0
+        dy: mutable f64 = input[4+samples+i] - my0
+        if input[base+i] == 1.0:
+            dx <- input[4+i] - mx1
+            dy <- input[4+samples+i] - my1
+        a <- a + dx*dx
+        b <- b + dx*dy
+        d <- d + dy*dy
+        i <- i + 1
+    a <- a / sample_f
+    b <- b / sample_f
+    d <- d / sample_f
+    det: f64 = a*d-b*b
+    if det <= 1.0e-12: return -1
+    dx: f64 = mx1-mx0
+    dy: f64 = my1-my0
+    w0: mutable f64 = (d*dx-b*dy)/det
+    w1: mutable f64 = (a*dy-b*dx)/det
+    norm2: f64 = w0*w0+w1*w1
+    if norm2 <= 1.0e-24: return -1
+    norm: mutable f64 = norm2
+    i <- 0
+    while i < 64:
+        norm <- 0.5*(norm+norm2/norm)
+        i <- i+1
+    w0 <- w0/norm
+    w1 <- w1/norm
+    if w0 < 0.0 or (w0 <= 1.0e-14 and w1 < 0.0):
+        w0 <- -w0
+        w1 <- -w1
+    if output == null or output_capacity < samples: return -2
+    i <- 0
+    while i < samples:
+        output[i] <- w0*input[4+i]+w1*input[4+samples+i]
+        i <- i+1
+    if samples == 4: return 4
+    if samples == 5: return 5
+    if samples == 6: return 6
+    if samples == 7: return 7
+    return 8
+
+export fn dimensionality_reduction_lda(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64 = dimensionality_reduction_lda_impl

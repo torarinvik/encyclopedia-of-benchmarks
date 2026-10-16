@@ -1,0 +1,71 @@
+def fifocache_impl(a: i64&, length: usize, o: mutable u8&, cap: usize) -> i64:
+    if a == null or length < 2 or length > 26: return -1
+    c: i64 = a[0]
+    ops: i64 = a[1]
+    if c < 1 or c > 6 or ops < 0 or ops > 8 or length != 2 + 3 * ops.usize(): return -1
+    keys: mutable i64[6] = zeroed
+    vals: mutable i64[6] = zeroed
+    queries: mutable u8[8] = zeroed
+    size: mutable usize = 0
+    gets: mutable usize = 0
+    hits: mutable usize = 0
+    misses: mutable usize = 0
+    i: mutable usize = 0
+    while i < ops.usize():
+        op: i64 = a[2 + 3 * i]
+        key: i64 = a[3 + 3 * i]
+        value: i64 = a[4 + 3 * i]
+        if key < 0 or key > 15 or (op != 0 and op != 1): return -1
+        if op == 0:
+            if value < 0 or value > 255: return -1
+            j: mutable usize = 0
+            while j < size and keys[j] != key:
+                j <- j + 1
+            if j < size:
+                t: mutable usize = j + 1
+                while t < size:
+                    keys[t - 1] <- keys[t]
+                    vals[t - 1] <- vals[t]
+                    t <- t + 1
+                size <- size - 1
+            if size == c.usize():
+                t: mutable usize = 1
+                while t < size:
+                    keys[t - 1] <- keys[t]
+                    vals[t - 1] <- vals[t]
+                    t <- t + 1
+                size <- size - 1
+            keys[size] <- key
+            vals[size] <- value
+            size <- size + 1
+        else:
+            if value != 0: return -1
+            j: mutable usize = 0
+            while j < size and keys[j] != key:
+                j <- j + 1
+            if j < size:
+                hits <- hits + 1
+                queries[gets] <- vals[j].u8()
+            else:
+                misses <- misses + 1
+                queries[gets] <- 255
+            gets <- gets + 1
+        i <- i + 1
+    need: usize = 4 + gets + 2 * size
+    if cap < need or o == null: return -2
+    o[0] <- hits.u8()
+    o[1] <- misses.u8()
+    o[2] <- size.u8()
+    o[3] <- gets.u8()
+    i <- 0
+    while i < gets:
+        o[4 + i] <- queries[i]
+        i <- i + 1
+    i <- 0
+    while i < size:
+        o[4 + gets + 2 * i] <- keys[i].u8()
+        o[5 + gets + 2 * i] <- vals[i].u8()
+        i <- i + 1
+    need.i64()
+
+export fn fifocache(a: i64&, length: usize, o: mutable u8&, cap: usize) -> i64 = fifocache_impl

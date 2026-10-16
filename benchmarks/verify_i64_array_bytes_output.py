@@ -20,6 +20,24 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from dynamicarray_oracle import expected_output as dynamicarray_oracle
+from flatten_multilevel_linked_list_oracle import MAX_CHAIN_LENGTH as FLATTEN_MAX_CHAIN_LENGTH
+from flatten_multilevel_linked_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_INPUT_LENGTH
+from flatten_multilevel_linked_list_oracle import MAX_LISTS as FLATTEN_MAX_LISTS
+from flatten_multilevel_linked_list_oracle import MAX_OUTPUT_BYTES as FLATTEN_MAX_OUTPUT_BYTES
+from flatten_multilevel_linked_list_oracle import MAX_VALUE as FLATTEN_MAX_VALUE
+from flatten_multilevel_linked_list_oracle import MIN_VALUE as FLATTEN_MIN_VALUE
+from flatten_multilevel_linked_list_oracle import expected_output as flatten_multilevel_linked_list_oracle
+from flip_augmentation_oracle import expected_output as flip_augmentation_oracle
+from from_sequence_oracle import MAX_NODE_COUNT as FROM_SEQUENCE_MAX_NODE_COUNT
+from from_sequence_oracle import MAX_OUTPUT_BYTES as FROM_SEQUENCE_MAX_OUTPUT_BYTES
+from from_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH
+from from_sequence_oracle import expected_output as from_sequence_oracle
+from lyndon_factorization_oracle import MAX_INPUT_LENGTH as MAX_LYNDON_FACTORIZATION_INPUT_LENGTH
+from lyndon_factorization_oracle import MAX_SEQUENCE_LENGTH as LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH
+from lyndon_factorization_oracle import expected_output as lyndon_factorization_oracle
+from fifocache_oracle import MAX_INPUT_LENGTH as MAX_FIFOCACHE_INPUT_LENGTH
+from fifocache_oracle import MAX_OUTPUT_BYTES as FIFOCACHE_MAX_OUTPUT_BYTES
+from fifocache_oracle import expected_output as fifocache_oracle
 from elliptic_curve_key_exchange_oracle import MAX_FIELD as ELLIPTIC_CURVE_MAX_FIELD
 from elliptic_curve_key_exchange_oracle import MAX_SCALAR as ELLIPTIC_CURVE_MAX_SCALAR
 from elliptic_curve_key_exchange_oracle import MAX_OUTPUT_BYTES as ELLIPTIC_CURVE_MAX_OUTPUT_BYTES
@@ -441,11 +459,51 @@ from generate_sub_sets_oracle import MAX_OUTPUT_BYTES as GENERATE_SUB_SETS_MAX_O
 from generate_sub_sets_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GENERATE_SUB_SETS_PARSEABLE_INPUT_LENGTH
 from generate_sub_sets_oracle import MAX_SAFE_INTEGER as GENERATE_SUB_SETS_MAX_SAFE_INTEGER
 from generate_sub_sets_oracle import expected_output as generate_sub_sets_oracle
+from generate_subsets_recursive_oracle import MAX_INPUT_LENGTH as MAX_GENERATE_SUBSETS_RECURSIVE_INPUT_LENGTH
+from generate_subsets_recursive_oracle import MAX_OUTPUT_BYTES as GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES
+from generate_subsets_recursive_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GENERATE_SUBSETS_RECURSIVE_PARSEABLE_INPUT_LENGTH
+from generate_subsets_recursive_oracle import expected_output as generate_subsets_recursive_oracle
 from strip_oracle import MAX_CHARACTER_LENGTH as STRIP_MAX_CHARACTER_LENGTH
 from strip_oracle import MAX_INPUT_LENGTH as MAX_STRIP_INPUT_LENGTH
 from strip_oracle import MAX_OUTPUT_BYTES as STRIP_MAX_OUTPUT_BYTES
 from strip_oracle import MAX_TEXT_LENGTH as STRIP_MAX_TEXT_LENGTH
 from strip_oracle import expected_output as strip_oracle
+from gauss_jordan_oracle import MAX_COLUMNS as GAUSS_JORDAN_MAX_COLUMNS
+from gauss_jordan_oracle import MAX_INPUT_LENGTH as GAUSS_JORDAN_MAX_INPUT_LENGTH
+from gauss_jordan_oracle import MAX_OUTPUT_BYTES as GAUSS_JORDAN_MAX_OUTPUT_BYTES
+from gauss_jordan_oracle import MAX_ROWS as GAUSS_JORDAN_MAX_ROWS
+from gauss_jordan_oracle import expected_output as gauss_jordan_oracle
+from gaussian_elimination_pivoting_oracle import MAX_DIMENSION as GAUSSIAN_PIVOTING_MAX_DIMENSION
+from gaussian_elimination_pivoting_oracle import MAX_INPUT_LENGTH as GAUSSIAN_PIVOTING_MAX_INPUT_LENGTH
+from gaussian_elimination_pivoting_oracle import MAX_OUTPUT_BYTES as GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES
+from gaussian_elimination_pivoting_oracle import expected_output as gaussian_elimination_pivoting_oracle
+from mean_threshold_oracle import INVALID_RESULT as MEAN_THRESHOLD_INVALID_RESULT
+from mean_threshold_oracle import INSUFFICIENT_CAPACITY as MEAN_THRESHOLD_INSUFFICIENT_CAPACITY
+from mean_threshold_oracle import MAX_DIMENSION as MEAN_THRESHOLD_MAX_DIMENSION
+from mean_threshold_oracle import MAX_INPUT_LENGTH as MEAN_THRESHOLD_MAX_INPUT_LENGTH
+from mean_threshold_oracle import MAX_OUTPUT_BYTES as MEAN_THRESHOLD_MAX_OUTPUT_BYTES
+from mean_threshold_oracle import MAX_PARSEABLE_INPUT_LENGTH as MEAN_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH
+from mean_threshold_oracle import MAX_PIXEL_COUNT as MEAN_THRESHOLD_MAX_PIXEL_COUNT
+from mean_threshold_oracle import expected_output as mean_threshold_oracle
+from evaluate_expression_oracle import MAX_OPERAND_MILLI as EVALUATE_EXPRESSION_MAX_OPERAND_MILLI
+from evaluate_expression_oracle import MAX_OUTPUT as EVALUATE_EXPRESSION_MAX_OUTPUT_BYTES
+from evaluate_expression_oracle import MAX_PARSEABLE_VALUES as EVALUATE_EXPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+from evaluate_expression_oracle import MAX_TOKENS as EVALUATE_EXPRESSION_MAX_TOKENS
+from evaluate_expression_oracle import MAX_VALUES as EVALUATE_EXPRESSION_MAX_INPUT_LENGTH
+from evaluate_expression_oracle import expected_output as evaluate_expression_oracle
+from find_month_calendar_oracle import INSUFFICIENT_CAPACITY_RESULT as FIND_MONTH_CALENDAR_INSUFFICIENT_CAPACITY_RESULT
+from find_month_calendar_oracle import INVALID_RESULT as FIND_MONTH_CALENDAR_INVALID_RESULT
+from find_month_calendar_oracle import MAX_OUTPUT_BYTES as FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES
+from find_month_calendar_oracle import MAX_PARSEABLE_INPUT_LENGTH as FIND_MONTH_CALENDAR_MAX_PARSEABLE_INPUT_LENGTH
+from find_month_calendar_oracle import MAX_VALID_INPUT_LENGTH as FIND_MONTH_CALENDAR_MAX_VALID_INPUT_LENGTH
+from find_month_calendar_oracle import expected_output as find_month_calendar_oracle
+from word_frequency_functions_oracle import MAX_COUNT as WORD_FREQUENCY_FUNCTIONS_MAX_COUNT
+from word_frequency_functions_oracle import MAX_INPUT as WORD_FREQUENCY_FUNCTIONS_MAX_INPUT_LENGTH
+from word_frequency_functions_oracle import MAX_OUTPUT_BYTES as WORD_FREQUENCY_FUNCTIONS_MAX_OUTPUT_BYTES
+from word_frequency_functions_oracle import MAX_PARSEABLE_INPUT_LENGTH as WORD_FREQUENCY_FUNCTIONS_MAX_PARSEABLE_INPUT_LENGTH
+from word_frequency_functions_oracle import MAX_TERM as WORD_FREQUENCY_FUNCTIONS_MAX_TERM
+from word_frequency_functions_oracle import MAX_TEXT as WORD_FREQUENCY_FUNCTIONS_MAX_TEXT
+from word_frequency_functions_oracle import expected_output as word_frequency_functions_oracle
 from top_k_frequent_words_oracle import MAX_INPUT_LENGTH as TOP_K_FREQUENT_WORDS_MAX_INPUT_LENGTH
 from top_k_frequent_words_oracle import MAX_OUTPUT_BYTES as TOP_K_FREQUENT_WORDS_MAX_OUTPUT_BYTES
 from top_k_frequent_words_oracle import MAX_WORD_LENGTH as TOP_K_FREQUENT_WORDS_MAX_WORD_LENGTH
@@ -552,7 +610,10 @@ ALGORITHMS = (*ALGORITHMS, "join")
 ALGORITHMS = (*ALGORITHMS, "resistor_color_code")
 ALGORITHMS = (*ALGORITHMS, "double_ended_selection_sort")
 ALGORITHMS = (*ALGORITHMS, "double_point_crossover")
-ALGORITHMS = (*ALGORITHMS, "dynamicarray")
+ALGORITHMS = (*ALGORITHMS, "dynamicarray", "flatten_multilevel_linked_list")
+ALGORITHMS = (*ALGORITHMS, "flip_augmentation")
+ALGORITHMS = (*ALGORITHMS, "from_sequence")
+ALGORITHMS = (*ALGORITHMS, "lyndon_factorization")
 ALGORITHMS = (*ALGORITHMS, "elliptic_curve_key_exchange", "iso10126_d2_padding")
 ALGORITHMS = (*ALGORITHMS, "uniform_crossover")
 ALGORITHMS = (*ALGORITHMS, "welsh_powell")
@@ -562,8 +623,14 @@ ALGORITHMS = (*ALGORITHMS, "word_occurrence")
 ALGORITHMS = (*ALGORITHMS, "jacobi_iteration_method")
 ALGORITHMS = (*ALGORITHMS, "gramian")
 ALGORITHMS = (*ALGORITHMS, "generate_sub_sets")
+ALGORITHMS = (*ALGORITHMS, "generate_subsets_recursive")
 ALGORITHMS = (*ALGORITHMS, "strip")
+ALGORITHMS = (*ALGORITHMS, "word_frequency_functions")
+ALGORITHMS = (*ALGORITHMS, "gauss_jordan", "gaussian_elimination_pivoting")
+ALGORITHMS = (*ALGORITHMS, "mean_threshold")
 ALGORITHMS = (*ALGORITHMS, "top_k_frequent_words")
+ALGORITHMS = (*ALGORITHMS, "fft_bluestein")
+ALGORITHMS = (*ALGORITHMS, "fifocache")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -581,6 +648,8 @@ WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_uniq
                         "unique_permutation",
                         "infix_to_prefix",
                         "inverse_fast_fourier_transform",
+                        "fft_bluestein",
+                        "fifocache",
                         "naive_search",
                         "next_permutation",
                         "gronsfeld_cipher",
@@ -607,7 +676,9 @@ WORKSPACE_ALGORITHMS.add("horizontal_projectile_motion")
 WORKSPACE_ALGORITHMS.add("jarvis_scan")
 WORKSPACE_ALGORITHMS.add("floor_and_ceiling")
 WORKSPACE_ALGORITHMS.add("solve_quadratic_equation")
-WORKSPACE_ALGORITHMS.add("dynamicarray")
+WORKSPACE_ALGORITHMS.update({"dynamicarray", "flatten_multilevel_linked_list", "flip_augmentation"})
+WORKSPACE_ALGORITHMS.add("from_sequence")
+WORKSPACE_ALGORITHMS.add("lyndon_factorization")
 WORKSPACE_ALGORITHMS.add("elliptic_curve_key_exchange")
 WORKSPACE_ALGORITHMS.add("iso10126_d2_padding")
 WORKSPACE_ALGORITHMS.add("generate_rule_30_grid")
@@ -645,8 +716,17 @@ WORKSPACE_ALGORITHMS.add("word_occurrence")
 WORKSPACE_ALGORITHMS.add("jacobi_iteration_method")
 WORKSPACE_ALGORITHMS.add("gramian")
 WORKSPACE_ALGORITHMS.add("generate_sub_sets")
+WORKSPACE_ALGORITHMS.add("generate_subsets_recursive")
 WORKSPACE_ALGORITHMS.add("strip")
+WORKSPACE_ALGORITHMS.add("word_frequency_functions")
+WORKSPACE_ALGORITHMS.add("gaussian_elimination_pivoting")
+WORKSPACE_ALGORITHMS.add("gauss_jordan")
+WORKSPACE_ALGORITHMS.add("mean_threshold")
+WORKSPACE_ALGORITHMS.add("evaluate_expression")
+WORKSPACE_ALGORITHMS.add("find_month_calendar")
 WORKSPACE_ALGORITHMS.add("top_k_frequent_words")
+ALGORITHMS = (*ALGORITHMS, "evaluate_expression")
+ALGORITHMS = (*ALGORITHMS, "find_month_calendar")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -8763,6 +8843,72 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "generate_subsets_recursive":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES
+                or input_spec.get("length_range") != [0, 12]
+                or input_spec.get("byte_range") != [0, 127]
+                or input_spec.get("maximum_input_values") != MAX_GENERATE_SUBSETS_RECURSIVE_INPUT_LENGTH
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2):
+            raise ValueError("generate_subsets_recursive workload bounds/statuses must match its oracle")
+        if (not any(case.get("expected_result") == -1 for case in workload["cases"])
+                or not any(case.get("expected_result") == -2 for case in workload["cases"])):
+            raise ValueError("generate_subsets_recursive workload must include invalid and capacity failures")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES:
+                raise ValueError("generate_subsets_recursive corpus capacity must fit its maximum output")
+            cases[(values, capacity)] = generate_subsets_recursive_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = generate_subsets_recursive_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"generate_subsets_recursive workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        maximum_input = (12, *range(65, 77))
+        if len(maximum_input) != MAX_GENERATE_SUBSETS_RECURSIVE_INPUT_LENGTH:
+            raise ValueError("generate_subsets_recursive maximum input length does not match its contract")
+        maximum_output = generate_subsets_recursive_oracle(maximum_input)[1]
+        if len(maximum_output) != GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES:
+            raise ValueError("generate_subsets_recursive maximum output size does not match its contract")
+        add(maximum_input)
+        add(maximum_input, GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES - 1)
+        add(maximum_input, GENERATE_SUBSETS_RECURSIVE_MAX_OUTPUT_BYTES)
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            n = rng.randint(0, 12)
+            add((n, *(rng.randint(0, 127) for _ in range(n))))
+
+        short_input = (2, 97, 98)
+        for capacity in (0, 23, 24):
+            add(short_input, capacity)
+        for capacity in (7, 8):
+            add((0,), capacity)
+
+        malformed = (
+            (), (-1,), (13,), (1,), (1, -1), (1, 128), (2, 97), (0, 97),
+            (12, *([65] * 13)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_GENERATE_SUBSETS_RECURSIVE_PARSEABLE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_key = ((0,), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "top_k_frequent_words":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         input_spec = workload.get("input", {})
@@ -8914,6 +9060,524 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_key = ((2, 32, 65, -1), default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "word_frequency_functions":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != WORD_FREQUENCY_FUNCTIONS_MAX_OUTPUT_BYTES
+                or input_spec.get("maximum_packed_length") != WORD_FREQUENCY_FUNCTIONS_MAX_INPUT_LENGTH
+                or input_spec.get("term_length_range") != [0, WORD_FREQUENCY_FUNCTIONS_MAX_TERM]
+                or input_spec.get("text_length_range") != [0, WORD_FREQUENCY_FUNCTIONS_MAX_TEXT]
+                or input_spec.get("ascii_byte_range") != [0, 127]
+                or input_spec.get("document_frequency_and_corpus_size_range") != [0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT]
+                or input_spec.get("tf_range") != [0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT]
+                or input_spec.get("idf_milli_range") != [-WORD_FREQUENCY_FUNCTIONS_MAX_COUNT,
+                                                         WORD_FREQUENCY_FUNCTIONS_MAX_COUNT]
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2):
+            raise ValueError("word_frequency_functions workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= WORD_FREQUENCY_FUNCTIONS_MAX_OUTPUT_BYTES:
+                raise ValueError("word_frequency_functions corpus capacity must fit its maximum output")
+            cases[(values, capacity)] = word_frequency_functions_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = word_frequency_functions_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"word_frequency_functions workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        maximum_term = tuple([97] * WORD_FREQUENCY_FUNCTIONS_MAX_TERM)
+        maximum_text = tuple([97] * WORD_FREQUENCY_FUNCTIONS_MAX_TEXT)
+        maximum_input = (1, WORD_FREQUENCY_FUNCTIONS_MAX_TERM, *maximum_term,
+                         WORD_FREQUENCY_FUNCTIONS_MAX_TEXT, *maximum_text)
+        if len(maximum_input) != WORD_FREQUENCY_FUNCTIONS_MAX_INPUT_LENGTH:
+            raise ValueError("word_frequency_functions maximum input length does not match its contract")
+        add(maximum_input)
+        add((0, WORD_FREQUENCY_FUNCTIONS_MAX_TERM, *maximum_term,
+             WORD_FREQUENCY_FUNCTIONS_MAX_TEXT, *maximum_text))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            operation = rng.randrange(4)
+            if operation in (0, 1):
+                term_length = rng.randint(0, WORD_FREQUENCY_FUNCTIONS_MAX_TERM)
+                term = tuple(rng.randint(0, 127) for _ in range(term_length))
+                text_length = rng.randint(0, 512)
+                text = tuple(rng.randint(0, 127) for _ in range(text_length))
+                add((operation, term_length, *term, text_length, *text))
+            elif operation == 2:
+                add((2, rng.randint(0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT),
+                     rng.randint(0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT), rng.randrange(2)))
+            else:
+                add((3, rng.randint(0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT),
+                     rng.randint(-WORD_FREQUENCY_FUNCTIONS_MAX_COUNT,
+                                 WORD_FREQUENCY_FUNCTIONS_MAX_COUNT)))
+
+        term_frequency_probe = (0, 1, 97, 3, 97, 32, 97)
+        for capacity in (0, 11, 12, WORD_FREQUENCY_FUNCTIONS_MAX_OUTPUT_BYTES):
+            add(term_frequency_probe, capacity)
+        document_frequency_probe = (1, 1, 97, 5, 97, 10, 98, 10, 97, 10)
+        for capacity in (0, 19, 20):
+            add(document_frequency_probe, capacity)
+        idf_probe = (2, 1, 10, 0)
+        for capacity in (0, 11, 12):
+            add(idf_probe, capacity)
+        zero_division_probe = (2, 0, 10, 0)
+        for capacity in (0, 3, 4):
+            add(zero_division_probe, capacity)
+        tf_idf_probe = (3, 5, -1500)
+        for capacity in (0, 11, 12):
+            add(tf_idf_probe, capacity)
+        add((99,), 0)
+
+        overlong = (3, *([0] * (WORD_FREQUENCY_FUNCTIONS_MAX_PARSEABLE_INPUT_LENGTH - 1)))
+        malformed = (
+            (), (0,), (0, -1), (0, WORD_FREQUENCY_FUNCTIONS_MAX_TERM + 1),
+            (0, 1, 128, 0), (0, 0, -1), (0, 0, 1, 128),
+            (1, 129), (1, 0, 0), (2,), (2, -1, 1, 0),
+            (2, 0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT + 1, 0),
+            (2, 0, 1, 2), (2, 0, 0, 0),
+            (3, -1, 0), (3, 0, WORD_FREQUENCY_FUNCTIONS_MAX_COUNT + 1),
+            (3, 0, -WORD_FREQUENCY_FUNCTIONS_MAX_COUNT - 1),
+            (3, 0), (4,), (-(1 << 63),), ((1 << 63) - 1,), overlong,
+        )
+        for values in malformed:
+            if len(values) <= WORD_FREQUENCY_FUNCTIONS_MAX_PARSEABLE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_key = ((3, 5, -1500), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "gauss_jordan":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        absolute_tolerance = output_spec.get("absolute_tolerance", 0.0)
+        relative_tolerance = output_spec.get("relative_tolerance", 0.0)
+        if (type(default_capacity) is not int
+                or default_capacity != GAUSS_JORDAN_MAX_OUTPUT_BYTES
+                or input_spec.get("maximum_rows") != GAUSS_JORDAN_MAX_ROWS
+                or input_spec.get("maximum_columns") != GAUSS_JORDAN_MAX_COLUMNS
+                or input_spec.get("maximum_input_values") != GAUSS_JORDAN_MAX_INPUT_LENGTH
+                or input_spec.get("value_range") != [-5000, 5000]
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("maximum_output_bytes") != GAUSS_JORDAN_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or not math.isfinite(absolute_tolerance) or absolute_tolerance < 0
+                or not math.isfinite(relative_tolerance) or relative_tolerance < 0):
+            raise ValueError("gauss_jordan workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= GAUSS_JORDAN_MAX_OUTPUT_BYTES:
+                raise ValueError("gauss_jordan corpus capacity must fit its maximum output")
+            result, output = gauss_jordan_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if len(output) > GAUSS_JORDAN_MAX_OUTPUT_BYTES or len(output) % 8:
+                raise ValueError("gauss_jordan oracle exceeded its float64 output bound")
+            cases[(values, capacity)] = (result, output)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = gauss_jordan_oracle(values)
+            expected_result, expected_output = result, output
+            if result >= 0 and capacity < len(output):
+                expected_result, expected_output = -2, b""
+            expected_vector = case.get("expected_output")
+            actual_vector = ([struct.unpack_from("<d", output, offset)[0]
+                              for offset in range(0, len(output), 8)]
+                             if expected_result >= 0 else [])
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != expected_result
+                    or not isinstance(expected_vector, list)
+                    or len(expected_vector) != len(actual_vector)
+                    or any(type(value) not in (int, float) or not math.isfinite(value)
+                           for value in expected_vector)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(actual_vector, expected_vector))):
+                raise ValueError(f"gauss_jordan workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        maximum_matrix = (GAUSS_JORDAN_MAX_ROWS, GAUSS_JORDAN_MAX_COLUMNS,
+                          *(1000 if row == column else 0
+                            for row in range(GAUSS_JORDAN_MAX_ROWS)
+                            for column in range(GAUSS_JORDAN_MAX_COLUMNS)),
+                          1000, 2000, 3000, 4000)
+        if len(maximum_matrix) != GAUSS_JORDAN_MAX_INPUT_LENGTH:
+            raise ValueError("gauss_jordan maximum input length does not match its contract")
+        add(maximum_matrix)
+        for capacity in (0, GAUSS_JORDAN_MAX_OUTPUT_BYTES - 1,
+                         GAUSS_JORDAN_MAX_OUTPUT_BYTES):
+            add(maximum_matrix, capacity)
+        add((0, 1), 0)
+        # This dependent 2x2 matrix leaves a floating residual near 4.4e-16
+        # after elimination; the pinned implementation treats it as a zero pivot.
+        add((2, 2, 1804, -3444, 1089, -2079, 1804, 1089))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            rows = rng.randint(1, GAUSS_JORDAN_MAX_ROWS)
+            columns = rng.randint(1, GAUSS_JORDAN_MAX_COLUMNS)
+            coefficients = tuple(rng.randint(-5000, 5000) for _ in range(rows * columns))
+            rhs = tuple(rng.randint(-5000, 5000) for _ in range(rows))
+            add((rows, columns, *coefficients, *rhs))
+
+        overlong = (GAUSS_JORDAN_MAX_ROWS, GAUSS_JORDAN_MAX_COLUMNS,
+                    *([0] * (GAUSS_JORDAN_MAX_INPUT_LENGTH - 1)))
+        malformed = (
+            (), (GAUSS_JORDAN_MAX_ROWS,), (0, 1), (5, 1), (1, 5),
+            (1, 1, 1000), (1, 1, 1000, 0, 0),
+            (1, 1, 5001, 0), (1, 1, -5001, 0),
+            (1, 1, -(1 << 63), 0), (1, 1, (1 << 63) - 1, 0),
+            overlong,
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (2, 2, 1000, 0, 0, 1000, 1000, 2000)
+        null_key = (null_values, default_capacity)
+        if null_key not in cases:
+            add(null_values)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "gaussian_elimination_pivoting":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        absolute_tolerance = output_spec.get("absolute_tolerance", 0.0)
+        relative_tolerance = output_spec.get("relative_tolerance", 0.0)
+        if (type(default_capacity) is not int
+                or default_capacity != GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES
+                or input_spec.get("maximum_dimension") != GAUSSIAN_PIVOTING_MAX_DIMENSION
+                or input_spec.get("maximum_input_values") != GAUSSIAN_PIVOTING_MAX_INPUT_LENGTH
+                or input_spec.get("value_range") != [-10000, 10000]
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("maximum_output_bytes") != GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or not math.isfinite(absolute_tolerance) or absolute_tolerance < 0
+                or not math.isfinite(relative_tolerance) or relative_tolerance < 0):
+            raise ValueError("gaussian_elimination_pivoting workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES:
+                raise ValueError("gaussian_elimination_pivoting capacity exceeds its output bound")
+            result, output = gaussian_elimination_pivoting_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if len(output) > GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES or len(output) % 8:
+                raise ValueError("gaussian_elimination_pivoting oracle exceeded its float64 output bound")
+            cases[(values, capacity)] = (result, output)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = gaussian_elimination_pivoting_oracle(values)
+            expected_result, expected_output = result, output
+            if result >= 0 and capacity < len(output):
+                expected_result, expected_output = -2, b""
+            expected_vector = case.get("expected_output")
+            actual_vector = [struct.unpack_from("<d", output, offset)[0]
+                             for offset in range(0, len(output), 8)]
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != expected_result
+                    or not isinstance(expected_vector, list)
+                    or len(expected_vector) != len(actual_vector)
+                    or any(type(value) not in (int, float) or not math.isfinite(value)
+                           for value in expected_vector)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(actual_vector, expected_vector))):
+                raise ValueError(f"gaussian_elimination_pivoting workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        maximum_dimension = GAUSSIAN_PIVOTING_MAX_DIMENSION
+        maximum_input = (maximum_dimension,
+                         *(1000 * (row + 1) if column == maximum_dimension
+                           else 1000 if row == column else 0
+                           for row in range(maximum_dimension)
+                           for column in range(maximum_dimension + 1)))
+        if len(maximum_input) != GAUSSIAN_PIVOTING_MAX_INPUT_LENGTH:
+            raise ValueError("gaussian_elimination_pivoting maximum input length does not match its contract")
+        add(maximum_input)
+        add(maximum_input, GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES - 1)
+        add(maximum_input, GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES)
+        row_swap_case = next(case for case in workload["cases"]
+                             if case["id"] == "row_swap_required")
+        row_swap_values = tuple(row_swap_case["input_values"])
+        for capacity in (0, 15, 16, GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES):
+            add(row_swap_values, capacity)
+
+        # Invalid singularity wins over a zero-byte output buffer.
+        singular_zero_capacity = (2, 1000, 0, 0, 0, 0, 0)
+        add(singular_zero_capacity, 0)
+        rng = random.Random(20261016)
+        for _ in range(128):
+            dimension = rng.randint(2, GAUSSIAN_PIVOTING_MAX_DIMENSION)
+            matrix = []
+            for row in range(dimension):
+                coefficients = [rng.randint(-1000, 1000) for _ in range(dimension)]
+                coefficients[row] = sum(abs(value) for column, value in enumerate(coefficients)
+                                        if column != row) + rng.randint(1000, 2000)
+                rhs = rng.randint(-5000, 5000)
+                matrix.extend((*coefficients, rhs))
+            add((dimension, *matrix))
+
+        overlong = (GAUSSIAN_PIVOTING_MAX_DIMENSION,
+                    *([0] * GAUSSIAN_PIVOTING_MAX_INPUT_LENGTH))
+        malformed = (
+            (), (0,), (1,), (5,), (2,), (2, *([0] * 6)),
+            (2, *([10001] + [0] * 5)), (2, *([-10001] + [0] * 5)),
+            (2, -(1 << 63), 0, 0, 0, 0, 0),
+            (2, (1 << 63) - 1, 0, 0, 0, 0, 0), overlong,
+        )
+        for values in malformed:
+            add(tuple(values))
+        add((5,), 0)
+
+        null_values = (2, 1000, 0, 0, 1000, 1000, 2000)
+        null_key = (null_values, default_capacity)
+        if null_key not in cases:
+            add(null_values)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "mean_threshold":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != MEAN_THRESHOLD_MAX_OUTPUT_BYTES
+                or input_spec.get("width_range") != [1, MEAN_THRESHOLD_MAX_DIMENSION]
+                or input_spec.get("height_range") != [1, MEAN_THRESHOLD_MAX_DIMENSION]
+                or input_spec.get("maximum_input_values") != MEAN_THRESHOLD_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_values") != MEAN_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("pixel_value_range") != [0, 255]
+                or output_spec.get("maximum_output_bytes") != MEAN_THRESHOLD_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != MEAN_THRESHOLD_INVALID_RESULT
+                or output_spec.get("insufficient_output_capacity_result") != MEAN_THRESHOLD_INSUFFICIENT_CAPACITY):
+            raise ValueError("mean_threshold workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MEAN_THRESHOLD_MAX_OUTPUT_BYTES:
+                raise ValueError("mean_threshold corpus capacity must fit its maximum output")
+            cases[(values, capacity)] = mean_threshold_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = mean_threshold_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"mean_threshold workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        pixel_count = MEAN_THRESHOLD_MAX_PIXEL_COUNT
+        maximum_input = (MEAN_THRESHOLD_MAX_DIMENSION, MEAN_THRESHOLD_MAX_DIMENSION,
+                         *([0] * (pixel_count // 2)), *([255] * (pixel_count // 2)))
+        if len(maximum_input) != MEAN_THRESHOLD_MAX_INPUT_LENGTH:
+            raise ValueError("mean_threshold maximum input length does not match its contract")
+        add(maximum_input)
+        for capacity in (0, MEAN_THRESHOLD_MAX_OUTPUT_BYTES - 1,
+                         MEAN_THRESHOLD_MAX_OUTPUT_BYTES):
+            add(maximum_input, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            width = rng.randint(1, MEAN_THRESHOLD_MAX_DIMENSION)
+            height = rng.randint(1, MEAN_THRESHOLD_MAX_DIMENSION)
+            pixels = tuple(rng.randint(0, 255) for _ in range(width * height))
+            add((width, height, *pixels))
+
+        rectangular_probe = (3, 2, 0, 50, 100, 150, 200, 255)
+        for capacity in (0, 5, 6, MEAN_THRESHOLD_MAX_OUTPUT_BYTES):
+            add(rectangular_probe, capacity)
+        add((1, 1, 256), 0)
+        add((0, 1), 0)
+
+        overlong = (1, 1, *([0] * (MEAN_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH - 2)))
+        malformed = (
+            (), (1,), (0, 1), (MEAN_THRESHOLD_MAX_DIMENSION + 1, 1),
+            (1, MEAN_THRESHOLD_MAX_DIMENSION + 1), (1, 0),
+            (1, 1), (1, 1, 0, 0), (1, 1, -1), (1, 1, 256),
+            (32, 32, *([0] * (pixel_count - 1))),
+            (1, 1, -(1 << 63)), (1, 1, (1 << 63) - 1), overlong,
+        )
+        for values in malformed:
+            if len(values) <= MEAN_THRESHOLD_MAX_PARSEABLE_INPUT_LENGTH:
+                add(tuple(values))
+
+        null_values = rectangular_probe
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (MEAN_THRESHOLD_INVALID_RESULT, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "evaluate_expression":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != EVALUATE_EXPRESSION_MAX_OUTPUT_BYTES
+                or input_spec.get("token_count_range") != [1, EVALUATE_EXPRESSION_MAX_TOKENS]
+                or input_spec.get("maximum_input_values") != EVALUATE_EXPRESSION_MAX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_values") != EVALUATE_EXPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("operand_milli_range") != [-EVALUATE_EXPRESSION_MAX_OPERAND_MILLI,
+                                                              EVALUATE_EXPRESSION_MAX_OPERAND_MILLI]
+                or output_spec.get("maximum_output_bytes") != EVALUATE_EXPRESSION_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2):
+            raise ValueError("evaluate_expression workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= EVALUATE_EXPRESSION_MAX_OUTPUT_BYTES:
+                raise ValueError("evaluate_expression corpus capacity must fit its maximum output")
+            cases[(values, capacity)] = evaluate_expression_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = evaluate_expression_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"evaluate_expression workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        # A full-depth valid stack shape and the largest valid encoded size.
+        max_expression = [63]
+        for index in range(32):
+            max_expression.extend((0, 1000 + index))
+            if index:
+                max_expression.extend((1, 0))
+        maximum_input = tuple(max_expression)
+        if len(maximum_input) != EVALUATE_EXPRESSION_MAX_INPUT_LENGTH - 2:
+            raise ValueError("evaluate_expression maximum valid expression length does not match its contract")
+        add(maximum_input)
+        largest_legal_shape = (64, *sum(([0, 1000] for _ in range(64)), []))
+        add(largest_legal_shape)
+        overlong = (65, *sum(([0, 1000] for _ in range(65)), []))
+        if len(overlong) != EVALUATE_EXPRESSION_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("evaluate_expression parseable input bound does not match its contract")
+        add(overlong)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            operand_count = rng.randint(1, 16)
+            values = [0, rng.choice((-1, 1)) * rng.randint(1, EVALUATE_EXPRESSION_MAX_OPERAND_MILLI)]
+            for _ in range(operand_count - 1):
+                values.extend((0, rng.choice((-1, 1)) * rng.randint(1, EVALUATE_EXPRESSION_MAX_OPERAND_MILLI)))
+                values.extend((rng.randint(1, 4), 0))
+            add((2 * operand_count - 1, *values))
+
+        valid_probe = (1, 0, 1000)
+        malformed_probe = (1, 1, 0)
+        for capacity in (0, 3, 4, 11, EVALUATE_EXPRESSION_MAX_OUTPUT_BYTES):
+            add(valid_probe, capacity)
+            add(malformed_probe, capacity)
+        for values in (
+                (), (0,), (-1, 0, 1000), (1, 0), (1, 0, 1000, 0),
+                (1, 0, EVALUATE_EXPRESSION_MAX_OPERAND_MILLI + 1),
+                (3, 0, 1000, 0, 2000, 1, 1),
+                (1, 9, 0), (2, 0, 1000, 0, 2000),
+                (1, 0, -(1 << 63)), (1, 0, (1 << 63) - 1),
+                overlong):
+            add(tuple(values))
+
+        null_key = (valid_probe, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "find_month_calendar":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES
+                or input_spec.get("valid_length") != FIND_MONTH_CALENDAR_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_valid_input_length") != FIND_MONTH_CALENDAR_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != FIND_MONTH_CALENDAR_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("month_range") != [1, 12]
+                or input_spec.get("year_range") != [1899, 2100]
+                or input_spec.get("invalid_input_result") != FIND_MONTH_CALENDAR_INVALID_RESULT
+                or output_spec.get("maximum_output_bytes") != FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != FIND_MONTH_CALENDAR_INVALID_RESULT
+                or output_spec.get("insufficient_output_capacity_result") != FIND_MONTH_CALENDAR_INSUFFICIENT_CAPACITY_RESULT):
+            raise ValueError("find_month_calendar workload bounds/statuses must match its oracle")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES:
+                raise ValueError("find_month_calendar corpus capacity must fit its maximum output")
+            result, output = find_month_calendar_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = FIND_MONTH_CALENDAR_INSUFFICIENT_CAPACITY_RESULT, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = find_month_calendar_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = FIND_MONTH_CALENDAR_INSUFFICIENT_CAPACITY_RESULT, b""
+            declared_output = case.get("expected_output", "")
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or not isinstance(declared_output, str)
+                    or declared_output.encode("ascii") != output):
+                raise ValueError(f"find_month_calendar workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        # The entire bounded domain is small enough to cover exhaustively.
+        longest_output = 0
+        for year in range(1899, 2101):
+            for month in range(1, 13):
+                values = (month, year)
+                required, _ = find_month_calendar_oracle(list(values))
+                longest_output = max(longest_output, required)
+                add(values)
+        if longest_output != FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES:
+            raise ValueError("find_month_calendar valid domain does not reach the declared output maximum")
+
+        maximum_probe = (1, 1899)
+        for capacity in (0, FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES - 1,
+                         FIND_MONTH_CALENDAR_MAX_OUTPUT_BYTES):
+            add(maximum_probe, capacity)
+        add((2, 2000), 0)
+        for values in ((), (1,), (1, 2000, 7), (0, 2000), (13, 2000),
+                       (1, 1898), (1, 2101), (-(1 << 63), (1 << 63) - 1)):
+            add(values)
+        add((13, 2000), 0)  # Invalid input must win over an insufficient output capacity.
+        add((1, 2000, 7), 0)  # The parseable three-value boundary is rejected before capacity.
+
+        null_probe = (1, 1900)
+        for capacity in (0, default_capacity):
+            null_key = (null_probe, capacity)
+            cases[null_key] = FIND_MONTH_CALENDAR_INVALID_RESULT, b""
+            null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "data_normalization_standardization":
@@ -9542,6 +10206,96 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "flatten_multilevel_linked_list":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != FLATTEN_MAX_OUTPUT_BYTES:
+            raise ValueError("flatten_multilevel_linked_list workspace must be 512 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = flatten_multilevel_linked_list_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = flatten_multilevel_linked_list_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"flatten_multilevel_linked_list workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        probe = (3, 3, -5, 0, 8, 4, -4, -1, 3, 9, 2, -6, 12)
+        required = len(flatten_multilevel_linked_list_oracle(list(probe))[1])
+        for capacity in (0, 1, required - 1, required):
+            add(probe, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            list_count = rng.randint(0, FLATTEN_MAX_LISTS)
+            values = [list_count]
+            for _ in range(list_count):
+                chain_length = rng.randint(1, FLATTEN_MAX_CHAIN_LENGTH)
+                chain = sorted(rng.randint(FLATTEN_MIN_VALUE, FLATTEN_MAX_VALUE)
+                               for _ in range(chain_length))
+                values.extend((chain_length, *chain))
+            add(tuple(values))
+
+        for values in ((), (0, 0), (9,), (1, 0), (1, 2, 2, 1),
+                       (1, 1, 1 << 31), (1, 17, *range(17))):
+            add(values)
+
+        null_input_canary = ((1, 1, 0), default_capacity)
+        cases[null_input_canary] = (-1, b"")
+        null_input_cases.add(null_input_canary)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "flip_augmentation":
+        default_capacity = 576
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = flip_augmentation_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = flip_augmentation_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result):
+                raise ValueError(f"flip_augmentation workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            width, height = rng.randint(1, 16), rng.randint(1, 16)
+            flip_type, box_count = rng.randrange(2), rng.randint(0, 16)
+            pixels = [rng.randrange(256) for _ in range(width * height)]
+            boxes = []
+            for label in range(box_count):
+                boxes.extend((label, rng.randint(0, 1_000_000), rng.randint(0, 1_000_000),
+                              rng.randint(0, 1_000_000), rng.randint(0, 1_000_000)))
+            add(tuple([width, height, flip_type, box_count, *pixels, *boxes]))
+
+        probe = (2, 2, 1, 1, 1, 2, 3, 4, 1, 750000, 250000, 100000, 500000)
+        required = len(flip_augmentation_oracle(list(probe))[1])
+        for capacity in (0, required - 1, required):
+            add(probe, capacity)
+        for values in ((), (1, 1, 0), (0, 1, 0, 0, 1), (1, 1, 2, 0, 1),
+                       (1, 1, 1, 0, 256), (1, 1, 1, 1, 1, 2147483648, 0, 0, 0)):
+            add(values)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "dynamicarray":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -9977,6 +10731,210 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         null_input_canary = (capacity_probe, default_capacity)
         cases[null_input_canary] = (-1, b"")
         null_input_cases.add(null_input_canary)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "fft_bluestein":
+        default_capacity = workload.get("workspace", {}).get("bytes", 128)
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = recorder_expected_output(list(values), algorithm)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or result != case["expected_result"]
+                    or output.hex() != case.get("expected_output_hex", "").lower()):
+                raise ValueError(f"fft_bluestein workload mismatch: {case['id']}")
+            cases[(values, capacity)] = result, output
+        rng = random.Random(20261016)
+        for n in range(1, 9):
+            for _ in range(24):
+                values = (n, *(rng.randint(-8, 8) for _ in range(n)))
+                cases[(values, default_capacity)] = recorder_expected_output(list(values), algorithm)
+            values = (n, *(0 for _ in range(n)))
+            needed = 16 * n
+            for capacity in (0, max(0, needed - 1), needed):
+                result, output = recorder_expected_output(list(values), algorithm)
+                if result >= 0 and capacity < len(output):
+                    result, output = -2, b""
+                cases[(values, capacity)] = result, output
+        for values in ((), (0,), (1, 9), (1, -9), (9, *([0] * 9)), (2, 0)):
+            cases[(values, default_capacity)] = recorder_expected_output(list(values), algorithm)
+        null_values = (1, 0)
+        null_case = (null_values, default_capacity)
+        cases[null_case] = (-1, b"")
+        null_input_cases.add(null_case)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "fifocache":
+        default_capacity = workload.get("output", {}).get("maximum_output_bytes")
+        if default_capacity != FIFOCACHE_MAX_OUTPUT_BYTES:
+            raise ValueError("FIFO cache output workspace must be 24 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = fifocache_oracle(values, capacity)
+            if (case.get("input_length") != len(values)
+                    or result != case["expected_result"]
+                    or output.hex() != case.get("expected_output_hex", "").lower()):
+                raise ValueError(f"fifocache workload mismatch: {case['id']}")
+            cases[(values, capacity)] = result, output
+        rng = random.Random(20261016)
+        for _ in range(256):
+            capacity = rng.randint(1, 6)
+            operation_count = rng.randint(0, 8)
+            values = [capacity, operation_count]
+            for _ in range(operation_count):
+                opcode = rng.randrange(2)
+                key = rng.randrange(16)
+                value = rng.randrange(256) if opcode == 0 else 0
+                values.extend((opcode, key, value))
+            packed = tuple(values)
+            cases[(packed, default_capacity)] = fifocache_oracle(packed, default_capacity)
+        for values in ((), (0, 0), (1, -1), (1, 9), (1, 1),
+                       (1, 1, 2, 0, 0), (1, 1, 0, 16, 0),
+                       (1, 1, 0, 1, 256), (1, 1, 1, 1, 1),
+                       (1, 1, 1, 1, 0, 99)):
+            packed = tuple(values)
+            cases[(packed, default_capacity)] = fifocache_oracle(packed, default_capacity)
+        capacity_probe = (1, 1, 0, 1, 42)
+        for capacity in (0, 4, 5, default_capacity):
+            cases[(capacity_probe, capacity)] = fifocache_oracle(capacity_probe, capacity)
+        null_values = (1, 0)
+        null_case = (null_values, default_capacity)
+        cases[null_case] = (-1, b"")
+        null_input_cases.add(null_case)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "lyndon_factorization":
+        default_capacity = workload.get("output", {}).get("maximum_length")
+        if default_capacity != 2 * LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH:
+            raise ValueError("lyndon_factorization output capacity must be 512 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int) -> None:
+            cases[(values, capacity)] = lyndon_factorization_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes")
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"invalid lyndon_factorization capacity in {case['id']}")
+            result, output = lyndon_factorization_oracle(list(values), capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"lyndon_factorization workload mismatch: {case['id']}")
+            if len(values) > MAX_LYNDON_FACTORIZATION_INPUT_LENGTH:
+                raise ValueError(f"lyndon_factorization fixture exceeds its parseable input length: {case['id']}")
+            count = values[0] if values else -1
+            valid_shape = (0 <= count <= LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH
+                           and len(values) == count + 1
+                           and all(97 <= value <= 122 for value in values[1:]))
+            if valid_shape and result >= 0 and capacity != 2 * count:
+                raise ValueError(f"lyndon_factorization fixture must reserve 2*n bytes: {case['id']}")
+            if valid_shape and result == -2 and capacity >= 2 * count:
+                raise ValueError(f"lyndon_factorization capacity fixture must be below 2*n: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            count = rng.randint(0, LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH)
+            values = (count, *(rng.randint(97, 122) for _ in range(count)))
+            # The ABI contract reserves the worst-case two bytes per input symbol.
+            add(values, 2 * count)
+
+        maximum_values = (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH,
+                          *([97] * LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH))
+        maximum_result, maximum_output = lyndon_factorization_oracle(list(maximum_values))
+        if maximum_result != default_capacity or len(maximum_output) != default_capacity:
+            raise ValueError("lyndon_factorization maximum output must be 512 bytes")
+        add(maximum_values, default_capacity - 1)
+        add(maximum_values, default_capacity)
+
+        capacity_probe = (3, 97, 98, 99)
+        for capacity in (0, 5, 6, default_capacity):
+            add(capacity_probe, capacity)
+
+        malformed = (
+            (), (1,), (2, 97), (1, 97, 98), (0, 97),
+            (1, 96), (1, 123), (1, -(1 << 63)),
+            (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH, *([97] * (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH - 1))),
+            (0, *([0] * (MAX_LYNDON_FACTORIZATION_INPUT_LENGTH - 1))),
+            (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH + 1,
+             *([97] * (LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH + 1))),
+            ((1 << 63) - 1, 97),
+        )
+        for values in malformed:
+            add(values, default_capacity)
+
+        null_values = (1, 97)
+        null_key = (null_values, 2)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "from_sequence":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != FROM_SEQUENCE_MAX_OUTPUT_BYTES:
+            raise ValueError("from_sequence output workspace must be 3589 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = from_sequence_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError(f"invalid from_sequence capacity in {case['id']}")
+            result, output = from_sequence_oracle(list(values), capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output", "").encode("ascii") != output):
+                raise ValueError(f"from_sequence workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        edge_values = (-(1 << 63), -(1 << 63) + 1, -1, 0, 1,
+                       (1 << 63) - 2, (1 << 63) - 1)
+        for _ in range(256):
+            count = rng.randint(1, FROM_SEQUENCE_MAX_NODE_COUNT)
+            values = (count, *(rng.choice(edge_values) if rng.randrange(4) == 0
+                               else rng.randint(-(1 << 63), (1 << 63) - 1)
+                               for _ in range(count)))
+            add(values)
+
+        maximum_values = (FROM_SEQUENCE_MAX_NODE_COUNT,
+                          *([-(1 << 63)] * FROM_SEQUENCE_MAX_NODE_COUNT))
+        maximum_result, maximum_output = from_sequence_oracle(list(maximum_values))
+        if maximum_result != FROM_SEQUENCE_MAX_OUTPUT_BYTES or len(maximum_output) != FROM_SEQUENCE_MAX_OUTPUT_BYTES:
+            raise ValueError("from_sequence maximum output must fit its 3589-byte contract")
+        add(maximum_values, FROM_SEQUENCE_MAX_OUTPUT_BYTES - 1)
+        add(maximum_values, FROM_SEQUENCE_MAX_OUTPUT_BYTES)
+
+        capacity_probe = (3, -(1 << 63), 0, (1 << 63) - 1)
+        required = len(from_sequence_oracle(list(capacity_probe))[1])
+        for capacity in (0, required - 1, required, default_capacity):
+            add(capacity_probe, capacity)
+
+        malformed = (
+            (), (0,), (1,), (2, 42), (1, 42, 43), (-1, 0),
+            (FROM_SEQUENCE_MAX_NODE_COUNT + 1, *([0] * FROM_SEQUENCE_MAX_NODE_COUNT)),
+            (1, 1 << 63), (1, -(1 << 63) - 1),
+            (FROM_SEQUENCE_MAX_NODE_COUNT, *([0] * (FROM_SEQUENCE_MAX_NODE_COUNT - 1))),
+            tuple([0] * MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(values)
+        add((0,), 0)
+
+        null_values = (1, 424_242)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     else:

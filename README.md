@@ -14,7 +14,19 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,942 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,005 reviewed source candidates, of which 2,684 map to complete benchmark files; 306 sources are excluded from portable benchmark coverage: 28 invalid and 278 non-benchmarkable. The pinned inventory contains 3,854 candidate records, with 864 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 1,974 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,050 reviewed source candidates, of which 2,736 map to complete benchmark files; 312 sources are excluded from portable benchmark coverage: 31 invalid and 281 non-benchmarkable. The pinned inventory contains 3,856 candidate records, with 808 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+
+[External merge sorter](benchmarks/e/external_merge_sorter/README.md) follows the pinned C# bottom-up merge passes over sequential stores, modeled with bounded buffers across all nine target languages.
+
+The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [return on investment](benchmarks/r/return_on_investment/README.md), [debt to equity](benchmarks/d/debt_to_equity/README.md), [gross profit margin](benchmarks/g/gross_profit_margin/README.md), and [earnings per sale](benchmarks/e/earnings_per_sale/README.md).
+
+[Flatten multilevel linked list](benchmarks/f/flatten_multilevel_linked_list/README.md) ports the Java child-column merge to all nine languages over bounded sorted i32 columns.
+
+[Flip augmentation](benchmarks/f/flip_augmentation/README.md) ports the Python horizontal and vertical image transforms and matching normalized box-center reflection to all nine languages.
+
+[Linked list from sequence](benchmarks/f/from_sequence/README.md) preserves the pinned Python constructor's node order and printable linked-list representation.
+
+[Gaussian-Legendre quadrature](benchmarks/g/gaussian_legendre/README.md) ports the Fortran orders 1–5 node and weight tables to all nine languages; it is separate from the Java π iteration.
 
 
 [Directed simple cycles](benchmarks/d/directed_simple_cycles/README.md) ports the pinned Java DFS enumerator to all nine languages, preserving directed-cycle contents and source traversal order.
@@ -201,6 +213,7 @@ C LeetCode candidates 461 and 485 are reviewed aliases of hamming_distance and m
 
 [Data normalization and standardization](benchmarks/d/data_normalization_standardization/README.md) ports the pinned R min-max and sample-standardization functions to all nine languages, preserving the sample-SD denominator.
 [Data transformations](benchmarks/d/data_transformations/README.md) ports the pinned Python min-max and sample-standardization functions to all nine languages, including the source's three-decimal ties-to-even rounding.
+[Dimensionality reduction PCA](benchmarks/d/dimensionality_reduction_pca/README.md) tracks the bounded one-component PCA path from the Python umbrella module across all nine languages; LDA and t-SNE remain separate uncovered methods.
 [Davis–Putnam–Logemann–Loveland](benchmarks/d/davis_putnam_logemann_loveland/README.md) implements the intended DPLL decision procedure across all nine languages and documents branch-search defects in the pinned Python source.
 [Double-Ended Selection Sort](benchmarks/d/double_ended_selection_sort/README.md) maps the pinned Python `unknown_sort.py` source to its actual min/max extraction algorithm across all nine languages.
 [Double-point crossover](benchmarks/d/double_point_crossover/README.md) ports the pinned MATLAB-Octave parent splice to all nine languages with explicit, deterministic cut positions.
@@ -574,12 +587,19 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 
 [Gaussian elimination with pivoting](benchmarks/g/gaussian_elimination_pivoting/README.md) ports the pinned Python pivot selection, elimination order, and back-substitution across all nine languages for bounded 2–4 variable systems.
 [Generate Subsets](benchmarks/s/generate_sub_sets/README.md) preserves the pinned JavaScript ascending bitmask order and input-position order across all nine languages; duplicate values remain distinct positions.
+[Recursive string subsets](benchmarks/g/generate_subsets_recursive/README.md) preserves the pinned Java include-first depth-first traversal and duplicate character positions across all nine languages.
 [Wa-Tor](benchmarks/w/wa_tor/README.md) models bounded prey-predator chronons across all nine languages with explicit deterministic movement, targeting, and entity order.
 [Top K frequent words](benchmarks/t/top_k_frequent_words/README.md) preserves the pinned Python frequency-only max-heap ordering, including heap-layout-dependent ties, across all nine languages.
 
 [Two-dimensional elastic collision](benchmarks/e/elastic_collision2_d/README.md) ports the pinned Java circular-body impulse calculation to all nine languages and returns the first body's quantized post-collision velocity.
 [Elliptic-curve key exchange](benchmarks/e/elliptic_curve_key_exchange/README.md) ports the pinned C++ affine ECDH flow across all nine languages under a bounded small-prime field contract.
+[Exponential Linear Unit (ELU)](benchmarks/e/elu/README.md) isolates the pinned MATLAB-Octave activation formula and ports it to all nine languages with an explicit scalar input contract.
+[Evaluate expression](benchmarks/e/evaluate_expression/README.md) ports the pinned JavaScript postfix stack evaluator across all nine languages with bounded binary64 arithmetic and explicit invalid-expression results.
+[Find month calendar](benchmarks/f/find_month_calendar/README.md) ports the pinned JavaScript Monday-first calendar formatter to all nine languages with a bounded date range and exact padded output.
+[Parameterized sigmoid](benchmarks/s/sigmoid_without_inbuilt/README.md) ports the pinned MATLAB-Octave logistic activation with an explicit slope parameter across all nine languages.
 
 [Strip characters from a string](benchmarks/s/strip/README.md) ports the pinned Python two-ended character-set scan across all nine languages for bounded ASCII strings.
 
 [Flatten a nested list](benchmarks/f/flatten_nested_list/README.md) ports both pinned Clojure flatteners across all nine languages and hashes the bounded left-to-right leaf sequence.
+
+The pinned Java `FIFOCache` source uses its default zero TTL, so sequential puts and gets expose FIFO insertion-order eviction: overwrite removes and appends the key, while reads do not reorder entries. The bounded [`fifocache`](benchmarks/f/fifocache/README.md) contract records hit/miss counts, get results, and final FIFO contents across nine languages; TTL timing, concurrency, callbacks, and explicit removal are outside its scope. [Pinned source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java).

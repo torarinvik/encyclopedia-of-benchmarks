@@ -1,0 +1,4 @@
+fn feed(mut h:u64,x:i64)->u64{let u=x as u64;for b in 0..8{h^=(u>>(8*b))&255;h=h.wrapping_mul(0x100000001b3);}h}
+fn product(a:&[i64],b:&[i64],o:&mut[i64]){o[0]+=a[0]*b[0];o[1]+=a[0]*b[1]+a[1]*b[0];o[2]+=a[0]*b[2]+a[2]*b[0];o[3]+=a[1]*b[1];o[4]+=a[1]*b[2]+a[2]*b[1];o[5]+=a[2]*b[2];}
+#[no_mangle]
+pub extern "C" fn first_fundamental_form(v:*const i64,n:usize)->i64{if v.is_null()||n!=18{return -1;}let x=unsafe{std::slice::from_raw_parts(v,n)};if x.iter().any(|&a|!(-100..=100).contains(&a)){return -1;}let mut ru=[0i64;9];let mut rv=[0i64;9];for k in 0..3{let i=6*k;ru[3*k]=x[i+1];ru[3*k+1]=2*x[i+3];ru[3*k+2]=x[i+4];rv[3*k]=x[i+2];rv[3*k+1]=x[i+4];rv[3*k+2]=2*x[i+5];}let mut out=[0i64;18];for k in 0..3{product(&ru[3*k..3*k+3],&ru[3*k..3*k+3],&mut out[0..6]);product(&ru[3*k..3*k+3],&rv[3*k..3*k+3],&mut out[6..12]);product(&rv[3*k..3*k+3],&rv[3*k..3*k+3],&mut out[12..18]);}let mut h=0xcbf29ce484222325u64;for a in out{h=feed(h,a);}h as i64}

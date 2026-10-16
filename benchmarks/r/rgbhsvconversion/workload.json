@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "csharp-rgb-hsv-conversion-i64-array-i64-v1",
+  "algorithm": "rgbhsvconversion",
+  "function_symbol": "rgbhsvconversion",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation,a,b,c]; operation 0 is HSV with hue milli-degrees and saturation/value permille; operation 1 is RGB bytes",
+    "maximum_input_length": 4,
+    "hsv_ranges": {
+      "hue_millidegrees": [
+        0,
+        360000
+      ],
+      "saturation_permille": [
+        0,
+        1000
+      ],
+      "value_permille": [
+        0,
+        1000
+      ]
+    },
+    "rgb_channel_range": [
+      0,
+      255
+    ]
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "HSV-to-RGB packs rounded bytes as R<<16|G<<8|B; RGB-to-HSV packs hue millidegrees, saturation millionths, and value millionths into three 20-bit fields; -1 is invalid",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Preserves C# HSV sector formulas and Math.Round ties-to-even byte conversion, plus its RGB max/min/chroma branches and hue normalization. HSV input is fixed-point; RGB output is exact bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "hsv_red",
+      "input_values": [
+        0,
+        0,
+        1000,
+        1000
+      ],
+      "expected_result": 16711680
+    },
+    {
+      "id": "hsv_yellow",
+      "input_values": [
+        0,
+        60000,
+        1000,
+        1000
+      ],
+      "expected_result": 16776960
+    },
+    {
+      "id": "hsv_cyan",
+      "input_values": [
+        0,
+        180000,
+        1000,
+        1000
+      ],
+      "expected_result": 65535
+    },
+    {
+      "id": "hsv_360_boundary",
+      "input_values": [
+        0,
+        360000,
+        1000,
+        1000
+      ],
+      "expected_result": 16711680
+    },
+    {
+      "id": "hsv_gray",
+      "input_values": [
+        0,
+        271000,
+        0,
+        500
+      ],
+      "expected_result": 8421504
+    },
+    {
+      "id": "rgb_green",
+      "input_values": [
+        1,
+        0,
+        255,
+        0
+      ],
+      "expected_result": 131942443910120000
+    },
+    {
+      "id": "rgb_gray",
+      "input_values": [
+        1,
+        127,
+        127,
+        127
+      ],
+      "expected_result": 498039
+    },
+    {
+      "id": "rgb_black",
+      "input_values": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1
+    }
+  ]
+}

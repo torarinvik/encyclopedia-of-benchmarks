@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "python-erosion-cross-binary-grid-i64-array-scalar-v1",
+  "algorithm": "erosion_operation",
+  "contract": {
+    "input": "[height, width, row-major binary pixels...] with height and width in 1..6",
+    "output": "Row-major output pixels packed into the corresponding low bits of a signed 64-bit integer",
+    "kernel": "3x3 cross with active center and four orthogonal neighbors; out-of-grid pixels are zero",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"cross_footprint_center_survives","input_values":[3,3,0,1,0,1,1,1,0,1,0],"input_length":11,"expected_result":16},
+    {"id":"full_three_by_three","input_values":[3,3,1,1,1,1,1,1,1,1,1],"input_length":11,"expected_result":16},
+    {"id":"missing_kernel_neighbor_rejects_center","input_values":[3,3,0,0,0,1,1,1,0,1,0],"input_length":11,"expected_result":0},
+    {"id":"single_pixel_boundary","input_values":[1,1,1],"input_length":3,"expected_result":0},
+    {"id":"single_row","input_values":[1,5,1,1,1,1,1],"input_length":7,"expected_result":0},
+    {"id":"single_column","input_values":[5,1,1,1,1,1,1],"input_length":7,"expected_result":0},
+    {"id":"invalid_zero_height","input_values":[0,2,1,1],"input_length":4,"expected_result":-1},
+    {"id":"invalid_wrong_pixel_count","input_values":[2,2,1,1,1],"input_length":5,"expected_result":-1},
+    {"id":"invalid_nonbinary_pixel","input_values":[1,2,1,2],"input_length":4,"expected_result":-1},
+    {"id":"invalid_oversize_dimension","input_values":[7,1,1,1,1,1,1,1,1],"input_length":9,"expected_result":-1}
+  ]
+}

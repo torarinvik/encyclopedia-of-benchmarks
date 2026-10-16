@@ -1,0 +1,26 @@
+# Bounded binary erosion with the pinned 3x3 cross structuring element.
+def erosion_operation_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 38:
+        return -1
+    height_value: i64 = input[0]
+    width_value: i64 = input[1]
+    if height_value < 1 or height_value > 6 or width_value < 1 or width_value > 6:
+        return -1
+    if length != 2 + (height_value * width_value).usize():
+        return -1
+    height: usize = height_value.usize()
+    width: usize = width_value.usize()
+    for index in 2..length:
+        if input[index] != 0 and input[index] != 1:
+            return -1
+    if height < 3 or width < 3:
+        return 0
+    result: mutable i64 = 0
+    if height > 2 and width > 2:
+        for row in 1..height-1:
+            for column in 1..width-1:
+                at: usize = 2 + row * width + column
+                if input[at] == 1 and input[at-width] == 1 and input[at+width] == 1 and input[at-1] == 1 and input[at+1] == 1:
+                    result <- result | (1.i64 << (row * width + column).u32())
+    result
+export erosion_operation(input: i64&, length: usize) -> i64 = erosion_operation_impl

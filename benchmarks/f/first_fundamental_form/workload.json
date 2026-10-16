@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "python-first-fundamental-form-i64-array-i64-v1",
+  "algorithm": "first_fundamental_form",
+  "function_symbol": "first_fundamental_form",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "18 coefficients: for each of x(u,v), y(u,v), z(u,v), coefficients [1,u,v,u^2,uv,v^2] in that order",
+    "maximum_input_length": 18,
+    "coordinate_count": 3,
+    "coefficient_count_per_coordinate": 6,
+    "coefficient_range": [
+      -100,
+      100
+    ]
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "signed FNV-1a 64-bit hash of the 18 integer coefficients of E,F,G, each polynomial coefficient ordered [1,u,v,u^2,uv,v^2] and each value encoded as 8-byte little-endian signed integer",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Python source parses symbolic coordinate expressions, differentiates the position vector with respect to u and v, and simplifies the dot products E=r_u\u00b7r_u, F=r_u\u00b7r_v, G=r_v\u00b7r_v. This benchmark covers exact integer-coefficient polynomials of total degree at most two."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "plane",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -8284959458671194907
+    },
+    {
+      "id": "paraboloid",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "expected_result": 4630166683064334561
+    },
+    {
+      "id": "mixed_quadratic",
+      "input_values": [
+        2,
+        1,
+        -2,
+        1,
+        1,
+        0,
+        -1,
+        3,
+        2,
+        0,
+        -1,
+        1,
+        0,
+        -2,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "expected_result": 8913224049901762599
+    },
+    {
+      "id": "constant_degenerate",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1426965318349312411
+    }
+  ]
+}

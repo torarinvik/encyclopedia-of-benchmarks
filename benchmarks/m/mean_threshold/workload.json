@@ -1,12 +1,16 @@
 {
   "schema_version": 1,
-  "id": "thealgorithms-python-mean-threshold-square-grayscale-bytes-v1",
+  "id": "thealgorithms-python-mean-threshold-gray-bytes-v1",
   "algorithm": "mean_threshold",
   "function_symbol": "mean_threshold",
   "input": {
     "kind": "signed_i64_array",
-    "layout": "[side, row-major grayscale pixel values...]",
-    "side_range": [
+    "layout": "[width, height, row-major grayscale pixel values...]",
+    "width_range": [
+      1,
+      32
+    ],
+    "height_range": [
       1,
       32
     ],
@@ -14,8 +18,8 @@
       0,
       255
     ],
-    "maximum_input_values": 1025,
-    "maximum_parseable_input_values": 1026,
+    "maximum_input_values": 1026,
+    "maximum_parseable_input_values": 1027,
     "invalid_result": -1
   },
   "output": {
@@ -48,9 +52,10 @@
       "id": "single_black_pixel",
       "input_values": [
         1,
+        1,
         0
       ],
-      "input_length": 2,
+      "input_length": 3,
       "expected_result": 1,
       "expected_output_hex": "00"
     },
@@ -58,9 +63,10 @@
       "id": "single_white_pixel_maps_to_black",
       "input_values": [
         1,
+        1,
         255
       ],
-      "input_length": 2,
+      "input_length": 3,
       "expected_result": 1,
       "expected_output_hex": "00"
     },
@@ -68,12 +74,13 @@
       "id": "threshold_equality_is_black",
       "input_values": [
         2,
+        2,
         0,
         1,
         2,
         3
       ],
-      "input_length": 5,
+      "input_length": 6,
       "expected_result": 4,
       "expected_output_hex": "0000ffff"
     },
@@ -81,18 +88,20 @@
       "id": "floor_mean_rounds_down",
       "input_values": [
         2,
+        2,
         0,
         0,
         0,
         1
       ],
-      "input_length": 5,
+      "input_length": 6,
       "expected_result": 4,
       "expected_output_hex": "000000ff"
     },
     {
       "id": "strict_greater_than_threshold",
       "input_values": [
+        3,
         3,
         0,
         1,
@@ -104,13 +113,14 @@
         7,
         8
       ],
-      "input_length": 10,
+      "input_length": 11,
       "expected_result": 9,
       "expected_output_hex": "0000000000ffffffff"
     },
     {
       "id": "uniform_gray_maps_to_black",
       "input_values": [
+        4,
         4,
         77,
         77,
@@ -129,13 +139,14 @@
         77,
         77
       ],
-      "input_length": 17,
+      "input_length": 18,
       "expected_result": 16,
       "expected_output_hex": "00000000000000000000000000000000"
     },
     {
       "id": "checkerboard",
       "input_values": [
+        4,
         4,
         0,
         255,
@@ -154,39 +165,122 @@
         255,
         0
       ],
-      "input_length": 17,
+      "input_length": 18,
       "expected_result": 16,
       "expected_output_hex": "00ff00ffff00ff0000ff00ffff00ff00"
     },
     {
+      "id": "rectangular_width_greater_than_height",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "000000ffffff"
+    },
+    {
+      "id": "rectangular_height_greater_than_width",
+      "input_values": [
+        2,
+        3,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "000000ffffff"
+    },
+    {
+      "id": "one_row_rectangle",
+      "input_values": [
+        4,
+        1,
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "0000ffff"
+    },
+    {
+      "id": "one_column_rectangle",
+      "input_values": [
+        1,
+        4,
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "0000ffff"
+    },
+    {
       "id": "capacity_failure",
       "input_values": [
+        2,
         2,
         0,
         255,
         1,
         254
       ],
-      "input_length": 5,
+      "input_length": 6,
       "expected_result": -2,
       "expected_output_hex": "",
       "workspace_bytes": 3
     },
     {
-      "id": "invalid_zero_side",
+      "id": "invalid_zero_width",
       "input_values": [
-        0
+        0,
+        1
       ],
-      "input_length": 1,
+      "input_length": 2,
       "expected_result": -1,
       "expected_output_hex": ""
     },
     {
-      "id": "invalid_side_above_bound",
+      "id": "invalid_zero_height",
       "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_width_above_bound",
+      "input_values": [
+        33,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_height_above_bound",
+      "input_values": [
+        1,
         33
       ],
-      "input_length": 1,
+      "input_length": 2,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -194,11 +288,12 @@
       "id": "invalid_truncated_pixels",
       "input_values": [
         2,
+        2,
         0,
         1,
         2
       ],
-      "input_length": 4,
+      "input_length": 5,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -206,10 +301,11 @@
       "id": "invalid_trailing_value",
       "input_values": [
         1,
+        1,
         9,
         10
       ],
-      "input_length": 3,
+      "input_length": 4,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -217,9 +313,10 @@
       "id": "invalid_negative_pixel",
       "input_values": [
         1,
+        1,
         -1
       ],
-      "input_length": 2,
+      "input_length": 3,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -227,15 +324,17 @@
       "id": "invalid_pixel_above_grayscale_range",
       "input_values": [
         1,
+        1,
         256
       ],
-      "input_length": 2,
+      "input_length": 3,
       "expected_result": -1,
       "expected_output_hex": ""
     },
     {
       "id": "maximum_32_by_32_image",
       "input_values": [
+        32,
         32,
         0,
         31,
@@ -1262,13 +1361,14 @@
         177,
         208
       ],
-      "input_length": 1025,
+      "input_length": 1026,
       "expected_result": 1024,
       "expected_output_hex": "0000000000ffffffff00000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff0000000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffffff00000000ffffffff0000ffffffffff00000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffffff00000000ffffffff0000ffffffff0000000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffff0000000000ffffffff0000ffffffff00000000ffffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffffff000000ffffff00000000ffffffffff00000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff0000000000ffff00000000ffffffff0000000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff0000000000ffff00000000ffffffff00000000ffffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff0000000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff0000000000ffffffff00000000ffffffff0000ffffffffff00000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffffff00000000ffffffff0000ffffffff0000000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffff0000000000ffffffff0000ffffffff0000000000ffffffff00000000ffffffff00000000ffffffff000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffffff000000ffffff00000000ffffffffff00000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffffff00000000ffff00000000ffffffff0000000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff0000000000ffff00000000ffffffff00000000ffffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffff00000000ffffffff00000000ffffffffff00000000ffffffff00000000ffffff"
     },
     {
       "id": "overlong_maximum_image",
       "input_values": [
+        32,
         32,
         0,
         0,
@@ -2296,7 +2396,7 @@
         0,
         0
       ],
-      "input_length": 1026,
+      "input_length": 1027,
       "expected_result": -1,
       "expected_output_hex": ""
     }

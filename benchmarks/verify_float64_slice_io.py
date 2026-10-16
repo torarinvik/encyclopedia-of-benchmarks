@@ -47,6 +47,40 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         ([], -1, [], workspace, 0, 0),
     ))
 
+    if algorithm == "fresnel_diffract":
+        oracle = ORACLES[algorithm]
+
+        def add_fresnel_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        # The fixed physical prefix is part of this bounded ABI contract.
+        for index, replacement in ((0, 3.0), (1, 0.0), (2, 2.0), (3, 15.0)):
+            invalid_parameters = list(values)
+            invalid_parameters[index] = replacement
+            add_fresnel_case(invalid_parameters)
+
+        # Exercise both accepted range endpoints and just-outside values.
+        boundary_values = list(values)
+        boundary_values[4], boundary_values[8] = 100.0, -100.0
+        add_fresnel_case(boundary_values)
+        for index, replacement in ((4, 100.000001), (5, -100.000001),
+                                   (8, 100.000001), (11, -100.000001)):
+            out_of_range = list(values)
+            out_of_range[index] = replacement
+            add_fresnel_case(out_of_range)
+
+        for special in (math.nan, math.inf, -math.inf):
+            nonfinite = list(values)
+            nonfinite[4] = special
+            add_fresnel_case(nonfinite)
+
+        add_fresnel_case(values[:-1])
+        add_fresnel_case([*values, 0.0])
+
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:
         lines.append(f"{len(inputs)} {expected_result} {len(expected_output)} {capacity} "
@@ -77,9 +111,15 @@ def _matches_output(observed: object, expected: list[float | str],
 
 def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str | None,
            data: str, case_count: int, workload: dict) -> dict:
+    extra_link_sources = ()
+    if language == "elisa" and elisa_compiler:
+        runtime = Path(elisa_compiler).resolve().parent.parent / "build/runtime/elisacore_runtime.o"
+        if runtime.is_file():
+            extra_link_sources = (runtime,)
     manifest = build(algorithm, language, directory,
                      compiler=elisa_compiler if language == "elisa" else None,
-                     with_checker=True, family="float64_slice_io")
+                     with_checker=True, family="float64_slice_io",
+                     extra_link_sources=extra_link_sources)
     checker = manifest["binaries"]["float64_slice_io_check"]["path"]
     checked = subprocess.run([checker], input=data, capture_output=True, text=True, timeout=180)
     if checked.returncode:

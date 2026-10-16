@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3854,
+  "candidate_count": 3856,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -4920,7 +4920,17 @@
       "source_repositories": [
         "Dart"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "review_notes": "The pinned Dart source implements the direct Ackermann recurrence. The shared benchmark keeps that recursive algorithm, bounds inputs to 0 <= m <= 3 and 0 <= n <= 5 to keep recursion practical, and returns -1 outside the declared domain.",
       "benchmark_contract": "benchmarks/a/ackermann/README.md",
@@ -4932,7 +4942,8 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/other/ackermann.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "ackermann"
     },
     {
       "candidate_id": "acronym",
@@ -4971,7 +4982,17 @@
         "Java",
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -4997,7 +5018,8 @@
         }
       ],
       "review_notes": "The pinned Java and Python greedy_methods sources order activities by finish time and accept the next activity when its start is at least the last selected finish. The Python other source assumes pre-sorted inputs and prints selected indices. The shared contract returns the optimal selection count, accepts empty input consistently, uses signed 64-bit times, permits touching and zero-duration intervals, and rejects malformed layouts or start > finish.",
-      "benchmark_contract": "benchmarks/a/activity_selection/README.md"
+      "benchmark_contract": "benchmarks/a/activity_selection/README.md",
+      "benchmark_name": "activity_selection"
     },
     {
       "candidate_id": "adagrad",
@@ -26173,14 +26195,14 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python file is an umbrella module. Its PCA method is split into the bounded one-component contract at benchmarks/d/dimensionality_reduction_pca/README.md. That split preserves the source's feature-by-sample orientation, divisor-n covariance, and projection of the original uncentered matrix; it canonicalizes the eigenvector sign to make outputs portable. LDA projection and seeded t-SNE remain unresolved separate methods: generalized eigendecomposition plus SVD and seeded iterative embedding are not covered by the PCA slice. The module's covariance helper functions are support routines, not additional standalone benchmark contracts.",
+      "review_notes": "The pinned Python module is an umbrella. Its PCA, LDA, and seeded t-SNE methods are split into separate bounded contracts at benchmarks/d/dimensionality_reduction_pca/README.md, benchmarks/d/dimensionality_reduction_lda/README.md, and benchmarks/d/dimensionality_reduction_tsne/README.md. The t-SNE split fixes the seed to 42, the input to one feature and three samples, perplexity 1.5, learning rate 10, and five iterations; it preserves the source's binary-search conditional probabilities, symmetrization, Student-t affinities, momentum, and gradient update. The three initial embedding draws are fixed to NumPy's default_rng(42) output for this exact shape. Covariance helpers are support routines, not independent benchmark contracts.",
       "split_benchmarks": {
-        "principal_component_analysis": "benchmarks/d/dimensionality_reduction_pca/README.md"
+        "principal_component_analysis": "benchmarks/d/dimensionality_reduction_pca/README.md",
+        "linear_discriminant_analysis": "benchmarks/d/dimensionality_reduction_lda/README.md",
+        "t_distributed_stochastic_neighbor_embedding": "benchmarks/d/dimensionality_reduction_tsne/README.md"
       },
-      "unresolved_split_methods": [
-        "linear_discriminant_analysis",
-        "t_distributed_stochastic_neighbor_embedding"
-      ]
+      "unresolved_split_methods": [],
+      "benchmark_contract": "benchmarks/d/dimensionality_reduction_pca/README.md"
     },
     {
       "candidate_id": "dimensionality_reduction_algorithms",
@@ -26200,6 +26222,36 @@
         }
       ],
       "review_notes": "The pinned R source is only four top-level statements: it loads stats, calls princomp(train, cor = TRUE), and predicts scores for train and test. It defines no function or input contract and depends on ambient train/test variables, so it is a dataset-workflow snippet rather than a self-contained algorithm implementation. Its operation is correlation-based PCA, but it is not an alias of the R pca_algorithm candidate: that function accepts X and k and returns reduced scores, components, and eigenvalues. No mapped benchmark package exists locally."
+    },
+    {
+      "candidate_id": "dimensionality_reduction_pca",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "machine_learning/dimensionality_reduction.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/dimensionality_reduction.py",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_contract": "benchmarks/d/dimensionality_reduction_pca/README.md",
+      "review_notes": "This candidate tracks the pinned Python module’s one-component PCA path only: feature-by-sample orientation, centered covariance with divisor N, and projection of the original uncentered input. The benchmark canonicalizes the eigenvector sign and bounds the matrix to two features and 2–8 samples. LDA and t-SNE remain separate uncovered methods in the umbrella dimensionality_reduction candidate."
     },
     {
       "candidate_id": "dinic",
@@ -27323,7 +27375,8 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Go Doubly type is a sentinel-based circular doubly linked list. AddAtBeg/AddAtEnd and DelAtBeg/DelAtEnd implement push and pop at both ends, while Front/Back expose the two end values (nil when empty). Those operations align with the linked_deque trace. Count, DelByPos, Reverse, and MoveToBack are additional list operations not covered by that shared deque contract; the node-pointer mutation methods are also outside its operation interface. This is an alias for the common end-operation subset, not a claim of full API equivalence."
+      "review_notes": "The pinned Go Doubly type is a sentinel-based circular doubly linked list. AddAtBeg/AddAtEnd and DelAtBeg/DelAtEnd implement push and pop at both ends, while Front/Back expose the two end values (nil when empty). Those operations align with the linked_deque trace. Count, DelByPos, Reverse, and MoveToBack are additional list operations not covered by that shared deque contract; the node-pointer mutation methods are also outside its operation interface. This is an alias for the common end-operation subset, not a claim of full API equivalence.",
+      "alias_of": "linked_deque"
     },
     {
       "candidate_id": "doubly_linked_list",
@@ -27491,7 +27544,8 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python LinkedList uses a head/tail doubly linked structure. Its insert() appends, delete_value() unlinks the first matching node, __contains__ searches by value, and iteration traverses forward; these core list behaviors are represented by the canonical doubly_linked_list contract. insert_at_position() has a source-specific 1-based position with append-on-past-end behavior, and missing delete_value() raises; those details are outside the shared operation trace. The candidate is mapped to the canonical benchmark for its common linked-list operations."
+      "review_notes": "The pinned Python LinkedList uses a head/tail doubly linked structure. Its insert() appends, delete_value() unlinks the first matching node, __contains__ searches by value, and iteration traverses forward; these core list behaviors are represented by the canonical doubly_linked_list contract. insert_at_position() has a source-specific 1-based position with append-on-past-end behavior, and missing delete_value() raises; those details are outside the shared operation trace. The candidate is mapped to the canonical benchmark for its common linked-list operations.",
+      "alias_of": "doubly_linked_list"
     },
     {
       "candidate_id": "download_images_from_google_query",
@@ -28093,7 +28147,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_invalid_source",
       "implementations": [
         {
           "repository": "Java",
@@ -28102,7 +28156,8 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/ECC.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java ECC demo randomly creates curve parameters but fixes its base point at (4, 8) without checking that it lies on the curve. Its message encoder similarly maps arbitrary values to (m, m), which is not generally a curve point, then applies group formulas that require valid curve points. The encryption/decryption example therefore does not implement valid elliptic-curve cryptography and has no deterministic portable key/input contract; excluded as an invalid implementation of its named algorithm."
     },
     {
       "candidate_id": "edfscheduling",
@@ -28705,7 +28760,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Rust",
@@ -28714,7 +28769,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/elliptic_curve.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "elliptic_curve_key_exchange",
+      "benchmark_contract": "benchmarks/e/elliptic_curve_key_exchange/README.md",
+      "review_notes": "The pinned Rust source implements affine elliptic-curve points and their group addition, negation, and subtraction over prime fields. The existing elliptic_curve_key_exchange benchmark already ports and exercises the same affine addition law in all nine languages as the core of its bounded scalar-multiplication/ECDH contract, so this filename is cataloged as covered by that benchmark."
     },
     {
       "candidate_id": "elliptic_curve_key_exchange",
@@ -28761,7 +28819,7 @@
         "MATLAB-Octave"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "MATLAB-Octave",
@@ -28770,7 +28828,9 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/ELU.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/elu/README.md",
+      "review_notes": "The pinned MATLAB-Octave file is an interactive plotting demo, but its displayed activation expression is a deterministic ELU: alpha * (exp(x) - 1) for x < 0 and x for x > 0, with zero at x == 0. The new scalar benchmark isolates that formula, supplies alpha explicitly, and applies a bounded finite binary64 domain. It is distinct from exponential_linear_unit, whose pinned Rust expression differs on negative inputs."
     },
     {
       "candidate_id": "emafilter",
@@ -29158,7 +29218,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -29167,7 +29227,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/morphological_operations/erosion_operation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/erosion_operation/README.md",
+      "review_notes": "The pinned Python erosion function multiplies a binary image window by the supplied kernel and writes one exactly when the sum is 5. The shared contract uses the source demo’s 3x3 cross kernel and zero padding; its grayscale conversion and file-based image demo are outside this operation contract."
     },
     {
       "candidate_id": "escape_velocity",
@@ -29763,8 +29825,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -29773,7 +29845,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Stack/EvaluateExpression.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/e/evaluate_expression/README.md",
+      "review_notes": "The pinned JavaScript evaluatePostfixExpression consumes whitespace-separated reverse Polish notation from left to right, pushing parsed numeric operands and applying +, -, *, and / with the right operand popped first. The existing benchmark preserves the stack order and source null behavior for underflow, unknown operators, division by zero, and leftover values, while using a bounded milli-unit numeric encoding instead of locale-sensitive strings. It is distinct from postfix_evaluation integer truncation and postfix_evaluator Java int32 wrapping.",
+      "benchmark_name": "evaluate_expression"
     },
     {
       "candidate_id": "even_tree",
@@ -30286,6 +30361,36 @@
       "review_notes": "The Solidity source stores two uint16 values and returns their checked, unmodded power. The bounded contract keeps base^exponent within signed 64-bit output and avoids uint256 overflow."
     },
     {
+      "candidate_id": "generate_subsets_recursive",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Java"
+      ],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Java",
+          "language": "Java",
+          "path": "src/main/java/com/thealgorithms/recursion/GenerateSubsets.java",
+          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/recursion/GenerateSubsets.java",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_contract": "benchmarks/g/generate_subsets_recursive/README.md",
+      "review_notes": "The pinned Java recursion package explores the include branch before the exclude branch, producing depth-first subsets in positional order. Its string input is bounded to ASCII bytes, and the contract preserves duplicate positions and the empty subset while length-prefixing outputs."
+    },
+    {
       "candidate_id": "modular_exponentiation_go",
       "source_repository_count": 1,
       "source_repositories": [
@@ -30482,7 +30587,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -30491,7 +30596,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/streaming/ExtendedKalmanFilter.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "extended_kalman_filter",
+      "benchmark_contract": "benchmarks/e/extended_kalman_filter/README.md",
+      "review_notes": "The pinned Java ExtendedKalmanFilter is a vector-state EKF with nonlinear transition and measurement callbacks, Jacobians evaluated at the current estimate, and Joseph-form covariance correction. It is distinct from the scalar KalmanFilter candidate/contract: no existing local Kalman benchmark covers these equations. The bounded extended_kalman_filter trace fixes a 2-state quadratic transition and scalar quadratic observation. C, C++, Rust, Zig, C3, Nim, Odin, and V passed the focused verifier (17 oracle arrays and 7 workload cases each). Elisa is present as a direct native source translation but stage1 emitted no exported symbol; the direct-export backend limitation is reproduced in benchmarks/elisa_stage1_export_probe/README.md and Elisa is not counted as verified."
     },
     {
       "candidate_id": "extendedgcd",
@@ -30542,7 +30650,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -30551,7 +30659,8 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/ScapegoatTree/Extensions.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C# class exposes FlattenTree and RebuildFromList helpers that convert a scapegoat tree subtree to an inorder node list and rebuild it around midpoint nodes. ScapegoatTree.cs invokes both only as part of its insertion/deletion rebalancing; the file does not define an independent data structure or general-purpose algorithm contract. These helpers belong to the separate scapegoat_tree candidate and are excluded as a standalone candidate."
     },
     {
       "candidate_id": "external_merge_sorter",
@@ -30559,8 +30668,20 @@
       "source_repositories": [
         "C-Sharp"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c/e",
+        "c3/e",
+        "cpp/e",
+        "elisa/e",
+        "nim/e",
+        "odin/e",
+        "rust/e",
+        "v/e",
+        "zig/e"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "review_notes": "The pinned C# implementation performs bottom-up merge passes over sequential storage, beginning with run width 1 and doubling the width while swapping source and temporary stores. The benchmark models those passes with two bounded buffers and returns the sorted signed 64-bit values; actual disk I/O and storage adapters are excluded.",
+      "benchmark_contract": "benchmarks/e/external_merge_sorter/README.md",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -30578,7 +30699,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_invalid_source",
       "implementations": [
         {
           "repository": "Python",
@@ -30587,7 +30708,8 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/external_sort.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python NWayMerge.select initializes min_str to None but never updates it while scanning choices. The condition therefore remains true for every run head and returns the last index rather than the smallest head, so the merge step does not produce sorted output in general. Excluded as an invalid external-sort implementation."
     },
     {
       "candidate_id": "face_recognition_using_eigen_faces",
@@ -31601,7 +31723,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -31610,7 +31732,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/federated_averaging.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/federated_averaging/README.md",
+      "review_notes": "The pinned Python federated_average normalizes nonnegative client weights by their positive sum and uses them to aggregate each client tensor coordinate. The portable contract scopes this operation to one scalar tensor per client, explicit weights, and bounded integer inputs represented exactly as float64 values; NumPy tensor-shape and optional equal-weight handling are outside this shared contract."
     },
     {
       "candidate_id": "feistel_cipher",
@@ -31947,7 +32071,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -31956,7 +32080,11 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/FFT.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "fast_fourier_transform",
+      "benchmark_contract": "benchmarks/f/fast_fourier_transform/README.md",
+      "alias_of": "fast_fourier_transform",
+      "review_notes": "The pinned Java FFT uses iterative radix-2 Cooley–Tukey with bit reversal and zero-pads to the next power of two. It implements the same transform family as the existing `fast_fourier_transform` benchmark; this maps its forward operation to the benchmark’s bounded power-of-two real-input contract, which normalizes the Java API’s complex input and negative-angle sign convention to the shared fixed-point output. The inverse flag and non-power-of-two padded Java inputs are outside the shared contract."
     },
     {
       "candidate_id": "fftbluestein",
@@ -31965,7 +32093,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -31974,7 +32102,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/FFTBluestein.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "fft_bluestein",
+      "benchmark_contract": "benchmarks/f/fft_bluestein/README.md",
+      "review_notes": "The pinned Java `FFTBluestein.fftBluestein` applies quadratic chirps, computes a linear convolution through `ConvolutionFFT`, multiplies by the output chirp, and divides by n only for inverse mode. This is distinct from the existing radix-2 transform benchmark: it handles arbitrary transform lengths by reducing to a power-of-two convolution. A bounded forward real-input contract is implemented separately."
     },
     {
       "candidate_id": "fheap_node",
@@ -32884,7 +33015,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_invalid_source",
       "implementations": [
         {
           "repository": "Rust",
@@ -32893,7 +33024,8 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/field.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "review_notes": "The recorded pinned Rust source URL for src/math/field.rs returns 404 at commit fed66cb0c74a939ec5163648458a8c2b46fd4c, and no corresponding local Rust source file is present. The current upstream tree has since listed a Field module, but that content is outside this candidate’s recorded pin and cannot be attributed to the pinned source inventory. Excluded because the pinned source file is unavailable."
     },
     {
       "candidate_id": "fifocache",
@@ -32901,8 +33033,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -32911,7 +33053,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/FIFOCache.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/fifocache/README.md",
+      "review_notes": "The pinned Java FIFOCache defaults to TTL zero, which keeps entries indefinitely, and uses insertion-order FIFO eviction. A put for an existing key removes the old entry and appends the replacement at the tail; gets update hit/miss counters but leave order unchanged. This observable policy is distinct from the existing LRU page-cache contract, where a hit changes recency and the least-recently-used page is evicted. The bounded contract covers capacities 1–6, up to eight put/overwrite/get operations, byte values, hit/miss counters, query results, and final FIFO contents. TTL timing, threading, callbacks, explicit removal, and builder configuration are outside the contract."
     },
     {
       "candidate_id": "figurate_number",
@@ -32943,7 +33087,20 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "return_on_investment",
+      "benchmark_contract": "benchmarks/r/return_on_investment/README.md",
+      "additional_benchmark_names": [
+        "debt_to_equity",
+        "gross_profit_margin",
+        "earnings_per_sale"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/d/debt_to_equity/README.md",
+        "benchmarks/g/gross_profit_margin/README.md",
+        "benchmarks/e/earnings_per_sale/README.md"
+      ],
+      "review_notes": "The pinned Rust module exposes four independent scalar formulas: return on investment, debt to equity, gross profit margin, and earnings per sale. They are recorded as four benchmarks with positive denominators and bounded integer-valued inputs to avoid undefined division while preserving each formula.",
       "implementations": [
         {
           "repository": "Rust",
@@ -33304,8 +33461,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -33314,7 +33481,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/FindMonthCalendar.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/f/find_month_calendar/README.md",
+      "review_notes": "The pinned JavaScript Month.generateMonthCal prints a Monday-first Gregorian calendar using January 1, 1900 as its epoch, calculates offsets from leap/common month lengths, and pads each date cell to four characters. This produces a distinct full month-grid text result, rather than the weekday scalar in date_to_day or the month-length scalar in get_month_days. The nine-language benchmark accepts [month, year] with month 1..12 and year 1899..2100, preserves exact source output text, and uses a fresh Month instance per call because getDayDiff mutates its epoch object. The bounded domain excludes the separate earlier-leap-year correction quirk; maximum output is 181 bytes.",
+      "benchmark_name": "find_month_calendar"
     },
     {
       "candidate_id": "find_non_repeating_number",
@@ -33619,8 +33789,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -33629,7 +33809,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/first_fundamental_form.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "first_fundamental_form",
+      "benchmark_contract": "benchmarks/f/first_fundamental_form/README.md",
+      "review_notes": "The pinned Python function accepts three symbolic coordinate expressions, differentiates r(u,v) with respect to u and v, then simplifies E=r_u·r_u, F=r_u·r_v, and G=r_v·r_v. The bounded contract uses exact integer-coefficient coordinate polynomials in basis [1,u,v,u²,uv,v²], with coefficients in [-100,100], and returns a signed FNV-1a hash of the 18 coefficients for E, F, and G in that basis. It captures the pinned differentiation and dot-product semantics for total-degree-at-most-two polynomials, while excluding general SymPy parsing/simplification."
     },
     {
       "candidate_id": "first_law_of_thermodynamics",
@@ -33906,8 +34089,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -33916,7 +34109,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/lists/FlattenMultilevelLinkedList.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "flatten_multilevel_linked_list",
+      "benchmark_contract": "benchmarks/f/flatten_multilevel_linked_list/README.md",
+      "review_notes": "The pinned Java source flattens the child-linked sorted columns hanging from the top-level next chain by recursively flattening the suffix and merging. The benchmark preserves the resulting ascending values with a bounded column-array encoding: up to eight columns of sixteen signed 32-bit values, little-endian i32 output, byte-count return, and -1/-2 invalid/capacity sentinels. Object identity and pointer rewiring are outside the values-only ABI."
     },
     {
       "candidate_id": "flatten_nested_list",
@@ -33998,8 +34194,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -34008,7 +34214,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/computer_vision/flip_augmentation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "flip_augmentation",
+      "benchmark_contract": "benchmarks/f/flip_augmentation/README.md",
+      "review_notes": "The pinned Python update_image_and_anno helper applies OpenCV flip code 0 vertically or 1 horizontally and reflects the matching normalized bounding-box center with 1 - center. The benchmark maps that deterministic operation to row-major grayscale bytes and fixed-millionth box coordinates. File enumeration, image encoding, and random output naming are wrapper behavior and excluded."
     },
     {
       "candidate_id": "flood_fill",
@@ -34384,7 +34593,10 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
+      "alias_of": "edmonds_karp",
+      "review_notes": "The pinned Java and Rust implementations search the residual graph with BFS; the Python implementation does too. This is Edmonds–Karp augmenting-path selection, already covered by the shared maximum-flow contract, so it is cataloged as an alias rather than duplicated.",
+      "benchmark_contract": "benchmarks/e/edmonds_karp/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -34733,7 +34945,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -34742,7 +34954,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/fresnel_diffract.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "fresnel_diffract",
+      "benchmark_contract": "benchmarks/f/fresnel_diffract/README.md",
+      "review_notes": "The pinned Python routine accepts 1D or 2D complex fields, applies centered FFTs and the Fresnel transfer function exp(-i*pi*wavelength*distance*frequency^2), then inverse-transforms. No existing Fresnel integral or diffraction benchmark covers this operation. The bounded split fixes a 1D field of four complex samples and physical parameters (pixel size, wavelength, distance)=(1,1,16), giving exact transfer factors [1,-1,1,-1]; it uses the mathematically equivalent direct 4-point DFT and supports real/imaginary components in [-100,100]."
     },
     {
       "candidate_id": "friendly_number",
@@ -34823,8 +35038,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -34833,7 +35058,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/from_sequence.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "from_sequence",
+      "benchmark_contract": "benchmarks/f/from_sequence/README.md",
+      "review_notes": "The pinned Python make_linked_list rejects an empty sequence, allocates a head node, appends one node per remaining element in input order, and returns the head. Node.__repr__ walks the list and emits `<value> ---> ` per node followed by `<END>`; the benchmark preserves that observable representation for signed i64 values, with the text generation forming part of its contract."
     },
     {
       "candidate_id": "full_wave_rectifier",
@@ -35194,7 +35422,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Java",
@@ -35203,7 +35431,8 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/GangScheduling.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java class documents simultaneous execution of all tasks in a gang, but does not implement a scheduler: addGang creates a named empty group, addTaskToGang appends a task string only if that group exists, and getGangSchedules copies the group-to-task lists. It has no processor count, availability, durations, scheduling decisions, synchronization, or execution trace; gang iteration comes from HashMap and has no ordering contract. This is not an alias of cpu_scheduling_algorithms (which computes process execution order and timing), nor does the source define a portable gang schedule to benchmark. Excluded as a task-grouping data-structure demo rather than gang scheduling."
     },
     {
       "candidate_id": "gans_py_torch",
@@ -35343,7 +35572,7 @@
         "Julia"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Julia",
@@ -35352,7 +35581,10 @@
           "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/matrix/gauss_jordan_elim.jl",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "gauss_jordan",
+      "benchmark_contract": "benchmarks/g/gauss_jordan/README.md",
+      "review_notes": "The pinned Julia function checks a nonzero determinant, chooses the first exact-nonzero pivot below the current row when needed, normalizes that pivot row, and eliminates the pivot column from every other row. On the existing contract’s bounded full-rank square coefficient matrices with a right-hand side, it yields the same reduced matrix and solution; the broader rectangular and rank-deficient cases belong to the canonical Python contract."
     },
     {
       "candidate_id": "gauss_jordan_elimination",
@@ -35361,7 +35593,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -35370,7 +35602,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/GaussJordanElimination.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "gauss_jordan",
+      "benchmark_contract": "benchmarks/g/gauss_jordan/README.md",
+      "review_notes": "The pinned C# solver accepts a square augmented system with more than one row, swaps in the first nonzero pivot below when needed, eliminates below, then normalizes rows and eliminates above. For nonsingular bounded systems its in-place matrix is the identity plus the solved right-hand side, matching the canonical full-rank Gauss–Jordan result. Its Boolean singular result and shape exception are normalized by the shared contract."
     },
     {
       "candidate_id": "gauss_legendre",
@@ -35621,8 +35856,18 @@
       "source_repositories": [
         "Fortran"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Fortran",
@@ -35631,7 +35876,10 @@
           "url": "https://github.com/TheAlgorithms/Fortran/blob/c91199703b78bd2181051b01bd5269740e41e121/modules/maths/numerical_integration/gaussian_legendre.f90",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "gaussian_legendre",
+      "benchmark_contract": "benchmarks/g/gaussian_legendre/README.md",
+      "review_notes": "The pinned Fortran module maps reference nodes and weights for Gauss-Legendre quadrature orders 1 through 5, transforms each node to [a,b], evaluates the supplied function, and sums weighted values. The nine-language contract specializes the callback to a bounded cubic polynomial and preserves the source's rounded tables and operation order. It is a distinct quadrature algorithm from the Java gauss_legendre pi iteration."
     },
     {
       "candidate_id": "gaussian_mixture_model",
@@ -36124,7 +36372,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -36132,15 +36380,11 @@
           "path": "src/main/java/com/thealgorithms/bitmanipulation/GenerateSubsets.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/GenerateSubsets.java",
           "local_folder_source": null
-        },
-        {
-          "repository": "Java",
-          "language": "Java",
-          "path": "src/main/java/com/thealgorithms/recursion/GenerateSubsets.java",
-          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/recursion/GenerateSubsets.java",
-          "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "generate_sub_sets",
+      "benchmark_contract": "benchmarks/s/generate_sub_sets/README.md",
+      "review_notes": "The pinned Java bit-manipulation implementation enumerates masks in ascending order and scans set bits from low to high, matching the canonical generate_sub_sets contract. The Java recursion package has a different include-first string traversal and is tracked as generate_subsets_recursive."
     },
     {
       "candidate_id": "generateparentheses",
@@ -36197,7 +36441,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -36206,7 +36450,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/queues/GenericArrayListQueue.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "queue",
+      "benchmark_contract": "benchmarks/q/queue/README.md",
+      "review_notes": "The pinned Java GenericArrayListQueue is a generic ArrayList-backed FIFO: add appends to the end, peek reads the first item, poll removes the first item, and isEmpty reports whether the list is empty. These state transitions match the shared queue benchmark for its valid integer traces, with the source's null-element ambiguity excluded. The source exposes no size/rear operations or capacity/growth observations; ArrayList growth is hidden behind the collection API. Map it as an alias for the common FIFO subset of queue, not as a distinct growth benchmark. The shared contract has bounded capacity 256 and additional observation operations, so alias coverage is limited to traces that stay within capacity and use the shared supported FIFO actions."
     },
     {
       "candidate_id": "generic_hash_map_using_array",
@@ -36511,7 +36758,8 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
+      "review_notes": "The pinned C header declares vector, matrix, quaternion, Euler-angle, and dual-quaternion data types plus an epsilon constant; it contains no standalone algorithm to benchmark.",
       "implementations": [
         {
           "repository": "C",
@@ -49896,7 +50144,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -49905,7 +50153,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/heaps/LeftistHeap.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java LeftistHeap recursively merges min-heap roots, swaps roots only on strict greater-than, merges into the first root's right child, restores the leftist property using null-path lengths, and clears the donor heap after merge. NPL initializes to zero and a non-leaf node stores right-child NPL plus one. Empty extraction returns -1. The bounded contract uses two heaps, at most 14 operations and keys 0..9, and packs up to ten extraction results in base 13 with value+2; malformed traces return -1e300.",
+      "benchmark_contract": "benchmarks/l/leftist_heap/README.md"
     },
     {
       "candidate_id": "lempel_ziv",
@@ -53924,7 +54174,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -53933,7 +54183,9 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/LyndonFactorization.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java factorize method implements Duval's linear-time Lyndon factorization, comparing UTF-16 code units and returning factors in non-increasing lexicographic order. It resets the match position on a strict increase and emits the period repeatedly while the factor boundary remains within the matched prefix. The bounded contract restricts input to lowercase ASCII bytes (preserving code-unit ordering), n<=256, and encodes each factor followed by NUL; output capacity must be at least 2*n. Empty input returns empty output; malformed input returns -1 and insufficient capacity returns -2.",
+      "benchmark_contract": "benchmarks/l/lyndon_factorization/README.md"
     },
     {
       "candidate_id": "lz77",
@@ -54073,7 +54325,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -54082,7 +54334,9 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/Series/Maclaurin.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C# Maclaurin class exposes fixed-term and error-threshold overloads for Exp, Sin, and Cos. Its private ErrorTermWrapper starts with zero result and zero coefficient, then adds the previous coefficient before calculating the next indexed term; it stops once the new term's absolute value is at most the threshold, excluding that below-threshold term from the result. This candidate's bounded contract covers the threshold wrapper only, as fixed-term sine/cosine and exponential sums are already covered by separate benchmarks. Inputs use x in [-2,2], thresholds in [0.001,0.25], and at most the source's convergent early terms.",
+      "benchmark_contract": "benchmarks/m/maclaurin/README.md"
     },
     {
       "candidate_id": "maclaurin_series",
@@ -56530,8 +56784,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -56540,7 +56804,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/computer_vision/mean_threshold.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "mean_threshold",
+      "benchmark_contract": "benchmarks/m/mean_threshold/README.md",
+      "review_notes": "The pinned Python function computes the floor of the mean grayscale pixel and maps pixels strictly above it to 255, all others to 0. Although its source swaps the unpacked dimensions and loop ranges, the operations remain paired and rectangular images are supported. The bounded bytes-output package preserves this behavior for nonempty 1..32 by 1..32 grayscale images with exact row-major input."
     },
     {
       "candidate_id": "means",
@@ -59626,10 +59893,8 @@
         "Python",
         "Rust"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -59645,7 +59910,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/modular_exponential.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "modular_exponentiation",
+      "benchmark_contract": "benchmarks/m/modular_exponentiation/README.md",
+      "review_notes": "The pinned Python and Rust `modular_exponential` implementations use square-and-multiply and match the existing modular_exponentiation benchmark on the restricted domain base >= 0, power >= 1, and modulus >= 2 (all signed-i32). Python normalizes the base with modulo; Rust has additional inverse behavior for negative powers and a modulus-one special case. Those out-of-domain cases are intentionally excluded; the candidate aliases the existing benchmark without adding another set of ports."
     },
     {
       "candidate_id": "modular_exponentiation",
@@ -60003,7 +60271,7 @@
       ],
       "benchmark_name": "monotonic_array",
       "benchmark_contract": "benchmarks/m/monotonic_array/README.md",
-      "review_notes": "The pinned Python is_monotonic returns true when every adjacent pair is nondecreasing or every adjacent pair is nonincreasing; equal values are allowed, and empty/singleton inputs return true through vacuous all(). The bounded benchmark preserves that predicate for arrays of up to 256 signed integers in [-1,000,000,000, 1,000,000,000], returning 1/0 and reserving -1 for out-of-domain inputs."
+      "review_notes": "The pinned Python is_monotonic returns true when every adjacent pair is nondecreasing or every adjacent pair is nonincreasing; equal values are allowed, and empty/singleton inputs return true through vacuous all(). The bounded benchmark preserves that predicate for arrays of up to 256 full-range signed-i64 values, returning 1/0 and reserving -1 for invalid input."
     },
     {
       "candidate_id": "monotonic_queue",
@@ -60156,7 +60424,7 @@
       "local_source_folders": [
         "rust"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Rust",
@@ -60165,7 +60433,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/searching/moore_voting.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "alias_of": "boyer_moore_majority_vote",
+      "review_notes": "The pinned Rust moore_voting_2pass source performs Boyer-Moore candidate cancellation followed by a second pass that verifies a strict majority greater than n/2. It returns None for an empty array or when no strict majority exists, matching the canonical benchmark semantics; the benchmark encodes absence as -1.",
+      "benchmark_contract": "benchmarks/b/boyer_moore_majority_vote/README.md"
     },
     {
       "candidate_id": "moore_voting_algorithm",
@@ -77851,7 +78122,8 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "stack",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -77871,7 +78143,8 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "Python",
@@ -77922,7 +78195,8 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "C",
@@ -77942,7 +78216,8 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "Python",
@@ -77981,7 +78256,8 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -78060,7 +78336,8 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -78156,7 +78433,8 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "Go",
@@ -78176,7 +78454,8 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "Go",
@@ -78196,7 +78475,8 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "queue",
       "implementations": [
         {
           "repository": "Go",
@@ -78597,7 +78877,8 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "quick_sort",
       "implementations": [
         {
           "repository": "Java",
@@ -82009,7 +82290,8 @@
         "Dart"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
+      "alias_of": "reverse_words",
       "implementations": [
         {
           "repository": "Dart",
@@ -82226,8 +82508,18 @@
       "source_repositories": [
         "C-Sharp"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -82236,7 +82528,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/RGBHSVConversion.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "rgbhsvconversion",
+      "benchmark_contract": "benchmarks/r/rgbhsvconversion/README.md",
+      "review_notes": "The pinned C# RgbHsvConversion exposes HsvToRgb with six hue sections and byte conversion via Math.Round (ties-to-even), plus RgbToHsv using max/min/chroma branches, red-first tie handling, and hue normalization `(hue + 360) % 360`. The bounded benchmark implements both directions with integer fixed-point inputs, the same section/branch order, and quantized packed outputs. Invalid arguments map to the benchmark sentinel; the source methods throw range exceptions."
     },
     {
       "candidate_id": "rgbto_hex",
@@ -83198,7 +83493,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -83207,7 +83502,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/searches/RowColumnWiseSorted2dArrayBinarySearch.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "saddleback_search",
+      "benchmark_contract": "benchmarks/s/saddleback_search/README.md",
+      "review_notes": "The pinned Java source starts at the top-right, advances the row when the target is greater, retreats the column when it is smaller, and returns zero-based coordinates or (-1, -1). On the shared saddleback_search contract's strictly increasing rows and columns and globally unique values, it returns the same hit cell as the existing package. Normalize a hit to row*columns+column+1 and absence to 0, matching the benchmark's one-based coordinate encoding."
     },
     {
       "candidate_id": "row_echelon",
@@ -86700,8 +86998,18 @@
       "source_repositories": [
         "MATLAB-Octave"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "MATLAB-Octave",
@@ -86710,7 +87018,10 @@
           "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Sigmoid%28without%20inbuilt%29.m",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/s/sigmoid_without_inbuilt/README.md",
+      "review_notes": "The pinned MATLAB-Octave routine evaluates the parameterized logistic function y = 1 / (1 + exp(-a*x)) with elementwise operations and caller-provided slope a. The nine-language scalar benchmark uses bounded binary64 arguments [x,a], preserves the variable-slope behavior, and keeps this source distinct from the fixed unit-slope sigmoid.",
+      "benchmark_name": "sigmoid_without_inbuilt"
     },
     {
       "candidate_id": "signum",
@@ -90627,8 +90938,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -90637,7 +90958,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/electronics/star_delta_conversions.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "star_delta_conversions",
+      "benchmark_contract": "benchmarks/s/star_delta_conversions/README.md",
+      "review_notes": "The pinned Python module exposes star_to_delta and delta_to_star. It checks for zero-magnitude impedance and negative real components, computes the pair-product formulas in source order, and returns three complex values. The benchmark narrows this to positive real impedances represented in thousandths, preserves the two output orderings and formulas, rounds each result to thousandths, and hashes all three values. Complex inputs and source exceptions are outside the shared contract."
     },
     {
       "candidate_id": "stat_algo",
@@ -91514,8 +91838,18 @@
       "source_repositories": [
         "Go"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -91524,7 +91858,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/matrix/submatrix.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "submatrix",
+      "benchmark_contract": "benchmarks/s/submatrix/README.md",
+      "review_notes": "The pinned Go Matrix.SubMatrix validates nonnegative start coordinates and dimensions, allocates the requested shape, and copies the selected rectangle to matching row/column positions; zero output rows or columns return a correctly shaped empty matrix. The bounded benchmark accepts row-major signed-i32 matrices up to 8x8 and returns a signed FNV-1a 64-bit hash of the output dimensions and row-major selected cells, preserving zero-dimension behavior. The source uses goroutines for cell copies; benchmark ports perform the same bounded extraction sequentially."
     },
     {
       "candidate_id": "subsequence_finder",
@@ -92872,8 +93209,18 @@
       "source_repositories": [
         "Dart"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Dart",
@@ -92882,7 +93229,10 @@
           "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/symmetric_derivative.dart",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "symmetric_derivative",
+      "benchmark_contract": "benchmarks/s/symmetric_derivative/README.md",
+      "review_notes": "The pinned Dart API computes the centered finite-difference quotient (f(x+h)-f(x-h))/(2*h), with h defaulting to 1e-10. The nine-language benchmark preserves that algorithm for bounded sin/exp inputs using a fixed-point x representation and the source default step; this is a standalone derivative benchmark, distinct from root-finding and exact dual-number differentiation."
     },
     {
       "candidate_id": "symmetric_tree",
@@ -99777,8 +100127,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -99787,7 +100147,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/word_frequency_functions.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "word_frequency_functions",
+      "benchmark_contract": "benchmarks/w/word_frequency_functions/README.md",
+      "review_notes": "The pinned Python module exposes four independent routines: term_frequency, document_frequency, inverse_document_frequency, and tf_idf. The grouped package retains each operation's distinct input and output semantics behind an operation tag, including literal-space tokenization and substring document matching. Source exceptions for unsmoothed IDF with zero document frequency and zero corpus size are represented by explicit result tags; text inputs use bounded ASCII."
     },
     {
       "candidate_id": "word_ladder",

@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "id": "thealgorithms-matlab-sigmoid-without-inbuilt-f64-pair-v1",
+  "algorithm": "sigmoid_without_inbuilt",
+  "function_symbol": "sigmoid_without_inbuilt",
+  "description": "Evaluate the pinned MATLAB slope-parameterized sigmoid for one scalar input.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": [
+      "x",
+      "a"
+    ],
+    "x_minimum": -10.0,
+    "x_maximum": 10.0,
+    "slope_minimum": -10.0,
+    "slope_maximum": 10.0,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "1 / (1 + exp(-a*x))",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/machine_learning/Activation Functions/Sigmoid(without inbuilt).m",
+    "function": "y anonymous function",
+    "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Sigmoid%28without%20inbuilt%29.m"
+  },
+  "cases": [
+    {
+      "id": "origin_slope_one",
+      "input_values": [
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "positive_unit_input",
+      "input_values": [
+        1.0,
+        1.0
+      ],
+      "expected_result": 0.7310585786300049
+    },
+    {
+      "id": "negative_unit_input",
+      "input_values": [
+        -1.0,
+        1.0
+      ],
+      "expected_result": 0.2689414213699951
+    },
+    {
+      "id": "positive_input_zero_slope",
+      "input_values": [
+        1.0,
+        0.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "negative_input_zero_slope",
+      "input_values": [
+        -3.0,
+        0.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "positive_input_negative_slope",
+      "input_values": [
+        1.0,
+        -1.0
+      ],
+      "expected_result": 0.2689414213699951
+    },
+    {
+      "id": "negative_input_negative_slope",
+      "input_values": [
+        -1.0,
+        -1.0
+      ],
+      "expected_result": 0.7310585786300049
+    },
+    {
+      "id": "positive_saturation_at_exact_bounds",
+      "input_values": [
+        10.0,
+        10.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "negative_saturation_at_exact_bounds",
+      "input_values": [
+        -10.0,
+        10.0
+      ],
+      "expected_result": 3.7200759760208356e-44
+    },
+    {
+      "id": "positive_input_negative_bound_slope",
+      "input_values": [
+        10.0,
+        -10.0
+      ],
+      "expected_result": 3.7200759760208356e-44
+    },
+    {
+      "id": "negative_input_negative_bound_slope",
+      "input_values": [
+        -10.0,
+        -10.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "zero_input_zero_slope",
+      "input_values": [
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "x_below_bound",
+      "input_values": [
+        -10.0001,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_above_bound",
+      "input_values": [
+        10.0001,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "slope_below_bound",
+      "input_values": [
+        1.0,
+        -10.0001
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "slope_above_bound",
+      "input_values": [
+        1.0,
+        10.0001
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

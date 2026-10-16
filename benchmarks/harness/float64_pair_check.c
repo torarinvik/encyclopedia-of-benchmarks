@@ -19,14 +19,17 @@ int main(void)
     }
     while (checked < case_count) {
         double first, second, expected, relative_tolerance;
+        /* Non-finite inputs are useful invalid-domain canaries; results and tolerance stay finite. */
         if (scanf("%lf %lf %lf %lf", &first, &second, &expected, &relative_tolerance) != 4 ||
-            !isfinite(first) || !isfinite(second) || !isfinite(expected) ||
+            !isfinite(expected) ||
             !isfinite(relative_tolerance) || relative_tolerance <= 0.0) {
             fprintf(stderr, "invalid binary64 pair case\n");
             return 2;
         }
         const double observed = BENCHMARK_FUNCTION(first, second);
-        const double scale = fmax(1.0, fmax(fabs(first), fabs(second)));
+        double scale = 1.0;
+        if (isfinite(first)) scale = fmax(scale, fabs(first));
+        if (isfinite(second)) scale = fmax(scale, fabs(second));
         if (!isfinite(observed) || fabs(observed - expected) > relative_tolerance * scale) {
             fprintf(stderr, "case=%" PRIu64 ": expected %.17g, observed %.17g\n",
                     checked, expected, observed);

@@ -278,6 +278,21 @@ from reverse_polish_notation_oracle import MAX_INPUT_LENGTH as MAX_REVERSE_POLIS
 from reverse_polish_notation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
 from reverse_polish_notation_oracle import MAX_TOKEN_COUNT as REVERSE_POLISH_NOTATION_MAX_TOKEN_COUNT
 from reverse_polish_notation_oracle import expected_result as reverse_polish_notation_oracle
+from extended_kalman_filter_oracle import INVALID_RESULT as EXTENDED_KALMAN_FILTER_INVALID_RESULT
+from extended_kalman_filter_oracle import MAX_INPUT_LENGTH as MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH
+from extended_kalman_filter_oracle import expected_result as extended_kalman_filter_oracle
+from symmetric_derivative_oracle import INVALID_RESULT as SYMMETRIC_DERIVATIVE_INVALID_RESULT
+from symmetric_derivative_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH
+from symmetric_derivative_oracle import MAX_X_NANOUNITS as SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS
+from symmetric_derivative_oracle import MIN_X_NANOUNITS as SYMMETRIC_DERIVATIVE_MIN_X_NANOUNITS
+from symmetric_derivative_oracle import expected_result as symmetric_derivative_oracle
+from fractional_differentiation_oracle import MAX_INPUT_LENGTH as MAX_FRACTIONAL_DIFFERENTIATION_INPUT_LENGTH
+from fractional_differentiation_oracle import INVALID_RESULT as FRACTIONAL_DIFFERENTIATION_INVALID_RESULT
+from fractional_differentiation_oracle import expected_result as fractional_differentiation_oracle
+from finance_ratios_oracle import INVALID_RESULT as FINANCE_RATIOS_INVALID_RESULT
+from finance_ratios_oracle import expected_result as finance_ratios_oracle
+from gaussian_legendre_oracle import INVALID_RESULT as GAUSSIAN_LEGENDRE_INVALID_RESULT
+from gaussian_legendre_oracle import expected_result as gaussian_legendre_oracle
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -285,7 +300,11 @@ ALGORITHMS += ("units_converter",)
 ALGORITHMS += ("prefix_evaluation",)
 ALGORITHMS += ("peak_signal_to_noise_ratio",)
 ALGORITHMS += ("laplacian_filter",)
-ALGORITHMS += ("line_sweep", "lorentz_transformation_four_vector")
+ALGORITHMS += ("line_sweep", "lorentz_transformation_four_vector", "extended_kalman_filter")
+ALGORITHMS += ("symmetric_derivative",)
+ALGORITHMS += ("return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale")
+ALGORITHMS += ("gaussian_legendre",)
+ALGORITHMS += ("fractional_differentiation",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
@@ -294,6 +313,16 @@ MAX_TERNARY_PRECISION_MILLI = 8
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
+        return finance_ratios_oracle(values, algorithm)
+    elif algorithm == "extended_kalman_filter":
+        return extended_kalman_filter_oracle(values)
+    if algorithm == "symmetric_derivative":
+        return symmetric_derivative_oracle(values)
+    if algorithm == "fractional_differentiation":
+        return fractional_differentiation_oracle(values)
+    if algorithm == "gaussian_legendre":
+        return gaussian_legendre_oracle(values)
     if algorithm == "hubble_parameter":
         return hubble_parameter_oracle(values)
     if algorithm == "light_aberration":
@@ -431,7 +460,39 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError(f"published workload disagrees with the oracle: {case['id']}")
         cases[tuple(values)] = source_result
 
-    if algorithm == "hubble_parameter":
+    if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
+        rng = random.Random(20261016)
+        for _ in range(256):
+            if algorithm == "return_on_investment":
+                values = (rng.randint(-1_000_000, 1_000_000), rng.randint(1, 1_000_000))
+            elif algorithm == "debt_to_equity":
+                values = (rng.randint(0, 1_000_000), rng.randint(1, 1_000_000))
+            elif algorithm == "gross_profit_margin":
+                values = (rng.randint(1, 1_000_000), rng.randint(0, 1_000_000))
+            else:
+                values = (rng.randint(-1_000_000, 1_000_000), rng.randint(0, 1_000_000),
+                          rng.randint(1, 1_000_000))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = {
+            "return_on_investment": ((), (1,), (1, 0), (-1_000_001, 1), (1_000_001, 1), (0, 1_000_001), (I64_MIN, 1), (I64_MAX, 1)),
+            "debt_to_equity": ((), (1,), (1, 0), (-1, 1), (1_000_001, 1), (0, 1_000_001), (I64_MIN, 1), (I64_MAX, 1)),
+            "gross_profit_margin": ((), (1,), (0, 0), (0, 1), (1_000_001, 0), (1, 1_000_001), (I64_MIN, 1), (I64_MAX, 1)),
+            "earnings_per_sale": ((), (1, 1), (1, 0, 0), (1, -1, 1), (-1_000_001, 0, 1), (1_000_001, 0, 1), (0, 0, 0), (0, 0, 1_000_001), (I64_MIN, 0, 1), (I64_MAX, 0, 1)),
+        }[algorithm]
+        for values in malformed:
+            cases[values] = FINANCE_RATIOS_INVALID_RESULT
+    elif algorithm == "extended_kalman_filter":
+        # Keep traces small and deterministic while varying nonlinear state, covariance, noise, and observations.
+        for values in ((1, 100, -200, 700, 20, 900, 5, 7, 120, 500),
+                       (2, -800, 100, 2000, -100, 1500, 20, 25, 300, -1000, 800),
+                       (8, 0, 0, 1000, 0, 1000, 1, 1, 100, *([500, -300, 200, 0, 900, -700, 100, 300]))):
+            cases[values] = oracle(algorithm, list(values))
+        for malformed in ((), (0,), (9, 0, 0, 1000, 0, 1000, 10, 10, 100, *([0] * 9)),
+                          (1, 3000, 0, 1000, 0, 1000, 0, 0, 100, 0),
+                          (1, 0, 0, 100, 200, 100, 0, 0, 100, 0),
+                          (1, 0, 0, 100, 0, 100, 0, 0, 0, 0)):
+            cases[malformed] = EXTENDED_KALMAN_FILTER_INVALID_RESULT
+    elif algorithm == "hubble_parameter":
         h0_values = (-2000, -1999, -683, -1, 0, 1, 683, 1999, 2000)
         density_cases = (
             (0, 0, 0), (1_000_000, 0, 0), (0, 1_000_000, 0),
@@ -2067,6 +2128,60 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH:
                 cases[values] = REVERSE_POLISH_NOTATION_INVALID_RESULT
+    elif algorithm == "fractional_differentiation":
+        rng = random.Random(20261016)
+        for _ in range(256):
+            window = rng.randint(1, 8)
+            n = rng.randint(window + 1, 16)
+            values = (rng.randint(0, 1_000_000), window,
+                      *(rng.randint(-1_000_000, 1_000_000) for _ in range(n)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (0,), (0, 1), (0, 1, 2), (-1, 2, 0, 0),
+                     (1_000_001, 1, 0, 1), (500_000, 0, 1, 2),
+                     (500_000, 9, *([0] * 10)), (500_000, 3, 1, 2, 3),
+                     (500_000, 1, *([0] * 17)), (500_000, 2, 0, 0, 1_000_001),
+                     (I64_MIN, 2, 0, 1, 2), (I64_MAX, 2, 0, 1, 2),
+                     tuple([0] * (MAX_FRACTIONAL_DIFFERENTIATION_INPUT_LENGTH + 1)))
+        for values in malformed:
+            cases[values] = FRACTIONAL_DIFFERENTIATION_INVALID_RESULT
+    elif algorithm == "symmetric_derivative":
+        for function_id in (0, 1):
+            for x_nanounits in (
+                    SYMMETRIC_DERIVATIVE_MIN_X_NANOUNITS,
+                    SYMMETRIC_DERIVATIVE_MIN_X_NANOUNITS + 1,
+                    -6_000_000_000, -3_141_592_654, -1_000_000_000,
+                    -1, 0, 1, 1_000_000_000, 3_141_592_654,
+                    6_000_000_000, SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS - 1,
+                    SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS):
+                values = (function_id, x_nanounits)
+                cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randrange(2), rng.randint(SYMMETRIC_DERIVATIVE_MIN_X_NANOUNITS,
+                                                    SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0), (-1, 0), (2, 0),
+            (0, SYMMETRIC_DERIVATIVE_MIN_X_NANOUNITS - 1),
+            (1, SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS + 1),
+            (I64_MIN, 0), (I64_MAX, 0), (0, I64_MIN), (1, I64_MAX),
+            tuple([0] * MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = SYMMETRIC_DERIVATIVE_INVALID_RESULT
+    elif algorithm == "gaussian_legendre":
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randint(1, 5), rng.randint(-5000, 5000), rng.randint(-5000, 5000),
+                      *(rng.randint(-10000, 10000) for _ in range(4)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (0, 0, 0, 0, 0, 0, 0), (6, 0, 0, 0, 0, 0, 0),
+                     (1, -5001, 0, 0, 0, 0, 0), (5, 0, 0, 0, 0, 0, 10001),
+                     (1, 0, 0, 0, 0, 0, 0, 0))
+        for values in malformed:
+            cases[values] = GAUSSIAN_LEGENDRE_INVALID_RESULT
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -2119,7 +2234,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "line_sweep": 1,
                     "lorentz_transformation_four_vector": MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH,
                     "peak_signal_to_noise_ratio": 0,
-                    "reverse_polish_notation": 1}
+                    "reverse_polish_notation": 1,
+                    "symmetric_derivative": 2,
+                    "gaussian_legendre": 7,
+                    "extended_kalman_filter": 0}
+    null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
+                         "gross_profit_margin": 2, "earnings_per_sale": 3})
     null_lengths["prefix_evaluation"] = 1
     null_lengths["energy"] = 3
     null_length = null_lengths[algorithm]
@@ -2182,7 +2302,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "peak_signal_to_noise_ratio" else
                    REVERSE_POLISH_NOTATION_INVALID_RESULT
                    if algorithm == "reverse_polish_notation" else
+                   SYMMETRIC_DERIVATIVE_INVALID_RESULT
+                   if algorithm == "symmetric_derivative" else
+                   EXTENDED_KALMAN_FILTER_INVALID_RESULT if algorithm == "extended_kalman_filter" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
+                   FINANCE_RATIOS_INVALID_RESULT if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"} else
                    INVALID_RESULT)
     null_values = (
         (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,

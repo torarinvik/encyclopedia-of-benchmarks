@@ -464,6 +464,14 @@ from iso7816_d4_padding_oracle import MAX_BYTE_COUNT as MAX_ISO7816_D4_PADDING_B
 from iso7816_d4_padding_oracle import expected_result as iso7816_d4_padding_oracle
 from davis_putnam_logemann_loveland_oracle import MAX_INPUT_LENGTH as MAX_DPLL_INPUT_LENGTH
 from davis_putnam_logemann_loveland_oracle import expected_result as davis_putnam_logemann_loveland_oracle
+from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
+from first_fundamental_form_oracle import expected_result as first_fundamental_form_oracle
+from erosion_operation_oracle import MAX_INPUT_LENGTH as MAX_EROSION_OPERATION_INPUT_LENGTH
+from erosion_operation_oracle import expected_result as erosion_operation_oracle
+from rgbhsvconversion_oracle import MAX_INPUT_LENGTH as MAX_RGBHSVCONVERSION_INPUT_LENGTH
+from rgbhsvconversion_oracle import expected_result as rgbhsvconversion_oracle
+from star_delta_conversions_oracle import MAX_INPUT_LENGTH as MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH
+from star_delta_conversions_oracle import expected_result as star_delta_conversions_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("sort_the_odd",)
@@ -497,6 +505,8 @@ ALGORITHMS += ("davis_putnam_logemann_loveland",)
 ALGORITHMS += ("wa_tor",)
 ALGORITHMS += ("decisions_convolutions",)
 ALGORITHMS += ("elastic_collision2_d",)
+ALGORITHMS += ("first_fundamental_form",)
+ALGORITHMS += ("erosion_operation", "rgbhsvconversion", "star_delta_conversions")
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -935,6 +945,14 @@ def problem107_oracle(values: list[int]) -> int:
 def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "elastic_collision2_d":
         return elastic_collision2_d_oracle(values)
+    if algorithm == "first_fundamental_form":
+        return first_fundamental_form_oracle(values)
+    if algorithm == "erosion_operation":
+        return erosion_operation_oracle(values)
+    if algorithm == "rgbhsvconversion":
+        return rgbhsvconversion_oracle(values)
+    if algorithm == "star_delta_conversions":
+        return star_delta_conversions_oracle(values)
     if algorithm == "dsa_verify":
         return dsa_verify_oracle(values)
     if algorithm == "wa_tor":
@@ -1518,7 +1536,18 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         # special NULL records require a positive length and are rejected at parse time.
         cases[()] = oracle(algorithm, [])
     rng = random.Random(20261014)
-    if algorithm == "iso7816_d4_padding":
+    if algorithm == "first_fundamental_form":
+        for _ in range(256):
+            values = tuple(rng.randint(-100, 100) for _ in range(MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0,) * 17, (0,) * 19,
+            (101,) + (0,) * 17, (-101,) + (0,) * 17,
+            (I64_MIN,) + (0,) * 17, (I64_MAX,) + (0,) * 17,
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "iso7816_d4_padding":
         for byte_count in range(8):
             data = [((index * 37 + byte_count * 11) & 255) for index in range(byte_count)]
             for block_size in range(1, 9):
@@ -5161,6 +5190,91 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                        [0, 0, 0, 0, 1000, 1, 0, 0, 0, 0, 1000, 1],
                        [200001, 0, 0, 0, 1000, 1, 1, 0, 0, 0, 1000, 1]):
             cases[tuple(values)] = oracle(algorithm, list(values))
+    if algorithm == "erosion_operation":
+        # Exhaust small masks and cover border handling plus the full 6x6 input bound.
+        for height, width in ((1, 1), (1, 6), (6, 1), (2, 2), (3, 3), (6, 6)):
+            pixel_count = height * width
+            if pixel_count <= 9:
+                for mask in range(1 << pixel_count):
+                    pixels = tuple((mask >> bit) & 1 for bit in range(pixel_count))
+                    values = (height, width, *pixels)
+                    cases[values] = oracle(algorithm, list(values))
+            else:
+                for pixels in ((0,) * pixel_count, (1,) * pixel_count,
+                               tuple((row + column) & 1 for row in range(height)
+                                     for column in range(width))):
+                    values = (height, width, *pixels)
+                    cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            height, width = rng.randint(1, 6), rng.randint(1, 6)
+            values = (height, width, *(rng.randrange(2) for _ in range(height * width)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (1,), (0, 1), (1, 0), (7, 1), (1, 7),
+            (2, 2, 1), (1, 2, 0, 2), (1, 1, -1), (1, 1, 2),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            tuple([0] * MAX_EROSION_OPERATION_INPUT_LENGTH),
+            tuple([0] * (MAX_EROSION_OPERATION_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    if algorithm == "rgbhsvconversion":
+        hsv_boundaries = (0, 1, 29_999, 30_000, 59_999, 60_000,
+                         120_000, 180_000, 240_000, 300_000, 359_999, 360_000)
+        for hue in hsv_boundaries:
+            for saturation, value in ((0, 0), (0, 500), (1_000, 1_000)):
+                values = (0, hue, saturation, value)
+                cases[values] = oracle(algorithm, list(values))
+        for rgb in ((0, 0, 0), (255, 255, 255), (255, 0, 0), (0, 255, 0),
+                    (0, 0, 255), (255, 255, 0), (0, 255, 255), (255, 0, 255),
+                    (1, 0, 0), (0, 1, 0), (0, 0, 1), (127, 127, 127),
+                    (128, 128, 128), (255, 1, 0), (0, 255, 1), (1, 0, 255)):
+            values = (1, *rgb)
+            cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            operation = rng.randrange(2)
+            values = ((0, rng.randint(0, 360_000), rng.randint(0, 1_000), rng.randint(0, 1_000))
+                      if operation == 0 else
+                      (1, rng.randint(0, 255), rng.randint(0, 255), rng.randint(0, 255)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 0, 1), (0, 0, 1, 1, 1),
+            tuple([0] * (MAX_RGBHSVCONVERSION_INPUT_LENGTH + 1)),
+            (0, -1, 500, 500), (0, 360_001, 500, 500),
+            (0, 0, -1, 500), (0, 0, 1_001, 500),
+            (0, 0, 500, -1), (0, 0, 500, 1_001),
+            (1, -1, 0, 0), (1, 256, 0, 0), (1, 0, -1, 0),
+            (1, 0, 256, 0), (1, 0, 0, -1), (1, 0, 0, 256),
+            (2, 0, 0, 0), (I64_MIN, 0, 0, 0), (I64_MAX, 0, 0, 0),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 4 -1\n")
+    if algorithm == "star_delta_conversions":
+        boundary_impedances = (1_000, 1_001, 50_000, 99_999, 100_000)
+        for operation in (0, 1):
+            for a in boundary_impedances:
+                for b, c in ((1_000, 100_000), (a, a)):
+                    values = (operation, a, b, c)
+                    cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randrange(2), *(rng.randint(1_000, 100_000) for _ in range(3)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 1_000, 1_000), (0, 1_000, 1_000, 1_000, 1),
+            tuple([0] * (MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH + 1)),
+            (-1, 1_000, 1_000, 1_000), (2, 1_000, 1_000, 1_000),
+            (0, 999, 1_000, 1_000), (0, 100_001, 1_000, 1_000),
+            (1, 1_000, 0, 1_000), (1, 1_000, 1_000, 100_001),
+            (0, I64_MIN, 1_000, 1_000), (1, 1_000, I64_MAX, 1_000),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 4 -1\n")
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

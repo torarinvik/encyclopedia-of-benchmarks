@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "generate-subsets-recursive-java-inclusion-first-v1",
+  "algorithm": "generate_subsets_recursive",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[length, ASCII byte values...]",
+    "length_range": [0, 12],
+    "byte_range": [0, 127],
+    "maximum_input_values": 13,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "u32_count_then_length_prefixed_ascii_subsets",
+    "encoding": "little-endian u32 subset count, then little-endian u32 byte length and bytes for each subset",
+    "successful_result": "number of output bytes written",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 40960
+  },
+  "cases": [
+    {
+      "id": "empty_string",
+      "input_values": [0],
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "singleton",
+      "input_values": [1, 65],
+      "expected_result": 13,
+      "expected_output_hex": "02000000010000004100000000"
+    },
+    {
+      "id": "include_first_depth_first_order",
+      "input_values": [2, 97, 98],
+      "expected_result": 24,
+      "expected_output_hex": "040000000200000061620100000061010000006200000000"
+    },
+    {
+      "id": "duplicate_positions",
+      "input_values": [2, 97, 97],
+      "expected_result": 24,
+      "expected_output_hex": "040000000200000061610100000061010000006100000000"
+    },
+    {
+      "id": "embedded_nul_and_del",
+      "input_values": [2, 0, 127],
+      "expected_result": 24,
+      "expected_output_hex": "0400000002000000007f0100000000010000007f00000000"
+    },
+    {
+      "id": "undersized_output_capacity",
+      "input_values": [2, 97, 98],
+      "workspace_bytes": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_ascii_value",
+      "input_values": [1, 128],
+      "expected_result": -1
+    },
+    {
+      "id": "declared_length_mismatch",
+      "input_values": [2, 97],
+      "expected_result": -1
+    },
+    {
+      "id": "length_over_limit",
+      "input_values": [13, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

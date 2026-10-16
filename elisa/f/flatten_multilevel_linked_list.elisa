@@ -1,0 +1,93 @@
+const MAX_LISTS: usize = 8
+const MAX_CHAIN_LENGTH: usize = 8
+const MAX_TOTAL_VALUES: usize = 64
+const MAX_INPUT_LENGTH: usize = 73
+
+def merge_recursive(left: i64&, left_length: usize, left_index: usize,
+        right: i64&, right_length: usize, right_index: usize,
+        output: mutable i64&, output_index: usize) -> usize:
+    if left_index == left_length:
+        remaining: usize = right_length - right_index
+        byte: mutable usize = 0
+        while byte < remaining:
+            output[output_index + byte] <- right[right_index + byte]
+            byte <- byte + 1
+        return output_index + remaining
+    if right_index == right_length:
+        remaining: usize = left_length - left_index
+        byte: mutable usize = 0
+        while byte < remaining:
+            output[output_index + byte] <- left[left_index + byte]
+            byte <- byte + 1
+        return output_index + remaining
+    if left[left_index] < right[right_index]:
+        output[output_index] <- left[left_index]
+        return merge_recursive(left, left_length, left_index + 1, right, right_length,
+            right_index, output, output_index + 1)
+    output[output_index] <- right[right_index]
+    return merge_recursive(left, left_length, left_index, right, right_length,
+        right_index + 1, output, output_index + 1)
+
+def flatten_suffix(lists: i64&, lengths: usize&, count: usize, index: usize,
+        output: mutable i64&) -> usize:
+    row: usize = index * MAX_CHAIN_LENGTH
+    if index + 1 == count:
+        item: mutable usize = 0
+        while item < lengths[index]:
+            output[item] <- lists[row + item]
+            item <- item + 1
+        return lengths[index]
+    suffix: mutable i64[MAX_TOTAL_VALUES] = zeroed
+    suffix_length: usize = flatten_suffix(lists, lengths, count, index + 1, suffix[0])
+    return merge_recursive(lists[row], lengths[index], 0, suffix[0], suffix_length, 0, output, 0)
+
+def store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+        byte <- byte + 1
+
+def flatten_multilevel_linked_list(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if values[0] < 0 or values[0] > MAX_LISTS.i64(): return -1
+    count: usize = values[0].usize()
+    if count == 0: return if length == 1: 0 else: -1
+
+    lists: mutable i64[MAX_LISTS * MAX_CHAIN_LENGTH] = zeroed
+    lengths: mutable usize[MAX_LISTS] = zeroed
+    total: mutable usize = 0
+    cursor: mutable usize = 1
+    list: mutable usize = 0
+    while list < count:
+        if cursor >= length or values[cursor] < 1 or values[cursor] > MAX_CHAIN_LENGTH.i64(): return -1
+        chain_length: usize = values[cursor].usize()
+        cursor <- cursor + 1
+        if chain_length > length - cursor: return -1
+        lengths[list] <- chain_length
+        row: usize = list * MAX_CHAIN_LENGTH
+        item: mutable usize = 0
+        while item < chain_length:
+            value: i64 = values[cursor]
+            cursor <- cursor + 1
+            if value < -1000 or value > 1000 or (item > 0 and value < lists[row + item - 1]): return -1
+            lists[row + item] <- value
+            item <- item + 1
+        total <- total + chain_length
+        list <- list + 1
+    if cursor != length: return -1
+    required: usize = total * 8
+    if output == null or output_capacity < required: return -2
+
+    flattened: mutable i64[MAX_TOTAL_VALUES] = zeroed
+    flatten_suffix(lists[0], lengths[0], count, 0, flattened[0])
+    item: mutable usize = 0
+    while item < total:
+        store_i64(flattened[item], output, 8 * item)
+        item <- item + 1
+    return total.i64()
+
+export fn flatten_multilevel_linked_list(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = flatten_multilevel_linked_list

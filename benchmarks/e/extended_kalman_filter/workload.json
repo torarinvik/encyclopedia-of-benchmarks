@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-extended-kalman-filter-2d-nonlinear-trace-v1",
+  "algorithm": "extended_kalman_filter",
+  "function_symbol": "extended_kalman_filter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[steps,x0_milli,y0_milli,p00_milli,p01_milli,p11_milli,q0_milli,q1_milli,r_milli,z0_milli,...]",
+    "scale": 1000,
+    "state_size": 2,
+    "maximum_steps": 8,
+    "transition": "f(x,y)=(x+0.1*y,y+0.05*x^2), Jacobian evaluated at the pre-prediction state",
+    "measurement": "h(x,y)=0.05*x^2+y, Jacobian evaluated at the predicted state",
+    "covariance_update": "Joseph form",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "first component of final corrected state after one nonlinear predict/update cycle per observation",
+    "invalid_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one_update","input_values":[1,0,1000,1000,0,1000,10,10,100,1200],"expected_result":0.11976878020181603},
+    {"id":"three_steps","input_values":[3,500,200,500,50,700,5,8,200,800,1000,900],"expected_result":0.8539752928567599},
+    {"id":"negative_observations","input_values":[2,-400,300,800,-20,600,10,12,150,-200,100],"expected_result":-0.380267037464803},
+    {"id":"four_step_noisy_trace","input_values":[4,100,50,100,0,100,100,100,2000,300,400,250,500],"expected_result":0.160240537029834},
+    {"id":"bad_step_count","input_values":[0,0,1000,1000,0,1000,10,10,100],"expected_result":-1e+300},
+    {"id":"indefinite_covariance","input_values":[1,0,0,100,200,100,10,10,100,0],"expected_result":-1e+300},
+    {"id":"negative_noise","input_values":[1,0,0,100,0,100,10,10,-1,0],"expected_result":-1e+300}
+  ]
+}

@@ -2,8 +2,8 @@ use std::slice;
 #[no_mangle]
 pub extern "C" fn elastic_collision2_d(v:*const i64,n:usize)->i64{
  if v.is_null()||n!=12{return -1} let a=unsafe{slice::from_raw_parts(v,n)};
- for &i in &[0usize,1,6,7]{if a[i]<-200000||a[i]>200000{return -1}}
- for &i in &[2usize,3,8,9]{if a[i]<-5000||a[i]>5000{return -1}}
+ for &i in &[0usize,1,6,7]{if a[i]< -200000||a[i]>200000{return -1}}
+ for &i in &[2usize,3,8,9]{if a[i]< -5000||a[i]>5000{return -1}}
  if a[4]<1000||a[4]>100000||a[10]<1000||a[10]>100000||a[5]<1||a[5]>10000||a[11]<1||a[11]>10000{return -1}
  let dx=(a[6]-a[0])as f64;let dy=(a[7]-a[1])as f64;let dist=dx.hypot(dy);if dist==0.0{return -1}
  let(mut ox,mut oy)=(a[2]as f64,a[3]as f64);

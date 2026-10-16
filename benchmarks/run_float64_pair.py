@@ -16,8 +16,9 @@ import subprocess
 from build_abi import ROOT, sha256_file
 
 SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "speed_conversion",
-                       "leaky_relu", "exponential_linear_unit", "composite_simpson_rule",
-                       "false_position", "to_polar_angle_degrees", "problem144", "circle"}
+                       "leaky_relu", "exponential_linear_unit", "elu", "composite_simpson_rule",
+                       "false_position", "to_polar_angle_degrees", "problem144", "circle",
+                       "sigmoid_without_inbuilt"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -151,6 +152,26 @@ def encode_case(case: dict, tolerance: float,
             scale = max(1.0, abs(first), abs(second))
             if abs(expected - expected_value) > tolerance * scale:
                 raise ValueError("exponential_linear_unit expected result must match the pinned Rust expression")
+    elif algorithm == "elu":
+        valid = (-100.0 <= first <= 100.0 and -1_000_000.0 <= second <= 1_000_000.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid elu inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = second * (math.exp(first) - 1.0) if first < 0.0 else first
+            scale = max(1.0, abs(first), abs(second))
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * scale:
+                raise ValueError("elu expected result must match alpha * (exp(x) - 1) for x < 0, otherwise x")
+    elif algorithm == "sigmoid_without_inbuilt":
+        valid = (-10.0 <= first <= 10.0 and -10.0 <= second <= 10.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid sigmoid_without_inbuilt inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = 1.0 / (1.0 + math.exp(-second * first))
+            scale = max(1.0, abs(first), abs(second))
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * scale:
+                raise ValueError("sigmoid_without_inbuilt expected result must match 1 / (1 + exp(-a*x))")
     elif algorithm == "composite_simpson_rule":
         valid = (2.0 <= first <= 128.0 and first.is_integer() and int(first) % 2 == 0
                  and 0.0 <= second <= 3.0 and second.is_integer())

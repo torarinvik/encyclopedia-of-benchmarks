@@ -156,6 +156,9 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         link_source = link_source.resolve()
         if not link_source.is_file():
             raise ValueError(f"extra link source is missing: {link_source}")
+        if link_source.suffix == ".o":
+            extra_link_objects.append(link_source)
+            continue
         link_object = directory / f"extra-link-{source_index}.o"
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", "-c", str(link_source), "-o", str(link_object)])
         extra_link_objects.append(link_object)
