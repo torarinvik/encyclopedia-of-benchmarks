@@ -1,0 +1,14 @@
+def welfords_variance_impl(values:i64&,length:usize)->f64:
+    if values.is_null() or length<2 or length>64:return -1.0e300
+    mean: mutable f64=0.0
+    m2: mutable f64=0.0
+    index: usize=0
+    while index<length:
+        value:i64=values[index]
+        if value < -1000000 or value > 1000000:return -1.0e300
+        delta:f64=value.f64()-mean
+        mean <- mean+delta/(index+1).f64()
+        m2 <- m2+delta*(value.f64()-mean)
+        index <- index+1
+    m2/(length-1).f64()
+export fn welfords_variance(values:i64&,length:usize)->f64=welfords_variance_impl

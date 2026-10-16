@@ -24,8 +24,7 @@ bool is_prime(std::int64_t value) noexcept {
 
 extern "C" std::int64_t modular_inverse_fermat_little_theorem(
     std::int64_t a, std::int64_t m) noexcept {
-    if (a < -1'000'000 || a > 1'000'000 || m < 2 || m > 1'000'000 ||
-        a == 0 || a <= -m || a >= m || !is_prime(m)) return -1;
-    while (a < 0) a += m;
+    if (a < 1 || a > 1'000'000 || m < 2 || m > 1'000'000 ||
+        a % m == 0 || !is_prime(m)) return -1;
     return binary_exponentiation(a, m - 2, m);
 }

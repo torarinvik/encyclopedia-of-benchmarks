@@ -1,0 +1,3 @@
+module zblock_substring_search
+@[export:'zblock_substring_search']
+pub fn zblock_substring_search(a &i64,length usize)i64{if unsafe{a==nil}||length<3{return -1};unsafe{tn:=a[0];pn:=a[1];if tn<0||tn>256||pn<1||pn>64||length!=usize(tn+pn+2){return -1};for i in 2..length{if a[i]<0||a[i]>127||a[i]==36{return -1}}text_len:=int(tn);pat_len:=int(pn);n:=text_len+pat_len+1;mut s:=[321]i64{};mut z:=[321]int{};for i in 0..pat_len{s[i]=a[2+tn+i]};s[pat_len]=-1;for i in 0..text_len{s[pat_len+1+i]=a[2+i]};mut left:=0;mut right:=0;for i in 1..n{if i<=right{z[i]=min(right-i+1,z[i-left])};for i+z[i]<n&&s[z[i]]==s[i+z[i]]{z[i]++};if i+z[i]>0&&i+z[i]-1>right{left=i;right=i+z[i]-1}}mut found:=i64(0);for i in pat_len+1..n{if z[i]>=pat_len{found++}}return found}}

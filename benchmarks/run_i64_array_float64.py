@@ -17,12 +17,16 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from gradient_descent_oracle import expected_result as gradient_descent_expected
 from complementary_filter_oracle import INVALID_RESULT as COMPLEMENTARY_FILTER_INVALID_RESULT
 from complementary_filter_oracle import expected_result as complementary_filter_expected
 from comp_filt_oracle import INVALID_RESULT as COMP_FILT_INVALID_RESULT
 from comp_filt_oracle import expected_result as comp_filt_expected
 from apparent_power_oracle import INVALID_RESULT as APPARENT_POWER_INVALID_RESULT
 from apparent_power_oracle import expected_result as apparent_power_expected
+from capacitor_equivalence_oracle import INVALID_RESULT as CAPACITOR_EQUIVALENCE_INVALID_RESULT
+from capacitor_equivalence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_CAPACITOR_EQUIVALENCE_INPUT_LENGTH
+from capacitor_equivalence_oracle import expected_result as capacitor_equivalence_expected
 from archimedes_principle_of_buoyant_force_oracle import (
     INVALID_RESULT as ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT,
     expected_result as archimedes_principle_of_buoyant_force_expected,
@@ -63,6 +67,8 @@ from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_R
 from light_aberration_oracle import expected_result as light_aberration_expected
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
+from median_two_array_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_TWO_ARRAY_INPUT_LENGTH
+from median_two_array_oracle import expected_result as median_two_array_expected
 from variance_oracle import expected_result as variance_expected
 from dice_coefficient_oracle import INVALID_RESULT as DICE_COEFFICIENT_INVALID_RESULT
 from dice_coefficient_oracle import MAX_INPUT_LENGTH as MAX_DICE_COEFFICIENT_INPUT_LENGTH
@@ -124,12 +130,19 @@ from energy_oracle import expected_result as energy_expected
 from trapezoidal_integration_oracle import INVALID_RESULT as TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
 from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
 from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_expected
+from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
+from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
+from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_expected
+from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
+from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
+from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_expected
 from cosine_similarity_oracle import INVALID_RESULT as COSINE_SIMILARITY_INVALID_RESULT
 from cosine_similarity_oracle import MAX_INPUT_LENGTH as MAX_COSINE_SIMILARITY_INPUT_LENGTH
 from cosine_similarity_oracle import expected_output as cosine_similarity_expected
 from quadratic_equation_solver_oracle import INVALID_RESULT as QUADRATIC_EQUATION_SOLVER_INVALID_RESULT
 from quadratic_equation_solver_oracle import MAX_INPUT_LENGTH as MAX_QUADRATIC_EQUATION_SOLVER_INPUT_LENGTH
 from quadratic_equation_solver_oracle import expected_result as quadratic_equation_solver_expected
+from durand_kerner_roots_oracle import expected_result as durand_kerner_expected
 from linear_regression_cost_oracle import INVALID_RESULT as LINEAR_REGRESSION_COST_INVALID_RESULT
 from linear_regression_cost_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH
 from linear_regression_cost_oracle import expected_result as linear_regression_cost_expected
@@ -166,6 +179,15 @@ from terminal_velocity_oracle import expected_result as terminal_velocity_expect
 from newtons_law_of_gravitation_oracle import INVALID_RESULT as NEWTONS_GRAVITATION_INVALID_RESULT
 from newtons_law_of_gravitation_oracle import MAX_INPUT_LENGTH as MAX_NEWTONS_GRAVITATION_INPUT_LENGTH
 from newtons_law_of_gravitation_oracle import expected_result as newtons_gravitation_expected
+from ideal_gas_law_oracle import INVALID_RESULT as IDEAL_GAS_LAW_INVALID_RESULT
+from ideal_gas_law_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_IDEAL_GAS_LAW_INPUT_LENGTH
+from ideal_gas_law_oracle import expected_result as ideal_gas_law_expected
+from poisson_dist_oracle import INVALID_RESULT as POISSON_DIST_INVALID_RESULT
+from poisson_dist_oracle import MAX_INPUT_LENGTH as MAX_POISSON_DIST_INPUT_LENGTH
+from poisson_dist_oracle import expected_result as poisson_dist_expected
+from doppler_frequency_oracle import INVALID_RESULT as DOPPLER_FREQUENCY_INVALID_RESULT
+from doppler_frequency_oracle import MAX_INPUT_LENGTH as MAX_DOPPLER_FREQUENCY_INPUT_LENGTH
+from doppler_frequency_oracle import expected_result as doppler_frequency_expected
 from pearson_correlation_oracle import INVALID_RESULT as PEARSON_CORRELATION_INVALID_RESULT
 from pearson_correlation_oracle import MAX_INPUT_LENGTH as MAX_PEARSON_CORRELATION_INPUT_LENGTH
 from pearson_correlation_oracle import expected_result as pearson_correlation_expected
@@ -175,6 +197,16 @@ from kendall_rank_correlation_coefficient_oracle import expected_result as kenda
 from spearman_average_rank_correlation_oracle import INVALID_RESULT as SPEARMAN_AVERAGE_RANK_INVALID_RESULT
 from spearman_average_rank_correlation_oracle import MAX_INPUT_LENGTH as MAX_SPEARMAN_AVERAGE_RANK_INPUT_LENGTH
 from spearman_average_rank_correlation_oracle import expected_result as spearman_average_rank_expected
+from secant_method_oracle import INVALID_RESULT as SECANT_METHOD_INVALID_RESULT
+from secant_method_oracle import MAX_INPUT_LENGTH as MAX_SECANT_METHOD_INPUT_LENGTH
+from secant_method_oracle import expected_result as secant_method_expected
+from newton_raphson_method_oracle import INVALID_RESULT as NEWTON_RAPHSON_METHOD_INVALID_RESULT
+from newton_raphson_method_oracle import MAX_INPUT_LENGTH as MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH
+from newton_raphson_method_oracle import expected_result as newton_raphson_method_expected
+from newton_raphson_oracle import INVALID_RESULT as NEWTON_RAPHSON_INVALID_RESULT
+from newton_raphson_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH
+from newton_raphson_oracle import expected_result as newton_raphson_expected
+from reynolds_number_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REYNOLDS_NUMBER_PARSEABLE_INPUT_LENGTH
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
@@ -183,6 +215,7 @@ MAX_INPUT_LENGTH = 4096
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
+                        MAX_MEDIAN_TWO_ARRAY_INPUT_LENGTH if algorithm == "median_two_array" else
                         MAX_KELLY_CRITERION_INPUT_LENGTH if algorithm == "kelly_criterion" else
                         MAX_PRESENT_VALUE_PARSEABLE_INPUT_LENGTH if algorithm == "present_value" else
                         MAX_PRESENT_VALUE_RUST_PARSEABLE_INPUT_LENGTH if algorithm == "present_value_rust" else
@@ -192,12 +225,16 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_SPEED_OF_SOUND_INPUT_LENGTH if algorithm == "speed_of_sound" else
                         MAX_TERMINAL_VELOCITY_INPUT_LENGTH if algorithm == "terminal_velocity" else
                         MAX_NEWTONS_GRAVITATION_INPUT_LENGTH if algorithm == "newtons_law_of_gravitation" else
+                        MAX_IDEAL_GAS_LAW_INPUT_LENGTH if algorithm == "ideal_gas_law" else
+                        MAX_POISSON_DIST_INPUT_LENGTH if algorithm == "poisson_dist" else
+                        MAX_DOPPLER_FREQUENCY_INPUT_LENGTH if algorithm == "doppler_frequency" else
+                        MAX_CAPACITOR_EQUIVALENCE_INPUT_LENGTH if algorithm == "capacitor_equivalence" else
                         MAX_MACAULAY_DURATION_INPUT_LENGTH if algorithm == "macaulay_duration" else
                         MAX_PRICE_PLUS_TAX_INPUT_LENGTH if algorithm == "price_plus_tax" else
                         MAX_PEARSON_CORRELATION_INPUT_LENGTH if algorithm == "pearson_correlation" else
                         MAX_KENDALL_RANK_CORRELATION_INPUT_LENGTH if algorithm == "kendall_rank_correlation_coefficient" else
                         MAX_SPEARMAN_AVERAGE_RANK_INPUT_LENGTH if algorithm == "spearman_average_rank_correlation" else
-                        MAX_VARIANCE_INPUT_LENGTH if algorithm == "variance" else
+                        MAX_VARIANCE_INPUT_LENGTH if algorithm in {"variance", "welfords_variance"} else
                         MAX_DICE_COEFFICIENT_INPUT_LENGTH if algorithm == "dice_coefficient" else
                         MAX_DENSITY_INPUT_LENGTH if algorithm == "density" else
                         MAX_HINGE_LOSS_INPUT_LENGTH if algorithm == "hinge_loss" else
@@ -205,6 +242,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_PEARSON_INPUT_LENGTH + 1 if algorithm == "collaborative_filtering_pearson_similarity" else
                         MAX_QUADRATIC_EQUATION_SOLVER_INPUT_LENGTH
                         if algorithm == "quadratic_equation_solver_complex_roots" else
+                        4 if algorithm == "durand_kerner_roots" else
                         MAX_GROUND_PROJECTILE_INPUT_LENGTH
                         if algorithm == "ground_to_ground_projectile_motion" else
                         MAX_HUBER_LOSS_INPUT_LENGTH
@@ -225,8 +263,16 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "energy" else
                         MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
                         if algorithm == "trapezoidal_integration" else
+                        MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
+                        if algorithm == "midpoint_integral_method" else
+                        MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
+                        if algorithm == "ternary_search_min_max_recursive" else
                         MAX_COSINE_SIMILARITY_INPUT_LENGTH
                         if algorithm == "cosine_similarity" else
+                        MAX_SECANT_METHOD_INPUT_LENGTH if algorithm == "secant_method" else
+                        MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH if algorithm == "newton_raphson" else
+                        MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH if algorithm == "newton_raphson_method" else
+                        MAX_REYNOLDS_NUMBER_PARSEABLE_INPUT_LENGTH if algorithm == "reynolds_number" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -280,6 +326,27 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == LIGHT_ABERRATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=0.0, abs_tol=5e-12):
             raise ValueError("light_aberration expected_result must match the rounded source formula")
+    elif algorithm == "half_wave_rectifier":
+        if (len(values) != 5 or any(value < -1_000_000 or value > 1_000_000 for value in values[1:])):
+            source_result = -1.0e300
+        else:
+            operation, a, b, c, d = values
+            if operation == 0 and a >= 0 and b >= 0 and c >= 0 and a + b + c > 0:
+                source_result = d / (a + b + c)
+            elif operation in (1, 2) and b == c == d == 0:
+                source_result = a * 0.318
+            elif operation == 3 and b > 0 and c == d == 0:
+                source_result = a / b
+            elif operation in (4, 5) and b == c == d == 0:
+                source_result = a / 2.0
+            else:
+                source_result = -1.0e300
+        if source_result == -1.0e300:
+            if expected != -1.0e300:
+                raise ValueError("invalid half_wave_rectifier inputs must use the -1e300 result sentinel")
+        elif expected == -1.0e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("half_wave_rectifier expected_result must match the selected pinned formula")
     elif algorithm == "variance":
         source_result = variance_expected(values)
         if source_result == VARIANCE_INVALID_RESULT:
@@ -288,6 +355,25 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == VARIANCE_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("variance expected_result must match the source-ordered sample formula")
+    elif algorithm == "welfords_variance":
+        if len(values) < 2 or len(values) > 64 or any(value < -1_000_000 or value > 1_000_000 for value in values):
+            source_result = VARIANCE_INVALID_RESULT
+        else:
+            count = 0
+            mean = 0.0
+            m2 = 0.0
+            for value in values:
+                count += 1
+                delta = float(value) - mean
+                mean += delta / count
+                m2 += delta * (float(value) - mean)
+            source_result = m2 / (count - 1)
+        if source_result == VARIANCE_INVALID_RESULT:
+            if expected != VARIANCE_INVALID_RESULT:
+                raise ValueError("invalid welfords_variance inputs must use the -1e300 result sentinel")
+        elif expected == VARIANCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("welfords_variance expected_result must match the source-order Welford recurrence")
     elif algorithm == "dice_coefficient":
         source_result = dice_coefficient_expected(values)
         if source_result == DICE_COEFFICIENT_INVALID_RESULT:
@@ -524,6 +610,13 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == QUADRATIC_EQUATION_SOLVER_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("quadratic-equation expected_result must match the selected source-ordered root component")
+    elif algorithm == "durand_kerner_roots":
+        source_result = durand_kerner_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid Durand–Kerner inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("Durand–Kerner expected_result must match the selected root component")
     elif algorithm == "ground_to_ground_projectile_motion":
         source_result = ground_projectile_expected(values)
         if source_result == GROUND_PROJECTILE_INVALID_RESULT:
@@ -604,6 +697,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == TRAPEZOIDAL_INTEGRATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("trapezoidal_integration expected_result must match the oriented source-order trapezoid sum")
+    elif algorithm == "midpoint_integral_method":
+        source_result = midpoint_integral_method_expected(values)
+        if source_result == MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT:
+            if expected != MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT:
+                raise ValueError("invalid midpoint_integral_method inputs must use the -1e300 result sentinel")
+        elif expected == MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("midpoint_integral_method expected_result must match the source-order midpoint sum")
+    elif algorithm == "ternary_search_min_max_recursive":
+        source_result = ternary_search_min_max_expected(values)
+        if source_result == TERNARY_SEARCH_MIN_MAX_INVALID_RESULT:
+            if expected != TERNARY_SEARCH_MIN_MAX_INVALID_RESULT:
+                raise ValueError("invalid ternary_search_min_max_recursive inputs must use the -1e300 result sentinel")
+        elif expected == TERNARY_SEARCH_MIN_MAX_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("ternary_search_min_max_recursive expected_result must match the binary32 recursive search")
     elif algorithm == "cosine_similarity":
         source_result = cosine_similarity_expected(values)
         if source_result == COSINE_SIMILARITY_INVALID_RESULT:
@@ -867,6 +976,10 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                 source_result = round(source_result, 2)
             if not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
                 raise ValueError(f"{algorithm} expected_result must match the source mean-deviation formula")
+    elif algorithm == "median_two_array":
+        expected_from_source = median_two_array_expected(values)
+        if not math.isclose(expected, expected_from_source, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("median_two_array expected_result must match the merged sorted median")
     elif algorithm == "manhattan_distance":
         valid = (len(values) >= 1 and 1 <= values[0] <= 16
                  and len(values) == 1 + 2 * values[0]
@@ -1075,6 +1188,13 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
             raise ValueError("linear_regression_ols expected_result must match the bounded OLS slope")
+    elif algorithm == "gradient_descent":
+        source_result = gradient_descent_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid gradient_descent inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("gradient_descent expected_result must match the pinned quadratic-gradient updates")
     elif algorithm == "linear_regression_gradient_descent":
         valid = (len(values) >= 3 and 2 <= values[0] <= 64
                  and 1 <= values[1] <= 1000 and 1 <= values[2] <= 10_000
@@ -1220,6 +1340,20 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("npv expected_result must match the zero-based source-ordered discounted sum")
+    elif algorithm == "meter_to_feet_conversion":
+        valid = (len(values) == 2 and values[0] in (0, 1)
+                 and -1_000_000_000 <= values[1] <= 1_000_000_000)
+        source_result = -1e300
+        if valid:
+            operation, milliunits = values
+            value = milliunits / 1000.0
+            source_result = value * 0.3048 if operation == 0 else value / 0.3048
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid meter_to_feet_conversion inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("meter_to_feet_conversion expected_result must match the source conversion expression")
     elif algorithm == "real_and_reactive_power":
         valid = (len(values) == 3 and values[0] in (0, 1)
                  and -1_000_000_000 <= values[1] <= 1_000_000_000
@@ -1238,6 +1372,34 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("real_and_reactive_power expected_result must match the selected source expression")
+    elif algorithm == "power_factor_correction":
+        valid = (len(values) == 6 and values[0] in (0, 1)
+                 and 1 <= values[1] <= 1000 and 1 <= values[2] <= 1000
+                 and -1_000_000 <= values[3] <= 1_000_000
+                 and -10_000 <= values[4] <= 10_000
+                 and -10_000 <= values[5] <= 10_000
+                 and values[4] != 0 and values[5] != 0)
+        source_result = -1e300
+        if valid:
+            operation, voltage, frequency, real_power, current_units, expected_units = values
+            if operation == 1 and (current_units == expected_units or real_power == 0):
+                valid = False
+            else:
+                current = current_units / 10_000.0
+                expected_factor = expected_units / 10_000.0
+                current_q = (real_power / current) * math.sin(math.acos(current))
+                expected_q = (real_power / expected_factor) * math.sin(math.acos(expected_factor))
+                change_q = current_q - expected_q
+                if operation == 0:
+                    source_result = change_q / (2 * math.pi * frequency * (voltage**2))
+                else:
+                    source_result = (voltage**2) / (2 * math.pi * frequency * change_q)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid power_factor_correction inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("power_factor_correction expected_result must match the source-ordered correction formula")
     elif algorithm == "carrier_concentration":
         valid = (len(values) == 3 and all(0 <= concentration <= 1_000_000 for concentration in values)
                  and values.count(0) == 1)
@@ -1658,6 +1820,62 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == NEWTONS_GRAVITATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("newtons_law_of_gravitation expected_result must match the selected gravitation formula")
+    elif algorithm == "ideal_gas_law":
+        source_result = ideal_gas_law_expected(values)
+        if source_result == IDEAL_GAS_LAW_INVALID_RESULT:
+            if expected != IDEAL_GAS_LAW_INVALID_RESULT:
+                raise ValueError("invalid ideal_gas_law inputs must use the -1e300 result sentinel")
+        elif expected == IDEAL_GAS_LAW_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("ideal_gas_law expected_result must match the selected source formula")
+    elif algorithm == "poisson_dist":
+        source_result = poisson_dist_expected(values)
+        if source_result == POISSON_DIST_INVALID_RESULT:
+            if expected != POISSON_DIST_INVALID_RESULT:
+                raise ValueError("invalid poisson_dist inputs must use the -1e300 result sentinel")
+        elif expected == POISSON_DIST_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=0.0):
+            raise ValueError("poisson_dist expected_result must match the selected source helper")
+    elif algorithm == "doppler_frequency":
+        source_result = doppler_frequency_expected(values)
+        if source_result == DOPPLER_FREQUENCY_INVALID_RESULT:
+            if expected != DOPPLER_FREQUENCY_INVALID_RESULT:
+                raise ValueError("invalid doppler_frequency inputs must use the -1e300 result sentinel")
+        elif expected == DOPPLER_FREQUENCY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("doppler_frequency expected_result must match the source-ordered Doppler formula")
+    elif algorithm == "capacitor_equivalence":
+        source_result = capacitor_equivalence_expected(values)
+        if source_result == CAPACITOR_EQUIVALENCE_INVALID_RESULT:
+            if expected != CAPACITOR_EQUIVALENCE_INVALID_RESULT:
+                raise ValueError("invalid capacitor_equivalence inputs must use the -1e300 result sentinel")
+        elif expected == CAPACITOR_EQUIVALENCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("capacitor_equivalence expected_result must match the selected equivalent-capacitance formula")
+    elif algorithm == "secant_method":
+        source_result = secant_method_expected(values)
+        if source_result == SECANT_METHOD_INVALID_RESULT:
+            if expected != SECANT_METHOD_INVALID_RESULT:
+                raise ValueError("invalid secant_method inputs must use the -1e300 result sentinel")
+        elif expected == SECANT_METHOD_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("secant_method expected_result must match the selected pinned variant")
+    elif algorithm == "newton_raphson_method":
+        source_result = newton_raphson_method_expected(values)
+        if source_result == NEWTON_RAPHSON_METHOD_INVALID_RESULT:
+            if expected != NEWTON_RAPHSON_METHOD_INVALID_RESULT:
+                raise ValueError("invalid newton_raphson_method inputs must use the -1e300 result sentinel")
+        elif expected == NEWTON_RAPHSON_METHOD_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-10):
+            raise ValueError("newton_raphson_method expected_result must match the bounded cubic iteration")
+    elif algorithm == "newton_raphson":
+        source_result = newton_raphson_expected(values)
+        if source_result == NEWTON_RAPHSON_INVALID_RESULT:
+            if expected != NEWTON_RAPHSON_INVALID_RESULT:
+                raise ValueError("invalid newton_raphson inputs must use the -1e300 result sentinel")
+        elif expected == NEWTON_RAPHSON_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-8):
+            raise ValueError("newton_raphson expected_result must match the bounded positive root")
     return values, float(expected)
 
 

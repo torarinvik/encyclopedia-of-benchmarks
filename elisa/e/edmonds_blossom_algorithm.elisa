@@ -1,0 +1,125 @@
+def edmonds_blossom_algorithm_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2:
+        return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 0 or n64 > 20 or m64 < 0 or m64 > 190 or length != (2 + 2 * m64).usize():
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    graph: mutable bool[400] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        a: i64 = input[2 + 2 * edge]
+        b: i64 = input[3 + 2 * edge]
+        if a < 0 or a >= n64 or b < 0 or b >= n64 or a == b:
+            return -1
+        u: usize = a.usize()
+        v: usize = b.usize()
+        graph[u * 20 + v] <- true
+        graph[v * 20 + u] <- true
+        edge <- edge + 1
+    mate: mutable i64[20] = zeroed
+    parent: mutable i64[20] = zeroed
+    base: mutable usize[20] = zeroed
+    used: mutable bool[20] = zeroed
+    blossom: mutable bool[20] = zeroed
+    queue: mutable usize[20] = zeroed
+    i: mutable usize = 0
+    while i < 20:
+        mate[i] <- -1
+        i <- i + 1
+    answer: mutable i64 = 0
+    root: mutable usize = 0
+    while root < n:
+        if mate[root] == -1:
+            i <- 0
+            while i < n:
+                used[i] <- false
+                parent[i] <- -1
+                base[i] <- i
+                i <- i + 1
+            queue_head: mutable usize = 0
+            queue_tail: mutable usize = 0
+            queue[queue_tail] <- root
+            queue_tail <- queue_tail + 1
+            used[root] <- true
+            endpoint: mutable i64 = -1
+            while queue_head < queue_tail and endpoint == -1:
+                v: usize = queue[queue_head]
+                queue_head <- queue_head + 1
+                u: mutable usize = 0
+                while u < n:
+                    if graph[v * 20 + u] and base[v] != base[u] and mate[v] != u.i64():
+                        if u.i64() == root.i64() or (mate[u] != -1 and parent[mate[u].usize()] != -1):
+                            path: mutable bool[20] = zeroed
+                            x: mutable usize = v
+                            y: mutable usize = u
+                            loop:
+                                x <- base[x]
+                                path[x] <- true
+                                if mate[x] == -1:
+                                    break
+                                x <- parent[mate[x].usize()].usize()
+                            while not path[base[y]]:
+                                y <- parent[mate[base[y]].usize()].usize()
+                            common: usize = base[y]
+                            i <- 0
+                            while i < n:
+                                blossom[i] <- false
+                                i <- i + 1
+                            x <- v
+                            y <- u
+                            while base[x] != common:
+                                blossom[base[x]] <- true
+                                blossom[base[mate[x].usize()]] <- true
+                                parent[x] <- y.i64()
+                                y <- mate[x].usize()
+                                x <- parent[mate[x].usize()].usize()
+                            x <- u
+                            y <- v
+                            while base[x] != common:
+                                blossom[base[x]] <- true
+                                blossom[base[mate[x].usize()]] <- true
+                                parent[x] <- y.i64()
+                                y <- mate[x].usize()
+                                x <- parent[mate[x].usize()].usize()
+                            i <- 0
+                            while i < n:
+                                if blossom[base[i]]:
+                                    base[i] <- common
+                                    if not used[i]:
+                                        used[i] <- true
+                                        queue[queue_tail] <- i
+                                        queue_tail <- queue_tail + 1
+                                i <- i + 1
+                        elif parent[u] == -1:
+                            parent[u] <- v.i64()
+                            if mate[u] == -1:
+                                endpoint <- u.i64()
+                                break
+                            mate_next: usize = mate[u].usize()
+                            used[mate_next] <- true
+                            queue[queue_tail] <- mate_next
+                            queue_tail <- queue_tail + 1
+                    u <- u + 1
+                
+            if endpoint != -1:
+                v: mutable usize = endpoint.usize()
+                while true:
+                    pv_value: i64 = parent[v]
+                    if pv_value == -1:
+                        break
+                    pv: usize = pv_value.usize()
+                    mate_next: i64 = mate[pv]
+                    mate[v] <- pv.i64()
+                    mate[pv] <- v.i64()
+                    if mate_next == -1:
+                        break
+                    v <- mate_next.usize()
+                if mate[root] != -1:
+                    answer <- answer + 1
+        root <- root + 1
+    answer
+
+export fn edmonds_blossom_algorithm(input: i64&, length: usize) -> i64 = edmonds_blossom_algorithm_impl

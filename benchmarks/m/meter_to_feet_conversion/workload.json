@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "meter-to-feet-conversion-v1",
+  "algorithm": "meter_to_feet_conversion",
+  "function_symbol": "meter_to_feet_conversion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": [
+      "operation",
+      "milliunits"
+    ],
+    "operation_codes": {
+      "0": "feet_to_meters",
+      "1": "meters_to_feet"
+    },
+    "scale": "milliunits / 1000.0",
+    "minimum_milliunits": -1000000000,
+    "maximum_milliunits": 1000000000,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "operation 0: (milliunits / 1000.0) * 0.3048; operation 1: (milliunits / 1000.0) / 0.3048",
+    "invalid_input_result": -1e+300
+  },
+  "cases": [
+    {
+      "id": "one-foot-to-meters",
+      "input_values": [
+        0,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 0.3048
+    },
+    {
+      "id": "one-meter-to-feet",
+      "input_values": [
+        1,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 3.280839895013123
+    },
+    {
+      "id": "source-zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-feet-to-meters",
+      "input_values": [
+        0,
+        -1250
+      ],
+      "input_length": 2,
+      "expected_result": -0.381
+    },
+    {
+      "id": "negative-meters-to-feet",
+      "input_values": [
+        1,
+        -2500
+      ],
+      "input_length": 2,
+      "expected_result": -8.202099737532809
+    },
+    {
+      "id": "fractional-feet",
+      "input_values": [
+        0,
+        125
+      ],
+      "input_length": 2,
+      "expected_result": 0.0381
+    },
+    {
+      "id": "fractional-meters",
+      "input_values": [
+        1,
+        125
+      ],
+      "input_length": 2,
+      "expected_result": 0.4101049868766404
+    },
+    {
+      "id": "maximum-input-feet",
+      "input_values": [
+        0,
+        1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 304800.0
+    },
+    {
+      "id": "maximum-input-meters",
+      "input_values": [
+        1,
+        1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 3280839.8950131233
+    },
+    {
+      "id": "minimum-input-feet",
+      "input_values": [
+        0,
+        -1000000000
+      ],
+      "input_length": 2,
+      "expected_result": -304800.0
+    },
+    {
+      "id": "invalid-operation",
+      "input_values": [
+        2,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-range",
+      "input_values": [
+        0,
+        1000000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-input",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-long-input",
+      "input_values": [
+        0,
+        1000,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64",
+    "sample_count": 14,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

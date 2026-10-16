@@ -1,0 +1,22 @@
+# Maximum consecutive ones with at most k flips
+def max_consecutive_ones_iii_impl(a: i64&, length: usize) -> i64:
+    if a.is_null(): return -2
+    if length < 3 or length > 1026 or a[0] < 1 or a[0] > 1024 or length != a[0].usize() + 2 or a[1] < 0 or a[1] > a[0]: return -2
+    n: usize = a[0].usize()
+    i: mutable usize = 0
+    while i < n:
+        if a[i + 2] != 0 and a[i + 2] != 1: return -2
+        i <- i + 1
+    left: mutable usize = 0
+    zeros: mutable usize = 0
+    best: mutable usize = 0
+    right: mutable usize = 0
+    while right < n:
+        if a[right + 2] == 0: zeros <- zeros + 1
+        while zeros > a[1].usize():
+            if a[left + 2] == 0: zeros <- zeros - 1
+            left <- left + 1
+        if right - left + 1 > best: best <- right - left + 1
+        right <- right + 1
+    best.i64()
+export fn max_consecutive_ones_iii(a: i64&, length: usize) -> i64 = max_consecutive_ones_iii_impl

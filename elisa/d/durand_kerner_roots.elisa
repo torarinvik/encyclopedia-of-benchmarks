@@ -1,0 +1,50 @@
+extern sqrt(value: f64) -> f64
+
+def durand_kerner_roots_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return -1.0e300
+    d: i64 = values[0]
+    ri: i64 = values[1]
+    part: i64 = values[2]
+    if d == 0 or d < -4 or d > 4 or ri < 0 or ri > 2 or part < 0 or part > 1:
+        return -1.0e300
+    sign: mutable f64 = 1.0
+    if d < 0:
+        sign <- -1.0
+    q: f64 = sqrt(3.0) / 2.0
+    zr: mutable f64[3] = [sign, -0.5 * sign, -0.5 * sign]
+    zi: mutable f64[3] = [0.0, q * sign, -q * sign]
+    for iteration in 0..<100:
+        nr: mutable f64[3] = zr
+        ni: mutable f64[3] = zi
+        change: mutable f64 = 0.0
+        for i in 0..<3:
+            dr: mutable f64 = 1.0
+            di: mutable f64 = 0.0
+            for j in 0..<3:
+                if i != j:
+                    tr: f64 = dr * (zr[i] - zr[j]) - di * (zi[i] - zi[j])
+                    ti: f64 = dr * (zi[i] - zi[j]) + di * (zr[i] - zr[j])
+                    dr <- tr
+                    di <- ti
+            z2r: f64 = zr[i] * zr[i] - zi[i] * zi[i]
+            z2i: f64 = 2.0 * zr[i] * zi[i]
+            z3r: f64 = z2r * zr[i] - z2i * zi[i] - d.f64()
+            z3i: f64 = z2r * zi[i] + z2i * zr[i]
+            den: f64 = dr * dr + di * di
+            cor: f64 = (z3r * dr + z3i * di) / den
+            coi: f64 = (z3i * dr - z3r * di) / den
+            nr[i] <- zr[i] - cor
+            ni[i] <- zi[i] - coi
+            delta: f64 = sqrt(cor * cor + coi * coi)
+            if delta > change:
+                change <- delta
+        zr <- nr
+        zi <- ni
+        if change < 1.0e-14:
+            break
+    if part == 0:
+        return zr[ri.usize()]
+    return zi[ri.usize()]
+
+export fn durand_kerner_roots(values: i64&, length: usize) -> f64 = durand_kerner_roots_impl

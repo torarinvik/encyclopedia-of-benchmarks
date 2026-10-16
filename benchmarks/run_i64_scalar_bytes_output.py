@@ -21,6 +21,20 @@ MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "magicdiamondpattern":
+        if not -2**63 <= value <= 45:
+            return -1, b""
+        if value <= 0:
+            output = b"       ...       ....        nothing printing :("
+            return len(output), output
+        side = value
+        rows = []
+        for count in range(1, side + 1):
+            rows.append(" " * (side - count) + "* " * count + "\n")
+        for count in range(side, 0, -1):
+            rows.append("* " * count + "\n" + " " * (side - count + 1))
+        output = "".join(rows).encode("ascii")
+        return len(output), output
     if encoding == "butterfly_pattern":
         if not 1 <= value <= 45:
             return -1, b""
@@ -468,7 +482,7 @@ def main() -> int:
     encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
                                           "decimal_to_hex", "decimal_to_gray",
                                           "n_queens_backtracking_csharp",
-                                          "faster_perfect_numbers", "fizz_buzz"}
+                                          "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}
                 else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

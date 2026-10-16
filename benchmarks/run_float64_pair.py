@@ -15,7 +15,7 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 
-SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions",
+SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "speed_conversion",
                        "leaky_relu", "exponential_linear_unit", "composite_simpson_rule",
                        "false_position", "to_polar_angle_degrees", "problem144", "circle"}
 
@@ -117,6 +117,19 @@ def encode_case(case: dict, tolerance: float,
                 raise ValueError("speed_conversions expected result must match the pinned conversion")
             if expected == -1.0:
                 raise ValueError("valid speed conversion inputs cannot use the invalid-input sentinel")
+    elif algorithm == "speed_conversion":
+        valid = (0.0 <= first <= 1_000_000.0 and 0.0 <= second <= 24.0
+                 and second.is_integer())
+        if not valid:
+            if expected != -1.0:
+                raise ValueError("invalid speed_conversion inputs must use the -1 result sentinel")
+        else:
+            source, destination = divmod(int(second), 5)
+            from_factors = (1.609344, 1.0, 3.6, 1.097, 1.852)
+            to_factors = (0.6213712, 1.0, 0.277778, 0.911344, 0.539957)
+            source_result = math.floor(first * from_factors[source] * to_factors[destination] * 100.0 + 0.5) / 100.0
+            if expected == -1.0 or abs(expected - source_result) > tolerance * max(1.0, abs(first)):
+                raise ValueError("speed_conversion expected result must match PHP multiplication and rounding")
     elif algorithm == "leaky_relu":
         valid = (-1_000_000.0 <= first <= 1_000_000.0
                  and -1_000_000.0 <= second <= 1_000_000.0)

@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn median_two_array(a:*const i64,len:usize)->f64{const BAD:f64=-1.0e300;if a.is_null()||len<2||len>259{return BAD}let x=std::slice::from_raw_parts(a,len);if x[0]<0||x[1]<0||x[0]+x[1]<1||x[0]+x[1]>256||len!=x[0]as usize+x[1]as usize+2{return BAD}let n1=x[0]as usize;let mut v=x[2..].to_vec();if v.iter().any(|&z|!(-1_000_000..=1_000_000).contains(&z))||x[2..2+n1].windows(2).any(|w|w[0]>w[1])||x[2+n1..].windows(2).any(|w|w[0]>w[1]){return BAD}v.sort();let m=v.len()/2;if v.len()%2==1{v[m]as f64}else{(v[m-1]as f64+v[m]as f64)/2.0}}

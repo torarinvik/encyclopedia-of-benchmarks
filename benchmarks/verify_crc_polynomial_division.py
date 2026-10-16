@@ -18,6 +18,7 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from crc_polynomial_division_oracle import (
     MAX_MESSAGE_BITS,
     MAX_POLYNOMIAL_BITS,
+    MAX_CODEWORD_BITS,
     expected_output,
 )
 
@@ -42,6 +43,15 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or case["expected_output_hex"] != expected[1].hex()):
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         records[tuple(values)] = expected
+        if len(values) >= 3 and values[0] == 0 and expected[0] >= 0:
+            codeword = list(expected[1])
+            polynomial_length = values[2]
+            polynomial = values[3 + values[1]:]
+            check_values = [1, len(codeword), polynomial_length, *codeword, *polynomial]
+            checked = expected_output(check_values)
+            if checked != (1, b"\x00"):
+                raise ValueError(f"oracle generated a codeword with nonzero remainder: {case['id']}")
+            records[tuple(check_values)] = checked
 
     # Exhaust short messages against every monic, odd generator through degree five.
     for message_length in range(1, 9):
@@ -54,7 +64,16 @@ def corpus(workload: dict) -> tuple[str, int]:
                     for operation in (0, 1):
                         values = [operation, message_length, polynomial_length,
                                   *message, *polynomial]
-                        records[tuple(values)] = expected_output(values)
+                        expected = expected_output(values)
+                        records[tuple(values)] = expected
+                        if operation == 0:
+                            codeword = list(expected[1])
+                            check_values = [1, len(codeword), polynomial_length,
+                                            *codeword, *polynomial]
+                            checked = expected_output(check_values)
+                            if checked != (1, b"\x00"):
+                                raise ValueError(f"oracle generated a codeword with nonzero remainder: {values}")
+                            records[tuple(check_values)] = checked
 
     rng = random.Random(20261016)
     for _ in range(512):
@@ -63,11 +82,20 @@ def corpus(workload: dict) -> tuple[str, int]:
         values = [rng.randrange(2), message_length, polynomial_length]
         values.extend(rng.randrange(2) for _ in range(message_length))
         values.extend([1, *(rng.randrange(2) for _ in range(polynomial_length - 2)), 1])
-        records[tuple(values)] = expected_output(values)
+        expected = expected_output(values)
+        records[tuple(values)] = expected
+        if values[0] == 0:
+            codeword = list(expected[1])
+            check_values = [1, len(codeword), polynomial_length,
+                            *codeword, *values[3 + message_length:]]
+            checked = expected_output(check_values)
+            if checked != (1, b"\x00"):
+                raise ValueError(f"oracle generated a codeword with nonzero remainder: {values}")
+            records[tuple(check_values)] = checked
 
     invalid_inputs = (
         [], [0], [0, 1], [2, 1, 2, 1, 1], [0, 0, 2, 1, 1],
-        [0, 65, 2], [0, 1, 1, 1, 1], [0, 1, 17],
+        [0, 65, 2], [1, MAX_CODEWORD_BITS + 1, 2], [0, 1, 1, 1, 1], [0, 1, 17],
         [0, 2, 3, 1, 0, 1], [0, 2, 2, 1, 2, 1, 1],
         [0, 1, 2, 1, 1, 2], [0, 1, 2, 1, 0, 1],
         [0, 1, 2, 1, 1, 0], [0, 1, 2, 1, 1, 1],

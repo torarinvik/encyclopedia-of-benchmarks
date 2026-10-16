@@ -1,0 +1,51 @@
+# Map ASCII bytes to first-seen indices, after ASCII uppercase normalization.
+def word_patterns_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > 256:
+        return -1
+    byte_length: usize = input[0].usize()
+    if length != byte_length + 1:
+        return -1
+    first: mutable i32[128] = zeroed
+    index: usize = 0
+    while index < 128:
+        first[index] <- -1
+        index <- index + 1
+    next: mutable i32 = 0
+    position: mutable usize = 0
+    index <- 0
+    while index < byte_length:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 127:
+            return -1
+        if value >= 97 and value <= 122: value <- value - 32
+        character: usize = value.usize()
+        if first[character] < 0:
+            first[character] <- next
+            next <- next + 1
+        index <- index + 1
+    if output_capacity < 4 * byte_length + 1: return -2
+    index <- 0
+    while index < byte_length:
+        value: i64 = input[index + 1]
+        if value >= 97 and value <= 122: value <- value - 32
+        character: usize = value.usize()
+        if index > 0:
+            output[position] <- 46u8
+            position <- position + 1
+        number: mutable i32 = first[character]
+        digits: mutable u8[3] = zeroed
+        count: mutable usize = 0
+        while true:
+            digits[count] <- (48 + number % 10).u8()
+            count <- count + 1
+            number <- number / 10
+            if number == 0: break
+        while count > 0:
+            count <- count - 1
+            output[position] <- digits[count]
+            position <- position + 1
+        index <- index + 1
+    output[position] <- 0u8
+    position.i64()
+
+export fn word_patterns(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_patterns_impl

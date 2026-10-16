@@ -22,7 +22,7 @@ from gauss_legendre_oracle import MAX_ITERATIONS as MAX_GAUSS_LEGENDRE_ITERATION
 from gauss_legendre_oracle import expected_result as gauss_legendre_oracle
 from run_float64_unary import encode_case
 
-ALGORITHMS = ("problem58", "problem207", "problem587", "gamma", "gauss_legendre", "fast_inverse_sqrt_cpp")
+ALGORITHMS = ("problem58", "problem207", "problem587", "gamma", "gauss_legendre", "fast_inverse_sqrt_cpp", "newton_raphson_root")
 
 
 def is_prime(value: int) -> bool:
@@ -121,6 +121,9 @@ def problem587_oracle(fraction: float) -> float:
 
 
 def oracle(algorithm: str, value: float) -> float:
+    if algorithm == "newton_raphson_root":
+        from newton_raphson_root_oracle import expected_result
+        return expected_result(value)
     if algorithm == "problem58":
         return problem58_oracle(value)
     if algorithm == "problem207":
@@ -145,7 +148,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     absolute = float(measurement.get("absolute_tolerance", 0.0))
     values = {float(case["input_values"][0]) for case in workload["cases"]}
     rng = random.Random(20261014)
-    if algorithm == "problem58":
+    if algorithm == "newton_raphson_root":
+        values.update((1.0, 1.000001, 1.5, 2.0, 3.0, 4.0, 0.999999, 4.000001))
+        values.update(rng.uniform(1.0, 4.0) for _ in range(16))
+    elif algorithm == "problem58":
         values.update((0.1, 0.10000000000000002, 0.111, 0.2, 0.5, 0.6,
                        0.09999999999999999, 0.6000000000000001))
         values.update(rng.uniform(0.1, 0.6) for _ in range(16))

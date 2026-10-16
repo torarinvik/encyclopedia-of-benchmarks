@@ -1,0 +1,33 @@
+def diffie_hellman_impl(values: i64&, length: usize) -> i64:
+    if length != 4:
+        return -1
+    generator: i64 = values[0]
+    alice_secret: i64 = values[1]
+    bob_secret: i64 = values[2]
+    prime: i64 = values[3]
+    if prime < 2 or prime > 6700417 or generator < 1 or generator >= prime or alice_secret < 1 or alice_secret >= prime or bob_secret < 1 or bob_secret >= prime:
+        return -1
+    divisor: mutable i64 = 2
+    while divisor * divisor <= prime:
+        if prime % divisor == 0:
+            return -1
+        divisor <- divisor + 1
+    base: mutable i64 = generator
+    exponent: mutable i64 = alice_secret
+    public_value: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            public_value <- (public_value * base) % prime
+        base <- (base * base) % prime
+        exponent <- exponent >> 1
+    base <- public_value
+    exponent <- bob_secret
+    shared: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            shared <- (shared * base) % prime
+        base <- (base * base) % prime
+        exponent <- exponent >> 1
+    shared
+
+export fn diffie_hellman(values: i64&, length: usize) -> i64 = diffie_hellman_impl

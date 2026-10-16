@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "id": "wildcard-matching-ascii-i64-array-scalar-v1",
+  "algorithm": "wildcard_matching",
+  "function_symbol": "wildcard_matching",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+    "text_length_range": [
+      0,
+      12
+    ],
+    "pattern_length_range": [
+      0,
+      20
+    ],
+    "text_character_range": [
+      97,
+      122
+    ],
+    "pattern_characters": "lowercase ASCII plus ? and *",
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_results": [
+      0,
+      1
+    ],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_text_and_pattern",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "empty_text_stars",
+      "input_values": [
+        0,
+        3,
+        42,
+        42,
+        42
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "empty_text_needs_literal",
+      "input_values": [
+        0,
+        2,
+        97,
+        42
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "literal_match",
+      "input_values": [
+        8,
+        8,
+        97,
+        108,
+        112,
+        104,
+        97,
+        98,
+        101,
+        116,
+        97,
+        108,
+        112,
+        104,
+        97,
+        98,
+        101,
+        116
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "question_single_character",
+      "input_values": [
+        8,
+        8,
+        119,
+        105,
+        108,
+        100,
+        99,
+        97,
+        114,
+        100,
+        119,
+        105,
+        108,
+        100,
+        99,
+        63,
+        114,
+        100
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "leading_star",
+      "input_values": [
+        8,
+        4,
+        97,
+        108,
+        112,
+        104,
+        97,
+        98,
+        101,
+        116,
+        42,
+        98,
+        101,
+        116
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "trailing_star",
+      "input_values": [
+        8,
+        5,
+        97,
+        108,
+        112,
+        104,
+        97,
+        98,
+        101,
+        116,
+        97,
+        108,
+        112,
+        104,
+        42
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "middle_and_consecutive_stars",
+      "input_values": [
+        7,
+        14,
+        98,
+        97,
+        97,
+        97,
+        98,
+        97,
+        98,
+        42,
+        42,
+        42,
+        42,
+        42,
+        98,
+        97,
+        42,
+        42,
+        42,
+        42,
+        42,
+        97,
+        98
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "star_matches_empty",
+      "input_values": [
+        3,
+        4,
+        97,
+        98,
+        99,
+        97,
+        42,
+        42,
+        99
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "star_matches_sequence",
+      "input_values": [
+        3,
+        3,
+        97,
+        98,
+        99,
+        97,
+        42,
+        99
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "question_does_not_match_empty",
+      "input_values": [
+        3,
+        4,
+        97,
+        98,
+        99,
+        97,
+        98,
+        99,
+        63
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "full_string_mismatch",
+      "input_values": [
+        3,
+        4,
+        97,
+        98,
+        99,
+        97,
+        42,
+        98,
+        100
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "pattern_only_star",
+      "input_values": [
+        8,
+        1,
+        119,
+        105,
+        108,
+        100,
+        99,
+        97,
+        114,
+        100,
+        42
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_lengths",
+      "input_values": [
+        12,
+        13,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        42,
+        97,
+        63,
+        99,
+        42,
+        101,
+        63,
+        103,
+        42,
+        105,
+        63,
+        108,
+        42
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_text_length",
+      "input_values": [
+        13,
+        1,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        42
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_pattern_length",
+      "input_values": [
+        1,
+        21,
+        97,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42,
+        42
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_uppercase_text",
+      "input_values": [
+        3,
+        1,
+        65,
+        98,
+        99,
+        42
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_pattern_character",
+      "input_values": [
+        3,
+        3,
+        97,
+        98,
+        99,
+        97,
+        46,
+        98
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_packed_length",
+      "input_values": [
+        3,
+        2,
+        97,
+        98,
+        99,
+        97
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "one_over_parseable_length",
+      "input_values": [
+        2,
+        0,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": -1
+    }
+  ]
+}

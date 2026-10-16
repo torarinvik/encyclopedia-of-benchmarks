@@ -1,0 +1,22 @@
+# Backward recursive linear search over a bounded integer array.
+def search_from_end(values: i64&, offset: usize, count: usize, target: i64) -> i64:
+    if count == 0:
+        return -1
+    index: usize = offset + count - 1
+    if values[index] == target:
+        return (count - 1).i64()
+    return search_from_end(values, offset, count - 1, target)
+
+def recursive_linear_search_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 67:
+        return -1
+    count_value: i64 = values[0]
+    target: i64 = values[1]
+    if count_value < 1 or count_value > 64:
+        return -1
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return -1
+    search_from_end(values, 2, count, target)
+
+export fn recursive_linear_search(values: i64&, length: usize) -> i64 = recursive_linear_search_impl

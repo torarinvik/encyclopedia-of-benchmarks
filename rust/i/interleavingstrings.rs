@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn interleavingstrings(a:*const i64,n:usize)->i64{if a.is_null()||n<3{return -1;}let v=std::slice::from_raw_parts(a,n);let(m,k,q)=(v[0],v[1],v[2]);if m<0||m>32||k<0||k>32||q!=m+k||n!=(3+m+k+q)as usize{return -1;}if v[3..].iter().any(|&x|!(0..=127).contains(&x)){return -1;}let(m,k)=(m as usize,k as usize);let s2=3+m;let s3=s2+k;let mut dp=[[false;33];33];dp[0][0]=true;for i in 0..=m{for j in 0..=k{if i>0&&dp[i-1][j]&&v[3+i-1]==v[s3+i+j-1]{dp[i][j]=true;}if j>0&&dp[i][j-1]&&v[s2+j-1]==v[s3+i+j-1]{dp[i][j]=true;}}}if dp[m][k]{1}else{0}}

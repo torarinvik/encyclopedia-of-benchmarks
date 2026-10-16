@@ -1,0 +1,31 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def equation(x: f64) -> f64:
+    pow(x, 3.0) - (4.0 * x) - 9.0
+
+def derivative(x: f64) -> f64:
+    3.0 * pow(x, 2.0) - 4.0
+
+def newton_raphson_method_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return INVALID_RESULT
+    initial_milli: i64 = values[0]
+    iteration_limit: i64 = values[1]
+    if initial_milli < 2000 or initial_milli > 4000 or iteration_limit < 1 or iteration_limit > 32:
+        return INVALID_RESULT
+    c: mutable f64 = initial_milli.f64() / 1000.0
+    z: mutable f64 = c
+    iteration: mutable i64 = 0
+    while iteration < iteration_limit:
+        m: f64 = equation(c)
+        n: f64 = derivative(c)
+        z <- c - (m / n)
+        c <- z
+        if (if m < 0.0: -m else: m) < 1e-10:
+            break
+        iteration <- iteration + 1
+    z
+
+export fn newton_raphson_method(values: i64&, length: usize) -> f64 = newton_raphson_method_impl

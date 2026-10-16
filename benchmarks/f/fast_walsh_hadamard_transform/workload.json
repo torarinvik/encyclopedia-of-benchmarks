@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "fwht-xor-i64-v1",
+  "algorithm": "fast_walsh_hadamard_transform",
+  "function_symbol": "fast_walsh_hadamard_transform",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[inverse_flag, sequence_length, values...]",
+    "inverse_flag": {
+      "0": "forward transform",
+      "1": "inverse transform"
+    },
+    "sequence_length_range": [
+      1,
+      128
+    ],
+    "sequence_length_requirement": "positive power of two",
+    "input_value_range": [
+      -10000,
+      10000
+    ],
+    "invalid_input_result": -1,
+    "exact_length": "2 + sequence_length"
+  },
+  "output": {
+    "kind": "little_endian_i64_vector",
+    "meaning": "XOR Walsh-Hadamard transform; inverse divides each coefficient by n",
+    "maximum_length": 128,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "128 signed 64-bit output values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "length_one_forward",
+      "input_values": [
+        0,
+        1,
+        -7
+      ],
+      "input_length": 3,
+      "workspace_bytes": 1024,
+      "expected_result": 1,
+      "expected_output_hex": "f9ffffffffffffff"
+    },
+    {
+      "id": "two_value_forward",
+      "input_values": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "input_length": 4,
+      "workspace_bytes": 1024,
+      "expected_result": 2,
+      "expected_output_hex": "0800000000000000feffffffffffffff"
+    },
+    {
+      "id": "source_example_forward",
+      "input_values": [
+        0,
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "workspace_bytes": 1024,
+      "expected_result": 4,
+      "expected_output_hex": "0a00000000000000fefffffffffffffffcffffffffffffff0000000000000000"
+    },
+    {
+      "id": "inverse_round_trip",
+      "input_values": [
+        1,
+        4,
+        10,
+        -2,
+        -4,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 1024,
+      "expected_result": 4,
+      "expected_output_hex": "0100000000000000020000000000000003000000000000000400000000000000"
+    },
+    {
+      "id": "zero_transform",
+      "input_values": [
+        0,
+        4,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 1024,
+      "expected_result": 4,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "capacity_too_small",
+      "input_values": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "input_length": 4,
+      "workspace_bytes": 8,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nondivisible_inverse",
+      "input_values": [
+        1,
+        2,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "workspace_bytes": 1024,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_power_of_two",
+      "input_values": [
+        0,
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "workspace_bytes": 1024,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_direction",
+      "input_values": [
+        2,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "workspace_bytes": 1024,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_bound_value",
+      "input_values": [
+        0,
+        1,
+        10001
+      ],
+      "input_length": 3,
+      "workspace_bytes": 1024,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        0,
+        128,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 130,
+      "workspace_bytes": 1024,
+      "expected_result": 128,
+      "expected_output_hex": "80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

@@ -3,15 +3,16 @@
 
 extern "C" std::int64_t crc_polynomial_division(const std::int64_t* input, std::size_t length,
                                                   std::uint8_t* output, std::size_t capacity) noexcept {
-    if (input == nullptr || length < 3 || length > 3 + 64 + 16) return -1;
+    if (input == nullptr || length < 3 || length > 3 + 79 + 16) return -1;
     const auto operation = input[0], raw_message_length = input[1], raw_polynomial_length = input[2];
-    if (operation < 0 || operation > 1 || raw_message_length < 1 || raw_message_length > 64
+    if (operation < 0 || operation > 1 || raw_message_length < 1
+        || (operation == 0 && raw_message_length > 64) || (operation == 1 && raw_message_length > 79)
         || raw_polynomial_length < 2 || raw_polynomial_length > 16) return -1;
     const auto message_length = static_cast<std::size_t>(raw_message_length);
     const auto polynomial_length = static_cast<std::size_t>(raw_polynomial_length);
     if (length != 3 + message_length + polynomial_length) return -1;
 
-    std::uint8_t message[64], polynomial[16], dividend[79], remainder[16];
+    std::uint8_t message[79], polynomial[16], dividend[79], remainder[16];
     for (std::size_t i = 0; i < message_length; ++i) {
         if (input[3 + i] < 0 || input[3 + i] > 1) return -1;
         message[i] = static_cast<std::uint8_t>(input[3 + i]);
@@ -44,7 +45,7 @@ extern "C" std::int64_t crc_polynomial_division(const std::int64_t* input, std::
     }
 
     std::size_t output_length;
-    if (operation == 0) output_length = message_length + remainder_length;
+    if (operation == 0) output_length = message_length + polynomial_length - 1;
     else {
         std::uint8_t nonzero = 0;
         for (std::size_t i = 0; i < remainder_length; ++i) nonzero |= remainder[i];
@@ -54,7 +55,11 @@ extern "C" std::int64_t crc_polynomial_division(const std::int64_t* input, std::
     if (output == nullptr || capacity < output_length) return -2;
     if (operation == 0) {
         for (std::size_t i = 0; i < message_length; ++i) output[i] = message[i];
-        for (std::size_t i = 0; i < remainder_length; ++i) output[message_length + i] = remainder[i];
+        const std::size_t degree = polynomial_length - 1;
+        const std::size_t leading_zeroes = degree - remainder_length;
+        for (std::size_t i = 0; i < leading_zeroes; ++i) output[message_length + i] = 0;
+        for (std::size_t i = 0; i < remainder_length; ++i)
+            output[message_length + leading_zeroes + i] = remainder[i];
     } else output[0] = remainder[0];
     return static_cast<std::int64_t>(output_length);
 }

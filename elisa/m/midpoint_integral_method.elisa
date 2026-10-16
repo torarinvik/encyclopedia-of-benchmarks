@@ -1,0 +1,38 @@
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def integrand(function_id: i64, x: f64) -> f64:
+    if function_id == 0:
+        return sqrt(x) + log(x)
+    if function_id == 1:
+        return exp(-x) * (4.0 - pow(x, 2.0))
+    if function_id == 2:
+        return sqrt(2.0 * pow(x, 3.0) + 3.0)
+    if function_id == 3:
+        return x + log(2.0 * x + 1.0)
+    INVALID_RESULT
+
+def midpoint_integral_method_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return INVALID_RESULT
+    function_id: i64 = values[0]
+    intervals: i64 = values[1]
+    a_milli: i64 = values[2]
+    b_milli: i64 = values[3]
+    if function_id < 0 or function_id > 3 or intervals < 2 or intervals > 64 or intervals % 2 != 0 or a_milli < 0 or a_milli >= b_milli or b_milli > 10000:
+        return INVALID_RESULT
+    a: f64 = a_milli.f64() / 1000.0
+    b: f64 = b_milli.f64() / 1000.0
+    h: f64 = (b - a) / intervals.f64()
+    xi: mutable f64 = a
+    total: mutable f64 = 0.0
+    for _ in 0..<intervals.usize():
+        total <- total + integrand(function_id, xi + h / 2.0)
+        xi <- xi + h
+    total * h
+
+export fn midpoint_integral_method(values: i64&, length: usize) -> f64 = midpoint_integral_method_impl

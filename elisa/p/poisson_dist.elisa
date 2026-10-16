@@ -1,0 +1,52 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern exp(value: f64) -> f64
+
+const MAX_MILLI_VALUE: i64 = 100000
+const MAX_SUCCESS_COUNT: i64 = 20
+const INVALID_RESULT: f64 = -1.0e300
+
+def poisson_factorial(x: f64) -> f64:
+    factorial: mutable f64 = x
+    i: mutable i64 = x.i64() - 1
+    while i > 0:
+        factorial <- factorial * i.f64()
+        i <- i - 1
+    if factorial <= 0.0:
+        factorial <- 1.0
+    factorial
+
+def poisson_point(mean: f64, successes: i64) -> f64:
+    (pow(mean, successes.f64()) * exp(-mean)) / poisson_factorial(successes.f64())
+
+def poisson_dist_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 4:
+        return INVALID_RESULT
+    operation: i64 = input[0]
+    first: i64 = input[1]
+    second: i64 = input[2]
+    third: i64 = input[3]
+    if operation == 0:
+        if first < 0 or first > MAX_MILLI_VALUE or second < 1 or second > MAX_MILLI_VALUE or third != 0:
+            return INVALID_RESULT
+        return (first.f64() / 1000.0) / (second.f64() / 1000.0)
+    if operation == 1:
+        if first < 0 or first > MAX_MILLI_VALUE or second < 0 or second > MAX_MILLI_VALUE or third != 0:
+            return INVALID_RESULT
+        return (first.f64() / 1000.0) * (second.f64() / 1000.0)
+    if operation == 2:
+        if first < 0 or first > MAX_MILLI_VALUE or second < 0 or second > MAX_SUCCESS_COUNT or third != 0:
+            return INVALID_RESULT
+        return poisson_point(first.f64() / 1000.0, second)
+    if operation == 3:
+        if first < 0 or first > MAX_MILLI_VALUE or second < 0 or second > third or third > MAX_SUCCESS_COUNT:
+            return INVALID_RESULT
+        mean: f64 = first.f64() / 1000.0
+        probability: mutable f64 = 0.0
+        successes: mutable i64 = second
+        while successes <= third:
+            probability <- probability + poisson_point(mean, successes)
+            successes <- successes + 1
+        return probability
+    INVALID_RESULT
+
+export fn poisson_dist(input: i64&, length: usize) -> f64 = poisson_dist_impl

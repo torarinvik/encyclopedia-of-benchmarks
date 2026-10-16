@@ -11,4 +11,4 @@ This package benchmarks all four public calculations in the pinned [TheAlgorithm
 
 The `i64_array_float64` ABI accepts exactly four signed integers: `[operation, arg1, arg2, arg3]`. The selector must be 0..3 and each argument must be 0..1,000. For operations 0 and 1, `arg3` is the denominator and must be nonzero. For operations 2 and 3, `arg1` is the denominator and must be nonzero. Zero remains valid in every other position, matching the source's nonnegative-input domain. These bounds choose a finite-output integer subset of the source's floating-point API. Invalid ABI inputs return `-1e300`; the Python source raises on negative inputs and on a zero denominator.
 
-The output is a binary64 result in the unit implied by the selected source function. Runtime and auxiliary space are O(1).
+The output is a binary64 result in the unit implied by the selected source function, compared with absolute and relative tolerances of `1e-12` to allow for small differences among language math libraries. Runtime and auxiliary space are O(1).

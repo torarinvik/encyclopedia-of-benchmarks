@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "median-of-medians-selection-i64-array-scalar-v1",
+  "algorithm": "median_of_medians",
+  "function_symbol": "median_of_medians",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, k, value_0, ..., value_(n-1)]",
+    "element_count_range": [1, 25],
+    "rank_range": "0 <= k < n (zero-based)",
+    "value_range": [0, 2147483647],
+    "distinct_values": true,
+    "invalid_input_result": -1
+  },
+  "output": {"kind": "signed_64_bit_integer", "meaning": "value at zero-based sorted rank k; -1 for invalid input"},
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "cases": [
+    {"id":"python-source-example","input_values":[7,4,2,4,5,7,899,54,32],"expected_result":54},
+    {"id":"five-element-group","input_values":[5,2,8,2,6,1,4],"expected_result":4},
+    {"id":"partial-final-group","input_values":[12,6,19,2,14,7,21,5,17,11,3,23,9,13],"expected_result":13},
+    {"id":"single-item","input_values":[1,0,7],"expected_result":7},
+    {"id":"minimum-rank","input_values":[5,0,8,2,6,1,4],"expected_result":1},
+    {"id":"maximum-rank","input_values":[5,4,8,2,6,1,4],"expected_result":8},
+    {"id":"maximum-count","input_values":[25,12,25,1,24,2,23,3,22,4,21,5,20,6,19,7,18,8,17,9,16,10,15,11,14,12,13],"expected_result":13},
+    {"id":"rank-out-of-range","input_values":[3,3,4,5,6],"expected_result":-1},
+    {"id":"duplicate-values","input_values":[3,1,4,4,5],"expected_result":-1},
+    {"id":"empty-values","input_values":[0,0],"expected_result":-1}
+  ]
+}

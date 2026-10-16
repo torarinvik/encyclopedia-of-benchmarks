@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "primitive-root-first-distinct-powers-i64-v1",
+  "algorithm": "primitive_root",
+  "function_symbol": "primitive_root",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[modulus]",
+    "modulus_range": [
+      2,
+      127
+    ],
+    "no_candidate_result": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_result_range": "[0,126]",
+    "no_candidate_result": 0,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "smallest_prime",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "prime_three",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "prime_seven",
+      "input_values": [
+        7
+      ],
+      "input_length": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "prime_eleven",
+      "input_values": [
+        11
+      ],
+      "input_length": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "prime_seventeen",
+      "input_values": [
+        17
+      ],
+      "input_length": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "large_prime_boundary",
+      "input_values": [
+        127
+      ],
+      "input_length": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "composite_four",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "composite_eight",
+      "input_values": [
+        8
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "composite_nine",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "composite_100",
+      "input_values": [
+        100
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_below_domain",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_above_domain",
+      "input_values": [
+        128
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_modulus",
+      "input_values": [
+        -7
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_values",
+      "input_values": [
+        7,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

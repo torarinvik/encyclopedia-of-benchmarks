@@ -1,0 +1,3 @@
+module half_wave_rectifier;
+const double BAD=-1.0e300;
+fn double half_wave_rectifier(long* a,usz n) @export("half_wave_rectifier"){if(a==null||n!=5)return BAD;for(usz i=1;i<5;i++)if(a[i]<-1000000||a[i]>1000000)return BAD;switch(a[0]){case 0:if(a[1]<0||a[2]<0||a[3]<0||(a[1]==0&&a[2]==0&&a[3]==0))return BAD;return (double)a[4]/(double)(a[1]+a[2]+a[3]);case 1:case 2:if(a[2]!=0||a[3]!=0||a[4]!=0)return BAD;return (double)a[1]*0.318;case 3:if(a[2]<=0||a[3]!=0||a[4]!=0)return BAD;return (double)a[1]/(double)a[2];case 4:case 5:if(a[2]!=0||a[3]!=0||a[4]!=0)return BAD;return (double)a[1]/2.0;default:return BAD;}}

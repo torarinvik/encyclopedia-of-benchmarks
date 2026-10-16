@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "three-way-partition-i32-array-bytes-v1",
+  "algorithm": "three_way_partition",
+  "function_symbol": "three_way_partition",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, pivot, value_0, ..., value_(n-1)]",
+    "count_range": [0, 256],
+    "value_range": [-2147483648, 2147483647],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_array",
+    "definition": "partitioned values followed by [less_end_exclusive, greater_start]; the three ranges contain values < pivot, == pivot, and > pivot",
+    "success_result": "n + 2",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {"bytes": 1032, "meaning": "Maximum byte buffer for 258 little-endian signed 32-bit outputs"},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000},
+  "cases": [
+    {"id": "mixed", "input_values": [7, 3, 4, 3, 1, 3, 8, 2, 3], "expected_result": 9, "expected_output_hex": "010000000200000003000000030000000300000008000000040000000200000005000000"},
+    {"id": "all_less", "input_values": [4, 10, -4, 0, 9, 1], "expected_result": 6, "expected_output_hex": "fcffffff0000000009000000010000000400000004000000"},
+    {"id": "all_equal", "input_values": [3, 5, 5, 5, 5], "expected_result": 5, "expected_output_hex": "0500000005000000050000000000000003000000"},
+    {"id": "empty", "input_values": [0, 8], "expected_result": 2, "expected_output_hex": "0000000000000000"},
+    {"id": "invalid_shape", "input_values": [2, 4, 1], "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

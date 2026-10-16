@@ -1,0 +1,67 @@
+module dijkstras_two_stack_algorithm:
+    const INVALID_RESULT: i64 = -1000000001
+
+    def apply_operator(opcode: i64, left: i64, right: i64) -> i64:
+        result: mutable i64 = INVALID_RESULT
+        if opcode == 43:
+            result <- left + right
+        elif opcode == 45:
+            result <- left - right
+        elif opcode == 42:
+            result <- left * right
+        elif opcode == 47:
+            if right == 0 or left % right != 0:
+                return INVALID_RESULT
+            result <- left / right
+        else:
+            return INVALID_RESULT
+        if result < -1000000000 or result > 1000000000:
+            return INVALID_RESULT
+        result
+
+    def dijkstras_two_stack_algorithm_impl(values: i64&, length: usize) -> i64:
+        if length == 0 or length > 511:
+            return INVALID_RESULT
+        result: i64 =
+            while index < length |index: mutable usize = 0, operands: mutable i64[256] = zeroed, operators: mutable i64[256] = zeroed, operand_top: mutable usize = 0, operator_top: mutable usize = 0, parentheses: mutable usize = 0, answer: mutable i64 = INVALID_RESULT| -> answer:
+                token: i64 = values[index]
+                if token >= 48 and token <= 57:
+                    if operand_top == 256:
+                        break INVALID_RESULT
+                    operands[operand_top] <- token - 48
+                    operand_top <- operand_top + 1
+                elif token == 40:
+                    parentheses <- parentheses + 1
+                    if parentheses > 128:
+                        break INVALID_RESULT
+                elif token == 43 or token == 45 or token == 42 or token == 47:
+                    if operator_top == 256:
+                        break INVALID_RESULT
+                    operators[operator_top] <- token
+                    operator_top <- operator_top + 1
+                elif token == 41:
+                    if parentheses == 0 or operator_top == 0 or operand_top < 2:
+                        break INVALID_RESULT
+                    parentheses <- parentheses - 1
+                    operator_top <- operator_top - 1
+                    opcode: i64 = operators[operator_top]
+                    operand_top <- operand_top - 1
+                    right: i64 = operands[operand_top]
+                    operand_top <- operand_top - 1
+                    left: i64 = operands[operand_top]
+                    computed: i64 = apply_operator(opcode, left, right)
+                    if computed == INVALID_RESULT:
+                        break INVALID_RESULT
+                    operands[operand_top] <- computed
+                    operand_top <- operand_top + 1
+                else:
+                    break INVALID_RESULT
+                if index + 1 == length:
+                    if parentheses != 0 or operator_top != 0 or operand_top != 1:
+                        answer <- INVALID_RESULT
+                    else:
+                        answer <- operands[0]
+                index <- index + 1
+        result
+
+    export fn dijkstras_two_stack_algorithm(values: i64&, length: usize) -> i64 = dijkstras_two_stack_algorithm_impl

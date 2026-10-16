@@ -39,3 +39,4 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithm red_black_tree_i
 ## Pinned source
 
 - Zig [`redBlackTrees.zig`](https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/search/redBlackTrees.zig)
+- C++ [`rb_tree.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/rb_tree.cpp) and Go [`rbtree.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/structure/tree/rbtree.go) expose red-black insertion and exact-key search. The shared contract restricts traces to unique-key insertions and searches; it does not measure their additional deletion or traversal methods.

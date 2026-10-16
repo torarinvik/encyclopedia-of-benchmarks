@@ -1,17 +1,18 @@
 export fn crc_polynomial_division(input: ?[*]const i64, length: usize,
                                  output: ?[*]u8, capacity: usize) i64 {
-    if (input == null or length < 3 or length > 3 + 64 + 16) return -1;
+    if (input == null or length < 3 or length > 3 + 79 + 16) return -1;
     const values = input.?[0..length];
     const operation = values[0];
     const raw_message_length = values[1];
     const raw_polynomial_length = values[2];
-    if (operation < 0 or operation > 1 or raw_message_length < 1 or raw_message_length > 64
+    if (operation < 0 or operation > 1 or raw_message_length < 1
+        or (operation == 0 and raw_message_length > 64) or (operation == 1 and raw_message_length > 79)
         or raw_polynomial_length < 2 or raw_polynomial_length > 16) return -1;
     const message_length: usize = @intCast(raw_message_length);
     const polynomial_length: usize = @intCast(raw_polynomial_length);
     if (length != 3 + message_length + polynomial_length) return -1;
 
-    var message: [64]u8 = @splat(0);
+    var message: [79]u8 = @splat(0);
     var polynomial: [16]u8 = @splat(0);
     var dividend: [79]u8 = @splat(0);
     var remainder: [16]u8 = @splat(0);
@@ -48,12 +49,15 @@ export fn crc_polynomial_division(input: ?[*]const i64, length: usize,
         }
     }
 
-    const output_length = if (operation == 0) message_length + remainder_length else 1;
+    const degree = polynomial_length - 1;
+    const output_length = if (operation == 0) message_length + degree else 1;
     if (output == null or capacity < output_length) return -2;
     const result = output.?[0..output_length];
     if (operation == 0) {
         @memcpy(result[0..message_length], message[0..message_length]);
-        @memcpy(result[message_length..], remainder[0..remainder_length]);
+        const leading_zeroes = degree - remainder_length;
+        @memset(result[message_length .. message_length + leading_zeroes], 0);
+        @memcpy(result[message_length + leading_zeroes ..], remainder[0..remainder_length]);
     } else {
         var nonzero: u8 = 0;
         for (remainder[0..remainder_length]) |bit| nonzero |= bit;

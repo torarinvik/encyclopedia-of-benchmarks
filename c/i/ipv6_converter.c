@@ -1,0 +1,3 @@
+#include <stddef.h>
+#include <stdint.h>
+int64_t ipv6_converter(const int64_t*a,size_t n,uint8_t*out,size_t cap){if(!a||n<2)return -1;int64_t op=a[0],len=a[1];if((op==0&&len!=4)||(op==1&&len!=16)||(op!=0&&op!=1)||n!=(size_t)(2+len))return -1;for(size_t i=0;i<(size_t)len;i++)if(a[i+2]<0||a[i+2]>255)return -1;if(op==1){for(int i=0;i<10;i++)if(a[i+2]!=0)return -1;if(a[12]!=255||a[13]!=255)return -1;}size_t needed=op==0?16:4;if(!out||cap<needed)return -2;if(op==0){for(int i=0;i<10;i++)out[i]=0;out[10]=255;out[11]=255;for(int i=0;i<4;i++)out[12+i]=(uint8_t)a[2+i];}else for(int i=0;i<4;i++)out[i]=(uint8_t)a[14+i];return (int64_t)needed;}

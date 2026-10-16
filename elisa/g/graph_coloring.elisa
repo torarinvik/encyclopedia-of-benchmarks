@@ -1,0 +1,64 @@
+def graph_coloring_count(input: i64&, colors: mutable u8&, vertex_count: usize,
+                         color_count: usize, vertex: usize) -> i64:
+    if vertex == vertex_count:
+        return 1
+    count: mutable i64 = 0
+    color: mutable usize = 0
+    while color < color_count:
+        safe: mutable bool = true
+        prior: mutable usize = 0
+        while prior < vertex:
+            if (input[2 + vertex] & (1 << prior)) != 0 and colors[prior].usize() == color:
+                safe <- false
+                break
+            prior <- prior + 1
+        if safe:
+            colors[vertex] <- color.u8()
+            count <- count + graph_coloring_count(input, colors, vertex_count, color_count, vertex + 1)
+        color <- color + 1
+    count
+
+def graph_coloring_put_i64(output: mutable u8&, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def graph_coloring_impl(input: i64&, length: usize,
+                        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 11:
+        return -1
+    n64: i64 = input[0]
+    m64: i64 = input[1]
+    if n64 < 1 or n64 > 8 or m64 < 1 or m64 > 4:
+        return -1
+    n: usize = n64.usize()
+    m: usize = m64.usize()
+    if length != n + 2:
+        return -1
+    vertex: mutable usize = 0
+    while vertex < n:
+        row: i64 = input[2 + vertex]
+        if row < 0 or row >= (1 << n) or (row & (1 << vertex)) != 0:
+            return -1
+        vertex <- vertex + 1
+    vertex <- 0
+    while vertex < n:
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            edge: i64 = (input[2 + vertex] >> neighbor) & 1
+            reverse_edge: i64 = (input[2 + neighbor] >> vertex) & 1
+            if edge != reverse_edge:
+                return -1
+            neighbor <- neighbor + 1
+        vertex <- vertex + 1
+    if output.is_null() or capacity < 8:
+        return -2
+    colors: mutable u8[8] = zeroed
+    count: i64 = graph_coloring_count(input, &colors[0], n, m, 0)
+    graph_coloring_put_i64(output, count)
+    8
+
+export fn graph_coloring(input: i64&, length: usize,
+                         output: mutable u8&, capacity: usize) -> i64 = graph_coloring_impl

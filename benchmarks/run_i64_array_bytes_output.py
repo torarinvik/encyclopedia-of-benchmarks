@@ -25,6 +25,17 @@ import subprocess
 import sys
 
 from build_abi import ROOT, sha256_file
+from reverse_array_oracle import expected_result as reverse_array_expected
+from three_way_partition_oracle import MAX_INPUT_LENGTH as MAX_THREE_WAY_PARTITION_INPUT_LENGTH
+from three_way_partition_oracle import expected_output as three_way_partition_expected_output
+from recursive_shuffler_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_SHUFFLER_INPUT_LENGTH
+from recursive_shuffler_oracle import expected_output as recursive_shuffler_expected_output
+from heaps_oracle import MAX_INPUT_LENGTH as MAX_HEAPS_INPUT_LENGTH
+from heaps_oracle import expected_output as heaps_expected_output
+from heaps_algorithm_oracle import MAX_INPUT_LENGTH as MAX_HEAPS_ALGORITHM_INPUT_LENGTH
+from heaps_algorithm_oracle import expected_output as heaps_algorithm_expected_output
+from cpu_scheduling_algorithms_oracle import MAX_INPUT_LENGTH as MAX_CPU_SCHEDULING_INPUT_LENGTH
+from cpu_scheduling_algorithms_oracle import expected_output as cpu_scheduling_expected_output
 from bag_oracle import expected_output as bag_expected_output
 from barnsley_fern_oracle import expected_output as barnsley_fern_expected_output
 from ascon_digest_oracle import expected_output as ascon_digest_expected_output
@@ -60,7 +71,10 @@ from chacha_oracle import expected_output as chacha_expected_output
 from chebyshev_iteration_oracle import expected_output as chebyshev_iteration_expected_output
 from choiceset_oracle import expected_output as choiceset_expected_output
 from chudnovsky_algorithm_oracle import expected_output as chudnovsky_algorithm_expected_output
+from viterbi_oracle import expected_output as viterbi_expected_output
 from conjugate_gradient_oracle import expected_output as conjugate_gradient_expected_output
+from gauss_seidel_method_oracle import expected_output as gauss_seidel_method_expected_output
+from gauss_elimination_oracle import expected_output as gauss_elimination_expected_output
 from convolution_neural_network_oracle import expected_output as convolution_neural_network_expected_output
 from circular_look_scheduling_oracle import MAX_INPUT_LENGTH as MAX_CIRCULAR_LOOK_INPUT_LENGTH
 from circular_look_scheduling_oracle import expected_output as circular_look_scheduling_expected_output
@@ -70,10 +84,15 @@ from back_propagation_oracle import back_propagation_step
 from common_characters_frequency_quotient_oracle import expected_output as common_characters_frequency_quotient_expected_output
 from remove_duplicate_characters_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH
 from remove_duplicate_characters_oracle import expected_output as remove_duplicate_characters_expected_output
+from remove_vowels_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_VOWELS_INPUT_LENGTH
+from remove_vowels_oracle import expected_output as remove_vowels_expected_output
+from fast_walsh_hadamard_transform_oracle import MAX_LENGTH as MAX_FWHT_LENGTH
+from fast_walsh_hadamard_transform_oracle import expected_output as fast_walsh_hadamard_transform_expected_output
 from gronsfeld_oracle import MAX_INPUT_LENGTH as MAX_GRONSFELD_INPUT_LENGTH
 from gronsfeld_oracle import expected_output as gronsfeld_expected_output
 from remove_duplicate_words_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_WORDS_INPUT_LENGTH
 from remove_duplicate_words_oracle import expected_output as remove_duplicate_words_expected_output
+from reverse_letters_oracle import expected_output as reverse_letters_expected
 from continued_fraction_oracle import expected_output as continued_fraction_expected_output
 from date_to_day_oracle import MAX_INPUT_LENGTH as MAX_DATE_TO_DAY_INPUT_LENGTH
 from date_to_day_oracle import expected_output as date_to_day_expected_output
@@ -93,6 +112,18 @@ from create_binary_tree_from_inorder_preorder_oracle import MAX_INPUT_LENGTH as 
 from create_binary_tree_from_inorder_preorder_oracle import expected_output as create_binary_tree_expected_output
 from cramers_rule_2x2_oracle import MAX_INPUT_LENGTH as MAX_CRAMERS_RULE_2X2_INPUT_LENGTH
 from cramers_rule_2x2_oracle import expected_output as cramers_rule_2x2_expected_output
+from crc_polynomial_division_oracle import MAX_INPUT_LENGTH as MAX_CRC_POLYNOMIAL_DIVISION_INPUT_LENGTH
+from crc_polynomial_division_oracle import expected_output as crc_polynomial_division_expected_output
+from power_for_huge_numbers_oracle import MAX_INPUT_LENGTH as MAX_POWER_FOR_HUGE_NUMBERS_INPUT_LENGTH
+from power_for_huge_numbers_oracle import expected_output as power_for_huge_numbers_expected_output
+from ode_forward_euler_oracle import MAX_INPUT_LENGTH as MAX_ODE_FORWARD_EULER_INPUT_LENGTH
+from ode_forward_euler_oracle import expected_output as ode_forward_euler_expected_output
+from ode_midpoint_euler_oracle import MAX_INPUT_LENGTH as MAX_ODE_MIDPOINT_EULER_INPUT_LENGTH
+from ode_midpoint_euler_oracle import expected_output as ode_midpoint_euler_expected_output
+from ode_semi_implicit_euler_oracle import MAX_INPUT_LENGTH as MAX_ODE_SEMI_IMPLICIT_EULER_INPUT_LENGTH
+from ode_semi_implicit_euler_oracle import expected_output as ode_semi_implicit_euler_expected_output
+from graph_coloring_oracle import MAX_VALIDATION_LENGTH as MAX_GRAPH_COLORING_VALIDATION_LENGTH
+from graph_coloring_oracle import expected_output as graph_coloring_expected_output
 from convolution_oracle import MAX_INPUT_LENGTH as MAX_CONVOLUTION_INPUT_LENGTH
 from convolution_oracle import expected_output as convolution_expected_output
 from image_convolution_oracle import expected_output as image_convolution_expected_output
@@ -140,6 +171,8 @@ from convolve_1d_oracle import MAX_INPUT_LENGTH as MAX_CONVOLVE_1D_INPUT_LENGTH
 from convolve_1d_oracle import expected_output as convolve_1d_expected_output
 from depth_first_search_target_route_oracle import MAX_INPUT_LENGTH as MAX_DFS_TARGET_ROUTE_INPUT_LENGTH
 from depth_first_search_target_route_oracle import expected_output as depth_first_search_target_route_expected_output
+from eulerian_path_oracle import MAX_INPUT_LENGTH as MAX_EULERIAN_PATH_INPUT_LENGTH
+from eulerian_path_oracle import expected_output as eulerian_path_expected_output
 from convolution_fft_oracle import MAX_INPUT_LENGTH as MAX_CONVOLUTION_FFT_INPUT_LENGTH
 from convolution_fft_oracle import expected_output as convolution_fft_expected_output
 from text_justification_oracle import MAX_INPUT_LENGTH as MAX_TEXT_JUSTIFICATION_INPUT_LENGTH
@@ -203,6 +236,8 @@ MAX_ARTICULATION_POINTS_INPUT_LENGTH = 2 + 2 * 2047
 MAX_BRIDGES_INPUT_LENGTH = 2 + 2 * 2047
 MAX_SCC_INPUT_LENGTH = 2 + 2 * 2047
 MAX_BOUNDARY_FILL_INPUT_LENGTH = 6 + 32 * 32
+from flood_fill_oracle import MAX_INPUT_LENGTH as MAX_FLOOD_FILL_INPUT_LENGTH
+from flood_fill_oracle import expected_output as flood_fill_expected_output
 MAX_BACONIAN_PAYLOAD_LENGTH = 1024
 MAX_CROSS_CORRELATION_INPUT_LENGTH = 66
 MAX_COUNT_NUCLEOTIDE_INPUT_LENGTH = MAX_COUNT_NUCLEOTIDE_SEQUENCE_LENGTH + 2
@@ -959,6 +994,17 @@ def round_half_away_from_zero(value: float) -> int:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "cpu_scheduling_algorithms":
+        return cpu_scheduling_expected_output(values)
+    if algorithm == "heaps":
+        return heaps_expected_output(values)
+    if algorithm == "heaps_algorithm":
+        return heaps_algorithm_expected_output(values)
+    if algorithm == "recursive_shuffler":
+        return recursive_shuffler_expected_output(values)
+    if algorithm == "fibonacci_heap":
+        from fibonacci_heap_oracle import expected_output as fibonacci_heap_expected_output
+        return fibonacci_heap_expected_output(values)
     if algorithm == "circular_look_scheduling":
         return circular_look_scheduling_expected_output(values)
     if algorithm == "circular_scan_scheduling":
@@ -983,6 +1029,10 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return gronsfeld_expected_output(values)
     if algorithm == "remove_duplicate_characters":
         return remove_duplicate_characters_expected_output(values)
+    if algorithm == "remove_vowels":
+        return remove_vowels_expected_output(values)
+    if algorithm == "fast_walsh_hadamard_transform":
+        return fast_walsh_hadamard_transform_expected_output(values)
     if algorithm == "common_characters_frequency_quotient":
         return common_characters_frequency_quotient_expected_output(values)
     if algorithm == "chaos_machine":
@@ -1075,6 +1125,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
     if algorithm == "branch_and_bound_knapsack_solver":
         return branch_and_bound_knapsack_expected_output(values)
 
+    if algorithm == "flood_fill":
+        return flood_fill_expected_output(values)
     if algorithm == "boundary_fill":
         import struct
         if (not isinstance(values, list) or len(values) < 6
@@ -2963,6 +3015,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         encoded = b"".join(struct.pack("<d", value) for value in solution)
         return len(encoded), encoded
 
+    if algorithm == "gauss_elimination":
+        return gauss_elimination_expected_output(values)
+
     if algorithm == "cholesky_decomposition":
         if (not isinstance(values, list) or not 1 <= len(values) <= 37
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -2995,6 +3050,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
 
     if algorithm == "conjugate_gradient":
         return conjugate_gradient_expected_output(values)
+
+    if algorithm == "gauss_seidel_method":
+        return gauss_seidel_method_expected_output(values)
 
     if algorithm == "convolution_neural_network":
         return convolution_neural_network_expected_output(values)
@@ -3225,6 +3283,18 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
 
     if algorithm == "cramers_rule_2x2":
         return cramers_rule_2x2_expected_output(values)
+    if algorithm == "crc_polynomial_division":
+        return crc_polynomial_division_expected_output(values)
+    if algorithm == "power_for_huge_numbers":
+        return power_for_huge_numbers_expected_output(values)
+    if algorithm == "ode_forward_euler":
+        return ode_forward_euler_expected_output(values)
+    if algorithm == "ode_midpoint_euler":
+        return ode_midpoint_euler_expected_output(values)
+    if algorithm == "ode_semi_implicit_euler":
+        return ode_semi_implicit_euler_expected_output(values)
+    if algorithm == "graph_coloring":
+        return graph_coloring_expected_output(values)
 
     if algorithm == "npv_sensitivity":
         if (not isinstance(values, list) or len(values) < 2
@@ -3798,6 +3868,89 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             line0, line1 = next0, next1
         answer = min(line0 + values[entry + 2], line1 + values[entry + 3])
         return 4, struct.pack("<i", answer)
+
+    if algorithm == "hamming_code":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 34
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        parity_count, data_length = values[:2]
+        bits = values[2:]
+        if (not 1 <= parity_count <= 5 or not 1 <= data_length <= 32
+                or len(bits) != data_length or parity_count + data_length <= (1 << parity_count) - (data_length - 1)
+                or any(bit not in (48, 49) for bit in bits)):
+            return -1, b""
+        total = parity_count + data_length
+        if total < (1 << (parity_count - 1)):
+            return -1, b""
+        code: list[int | None] = [None] * total
+        next_data = iter(bits)
+        for position in range(1, total + 1):
+            if (position & (position - 1)) or position > (1 << (parity_count - 1)):
+                code[position - 1] = next(next_data)
+        for bit in range(parity_count):
+            mask = 1 << bit
+            parity = sum(1 for position in range(1, total + 1)
+                         if position & mask and code[position - 1] == 49) & 1
+            code[mask - 1] = 48 + parity
+        output = bytes(int(value) for value in code) + b"\0"
+        return total, output
+
+    if algorithm == "ipv6_converter":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, byte_length = values[:2]
+        payload = values[2:]
+        if (operation == 0 and byte_length == 4 and len(payload) == 4
+                and all(0 <= byte <= 255 for byte in payload)):
+            return 16, b"\0" * 10 + b"\xff\xff" + bytes(payload)
+        if (operation == 1 and byte_length == 16 and len(payload) == 16
+                and all(0 <= byte <= 255 for byte in payload)
+                and payload[:10] == [0] * 10 and payload[10:12] == [255, 255]):
+            return 4, bytes(payload[12:16])
+        return -1, b""
+
+    if algorithm == "xtea":
+        if (not isinstance(values, list) or len(values) != 25
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        rounds = values[0]
+        payload = values[1:]
+        if not 1 <= rounds <= 64 or any(not 0 <= byte <= 255 for byte in payload):
+            return -1, b""
+        v0 = int.from_bytes(bytes(payload[:4]), "big")
+        v1 = int.from_bytes(bytes(payload[4:8]), "big")
+        key = [int.from_bytes(bytes(payload[8 + i * 4:12 + i * 4]), "big") for i in range(4)]
+        total = 0
+        mask = 0xFFFFFFFF
+        for _ in range(rounds):
+            v0 = (v0 + ((((v1 << 4) ^ (v1 >> 5)) + v1) ^ (total + key[total & 3]))) & mask
+            total = (total + 0x9E3779B9) & mask
+            v1 = (v1 + ((((v0 << 4) ^ (v0 >> 5)) + v0) ^ (total + key[(total >> 11) & 3]))) & mask
+        return 8, v0.to_bytes(4, "big") + v1.to_bytes(4, "big")
+
+    if algorithm == "word_patterns":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 257
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        text_values = values[1:]
+        if (not 0 <= byte_length <= 256 or len(text_values) != byte_length
+                or any(not 0 <= byte <= 127 for byte in text_values)):
+            return -1, b""
+        first_seen: dict[int, int] = {}
+        pattern: list[str] = []
+        for byte in text_values:
+            if 97 <= byte <= 122:
+                byte -= 32
+            if byte not in first_seen:
+                first_seen[byte] = len(first_seen)
+            pattern.append(str(first_seen[byte]))
+        output = (".".join(pattern)).encode("ascii") + b"\0"
+        return len(output) - 1, output
+
+    if algorithm == "reverse_letters":
+        return reverse_letters_expected(values)
 
     if algorithm == "reverse_string":
         if (not isinstance(values, list) or not 1 <= len(values) <= 257
@@ -4463,6 +4616,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return convolve_1d_expected_output(values)
     if algorithm == "depth_first_search_target_route":
         return depth_first_search_target_route_expected_output(values)
+    if algorithm == "eulerian_path":
+        return eulerian_path_expected_output(values)
     if algorithm == "convolution_fft":
         return convolution_fft_expected_output(values)
     if algorithm == "text_justification":
@@ -7113,6 +7268,13 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         return len(values), bytes(reversed(values))
 
+    if algorithm == "reverse_array":
+        result, output = reverse_array_expected(values)
+        return result, output
+
+    if algorithm == "three_way_partition":
+        return three_way_partition_expected_output(values)
+
     if algorithm == "reverse_complement":
         if (len(values) > MAX_REVERSE_COMPLEMENT_LENGTH
                 or any(type(value) is not int or value not in (65, 67, 71, 84) for value in values)):
@@ -8929,6 +9091,20 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         serialize(0, len(values))
         return len(values), bytes(output)
 
+    if algorithm == "fisher_yates_shuffle":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        seed, *result = values
+        if not 1 <= seed <= 2_147_483_646 or len(result) > 1024 or any(value < -(2**31) or value > 2**31 - 1 for value in result):
+            return -1, b""
+        state = seed
+        for remaining in range(len(result), 1, -1):
+            state = state * 48_271 % 2_147_483_647
+            other = state % remaining
+            result[remaining - 1], result[other] = result[other], result[remaining - 1]
+        return len(result), b"".join(struct.pack("<i", value) for value in result)
+
     if algorithm == "wiggle_sort":
         if (not isinstance(values, list) or len(values) > 4096
                 or any(type(value) is not int or not -(2**31) <= value <= 2**31 - 1 for value in values)):
@@ -9383,6 +9559,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         result = [vertex_count, *colors, max(colors, default=0)]
         encoded = b"".join(struct.pack("<q", value) for value in result)
         return len(encoded), encoded
+
+    if algorithm == "viterbi":
+        return viterbi_expected_output(values)
 
     if algorithm == "graph_m_coloring_backtracking":
         if (not isinstance(values, list) or len(values) < 2
@@ -11029,9 +11208,12 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = case.get("input_values")
-        max_input_length = (MAX_REMOVE_DUPLICATE_WORDS_INPUT_LENGTH + 1 if algorithm == "remove_duplicate_words" else
+        max_input_length = (MAX_EULERIAN_PATH_INPUT_LENGTH if algorithm == "eulerian_path" else
+                            MAX_REMOVE_DUPLICATE_WORDS_INPUT_LENGTH + 1 if algorithm == "remove_duplicate_words" else
                             MAX_GRONSFELD_INPUT_LENGTH if algorithm == "gronsfeld" else
                             MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH + 1 if algorithm == "remove_duplicate_characters" else
+                            MAX_REMOVE_VOWELS_INPUT_LENGTH + 1 if algorithm == "remove_vowels" else
+                            MAX_FWHT_LENGTH + 2 if algorithm == "fast_walsh_hadamard_transform" else
                             MAX_ASCON_DIGEST_INPUT_LENGTH if algorithm == "ascon_digest" else
                             MAX_CHAOS_MACHINE_INPUT_LENGTH if algorithm == "chaos_machine" else
                             MAX_BLAKE2B_INPUT_LENGTH if algorithm == "blake2b" else
@@ -11048,6 +11230,7 @@ def main() -> int:
                             MAX_BRAINFUCK_INPUT_LENGTH if algorithm == "brainfuck" else
                             MAX_BRANCH_AND_BOUND_KNAPSACK_INPUT_LENGTH if algorithm == "branch_and_bound_knapsack_solver" else
                             MAX_BOUNDARY_FILL_INPUT_LENGTH if algorithm == "boundary_fill" else
+                            MAX_FLOOD_FILL_INPUT_LENGTH if algorithm == "flood_fill" else
                             MAX_DATE_TO_DAY_INPUT_LENGTH if algorithm == "date_to_day" else
                             MAX_EMA_FILTER_INPUT_LENGTH if algorithm == "ema_filter" else
                             MAX_EGYPTIAN_FRACTION_INPUT_LENGTH if algorithm == "egyptian_fraction" else
@@ -11060,6 +11243,12 @@ def main() -> int:
                             MAX_CREATE_BINARY_TREE_INPUT_LENGTH if algorithm == "create_binary_tree_from_inorder_preorder" else
                             MAX_SERIALIZE_DESERIALIZE_BINARY_TREE_INPUT_LENGTH if algorithm == "serialize_deserialize_binary_tree" else
                             MAX_CRAMERS_RULE_2X2_INPUT_LENGTH if algorithm == "cramers_rule_2x2" else
+                            MAX_CRC_POLYNOMIAL_DIVISION_INPUT_LENGTH + 1 if algorithm == "crc_polynomial_division" else
+                            MAX_POWER_FOR_HUGE_NUMBERS_INPUT_LENGTH if algorithm == "power_for_huge_numbers" else
+                            MAX_ODE_FORWARD_EULER_INPUT_LENGTH if algorithm == "ode_forward_euler" else
+                            MAX_ODE_MIDPOINT_EULER_INPUT_LENGTH if algorithm == "ode_midpoint_euler" else
+                            MAX_ODE_SEMI_IMPLICIT_EULER_INPUT_LENGTH if algorithm == "ode_semi_implicit_euler" else
+                            MAX_GRAPH_COLORING_VALIDATION_LENGTH if algorithm == "graph_coloring" else
                             MAX_CONVOLUTION_INPUT_LENGTH if algorithm == "convolution" else
                             MAX_DAMPED_OSCILLATOR_INPUT_LENGTH if algorithm == "damped_oscillator" else
                             MAX_DIFFERENCE_ARRAY_INPUT_LENGTH if algorithm == "difference_array" else
@@ -11070,6 +11259,7 @@ def main() -> int:
                             MAX_HAMPEL_FILTER_INPUT_LENGTH if algorithm == "hampel_filter" else
                             MAX_INTERSECTION_OF_TWO_ARRAYS_INPUT_LENGTH if algorithm == "intersection_of_two_arrays" else
                             MAX_UNION_OF_TWO_ARRAYS_INPUT_LENGTH if algorithm == "union_of_two_arrays" else
+                            MAX_THREE_WAY_PARTITION_INPUT_LENGTH if algorithm == "three_way_partition" else
                             MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH if algorithm == "unique_letters_count" else
                             MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH if algorithm == "convex_hull_graham" else
                             MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH if algorithm == "sorted_arrays_intersection" else
@@ -11093,6 +11283,10 @@ def main() -> int:
                             MAX_IPCONVERTER_PARSEABLE_INPUT_LENGTH if algorithm == "ipconverter" else
                             MAX_SHORTEST_PALINDROME_PARSEABLE_INPUT_LENGTH if algorithm == "shortest_palindrome" else
                             MAX_REVERSE_WORDS_IN_STRING_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_words_in_string" else
+                            MAX_CPU_SCHEDULING_INPUT_LENGTH if algorithm == "cpu_scheduling_algorithms" else
+                            MAX_HEAPS_INPUT_LENGTH if algorithm == "heaps" else
+                            MAX_HEAPS_ALGORITHM_INPUT_LENGTH if algorithm == "heaps_algorithm" else
+                            MAX_RECURSIVE_SHUFFLER_INPUT_LENGTH if algorithm == "recursive_shuffler" else
                             MAX_NUMERIC_STRING_SORT_PARSEABLE_INPUT_LENGTH if algorithm == "numeric_string_sort" else
                             MAX_GET_PRODUCTS_OF_ALL_OTHER_ELEMENTS_INPUT_LENGTH if algorithm == "get_products_of_all_other_elements" else
                             MAX_CORRELATION_MATRIX_ANALYSIS_INPUT_LENGTH if algorithm == "correlation_matrix_analysis" else
@@ -11115,6 +11309,11 @@ def main() -> int:
                             MAX_WAVE_SORT_INPUT_LENGTH if algorithm in {"wave_sort", "wave_sort_greedy", "wiggle_sort", "simplified_wiggle_sort", "wiggle_sort_strict"} else
                             MAX_FIND_DUPLICATES_INPUT_LENGTH + 1 if algorithm == "find_all_duplicates_in_array" else
                             MAX_REDUNDANT_CONNECTION_INPUT_LENGTH + 2 if algorithm == "redundant_connection" else
+                            1026 if algorithm == "fisher_yates_shuffle" else
+                            129 if algorithm == "fibonacci_heap" else
+                            25 if algorithm == "xtea" else
+                            18 if algorithm == "ipv6_converter" else
+                            34 if algorithm == "hamming_code" else
                             MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -11124,10 +11323,10 @@ def main() -> int:
         required_count, required_output = expected_output(values, algorithm)
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
         if float64_vector and algorithm not in {
-                "quadratic_roots", "npv_sensitivity", "triangle", "gaussian_elimination",
+                "quadratic_roots", "npv_sensitivity", "triangle", "gaussian_elimination", "gauss_elimination",
                 "logistic_regression_python_binary_gd", "logistic_regression_rust_binary_gd",
                 "logistic_regression_cost_gradient",
-                "cholesky_decomposition", "conjugate_gradient", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
+                "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
@@ -11138,7 +11337,7 @@ def main() -> int:
         output_capacity = case.get(
             "workspace_bytes",
             workload.get("workspace", {}).get("bytes", len(required_output))
-                            if algorithm in {"charoccurrence", "coordinate_compression", "flash_sort", "string_compression", "create_binary_tree_from_inorder_preorder", "serialize_deserialize_binary_tree", "cramers_rule_2x2", "convolution", "damped_oscillator", "difference_array", "complex_number_multiply", "complex_arithmetic", "cusum_detector", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "composite_lfsr_majority_clock", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "swap_case", "string_switch_case", "reverse_string", "common_characters_frequency_quotient", "remove_duplicate_characters", "remove_duplicate_words", "continued_fraction", "account_merge", "adagrad", "adam", "cholesky_decomposition", "conjugate_gradient", "convolution_neural_network", "depreciation", "chebyshev_iteration", "choiceset", "chudnovsky_algorithm", "circular_look_scheduling", "circular_scan_scheduling", "adaline_learning", "adams_bashforth", "adfgvxcipher", "upper", "all_construct", "allocation_number", "booths_algorithm", "association", "auto_correlation", "baconian_cipher", "a1z26_cipher", "a1z26_decipher", "date_to_day", "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "get_products_of_all_other_elements", "correlation_matrix_analysis"} else len(required_output),
+                            if algorithm in {"fibonacci_heap", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "graph_coloring", "recursive_shuffler", "fisher_yates_shuffle", "charoccurrence", "coordinate_compression", "flash_sort", "string_compression", "create_binary_tree_from_inorder_preorder", "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "convolution", "damped_oscillator", "difference_array", "complex_number_multiply", "complex_arithmetic", "cusum_detector", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "composite_lfsr_majority_clock", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "swap_case", "string_switch_case", "reverse_string", "common_characters_frequency_quotient", "remove_duplicate_characters", "remove_duplicate_words", "continued_fraction", "account_merge", "adagrad", "adam", "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "gauss_elimination", "convolution_neural_network", "depreciation", "chebyshev_iteration", "choiceset", "chudnovsky_algorithm", "circular_look_scheduling", "circular_scan_scheduling", "adaline_learning", "adams_bashforth", "adfgvxcipher", "upper", "all_construct", "allocation_number", "booths_algorithm", "association", "auto_correlation", "baconian_cipher", "a1z26_cipher", "a1z26_decipher", "date_to_day", "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "get_products_of_all_other_elements", "correlation_matrix_analysis"} else len(required_output),
         )
         if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
             raise ValueError(f"invalid output capacity in {case['id']}")

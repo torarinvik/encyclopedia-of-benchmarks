@@ -1,0 +1,27 @@
+# Search in ascending order for a full period of distinct residues.
+def primitive_root_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1:
+        return -1
+    modulus: i64 = input[0]
+    if modulus < 2 or modulus > 127:
+        return -1
+    while candidate < modulus |candidate: mutable i64 = 1, result: mutable i64 = 0| -> result:
+        initial: bool[127] = zeroed
+        seen: bool[127] =
+            while exponent < modulus - 1 |exponent: mutable i64 = 0, power: mutable i64 = 1, state: mutable bool[127] = initial| -> state:
+                index: usize = power.usize()
+                if state[index]:
+                    break state
+                state[index] <- true
+                power <- (power * candidate) % modulus
+                exponent <- exponent + 1
+        distinct_count: usize =
+            while index < modulus.usize() |index: mutable usize = 0, count: mutable usize = 0| -> count:
+                if seen[index]:
+                    count <- count + 1
+                index <- index + 1
+        if distinct_count == (modulus - 1).usize():
+            break candidate
+        candidate <- candidate + 1
+
+export fn primitive_root(input: i64&, length: usize) -> i64 = primitive_root_impl

@@ -1,0 +1,13 @@
+extern acos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+def power_factor_correction_impl(v: i64&, n: usize) -> f64:
+    if n != 6: return -1.0e300
+    op: i64=v[0]; voltage: i64=v[1]; frequency: i64=v[2]; power: i64=v[3]; cb: i64=v[4]; eb: i64=v[5]
+    if (op != 0 and op != 1) or voltage < 1 or voltage > 1000 or frequency < 1 or frequency > 1000 or power < -1000000 or power > 1000000 or cb < -10000 or cb > 10000 or eb < -10000 or eb > 10000 or cb == 0 or eb == 0 or (op == 1 and cb == eb): return -1.0e300
+    c: f64=cb.f64()/10000.0; e: f64=eb.f64()/10000.0; p: f64=power.f64()
+    dq: f64=(p/c)*sin(acos(c))-(p/e)*sin(acos(e))
+    pi: f64=3.14159265358979323846
+    if op == 0: return dq/(2.0*pi*frequency.f64()*voltage.f64()*voltage.f64())
+    voltage.f64()*voltage.f64()/(2.0*pi*frequency.f64()*dq)
+export fn power_factor_correction(v: i64&, n: usize) -> f64 = power_factor_correction_impl

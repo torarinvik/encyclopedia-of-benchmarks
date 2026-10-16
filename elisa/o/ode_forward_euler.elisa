@@ -1,0 +1,29 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def store_f64_le(value: f64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def ode_forward_euler_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length != 4:
+        return -1
+    if values[0] < 1 or values[0] > 16 or values[1] < 1 or values[1] > 4 or values[2] < -10 or values[2] > 10 or values[3] < -10 or values[3] > 10:
+        return -1
+    if output.is_null() or output_capacity < 16:
+        return -2
+    dt: f64 = values[1].f64() / 4.0
+    u: mutable f64 = values[2].f64()
+    v: mutable f64 = values[3].f64()
+    for _ in 0..<values[0].usize():
+        old_u: f64 = u
+        old_v: f64 = v
+        u <- old_u + dt * old_v
+        v <- old_v - dt * old_u
+    store_f64_le(u, output, 0)
+    store_f64_le(v, output, 8)
+    16.i64()
+
+export fn ode_forward_euler(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = ode_forward_euler_impl

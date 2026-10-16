@@ -1,0 +1,56 @@
+# Detect cycles in a bounded simple undirected graph with iterative DFS.
+const MAX_VERTICES: usize = 32
+const MAX_EDGES: usize = 256
+const MAX_MATRIX: usize = MAX_VERTICES * MAX_VERTICES
+
+def undirected_cycle_check_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > MAX_VERTICES.i64() or input[1] < 0 or input[1] > MAX_EDGES.i64():
+        return -1
+    vertices: usize = input[0].usize()
+    edges: usize = input[1].usize()
+    if length != 2 + 2 * edges:
+        return -1
+
+    adjacency: mutable bool[MAX_MATRIX] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        left: i64 = input[2 + 2 * edge]
+        right: i64 = input[3 + 2 * edge]
+        if left < 0 or left >= vertices.i64() or right < 0 or right >= vertices.i64():
+            return -1
+        forward: usize = left.usize() * MAX_VERTICES + right.usize()
+        reverse: usize = right.usize() * MAX_VERTICES + left.usize()
+        if adjacency[forward]:
+            return -1
+        adjacency[forward] <- true
+        adjacency[reverse] <- true
+        edge <- edge + 1
+
+    visited: mutable bool[MAX_VERTICES] = zeroed
+    stack_vertex: mutable usize[MAX_VERTICES] = zeroed
+    stack_parent: mutable usize[MAX_VERTICES] = zeroed
+    start: mutable usize = 0
+    while start < vertices:
+        if not visited[start]:
+            top: mutable usize = 1
+            stack_vertex[0] <- start
+            stack_parent[0] <- MAX_VERTICES
+            visited[start] <- true
+            while top > 0:
+                top <- top - 1
+                current: usize = stack_vertex[top]
+                parent: usize = stack_parent[top]
+                neighbor: mutable usize = 0
+                while neighbor < vertices:
+                    if adjacency[current * MAX_VERTICES + neighbor] and neighbor != parent:
+                        if visited[neighbor]:
+                            return 1
+                        visited[neighbor] <- true
+                        stack_vertex[top] <- neighbor
+                        stack_parent[top] <- current
+                        top <- top + 1
+                    neighbor <- neighbor + 1
+        start <- start + 1
+    0
+
+export fn undirected_cycle_check(input: i64&, length: usize) -> i64 = undirected_cycle_check_impl

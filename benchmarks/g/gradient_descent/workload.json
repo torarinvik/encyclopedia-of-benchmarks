@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "gradient-descent-square-function-coordinate-v1",
+  "algorithm": "gradient_descent",
+  "function_symbol": "gradient_descent",
+  "input": {
+    "kind": "packed_signed_64_bit_vector_optimizer",
+    "layout": "[dimension, selected_index, learning_rate_microunits, iterations, x0, ..., x(dimension-1)]",
+    "length_range": [
+      5,
+      68
+    ],
+    "dimension_range": [
+      1,
+      64
+    ],
+    "selected_index_range": "0 through dimension - 1",
+    "learning_rate_microunits_range": [
+      1,
+      500000
+    ],
+    "iterations_range": [
+      0,
+      10000
+    ],
+    "initial_coordinate_range": [
+      -10,
+      10
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "selected coordinate after the pinned square-function gradient descent updates",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10,
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-10
+  },
+  "cases": [
+    {
+      "id": "pinned_test_first_coordinate",
+      "input_values": [
+        2,
+        0,
+        30000,
+        1000,
+        5,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": 6.71156196246688e-27
+    },
+    {
+      "id": "pinned_test_second_coordinate",
+      "input_values": [
+        2,
+        1,
+        30000,
+        1000,
+        5,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": 8.053874354960217e-27
+    },
+    {
+      "id": "one_iteration",
+      "input_values": [
+        2,
+        0,
+        30000,
+        1,
+        5,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": 4.7
+    },
+    {
+      "id": "zero_iterations",
+      "input_values": [
+        2,
+        1,
+        30000,
+        0,
+        5,
+        -4
+      ],
+      "input_length": 6,
+      "expected_result": -4.0
+    },
+    {
+      "id": "high_rate",
+      "input_values": [
+        3,
+        2,
+        250000,
+        8,
+        -10,
+        0,
+        10
+      ],
+      "input_length": 7,
+      "expected_result": 0.0390625
+    },
+    {
+      "id": "single_dimension",
+      "input_values": [
+        1,
+        0,
+        500000,
+        3,
+        10
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "dimension_mismatch",
+      "input_values": [
+        2,
+        0,
+        30000,
+        5,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "index_out_of_range",
+      "input_values": [
+        2,
+        2,
+        30000,
+        5,
+        5,
+        6
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "rate_out_of_range",
+      "input_values": [
+        1,
+        0,
+        500001,
+        5,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "iteration_out_of_range",
+      "input_values": [
+        1,
+        0,
+        30000,
+        10001,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "value_out_of_range",
+      "input_values": [
+        1,
+        0,
+        30000,
+        5,
+        11
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    }
+  ]
+}

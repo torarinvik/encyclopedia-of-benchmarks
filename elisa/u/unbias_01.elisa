@@ -1,0 +1,15 @@
+def unbias_01_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > 257: return -1
+    n: i64 = input[0]
+    if n < 0 or n > 256 or length != n.usize() + 1: return -1
+    index: mutable usize = 0
+    while index < n.usize():
+        if input[index + 1] != 0 and input[index + 1] != 1: return -1
+        index <- index + 1
+    index <- 0
+    while index + 1 < n.usize():
+        if input[index + 1] != input[index + 2]: return input[index + 1]
+        index <- index + 2
+    -1
+
+export fn unbias_01(input: i64&, length: usize) -> i64 = unbias_01_impl

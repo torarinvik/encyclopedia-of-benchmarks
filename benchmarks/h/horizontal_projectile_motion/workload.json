@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "id": "horizontal-projectile-motion-i64-array-bytes-f64-vector-v1",
+  "algorithm": "horizontal_projectile_motion",
+  "function_symbol": "horizontal_projectile_motion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "exact_length": 2,
+    "layout": [
+      "velocity_milli",
+      "angle_millidegrees"
+    ],
+    "velocity_unit": "meters per second scaled by 1000",
+    "velocity_range": [
+      0,
+      100000
+    ],
+    "angle_unit": "degrees scaled by 1000",
+    "angle_range": [
+      1000,
+      90000
+    ],
+    "first_rejected_length": 3,
+    "maximum_validation_array_length": 3,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "little_endian_float64",
+    "layout": [
+      "horizontal_distance_meters",
+      "maximum_height_meters",
+      "total_flight_time_seconds"
+    ],
+    "length": 3,
+    "maximum_bytes": 24,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 24,
+    "meaning": "fixed capacity for three little-endian binary64 outputs"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned-example-30mps-45deg",
+      "input_values": [
+        30000,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        91.77,
+        22.94,
+        4.33
+      ]
+    },
+    {
+      "id": "pinned-example-100mps-78deg",
+      "input_values": [
+        100000,
+        78000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        414.76,
+        487.82,
+        19.95
+      ]
+    },
+    {
+      "id": "pinned-example-motion-test",
+      "input_values": [
+        25000,
+        20000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        40.97,
+        3.73,
+        1.74
+      ]
+    },
+    {
+      "id": "zero-velocity-low-angle",
+      "input_values": [
+        0,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "zero-velocity-high-angle",
+      "input_values": [
+        0,
+        90000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum-velocity-mid-angle",
+      "input_values": [
+        100000,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        1019.72,
+        254.93,
+        14.42
+      ]
+    },
+    {
+      "id": "minimum-angle-maximum-velocity",
+      "input_values": [
+        100000,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        35.59,
+        0.16,
+        0.36
+      ]
+    },
+    {
+      "id": "maximum-angle-regular-velocity",
+      "input_values": [
+        30000,
+        90000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        45.89,
+        6.12
+      ]
+    },
+    {
+      "id": "capacity-too-small",
+      "input_values": [
+        30000,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": -2,
+      "expected_output": [],
+      "workspace_bytes": 23,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "capacity-exact",
+      "input_values": [
+        30000,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": 24,
+      "expected_output": [
+        91.77,
+        22.94,
+        4.33
+      ],
+      "workspace_bytes": 24
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-one-input",
+      "input_values": [
+        30000
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-extra-input",
+      "input_values": [
+        30000,
+        45000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-negative-velocity",
+      "input_values": [
+        -1,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-velocity-above-bound",
+      "input_values": [
+        100001,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-angle-below-bound",
+      "input_values": [
+        30000,
+        999
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-angle-above-bound",
+      "input_values": [
+        30000,
+        90001
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-i64-min",
+      "input_values": [
+        -9223372036854775808,
+        45000
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-i64-max",
+      "input_values": [
+        30000,
+        9223372036854775807
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

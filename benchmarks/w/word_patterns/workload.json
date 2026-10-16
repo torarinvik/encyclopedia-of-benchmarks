@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "word-patterns-ascii-byte-v1",
+  "algorithm": "word_patterns",
+  "function_symbol": "word_patterns",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[byte_length, ASCII bytes...]",
+    "byte_length_range": [
+      0,
+      256
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "normalization": "ASCII lowercase letters are converted to uppercase before first-appearance numbering",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "NUL_terminated_ASCII_bytes",
+    "encoding": "Each byte is represented by its first-seen canonical index in base-10; indices are dot-separated, then NUL-terminated. Empty input yields just NUL.",
+    "successful_result": "Output byte count before NUL."
+  },
+  "workspace": {
+    "bytes": 1025,
+    "meaning": "Maximum output capacity including the NUL terminator."
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "source_example",
+      "input_values": [
+        7,
+        112,
+        97,
+        116,
+        116,
+        101,
+        114,
+        110
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "302e312e322e322e332e342e3500"
+    },
+    {
+      "id": "case_fold_ascii",
+      "input_values": [
+        4,
+        65,
+        98,
+        98,
+        97
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "302e312e312e3000"
+    },
+    {
+      "id": "repeated_symbols",
+      "input_values": [
+        6,
+        33,
+        33,
+        33,
+        63,
+        63,
+        33
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "302e302e302e312e312e3000"
+    },
+    {
+      "id": "ascii_punctuation",
+      "input_values": [
+        5,
+        97,
+        32,
+        49,
+        45,
+        65
+      ],
+      "expected_result": 9,
+      "expected_output_hex": "302e312e322e332e3000"
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        2,
+        65
+      ]
+    },
+    {
+      "id": "out_of_ascii_range",
+      "input_values": [
+        1,
+        128
+      ]
+    },
+    {
+      "id": "out_of_length_range",
+      "input_values": [
+        257
+      ]
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

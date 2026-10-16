@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "newton-raphson-method-i64-array-float64-v1",
+  "algorithm": "newton_raphson_method",
+  "function_symbol": "newton_raphson_method",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "exact_length": 2,
+    "encoding": "[x0_milli, iteration_limit]",
+    "initial_guess_range_milli": [
+      2000,
+      4000
+    ],
+    "iteration_limit_range": [
+      1,
+      32
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "root approximation",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 0.0,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 0.0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "lower_bound_one_step",
+      "input_values": [
+        2000,
+        1
+      ],
+      "expected_result": 3.125
+    },
+    {
+      "id": "middle_guess_two_steps",
+      "input_values": [
+        3000,
+        2
+      ],
+      "expected_result": 2.70699799727345
+    },
+    {
+      "id": "upper_bound_one_step",
+      "input_values": [
+        4000,
+        1
+      ],
+      "expected_result": 3.1136363636363638
+    },
+    {
+      "id": "lower_bound_converged",
+      "input_values": [
+        2000,
+        32
+      ],
+      "expected_result": 2.706527954497935
+    },
+    {
+      "id": "middle_guess_converged",
+      "input_values": [
+        3000,
+        32
+      ],
+      "expected_result": 2.706527954497935
+    },
+    {
+      "id": "upper_bound_converged",
+      "input_values": [
+        4000,
+        32
+      ],
+      "expected_result": 2.706527954497935
+    },
+    {
+      "id": "invalid_guess_below_bound",
+      "input_values": [
+        1999,
+        8
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_guess_above_bound",
+      "input_values": [
+        4001,
+        8
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_zero_iterations",
+      "input_values": [
+        3000,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_iterations_above_bound",
+      "input_values": [
+        3000,
+        33
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_wrong_length",
+      "input_values": [
+        3000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_overlength",
+      "input_values": [
+        3000,
+        8,
+        0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

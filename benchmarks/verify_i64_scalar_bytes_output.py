@@ -17,30 +17,40 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
-              "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern")
+              "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
+              "magicdiamondpattern")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
 def corpus(workload: dict) -> tuple[str, int]:
     encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
+    capacity_error_result = workload.get("output", {}).get("capacity_error_result", -2)
     cases: dict[tuple[int, int], tuple[int, bytes]] = {}
 
-    def add(value: int, capacity: int | None = None) -> None:
+    def add(value: int, capacity: int | None = None,
+            capacity_error: int | None = None) -> None:
         result, output = expected_output(value, encoding)
         selected_capacity = (MAX_OUTPUT_BYTES if result < 0 else result) if capacity is None else capacity
         if result >= 0 and selected_capacity < result:
-            result, output = -2, b""
+            result, output = (capacity_error_result if capacity_error is None else capacity_error), b""
         cases[(value, selected_capacity)] = (result, output)
 
     for case in workload["cases"]:
         value = case["input_value"]
         expected_result, output = expected_output(value, encoding)
+        output_capacity = case.get("output_capacity", case.get("workspace_bytes",
+                                                                len(output) or MAX_OUTPUT_BYTES))
+        if type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_BYTES:
+            raise ValueError(f"invalid output capacity in {case['id']}")
+        if expected_result >= 0 and output_capacity < len(output):
+            expected_result = case.get("capacity_error_result", capacity_error_result)
+            output = b""
         expected_matches = (case.get("expected_output_hex") == output.hex()
                             if "expected_output_hex" in case
                             else case.get("expected_output") == output.decode("ascii"))
         if case["expected_result"] != expected_result or not expected_matches:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
-        add(value)
+        add(value, output_capacity, case.get("capacity_error_result"))
 
     for value in range(4097):
         add(value)
@@ -53,6 +63,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                       else (0, 1, 7, 90, I64_MAX) if encoding == "floyd_triangle"
                       else (0, 1, 7, 512, I64_MAX) if encoding == "harmonic_series"
                       else (0, 1, 45, 46, I64_MAX) if encoding == "butterfly_pattern"
+                      else (0, 1, 7, 45, I64_MAX) if encoding == "magicdiamondpattern"
                       else (0, 1, 7, I64_MAX))
     for value in capacity_cases:
         result, _ = expected_output(value, encoding)
@@ -90,9 +101,15 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     records = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
+    encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
+    capacity_error_result = workload.get("output", {}).get("capacity_error_result", -2)
     for case, record in zip(workload["cases"], records):
         value = case["input_value"]
-        expected, _ = expected_output(value, workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
+        required_result, required_output = expected_output(value, encoding)
+        output_capacity = case.get("output_capacity", case.get("workspace_bytes",
+                                                                  len(required_output) or MAX_OUTPUT_BYTES))
+        expected = (case.get("capacity_error_result", capacity_error_result)
+                    if output_capacity < len(required_output) else required_result)
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

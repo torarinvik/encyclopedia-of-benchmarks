@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "gauss-seidel-bounded-dominant-f64-vector-v1",
+  "algorithm": "gauss_seidel_method",
+  "function_symbol": "gauss_seidel_method",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, row-major n*n matrix entries in micro-units, n right-hand-side values in micro-units]",
+    "dimension_range": [
+      1,
+      8
+    ],
+    "entry_scale": 1000000,
+    "matrix_domain": "exactly symmetric with positive diagonal and strict row diagonal dominance",
+    "entry_range_micro_units": [
+      -1000000000,
+      1000000000
+    ],
+    "maximum_input_length": 73,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution x of A*x=b, obtained by Gauss-Seidel iteration and rounded to ten decimal places",
+    "encoding": "n little-endian IEEE-754 binary64 values",
+    "return_value": "8*n on success",
+    "max_length": 8,
+    "max_output_bytes": 64,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "source_semantics": {
+    "initial_state": "x is all zero",
+    "iteration": "update coordinates in ascending order in-place, using newest values for earlier coordinates",
+    "convergence": "all coordinate changes are strictly less than 1e-10, with a maximum of 1000 sweeps",
+    "rounding": "round each final coordinate to ten decimal places",
+    "source_variation": "the pinned C example is fixed at three variables and stops when any one of three coordinate changes is at most 1e-4; the generic Python implementation supplies the benchmark contract"
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "maximum output vector"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-by-one",
+      "input_values": [
+        1,
+        4000000,
+        2000000
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output": [
+        0.5
+      ]
+    },
+    {
+      "id": "two-by-two",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        1000000,
+        3000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 7,
+      "expected_result": 16,
+      "expected_output": [
+        0.0909090909,
+        0.6363636364
+      ]
+    },
+    {
+      "id": "four-by-four",
+      "input_values": [
+        4,
+        10000000,
+        -1000000,
+        0,
+        0,
+        -1000000,
+        9000000,
+        -1000000,
+        0,
+        0,
+        -1000000,
+        8000000,
+        -1000000,
+        0,
+        0,
+        -1000000,
+        7000000,
+        9000000,
+        8000000,
+        7000000,
+        6000000
+      ],
+      "input_length": 21,
+      "expected_result": 32,
+      "expected_output": [
+        1.0128497409,
+        1.1284974093,
+        1.143626943,
+        1.0205181347
+      ]
+    },
+    {
+      "id": "zero-rhs",
+      "input_values": [
+        3,
+        5000000,
+        1000000,
+        0,
+        1000000,
+        5000000,
+        1000000,
+        0,
+        1000000,
+        5000000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 13,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "bad-asymmetric",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        0,
+        3000000,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bad-not-dominant",
+      "input_values": [
+        2,
+        1000000,
+        2000000,
+        2000000,
+        1000000,
+        1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bad-length",
+      "input_values": [
+        2,
+        4000000,
+        0,
+        0,
+        4000000,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bad-n",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "capacity-too-small",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        1000000,
+        3000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output": [],
+      "workspace_bytes": 8
+    }
+  ]
+}

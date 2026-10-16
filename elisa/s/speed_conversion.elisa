@@ -1,0 +1,35 @@
+# Convert a bounded speed between the five units in the pinned source.
+extern floor(value: f64) -> f64
+
+def source_factor(unit: usize) -> f64:
+    if unit == 0: return 1.609344
+    if unit == 1: return 1.0
+    if unit == 2: return 3.6
+    if unit == 3: return 1.097
+    1.852
+
+def destination_inverse_factor(unit: usize) -> f64:
+    if unit == 0: return 0.6213712
+    if unit == 1: return 1.0
+    if unit == 2: return 0.277778
+    if unit == 3: return 0.911344
+    0.539957
+
+def round_two_php(value: f64) -> f64:
+    floor(value * 100.0 + 0.5) / 100.0
+
+def speed_conversion_impl(speed: f64, route: f64) -> f64:
+    if speed != speed:
+        return -1.0
+    if route != route:
+        return -1.0
+    if speed < 0.0 or speed > 1000000.0:
+        return -1.0
+    if route < 0.0 or route > 24.0 or floor(route) != route:
+        return -1.0
+    encoded: usize = route.usize()
+    unit_from: usize = encoded / 5
+    unit_to: usize = encoded % 5
+    round_two_php(speed * source_factor(unit_from) * destination_inverse_factor(unit_to))
+
+export fn speed_conversion(speed: f64, route: f64) -> f64 = speed_conversion_impl

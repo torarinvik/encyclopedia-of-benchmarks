@@ -11,7 +11,7 @@ The pinned C++ source generates the reflected Gray-code sequence for a requested
 - Return `-2` if the output buffer is too small, without writing output bytes.
 - At the upper bound, the sequence contains 8,192 values and occupies 32,768 bytes.
 
-The Python candidate `gray_code_sequence` and JavaScript candidate `gray_codes` compute the same sequence values for positive `n`; both return `[0]` at zero, and Python raises an error for negative `n`. This package follows the pinned C++ boundary behavior.
+The Python candidate `gray_code_sequence`, JavaScript candidate `gray_codes`, and Go candidate `SequenceGrayCode` compute the same sequence values for positive `n`; Python, JavaScript, and Go return `[0]` at zero, and Python raises an error for negative `n`. This package follows the pinned C++ boundary behavior.
 
 ## Workload
 
@@ -22,3 +22,4 @@ The Python candidate `gray_code_sequence` and JavaScript candidate `gray_codes` 
 - [TheAlgorithms/C-Plus-Plus `gray_code.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/bit_manipulation/gray_code.cpp)
 - [TheAlgorithms/Python `gray_code_sequence.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/gray_code_sequence.py)
 - [TheAlgorithms/JavaScript `GrayCodes.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/GrayCodes.js)
+- [TheAlgorithms/Go `rbc.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/binary/rbc.go)

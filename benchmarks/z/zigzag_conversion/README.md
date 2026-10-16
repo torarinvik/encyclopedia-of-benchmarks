@@ -20,3 +20,4 @@ Portable implementations use `c/`, `c3/`, `cpp/`, `elisa/`, `nim/`, `odin/`, `ru
 ## Upstream reference
 
 - [TheAlgorithms/C LeetCode 6 at the pinned catalog revision](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/6.c)
+- [TheAlgorithms/Go Rail Fence encryption at the pinned catalog revision](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/railfence/railfence.go) and [TheAlgorithms/Java Rail Fence encryption](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/RailFenceCipher.java) use the same zigzag placement and row concatenation. Their decryption routines are outside this contract.

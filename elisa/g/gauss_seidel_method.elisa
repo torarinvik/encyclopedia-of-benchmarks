@@ -1,0 +1,83 @@
+extern round(value: f64) -> f64
+
+def put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+        b <- b + 1
+
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def gauss_seidel_method_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 1 or input[0] > 8: return -1
+    n: usize = input[0].usize()
+    if length != 1 + n*n + n: return -1
+    rhs: usize = 1 + n*n
+    k: usize = 1
+    while k < length:
+        if input[k] < -1_000_000_000 or input[k] > 1_000_000_000: return -1
+        k <- k + 1
+    row: usize = 0
+    while row < n:
+        diagonal: i64 = input[1 + row*n + row]
+        if diagonal <= 0: return -1
+        off_sum: mutable i64 = 0
+        col: usize = 0
+        while col < n:
+            value: i64 = input[1 + row*n + col]
+            if value != input[1 + col*n + row]: return -1
+            if row != col: off_sum <- off_sum + (if value < 0: -value else: value)
+            col <- col + 1
+        if diagonal <= off_sum: return -1
+        row <- row + 1
+    if output.is_null() or capacity < n*8: return -2
+    a: mutable f64[64] = zeroed
+    b: mutable f64[8] = zeroed
+    x: mutable f64[8] = zeroed
+    old: mutable f64[8] = zeroed
+    k <- 0
+    while k < n*n:
+        a[k] <- input[k+1].f64() / 1_000_000.0
+        k <- k + 1
+    row <- 0
+    while row < n:
+        b[row] <- input[rhs+row].f64() / 1_000_000.0
+        row <- row + 1
+    iteration: usize = 0
+    while iteration < 1000:
+        row <- 0
+        while row < n:
+            old[row] <- x[row]
+            row <- row + 1
+        row <- 0
+        while row < n:
+            before: mutable f64 = 0.0
+            col: usize = 0
+            while col < row:
+                before <- before + a[row*n+col]*x[col]
+                col <- col + 1
+            after: mutable f64 = 0.0
+            col <- row + 1
+            while col < n:
+                after <- after + a[row*n+col]*old[col]
+                col <- col + 1
+            x[row] <- (b[row]-before-after)/a[row*n+row]
+            row <- row + 1
+        done: mutable bool = true
+        row <- 0
+        while row < n:
+            delta: f64 = x[row] - old[row]
+            if delta >= 1.0e-10 or delta <= -1.0e-10: done <- false
+            row <- row + 1
+        if done: break
+        iteration <- iteration + 1
+    row <- 0
+    while row < n:
+        put_f64_le(output, row*8, round(x[row]*1.0e10)/1.0e10)
+        row <- row + 1
+    (n*8).i64()
+
+export fn gauss_seidel_method(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gauss_seidel_method_impl

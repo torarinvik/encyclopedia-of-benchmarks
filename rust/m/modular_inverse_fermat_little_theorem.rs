@@ -23,11 +23,9 @@ fn binary_exponentiation(base_input: i64, exponent_input: i64, modulus: i64) -> 
 
 #[no_mangle]
 pub extern "C" fn modular_inverse_fermat_little_theorem(a: i64, m: i64) -> i64 {
-    if !(-1_000_000..=1_000_000).contains(&a) || !(2..=1_000_000).contains(&m) {
+    if !(1..=1_000_000).contains(&a) || !(2..=1_000_000).contains(&m) {
         return -1;
     }
-    if a == 0 || a <= -m || a >= m || !is_prime(m) { return -1; }
-    let mut normalized = a;
-    while normalized < 0 { normalized += m; }
-    binary_exponentiation(normalized, m - 2, m)
+    if a % m == 0 || !is_prime(m) { return -1; }
+    binary_exponentiation(a, m - 2, m)
 }

@@ -48,6 +48,8 @@ from collaborative_filtering_oracle import expected_prediction as collaborative_
 from quadratic_equation_solver_oracle import INVALID_RESULT as QUADRATIC_EQUATION_SOLVER_INVALID_RESULT
 from quadratic_equation_solver_oracle import MAX_COEFFICIENT as MAX_QUADRATIC_EQUATION_COEFFICIENT
 from quadratic_equation_solver_oracle import expected_result as quadratic_equation_solver_oracle
+from durand_kerner_roots_oracle import INVALID_RESULT as DURAND_KERNER_INVALID_RESULT
+from durand_kerner_roots_oracle import expected_result as durand_kerner_oracle
 from ground_to_ground_projectile_motion_oracle import INVALID_RESULT as GROUND_PROJECTILE_INVALID_RESULT
 from ground_to_ground_projectile_motion_oracle import MAX_SPEED as MAX_GROUND_PROJECTILE_SPEED
 from ground_to_ground_projectile_motion_oracle import MAX_ANGLE as MAX_GROUND_PROJECTILE_ANGLE
@@ -101,6 +103,12 @@ from trapezoidal_integration_oracle import MAX_ENDPOINT_MICRO as MAX_TRAPEZOIDAL
 from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
 from trapezoidal_integration_oracle import MAX_STEPS as MAX_TRAPEZOIDAL_STEPS
 from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_oracle
+from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
+from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
+from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_oracle
+from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
+from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
+from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_oracle
 from cosine_similarity_oracle import INVALID_RESULT as COSINE_SIMILARITY_INVALID_RESULT
 from cosine_similarity_oracle import MAX_INPUT_LENGTH as MAX_COSINE_SIMILARITY_INPUT_LENGTH
 from cosine_similarity_oracle import MAX_STRING_LENGTH as MAX_COSINE_SIMILARITY_STRING_LENGTH
@@ -160,9 +168,56 @@ from terminal_velocity_oracle import INVALID_RESULT as TERMINAL_VELOCITY_INVALID
 from terminal_velocity_oracle import MAX_INPUT_VALUE as TERMINAL_VELOCITY_MAX_INPUT_VALUE
 from terminal_velocity_oracle import MIN_INPUT_VALUE as TERMINAL_VELOCITY_MIN_INPUT_VALUE
 from terminal_velocity_oracle import expected_result as terminal_velocity_oracle
+from newtons_law_of_gravitation_oracle import INVALID_RESULT as NEWTONS_GRAVITATION_INVALID_RESULT
+from newtons_law_of_gravitation_oracle import MAX_SUPPLIED_VALUE as NEWTONS_GRAVITATION_MAX_VALUE
+from newtons_law_of_gravitation_oracle import MIN_SUPPLIED_VALUE as NEWTONS_GRAVITATION_MIN_VALUE
+from newtons_law_of_gravitation_oracle import expected_result as newtons_gravitation_oracle
+from ideal_gas_law_oracle import INVALID_RESULT as IDEAL_GAS_LAW_INVALID_RESULT
+from ideal_gas_law_oracle import MAX_ARGUMENT as IDEAL_GAS_LAW_MAX_ARGUMENT
+from ideal_gas_law_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_IDEAL_GAS_LAW_PARSEABLE_INPUT_LENGTH
+from ideal_gas_law_oracle import MIN_ARGUMENT as IDEAL_GAS_LAW_MIN_ARGUMENT
+from ideal_gas_law_oracle import expected_result as ideal_gas_law_oracle
+from poisson_dist_oracle import INVALID_RESULT as POISSON_DIST_INVALID_RESULT
+from poisson_dist_oracle import MAX_INPUT_LENGTH as MAX_POISSON_DIST_PARSEABLE_INPUT_LENGTH
+from poisson_dist_oracle import MAX_MILLI_VALUE as POISSON_DIST_MAX_MILLI_VALUE
+from poisson_dist_oracle import MAX_SUCCESS_COUNT as POISSON_DIST_MAX_SUCCESS_COUNT
+from poisson_dist_oracle import expected_result as poisson_dist_oracle
+from doppler_frequency_oracle import INVALID_RESULT as DOPPLER_FREQUENCY_INVALID_RESULT
+from doppler_frequency_oracle import MAX_ORIGINAL_FREQUENCY as DOPPLER_FREQUENCY_MAX_ORIGINAL_FREQUENCY
+from doppler_frequency_oracle import MAX_VELOCITY as DOPPLER_FREQUENCY_MAX_VELOCITY
+from doppler_frequency_oracle import MAX_WAVE_SPEED as DOPPLER_FREQUENCY_MAX_WAVE_SPEED
+from doppler_frequency_oracle import MIN_ORIGINAL_FREQUENCY as DOPPLER_FREQUENCY_MIN_ORIGINAL_FREQUENCY
+from doppler_frequency_oracle import MIN_VELOCITY as DOPPLER_FREQUENCY_MIN_VELOCITY
+from doppler_frequency_oracle import MIN_WAVE_SPEED as DOPPLER_FREQUENCY_MIN_WAVE_SPEED
+from doppler_frequency_oracle import MAX_INPUT_LENGTH as MAX_DOPPLER_FREQUENCY_PARSEABLE_INPUT_LENGTH
+from doppler_frequency_oracle import expected_result as doppler_frequency_oracle
+from capacitor_equivalence_oracle import INVALID_RESULT as CAPACITOR_EQUIVALENCE_INVALID_RESULT
+from capacitor_equivalence_oracle import MAX_CAPACITANCE as CAPACITOR_EQUIVALENCE_MAX_CAPACITANCE
+from capacitor_equivalence_oracle import MAX_CAPACITOR_COUNT as CAPACITOR_EQUIVALENCE_MAX_COUNT
+from capacitor_equivalence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_CAPACITOR_EQUIVALENCE_PARSEABLE_INPUT_LENGTH
+from capacitor_equivalence_oracle import MIN_CAPACITANCE as CAPACITOR_EQUIVALENCE_MIN_CAPACITANCE
+from capacitor_equivalence_oracle import expected_result as capacitor_equivalence_oracle
+from secant_method_oracle import INVALID_RESULT as SECANT_METHOD_INVALID_RESULT
+from secant_method_oracle import MAX_INPUT_LENGTH as MAX_SECANT_METHOD_INPUT_LENGTH
+from secant_method_oracle import expected_result as secant_method_oracle
+from newton_raphson_method_oracle import INVALID_RESULT as NEWTON_RAPHSON_METHOD_INVALID_RESULT
+from newton_raphson_method_oracle import MAX_INPUT_LENGTH as MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH
+from newton_raphson_method_oracle import expected_result as newton_raphson_method_oracle
+from newton_raphson_oracle import INVALID_RESULT as NEWTON_RAPHSON_INVALID_RESULT
+from newton_raphson_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH
+from newton_raphson_oracle import expected_result as newton_raphson_oracle
+from reynolds_number_oracle import INVALID_RESULT as REYNOLDS_NUMBER_INVALID_RESULT
+from reynolds_number_oracle import reynolds_number as reynolds_number_oracle
+from interquartile_range_oracle import INVALID_RESULT as INTERQUARTILE_RANGE_INVALID_RESULT
+from interquartile_range_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_INTERQUARTILE_RANGE_PARSEABLE_INPUT_LENGTH
+from interquartile_range_oracle import expected_result as interquartile_range_oracle
 
-ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity")
+ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
+MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
+MAX_TERNARY_ENDPOINT_MILLI = 100_000
+MAX_TERNARY_PRECISION_MILLI = 8
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
@@ -184,6 +239,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return collaborative_filtering_pearson_oracle(values)
     if algorithm == "quadratic_equation_solver_complex_roots":
         return quadratic_equation_solver_oracle(values)
+    if algorithm == "durand_kerner_roots":
+        return durand_kerner_oracle(values)
     if algorithm == "ground_to_ground_projectile_motion":
         return ground_projectile_oracle(values)
     if algorithm == "huber_loss":
@@ -204,6 +261,10 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return energy_oracle(values)
     if algorithm == "trapezoidal_integration":
         return trapezoidal_integration_oracle(values)
+    if algorithm == "midpoint_integral_method":
+        return midpoint_integral_method_oracle(values)
+    if algorithm == "ternary_search_min_max_recursive":
+        return ternary_search_min_max_oracle(values)
     if algorithm == "cosine_similarity":
         return cosine_similarity_oracle(values)
     if algorithm == "linear_regression_cost":
@@ -228,6 +289,26 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return speed_of_sound_oracle(values)
     if algorithm == "terminal_velocity":
         return terminal_velocity_oracle(values)
+    if algorithm == "newtons_law_of_gravitation":
+        return newtons_gravitation_oracle(values)
+    if algorithm == "ideal_gas_law":
+        return ideal_gas_law_oracle(values)
+    if algorithm == "capacitor_equivalence":
+        return capacitor_equivalence_oracle(values)
+    if algorithm == "poisson_dist":
+        return poisson_dist_oracle(values)
+    if algorithm == "doppler_frequency":
+        return doppler_frequency_oracle(values)
+    if algorithm == "secant_method":
+        return secant_method_oracle(values)
+    if algorithm == "newton_raphson_method":
+        return newton_raphson_method_oracle(values)
+    if algorithm == "newton_raphson":
+        return newton_raphson_oracle(values)
+    if algorithm == "reynolds_number":
+        return reynolds_number_oracle(values)
+    if algorithm == "interquartile_range":
+        return interquartile_range_oracle(values)
     raise ValueError(f"no oracle for {algorithm}")
 
 
@@ -480,6 +561,17 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = QUADRATIC_EQUATION_SOLVER_INVALID_RESULT
+    elif algorithm == "durand_kerner_roots":
+        for d in range(-4, 5):
+            for root_index in range(3):
+                for component in range(2):
+                    values = (d, root_index, component)
+                    cases[values] = oracle(algorithm, list(values))
+        for values in ((), (1,), (1, 0), (1, 0, 0, 0),
+                       (0, 0, 0), (-5, 0, 0), (5, 0, 0),
+                       (1, -1, 0), (1, 3, 0), (1, 0, -1), (1, 0, 2),
+                       (I64_MIN, 0, 0), (I64_MAX, 0, 0)):
+            cases[values] = DURAND_KERNER_INVALID_RESULT
     elif algorithm == "ground_to_ground_projectile_motion":
         rng = random.Random(20261016)
         for _ in range(256):
@@ -747,6 +839,72 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH:
                 cases[values] = TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
+    elif algorithm == "midpoint_integral_method":
+        rng = random.Random(20261016)
+        interval_counts = (2, 4, 16, MAX_MIDPOINT_INTEGRAL_INTERVALS)
+        endpoint_pairs = ((0, 1), (0, 1_000), (1_000, 3_000),
+                          (0, MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI),
+                          (MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI - 1,
+                           MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI))
+        for function_id in range(4):
+            for intervals in interval_counts:
+                for a_milli, b_milli in endpoint_pairs:
+                    values = (function_id, intervals, a_milli, b_milli)
+                    cases[values] = oracle(algorithm, list(values))
+        for _ in range(128):
+            a_milli = rng.randrange(MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI)
+            b_milli = rng.randint(a_milli + 1, MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI)
+            values = (rng.randrange(4), rng.choice(range(2, MAX_MIDPOINT_INTEGRAL_INTERVALS + 1, 2)),
+                      a_milli, b_milli)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 16, 1_000), (0, 16, 1_000, 3_000, 0),
+            (-1, 16, 1_000, 3_000), (4, 16, 1_000, 3_000),
+            (0, 0, 1_000, 3_000), (0, 1, 1_000, 3_000),
+            (0, MAX_MIDPOINT_INTEGRAL_INTERVALS + 2, 1_000, 3_000),
+            (0, 16, -1, 1_000),
+            (0, 16, 1_000, MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI + 1),
+            (0, 16, 3_000, 1_000), (0, 16, 1_000, 1_000),
+            (I64_MIN, 16, 0, 1), (0, I64_MAX, 0, 1),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH:
+                cases[values] = MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
+    elif algorithm == "ternary_search_min_max_recursive":
+        rng = random.Random(20261016)
+        interval_pairs = {}
+        for mode, center in ((0, 1_000), (1, -1_000)):
+            interval_pairs[mode] = (
+                (-MAX_TERNARY_ENDPOINT_MILLI, MAX_TERNARY_ENDPOINT_MILLI),
+                (center - 1, center + 1),
+                (center - 1_000, center + 1_000),
+                (-MAX_TERNARY_ENDPOINT_MILLI, center + 1),
+                (center - 1, MAX_TERNARY_ENDPOINT_MILLI),
+                (center - 8, center + 8),
+            )
+            for start_milli, end_milli in interval_pairs[mode]:
+                for precision_milli in (1, MAX_TERNARY_PRECISION_MILLI):
+                    values = (mode, start_milli, end_milli, precision_milli)
+                    cases[values] = oracle(algorithm, list(values))
+            for _ in range(64):
+                start_milli = rng.randint(-MAX_TERNARY_ENDPOINT_MILLI, center - 1)
+                end_milli = rng.randint(center + 1, MAX_TERNARY_ENDPOINT_MILLI)
+                precision_milli = rng.randint(1, MAX_TERNARY_PRECISION_MILLI)
+                values = (mode, start_milli, end_milli, precision_milli)
+                cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, -100_000, 100_000), (0, -100_000, 100_000, 1, 0),
+            (-1, -100_000, 100_000, 1), (2, -100_000, 100_000, 1),
+            (0, 1_000, 2_000, 1), (0, -2_000, 1_000, 1),
+            (1, -1_000, 2_000, 1), (1, -2_000, -1_000, 1),
+            (0, -100_001, 2_000, 1), (1, -2_000, 100_001, 1),
+            (0, -2_000, 2_000, 0), (1, -2_000, 2_000, MAX_TERNARY_PRECISION_MILLI + 1),
+            (I64_MIN, -2_000, 2_000, 1), (1, -2_000, I64_MAX, 1),
+            tuple([0] * MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH:
+                cases[values] = TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
     elif algorithm == "cosine_similarity":
         rng = random.Random(20261016)
 
@@ -975,10 +1133,214 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             (1, 0, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0),
             (TERMINAL_VELOCITY_MAX_INPUT_VALUE + 1, 1, 1, 1),
             (1, TERMINAL_VELOCITY_MAX_INPUT_VALUE + 1, 1, 1),
+            (1, 1, TERMINAL_VELOCITY_MAX_INPUT_VALUE + 1, 1),
             (I64_MIN, 1, 1, 1), (1, I64_MAX, 1, 1),
         )
         for values in malformed:
             cases[values] = TERMINAL_VELOCITY_INVALID_RESULT
+    elif algorithm == "newtons_law_of_gravitation":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randrange(4), *(
+                rng.randint(NEWTONS_GRAVITATION_MIN_VALUE,
+                            NEWTONS_GRAVITATION_MAX_VALUE)
+                for _ in range(3)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0, 1, 2), (0, 1, 2, 3, 4),
+            (4, 1, 1, 1), (-1, 1, 1, 1),
+            (0, 1, 0, 1), (0, 1, -1, 1), (0, 1, 1, 1_001),
+            (I64_MIN, 1, 1, 1), (0, I64_MAX, 1, 1),
+        )
+        for values in malformed:
+            cases[values] = NEWTONS_GRAVITATION_INVALID_RESULT
+    elif algorithm == "ideal_gas_law":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            operation = rng.randrange(4)
+            arguments = [rng.randint(IDEAL_GAS_LAW_MIN_ARGUMENT,
+                                     IDEAL_GAS_LAW_MAX_ARGUMENT) for _ in range(3)]
+            denominator_index = 2 if operation in (0, 1) else 0
+            arguments[denominator_index] = rng.randint(1, IDEAL_GAS_LAW_MAX_ARGUMENT)
+            values = (operation, *arguments)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0, 1, 2), (0, 1, 2, 3, 4),
+            (-1, 1, 1, 1), (4, 1, 1, 1),
+            (0, -1, 1, 1), (0, 1, 1, 1_001),
+            (0, 1, 1, 0), (1, 1, 1, 0),
+            (2, 0, 1, 1), (3, 0, 1, 1),
+            (I64_MIN, 1, 1, 1), (0, I64_MAX, 1, 1),
+            tuple([0] * MAX_IDEAL_GAS_LAW_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = IDEAL_GAS_LAW_INVALID_RESULT
+    elif algorithm == "capacitor_equivalence":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            operation = rng.randrange(2)
+            count = rng.randint(1, CAPACITOR_EQUIVALENCE_MAX_COUNT)
+            minimum = (CAPACITOR_EQUIVALENCE_MIN_CAPACITANCE if operation == 0 else 1)
+            capacitors = tuple(rng.randint(minimum, CAPACITOR_EQUIVALENCE_MAX_CAPACITANCE)
+                               for _ in range(count))
+            values = (operation, *capacitors)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (1,), (-1, 1), (2, 1),
+            (0, -1), (0, CAPACITOR_EQUIVALENCE_MAX_CAPACITANCE + 1),
+            (1, 0), (1, -1),
+            (0, *([1] * (CAPACITOR_EQUIVALENCE_MAX_COUNT + 1))),
+            (1, *([1] * (CAPACITOR_EQUIVALENCE_MAX_COUNT + 1))),
+            (I64_MIN, 1), (0, I64_MAX),
+            tuple([0] * MAX_CAPACITOR_EQUIVALENCE_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = CAPACITOR_EQUIVALENCE_INVALID_RESULT
+    elif algorithm == "poisson_dist":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            operation = rng.randrange(4)
+            first_milli = rng.randint(0, POISSON_DIST_MAX_MILLI_VALUE)
+            if operation == 0:
+                second_milli = rng.randint(1, POISSON_DIST_MAX_MILLI_VALUE)
+                third = 0
+            elif operation == 1:
+                second_milli = rng.randint(0, POISSON_DIST_MAX_MILLI_VALUE)
+                third = 0
+            elif operation == 2:
+                second_milli = rng.randint(0, POISSON_DIST_MAX_SUCCESS_COUNT)
+                third = 0
+            else:
+                second_milli = rng.randint(0, POISSON_DIST_MAX_SUCCESS_COUNT)
+                third = rng.randint(second_milli, POISSON_DIST_MAX_SUCCESS_COUNT)
+            values = (operation, first_milli, second_milli, third)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0, 1000, 1000), (0, 1000, 1000, 0, 0),
+            (-1, 1000, 1000, 0), (4, 1000, 1000, 0),
+            (0, -1, 1000, 0), (0, 1000, 0, 0),
+            (0, 1000, 1000, 1), (1, 1000, 1000, 1),
+            (2, 100001, 1, 0), (2, 1000, -1, 0),
+            (2, 1000, POISSON_DIST_MAX_SUCCESS_COUNT + 1, 0),
+            (2, 1000, 1, 1), (3, 1000, 4, 3),
+            (3, 1000, -1, 4), (3, 1000, 0, POISSON_DIST_MAX_SUCCESS_COUNT + 1),
+            (I64_MIN, 1, 1, 1), (0, I64_MAX, 1, 1),
+            tuple([0] * MAX_POISSON_DIST_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = POISSON_DIST_INVALID_RESULT
+    elif algorithm == "doppler_frequency":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (
+                rng.randint(DOPPLER_FREQUENCY_MIN_ORIGINAL_FREQUENCY,
+                            DOPPLER_FREQUENCY_MAX_ORIGINAL_FREQUENCY),
+                rng.randint(DOPPLER_FREQUENCY_MIN_WAVE_SPEED,
+                            DOPPLER_FREQUENCY_MAX_WAVE_SPEED),
+                rng.randint(DOPPLER_FREQUENCY_MIN_VELOCITY,
+                            DOPPLER_FREQUENCY_MAX_VELOCITY),
+                rng.randint(DOPPLER_FREQUENCY_MIN_VELOCITY,
+                            DOPPLER_FREQUENCY_MAX_VELOCITY),
+            )
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (100, 330, 0), (100, 330, 0, 0, 0),
+            (0, 330, 0, 0), (DOPPLER_FREQUENCY_MAX_ORIGINAL_FREQUENCY + 1, 330, 0, 0),
+            (100, DOPPLER_FREQUENCY_MIN_WAVE_SPEED - 1, 0, 0),
+            (100, DOPPLER_FREQUENCY_MAX_WAVE_SPEED + 1, 0, 0),
+            (100, 330, DOPPLER_FREQUENCY_MIN_VELOCITY - 1, 0),
+            (100, 330, DOPPLER_FREQUENCY_MAX_VELOCITY + 1, 0),
+            (100, 330, 0, DOPPLER_FREQUENCY_MIN_VELOCITY - 1),
+            (100, 330, 0, DOPPLER_FREQUENCY_MAX_VELOCITY + 1),
+            (I64_MIN, 330, 0, 0), (100, I64_MAX, 0, 0),
+            tuple([0] * MAX_DOPPLER_FREQUENCY_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = DOPPLER_FREQUENCY_INVALID_RESULT
+    elif algorithm == "secant_method":
+        for values in ((0, 100), (1, 0), (1, 1), (1, 2)):
+            cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = ((0, 100) if rng.randrange(2) == 0
+                      else (1, rng.randrange(3)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (1, 2, 0), (0, 100, 0), (0, 99), (0, 101),
+            (1, -1), (1, 3), (2, 0), (-1, 100),
+            (I64_MIN, 100), (I64_MAX, 2),
+        )
+        for values in malformed:
+            cases[values] = SECANT_METHOD_INVALID_RESULT
+    elif algorithm == "newton_raphson_method":
+        for initial_milli in (2_000, 2_500, 3_000, 3_500, 4_000):
+            for limit in (1, 2, 4, 8, 16, 32):
+                values = (initial_milli, limit)
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randint(2_000, 4_000), rng.randint(1, 32))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (2_000,), (2_000, 1, 0), (1_999, 1), (4_001, 1),
+            (2_000, 0), (2_000, 33), (I64_MIN, 1), (I64_MAX, 32),
+        )
+        for values in malformed:
+            cases[values] = NEWTON_RAPHSON_METHOD_INVALID_RESULT
+    elif algorithm == "newton_raphson":
+        for radicand in range(2, 5):
+            for start_quarters in range(4, 9):
+                values = (radicand, start_quarters)
+                cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (2,), (2, 4, 8), (1, 4), (5, 4),
+            (2, 3), (2, 9), (I64_MIN, 4), (I64_MAX, 8),
+            (2, I64_MIN), (2, I64_MAX),
+            tuple([0] * MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = NEWTON_RAPHSON_INVALID_RESULT
+    elif algorithm == "reynolds_number":
+        for density in (1, 1_000):
+            for velocity in (-1_000, 0, 1_000):
+                for diameter in (1, 1_000):
+                    for viscosity in (1, 1_000):
+                        values = (density, velocity, diameter, viscosity)
+                        cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randint(1, 1_000), rng.randint(-1_000, 1_000),
+                      rng.randint(1, 1_000), rng.randint(1, 1_000))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (1, 2, 3), (1, 2, 3, 4, 5),
+            (0, 2, 5, 4), (1_001, 2, 5, 4),
+            (900, -1_001, 5, 4), (900, 1_001, 5, 4),
+            (900, 2, 0, 4), (900, 2, 1_001, 4),
+            (900, 2, 5, 0), (900, 2, 5, 1_001),
+            (I64_MIN, 2, 5, 4), (I64_MAX, 2, 5, 4),
+        )
+        for values in malformed:
+            cases[values] = REYNOLDS_NUMBER_INVALID_RESULT
+    elif algorithm == "interquartile_range":
+        for length in (2, 3, 4, 5, 6, 8, 16, 64):
+            cases[tuple(0 for _ in range(length))] = 0.0
+            start = -(length // 2)
+            values = tuple(range(start, start + length))
+            cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            length = rng.randint(2, 64)
+            values = tuple(rng.randint(-1_000_000, 1_000_000) for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (5,), tuple([0] * 65),
+            (-1_000_001, 0), (0, 1_000_001),
+            (I64_MIN, 0), (0, I64_MAX),
+            tuple([0] * MAX_INTERQUARTILE_RANGE_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = INTERQUARTILE_RANGE_INVALID_RESULT
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -995,7 +1357,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "huber_loss": 3, "huber_loss_math": 3,
                     "exponential_dist": 2, "expected_shortfall": 2,
                     "time_converter": 2, "temperature_converter": 2, "value_at_risk": 2,
+                    "durand_kerner_roots": 0,
                     "trapezoidal_integration": 4,
+                    "midpoint_integral_method": 4,
+                    "ternary_search_min_max_recursive": 4,
                     "cosine_similarity": 2,
                     "present_value": 3,
                     "present_value_rust": 3,
@@ -1003,7 +1368,17 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "rms_speed_of_molecule": 0,
                     "newtons_second_law_of_motion": 0,
                     "speed_of_sound": 0,
-                    "terminal_velocity": 0}
+                    "terminal_velocity": 0,
+                    "newtons_law_of_gravitation": 0,
+                    "ideal_gas_law": 0,
+                    "capacitor_equivalence": 0,
+                    "poisson_dist": 0,
+                    "doppler_frequency": 0,
+                    "secant_method": 2,
+                    "newton_raphson_method": 2,
+                    "newton_raphson": 2,
+                    "reynolds_number": 4,
+                    "interquartile_range": 4}
     null_lengths["energy"] = 3
     null_length = null_lengths[algorithm]
     null_result = (COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
@@ -1021,6 +1396,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    VALUE_AT_RISK_INVALID_RESULT if algorithm == "value_at_risk" else
                    ENERGY_INVALID_RESULT if algorithm == "energy" else
                    TRAPEZOIDAL_INTEGRATION_INVALID_RESULT if algorithm == "trapezoidal_integration" else
+                   MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT if algorithm == "midpoint_integral_method" else
+                   TERNARY_SEARCH_MIN_MAX_INVALID_RESULT if algorithm == "ternary_search_min_max_recursive" else
                    COSINE_SIMILARITY_INVALID_RESULT if algorithm == "cosine_similarity" else
                    MACAULAY_DURATION_INVALID_RESULT if algorithm == "macaulay_duration" else
                    KELLY_CRITERION_INVALID_RESULT if algorithm == "kelly_criterion" else
@@ -1031,6 +1408,17 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    NEWTONS_SECOND_LAW_INVALID_RESULT if algorithm == "newtons_second_law_of_motion" else
                    SPEED_OF_SOUND_INVALID_RESULT if algorithm == "speed_of_sound" else
                    TERMINAL_VELOCITY_INVALID_RESULT if algorithm == "terminal_velocity" else
+                   DURAND_KERNER_INVALID_RESULT if algorithm == "durand_kerner_roots" else
+                   NEWTONS_GRAVITATION_INVALID_RESULT if algorithm == "newtons_law_of_gravitation" else
+                   IDEAL_GAS_LAW_INVALID_RESULT if algorithm == "ideal_gas_law" else
+                   CAPACITOR_EQUIVALENCE_INVALID_RESULT if algorithm == "capacitor_equivalence" else
+                   POISSON_DIST_INVALID_RESULT if algorithm == "poisson_dist" else
+                   DOPPLER_FREQUENCY_INVALID_RESULT if algorithm == "doppler_frequency" else
+                   SECANT_METHOD_INVALID_RESULT if algorithm == "secant_method" else
+                   NEWTON_RAPHSON_METHOD_INVALID_RESULT if algorithm == "newton_raphson_method" else
+                   NEWTON_RAPHSON_INVALID_RESULT if algorithm == "newton_raphson" else
+                   REYNOLDS_NUMBER_INVALID_RESULT if algorithm == "reynolds_number" else
+                   INTERQUARTILE_RANGE_INVALID_RESULT if algorithm == "interquartile_range" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
                    INVALID_RESULT)
     null_cases = [((0,) * null_length, null_result)]

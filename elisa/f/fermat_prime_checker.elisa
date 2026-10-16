@@ -1,0 +1,48 @@
+# Deterministic bounded port of C# FermatPrimeChecker using the legacy Random(0) stream.
+def fermat_prime_checker_impl(number: i64, times_to_check: i64) -> i64:
+    if number < 2 or number > 1000000 or times_to_check < 2 or times_to_check > 64: return -1
+    seed: mutable i64[56] = zeroed
+    mj: mutable i64 = 161803398
+    mk: mutable i64 = 1
+    seed[55] <- mj
+    index: mutable usize = 1
+    while index < 55:
+        slot: usize = (21 * index) % 55
+        seed[slot] <- mk
+        mk <- mj - mk
+        if mk < 0: mk <- mk + 2147483647
+        mj <- seed[slot]
+        index <- index + 1
+    pass: mutable usize = 0
+    while pass < 4:
+        index <- 1
+        while index < 56:
+            seed[index] <- seed[index] - seed[1 + (index + 30) % 55]
+            if seed[index] < 0: seed[index] <- seed[index] + 2147483647
+            index <- index + 1
+        pass <- pass + 1
+    next: mutable usize = 0
+    next_p: mutable usize = 21
+    iteration: mutable i64 = 1
+    while iteration < times_to_check:
+        next <- next + 1
+        if next >= 56: next <- 1
+        next_p <- next_p + 1
+        if next_p >= 56: next_p <- 1
+        sample: mutable i64 = seed[next] - seed[next_p]
+        if sample == 2147483647: sample <- sample - 1
+        if sample < 0: sample <- sample + 2147483647
+        seed[next] <- sample
+        base: i64 = (sample.f64() / 2147483647.0 * (number - 1).f64()).i64() + 1
+        exponent: mutable i64 = number - 1
+        power_base: mutable i64 = base
+        residue: mutable i64 = 1
+        while exponent > 0:
+            if exponent % 2 != 0: residue <- residue * power_base % number
+            power_base <- power_base * power_base % number
+            exponent <- exponent >> 1
+        if residue != 1: return 0
+        iteration <- iteration + 1
+    1
+
+export fn fermat_prime_checker(number: i64, times_to_check: i64) -> i64 = fermat_prime_checker_impl

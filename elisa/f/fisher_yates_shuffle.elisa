@@ -1,0 +1,42 @@
+const MAX_VALUES: usize = 1024
+const MODULUS: u64 = 2147483647
+
+def fisher_yates_shuffle_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_VALUES + 1:
+        return -1
+    seed: i64 = input[0]
+    if seed < 1 or seed >= 2147483647:
+        return -1
+    count: usize = length - 1
+    values: mutable i32[MAX_VALUES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value.i32()
+        index <- index + 1
+    byte_count: usize = count * 4
+    if output_capacity < byte_count or (byte_count != 0 and output == null):
+        return -2
+    state: mutable u64 = seed.u64()
+    remaining: mutable usize = count
+    while remaining >= 2:
+        state <- (state * 48271) % MODULUS
+        other: usize = (state % remaining.u64()).usize()
+        temporary: i32 = values[remaining - 1]
+        values[remaining - 1] <- values[other]
+        values[other] <- temporary
+        remaining <- remaining - 1
+    index <- 0
+    while index < count:
+        bits: u32 = values[index].u32()
+        byte: mutable usize = 0
+        while byte < 4:
+            output[index * 4 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    count.i64()
+
+export fn fisher_yates_shuffle(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = fisher_yates_shuffle_impl

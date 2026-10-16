@@ -21,14 +21,10 @@ def binary_exponentiation(base_input: i64, exponent_input: i64, modulus: i64) ->
     result
 
 def modular_inverse_fermat_little_theorem_impl(a: i64, m: i64) -> i64:
-    if a < -1000000 or a > 1000000 or m < 2 or m > 1000000:
+    if a < 1 or a > 1000000 or m < 2 or m > 1000000:
         return -1
-    if a == 0 or a <= -m or a >= m or not is_prime(m):
+    if a % m == 0 or not is_prime(m):
         return -1
-    normalized: mutable i64 = a
-    while normalized < 0:
-        normalized <- normalized + m
-    binary_exponentiation(normalized, m - 2, m)
+    binary_exponentiation(a, m - 2, m)
 
-export fn modular_inverse_fermat_little_theorem(a: i64, m: i64) -> i64 =
-    modular_inverse_fermat_little_theorem_impl
+export fn modular_inverse_fermat_little_theorem(a: i64, m: i64) -> i64 = modular_inverse_fermat_little_theorem_impl

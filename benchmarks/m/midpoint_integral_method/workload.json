@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "id": "midpoint-integral-method-i64-array-float64-v1",
+  "algorithm": "midpoint_integral_method",
+  "function_symbol": "midpoint_integral_method",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "exact_length": 4,
+    "encoding": "[function_id, N, a_milli, b_milli]",
+    "function_ids": {
+      "0": "sqrt(x)+ln(x)",
+      "1": "exp(-x)*(4-x^2)",
+      "2": "sqrt(2*x^3+3)",
+      "3": "x+ln(2*x+1)"
+    },
+    "interval_count_range": [
+      2,
+      64
+    ],
+    "interval_count_requirement": "even",
+    "endpoint_milli_range": [
+      0,
+      10000
+    ],
+    "endpoint_order": "a_milli < b_milli",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "f_source_default_interval",
+      "input_values": [
+        0,
+        16,
+        1000,
+        3000
+      ],
+      "expected_result": 4.0938427512822235
+    },
+    {
+      "id": "g_source_default_interval",
+      "input_values": [
+        1,
+        16,
+        1000,
+        3000
+      ],
+      "expected_result": 0.27818756123460464
+    },
+    {
+      "id": "k_source_default_interval",
+      "input_values": [
+        2,
+        16,
+        1000,
+        3000
+      ],
+      "expected_result": 9.065393692253078
+    },
+    {
+      "id": "l_source_default_interval",
+      "input_values": [
+        3,
+        16,
+        1000,
+        3000
+      ],
+      "expected_result": 7.163014942961792
+    },
+    {
+      "id": "f_zero_left_endpoint",
+      "input_values": [
+        0,
+        2,
+        0,
+        1000
+      ],
+      "expected_result": -0.15397551489361644
+    },
+    {
+      "id": "g_full_domain",
+      "input_values": [
+        1,
+        64,
+        0,
+        10000
+      ],
+      "expected_result": 2.0012832314769775
+    },
+    {
+      "id": "k_short_interval",
+      "input_values": [
+        2,
+        2,
+        2000,
+        2001
+      ],
+      "expected_result": 0.004360275596401516
+    },
+    {
+      "id": "l_upper_boundary",
+      "input_values": [
+        3,
+        64,
+        9999,
+        10000
+      ],
+      "expected_result": 0.013043974817156873
+    },
+    {
+      "id": "invalid_function_id",
+      "input_values": [
+        4,
+        16,
+        1000,
+        3000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_odd_interval_count",
+      "input_values": [
+        0,
+        3,
+        1000,
+        3000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_zero_interval_count",
+      "input_values": [
+        0,
+        0,
+        1000,
+        3000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_equal_endpoints",
+      "input_values": [
+        0,
+        16,
+        1000,
+        1000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_descending_endpoints",
+      "input_values": [
+        0,
+        16,
+        3000,
+        1000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_endpoint",
+      "input_values": [
+        0,
+        16,
+        -1,
+        1000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_endpoint_above_bound",
+      "input_values": [
+        3,
+        16,
+        9999,
+        10001
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_wrong_length",
+      "input_values": [
+        0,
+        16,
+        1000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_overlength",
+      "input_values": [
+        0,
+        16,
+        1000,
+        3000,
+        0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

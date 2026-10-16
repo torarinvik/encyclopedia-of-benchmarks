@@ -4,7 +4,7 @@ from __future__ import annotations
 
 MAX_MODULUS = 1_000_000
 MAX_ABSOLUTE_BASE = 1_000_000
-MAX_INPUT_LENGTH = 3
+MAX_INPUT_LENGTH = 2
 INVALID_RESULT = -1
 I64_MIN = -(1 << 63)
 I64_MAX = (1 << 63) - 1
@@ -27,9 +27,9 @@ def expected_result(values: list[int] | tuple[int, ...]) -> int:
         return INVALID_RESULT
 
     base, modulus = values
-    if (not -MAX_ABSOLUTE_BASE <= base <= MAX_ABSOLUTE_BASE
+    if (not 1 <= base <= MAX_ABSOLUTE_BASE
             or not 2 <= modulus <= MAX_MODULUS
-            or base == 0 or not -modulus < base < modulus
+            or base % modulus == 0
             or not _is_prime(modulus)):
         return INVALID_RESULT
-    return pow(base % modulus, modulus - 2, modulus)
+    return pow(base, modulus - 2, modulus)

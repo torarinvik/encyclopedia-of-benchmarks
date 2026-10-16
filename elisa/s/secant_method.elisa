@@ -1,0 +1,48 @@
+extern exp(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def python_objective(x: f64) -> f64:
+    8.0 * x - 2.0 * exp(-x)
+
+def c_variant() -> f64:
+    x0: mutable f64 = 0.2
+    x1: mutable f64 = 0.5
+    tolerance: f64 = 100.0 / 1000000.0
+    iteration: mutable usize = 0
+    while iteration < 99:
+        f1: f64 = x1 * x1 - 3.0
+        f0: f64 = x0 * x0 - 3.0
+        x2: f64 = x1 - f1 * (x1 - x0) / (f1 - f0)
+        x0 <- x1
+        x1 <- x2
+        if abs(x1 - x0) < tolerance:
+            return x2
+        iteration <- iteration + 1
+    -1.0
+
+def python_variant(repeats: i64) -> f64:
+    x0: mutable f64 = 1.0
+    x1: mutable f64 = 3.0
+    iteration: mutable i64 = 0
+    while iteration < repeats:
+        f1: f64 = python_objective(x1)
+        f0: f64 = python_objective(x0)
+        x2: f64 = x1 - (f1 * (x1 - x0)) / (f1 - f0)
+        x0 <- x1
+        x1 <- x2
+        iteration <- iteration + 1
+    x1
+
+def secant_method_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return INVALID_RESULT
+    variant: i64 = values[0]
+    control: i64 = values[1]
+    if variant == 0 and control == 100:
+        return c_variant()
+    if variant == 1 and control >= 0 and control <= 2:
+        return python_variant(control)
+    INVALID_RESULT
+
+export fn secant_method(values: i64&, length: usize) -> f64 = secant_method_impl

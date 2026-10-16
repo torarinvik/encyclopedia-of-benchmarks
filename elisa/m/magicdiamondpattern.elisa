@@ -1,0 +1,35 @@
+export fn magicdiamondpattern(n: i64, output: mutable u8&, capacity: usize) -> i64:
+    message: string = "       ...       ....        nothing printing :("
+    if n > 45: return -1
+    if n <= 0:
+        if capacity < message.len(): return -2
+        i: mutable usize = 0
+        while i < message.len(): output[i] <- message.byte_at(i); i <- i + 1
+        return message.len().i64()
+    side: usize = n.usize()
+    required: usize = 3 * side * side + 4 * side
+    if capacity < required: return -2
+    position: mutable usize = 0
+    i: mutable usize = 0
+    while i < side:
+        j: mutable usize = 0
+        while j < side - i - 1: output[position] <- 32u8; position <- position + 1; j <- j + 1
+        j <- 0
+        while j < i + 1:
+            output[position] <- 42u8; position <- position + 1
+            output[position] <- 32u8; position <- position + 1
+            j <- j + 1
+        output[position] <- 10u8; position <- position + 1
+        i <- i + 1
+    i <- side
+    while i > 0:
+        j: mutable usize = 0
+        while j < i:
+            output[position] <- 42u8; position <- position + 1
+            output[position] <- 32u8; position <- position + 1
+            j <- j + 1
+        output[position] <- 10u8; position <- position + 1
+        j <- 0
+        while j < side - i + 1: output[position] <- 32u8; position <- position + 1; j <- j + 1
+        i <- i - 1
+    position.i64()

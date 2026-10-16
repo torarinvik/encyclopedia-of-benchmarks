@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "hamming-encoder-ascii-bits-v1",
+  "algorithm": "hamming_code",
+  "function_symbol": "hamming_code",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[parity_bit_count, data_bit_count, ASCII `0`/`1` bytes...]",
+    "parity_bit_count_range": [
+      1,
+      5
+    ],
+    "data_bit_count_range": [
+      1,
+      32
+    ],
+    "parity_count_source_validation": "reject when r + m <= 2^r - (m - 1), matching the pinned Python emitter",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "NUL_terminated_ASCII_bytes",
+    "encoding": "Hamming code bits in increasing one-based position order; the first r powers of two are parity slots, followed by NUL. Even parity is used.",
+    "successful_result": "number of encoded bits"
+  },
+  "workspace": {
+    "bytes": 38,
+    "meaning": "Maximum 37 encoded bits plus terminator under the bounds."
+  },
+  "cases": [
+    {
+      "id": "source_encoder_example",
+      "input_values": [
+        4,
+        12,
+        49,
+        48,
+        49,
+        48,
+        49,
+        48,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "3131313130313030313031313131313100"
+    },
+    {
+      "id": "two_parity_bits",
+      "input_values": [
+        2,
+        2,
+        49,
+        48
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "3131313000"
+    },
+    {
+      "id": "three_parity_bits",
+      "input_values": [
+        3,
+        4,
+        49,
+        48,
+        49,
+        48
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "3130313130313000"
+    },
+    {
+      "id": "all_zero_data",
+      "input_values": [
+        4,
+        12,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "3030303030303030303030303030303000"
+    },
+    {
+      "id": "all_one_data",
+      "input_values": [
+        4,
+        12,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "3131313131313131313131313131313100"
+    },
+    {
+      "id": "source_rejects_parity_count",
+      "input_values": [
+        5,
+        12,
+        49,
+        48,
+        49,
+        48,
+        49,
+        48,
+        49,
+        49,
+        49,
+        49,
+        49,
+        49
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_bit_value",
+      "input_values": [
+        4,
+        12,
+        49,
+        48,
+        49,
+        48,
+        49,
+        48,
+        49,
+        49,
+        49,
+        49,
+        49,
+        120
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "3131313130313030313031313131317800"
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [
+        4,
+        4,
+        49,
+        48
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

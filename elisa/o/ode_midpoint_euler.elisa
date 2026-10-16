@@ -1,0 +1,44 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def ode_midpoint_euler_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def ode_midpoint_euler_impl(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 4:
+        return -1
+    steps: i64 = input[0]
+    dt_quarters: i64 = input[1]
+    u0: i64 = input[2]
+    v0: i64 = input[3]
+    if steps < 1 or steps > 8 or dt_quarters < 1 or dt_quarters > 4:
+        return -1
+    if u0 < -10 or u0 > 10 or v0 < -10 or v0 > 10:
+        return -1
+    if output.is_null() or capacity < 16:
+        return -2
+
+    dt: f64 = dt_quarters.f64() / 4.0
+    half_dt: f64 = 0.5 * dt
+    u: mutable f64 = u0.f64()
+    v: mutable f64 = v0.f64()
+    step: mutable i64 = 0
+    while step < steps:
+        midpoint_u: f64 = u + half_dt * v
+        midpoint_v: f64 = v - half_dt * u
+        next_u: f64 = u + dt * midpoint_v
+        next_v: f64 = v - dt * midpoint_u
+        u <- next_u
+        v <- next_v
+        step <- step + 1
+    ode_midpoint_euler_put_f64(output, 0, u)
+    ode_midpoint_euler_put_f64(output, 8, v)
+    16
+
+export fn ode_midpoint_euler(input: i64&, length: usize,
+                             output: mutable u8&, capacity: usize) -> i64 = ode_midpoint_euler_impl

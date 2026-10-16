@@ -1,0 +1,3 @@
+static EMPTY: &[u8] = b"       ...       ....        nothing printing :(";
+#[no_mangle]
+pub unsafe extern "C" fn magicdiamondpattern(n:i64,out:*mut u8,cap:usize)->i64{if n>45{return -1}if n<=0{if out.is_null()||cap<EMPTY.len(){return -2}std::ptr::copy_nonoverlapping(EMPTY.as_ptr(),out,EMPTY.len());return EMPTY.len() as i64}let s=n as usize;let need=3*s*s+4*s;if out.is_null()||cap<need{return -2}let o=std::slice::from_raw_parts_mut(out,need);let mut p=0;for i in 0..s{for _ in 0..s-i-1{o[p]=b' ';p+=1}for _ in 0..i+1{o[p]=b'*';p+=1;o[p]=b' ';p+=1}o[p]=b'\n';p+=1}for i in (1..=s).rev(){for _ in 0..i{o[p]=b'*';p+=1;o[p]=b' ';p+=1}o[p]=b'\n';p+=1;for _ in 0..s-i+1{o[p]=b' ';p+=1}}p as i64}

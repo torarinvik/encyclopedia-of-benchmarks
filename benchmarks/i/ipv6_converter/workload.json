@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "ipv4-mapped-ipv6-binary-v1",
+  "algorithm": "ipv6_converter",
+  "function_symbol": "ipv6_converter",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "operation 0: [0, 4, IPv4 bytes]; operation 1: [1, 16, IPv6 bytes]",
+    "operations": {
+      "0": "IPv4 to IPv4-mapped IPv6",
+      "1": "IPv4-mapped IPv6 to IPv4"
+    },
+    "byte_range": [
+      0,
+      255
+    ],
+    "mapped_prefix_bytes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      255,
+      255
+    ],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "raw_binary_bytes",
+    "operation_0": "16 mapped IPv6 bytes",
+    "operation_1": "4 IPv4 bytes",
+    "successful_result": "output byte count"
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Maximum mapped IPv6 output size."
+  },
+  "cases": [
+    {
+      "id": "ipv4_to_mapped_ipv6",
+      "input_values": [
+        0,
+        4,
+        192,
+        0,
+        2,
+        128
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000ffffc0000280"
+    },
+    {
+      "id": "mapped_ipv6_to_ipv4",
+      "input_values": [
+        1,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        255,
+        255,
+        192,
+        0,
+        2,
+        128
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "c0000280"
+    },
+    {
+      "id": "mapped_ipv6_all_zero_v4",
+      "input_values": [
+        1,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        255,
+        255,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "invalid_non_mapped_ipv6",
+      "input_values": [
+        1,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_ipv4_byte",
+      "input_values": [
+        0,
+        4,
+        256,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_length",
+      "input_values": [
+        0,
+        4,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        2,
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

@@ -1,0 +1,15 @@
+def tilingproblem_impl(input: i64&, length: usize) -> i64:
+    if length != 1: return -1
+    n: i64 = input[0]
+    if n < 0 or n > 91: return -1
+    previous: mutable i64 = 1
+    current: mutable i64 = 1
+    width: mutable i64 = 2
+    while width <= n:
+        next: i64 = previous + current
+        previous <- current
+        current <- next
+        width <- width + 1
+    current
+
+export fn tilingproblem(input: i64&, length: usize) -> i64 = tilingproblem_impl

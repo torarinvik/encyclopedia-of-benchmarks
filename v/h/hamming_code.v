@@ -1,0 +1,3 @@
+module hamming_code
+@[export:'hamming_code']
+pub fn hamming_code(a &i64,n usize,mut out &u8,cap usize)i64{if unsafe{a==nil}||n<3{return -1};unsafe{r:=a[0];m:=a[1];if r<1||r>5||m<1||m>32||n!=usize(2+m)||r+m<=((i64(1)<<u32(r))-(m-1)){return -1};for i in 0..int(m){if a[2+i]!=48&&a[2+i]!=49{return -1}}total:=int(r+m);if total<(1<<int(r-1)){return -1};if unsafe{out==nil}||cap<usize(total+1){return -2};mut code:=[40]u8{};mut data:=0;for p in 1..total+1{if p&(p-1)!=0||p>(1<<int(r-1)){code[p-1]=u8(a[2+data]);data++}else{code[p-1]=u8(`0`)}}for bit in 0..int(r){parity:=1<<bit;mut value:=0;for p in 1..total+1{if p&parity!=0&&code[p-1]==u8(`1`){value^=1}};code[parity-1]=u8(`0`+value)}for i in 0..total{out[i]=code[i]};out[total]=0;return i64(total)}}

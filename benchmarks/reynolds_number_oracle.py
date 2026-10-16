@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 INVALID_RESULT = -1e300
+MAX_INPUT_LENGTH = 4
+MAX_PARSEABLE_INPUT_LENGTH = 5
 
 
 def reynolds_number(values: list[int]) -> float:

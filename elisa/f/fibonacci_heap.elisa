@@ -1,0 +1,150 @@
+struct FibonacciHeapNode:
+    key: i64
+    degree: usize
+    child: i64
+    parent: i64
+    left: i64
+    right: i64
+
+def fibonacci_heap_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def fibonacci_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if (input.is_null() and length > 0) or length > 128: return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647: return -1
+        index <- index + 1
+    if capacity < length * 8 or (length > 0 and output.is_null()): return -2
+    if length == 0: return 0
+    nodes: mutable FibonacciHeapNode[128] = zeroed
+    minimum: mutable i64 = -1
+    index <- 0
+    while index < length:
+        nodes[index].key <- input[index]
+        nodes[index].child <- -1
+        nodes[index].parent <- -1
+        nodes[index].left <- minimum
+        nodes[index].right <- minimum
+        # Insertion root list is maintained as circular doubly linked ring.
+        if minimum == -1:
+            nodes[index].left <- index.i64()
+            nodes[index].right <- index.i64()
+            minimum <- index.i64()
+        else:
+            root: usize = minimum.usize()
+            right: i64 = nodes[root].right
+            nodes[index].left <- minimum
+            nodes[index].right <- right
+            nodes[root].right <- index.i64()
+            nodes[right.usize()].left <- index.i64()
+            if nodes[index].key < nodes[root].key: minimum <- index.i64()
+        index <- index + 1
+    index <- 0
+    while index < length:
+        removed: i64 = minimum
+        fibonacci_heap_store(nodes[removed.usize()].key, output, index * 8)
+        # Snapshot the circular child ring before splicing children into the root ring.
+        children: mutable i64[128] = zeroed
+        child_count: mutable usize = 0
+        child: i64 = nodes[removed.usize()].child
+        if child != -1:
+            current: mutable i64 = child
+            while true:
+                children[child_count] <- current
+                child_count <- child_count + 1
+                current <- nodes[current.usize()].right
+                if current == child: break
+        child_index: mutable usize = 0
+        while child_index < child_count:
+            promoted: i64 = children[child_index]
+            root: usize = minimum.usize()
+            right: i64 = nodes[root].right
+            nodes[promoted.usize()].parent <- -1
+            nodes[promoted.usize()].left <- minimum
+            nodes[promoted.usize()].right <- right
+            nodes[root].right <- promoted
+            nodes[right.usize()].left <- promoted
+            if nodes[promoted.usize()].key < nodes[root].key: minimum <- promoted
+            child_index <- child_index + 1
+        # Remove the former minimum from the circular root list.
+        left: i64 = nodes[removed.usize()].left
+        right: i64 = nodes[removed.usize()].right
+        nodes[left.usize()].right <- right
+        nodes[right.usize()].left <- left
+        if right == removed:
+            minimum <- -1
+        else:
+            minimum <- right
+            roots: mutable i64[128] = zeroed
+            root_count: mutable usize = 0
+            current: mutable i64 = minimum
+            while true:
+                roots[root_count] <- current
+                root_count <- root_count + 1
+                current <- nodes[current.usize()].right
+                if current == minimum: break
+            table: mutable i64[129] = zeroed
+            degree_index: mutable usize = 0
+            while degree_index < 129: table[degree_index] <- -1; degree_index <- degree_index + 1
+            root_index: mutable usize = 0
+            while root_index < root_count:
+                current <- roots[root_index]
+                if nodes[current.usize()].parent == -1:
+                    degree: mutable usize = nodes[current.usize()].degree
+                    while table[degree] != -1:
+                        other: mutable i64 = table[degree]
+                        if nodes[other.usize()].key < nodes[current.usize()].key:
+                            temporary: i64 = current
+                            current <- other
+                            other <- temporary
+                        # Link the losing root into the winner's child ring.
+                        ol: i64 = nodes[other.usize()].left
+                        oright: i64 = nodes[other.usize()].right
+                        nodes[ol.usize()].right <- oright
+                        nodes[oright.usize()].left <- ol
+                        nodes[other.usize()].parent <- current
+                        if nodes[current.usize()].child == -1:
+                            nodes[other.usize()].left <- other
+                            nodes[other.usize()].right <- other
+                            nodes[current.usize()].child <- other
+                        else:
+                            first: i64 = nodes[current.usize()].child
+                            cr: i64 = nodes[first.usize()].right
+                            nodes[other.usize()].left <- first
+                            nodes[other.usize()].right <- cr
+                            nodes[first.usize()].right <- other
+                            nodes[cr.usize()].left <- other
+                        nodes[current.usize()].degree <- nodes[current.usize()].degree + 1
+                        table[degree] <- -1
+                        degree <- nodes[current.usize()].degree
+                    table[degree] <- current
+                root_index <- root_index + 1
+            minimum <- -1
+            degree_index <- 0
+            while degree_index < 129:
+                root <- table[degree_index]
+                if root != -1:
+                    root_index_value: usize = root.usize()
+                    if minimum == -1:
+                        nodes[root_index_value].left <- root
+                        nodes[root_index_value].right <- root
+                        minimum <- root
+                    else:
+                        root_min: usize = minimum.usize()
+                        rr: i64 = nodes[root_min].right
+                        nodes[root_index_value].left <- minimum
+                        nodes[root_index_value].right <- rr
+                        nodes[root_min].right <- root
+                        nodes[rr.usize()].left <- root
+                        if nodes[root_index_value].key < nodes[root_min].key: minimum <- root
+                degree_index <- degree_index + 1
+        index <- index + 1
+    (length * 8).i64()
+
+export fn fibonacci_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fibonacci_heap_impl

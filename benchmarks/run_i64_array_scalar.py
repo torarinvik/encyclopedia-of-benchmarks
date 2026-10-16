@@ -21,10 +21,32 @@ from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from linear_recurrence_matrix_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH
+from linear_recurrence_matrix_oracle import expected_result as linear_recurrence_matrix_expected
+from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
+from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
+from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
+from recursive_linear_search_oracle import expected_result as recursive_linear_search_expected
+from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_INPUT_LENGTH
+from wildcard_matching_oracle import expected_result as wildcard_matching_expected
+from primitive_root_oracle import MAX_INPUT_LENGTH as MAX_PRIMITIVE_ROOT_INPUT_LENGTH
+from primitive_root_oracle import expected_result as primitive_root_expected
+from dijkstras_two_stack_algorithm_oracle import MAX_INPUT_LENGTH as MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH
+from dijkstras_two_stack_algorithm_oracle import expected_result as dijkstras_two_stack_expected
+from naive_pattern_search_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH
+from naive_pattern_search_oracle import expected_result as naive_pattern_search_expected
+from unbias_01_oracle import MAX_INPUT_LENGTH as MAX_UNBIAS_01_INPUT_LENGTH
+from unbias_01_oracle import expected_result as unbias_01_expected
+from tilingproblem_oracle import MAX_INPUT_LENGTH as MAX_TILINGPROBLEM_INPUT_LENGTH
+from tilingproblem_oracle import expected_result as tilingproblem_expected
 from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
 from ceil_in_binary_search_tree_oracle import expected_result as ceil_in_bst_expected
+from inorder_successor_of_bst_oracle import MAX_INPUT_LENGTH as MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH
+from inorder_successor_of_bst_oracle import expected_result as inorder_successor_of_bst_expected
 from check_cycle_oracle import MAX_INPUT_LENGTH as MAX_CHECK_CYCLE_INPUT_LENGTH
 from check_cycle_oracle import expected_result as check_cycle_expected
+from undirected_cycle_check_oracle import MAX_INPUT_LENGTH as MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH
+from undirected_cycle_check_oracle import expected_result as undirected_cycle_check_expected
 from count_homogenous_oracle import MAX_INPUT_LENGTH as MAX_COUNT_HOMOGENOUS_INPUT_LENGTH
 from count_homogenous_oracle import expected_result as count_homogenous_expected
 from count_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
@@ -68,6 +90,8 @@ from constrained_shortest_path_oracle import MAX_INPUT_LENGTH as MAX_CONSTRAINED
 from constrained_shortest_path_oracle import expected_result as constrained_shortest_path_expected
 from jump_game_oracle import MAX_INPUT_LENGTH as MAX_JUMP_GAME_INPUT_LENGTH
 from jump_game_oracle import expected_result as jump_game_expected
+from max_consecutive_ones_iii_oracle import MAX_INPUT_LENGTH as MAX_MAX_CONSECUTIVE_ONES_III_INPUT_LENGTH
+from max_consecutive_ones_iii_oracle import expected_result as max_consecutive_ones_iii_expected
 from pairs_with_given_sum_oracle import MAX_INPUT_LENGTH as MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH
 from pairs_with_given_sum_oracle import expected_result as pairs_with_given_sum_expected
 from comparison_oracle import MAX_INPUT_LENGTH as MAX_COMPARISON_INPUT_LENGTH
@@ -134,6 +158,10 @@ from maximum_subarray_allow_empty_oracle import MAX_INPUT_LENGTH as MAX_MAXIMUM_
 from maximum_subarray_allow_empty_oracle import expected_result as maximum_subarray_allow_empty_expected
 from median_search_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_SEARCH_INPUT_LENGTH
 from median_search_oracle import expected_result as median_search_expected
+from median_of_medians_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_OF_MEDIANS_INPUT_LENGTH
+from median_of_medians_oracle import expected_result as median_of_medians_expected
+from maximal_square_oracle import MAX_INPUT_LENGTH as MAX_MAXIMAL_SQUARE_INPUT_LENGTH
+from maximal_square_oracle import expected_result as maximal_square_expected
 from largest_rectangle_histogram_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_RECTANGLE_HISTOGRAM_INPUT_LENGTH
 from largest_rectangle_histogram_oracle import expected_result as largest_rectangle_histogram_expected
 from hamiltonian_path_exists_oracle import MAX_INPUT_LENGTH as MAX_HAMILTONIAN_PATH_EXISTS_INPUT_LENGTH
@@ -570,15 +598,26 @@ def problem54_player_one_wins(values: list[int]) -> int:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
+    max_input_length = (MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
+                        MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
                         MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
                         if algorithm == "count_singly_linked_list_recursion"
                         else MAX_CHECK_CYCLE_INPUT_LENGTH if algorithm == "check_cycle"
+                        else MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH if algorithm == "undirected_cycle_check"
                         else MAX_COUNT_HOMOGENOUS_INPUT_LENGTH if algorithm == "count_homogenous"
                         else MAX_MAX_AREA_OF_ISLAND_INPUT_LENGTH if algorithm == "max_area_of_island"
                         else MAX_DIRECTED_DFS_FOREST_COUNT_INPUT_LENGTH + 1 if algorithm == "directed_dfs_forest_count"
                         else MAX_CHAINING_INPUT_LENGTH if algorithm == "chaining"
                         else MAX_CEIL_IN_BST_INPUT_LENGTH if algorithm == "ceil_in_binary_search_tree"
+                        else MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH if algorithm == "inorder_successor_of_bst"
+                        else MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH if algorithm == "linear_recurrence_matrix"
+                        else MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH if algorithm == "recursive_linear_search"
+                        else MAX_WILDCARD_MATCHING_INPUT_LENGTH if algorithm == "wildcard_matching"
+                        else MAX_PRIMITIVE_ROOT_INPUT_LENGTH if algorithm == "primitive_root"
+                        else MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH if algorithm == "dijkstras_two_stack_algorithm"
+                        else MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH if algorithm == "naive_pattern_search"
+                        else MAX_UNBIAS_01_INPUT_LENGTH if algorithm == "unbias_01"
+                        else MAX_TILINGPROBLEM_INPUT_LENGTH if algorithm == "tilingproblem"
                         else MAX_CAR_POOL_INPUT_LENGTH if algorithm == "car_pool"
                         else MAX_BLOB_DETECTION_INPUT_LENGTH
                         if algorithm == "blob_detection"
@@ -657,6 +696,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "maximum_subarray_allow_empty" else
                         MAX_MEDIAN_SEARCH_INPUT_LENGTH
                         if algorithm == "median_search" else
+                        MAX_MEDIAN_OF_MEDIANS_INPUT_LENGTH
+                        if algorithm == "median_of_medians" else
+                        MAX_MAXIMAL_SQUARE_INPUT_LENGTH
+                        if algorithm == "maximal_square" else
                         MAX_LARGEST_RECTANGLE_HISTOGRAM_INPUT_LENGTH
                         if algorithm == "largest_rectangle_histogram" else
                         MAX_HAMILTONIAN_PATH_EXISTS_INPUT_LENGTH
@@ -712,6 +755,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_SECOND_MIN_MAX_INPUT_LENGTH if algorithm == "second_min_max"
                         else MAX_CONSTRAINED_SHORTEST_PATH_INPUT_LENGTH if algorithm == "constrained_shortest_path"
                         else MAX_JUMP_GAME_INPUT_LENGTH if algorithm == "jump_game"
+                        else MAX_MAX_CONSECUTIVE_ONES_III_INPUT_LENGTH if algorithm == "max_consecutive_ones_iii"
                         else MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH + 1 if algorithm == "pairs_with_given_sum"
                         else MAX_COMPARISON_INPUT_LENGTH + 1 if algorithm == "comparison"
                         else MAX_COUNT_LESS_EQUAL_INPUT_LENGTH if algorithm == "count_less_equal_in_sorted_array"
@@ -724,7 +768,23 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "count_singly_linked_list_recursion":
+    if algorithm == "edmonds_blossom_algorithm":
+        expected_from_source = edmonds_blossom_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("edmonds_blossom_algorithm expected_result must match general-graph maximum matching")
+    elif algorithm == "primitive_root":
+        expected_from_source = primitive_root_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("primitive_root expected_result must preserve the bounded distinct-power search")
+    elif algorithm == "dijkstras_two_stack_algorithm":
+        expected_from_source = dijkstras_two_stack_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("dijkstras_two_stack_algorithm workload must preserve bounded two-stack evaluation")
+    elif algorithm == "wildcard_matching":
+        expected_from_source = wildcard_matching_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("wildcard_matching expected_result must match full-string ?/* wildcard semantics")
+    elif algorithm == "count_singly_linked_list_recursion":
         expected_from_source = count_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("count_singly_linked_list_recursion expected_result must match the packed node count")
@@ -732,6 +792,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = check_cycle_expected(values)
         if expected != expected_from_source:
             raise ValueError("check_cycle expected_result must match bounded directed-cycle detection")
+    elif algorithm == "undirected_cycle_check":
+        expected_from_source = undirected_cycle_check_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("undirected_cycle_check expected_result must match bounded undirected-cycle detection")
     elif algorithm == "count_homogenous":
         expected_from_source = count_homogenous_expected(values)
         if expected != expected_from_source:
@@ -752,6 +816,69 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = ceil_in_bst_expected(values)
         if expected != expected_from_source:
             raise ValueError("ceil_in_binary_search_tree expected_result must match the BST ceiling query")
+    elif algorithm == "inorder_successor_of_bst":
+        expected_from_source = inorder_successor_of_bst_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("inorder_successor_of_bst expected_result must match the bounded BST successor")
+    elif algorithm == "linear_recurrence_matrix":
+        expected_from_source = linear_recurrence_matrix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("linear_recurrence_matrix expected_result must match bounded modular matrix exponentiation")
+    elif algorithm == "recursive_linear_search":
+        expected_from_source = recursive_linear_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("recursive_linear_search expected_result must match bounded distinct-value search")
+    elif algorithm == "interleavingstrings":
+        if (len(values) < 3 or not 0 <= values[0] <= 32 or not 0 <= values[1] <= 32
+                or values[2] != values[0] + values[1]
+                or len(values) != 3 + values[0] + values[1] + values[2]
+                or any(byte < 0 or byte > 127 for byte in values[3:])):
+            expected_from_source = -1
+        else:
+            first_length, second_length, target_length = values[:3]
+            first = values[3:3 + first_length]
+            second = values[3 + first_length:3 + first_length + second_length]
+            target = values[3 + first_length + second_length:]
+            table = [[False] * (second_length + 1) for _ in range(first_length + 1)]
+            table[0][0] = True
+            for i in range(first_length + 1):
+                for j in range(second_length + 1):
+                    position = i + j
+                    if i and table[i - 1][j] and first[i - 1] == target[position - 1]:
+                        table[i][j] = True
+                    if j and table[i][j - 1] and second[j - 1] == target[position - 1]:
+                        table[i][j] = True
+            expected_from_source = int(table[first_length][second_length])
+        if expected != expected_from_source:
+            raise ValueError("interleavingstrings expected_result must match the order-preserving interleaving DP")
+    elif algorithm == "naive_pattern_search":
+        expected_from_source = naive_pattern_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("naive_pattern_search expected_result must match the first zero-based exact-match position")
+    elif algorithm == "unbias_01":
+        expected_from_source = unbias_01_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("unbias_01 expected_result must match the first unequal pair's first bit")
+    elif algorithm == "tilingproblem":
+        expected_from_source = tilingproblem_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("tilingproblem expected_result must match the 2-by-n domino recurrence")
+    elif algorithm == "zblock_substring_search":
+        if (len(values) < 2 or values[0] < 0 or values[0] > 256
+                or values[1] < 1 or values[1] > 64
+                or len(values) != values[0] + values[1] + 2
+                or any(byte < 0 or byte > 127 or byte == 36 for byte in values[2:])):
+            expected_from_source = -1
+        else:
+            text_length, pattern_length = values[0], values[1]
+            text = values[2:2 + text_length]
+            pattern = values[2 + text_length:]
+            expected_from_source = sum(
+                text[start:start + pattern_length] == pattern
+                for start in range(text_length - pattern_length + 1)
+            )
+        if expected != expected_from_source:
+            raise ValueError("zblock_substring_search expected_result must count exact overlapping matches")
     elif algorithm == "car_pool":
         expected_from_source = car_pool_expected(values)
         if expected != expected_from_source:
@@ -848,6 +975,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = median_search_expected(values)
         if expected != expected_from_source:
             raise ValueError("median_search expected_result must match bounded median-of-medians selection")
+    elif algorithm == "median_of_medians":
+        expected_from_source = median_of_medians_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("median_of_medians expected_result must match zero-based deterministic selection")
+    elif algorithm == "maximal_square":
+        expected_from_source = maximal_square_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximal_square expected_result must match the bounded binary-matrix DP")
     elif algorithm == "largest_rectangle_histogram":
         expected_from_source = largest_rectangle_histogram_expected(values)
         if expected != expected_from_source:
@@ -4466,6 +4601,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = jump_game_expected(values)
         if expected != expected_from_source:
             raise ValueError("jump_game expected_result must match backward reachability")
+    elif algorithm == "max_consecutive_ones_iii":
+        expected_from_source = max_consecutive_ones_iii_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("max_consecutive_ones_iii expected_result must match the bounded sliding window")
     elif algorithm == "pairs_with_given_sum":
         expected_from_source = pairs_with_given_sum_expected(values)
         if expected != expected_from_source:

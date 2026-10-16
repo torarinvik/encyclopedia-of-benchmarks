@@ -15,6 +15,10 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from modular_inverse_fermat_little_theorem_oracle import expected_result as modular_inverse_fermat_expected
+from modular_inverse_simple_oracle import expected_result as modular_inverse_simple_expected
+from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_expected
+from exponentiation_oracle import expected_result as exponentiation_expected
 from uint53_xor_oracle import expected_result as uint53_xor_expected
 
 U64_MAX = 2**64 - 1
@@ -126,7 +130,13 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
-    if algorithm == "uint53_xor":
+    if algorithm == "imply_gate":
+        left, right = values
+        valid = left in (0, 1) and right in (0, 1)
+        expected_from_source = int(left == 0 or right == 1) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("imply_gate expected_result must match Boolean implication over 0/1 inputs")
+    elif algorithm == "uint53_xor":
         expected_from_source = uint53_xor_expected(values[0], values[1])
         if expected != expected_from_source:
             raise ValueError("uint53_xor expected_result must match bounded numeric XOR")
@@ -277,6 +287,22 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             expected_from_source = pow(value, -1, modulus)
         if expected != expected_from_source:
             raise ValueError("modular_inverse expected_result must match the bounded least-positive modular inverse")
+    elif algorithm == "modular_inverse_fermat_little_theorem":
+        expected_from_source = modular_inverse_fermat_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_inverse_fermat_little_theorem expected_result must match bounded Fermat inversion")
+    elif algorithm == "modular_inverse_simple":
+        expected_from_source = modular_inverse_simple_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_inverse_simple expected_result must match bounded iterative inversion")
+    elif algorithm == "fermat_prime_checker":
+        expected_from_source = fermat_prime_checker_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("fermat_prime_checker expected_result must match seeded bounded Fermat checking")
+    elif algorithm == "exponentiation":
+        expected_from_source = exponentiation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("exponentiation expected_result must match bounded unmodded integer power")
     elif algorithm == "trinomial_triangle":
         n, k = values
         if not 0 <= n <= 10 or not -10 <= k <= 10:

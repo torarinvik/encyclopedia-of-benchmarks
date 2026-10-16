@@ -1,0 +1,41 @@
+const MAX_VALUES: usize = 64
+const MODULUS: u64 = 2147483647
+
+def recursive_shuffler_shuffle(values: mutable i32&, item: i64, state: mutable u64&) -> void:
+    if item <= 0:
+        return
+    recursive_shuffler_shuffle(values, item - 1, state)
+    state <- (state * 48271) % MODULUS
+    other: usize = (state % (item + 1).u64()).usize()
+    temporary: i32 = values[item.usize()]
+    values[item.usize()] <- values[other]
+    values[other] <- temporary
+
+def recursive_shuffler_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_VALUES + 1:
+        return -1
+    seed: i64 = input[0]
+    if seed < 1 or seed >= 2147483647:
+        return -1
+    count: usize = length - 1
+    values: mutable i32[MAX_VALUES] = zeroed
+    for index in 0..<count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[index] <- value.i32()
+    byte_count: usize = count * 4
+    if output_capacity < byte_count or (byte_count != 0 and output == null):
+        return -2
+    state: mutable u64 = seed.u64()
+    if count > 1:
+        recursive_shuffler_shuffle(&values[0], (count - 1).i64(), &state)
+    for index in 0..<count:
+        bits: u32 = values[index].u32()
+        for byte in 0..<4:
+            output[index * 4 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+    count.i64()
+
+export fn recursive_shuffler(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = recursive_shuffler_impl

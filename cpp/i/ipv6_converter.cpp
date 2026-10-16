@@ -1,0 +1,3 @@
+#include <cstddef>
+#include <cstdint>
+extern "C" std::int64_t ipv6_converter(const std::int64_t*a,std::size_t n,std::uint8_t*out,std::size_t cap){if(!a||n<2)return -1;auto op=a[0],len=a[1];if((op==0&&len!=4)||(op==1&&len!=16)||(op!=0&&op!=1)||n!=std::size_t(2+len))return -1;for(std::size_t i=0;i<std::size_t(len);i++)if(a[i+2]<0||a[i+2]>255)return -1;if(op==1){for(int i=0;i<10;i++)if(a[i+2]!=0)return -1;if(a[12]!=255||a[13]!=255)return -1;}std::size_t needed=op==0?16:4;if(!out||cap<needed)return -2;if(op==0){for(int i=0;i<10;i++)out[i]=0;out[10]=out[11]=255;for(int i=0;i<4;i++)out[12+i]=std::uint8_t(a[2+i]);}else for(int i=0;i<4;i++)out[i]=std::uint8_t(a[14+i]);return std::int64_t(needed);}

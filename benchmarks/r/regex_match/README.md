@@ -24,5 +24,6 @@ Build and record with the `i64_array_scalar` ABI family. Sources are under `r/` 
 
 - [C LeetCode `10.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/10.c) applies direct recursive full-string matching for `.` and `*`.
 - [Python `regex_match.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/regex_match.py) includes both recursive and dynamic-programming versions of the same `.` and preceding-atom `*` matching rule. This benchmark selects the recursive version.
+- [C# `WildCardMatcher.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Strings/PatternMatching/WildCardMatcher.cs) uses bottom-up dynamic programming for the same grammar; it rejects a leading `*`, which is already invalid under this contract.
 
-The Java file named `RegexMatching.java` uses `?` for one character and `*` for any sequence, so it belongs with wildcard matching rather than this regular-expression contract.
+Java `RegexMatching.java` uses `?` for one character and `*` for any sequence, so it maps to the separate [wildcard_matching](../../w/wildcard_matching/README.md) contract. Python `wildcard_pattern_matching.py` uses `.` and preceding-atom `*`, so it aliases this regular-expression contract.

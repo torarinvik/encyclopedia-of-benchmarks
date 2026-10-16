@@ -1,0 +1,24 @@
+def reverse_array_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or length > 257: return -1
+    count: i64 = input[0]
+    if count < 1 or count > 256 or length != count.usize() + 1: return -1
+    index: mutable usize = 0
+    while index < count.usize():
+        if input[index + 1] < 0 or input[index + 1] > 255: return -1
+        index <- index + 1
+    if capacity < count.usize(): return -2
+    index <- 0
+    while index < count.usize():
+        output[index] <- input[index + 1].u8()
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = count.usize() - 1
+    while left < right:
+        temp: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temp
+        left <- left + 1
+        right <- right - 1
+    count
+
+export fn reverse_array(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_array_impl

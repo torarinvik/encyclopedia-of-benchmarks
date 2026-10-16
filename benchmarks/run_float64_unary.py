@@ -140,6 +140,16 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             source_result = value * (1.0 / (1.0 + math.exp(-(1.0 * value))))
             if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
                 raise ValueError("swish expected result must match the pinned Python operation order")
+    elif algorithm == "newton_raphson_root":
+        valid = 1.0 <= value <= 4.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError(f"invalid {algorithm} guesses must use the -1e300 result sentinel")
+        else:
+            from newton_raphson_root_oracle import expected_result as source_expected
+            source_result = source_expected(value)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError(f"{algorithm} expected result does not match its bounded Newton iteration")
     elif algorithm == "square_root_with_newton_raphson_method":
         valid = value.is_integer() and 1.0 <= value <= 2_147_483_647.0
         if not valid:

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "fisher-yates-shuffle-seeded-i32-v1",
+  "algorithm": "fisher_yates_shuffle",
+  "function_symbol": "fisher_yates_shuffle",
+  "input": {
+    "kind": "seed_then_signed_i32_array",
+    "encoding": "[seed, value...] using signed 64-bit input values",
+    "seed_range": [
+      1,
+      2147483646
+    ],
+    "array_length_range": [
+      0,
+      1024
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "randomness": {
+      "generator": "Park-Miller LCG",
+      "recurrence": "state = (state * 48271) mod 2147483647",
+      "shuffle": "for remaining=count down to 2, swap remaining-1 with next_random() mod remaining"
+    },
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "shuffled signed i32 values, each four bytes little-endian two's-complement",
+    "result": "number of values written",
+    "max_bytes": 4096
+  },
+  "workspace": {
+    "bytes": 4096
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        42
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "2a000000"
+    },
+    {
+      "id": "two_swap",
+      "input_values": [
+        2,
+        10,
+        20
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "140000000a000000"
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        2,
+        10,
+        20
+      ],
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_capacity",
+      "input_values": [
+        2,
+        10,
+        20
+      ],
+      "workspace_bytes": 8,
+      "expected_result": 2,
+      "expected_output_hex": "140000000a000000"
+    },
+    {
+      "id": "distinct",
+      "input_values": [
+        42,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0700000001000000030000000200000000000000050000000400000006000000"
+    },
+    {
+      "id": "duplicates",
+      "input_values": [
+        12345,
+        7,
+        7,
+        -1,
+        7,
+        -2147483648,
+        2147483647
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "0000008007000000ffffff7f07000000ffffffff07000000"
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        2147483646,
+        -9,
+        -3,
+        -1,
+        -7
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "f9fffffffffffffffdfffffff7ffffff"
+    },
+    {
+      "id": "invalid_zero_seed",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_out_of_range_seed",
+      "input_values": [
+        2147483647
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_value",
+      "input_values": [
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_empty_input",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

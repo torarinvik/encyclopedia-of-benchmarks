@@ -1,0 +1,25 @@
+# Simple iterative modular inverse for bounded coprime positive inputs.
+def gcd_u64(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def modular_inverse_simple_impl(x: i64, y: i64) -> i64:
+    if x < 1 or x > 999 or y < 2 or y > 1000:
+        return -1
+    if gcd_u64(x, y) != 1:
+        return -1
+    auxiliary: mutable i64 = 0
+    iteration: mutable i64 = 0
+    while true:
+        auxiliary <- y * iteration + 1
+        iteration <- iteration + 1
+        if auxiliary % x == 0:
+            break
+    auxiliary / x
+
+export fn modular_inverse_simple(x: i64, y: i64) -> i64 = modular_inverse_simple_impl

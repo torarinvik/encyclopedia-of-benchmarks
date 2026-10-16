@@ -1,0 +1,10 @@
+def exponentiation_impl(base: i64, exponent: i64) -> i64:
+    if base < 0 or base > 255 or exponent < 0 or exponent > 7: return -1
+    result: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < exponent:
+        result <- result * base
+        index <- index + 1
+    result
+
+export fn exponentiation(base: i64, exponent: i64) -> i64 = exponentiation_impl

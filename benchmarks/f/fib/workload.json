@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "fib-shifted-index-v1",
+  "algorithm": "fib",
+  "function_symbol": "fib",
+  "input": {
+    "minimum": 0,
+    "maximum": 90,
+    "out_of_range_result": -1,
+    "definition": "fib(n)=F(n+2), with F(0)=0 and F(1)=1"
+  },
+  "cases": [
+    {
+      "id": "n_0",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "n_1",
+      "input_value": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "n_2",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "n_5",
+      "input_value": 5,
+      "expected_result": 13
+    },
+    {
+      "id": "n_10",
+      "input_value": 10,
+      "expected_result": 144
+    },
+    {
+      "id": "n_20",
+      "input_value": 20,
+      "expected_result": 17711
+    },
+    {
+      "id": "n_46",
+      "input_value": 46,
+      "expected_result": 4807526976
+    },
+    {
+      "id": "n_90",
+      "input_value": 90,
+      "expected_result": 7540113804746346429
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_maximum",
+      "input_value": 91,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -14,7 +14,14 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,599 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,304 reviewed source candidates, of which 2,175 map to complete benchmark files; 129 sources are excluded from portable benchmark coverage: 16 invalid and 113 non-benchmarkable. The pinned inventory contains 3,850 candidate records, with 1,546 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 1,663 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,640 reviewed source candidates, of which 2,338 map to complete benchmark files; 270 sources are excluded from portable benchmark coverage: 25 invalid and 245 non-benchmarkable. The pinned inventory contains 3,852 candidate records, with 1,244 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+
+
+[Naive pattern search](benchmarks/n/naive_pattern_search/README.md) ports the pinned Julia first-match window scan to all nine target languages with a bounded ASCII byte contract.
+
+[Meter to feet conversion](benchmarks/m/meter_to_feet_conversion/README.md) ports both conversions from the pinned JavaScript module to all nine target languages using bounded milliunit inputs.
+
+[Power factor correction](benchmarks/p/power_factor_correction/README.md) ports the pinned Python shunt-capacitor and shunt-inductor formulas to all nine target languages with a bounded power-factor grid.
 
 The pinned MATLAB-Octave `blobDetection.m` and `BlobUsingVideo.m` demos share an HSV-thresholding, morphological-opening, and area-filtered component pipeline with different tuned thresholds. The portable benchmark selects the source threshold profile and passes the displayed object count across all nine languages; see the [guide](benchmarks/b/blob_detection/README.md) and [verifier](benchmarks/verify_blob_detection.py).
 
@@ -39,6 +46,12 @@ The pinned MATLAB-Octave `blobDetection.m` and `BlobUsingVideo.m` demos share an
 [Combination Sum](benchmarks/c/combination_sum/README.md) follows the pinned Java and Python depth-first search over ascending positive candidates, including candidate reuse. All nine ports passed 5,621 oracle inputs each and recorded 13 workload cases; see the [verifier](benchmarks/verify_combination_sum.py).
 
 [Constrained shortest path](benchmarks/c/constrained_shortest_path/README.md) follows the pinned Java resource-layer dynamic program with positive resource use per edge. All nine ports passed 270 oracle inputs each and recorded 9 workload cases; see the [verifier](benchmarks/verify_i64_array_scalar.py) and [pinned Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/ConstrainedShortestPath.java).
+
+[Dijkstra's two-stack expression evaluation](benchmarks/d/dijkstras_two_stack_algorithm/README.md) implements the Python expression evaluator across all nine target languages; this is a parenthesized arithmetic algorithm, separate from graph Dijkstra.
+
+[Undirected cycle check](benchmarks/u/undirected_cycle_check/README.md) separates the undirected DFS/BFS methods in the pinned Rust `detect_cycle.rs` from its directed-cycle methods and ports the parent-tracking traversal to all nine languages.
+
+[Directed Eulerian path](benchmarks/e/eulerian_path/README.md) ports the pinned Rust Hierholzer traversal to all nine languages, preserving its start-vertex and adjacency-consumption order while handling parallel edges and self-loops.
 
 [String comparison](benchmarks/c/comparison/README.md) ports the pinned AArch64 Assembly case-sensitive and ASCII-insensitive lexicographic routines to portable byte-array contracts. All nine ports passed 285 oracle inputs each and recorded 27 workload cases; see the [verifier](benchmarks/verify_i64_array_scalar.py) and [source](https://github.com/TheAlgorithms/AArch64_Assembly/blob/cb138a856a3af14d3d3dfcd2743d43841eec566f/string/comparison.s).
 
@@ -190,6 +203,8 @@ C LeetCode candidates 461 and 485 are reviewed aliases of hamming_distance and m
 [Jump Game II](benchmarks/j/jump_game_ii/README.md) ports C LeetCode 45’s breadth-first search over reachable indices to all nine languages. The ports passed 9,253 oracle arrays each and recorded eight workload cases, including shortest paths, unreachable inputs, and a long one-step-at-a-time path. See the [verifier](benchmarks/verify_jump_game_ii.py).
 
 [Jump Game](benchmarks/j/jump_game/README.md) ports the pinned C++ backward reachability scan. All nine ports passed 284 oracle arrays each and recorded 10 workload cases.
+
+[Maximum Consecutive Ones III](benchmarks/m/max_consecutive_ones_iii/README.md) ports the intended bounded sliding-window algorithm to all nine languages, with its upstream pointer-check defect documented.
 [Pairs with a given sum](benchmarks/p/pairs_with_given_sum/README.md) ports the pinned Python enumeration of all two-position combinations, preserving duplicate-value multiplicity. All nine ports passed 280 oracle arrays each and recorded 16 workload cases.
 
 [Remove All Duplicates from Sorted List](benchmarks/r/remove_all_duplicates_from_sorted_list/README.md) ports C LeetCode 82’s recursive duplicate-run removal and suffix relinking to all nine languages. The ports passed 1,246 oracle inputs each and recorded nine workload cases, including empty and singleton lists, duplicate runs, sortedness errors, signed boundaries, maximum length, and output-capacity failure. See the [verifier](benchmarks/verify_remove_all_duplicates_from_sorted_list.py).
@@ -392,3 +407,40 @@ The pinned Python bilateral filter now has a bounded grayscale contract and nine
 [Factorize](benchmarks/f/factorize/README.md) ports the Lua prime-to-exponent map, including its `{0: 1}` and `{1: 1}` edge results, to all nine languages with sorted little-endian factor pairs. All nine ports passed 9,230 oracle/capacity cases each and recorded 12 workload cases; see the [capacity-aware verifier](benchmarks/verify_factorize.py).
 
 [Logistic Regression Cost and Gradient](benchmarks/l/logistic_regression_cost_gradient/README.md) follows the pinned MATLAB-Octave cost function and returns binary cross-entropy with the full parameter-gradient vector. All nine ports compile and pass 11 workload cases.
+
+## CRC Polynomial Division
+
+[CRC Polynomial Division](benchmarks/c/crc_polynomial_division/README.md) generates fixed-width CRC codewords and checks received codewords over GF(2). It corrects the pinned Java source’s unconditional XOR and variable-width remainder output. All nine ports passed 46,969 oracle cases each; see the [verifier](benchmarks/verify_crc_polynomial_division.py).
+
+[Sentinel search](benchmarks/s/sentinel_search/README.md) reviews the pinned PHP and TypeScript sentinel scans and provides a shared mutable-array contract with nine portable implementations.
+
+[Reverse letters](benchmarks/r/reverse_letters/README.md) reviews the pinned F-Sharp and Python word-reversal functions and provides a nine-language ASCII benchmark.
+
+The F-Sharp [`has_prefix`](benchmarks/s/string_prefix_suffix/README.md) and [`has_suffix`](benchmarks/s/string_prefix_suffix/README.md) candidates share the UTF-16 prefix/suffix benchmark.
+
+Several H candidates reuse existing contracts: F-Sharp prefix/suffix checks, Python linked-list cycle detection, Go hexadecimal conversion, and the Haskell bubble-sort re-export. Interactive and data-analysis sources are excluded; see [CATALOG.md](CATALOG.md).
+
+[Median of medians](benchmarks/m/median_of_medians/README.md) adds bounded deterministic selection with corrected groups of at most five across all nine languages; its zero-based rank contract and pinned-source defects are documented.
+
+[Maximal square](benchmarks/m/maximal_square/README.md) adds the bounded binary-matrix DP in all nine languages.
+[Speed conversion](benchmarks/s/speed_conversion/README.md) ports the pinned PHP five-unit conversion and two-decimal rounding behavior to all nine target languages.
+
+[Median of two sorted arrays](benchmarks/m/median_two_array/README.md) adds a bounded binary64 median benchmark across all nine languages.
+
+[Magic diamond pattern](benchmarks/m/magicdiamondpattern/README.md) preserves the pinned formatted Floyd diamond output, including trailing spaces and the nonpositive sentinel, across all nine languages.
+[Word patterns](benchmarks/w/word_patterns/README.md) maps ASCII characters to their first-seen indices, preserving the pinned Python implementation's uppercase normalization across nine languages.
+[Welford's variance](benchmarks/w/welfords_variance/README.md) adds the one-pass online sample-variance recurrence across nine languages, distinct from the existing two-pass variance benchmark.
+[XTEA](benchmarks/x/xtea/README.md) adds bounded 64-bit block encryption with the pinned Python source's big-endian encoding across nine languages.
+[Z-block substring search](benchmarks/z/zblock_substring_search/README.md) returns an exact, overlapping match count using Z blocks across nine languages.
+[Interleaving strings](benchmarks/i/interleavingstrings/README.md) adds the bounded two-source order-preserving dynamic program across nine languages.
+[Half-wave rectifier](benchmarks/h/half_wave_rectifier/README.md) ports six selected current/voltage calculations and their resistance constraints across nine languages.
+[IPv4-mapped IPv6 conversion](benchmarks/i/ipv6_converter/README.md) adds both raw-byte conversion directions across nine languages.
+[Hamming code encoder](benchmarks/h/hamming_code/README.md) ports the pinned parity-bit placement and emission routine across nine languages.
+
+[IMPLY Gate](benchmarks/h/imply_gate/README.md) ports the pinned Python two-input implication function to all nine languages, covering the complete Boolean truth table.
+
+
+
+The pinned Java `iterative_flood_fill` source shares the existing eight-connected [`flood_fill`](benchmarks/f/flood_fill/README.md) benchmark contract.
+
+The pinned Go `isisogram` first-order predicate is represented by the shared [isogram benchmark](benchmarks/i/isogram/README.md).

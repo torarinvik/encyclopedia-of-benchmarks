@@ -3,7 +3,7 @@
 This benchmark ports `solveEquation(a, b, c)` from the pinned Java
 [`QuadraticEquationSolver`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/QuadraticEquationSolver.java).
 It preserves the source's plus-root-first ordering and its complex conjugate
-branch.
+branch. The pinned C++ `quadratic_equations_complex_numbers.cpp` computes the same real or complex root pair; its root order and imaginary-component representation are normalized to this contract.
 
 ## Contract
 
@@ -31,6 +31,9 @@ negative leading coefficients, absent/null components, coefficient bounds,
 and malformed input.
 
 ## Pinned source
+
+The pinned C++ [`quadratic_equations_complex_numbers.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/quadratic_equations_complex_numbers.cpp) returns the same root pair but places the minus branch first and reports real-root imaginary parts as zero; the shared contract normalizes branch order and nullable-field behavior.
+
 
 The Java source revision is
 [`QuadraticEquationSolver.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/QuadraticEquationSolver.java)

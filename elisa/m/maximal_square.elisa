@@ -1,0 +1,32 @@
+# Largest square area in a row-major binary matrix
+def maximal_square_impl(a: i64&, length: usize) -> i64:
+    if a.is_null(): return -1
+    if length < 3 or length > 258 or a[0] < 1 or a[0] > 16 or a[1] < 1 or a[1] > 16 or length != a[0].usize() * a[1].usize() + 2: return -1
+    rows: usize = a[0].usize()
+    cols: usize = a[1].usize()
+    i: mutable usize = 0
+    while i < rows * cols:
+        if a[i + 2] != 0 and a[i + 2] != 1: return -1
+        i <- i + 1
+    dp: mutable [16]usize = [0;16]
+    best: mutable usize = 0
+    r: mutable usize = 0
+    while r < rows:
+        diagonal: mutable usize = 0
+        c: mutable usize = 0
+        while c < cols:
+            above: usize = dp[c]
+            if a[r * cols + c + 2] == 1:
+                if r == 0 or c == 0: dp[c] <- 1
+                else:
+                    m: mutable usize = diagonal
+                    if dp[c] < m: m <- dp[c]
+                    if dp[c - 1] < m: m <- dp[c - 1]
+                    dp[c] <- m + 1
+                if dp[c] > best: best <- dp[c]
+            else: dp[c] <- 0
+            diagonal <- above
+            c <- c + 1
+        r <- r + 1
+    (best * best).i64()
+export fn maximal_square(a: i64&, length: usize) -> i64 = maximal_square_impl

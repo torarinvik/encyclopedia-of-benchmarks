@@ -1,0 +1,303 @@
+{
+  "schema_version": "1.0.0",
+  "id": "speed-conversion-php-binary64-pair-v1",
+  "algorithm": "speed_conversion",
+  "function_symbol": "speed_conversion",
+  "description": "Convert speeds among mph, km/h, m/s, ft/s, and knots using the pinned PHP factors and two-decimal rounding.",
+  "input": {
+    "kind": "speed_and_unit_route",
+    "layout": [
+      "speed",
+      "route"
+    ],
+    "unit_order": [
+      "mph",
+      "km/h",
+      "m/s",
+      "ft/s",
+      "kn"
+    ],
+    "route_encoding": "source_unit_index * 5 + destination_unit_index",
+    "minimum_speed": 0.0,
+    "maximum_speed": 1000000.0,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "PHP round(speed * source_factor * destination_factor, 2), multiplying in source order",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "mph_to_mph",
+      "input_values": [
+        100.0,
+        0.0
+      ],
+      "expected_result": 100.0
+    },
+    {
+      "id": "mph_to_km_h",
+      "input_values": [
+        100.0,
+        1.0
+      ],
+      "expected_result": 160.93
+    },
+    {
+      "id": "mph_to_m_s",
+      "input_values": [
+        100.0,
+        2.0
+      ],
+      "expected_result": 44.7
+    },
+    {
+      "id": "mph_to_ft_s",
+      "input_values": [
+        100.0,
+        3.0
+      ],
+      "expected_result": 146.67
+    },
+    {
+      "id": "mph_to_kn",
+      "input_values": [
+        100.0,
+        4.0
+      ],
+      "expected_result": 86.9
+    },
+    {
+      "id": "km_h_to_mph",
+      "input_values": [
+        100.0,
+        5.0
+      ],
+      "expected_result": 62.14
+    },
+    {
+      "id": "km_h_to_km_h",
+      "input_values": [
+        100.0,
+        6.0
+      ],
+      "expected_result": 100.0
+    },
+    {
+      "id": "km_h_to_m_s",
+      "input_values": [
+        100.0,
+        7.0
+      ],
+      "expected_result": 27.78
+    },
+    {
+      "id": "km_h_to_ft_s",
+      "input_values": [
+        100.0,
+        8.0
+      ],
+      "expected_result": 91.13
+    },
+    {
+      "id": "km_h_to_kn",
+      "input_values": [
+        100.0,
+        9.0
+      ],
+      "expected_result": 54.0
+    },
+    {
+      "id": "m_s_to_mph",
+      "input_values": [
+        100.0,
+        10.0
+      ],
+      "expected_result": 223.69
+    },
+    {
+      "id": "m_s_to_km_h",
+      "input_values": [
+        100.0,
+        11.0
+      ],
+      "expected_result": 360.0
+    },
+    {
+      "id": "m_s_to_m_s",
+      "input_values": [
+        100.0,
+        12.0
+      ],
+      "expected_result": 100.0
+    },
+    {
+      "id": "m_s_to_ft_s",
+      "input_values": [
+        100.0,
+        13.0
+      ],
+      "expected_result": 328.08
+    },
+    {
+      "id": "m_s_to_kn",
+      "input_values": [
+        100.0,
+        14.0
+      ],
+      "expected_result": 194.38
+    },
+    {
+      "id": "ft_s_to_mph",
+      "input_values": [
+        100.0,
+        15.0
+      ],
+      "expected_result": 68.16
+    },
+    {
+      "id": "ft_s_to_km_h",
+      "input_values": [
+        100.0,
+        16.0
+      ],
+      "expected_result": 109.7
+    },
+    {
+      "id": "ft_s_to_m_s",
+      "input_values": [
+        100.0,
+        17.0
+      ],
+      "expected_result": 30.47
+    },
+    {
+      "id": "ft_s_to_ft_s",
+      "input_values": [
+        100.0,
+        18.0
+      ],
+      "expected_result": 99.97
+    },
+    {
+      "id": "ft_s_to_kn",
+      "input_values": [
+        100.0,
+        19.0
+      ],
+      "expected_result": 59.23
+    },
+    {
+      "id": "kn_to_mph",
+      "input_values": [
+        100.0,
+        20.0
+      ],
+      "expected_result": 115.08
+    },
+    {
+      "id": "kn_to_km_h",
+      "input_values": [
+        100.0,
+        21.0
+      ],
+      "expected_result": 185.2
+    },
+    {
+      "id": "kn_to_m_s",
+      "input_values": [
+        100.0,
+        22.0
+      ],
+      "expected_result": 51.44
+    },
+    {
+      "id": "kn_to_ft_s",
+      "input_values": [
+        100.0,
+        23.0
+      ],
+      "expected_result": 168.78
+    },
+    {
+      "id": "kn_to_kn",
+      "input_values": [
+        100.0,
+        24.0
+      ],
+      "expected_result": 100.0
+    },
+    {
+      "id": "zero_identity",
+      "input_values": [
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "fractional_speed",
+      "input_values": [
+        12.345,
+        2.0
+      ],
+      "expected_result": 5.52
+    },
+    {
+      "id": "rounding_boundary",
+      "input_values": [
+        1.235,
+        6.0
+      ],
+      "expected_result": 1.24
+    },
+    {
+      "id": "maximum_speed",
+      "input_values": [
+        1000000.0,
+        24.0
+      ],
+      "expected_result": 1000000.36
+    },
+    {
+      "id": "invalid_route",
+      "input_values": [
+        5.0,
+        25.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "fractional_route",
+      "input_values": [
+        5.0,
+        3.5
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_speed",
+      "input_values": [
+        -0.01,
+        1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "speed_above_bound",
+      "input_values": [
+        1000000.1,
+        1.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

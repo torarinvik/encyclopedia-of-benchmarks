@@ -1,0 +1,14 @@
+def newton_raphson_impl(values: i64&, length: usize) -> f64:
+    if values != null and length == 2:
+        radicand: i64 = values[0]
+        start_quarters: i64 = values[1]
+        if radicand < 2 or radicand > 4 or start_quarters < 4 or start_quarters > 8:
+            return -1.0e300
+        x: mutable f64 = start_quarters.f64() / 4.0
+        i: mutable i64 = 0
+        while i < 8:
+            x <- 0.5 * (x + radicand.f64() / x)
+            i <- i + 1
+        return x
+    return -1.0e300
+export fn newton_raphson(values: i64&, length: usize) -> f64 = newton_raphson_impl

@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "id": "power-factor-correction-v1",
+  "algorithm": "power_factor_correction",
+  "function_symbol": "power_factor_correction",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 6,
+    "layout": [
+      "operation",
+      "voltage_volts",
+      "frequency_hz",
+      "real_power_watts",
+      "current_power_factor_basis_points",
+      "expected_power_factor_basis_points"
+    ],
+    "operation_codes": {
+      "0": "shunt_capacitance_farads",
+      "1": "shunt_inductance_henries"
+    },
+    "voltage_minimum": 1,
+    "voltage_maximum": 1000,
+    "frequency_minimum": 1,
+    "frequency_maximum": 1000,
+    "real_power_minimum": -1000000,
+    "real_power_maximum": 1000000,
+    "factor_basis_points_minimum": -10000,
+    "factor_basis_points_maximum": 10000,
+    "factor_decoding": "basis_points / 10000.0",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "compute current and expected reactive powers in source order, then operation 0 divides their difference by 2*pi*frequency*voltage^2; operation 1 divides voltage^2 by 2*pi*frequency*the reactive-power difference",
+    "unit": "farads for operation 0; henries for operation 1",
+    "invalid_input_result": -1e+300
+  },
+  "cases": [
+    {
+      "id": "source-capacitor-example",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": 0.00031043753362948597
+    },
+    {
+      "id": "source-inductor-example",
+      "input_values": [
+        1,
+        120,
+        60,
+        4000,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": 0.02266540783980564
+    },
+    {
+      "id": "source-second-capacitor-example",
+      "input_values": [
+        0,
+        150,
+        50,
+        2000,
+        6000,
+        8700
+      ],
+      "input_length": 6,
+      "expected_result": 0.00021690547192207782
+    },
+    {
+      "id": "source-negative-inductor-example",
+      "input_values": [
+        1,
+        120,
+        60,
+        4000,
+        -8000,
+        -4000
+      ],
+      "input_length": 6,
+      "expected_result": 0.006195660726930193
+    },
+    {
+      "id": "same-factor-capacitor",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        8000,
+        8000
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-real-power",
+      "input_values": [
+        0,
+        230,
+        50,
+        -90000,
+        7000,
+        9200
+      ],
+      "input_length": 6,
+      "expected_result": -0.003217909932450777
+    },
+    {
+      "id": "unity-current-factor",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        10000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -0.0002421837965507061
+    },
+    {
+      "id": "unity-expected-factor",
+      "input_values": [
+        1,
+        120,
+        60,
+        4000,
+        8000,
+        10000
+      ],
+      "input_length": 6,
+      "expected_result": 0.012732395447351628
+    },
+    {
+      "id": "zero-real-power-capacitor",
+      "input_values": [
+        0,
+        120,
+        60,
+        0,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "invalid-operation",
+      "input_values": [
+        2,
+        120,
+        60,
+        4000,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-frequency",
+      "input_values": [
+        0,
+        120,
+        0,
+        4000,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-voltage",
+      "input_values": [
+        0,
+        0,
+        60,
+        4000,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-current-factor",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        0,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-expected-factor",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        8000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-equal-factor-inductor",
+      "input_values": [
+        1,
+        120,
+        60,
+        4000,
+        8000,
+        8000
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-power-inductor",
+      "input_values": [
+        1,
+        120,
+        60,
+        0,
+        8000,
+        9500
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-length",
+      "input_values": [
+        0,
+        120,
+        60,
+        4000,
+        8000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64",
+    "sample_count": 17,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

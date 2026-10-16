@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "newton-raphson-bounded-positive-root-v1",
+  "algorithm": "newton_raphson",
+  "function_symbol": "newton_raphson",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["radicand", "start_quarters"],
+    "radicand_minimum": 2,
+    "radicand_maximum": 4,
+    "start_quarters_minimum": 4,
+    "start_quarters_maximum": 8,
+    "initial_guess_definition": "start_quarters / 4.0",
+    "function_definition": "f(x) = x*x - radicand",
+    "derivative_definition": "f'(x) = 2*x",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "positive root approximation for f(x) = x*x - radicand",
+    "invalid_input_result": -1e300,
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 1e-8
+  },
+  "cases": [
+    {"id":"sqrt2-from-1", "input_values":[2,4], "input_length":2, "expected_result":1.4142135623730951},
+    {"id":"sqrt2-from-1.25", "input_values":[2,5], "input_length":2, "expected_result":1.4142135623730951},
+    {"id":"sqrt2-from-1.5", "input_values":[2,6], "input_length":2, "expected_result":1.4142135623730951},
+    {"id":"sqrt2-from-1.75", "input_values":[2,7], "input_length":2, "expected_result":1.4142135623730951},
+    {"id":"sqrt2-from-2", "input_values":[2,8], "input_length":2, "expected_result":1.4142135623730951},
+    {"id":"sqrt3-from-1", "input_values":[3,4], "input_length":2, "expected_result":1.7320508075688772},
+    {"id":"sqrt3-from-1.25", "input_values":[3,5], "input_length":2, "expected_result":1.7320508075688772},
+    {"id":"sqrt3-from-1.5", "input_values":[3,6], "input_length":2, "expected_result":1.7320508075688772},
+    {"id":"sqrt3-from-1.75", "input_values":[3,7], "input_length":2, "expected_result":1.7320508075688772},
+    {"id":"sqrt3-from-2", "input_values":[3,8], "input_length":2, "expected_result":1.7320508075688772},
+    {"id":"sqrt4-from-1", "input_values":[4,4], "input_length":2, "expected_result":2.0},
+    {"id":"sqrt4-from-1.25", "input_values":[4,5], "input_length":2, "expected_result":2.0},
+    {"id":"sqrt4-from-1.5", "input_values":[4,6], "input_length":2, "expected_result":2.0},
+    {"id":"sqrt4-from-1.75", "input_values":[4,7], "input_length":2, "expected_result":2.0},
+    {"id":"sqrt4-from-2", "input_values":[4,8], "input_length":2, "expected_result":2.0},
+    {"id":"invalid-empty", "input_values":[], "input_length":0, "expected_result":-1e300},
+    {"id":"invalid-short", "input_values":[2], "input_length":1, "expected_result":-1e300},
+    {"id":"invalid-long", "input_values":[2,4,8], "input_length":3, "expected_result":-1e300},
+    {"id":"invalid-radicand-low", "input_values":[1,4], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-radicand-high", "input_values":[5,4], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-start-low", "input_values":[2,3], "input_length":2, "expected_result":-1e300},
+    {"id":"invalid-start-high", "input_values":[4,9], "input_length":2, "expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 1e-8,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

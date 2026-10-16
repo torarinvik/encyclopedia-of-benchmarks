@@ -4,15 +4,15 @@ Generate a CRC codeword or check a received codeword using binary polynomial lon
 
 ## Contract
 
-Input is `[operation, message_bit_count, polynomial_bit_count, message_bits..., polynomial_bits...]`. Message length is 1 through 64 bits; generator polynomial length is 2 through 16 bits. Every bit is 0 or 1, and the polynomial must have leading and constant terms equal to 1.
+Input is `[operation, bit_count, polynomial_bit_count, message_or_codeword_bits..., polynomial_bits...]`. Encoding accepts messages of 1 through 64 bits; checking accepts codewords of 1 through 79 bits so it can check every codeword produced by the encoder. Generator polynomial length is 2 through 16 bits. Every bit is 0 or 1, and the polynomial must have leading and constant terms equal to 1.
 
-Operation `0` appends `polynomial_bit_count - 1` zeroes to the message, divides by the generator polynomial, then returns the original message followed by the significant remainder bits. Leading zeroes are omitted from the remainder, matching the source's vector representation; a zero remainder contributes no bits. Operation `1` treats the message bits as a received codeword and returns one byte: `0` for a zero remainder, `1` for a nonzero remainder. Output bytes contain the bit values 0 or 1. Invalid input returns `-1`; insufficient output capacity returns `-2` without writing.
+Operation `0` appends `polynomial_bit_count - 1` zeroes to the message, divides by the generator polynomial, then returns the original message followed by exactly `polynomial_bit_count - 1` remainder bits. Leading zeroes are retained so the encoded codeword has the fixed width required for polynomial division. Operation `1` treats the message bits as a received codeword and returns one byte: `0` for a zero remainder, `1` for a nonzero remainder. Output bytes contain the bit values 0 or 1. Invalid input returns `-1`; insufficient output capacity returns `-2` without writing.
 
 ## Source and correction
 
-The pinned [Java `CRCAlgorithm`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/CRCAlgorithm.java) contains a polynomial-division routine used to append a remainder and detect a nonzero syndrome. Its routine XORs every full-width window with the polynomial, including windows whose leading bit is 0. Correct GF(2) long division applies XOR only when the current leading bit is 1. This benchmark records that defect and uses the corrected division rule so generated codewords pass the corresponding check.
+The pinned [Java `CRCAlgorithm`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/CRCAlgorithm.java) contains a polynomial-division routine used to append a remainder and detect a nonzero syndrome. It XORs every full-width window with the polynomial, including windows whose leading bit is 0, and trims leading zeroes without padding the final remainder back to the generator's degree. Correct GF(2) division XORs only when the current leading bit is 1, and CRC encoding appends the full-width remainder. This benchmark records and corrects both defects so generated codewords pass the corresponding check. Random message generation, bit-error injection, and simulation counters are excluded.
 
-[`workload.json`](workload.json) covers encoding, valid and corrupted codewords, zero remainders, short messages, internal polynomial zeroes, and bounds. The oracle verifier checks all nine ports.
+[`workload.json`](workload.json) covers encoding, valid and corrupted codewords, leading-zero remainders, short messages, internal polynomial zeroes, and bounds. The oracle verifier checks all nine ports.
 
 ## Implementations
 

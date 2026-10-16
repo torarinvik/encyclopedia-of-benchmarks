@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn max_consecutive_ones_iii(a:*const i64,len:usize)->i64{if a.is_null()||len<3||len>1026{return -2}let v=std::slice::from_raw_parts(a,len);if !(1..=1024).contains(&v[0])||len!=v[0] as usize+2||v[1]<0||v[1]>v[0]||v[2..].iter().any(|&x|x!=0&&x!=1){return -2}let(mut l,mut z,mut b)=(0usize,0usize,0usize);for r in 0..v[0] as usize{if v[r+2]==0{z+=1}while z>v[1] as usize{if v[l+2]==0{z-=1}l+=1}b=b.max(r-l+1)}b as i64}

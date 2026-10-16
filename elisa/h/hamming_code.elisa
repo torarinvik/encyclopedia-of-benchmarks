@@ -1,0 +1,35 @@
+def hamming_code_impl(a:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if length<3:return -1
+    r:i64=a[0];m:i64=a[1]
+    if r<1 or r>5 or m<1 or m>32 or length!=(2+m).usize() or r+m<=((1<<r)-(m-1)):return -1
+    index:usize=0
+    while index<m.usize():
+        if a[index+2]!=48 and a[index+2]!=49:return -1
+        index <- index+1
+    total:usize=(r+m).usize()
+    if total<(1<<(r-1)):return -1
+    if capacity<total+1:return -2
+    code:mutable u8[40]=zeroed
+    data:mutable usize=0
+    position:usize=1
+    while position<=total:
+        if (position & (position-1))!=0 or position>(1<<(r-1)):
+            code[position-1] <- a[2+data].u8()
+            data <- data+1
+        else:code[position-1] <- 48u8
+        position <- position+1
+    bit:usize=0
+    while bit<r.usize():
+        parity:usize=1<<bit
+        value:mutable u8=0
+        position <- 1
+        while position<=total:
+            if (position & parity)!=0 and code[position-1]==49u8:value <- value xor 1u8
+            position <- position+1
+        code[parity-1] <- 48u8+value
+        bit <- bit+1
+    index <- 0
+    while index<total:output[index] <- code[index];index <- index+1
+    output[total] <- 0u8
+    total.i64()
+export fn hamming_code(a:i64&,length:usize,output:mutable u8&,capacity:usize)->i64=hamming_code_impl

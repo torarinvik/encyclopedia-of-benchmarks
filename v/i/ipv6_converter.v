@@ -1,0 +1,3 @@
+module ipv6_converter
+@[export:'ipv6_converter']
+pub fn ipv6_converter(a &i64,n usize,mut out &u8,cap usize)i64{if unsafe{a==nil}||n<2{return -1};unsafe{op:=a[0];len:=a[1];if !((op==0&&len==4)||(op==1&&len==16))||n!=usize(2+len){return -1};for i in 0..int(len){if a[i+2]<0||a[i+2]>255{return -1}}if op==1{for i in 0..10{if a[i+2]!=0{return -1}}if a[12]!=255||a[13]!=255{return -1}}needed:=if op==0{16}else{4};if unsafe{out==nil}||cap<usize(needed){return -2};if op==0{for i in 0..10{out[i]=0};out[10]=255;out[11]=255;for i in 0..4{out[12+i]=u8(a[2+i])}}else{for i in 0..4{out[i]=u8(a[14+i])}};return i64(needed)}}

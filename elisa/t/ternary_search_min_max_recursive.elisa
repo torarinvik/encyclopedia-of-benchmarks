@@ -1,0 +1,57 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def minimum_function(x: f32) -> f32:
+    x * x - 2.0.f32() * x + 3.0.f32()
+
+def maximum_function(x: f32) -> f32:
+    -x * x - 2.0.f32() * x + 3.0.f32()
+
+def ternary_min(start: f32, end: f32, precision: f32) -> f32:
+    width: f32 = end - start
+    absolute_width: f32 = if width < 0.0.f32(): -width else: width
+    if absolute_width >= precision:
+        third: f32 = width / 3.0.f32()
+        mid1: f32 = start + third
+        mid2: f32 = end - third
+        r1: f32 = minimum_function(mid1)
+        r2: f32 = minimum_function(mid2)
+        if r1 < r2:
+            return ternary_min(start, mid2, precision)
+        if r1 > r2:
+            return ternary_min(mid1, end, precision)
+        return ternary_min(mid1, mid2, precision)
+    minimum_function(start)
+
+def ternary_max(start: f32, end: f32, precision: f32) -> f32:
+    width: f32 = end - start
+    absolute_width: f32 = if width < 0.0.f32(): -width else: width
+    if absolute_width >= precision:
+        third: f32 = width / 3.0.f32()
+        mid1: f32 = start + third
+        mid2: f32 = end - third
+        r1: f32 = maximum_function(mid1)
+        r2: f32 = maximum_function(mid2)
+        if r1 < r2:
+            return ternary_max(mid1, end, precision)
+        if r1 > r2:
+            return ternary_max(start, mid2, precision)
+        return ternary_max(mid1, mid2, precision)
+    maximum_function(start)
+
+def ternary_search_min_max_recursive_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return INVALID_RESULT
+    mode: i64 = values[0]
+    start_milli: i64 = values[1]
+    end_milli: i64 = values[2]
+    precision_milli: i64 = values[3]
+    center_milli: i64 = if mode == 0: 1000 else if mode == 1: -1000 else: 0
+    if mode < 0 or mode > 1 or start_milli < -100000 or end_milli > 100000 or start_milli >= center_milli or end_milli <= center_milli or precision_milli < 1 or precision_milli > 8:
+        return INVALID_RESULT
+    start: f32 = start_milli.f32() / 1000.0.f32()
+    end: f32 = end_milli.f32() / 1000.0.f32()
+    precision: f32 = precision_milli.f32() / 1000.0.f32()
+    result: f32 = if mode == 0: ternary_min(start, end, precision) else: ternary_max(start, end, precision)
+    result.f64()
+
+export fn ternary_search_min_max_recursive(values: i64&, length: usize) -> f64 = ternary_search_min_max_recursive_impl

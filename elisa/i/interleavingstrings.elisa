@@ -1,0 +1,26 @@
+def interleavingstrings_impl(a:i64&,length:usize)->i64:
+    if length<3:return -1
+    m:i64=a[0]
+    k:i64=a[1]
+    q:i64=a[2]
+    if m<0 or m>32 or k<0 or k>32 or q!=m+k or length!=(3+m+k+q).usize():return -1
+    index:usize=3
+    while index<length:
+        if a[index]<0 or a[index]>127:return -1
+        index <- index+1
+    ml:usize=m.usize()
+    kl:usize=k.usize()
+    s2:usize=3+ml
+    s3:usize=s2+kl
+    dp:mutable bool[1089]=zeroed
+    dp[0] <- true
+    i:mutable usize=0
+    while i<=ml:
+        j:mutable usize=0
+        while j<=kl:
+            if i>0 and dp[(i-1)*33+j] and a[3+i-1]==a[s3+i+j-1]:dp[i*33+j] <- true
+            if j>0 and dp[i*33+j-1] and a[s2+j-1]==a[s3+i+j-1]:dp[i*33+j] <- true
+            j <- j+1
+        i <- i+1
+    if dp[ml*33+kl]:1 else:0
+export fn interleavingstrings(a:i64&,length:usize)->i64=interleavingstrings_impl

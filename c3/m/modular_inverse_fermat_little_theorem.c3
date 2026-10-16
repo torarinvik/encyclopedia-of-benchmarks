@@ -1,4 +1,4 @@
-module modular_inverse_fermat_little_theorem;
+module modular_inverse_fermat;
 
 fn long binary_exponentiation(long base, long exponent, long modulus) {
     base = base % modulus;
@@ -21,8 +21,7 @@ fn bool is_prime(long value) {
 
 fn long modular_inverse_fermat_little_theorem(long a, long m)
     @export("modular_inverse_fermat_little_theorem") {
-    if (a < -1000000 || a > 1000000 || m < 2 || m > 1000000 ||
-        a == 0 || a <= -m || a >= m || !is_prime(m)) return -1;
-    while (a < 0) a += m;
+    if (a < 1 || a > 1000000 || m < 2 || m > 1000000 ||
+        a % m == 0 || !is_prime(m)) return -1;
     return binary_exponentiation(a, m - 2, m);
 }

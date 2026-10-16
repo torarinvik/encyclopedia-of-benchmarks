@@ -5,16 +5,17 @@ import "core:c"
 @(export)
 crc_polynomial_division :: proc "c" (input: [^]i64, length: c.size_t,
 		output: [^]u8, capacity: c.size_t) -> i64 {
-	if input == nil || length < 3 || length > 3+64+16 do return -1
+	if input == nil || length < 3 || length > 3+79+16 do return -1
 	operation, raw_message_length, raw_polynomial_length := input[0], input[1], input[2]
-	if operation < 0 || operation > 1 || raw_message_length < 1 || raw_message_length > 64 ||
+	if operation < 0 || operation > 1 || raw_message_length < 1 ||
+		(operation == 0 && raw_message_length > 64) || (operation == 1 && raw_message_length > 79) ||
 		raw_polynomial_length < 2 || raw_polynomial_length > 16 {
 		return -1
 	}
 	message_length, polynomial_length := int(raw_message_length), int(raw_polynomial_length)
 	if length != c.size_t(3+message_length+polynomial_length) do return -1
 
-	message: [64]u8 = {}
+	message: [79]u8 = {}
 	polynomial: [16]u8 = {}
 	dividend: [79]u8 = {}
 	remainder: [16]u8 = {}
@@ -58,12 +59,15 @@ crc_polynomial_division :: proc "c" (input: [^]i64, length: c.size_t,
 		}
 	}
 
-	output_length := message_length + remainder_length
+	degree := polynomial_length - 1
+	output_length := message_length + degree
 	if operation == 1 { output_length = 1 }
 	if output == nil || capacity < c.size_t(output_length) { return -2 }
 	if operation == 0 {
 		for i := 0; i < message_length; i += 1 { output[i] = message[i] }
-		for i := 0; i < remainder_length; i += 1 { output[message_length+i] = remainder[i] }
+		leading_zeroes := degree - remainder_length
+		for i := 0; i < leading_zeroes; i += 1 { output[message_length+i] = 0 }
+		for i := 0; i < remainder_length; i += 1 { output[message_length+leading_zeroes+i] = remainder[i] }
 	} else {
 		nonzero: u8 = 0
 		for i := 0; i < remainder_length; i += 1 { nonzero |= remainder[i] }

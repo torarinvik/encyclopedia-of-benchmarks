@@ -19,12 +19,47 @@ import sys
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from uint53_xor_oracle import expected_result as uint53_xor_expected
 from trinomial_triangle_oracle import expected_result as trinomial_triangle_oracle
+from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_oracle
+from exponentiation_oracle import expected_result as exponentiation_oracle
 from run_binary_scalar import encode_values
 
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "uint53_xor", "trinomial_triangle")
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "uint53_xor", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation")
+
+FERMAT_MAX_BASE = 1_000_000
+FERMAT_MAX_MODULUS = 1_000_000
+
+
+def modular_inverse_fermat_verifier_oracle(base: int, modulus: int) -> int:
+    """Check primality by odd trial divisors, then use Python's modular pow."""
+    if (type(base) is not int or type(modulus) is not int
+            or not 1 <= base <= FERMAT_MAX_BASE
+            or not 2 <= modulus <= FERMAT_MAX_MODULUS
+            or base % modulus == 0):
+        return -1
+    if modulus != 2 and modulus % 2 == 0:
+        return -1
+    for divisor in range(3, math.isqrt(modulus) + 1, 2):
+        if modulus % divisor == 0:
+            return -1
+    return pow(base, modulus - 2, modulus)
+
+
+SIMPLE_INVERSE_MAX_X = 999
+SIMPLE_INVERSE_MAX_Y = 1_000
+
+
+def modular_inverse_simple_verifier_oracle(x: int, y: int) -> int:
+    """Use modular arithmetic as an independent oracle for the iterative search."""
+    if (type(x) is not int or type(y) is not int
+            or not I64_MIN <= x <= I64_MAX or not I64_MIN <= y <= I64_MAX
+            or not 1 <= x <= SIMPLE_INVERSE_MAX_X
+            or not 2 <= y <= SIMPLE_INVERSE_MAX_Y
+            or math.gcd(x, y) != 1):
+        return -1
+    return pow(x, -1, y)
 
 
 def oracle(left: int, right: int) -> int:
@@ -291,6 +326,14 @@ def result(algorithm: str, left: int, right: int) -> int:
         return problem800_source_count(left, right)
     if algorithm == "problem174":
         return problem174_lamina_counts(left, right)
+    if algorithm == "modular_inverse_fermat_little_theorem":
+        return modular_inverse_fermat_verifier_oracle(left, right)
+    if algorithm == "modular_inverse_simple":
+        return modular_inverse_simple_verifier_oracle(left, right)
+    if algorithm == "fermat_prime_checker":
+        return fermat_prime_checker_oracle((left, right))
+    if algorithm == "exponentiation":
+        return exponentiation_oracle((left, right))
     if algorithm == "hamming_distance":
         return oracle(left, right)
     if algorithm == "gcd":
@@ -323,7 +366,51 @@ def result(algorithm: str, left: int, right: int) -> int:
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     pairs = {tuple(case["input_values"]) for case in workload["cases"]}
-    if algorithm == "problem56":
+    if algorithm == "modular_inverse_fermat_little_theorem":
+        prime_moduli = (2, 3, 5, 7, 11, 13, 17, 19, 23, 31, 97, 101, 997, 999983)
+        for modulus in prime_moduli:
+            for base in (1, 2, modulus - 1, modulus, modulus + 1, FERMAT_MAX_BASE):
+                if 1 <= base <= FERMAT_MAX_BASE:
+                    pairs.add((base, modulus))
+        composite_moduli = (4, 8, 9, 15, 25, 27, 35, 49, 100, 999984, FERMAT_MAX_MODULUS)
+        for modulus in composite_moduli:
+            for base in (1, 2, modulus - 1, modulus, FERMAT_MAX_BASE):
+                if 1 <= base <= FERMAT_MAX_BASE:
+                    pairs.add((base, modulus))
+        pairs.update({(0, 7), (-1, 7), (FERMAT_MAX_BASE + 1, 7),
+                      (3, 0), (3, 1), (3, -2), (3, FERMAT_MAX_MODULUS + 1),
+                      (I64_MIN, 7), (I64_MAX, 7), (3, I64_MIN), (3, I64_MAX)})
+        rng = random.Random(20261016)
+        pairs.update((rng.randint(1, FERMAT_MAX_BASE), rng.choice(prime_moduli))
+                     for _ in range(256))
+    elif algorithm == "exponentiation":
+        pairs.update((base, exponent) for base in range(0, 32) for exponent in range(0, 8))
+        pairs.update({(255, 7), (255, 0), (0, 0), (256, 1), (-1, 1), (1, 8),
+                      (I64_MIN, 0), (I64_MAX, 1)})
+    elif algorithm == "fermat_prime_checker":
+        pairs.update((number, rounds) for number in range(2, 100) for rounds in (2, 3, 5, 8, 16))
+        pairs.update({(2, 64), (3, 64), (97, 64), (561, 64), (341, 64),
+                      (999983, 64), (1000000, 64), (1, 4), (1000001, 4),
+                      (97, 0), (97, 1), (97, 65), (-1, 4),
+                      (I64_MIN, 4), (I64_MAX, 4)})
+        rng = random.Random(20261016)
+        pairs.update((rng.randint(2, 1_000_000), rng.randint(2, 64)) for _ in range(256))
+    elif algorithm == "modular_inverse_simple":
+        pairs.update((x, y) for x in range(1, 33) for y in range(2, 33))
+        pairs.update({
+            (1, 2), (1, SIMPLE_INVERSE_MAX_Y), (SIMPLE_INVERSE_MAX_X, SIMPLE_INVERSE_MAX_Y),
+            (SIMPLE_INVERSE_MAX_X, SIMPLE_INVERSE_MAX_Y - 1),
+            (SIMPLE_INVERSE_MAX_X - 1, SIMPLE_INVERSE_MAX_Y - 1),
+            (0, 7), (-1, 7), (SIMPLE_INVERSE_MAX_X + 1, 997),
+            (3, 0), (3, 1), (3, SIMPLE_INVERSE_MAX_Y + 1),
+            (6, 9), (8, 4), (I64_MIN, 7), (I64_MAX, 7),
+            (3, I64_MIN), (3, I64_MAX),
+        })
+        rng = random.Random(20261016)
+        pairs.update((rng.randint(1, SIMPLE_INVERSE_MAX_X),
+                      rng.randint(2, SIMPLE_INVERSE_MAX_Y))
+                     for _ in range(256))
+    elif algorithm == "problem56":
         pairs.update({(1, 1), (2, 2), (10, 10), (100, 100), (100, 200), (200, 1), (1, 200),
                       (200, 200), (0, 1), (1, 0), (201, 1), (1, 201), (-1, 10), (10, -1)})
         rng = random.Random(20261015)
@@ -398,7 +485,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         pairs.update((n_max, rank) for n_max in range(1, 31) for rank in range(1, n_max + 1))
         pairs.update({(0, 0), (0, 1), (1, 0), (10, 11), (100_001, 1),
                       (-1, 1), (1, -1), (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
-    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "trinomial_triangle"}:
+    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation"}:
         if algorithm == "range_bitwise_and":
             edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
                            I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]

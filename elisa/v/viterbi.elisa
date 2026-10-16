@@ -1,0 +1,48 @@
+def viterbi_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 64: return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 2: return -1
+        index <- index + 1
+    if output.is_null() or capacity < length * 8: return -2
+    tr: [4]f64 = [0.7, 0.3, 0.4, 0.6]
+    em: [6]f64 = [0.5, 0.4, 0.1, 0.1, 0.3, 0.6]
+    score: mutable [2]f64 = [0.0; 2]
+    score[0] <- 0.6 * em[input[0].usize()]
+    score[1] <- 0.4 * em[3 + input[0].usize()]
+    back: mutable [128]usize = [0; 128]
+    t: mutable usize = 1
+    while t < length:
+        next: mutable [2]f64 = [0.0; 2]
+        s: mutable usize = 0
+        while s < 2:
+            a: f64 = score[0] * tr[s] * em[s * 3 + input[t].usize()]
+            b: f64 = score[1] * tr[2 + s] * em[s * 3 + input[t].usize()]
+            prior: usize = 0
+            if b > a: prior <- 1
+            back[t * 2 + s] <- prior
+            if prior == 0: next[s] <- a
+            else: next[s] <- b
+            s <- s + 1
+        score <- next
+        t <- t + 1
+    state: mutable usize = 0
+    if score[1] > score[0]: state <- 1
+    path: mutable [64]i64 = [0; 64]
+    path[length - 1] <- state.i64()
+    t <- length
+    while t > 1:
+        t <- t - 1
+        state <- back[t * 2 + state]
+        path[t - 1] <- state.i64()
+    index <- 0
+    while index < length:
+        value: u64 = path[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((value >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    length.i64() * 8
+
+export fn viterbi(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = viterbi_impl

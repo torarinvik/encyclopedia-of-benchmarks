@@ -1,0 +1,36 @@
+const INVALID_RESULT: f64 = -1.0e300
+const MAX_DIM: usize = 64
+
+def gradient_descent_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 68:
+        return INVALID_RESULT
+    dimension: i64 = values[0]
+    selected: i64 = values[1]
+    rate_microunits: i64 = values[2]
+    iterations: i64 = values[3]
+    if dimension < 1 or dimension > 64 or selected < 0 or selected >= dimension or length != 4 + dimension.usize() or rate_microunits < 1 or rate_microunits > 500000 or iterations < 0 or iterations > 10000:
+        return INVALID_RESULT
+    x: mutable f64[MAX_DIM]
+    i: mutable usize = 0
+    while i < dimension.usize():
+        initial: i64 = values[4 + i]
+        if initial < -10 or initial > 10:
+            return INVALID_RESULT
+        x[i] <- initial.f64()
+        i <- i + 1
+    alpha: f64 = rate_microunits.f64() / 1000000.0
+    epoch: mutable i64 = 0
+    while epoch < iterations:
+        gradient: mutable f64[MAX_DIM]
+        i <- 0
+        while i < dimension.usize():
+            gradient[i] <- 2.0 * x[i]
+            i <- i + 1
+        i <- 0
+        while i < dimension.usize():
+            x[i] <- x[i] - alpha * gradient[i]
+            i <- i + 1
+        epoch <- epoch + 1
+    x[selected.usize()]
+
+export fn gradient_descent(values: i64&, length: usize) -> f64 = gradient_descent_impl

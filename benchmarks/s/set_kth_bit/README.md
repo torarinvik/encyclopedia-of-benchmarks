@@ -33,5 +33,7 @@ python3 benchmarks/verify_i64_array_scalar.py --algorithms set_kth_bit --elisa-c
 
 - C++ [`set_kth_bit.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/bit_manipulation/set_kth_bit.cpp)
 - C++-1 [`set_kth_bit.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/bit_manipulation/set_kth_bit.cpp)
+- Elixir [`set_bit.ex`](https://github.com/TheAlgorithms/Elixir/blob/6212e7e905ec2d2687e7f6e9e4b07b7fabb40f19/lib/bit_manipulation/set_bit.ex)
+- JavaScript [`SetBit.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/SetBit.js)
 
-Both sources set the requested bit by ORing `N` with `1 << k`. The bounded contract excludes negative values and positions that could overflow the source's signed shift.
+All four source candidates set the requested bit by ORing `N` with `1 << k`. The Elixir `set_bit` and JavaScript `SetBit` candidates are aliases of this benchmark. The bounded contract excludes negative values and positions that could overflow the source's signed shift.

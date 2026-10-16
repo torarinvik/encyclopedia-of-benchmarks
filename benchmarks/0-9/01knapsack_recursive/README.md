@@ -18,7 +18,7 @@ The workload covers empty input, zero capacity, exact fits, overweight items, a 
 
 ## Reviewed TheAlgorithms source
 
-[Dart 01knapsack_recursive.dart](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/dynamic_programming/01knapsack_recursive.dart) uses the direct include-or-exclude recursion without memoization.
+[Dart 01knapsack_recursive.dart](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/dynamic_programming/01knapsack_recursive.dart) and [Python recursive_approach_knapsack.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/knapsack/recursive_approach_knapsack.py) use the direct include-or-exclude recursion without memoization. The Python source starts from item index zero and returns zero after the last item; the contract’s positive-weight, nonnegative-value domain matches its behavior.
 
 ## Implementations
 

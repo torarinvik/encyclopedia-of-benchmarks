@@ -1,0 +1,37 @@
+def zblock_substring_search_impl(values:i64&,length:usize)->i64:
+    if length<3:return -1
+    text_length:i64=values[0]
+    pattern_length:i64=values[1]
+    if text_length<0 or text_length>256 or pattern_length<1 or pattern_length>64 or length!=(text_length+pattern_length+2).usize():return -1
+    index:usize=2
+    while index<length:
+        if values[index]<0 or values[index]>127 or values[index]==36:return -1
+        index <- index+1
+    text_len:usize=text_length.usize()
+    pat_len:usize=pattern_length.usize()
+    n:usize=text_len+pat_len+1
+    sequence:mutable i64[321]=zeroed
+    z:mutable usize[321]=zeroed
+    index <- 0
+    while index<pat_len:sequence[index] <- values[2+text_len+index];index <- index+1
+    sequence[pat_len] <- -1
+    index <- 0
+    while index<text_len:sequence[pat_len+1+index] <- values[2+index];index <- index+1
+    left:mutable usize=0
+    right:mutable usize=0
+    index <- 1
+    while index<n:
+        if index<=right:
+            z[index] <- if right-index+1<z[index-left]:right-index+1 else:z[index-left]
+        while index+z[index]<n and sequence[z[index]]==sequence[index+z[index]]:z[index] <- z[index]+1
+        if index+z[index]>0 and index+z[index]-1>right:left <- index;right <- index+z[index]-1
+        index <- index+1
+    found:mutable i64=0
+    index <- pat_len+1
+    while index<n:
+        if z[index]>=pat_len: found <- found+1
+        index <- index+1
+    found
+
+export fn zblock_substring_search(values:i64&,length:usize)->i64=zblock_substring_search_impl
+

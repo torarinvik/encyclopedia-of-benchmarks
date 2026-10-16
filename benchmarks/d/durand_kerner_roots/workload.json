@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "id": "deterministic-durand-kerner-cubic-components-v1",
+  "algorithm": "durand_kerner_roots",
+  "function_symbol": "durand_kerner_roots",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[d,root_index,component] for x^3-d=0",
+    "constant_range": [
+      -4,
+      4
+    ],
+    "d_nonzero": true,
+    "root_index_range": [
+      0,
+      2
+    ],
+    "component_mapping": {
+      "0": "real",
+      "1": "imaginary"
+    },
+    "maximum_packed_values": 4,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected component of a Durand\u2013Kerner cubic root in deterministic seed order",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "d-4_root0_real",
+      "input_values": [
+        -4,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1.5874010519681996
+    },
+    {
+      "id": "d-4_root0_imag",
+      "input_values": [
+        -4,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 2.1262658360458863e-33
+    },
+    {
+      "id": "d-4_root1_real",
+      "input_values": [
+        -4,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.7937005259840997
+    },
+    {
+      "id": "d-4_root1_imag",
+      "input_values": [
+        -4,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.3747296369986026
+    },
+    {
+      "id": "d-4_root2_real",
+      "input_values": [
+        -4,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.7937005259840997
+    },
+    {
+      "id": "d-4_root2_imag",
+      "input_values": [
+        -4,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.3747296369986026
+    },
+    {
+      "id": "d-3_root0_real",
+      "input_values": [
+        -3,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1.4422495703074083
+    },
+    {
+      "id": "d-3_root0_imag",
+      "input_values": [
+        -3,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -3.503246160812043e-46
+    },
+    {
+      "id": "d-3_root1_real",
+      "input_values": [
+        -3,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.7211247851537043
+    },
+    {
+      "id": "d-3_root1_imag",
+      "input_values": [
+        -3,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.2490247664834064
+    },
+    {
+      "id": "d-3_root2_real",
+      "input_values": [
+        -3,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.7211247851537043
+    },
+    {
+      "id": "d-3_root2_imag",
+      "input_values": [
+        -3,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.2490247664834064
+    },
+    {
+      "id": "d-2_root0_real",
+      "input_values": [
+        -2,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1.2599210498948732
+    },
+    {
+      "id": "d-2_root0_imag",
+      "input_values": [
+        -2,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 7.174648137343064e-43
+    },
+    {
+      "id": "d-2_root1_real",
+      "input_values": [
+        -2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.6299605249474366
+    },
+    {
+      "id": "d-2_root1_imag",
+      "input_values": [
+        -2,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.0911236359717214
+    },
+    {
+      "id": "d-2_root2_real",
+      "input_values": [
+        -2,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.6299605249474366
+    },
+    {
+      "id": "d-2_root2_imag",
+      "input_values": [
+        -2,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.0911236359717214
+    },
+    {
+      "id": "d-1_root0_real",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1.0
+    },
+    {
+      "id": "d-1_root0_imag",
+      "input_values": [
+        -1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "d-1_root1_real",
+      "input_values": [
+        -1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.5
+    },
+    {
+      "id": "d-1_root1_imag",
+      "input_values": [
+        -1,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -0.8660254037844387
+    },
+    {
+      "id": "d-1_root2_real",
+      "input_values": [
+        -1,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.5
+    },
+    {
+      "id": "d-1_root2_imag",
+      "input_values": [
+        -1,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0.8660254037844387
+    },
+    {
+      "id": "d1_root0_real",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "d1_root0_imag",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "d1_root1_real",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.5
+    },
+    {
+      "id": "d1_root1_imag",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0.8660254037844387
+    },
+    {
+      "id": "d1_root2_real",
+      "input_values": [
+        1,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.5
+    },
+    {
+      "id": "d1_root2_imag",
+      "input_values": [
+        1,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -0.8660254037844387
+    },
+    {
+      "id": "d2_root0_real",
+      "input_values": [
+        2,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.2599210498948732
+    },
+    {
+      "id": "d2_root0_imag",
+      "input_values": [
+        2,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -7.174648137343064e-43
+    },
+    {
+      "id": "d2_root1_real",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.6299605249474366
+    },
+    {
+      "id": "d2_root1_imag",
+      "input_values": [
+        2,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.0911236359717214
+    },
+    {
+      "id": "d2_root2_real",
+      "input_values": [
+        2,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.6299605249474366
+    },
+    {
+      "id": "d2_root2_imag",
+      "input_values": [
+        2,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.0911236359717214
+    },
+    {
+      "id": "d3_root0_real",
+      "input_values": [
+        3,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.4422495703074083
+    },
+    {
+      "id": "d3_root0_imag",
+      "input_values": [
+        3,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 3.503246160812043e-46
+    },
+    {
+      "id": "d3_root1_real",
+      "input_values": [
+        3,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.7211247851537043
+    },
+    {
+      "id": "d3_root1_imag",
+      "input_values": [
+        3,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.2490247664834064
+    },
+    {
+      "id": "d3_root2_real",
+      "input_values": [
+        3,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.7211247851537043
+    },
+    {
+      "id": "d3_root2_imag",
+      "input_values": [
+        3,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.2490247664834064
+    },
+    {
+      "id": "d4_root0_real",
+      "input_values": [
+        4,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.5874010519681996
+    },
+    {
+      "id": "d4_root0_imag",
+      "input_values": [
+        4,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -2.1262658360458863e-33
+    },
+    {
+      "id": "d4_root1_real",
+      "input_values": [
+        4,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.7937005259840997
+    },
+    {
+      "id": "d4_root1_imag",
+      "input_values": [
+        4,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1.3747296369986026
+    },
+    {
+      "id": "d4_root2_real",
+      "input_values": [
+        4,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -0.7937005259840997
+    },
+    {
+      "id": "d4_root2_imag",
+      "input_values": [
+        4,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1.3747296369986026
+    },
+    {
+      "id": "invalid_0",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_1",
+      "input_values": [
+        5,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_2",
+      "input_values": [
+        -5,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_3",
+      "input_values": [
+        1,
+        3,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_4",
+      "input_values": [
+        1,
+        0,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_5",
+      "input_values": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

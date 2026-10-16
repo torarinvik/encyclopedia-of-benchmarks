@@ -1,0 +1,28 @@
+def ipv6_converter_impl(a:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if length<2:return -1
+    operation:i64=a[0]
+    byte_length:i64=a[1]
+    if not ((operation==0 and byte_length==4) or (operation==1 and byte_length==16)) or length!=(2+byte_length).usize():return -1
+    index:usize=0
+    while index<byte_length.usize():
+        if a[index+2]<0 or a[index+2]>255:return -1
+        index <- index+1
+    if operation==1:
+        index <- 0
+        while index<10:
+            if a[index+2]!=0:return -1
+            index <- index+1
+        if a[12]!=255 or a[13]!=255:return -1
+    needed:usize=if operation==0:16 else:4
+    if capacity<needed:return -2
+    if operation==0:
+        index <- 0
+        while index<10:output[index] <- 0;index <- index+1
+        output[10] <- 255;output[11] <- 255
+        index <- 0
+        while index<4:output[12+index] <- a[2+index].u8();index <- index+1
+    else:
+        index <- 0
+        while index<4:output[index] <- a[14+index].u8();index <- index+1
+    needed.i64()
+export fn ipv6_converter(a:i64&,length:usize,output:mutable u8&,capacity:usize)->i64=ipv6_converter_impl

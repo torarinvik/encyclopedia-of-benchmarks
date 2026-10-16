@@ -1,0 +1,56 @@
+const MAX_VALUES: usize = 6
+const BYTES_PER_VALUE: usize = 8
+
+def heaps_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < BYTES_PER_VALUE:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def heaps_emit_row(values: i64&, n: usize, output: mutable u8&, rows: mutable usize&) -> void:
+    row_offset: usize = rows * n * BYTES_PER_VALUE
+    index: mutable usize = 0
+    while index < n:
+        heaps_store_i64_le(output, row_offset + index * BYTES_PER_VALUE, values[index])
+        index <- index + 1
+    rows <- rows + 1
+
+def heaps_generate(values: i64&, n: usize, k: usize,
+                   output: mutable u8&, rows: mutable usize&) -> void:
+    if k == 1:
+        heaps_emit_row(values, n, output, rows)
+        return
+    heaps_generate(values, n, k - 1, output, rows)
+    index: mutable usize = 0
+    while index < k - 1:
+        swap_index: usize = if k % 2 == 0: index else: 0
+        temporary: i64 = values[swap_index]
+        values[swap_index] <- values[k - 1]
+        values[k - 1] <- temporary
+        heaps_generate(values, n, k - 1, output, rows)
+        index <- index + 1
+
+def heaps_algorithm_impl(values: i64&, length: usize, output: mutable u8&,
+                         capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_VALUES:
+        return -1
+    row_count: mutable usize = 1
+    factor: mutable usize = 2
+    while factor <= length:
+        row_count <- row_count * factor
+        factor <- factor + 1
+    required: usize = row_count * length * BYTES_PER_VALUE
+    if output.is_null() or capacity < required:
+        return -2
+    items: mutable i64[6] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        items[index] <- values[index]
+        index <- index + 1
+    rows: mutable usize = 0
+    heaps_generate(items, length, length, output, rows)
+    rows.i64()
+
+export fn heaps_algorithm(values: i64&, length: usize,
+                           output: mutable u8&, capacity: usize) -> i64 = heaps_algorithm_impl

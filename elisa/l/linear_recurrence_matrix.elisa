@@ -1,0 +1,76 @@
+const MODULUS: i64 = 1000000007
+const MAX_INPUT_LENGTH: usize = 24
+
+def multiply_matrix(left: i64[16], right: i64[16], dimension: usize) -> i64[16]:
+    output: mutable i64[16] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        column: mutable usize = 0
+        while column < dimension:
+            value: mutable i64 = 0
+            inner: mutable usize = 0
+            while inner < dimension:
+                value <- (value + (left[row * dimension + inner] % MODULUS) *
+                                     (right[inner * dimension + column] % MODULUS) % MODULUS) % MODULUS
+                inner <- inner + 1
+            output[row * dimension + column] <- value
+            column <- column + 1
+        row <- row + 1
+    output
+
+def linear_recurrence_matrix_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    dimension_value: i64 = input[0]
+    nth_term: i64 = input[1]
+    constant_or_sum_included: i64 = input[2]
+    if dimension_value < 1 or dimension_value > 4 or nth_term < 0 or nth_term > 1000000 or
+       (constant_or_sum_included != 0 and constant_or_sum_included != 1):
+        return -1
+    dimension: usize = dimension_value.usize()
+    matrix_count: usize = dimension * dimension
+    if length != 3 + matrix_count + dimension:
+        return -1
+    if constant_or_sum_included == 1 and nth_term < dimension_value - 1:
+        return -1
+    matrix: mutable i64[16] = zeroed
+    base_row: mutable i64[4] = zeroed
+    index: mutable usize = 0
+    while index < matrix_count + dimension:
+        value: i64 = input[3 + index]
+        if value < 0 or value >= MODULUS:
+            return -1
+        if index < matrix_count:
+            matrix[index] <- value
+        else:
+            base_row[index - matrix_count] <- value
+        index <- index + 1
+    if nth_term < dimension_value - constant_or_sum_included:
+        return base_row[(nth_term - constant_or_sum_included).usize()]
+    matrix_is_zero: mutable bool = true
+    index <- 0
+    while index < matrix_count:
+        if matrix[index] != 0:
+            matrix_is_zero <- false
+        index <- index + 1
+    if matrix_is_zero:
+        return 0
+    result: mutable i64[16] = zeroed
+    index <- 0
+    while index < dimension:
+        result[index * dimension + index] <- 1
+        index <- index + 1
+    power: mutable i64 = nth_term - dimension_value + 1 + constant_or_sum_included
+    while power > 0:
+        if (power & 1) != 0:
+            result <- multiply_matrix(result, matrix, dimension)
+        power <- power >> 1
+        matrix <- multiply_matrix(matrix, matrix, dimension)
+    value: mutable i64 = 0
+    index <- 0
+    while index < dimension:
+        value <- (value + base_row[index] * result[index * dimension + dimension - 1] % MODULUS) % MODULUS
+        index <- index + 1
+    value
+
+export fn linear_recurrence_matrix(input: i64&, length: usize) -> i64 = linear_recurrence_matrix_impl

@@ -19,7 +19,7 @@ EXCLUDED_STATUSES = {
     "reviewed_excluded_invalid_source",
     "reviewed_excluded_non_benchmarkable_source",
 }
-REVIEWED_STATUSES = EXCLUDED_STATUSES | {"reviewed_algorithm_semantics"}
+REVIEWED_STATUSES = EXCLUDED_STATUSES | {"reviewed_algorithm_semantics", "reviewed_alias"}
 
 
 def audit() -> dict:

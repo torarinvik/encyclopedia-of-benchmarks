@@ -20,9 +20,7 @@ fn binary_exponentiation(base_input: i64, exponent_input: i64, modulus: i64) i64
 }
 
 export fn modular_inverse_fermat_little_theorem(a: i64, m: i64) i64 {
-    if (a < -1_000_000 or a > 1_000_000 or m < 2 or m > 1_000_000) return -1;
-    if (a == 0 or a <= -m or a >= m or !is_prime(m)) return -1;
-    var normalized = a;
-    while (normalized < 0) : (normalized += m) {}
-    return binary_exponentiation(normalized, m - 2, m);
+    if (a < 1 or a > 1_000_000 or m < 2 or m > 1_000_000) return -1;
+    if (@mod(a, m) == 0 or !is_prime(m)) return -1;
+    return binary_exponentiation(a, m - 2, m);
 }

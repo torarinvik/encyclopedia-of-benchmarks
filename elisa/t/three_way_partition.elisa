@@ -1,0 +1,51 @@
+def three_way_partition_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 258: return -1
+    n: i64 = input[0]
+    pivot: i64 = input[1]
+    if n < 0 or n > 256 or length != n.usize() + 2 or pivot < -2147483648 or pivot > 2147483647: return -1
+    values: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < n.usize():
+        if input[index + 2] < -2147483648 or input[index + 2] > 2147483647: return -1
+        values[index] <- input[index + 2]
+        index <- index + 1
+    low: mutable usize = 0
+    mid: mutable usize = 0
+    high: mutable usize = n.usize()
+    while mid < high:
+        if values[mid] < pivot:
+            temporary: i64 = values[low]
+            values[low] <- values[mid]
+            values[mid] <- temporary
+            low <- low + 1
+            mid <- mid + 1
+        elif values[mid] > pivot:
+            high <- high - 1
+            temporary: i64 = values[mid]
+            values[mid] <- values[high]
+            values[high] <- temporary
+        else:
+            mid <- mid + 1
+    byte_count: usize = (n.usize() + 2) * 4
+    if capacity < byte_count: return -2
+    index <- 0
+    while index < n.usize():
+        bits: u32 = values[index].u32()
+        output[index * 4] <- (bits & 255).u8()
+        output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    bounds: i64[2] = [low.i64(), high.i64()]
+    index <- 0
+    while index < 2:
+        bits: u32 = bounds[index].u32()
+        position: usize = (n.usize() + index) * 4
+        output[position] <- (bits & 255).u8()
+        output[position + 1] <- ((bits >> 8) & 255).u8()
+        output[position + 2] <- ((bits >> 16) & 255).u8()
+        output[position + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    n + 2
+
+export fn three_way_partition(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = three_way_partition_impl

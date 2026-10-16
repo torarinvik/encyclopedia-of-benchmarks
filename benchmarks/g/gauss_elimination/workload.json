@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "gauss-elimination-partial-pivot-f32-2dp-v1",
+  "algorithm": "gauss_elimination",
+  "function_symbol": "gauss_elimination",
+  "input": {
+    "kind": "packed_i64_array",
+    "layout": "[n, A row-major n*n cells, b n cells]",
+    "dimension_range": [
+      2,
+      8
+    ],
+    "coefficient_domain": "All n*n matrix entries and n right-hand-side entries are integers in [-100,100]; A may be dense.",
+    "singular_system_result": -1,
+    "invalid_input_result": -1,
+    "invalid_input_output": "empty"
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution vector rounded to two decimal places as C printf(\"%.2f\") displays binary32 values",
+    "encoding": "n IEEE-754 binary64 little-endian values",
+    "max_length": 8,
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 0.0
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "workspace": {
+    "bytes": 64
+  },
+  "cases": [
+    {
+      "id": "pivot_required",
+      "input_values": [
+        2,
+        0,
+        2,
+        1,
+        1,
+        -2,
+        2
+      ],
+      "workspace_bytes": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000840000000000000f0bf",
+      "expected_output": [
+        3.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "dense_three_by_three",
+      "input_values": [
+        3,
+        2,
+        1,
+        0,
+        1,
+        3,
+        1,
+        0,
+        1,
+        2,
+        4,
+        6,
+        0
+      ],
+      "workspace_bytes": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000f03f0000000000000040000000000000f0bf",
+      "expected_output": [
+        1.0,
+        2.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "fractional_solution_rounds_to_source_display",
+      "input_values": [
+        2,
+        2,
+        1,
+        1,
+        2,
+        1,
+        1
+      ],
+      "workspace_bytes": 16,
+      "expected_result": 16,
+      "expected_output_hex": "1f85eb51b81ed53f1f85eb51b81ed53f",
+      "expected_output": [
+        0.33,
+        0.33
+      ]
+    },
+    {
+      "id": "singular_system",
+      "input_values": [
+        2,
+        1,
+        2,
+        2,
+        4,
+        3,
+        6
+      ],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": []
+    },
+    {
+      "id": "dimension_too_small",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": []
+    },
+    {
+      "id": "out_of_range_coefficient",
+      "input_values": [
+        2,
+        101,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": []
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": []
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        0,
+        2,
+        1,
+        1,
+        -2,
+        2
+      ],
+      "workspace_bytes": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "expected_output": []
+    }
+  ]
+}

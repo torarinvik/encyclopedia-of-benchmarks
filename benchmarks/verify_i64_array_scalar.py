@@ -21,10 +21,34 @@ import sys
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from ceil_in_binary_search_tree_oracle import MAX_NODE_COUNT as MAX_CEIL_IN_BST_NODES
 from ceil_in_binary_search_tree_oracle import expected_result as ceil_in_bst_oracle
+from inorder_successor_of_bst_oracle import INT32_MAX as INORDER_SUCCESSOR_OF_BST_INT32_MAX
+from inorder_successor_of_bst_oracle import MAX_INPUT_LENGTH as MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH
+from inorder_successor_of_bst_oracle import MAX_NODE_COUNT as MAX_INORDER_SUCCESSOR_OF_BST_NODES
+from inorder_successor_of_bst_oracle import expected_result as inorder_successor_of_bst_oracle
+from linear_recurrence_matrix_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH
+from linear_recurrence_matrix_oracle import expected_result as linear_recurrence_matrix_oracle
+from recursive_linear_search_oracle import MAX_COUNT as MAX_RECURSIVE_LINEAR_SEARCH_COUNT
+from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
+from recursive_linear_search_oracle import MAX_VALUE as MAX_RECURSIVE_LINEAR_SEARCH_VALUE
+from recursive_linear_search_oracle import MIN_VALUE as MIN_RECURSIVE_LINEAR_SEARCH_VALUE
+from recursive_linear_search_oracle import expected_result as recursive_linear_search_oracle
+from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_INPUT_LENGTH
+from wildcard_matching_oracle import MAX_PATTERN_LENGTH as MAX_WILDCARD_MATCHING_PATTERN_LENGTH
+from wildcard_matching_oracle import MAX_TEXT_LENGTH as MAX_WILDCARD_MATCHING_TEXT_LENGTH
+from wildcard_matching_oracle import expected_result as wildcard_matching_oracle
+from primitive_root_oracle import MAX_INPUT_LENGTH as MAX_PRIMITIVE_ROOT_INPUT_LENGTH
+from primitive_root_oracle import MAX_MODULUS as MAX_PRIMITIVE_ROOT_MODULUS
+from primitive_root_oracle import expected_result as primitive_root_oracle
+from dijkstras_two_stack_algorithm_oracle import MAX_INPUT_LENGTH as MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH
+from dijkstras_two_stack_algorithm_oracle import expected_result as dijkstras_two_stack_oracle
 from check_cycle_oracle import MAX_EDGES as MAX_CHECK_CYCLE_EDGES
 from check_cycle_oracle import MAX_INPUT_LENGTH as MAX_CHECK_CYCLE_INPUT_LENGTH
 from check_cycle_oracle import MAX_VERTICES as MAX_CHECK_CYCLE_VERTICES
 from check_cycle_oracle import expected_result as check_cycle_oracle
+from undirected_cycle_check_oracle import MAX_EDGES as MAX_UNDIRECTED_CYCLE_CHECK_EDGES
+from undirected_cycle_check_oracle import MAX_INPUT_LENGTH as MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH
+from undirected_cycle_check_oracle import MAX_VERTICES as MAX_UNDIRECTED_CYCLE_CHECK_VERTICES
+from undirected_cycle_check_oracle import expected_result as undirected_cycle_check_oracle
 from count_singly_linked_list_recursion_oracle import I32_MAX as COUNT_SINGLY_LINKED_LIST_I32_MAX
 from count_singly_linked_list_recursion_oracle import I32_MIN as COUNT_SINGLY_LINKED_LIST_I32_MIN
 from count_singly_linked_list_recursion_oracle import MAX_NODES as MAX_COUNT_SINGLY_LINKED_LIST_NODES
@@ -283,8 +307,12 @@ from run_i64_array_scalar import encode_case
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
 from one_bit_difference_oracle import MAX_INPUT_LENGTH as MAX_ONE_BIT_DIFFERENCE_INPUT_LENGTH
+from edmonds_blossom_algorithm_oracle import MAX_EDGES as MAX_EDMONDS_BLOSSOM_EDGES
+from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
+from edmonds_blossom_algorithm_oracle import MAX_VERTICES as MAX_EDMONDS_BLOSSOM_VERTICES
+from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_oracle
 
-ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference")
+ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -721,6 +749,18 @@ def problem107_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "edmonds_blossom_algorithm":
+        return edmonds_blossom_oracle(values)
+    if algorithm == "primitive_root":
+        return primitive_root_oracle(values)
+    if algorithm == "dijkstras_two_stack_algorithm":
+        return dijkstras_two_stack_oracle(values)
+    if algorithm == "wildcard_matching":
+        return wildcard_matching_oracle(values)
+    if algorithm == "linear_recurrence_matrix":
+        return linear_recurrence_matrix_oracle(values)
+    if algorithm == "recursive_linear_search":
+        return recursive_linear_search_oracle(values)
     if algorithm == "dice_throw":
         return dice_throw_oracle(values)
     if algorithm == "depth_first_search_iterative":
@@ -777,6 +817,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return n_in_a_row_board_status_oracle(values)
     if algorithm == "check_cycle":
         return check_cycle_oracle(values)
+    if algorithm == "undirected_cycle_check":
+        return undirected_cycle_check_oracle(values)
     if algorithm == "count_homogenous":
         return count_homogenous_oracle(values)
     if algorithm == "max_area_of_island":
@@ -789,6 +831,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return chaining_oracle(values)
     if algorithm == "ceil_in_binary_search_tree":
         return ceil_in_bst_oracle(values)
+    if algorithm == "inorder_successor_of_bst":
+        return inorder_successor_of_bst_oracle(values)
     if algorithm == "car_pool":
         return car_pool_oracle(values)
     if algorithm == "burkes_dithering":
@@ -1167,7 +1211,197 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
     rng = random.Random(20261014)
-    if algorithm == "dice_throw":
+    if algorithm == "edmonds_blossom_algorithm":
+        from itertools import combinations
+
+        for vertex_count in range(6):
+            all_edges = list(combinations(range(vertex_count), 2))
+            for edge_mask in range(1 << len(all_edges)):
+                chosen = [edge for index, edge in enumerate(all_edges) if edge_mask & (1 << index)]
+                values = (vertex_count, len(chosen), *(endpoint for edge in chosen for endpoint in edge))
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            vertex_count = rng.randint(0, MAX_EDMONDS_BLOSSOM_VERTICES)
+            all_edges = list(combinations(range(vertex_count), 2))
+            chosen = [edge for edge in all_edges if rng.randrange(2)]
+            values = (vertex_count, len(chosen), *(endpoint for edge in chosen for endpoint in edge))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (-1, 0), (MAX_EDMONDS_BLOSSOM_VERTICES + 1, 0),
+            (1, 1, 0, 0), (2, 1, 0, 2), (2, 1, 0, 1, 1),
+            (2, 1, -1, 1), (2, -1), (MAX_EDMONDS_BLOSSOM_VERTICES, MAX_EDMONDS_BLOSSOM_EDGES + 1),
+            (2, 1, 0),
+        )
+        for values in malformed:
+            if len(values) <= MAX_EDMONDS_BLOSSOM_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "dijkstras_two_stack_algorithm":
+        for left in range(10):
+            for right in range(10):
+                for operator in "+-*/":
+                    values = tuple(map(ord, f"({left}{operator}{right})"))
+                    expected = oracle(algorithm, list(values))
+                    if expected != -1_000_000_001:
+                        cases[values] = expected
+
+        def random_expression(depth: int) -> str:
+            if depth == 0 or rng.randrange(4) == 0:
+                return str(rng.randrange(10))
+            operator = rng.choice("+-*/")
+            return f"({random_expression(depth - 1)}{operator}{random_expression(depth - 1)})"
+
+        for _ in range(512):
+            values = tuple(map(ord, random_expression(5)))
+            if len(values) <= MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH:
+                expected = oracle(algorithm, list(values))
+                if expected != -1_000_000_001:
+                    cases[values] = expected
+    elif algorithm == "primitive_root":
+        for modulus in range(2, MAX_PRIMITIVE_ROOT_MODULUS + 1):
+            values = (modulus,)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (0,), (1,), (MAX_PRIMITIVE_ROOT_MODULUS + 1,), (-1,), (2, 3,),
+                     (I64_MIN,), (I64_MAX,))
+        for values in malformed:
+            if len(values) <= MAX_PRIMITIVE_ROOT_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "wildcard_matching":
+        alphabet = (97, 98)
+        pattern_alphabet = (97, 98, 42, 63)
+        for text_length in range(4):
+            for text in product(alphabet, repeat=text_length):
+                for pattern_length in range(4):
+                    for pattern in product(pattern_alphabet, repeat=pattern_length):
+                        values = (text_length, pattern_length, *text, *pattern)
+                        cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            text_length = rng.randint(0, MAX_WILDCARD_MATCHING_TEXT_LENGTH)
+            pattern_length = rng.randint(0, MAX_WILDCARD_MATCHING_PATTERN_LENGTH)
+            text = tuple(rng.randint(97, 122) for _ in range(text_length))
+            pattern = tuple(rng.choice((42, 63, rng.randint(97, 122)))
+                            for _ in range(pattern_length))
+            values = (text_length, pattern_length, *text, *pattern)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 0, 97), (13, 0), (0, 21), (1, 0, 65),
+            (0, 1, 46), (0, 1, 42, 97), (1, 1, 97, 46),
+            (I64_MIN, 0), (0, I64_MAX),
+            (MAX_WILDCARD_MATCHING_TEXT_LENGTH, MAX_WILDCARD_MATCHING_PATTERN_LENGTH,
+             *([97] * (MAX_WILDCARD_MATCHING_TEXT_LENGTH - 1)), *([42] * MAX_WILDCARD_MATCHING_PATTERN_LENGTH)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_WILDCARD_MATCHING_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "inorder_successor_of_bst":
+        for node_count in range(MAX_INORDER_SUCCESSOR_OF_BST_NODES + 1):
+            keys = tuple(2 * index + 1 for index in range(node_count))
+            insertion_orders = (
+                keys,
+                tuple(reversed(keys)),
+                (*keys[::2], *keys[1::2]),
+            )
+            targets = {1, INORDER_SUCCESSOR_OF_BST_INT32_MAX}
+            if keys:
+                targets.update((keys[node_count // 2], keys[-1], keys[-1] + 1))
+            for insertion_order in insertion_orders:
+                for target in targets:
+                    values = (node_count, target, *insertion_order)
+                    cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(256):
+            node_count = rng.randint(0, MAX_INORDER_SUCCESSOR_OF_BST_NODES)
+            keys = rng.sample(range(1, 10001), node_count)
+            target = (rng.choice(keys) if keys and rng.randrange(2)
+                      else rng.randint(1, INORDER_SUCCESSOR_OF_BST_INT32_MAX))
+            values = (node_count, target, *keys)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0,), (2, 10, 5), (1, 5, 5, 6),
+            (-1, 1), (MAX_INORDER_SUCCESSOR_OF_BST_NODES + 1, 1,
+                      *range(1, MAX_INORDER_SUCCESSOR_OF_BST_NODES + 2)),
+            (1, 0, 5), (1, -1, 5), (1, INORDER_SUCCESSOR_OF_BST_INT32_MAX + 1, 5),
+            (2, 1, 5, 5), (1, 1, 0), (1, 1, -1),
+            (1, 1, INORDER_SUCCESSOR_OF_BST_INT32_MAX + 1),
+        )
+        for values in malformed:
+            if len(values) <= MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 0 -1\n")
+    elif algorithm == "linear_recurrence_matrix":
+        rng = random.Random(20261016)
+        for dimension in range(1, 5):
+            for include_constant_or_sum in (0, 1):
+                minimum_index = dimension - 1 if include_constant_or_sum else 0
+                indices = {minimum_index, dimension, min(1_000_000, dimension + 1), 1_000_000}
+                for nth_term in sorted(indices):
+                    if nth_term >= minimum_index:
+                        matrix = [rng.randrange(0, 1_000_000_007)
+                                  for _ in range(dimension * dimension)]
+                        base_row = [rng.randrange(0, 1_000_000_007) for _ in range(dimension)]
+                        values = (dimension, nth_term, include_constant_or_sum, *matrix, *base_row)
+                        cases[values] = oracle(algorithm, list(values))
+                for _ in range(64):
+                    nth_term = rng.randint(minimum_index, 1_000_000)
+                    matrix = [rng.choice((0, 1, 2, 1_000_000_006, rng.randrange(1_000_000_007)))
+                              for _ in range(dimension * dimension)]
+                    base_row = [rng.choice((0, 1, 2, 1_000_000_006, rng.randrange(1_000_000_007)))
+                                for _ in range(dimension)]
+                    values = (dimension, nth_term, include_constant_or_sum, *matrix, *base_row)
+                    cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (1, 0), (1, 0, 0), (1, 0, 0, 1, 2, 3),
+            (0, 0, 0), (5, 0, 0), (1, -1, 0, 1, 2), (1, 1_000_001, 0, 1, 2),
+            (1, 0, -1, 1, 2), (1, 0, 2, 1, 2),
+            (3, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1),
+            (1, 1, 0, -1, 2), (1, 1, 0, 1_000_000_007, 2),
+            (1, 0, 0, 1, -1), (1, 0, 0, 1, 1_000_000_007),
+            tuple([4, 0, 0] + [0] * 17),
+        )
+        for values in malformed:
+            if len(values) <= MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "recursive_linear_search":
+        for count in (1, 2, 8, MAX_RECURSIVE_LINEAR_SEARCH_COUNT):
+            items = tuple(range(count))
+            targets = {items[0], items[count // 2], items[-1], MAX_RECURSIVE_LINEAR_SEARCH_VALUE}
+            for target in targets:
+                values = (count, target, *items)
+                cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(128):
+            count = rng.randint(1, MAX_RECURSIVE_LINEAR_SEARCH_COUNT)
+            items = tuple(rng.sample(
+                range(MIN_RECURSIVE_LINEAR_SEARCH_VALUE, MAX_RECURSIVE_LINEAR_SEARCH_VALUE + 1),
+                count,
+            ))
+            target = (rng.choice(items) if rng.randrange(2)
+                      else MAX_RECURSIVE_LINEAR_SEARCH_VALUE
+                      if MAX_RECURSIVE_LINEAR_SEARCH_VALUE not in items
+                      else MIN_RECURSIVE_LINEAR_SEARCH_VALUE)
+            values = (count, target, *items)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0, 0), (-1, 0),
+            (MAX_RECURSIVE_LINEAR_SEARCH_COUNT + 1, 0,
+             *range(MAX_RECURSIVE_LINEAR_SEARCH_COUNT + 1)),
+            (MAX_RECURSIVE_LINEAR_SEARCH_COUNT, 0,
+             *range(MAX_RECURSIVE_LINEAR_SEARCH_COUNT - 1)),
+            (MAX_RECURSIVE_LINEAR_SEARCH_COUNT, 0,
+             *range(MAX_RECURSIVE_LINEAR_SEARCH_COUNT + 1)),
+            (I64_MIN, 0), (I64_MAX, 0),
+        )
+        for values in malformed:
+            if len(values) <= MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "dice_throw":
         for faces in range(1, MAX_DICE_THROW_FACES + 1):
             for dice in range(1, MAX_DICE_THROW_DICE + 1):
                 for target in range(MAX_DICE_THROW_TARGET + 1):
@@ -2189,6 +2423,49 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             (1, 1), (1, 1, 0), (1, 1, 0, 1), (1, 1, -1, 0),
             (1, MAX_CHECK_CYCLE_EDGES + 1,
              *([0, 0] * (MAX_CHECK_CYCLE_EDGES + 1))),
+        )
+        for values in invalid_cases:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "undirected_cycle_check":
+        for vertex_count in range(6):
+            possible_edges = [(left, right)
+                              for left in range(vertex_count)
+                              for right in range(left, vertex_count)]
+            for edge_mask in range(1 << len(possible_edges)):
+                edges = tuple(edge for index, edge in enumerate(possible_edges)
+                              if edge_mask & (1 << index))
+                values = (vertex_count, len(edges), *(endpoint for edge in edges for endpoint in edge))
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(0xC1C1E)
+        for _ in range(512):
+            vertex_count = rng.randrange(MAX_UNDIRECTED_CYCLE_CHECK_VERTICES + 1)
+            possible_edges = [(left, right)
+                              for left in range(vertex_count)
+                              for right in range(left, vertex_count)]
+            rng.shuffle(possible_edges)
+            edge_count = rng.randrange(min(MAX_UNDIRECTED_CYCLE_CHECK_EDGES, len(possible_edges)) + 1)
+            edges = tuple(possible_edges[:edge_count])
+            values = (vertex_count, len(edges), *(endpoint for edge in edges for endpoint in edge))
+            cases[values] = oracle(algorithm, list(values))
+        maximum_tree_edges = tuple((vertex, vertex + 1)
+                                   for vertex in range(MAX_UNDIRECTED_CYCLE_CHECK_VERTICES - 1))
+        maximum_tree = (MAX_UNDIRECTED_CYCLE_CHECK_VERTICES, len(maximum_tree_edges),
+                        *(endpoint for edge in maximum_tree_edges for endpoint in edge))
+        cases[maximum_tree] = oracle(algorithm, list(maximum_tree))
+        dense_edges = tuple((left, right)
+                            for left in range(MAX_UNDIRECTED_CYCLE_CHECK_VERTICES)
+                            for right in range(left, MAX_UNDIRECTED_CYCLE_CHECK_VERTICES))[:MAX_UNDIRECTED_CYCLE_CHECK_EDGES]
+        dense_graph = (MAX_UNDIRECTED_CYCLE_CHECK_VERTICES, len(dense_edges),
+                       *(endpoint for edge in dense_edges for endpoint in edge))
+        cases[dense_graph] = oracle(algorithm, list(dense_graph))
+        invalid_cases = (
+            (), (0,), (-1, 0), (MAX_UNDIRECTED_CYCLE_CHECK_VERTICES + 1, 0),
+            (0, 1, 0, 0), (1, -1), (1, MAX_UNDIRECTED_CYCLE_CHECK_EDGES + 1),
+            (1, 1), (1, 1, 0), (1, 1, 0, 1), (1, 1, -1, 0),
+            (2, 2, 0, 1, 1, 0),
+            (0, 0, *([0] * (MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH - 1))),
+            (1, MAX_UNDIRECTED_CYCLE_CHECK_EDGES + 1,
+             *([0, 0] * (MAX_UNDIRECTED_CYCLE_CHECK_EDGES + 1))),
         )
         for values in invalid_cases:
             cases[values] = oracle(algorithm, list(values))

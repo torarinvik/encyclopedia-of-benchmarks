@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "cpp-midpoint-euler-bounded-harmonic-binary64-v1",
+  "algorithm": "ode_midpoint_euler",
+  "function_symbol": "ode_midpoint_euler",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[steps, dt_quarters, u0, v0] with h=dt_quarters/4",
+    "exact_length": 4,
+    "steps_range": [1, 8],
+    "dt_quarters_range": [1, 4],
+    "initial_state_range": [-10, 10],
+    "first_rejected_length": 5,
+    "maximum_validation_array_length": 5,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "IEEE-754 binary64 u followed by v, each as 8 little-endian bytes",
+    "length": 16,
+    "successful_result": "number of output bytes written"
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "fixed output capacity for the two binary64 state values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "quarter-step-one-step", "input_values": [1, 1, 1, 0], "input_length": 4, "expected_result": 16, "expected_output_hex": "000000000000ef3f000000000000d0bf"},
+    {"id": "half-step-one-step", "input_values": [1, 2, 2, 4], "input_length": 4, "expected_result": 16, "expected_output_hex": "0000000000000e400000000000000440"},
+    {"id": "three-quarter-step-one-step", "input_values": [1, 3, 1, 2], "input_length": 4, "expected_result": 16, "expected_output_hex": "0000000000c00140000000000000e63f"},
+    {"id": "full-step-one-step", "input_values": [1, 4, 4, 8], "input_length": 4, "expected_result": 16, "expected_output_hex": "00000000000024400000000000000000"},
+    {"id": "full-step-two-steps", "input_values": [2, 4, 0, 1], "input_length": 4, "expected_result": 16, "expected_output_hex": "000000000000f03f000000000000e8bf"},
+    {"id": "negative-boundary-state", "input_values": [1, 4, -10, -10], "input_length": 4, "expected_result": 16, "expected_output_hex": "0000000000002ec00000000000001440"},
+    {"id": "maximum-steps-zero-state", "input_values": [8, 4, 0, 0], "input_length": 4, "expected_result": 16, "expected_output_hex": "00000000000000000000000000000000"},
+    {"id": "capacity-too-small", "input_values": [1, 4, 4, 8], "input_length": 4, "workspace_bytes": 15, "capacity_error_result": -2, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "capacity-exact", "input_values": [1, 4, 4, 8], "input_length": 4, "workspace_bytes": 16, "expected_result": 16, "expected_output_hex": "00000000000024400000000000000000"},
+    {"id": "invalid-empty", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-three-values", "input_values": [1, 4, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-extra-value", "input_values": [1, 4, 0, 0, 9], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-zero-steps", "input_values": [0, 1, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-too-many-steps", "input_values": [9, 1, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-zero-step-size", "input_values": [1, 0, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-step-size-above-bound", "input_values": [1, 5, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-u-above-bound", "input_values": [1, 1, 11, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-v-below-bound", "input_values": [1, 1, 0, -11], "input_length": 4, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

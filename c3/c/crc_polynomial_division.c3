@@ -2,17 +2,18 @@ module crc_polynomial_division;
 
 fn long crc_polynomial_division(long* input, usz length, char* output, usz capacity)
     @export("crc_polynomial_division") {
-    if (input == null || length < 3 || length > 3 + 64 + 16) return -1;
+    if (input == null || length < 3 || length > 3 + 79 + 16) return -1;
     long operation = input[0];
     long raw_message_length = input[1];
     long raw_polynomial_length = input[2];
-    if (operation < 0 || operation > 1 || raw_message_length < 1 || raw_message_length > 64
+    if (operation < 0 || operation > 1 || raw_message_length < 1
+        || (operation == 0 && raw_message_length > 64) || (operation == 1 && raw_message_length > 79)
         || raw_polynomial_length < 2 || raw_polynomial_length > 16) return -1;
     usz message_length = (usz)raw_message_length;
     usz polynomial_length = (usz)raw_polynomial_length;
     if (length != 3 + message_length + polynomial_length) return -1;
 
-    char[64] message;
+    char[79] message;
     char[16] polynomial;
     char[79] dividend;
     char[16] remainder;
@@ -55,7 +56,7 @@ fn long crc_polynomial_division(long* input, usz length, char* output, usz capac
 
     usz output_length;
     if (operation == 0) {
-        output_length = message_length + remainder_length;
+        output_length = message_length + polynomial_length - 1;
     }
     else {
         char nonzero = 0;
@@ -66,7 +67,12 @@ fn long crc_polynomial_division(long* input, usz length, char* output, usz capac
     if (output == null || capacity < output_length) return -2;
     if (operation == 0) {
         for (usz i = 0; i < message_length; i += 1) output[i] = message[i];
-        for (usz i = 0; i < remainder_length; i += 1) output[message_length+i] = remainder[i];
+        usz degree = polynomial_length - 1;
+        usz leading_zeroes = degree - remainder_length;
+        for (usz i = 0; i < leading_zeroes; i += 1) output[message_length+i] = 0;
+        for (usz i = 0; i < remainder_length; i += 1) {
+            output[message_length+leading_zeroes+i] = remainder[i];
+        }
     } else {
         output[0] = remainder[0];
     }

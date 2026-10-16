@@ -19,8 +19,6 @@ proc binaryExponentiation(baseInput, exponentInput, modulus: int64): int64 =
 
 proc modular_inverse_fermat_little_theorem*(a, m: int64): int64
     {.cdecl, exportc: "modular_inverse_fermat_little_theorem".} =
-  if a < -1_000_000 or a > 1_000_000 or m < 2 or m > 1_000_000: return -1
-  if a == 0 or a <= -m or a >= m or not isPrime(m): return -1
-  var normalized = a
-  while normalized < 0: normalized += m
-  binaryExponentiation(normalized, m - 2, m)
+  if a < 1 or a > 1_000_000 or m < 2 or m > 1_000_000: return -1
+  if a mod m == 0 or not isPrime(m): return -1
+  binaryExponentiation(a, m - 2, m)

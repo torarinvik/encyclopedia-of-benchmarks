@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "cpp-rust-graph-coloring-bounded-count-i64le-v1",
+  "algorithm": "graph_coloring",
+  "function_symbol": "graph_coloring",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n, m, row_mask_0, ..., row_mask_(n-1)]; bit j in row_mask_i denotes the edge from i to j",
+    "vertex_count_range": [1, 8],
+    "color_count_range": [1, 4],
+    "exact_length": "n + 2",
+    "row_mask_range": "0 <= row_mask < 2^n",
+    "graph_constraints": ["symmetric adjacency", "zero diagonal"],
+    "first_rejected_length": 11,
+    "maximum_validation_array_length": 11,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little_endian_i64",
+    "layout": "number of proper vertex colorings with m labeled colors",
+    "length": 8,
+    "maximum_bytes": 8
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "fixed output capacity for one signed i64 coloring count"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "one-vertex-one-color", "input_values": [1, 1, 0], "input_length": 3, "expected_result": 8, "expected_output_hex": "0100000000000000"},
+    {"id": "one-vertex-four-colors", "input_values": [1, 4, 0], "input_length": 3, "expected_result": 8, "expected_output_hex": "0400000000000000"},
+    {"id": "two-isolated-three-colors", "input_values": [2, 3, 0, 0], "input_length": 4, "expected_result": 8, "expected_output_hex": "0900000000000000"},
+    {"id": "single-edge-three-colors", "input_values": [2, 3, 2, 1], "input_length": 4, "expected_result": 8, "expected_output_hex": "0600000000000000"},
+    {"id": "three-vertex-path-two-colors", "input_values": [3, 2, 2, 5, 2], "input_length": 5, "expected_result": 8, "expected_output_hex": "0200000000000000"},
+    {"id": "triangle-three-colors", "input_values": [3, 3, 6, 5, 3], "input_length": 5, "expected_result": 8, "expected_output_hex": "0600000000000000"},
+    {"id": "triangle-two-colors-impossible", "input_values": [3, 2, 6, 5, 3], "input_length": 5, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "four-cycle-three-colors", "input_values": [4, 3, 10, 5, 10, 5], "input_length": 6, "expected_result": 8, "expected_output_hex": "1200000000000000"},
+    {"id": "pinned-cpp-example-graph", "input_values": [4, 3, 14, 5, 11, 5], "input_length": 6, "expected_result": 8, "expected_output_hex": "0600000000000000"},
+    {"id": "complete-four-vertices-four-colors", "input_values": [4, 4, 14, 13, 11, 7], "input_length": 6, "expected_result": 8, "expected_output_hex": "1800000000000000"},
+    {"id": "eight-isolated-four-color-maximum", "input_values": [8, 4, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 10, "expected_result": 8, "expected_output_hex": "0000010000000000"},
+    {"id": "two-disjoint-edges-three-colors", "input_values": [4, 3, 2, 1, 8, 4], "input_length": 6, "expected_result": 8, "expected_output_hex": "2400000000000000"},
+    {"id": "single-edge-one-color-impossible", "input_values": [2, 1, 2, 1], "input_length": 4, "expected_result": 8, "expected_output_hex": "0000000000000000"},
+    {"id": "capacity-too-small", "input_values": [2, 3, 2, 1], "input_length": 4, "workspace_bytes": 7, "capacity_error_result": -2, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "capacity-exact", "input_values": [2, 3, 2, 1], "input_length": 4, "workspace_bytes": 8, "expected_result": 8, "expected_output_hex": "0600000000000000"},
+    {"id": "invalid-empty", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-header-only", "input_values": [2, 3], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-missing-row", "input_values": [2, 3, 2], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-extra-row", "input_values": [2, 3, 2, 1, 0], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-extra-row-at-parse-limit", "input_values": [8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 11, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-zero-vertices", "input_values": [0, 1], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-too-many-vertices", "input_values": [9, 2], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-zero-colors", "input_values": [1, 0, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-too-many-colors", "input_values": [1, 5, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-negative-row-mask", "input_values": [2, 3, -1, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-out-of-range-row-mask", "input_values": [2, 3, 4, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-self-loop", "input_values": [2, 3, 1, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid-asymmetric-edge", "input_values": [2, 3, 2, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

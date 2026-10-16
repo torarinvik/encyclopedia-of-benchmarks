@@ -4,17 +4,18 @@
 int64_t crc_polynomial_division(const int64_t *input, size_t length,
                                 uint8_t *output, size_t capacity)
 {
-    if (input == NULL || length < 3 || length > 3 + 64 + 16) return -1;
+    if (input == NULL || length < 3 || length > 3 + 79 + 16) return -1;
     const int64_t operation = input[0];
     const int64_t raw_message_length = input[1];
     const int64_t raw_polynomial_length = input[2];
-    if (operation < 0 || operation > 1 || raw_message_length < 1 || raw_message_length > 64
+    if (operation < 0 || operation > 1 || raw_message_length < 1
+        || (operation == 0 && raw_message_length > 64) || (operation == 1 && raw_message_length > 79)
         || raw_polynomial_length < 2 || raw_polynomial_length > 16) return -1;
     const size_t message_length = (size_t)raw_message_length;
     const size_t polynomial_length = (size_t)raw_polynomial_length;
     if (length != 3 + message_length + polynomial_length) return -1;
 
-    uint8_t message[64], polynomial[16], dividend[79], remainder[16];
+    uint8_t message[79], polynomial[16], dividend[79], remainder[16];
     for (size_t i = 0; i < message_length; ++i) {
         if (input[3 + i] < 0 || input[3 + i] > 1) return -1;
         message[i] = (uint8_t)input[3 + i];
@@ -49,7 +50,7 @@ int64_t crc_polynomial_division(const int64_t *input, size_t length,
     }
 
     size_t output_length;
-    if (operation == 0) output_length = message_length + remainder_length;
+    if (operation == 0) output_length = message_length + polynomial_length - 1;
     else {
         uint8_t nonzero = 0;
         for (size_t i = 0; i < remainder_length; ++i) nonzero |= remainder[i];
@@ -59,7 +60,11 @@ int64_t crc_polynomial_division(const int64_t *input, size_t length,
     if (output == NULL || capacity < output_length) return -2;
     if (operation == 0) {
         for (size_t i = 0; i < message_length; ++i) output[i] = message[i];
-        for (size_t i = 0; i < remainder_length; ++i) output[message_length + i] = remainder[i];
+        const size_t degree = polynomial_length - 1;
+        const size_t leading_zeroes = degree - remainder_length;
+        for (size_t i = 0; i < leading_zeroes; ++i) output[message_length + i] = 0;
+        for (size_t i = 0; i < remainder_length; ++i)
+            output[message_length + leading_zeroes + i] = remainder[i];
     } else output[0] = remainder[0];
     return (int64_t)output_length;
 }

@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "newton_raphson_root-fixed-polynomial-f64-unary-v1",
+  "algorithm": "newton_raphson_root",
+  "function_symbol": "newton_raphson_root",
+  "input": {
+    "kind": "finite_binary64_initial_guess",
+    "minimum": 1.0,
+    "maximum": 4.0,
+    "invalid_result": -1e+300,
+    "initial_guess": "input",
+    "function": "f(x)=x\u00b2\u22123",
+    "arithmetic": "IEEE-754 binary32 for each iteration",
+    "newton_update": "x -= (x*x\u22123)/(2*x)",
+    "stopping_rule": "|f(x)| <= 1e-6",
+    "maximum_updates": 1000
+  },
+  "output": {
+    "kind": "binary64_newton_iterate",
+    "absolute_tolerance": 2e-05,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 2e-05,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "1_0",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 1.7320507764816284
+    },
+    {
+      "id": "1_5",
+      "input_values": [
+        1.5
+      ],
+      "expected_result": 1.7320507764816284
+    },
+    {
+      "id": "2_0",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 1.7320507764816284
+    },
+    {
+      "id": "3_5",
+      "input_values": [
+        3.5
+      ],
+      "expected_result": 1.732050895690918
+    },
+    {
+      "id": "4_0",
+      "input_values": [
+        4.0
+      ],
+      "expected_result": 1.7320507764816284
+    },
+    {
+      "id": "0_999",
+      "input_values": [
+        0.999
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "4_001",
+      "input_values": [
+        4.001
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

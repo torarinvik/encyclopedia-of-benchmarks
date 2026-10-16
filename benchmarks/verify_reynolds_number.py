@@ -22,6 +22,7 @@ ALGORITHM = "reynolds_number"
 WORKLOAD_PATH = ROOT / "benchmarks/r/reynolds_number/workload.json"
 ABS_TOL = 1e-12
 REL_TOL = 1e-12
+I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
 def corpus(workload: dict) -> list[tuple[int, ...]]:
@@ -37,7 +38,13 @@ def corpus(workload: dict) -> list[tuple[int, ...]]:
         (1_000, -1_000, 1_000, 1_000), (1, -1, 1, 1_000),
         (), (1, 2, 3), (1, 2, 3, 4, 5),
         (0, 2, 5, 4), (1_001, 2, 5, 4),
-        (900, -1_001, 5, 4), (900, 2, 0, 4), (900, 2, 5, 0),
+        (900, -1_001, 5, 4), (900, 1_001, 5, 4),
+        (900, 2, 0, 4), (900, 2, 1_001, 4),
+        (900, 2, 5, 0), (900, 2, 5, 1_001),
+        (I64_MIN, 2, 5, 4), (I64_MAX, 2, 5, 4),
+        (900, I64_MIN, 5, 4), (900, I64_MAX, 5, 4),
+        (900, 2, I64_MIN, 4), (900, 2, I64_MAX, 4),
+        (900, 2, 5, I64_MIN), (900, 2, 5, I64_MAX),
     ):
         add(values)
     rng = random.Random(20261015)

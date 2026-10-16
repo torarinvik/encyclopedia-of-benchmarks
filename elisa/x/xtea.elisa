@@ -1,0 +1,33 @@
+def xtea_impl(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if length != 25 or input[0] < 1 or input[0] > 64: return -1
+    index:usize=1
+    while index<25:
+        if input[index] < 0 or input[index] > 255: return -1
+        index <- index+1
+    if capacity < 8: return -2
+    v0:mutable u32=0u32
+    v1:mutable u32=0u32
+    key:mutable u32[4]=zeroed
+    index <- 0
+    while index<4:
+        v0 <- (v0 << 8) | input[index+1].u32()
+        v1 <- (v1 << 8) | input[index+5].u32()
+        j:mutable usize=0
+        while j<4:
+            key[index] <- (key[index] << 8) | input[9+index*4+j].u32()
+            j <- j+1
+        index <- index+1
+    total:mutable u32=0u32
+    round:usize=0
+    while round<input[0].usize():
+        v0 <- v0 + ((((v1 << 4) ^ (v1 >> 5)) + v1) ^ (total + key[total & 3]))
+        total <- total + 0x9E3779B9u32
+        v1 <- v1 + ((((v0 << 4) ^ (v0 >> 5)) + v0) ^ (total + key[(total >> 11) & 3]))
+        round <- round+1
+    index <- 0
+    while index<4:
+        output[index] <- (v0 >> (24-8*index)).u8()
+        output[index+4] <- (v1 >> (24-8*index)).u8()
+        index <- index+1
+    8
+export fn xtea(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64=xtea_impl

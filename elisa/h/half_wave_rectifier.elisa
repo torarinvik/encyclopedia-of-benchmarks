@@ -1,0 +1,21 @@
+def half_wave_rectifier_impl(a:i64&,length:usize)->f64:
+    if length!=5:return -1.0e300
+    index:usize=1
+    while index<5:
+        if a[index] < -1000000 or a[index] > 1000000:return -1.0e300
+        index <- index+1
+    operation:i64=a[0]
+    if operation==0:
+        if a[1]<0 or a[2]<0 or a[3]<0 or (a[1]==0 and a[2]==0 and a[3]==0):return -1.0e300
+        a[4].f64()/(a[1]+a[2]+a[3]).f64()
+    else if operation==1 or operation==2:
+        if a[2]!=0 or a[3]!=0 or a[4]!=0:return -1.0e300
+        a[1].f64()*0.318
+    else if operation==3:
+        if a[2]<=0 or a[3]!=0 or a[4]!=0:return -1.0e300
+        a[1].f64()/a[2].f64()
+    else if operation==4 or operation==5:
+        if a[2]!=0 or a[3]!=0 or a[4]!=0:return -1.0e300
+        a[1].f64()/2.0
+    else:-1.0e300
+export fn half_wave_rectifier(a:i64&,length:usize)->f64=half_wave_rectifier_impl

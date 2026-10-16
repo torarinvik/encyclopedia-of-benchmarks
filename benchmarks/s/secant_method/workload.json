@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "secant-method-c-python-bounded-variants-v1",
+  "algorithm": "secant_method",
+  "function_symbol": "secant_method",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[variant, control]",
+    "exact_length": 2,
+    "first_rejected_length": 3,
+    "maximum_validation_array_length": 3,
+    "variant_domain": {
+      "0": "pinned C objective x*x-3; control=100 means tolerance 0.0001; seeds (0.2, 0.5)",
+      "1": "pinned Python objective 8*x-2*exp(-x); control is repeats 0..2; seeds (1, 3)"
+    },
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "secant iterate for the selected pinned source variant",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "c-source-self-test-seed-and-tolerance", "input_values": [0, 100], "expected_result": 1.7320508075242735},
+    {"id": "python-zero-updates", "input_values": [1, 0], "expected_result": 3.0},
+    {"id": "python-one-update", "input_values": [1, 1], "expected_result": 0.12669386295733887},
+    {"id": "python-two-updates-source-doctest", "input_values": [1, 2], "expected_result": 0.2139409276214589},
+    {"id": "invalid-variant", "input_values": [2, 100], "expected_result": -1e300},
+    {"id": "invalid-c-tolerance-control", "input_values": [0, 99], "expected_result": -1e300},
+    {"id": "invalid-python-negative-repeats", "input_values": [1, -1], "expected_result": -1e300},
+    {"id": "invalid-python-repeats-above-bound", "input_values": [1, 3], "expected_result": -1e300},
+    {"id": "invalid-empty", "input_values": [], "expected_result": -1e300},
+    {"id": "invalid-one-value", "input_values": [1], "expected_result": -1e300},
+    {"id": "invalid-extra-value", "input_values": [1, 2, 0], "expected_result": -1e300}
+  ]
+}

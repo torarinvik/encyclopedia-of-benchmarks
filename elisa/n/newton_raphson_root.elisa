@@ -1,0 +1,16 @@
+def newton_raphson_root_impl(x0: f64) -> f64:
+    if x0 != x0 or x0 < 1.0 or x0 > 4.0: return -1e300
+    x: mutable f32 = x0.f32()
+    i: mutable i32 = 0
+    while i < 1000:
+        square: f32 = x * x
+        residual: f32 = square - 3.0.f32()
+        if residual >= -1e-6.f32() and residual <= 1e-6.f32(): return x.f64()
+        derivative: f32 = 2.0.f32() * x
+        if derivative == 0.0.f32(): return -1e300
+        quotient: f32 = residual / derivative
+        x <- x - quotient
+        i <- i + 1
+    x.f64()
+
+export fn newton_raphson_root(x0: f64) -> f64 = newton_raphson_root_impl

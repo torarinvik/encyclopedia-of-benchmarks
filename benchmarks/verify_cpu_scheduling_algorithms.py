@@ -69,13 +69,18 @@ def corpus(workload: dict) -> tuple[str, int]:
                    [3, 1, 2, 0, 0, 1, 33]):
         records[tuple(values)] = expected_output(values)
 
-    lines = [f"{len(records) + 1}\n"]
+    null_input_values = (0, 2, 3, 3, 5, 2, -1, 4, 1, 2, 1)
+    if null_input_values in records:
+        raise ValueError("CPU-scheduling null-input canary collides with a corpus input")
+
+    lines = [f"{len(records) + 2}\n"]
     lines.extend(encode(list(values), result, output)
                  for values, (result, output) in sorted(records.items()))
     capacity_input = [0, 1, 2, 0, 0, 1, 0]
     capacity_result = expected_output(capacity_input, output_capacity=0)
     lines.append(encode(capacity_input, *capacity_result, output_capacity=0))
-    return "".join(lines), len(records) + 1
+    lines.append(encode(list(null_input_values), -1, b"", null_input=True))
+    return "".join(lines), len(records) + 2
 
 
 def verify(language: str, directory: Path, elisa_compiler: str | None,
