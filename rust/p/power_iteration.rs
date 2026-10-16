@@ -1,0 +1,3 @@
+use std::slice;
+#[no_mangle]
+pub extern "C" fn power_iteration(v:*const i64,n:usize)->f64{if v.is_null()||n!=5{return -1e300}let a0=unsafe{slice::from_raw_parts(v,n)};if a0.iter().any(|x|*x<1||*x>1000){return -1e300}let(a,b,d)=(a0[0]as f64,a0[1]as f64,a0[2]as f64);if a*d<=b*b{return -1e300}let(mut x,mut y,mut prev)=(a0[3]as f64,a0[4]as f64,0.0f64);for it in 0..100{let(w0,w1)=(a*x+b*y,b*x+d*y);let norm=(w0*w0+w1*w1).sqrt();if norm==0.0{return -1e300}x=w0/norm;y=w1/norm;let(av0,av1)=(a*x+b*y,b*x+d*y);let eig=x*av0+y*av1;let error=(eig-prev).abs()/eig;if error<=1e-12||it==99{return eig}prev=eig}-1e300}

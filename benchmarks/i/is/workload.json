@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "lua-uint53-is-v1",
-  "algorithm": "is",
+  "algorithm": "uint53_is",
   "function_symbol": "uint53_is",
   "input": {
     "kind": "signed_i64_integer_array",

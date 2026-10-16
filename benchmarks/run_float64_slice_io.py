@@ -17,11 +17,13 @@ from build_abi import ROOT, sha256_file
 from vector3_axis_rotation_oracle import expected_result as vector3_axis_rotation_oracle
 from vector3_perspective_projection_oracle import expected_result as vector3_perspective_projection_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
+from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
     "vectors_3d": vectors_3d_oracle,
+    "dimensionality_reduction_pca": dimensionality_reduction_pca_oracle,
 }
 
 

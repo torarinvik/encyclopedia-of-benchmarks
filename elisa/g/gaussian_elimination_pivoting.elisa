@@ -1,0 +1,46 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for k in 0..8:
+        out[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+def abs_f64(x: f64) -> f64: if x < 0.0: -x else: x
+def gaussian_elimination_pivoting_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 1 or length > 21: return -1
+    dimension: i64 = v[0]
+    if dimension < 2 or dimension > 4 or length != (1+dimension*(dimension+1)).usize(): return -1
+    a: mutable f64[20]
+    for i in 0..dimension:
+        for j in 0..dimension+1:
+            value: i64 = v[1+i*(dimension+1)+j]
+            if value < -10000 or value > 10000: return -1
+            a[i*(dimension+1)+j] <- value.f64()/1000.0
+    bytes: usize = dimension.usize()*8
+    
+    for column in 0..dimension:
+        for i in column..dimension:
+            if abs_f64(a[i*(dimension+1)+column]) > abs_f64(a[column*(dimension+1)+column]):
+                for j in 0..dimension+1:
+                    temporary: f64 = a[column*(dimension+1)+j]
+                    a[column*(dimension+1)+j] <- a[i*(dimension+1)+j]
+                    a[i*(dimension+1)+j] <- temporary
+        if abs_f64(a[column*(dimension+1)+column]) < 1e-8: return -1
+        if column != 0:
+            prior: i64 = column-1
+            for i in column..dimension:
+                factor: f64 = a[i*(dimension+1)+prior]/a[prior*(dimension+1)+prior]
+                for j in 0..dimension+1: a[i*(dimension+1)+j] <- a[i*(dimension+1)+j]-factor*a[prior*(dimension+1)+j]
+    solution: mutable f64[4]
+    column: mutable i64 = dimension
+    while column > 0:
+        column <- column-1
+        solution[column] <- a[column*(dimension+1)+dimension]/a[column*(dimension+1)+column]
+        row: mutable i64 = column
+        while row > 0:
+            row <- row-1
+            a[row*(dimension+1)+dimension] <- a[row*(dimension+1)+dimension]-a[row*(dimension+1)+column]*solution[column]
+    if out.is_null() or capacity < bytes: return -2
+    for i in 0..dimension: put_f64(out, i.usize()*8, solution[i])
+    bytes.i64()
+export gaussian_elimination_pivoting(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gaussian_elimination_pivoting_impl

@@ -1,0 +1,540 @@
+{
+  "schema_version": 1,
+  "id": "diff-views-of-binary-tree-v1",
+  "algorithm": "diff_views_of_binary_tree",
+  "function_symbol": "diff_views_of_binary_tree",
+  "input": {
+    "kind": "indexed_binary_tree_triplets",
+    "maximum_nodes": 1023,
+    "node_record": [
+      "signed_i32_value",
+      "left_child_index",
+      "right_child_index"
+    ],
+    "view": "right, left, top, or bottom",
+    "missing_child": -1,
+    "root_index": "tree root index or -1 for empty",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "empty_right",
+      "nodes": [],
+      "root_index": -1,
+      "view": "right",
+      "expected_result": 0,
+      "expected_output_values": []
+    },
+    {
+      "id": "empty_left",
+      "nodes": [],
+      "root_index": -1,
+      "view": "left",
+      "expected_result": 0,
+      "expected_output_values": []
+    },
+    {
+      "id": "empty_top",
+      "nodes": [],
+      "root_index": -1,
+      "view": "top",
+      "expected_result": 0,
+      "expected_output_values": []
+    },
+    {
+      "id": "empty_bottom",
+      "nodes": [],
+      "root_index": -1,
+      "view": "bottom",
+      "expected_result": 0,
+      "expected_output_values": []
+    },
+    {
+      "id": "single_right",
+      "nodes": [
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "right",
+      "expected_result": 1,
+      "expected_output_values": [
+        5
+      ]
+    },
+    {
+      "id": "single_left",
+      "nodes": [
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "left",
+      "expected_result": 1,
+      "expected_output_values": [
+        5
+      ]
+    },
+    {
+      "id": "single_top",
+      "nodes": [
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "top",
+      "expected_result": 1,
+      "expected_output_values": [
+        5
+      ]
+    },
+    {
+      "id": "single_bottom",
+      "nodes": [
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "bottom",
+      "expected_result": 1,
+      "expected_output_values": [
+        5
+      ]
+    },
+    {
+      "id": "pinned_example_right",
+      "nodes": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          20,
+          3,
+          4
+        ],
+        [
+          15,
+          -1,
+          -1
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "right",
+      "expected_result": 3,
+      "expected_output_values": [
+        3,
+        20,
+        7
+      ]
+    },
+    {
+      "id": "pinned_example_left",
+      "nodes": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          20,
+          3,
+          4
+        ],
+        [
+          15,
+          -1,
+          -1
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "left",
+      "expected_result": 3,
+      "expected_output_values": [
+        3,
+        9,
+        15
+      ]
+    },
+    {
+      "id": "pinned_example_top",
+      "nodes": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          20,
+          3,
+          4
+        ],
+        [
+          15,
+          -1,
+          -1
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "top",
+      "expected_result": 4,
+      "expected_output_values": [
+        9,
+        3,
+        20,
+        7
+      ]
+    },
+    {
+      "id": "pinned_example_bottom",
+      "nodes": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          20,
+          3,
+          4
+        ],
+        [
+          15,
+          -1,
+          -1
+        ],
+        [
+          7,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "bottom",
+      "expected_result": 4,
+      "expected_output_values": [
+        9,
+        15,
+        20,
+        7
+      ]
+    },
+    {
+      "id": "column_tie_right",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          3
+        ],
+        [
+          3,
+          4,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "right",
+      "expected_result": 3,
+      "expected_output_values": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "id": "column_tie_left",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          3
+        ],
+        [
+          3,
+          4,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "left",
+      "expected_result": 3,
+      "expected_output_values": [
+        1,
+        2,
+        4
+      ]
+    },
+    {
+      "id": "column_tie_top",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          3
+        ],
+        [
+          3,
+          4,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "top",
+      "expected_result": 3,
+      "expected_output_values": [
+        2,
+        1,
+        3
+      ]
+    },
+    {
+      "id": "column_tie_bottom",
+      "nodes": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          -1,
+          3
+        ],
+        [
+          3,
+          4,
+          -1
+        ],
+        [
+          4,
+          -1,
+          -1
+        ],
+        [
+          5,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 0,
+      "view": "bottom",
+      "expected_result": 3,
+      "expected_output_values": [
+        2,
+        5,
+        3
+      ]
+    },
+    {
+      "id": "nonzero_root_right",
+      "nodes": [
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          5,
+          0,
+          2
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "view": "right",
+      "expected_result": 2,
+      "expected_output_values": [
+        5,
+        1
+      ]
+    },
+    {
+      "id": "nonzero_root_left",
+      "nodes": [
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          5,
+          0,
+          2
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "view": "left",
+      "expected_result": 2,
+      "expected_output_values": [
+        5,
+        9
+      ]
+    },
+    {
+      "id": "nonzero_root_top",
+      "nodes": [
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          5,
+          0,
+          2
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "view": "top",
+      "expected_result": 3,
+      "expected_output_values": [
+        9,
+        5,
+        1
+      ]
+    },
+    {
+      "id": "nonzero_root_bottom",
+      "nodes": [
+        [
+          9,
+          -1,
+          -1
+        ],
+        [
+          5,
+          0,
+          2
+        ],
+        [
+          1,
+          -1,
+          -1
+        ]
+      ],
+      "root_index": 1,
+      "view": "bottom",
+      "expected_result": 3,
+      "expected_output_values": [
+        9,
+        5,
+        1
+      ]
+    }
+  ],
+  "measurement": {
+    "comparison_model": "tree_views_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  }
+}

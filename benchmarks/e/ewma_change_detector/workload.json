@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-ewma-change-detector-fixed-alpha-half-v1",
+  "algorithm": "ewma_change_detector",
+  "function_symbol": "ewma_change_detector",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[sample_count, samples...]",
+    "sample_count_range": [
+      0,
+      15
+    ],
+    "sample_range": [
+      -8,
+      8
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "base-4 encoded signal trace: 0 none, 1 upward, 2 downward",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "within_warmup",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "first_alarm",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "downward_alarm",
+      "input_values": [
+        2,
+        -1,
+        -2
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "reset_after_alarm",
+      "input_values": [
+        5,
+        2,
+        0,
+        2,
+        0,
+        2
+      ],
+      "expected_result": 273
+    },
+    {
+      "id": "alternating",
+      "input_values": [
+        8,
+        4,
+        -4,
+        4,
+        -4,
+        4,
+        -4,
+        4,
+        -4
+      ],
+      "expected_result": 26214
+    },
+    {
+      "id": "max_length",
+      "input_values": [
+        15,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "expected_result": 357913941
+    },
+    {
+      "id": "too_many_samples",
+      "input_values": [
+        16
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "bad_sample",
+      "input_values": [
+        1,
+        9
+      ],
+      "expected_result": -1
+    }
+  ]
+}

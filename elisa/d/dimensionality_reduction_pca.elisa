@@ -1,0 +1,84 @@
+def dimensionality_reduction_pca(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_len < 7 or input[0] != 2.0 or input[2] != 1.0: return -1
+    samples: mutable usize = 0
+    count: mutable f64 = 0.0
+    if input_len == 7 and input[1] == 2.0:
+        samples <- 2
+        count <- 2.0
+    elif input_len == 9 and input[1] == 3.0:
+        samples <- 3
+        count <- 3.0
+    elif input_len == 11 and input[1] == 4.0:
+        samples <- 4
+        count <- 4.0
+    elif input_len == 13 and input[1] == 5.0:
+        samples <- 5
+        count <- 5.0
+    elif input_len == 15 and input[1] == 6.0:
+        samples <- 6
+        count <- 6.0
+    elif input_len == 17 and input[1] == 7.0:
+        samples <- 7
+        count <- 7.0
+    elif input_len == 19 and input[1] == 8.0:
+        samples <- 8
+        count <- 8.0
+    else: return -1
+    mx: mutable f64 = 0.0
+    my: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < samples:
+        xvalue: f64 = input[3+i]
+        yvalue: f64 = input[3+samples+i]
+        if xvalue != xvalue or yvalue != yvalue or xvalue > 1000000.0 or xvalue < -1000000.0 or yvalue > 1000000.0 or yvalue < -1000000.0: return -1
+        mx <- mx + xvalue
+        my <- my + yvalue
+        i <- i + 1
+    mx <- mx / count
+    my <- my / count
+    a: mutable f64 = 0.0
+    b: mutable f64 = 0.0
+    d: mutable f64 = 0.0
+    i <- 0
+    while i < samples:
+        dx: f64 = input[3+i] - mx
+        dy: f64 = input[3+samples+i] - my
+        a <- a + dx * dx
+        b <- b + dx * dy
+        d <- d + dy * dy
+        i <- i + 1
+    a <- a / count
+    b <- b / count
+    d <- d / count
+    if b <= 0.0: return -1
+    discriminant: f64 = (a-d)*(a-d)+4.0*b*b
+    root: mutable f64 = discriminant
+    i <- 0
+    while i < 64:
+        root <- 0.5 * (root + discriminant / root)
+        i <- i + 1
+    eigenvalue: f64 = 0.5 * (a+d+root)
+    vx: mutable f64 = b
+    vy: mutable f64 = eigenvalue-a
+    norm2: f64 = vx*vx+vy*vy
+    scale: mutable f64 = 1.0
+    i <- 0
+    while i < 64:
+        scale <- 0.5 * (scale + 1.0/(norm2*scale))
+        i <- i+1
+    vx <- vx*scale
+    vy <- vy*scale
+    if output == null or output_capacity < samples: return -2
+    i <- 0
+    while i < samples:
+        output[i] <- vx*input[3+i]+vy*input[3+samples+i]
+        i <- i+1
+    if samples == 2: return 2
+    if samples == 3: return 3
+    if samples == 4: return 4
+    if samples == 5: return 5
+    if samples == 6: return 6
+    if samples == 7: return 7
+    return 8
+
+export fn dimensionality_reduction_pca(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64 = dimensionality_reduction_pca

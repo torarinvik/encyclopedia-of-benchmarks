@@ -1,0 +1,15 @@
+def line_sweep(v:i64&,n:usize)->f64:
+    if n<1 or n>17:return -1e300
+    count=v[0]
+    if count<0 or count>8 or n!=1+2*count:return -1e300
+    if count==0:return 0.0
+    line=[0;22]
+    for i in 0..count:
+        s=v[1+2*i];e=v[2+2*i]
+        if s<0 or e<s or e>20:return -1e300
+        line[s]=line[s]+1;line[e+1]=line[e+1]-1
+    c=0;m=0
+    for d in line:
+        c=c+d
+        if c>m:m=c
+    if m>1:1.0 else:0.0

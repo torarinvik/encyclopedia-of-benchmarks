@@ -5,7 +5,7 @@ import math
 const max_sample_count = 128
 
 fn put_f64_le(mut output &u8, offset int, value f64) {
-	mut bits := math.bits_from_f64(value)
+	mut bits := math.f64_bits(value)
 	for byte in 0 .. 8 {
 		unsafe { output[offset + byte] = u8(bits & 255) }
 		bits >>= 8

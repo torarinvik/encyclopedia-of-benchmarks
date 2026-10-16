@@ -10,12 +10,23 @@ pub fn edmonds(a &i64, length usize) i64 {
  mut n:=int(n64);mut root:=int(root64);m:=int(m64)
  mut eu:=[]int{len:emax};mut ev:=[]int{len:emax};mut ew:=[]i64{len:emax}
  for i in 0..m {u:=unsafe{a[3+3*i]};v:=unsafe{a[4+3*i]};w:=unsafe{a[5+3*i]};if u<0||u>=n64||v<0||v>=n64||w<0||w>100{return -1};eu[i]=int(u);ev[i]=int(v);ew[i]=w}
+ if n == 1 { return 0 }
  mut answer:=i64(0)
  for {
-  mut inn:=[]i64{len:nmax};mut pre:=[]int{len:nmax}
-  for i in 0..n {inn[i]=inf;pre[i]=-1}
-  for i in 0..m {if eu[i]!=ev[i] && ev[i]!=root && ew[i]<inn[ev[i]]{inn[ev[i]]=ew[i];pre[ev[i]]=eu[i]}}
-  inn[root]=0;for i in 0..n {if inn[i]==inf{return -1}}
+  mut inn:=[]i64{len:nmax};mut pre:=[]int{len:nmax};mut has:=[]bool{len:nmax}
+  for i in 0 .. m {
+   u := eu[i]
+   v := ev[i]
+   w := ew[i]
+   if u != v && v != root {
+    if !has[v] || w < inn[v] {
+     inn[v] = w
+     pre[v] = u
+     has[v] = true
+    }
+   }
+  }
+  inn[root]=0;for i in 0..n {if i!=root && !has[i]{return -1}}
   mut ids:=[]int{len:nmax};mut vis:=[]int{len:nmax}
   for i in 0..n {ids[i]=-1;vis[i]=-1}
   mut cycles:=0

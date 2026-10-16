@@ -1,0 +1,6 @@
+module main
+import math
+fn put_f64(out &u8,at i64,x f64){mut bits:=math.bits_from_f64(x);for k in 0..8{unsafe{out[at+k]=u8(bits&255)};bits>>=8}}
+fn absf(x f64)f64{return if x<0{-x}else{x}}
+@[export: 'gauss_jordan']
+pub fn gauss_jordan(v &i64,n usize,out &u8,cap usize)i64{if isnil(v)||n<2||n>22{return -1};r:=unsafe{v[0]};c:=unsafe{v[1]};if r<1||r>4||c<1||c>4||n!=usize(2+r*c+r){return -1};mut a:=[][]f64{};mut b:=[]f64{len:int(r)};for i in 0..r{mut row:=[]f64{len:int(c)};for j in 0..c{z:=unsafe{v[2+i*c+j]};if z < -5000||z>5000{return -1};row[j]=f64(z)/1000};z:=unsafe{v[2+r*c+i]};if z < -5000||z>5000{return -1};b[i]=f64(z)/1000;a<<row};bytes:=usize((r*c+r)*8);if isnil(out)||cap<bytes{return -2};for col in 0..c{mut pivot:=i64(-1);for row in col..r{if absf(a[row][col])>1e-8{pivot=row;break}};if pivot<0{continue};if pivot!=col{tmp:=a[pivot].clone();a[pivot]=a[col].clone();a[col]=tmp;t:=b[pivot];b[pivot]=b[col];b[col]=t};pv:=a[col][col];for j in 0..c{a[col][j]/=pv};b[col]/=pv;for row in 0..r{if row==col{continue};factor:=a[row][col];for j in 0..c{a[row][j]-=factor*a[col][j]};b[row]-=factor*b[col]}};mut at:=i64(0);for i in 0..r{for j in 0..c{put_f64(out,at*8,a[i][j]);at++}};for i in 0..r{put_f64(out,at*8,b[i]);at++};return i64(bytes)}

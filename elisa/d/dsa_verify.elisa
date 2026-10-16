@@ -1,0 +1,48 @@
+def dsa_verify_prime(value: i64) -> bool:
+    if value < 2: return false
+    divisor: mutable i64 = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0: return false
+        divisor <- divisor + 1
+    return true
+
+def dsa_verify_pow(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value % modulus
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- result * base % modulus
+        base <- base * base % modulus
+        exponent <- exponent >> 1
+    return result
+
+def dsa_verify_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 7 or length > 15: return -1
+    p: i64 = input[0]
+    q: i64 = input[1]
+    g: i64 = input[2]
+    y: i64 = input[3]
+    r: i64 = input[4]
+    s: i64 = input[5]
+    message_length: i64 = input[6]
+    if message_length < 0 or message_length > 8 or length != 7 + message_length.usize(): return -1
+    if p < 5 or p > 251 or not dsa_verify_prime(p): return -1
+    if q < 2 or q >= p or (p - 1) % q != 0 or not dsa_verify_prime(q): return -1
+    if g < 2 or g >= p or dsa_verify_pow(g, q, p) != 1: return -1
+    if y < 1 or y >= p or dsa_verify_pow(y, q, p) != 1: return -1
+    if r < 1 or r >= q or s < 1 or s >= q: return -1
+    h: mutable i64 = 0
+    index: mutable usize = 0
+    while index < message_length.usize():
+        byte: i64 = input[7 + index]
+        if byte < 0 or byte > 255: return -1
+        h <- (h * 256 + byte) % q
+        index <- index + 1
+    w: i64 = dsa_verify_pow(s, q - 2, q)
+    u1: i64 = h * w % q
+    u2: i64 = r * w % q
+    v: i64 = (dsa_verify_pow(g, u1, p) * dsa_verify_pow(y, u2, p) % p) % q
+    if v == r: return 1
+    return 0
+
+export fn dsa_verify(input: i64&, length: usize) -> i64 = dsa_verify_impl

@@ -1,7 +1,7 @@
 /// Count a maximum set of non-overlapping half-open activities.
 #[no_mangle]
 pub extern "C" fn activity_selection(input: *const i64, length: usize) -> i64 {
-    if length == 0 { return -1; }
+    if input.is_null() || length == 0 { return -1; }
     let input = unsafe { std::slice::from_raw_parts(input, length) };
     if input[0] < 0 || input[0] > 64 { return -1; }
     let count = input[0] as usize;

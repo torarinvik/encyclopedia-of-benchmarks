@@ -1,0 +1,8 @@
+extern sqrt(value:f64)->f64
+def lorentz_transformation_four_vector(v:i64&,n:usize)->f64:
+    if n!=6:return -1e300
+    vel=v[0];s=v[1];t=v[2];x=v[3];y=v[4];z=v[5]
+    if vel<1 or vel>200000000 or s<0 or s>3 or t< -1000000 or t>1000000 or x< -100000000 or x>100000000 or y< -100000000 or y>100000000 or z< -100000000 or z>100000000:return -1e300
+    b=vel.f64()/299792458.0;g=1/sqrt(1-b*b);ct=(t.f64()/1e6)*299792458.0;xx=x.f64()/100;yy=y.f64()/100;zz=z.f64()/100
+    out=[g*ct-g*b*xx,-g*b*ct+g*xx,yy,zz]
+    out[s]

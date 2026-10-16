@@ -3,7 +3,7 @@ module activity_selection
 // Count a maximum set of non-overlapping half-open activities.
 @[export: 'activity_selection']
 pub fn activity_selection(input &i64, length usize) i64 {
-    if length == 0 { return -1 }
+    if unsafe { input == nil } || length == 0 { return -1 }
     first := unsafe { input[0] }
     if first < 0 || first > 64 { return -1 }
     count := int(first)

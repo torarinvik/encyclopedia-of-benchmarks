@@ -37,6 +37,18 @@ from cone_oracle import INVALID_RESULT as CONE_INVALID_RESULT
 from cone_oracle import expected_result as cone_expected
 from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
 from cohen_sutherland_oracle import expected_result as cohen_sutherland_expected
+from laplacian_filter_oracle import INVALID_RESULT as LAPLACIAN_FILTER_INVALID_RESULT
+from laplacian_filter_oracle import MAX_INPUT_LENGTH as MAX_LAPLACIAN_FILTER_INPUT_LENGTH
+from laplacian_filter_oracle import expected_result as laplacian_filter_expected
+from lorentz_transformation_four_vector_oracle import INVALID_RESULT as LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
+from lorentz_transformation_four_vector_oracle import MAX_INPUT_LENGTH as MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH
+from lorentz_transformation_four_vector_oracle import expected_result as lorentz_transformation_four_vector_expected
+from line_sweep_oracle import INVALID_RESULT as LINE_SWEEP_INVALID_RESULT
+from line_sweep_oracle import MAX_INPUT_LENGTH as MAX_LINE_SWEEP_INPUT_LENGTH
+from line_sweep_oracle import expected_result as line_sweep_expected
+from leftist_heap_oracle import INVALID_RESULT as LEFTIST_HEAP_INVALID_RESULT
+from leftist_heap_oracle import MAX_INPUT_LENGTH as MAX_LEFTIST_HEAP_INPUT_LENGTH
+from leftist_heap_oracle import expected_result as leftist_heap_expected
 from lamberts_ellipsoidal_distance_oracle import INVALID_RESULT as LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT
 from lamberts_ellipsoidal_distance_oracle import MAX_INPUT_LENGTH as MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
 from lamberts_ellipsoidal_distance_oracle import expected_result as lamberts_ellipsoidal_distance_expected
@@ -55,6 +67,12 @@ from peak_signal_to_noise_ratio_oracle import expected_result as peak_signal_to_
 from p2_quantile_estimator_oracle import INVALID_RESULT as P2_QUANTILE_INVALID_RESULT
 from p2_quantile_estimator_oracle import MAX_INPUT_LENGTH as MAX_P2_QUANTILE_INPUT_LENGTH
 from p2_quantile_estimator_oracle import expected_result as p2_quantile_expected
+from pyramid_oracle import INVALID_RESULT as PYRAMID_INVALID_RESULT
+from pyramid_oracle import MAX_INPUT_LENGTH as MAX_PYRAMID_INPUT_LENGTH
+from pyramid_oracle import expected_result as pyramid_expected
+from power_iteration_oracle import INVALID_RESULT as POWER_ITERATION_INVALID_RESULT
+from power_iteration_oracle import MAX_INPUT_LENGTH as MAX_POWER_ITERATION_INPUT_LENGTH
+from power_iteration_oracle import expected_result as power_iteration_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -325,7 +343,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH if algorithm == "newton_raphson" else
                         MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
                         if algorithm == "reverse_polish_notation" else
+                        MAX_POWER_ITERATION_INPUT_LENGTH if algorithm == "power_iteration" else
+                        MAX_PYRAMID_INPUT_LENGTH if algorithm == "pyramid" else
                         MAX_P2_QUANTILE_INPUT_LENGTH if algorithm == "p2_quantile_estimator" else
+                        MAX_LAPLACIAN_FILTER_INPUT_LENGTH + 1 if algorithm == "laplacian_filter" else
+                        MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH
+                        if algorithm == "lorentz_transformation_four_vector" else
+                        MAX_LINE_SWEEP_INPUT_LENGTH if algorithm == "line_sweep" else
+                        MAX_LEFTIST_HEAP_INPUT_LENGTH if algorithm == "leftist_heap" else
                         MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH if algorithm == "peak_signal_to_noise_ratio" else
                         MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
                         if algorithm == "lamberts_ellipsoidal_distance" else
@@ -631,6 +656,36 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == COHEN_SUTHERLAND_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
             raise ValueError("cohen_sutherland expected_result must match the selected clipped coordinate or acceptance flag")
+    elif algorithm == "laplacian_filter":
+        source_result = laplacian_filter_expected(values)
+        if source_result == LAPLACIAN_FILTER_INVALID_RESULT:
+            if expected != LAPLACIAN_FILTER_INVALID_RESULT:
+                raise ValueError("invalid laplacian_filter inputs must use the -1e300 result sentinel")
+        elif expected == LAPLACIAN_FILTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=0.0):
+            raise ValueError("laplacian_filter expected_result must match the pinned top-left Laplacian response")
+    elif algorithm == "lorentz_transformation_four_vector":
+        source_result = lorentz_transformation_four_vector_expected(values)
+        if source_result == LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT:
+            if expected != LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT:
+                raise ValueError("invalid lorentz_transformation_four_vector inputs must use the -1e300 result sentinel")
+        elif expected == LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-6):
+            raise ValueError("lorentz_transformation_four_vector expected_result must match the selected bounded x-boost component")
+    elif algorithm == "line_sweep":
+        source_result = line_sweep_expected(values)
+        if source_result == LINE_SWEEP_INVALID_RESULT:
+            if expected != LINE_SWEEP_INVALID_RESULT:
+                raise ValueError("invalid line_sweep inputs must use the -1e300 result sentinel")
+        elif expected == LINE_SWEEP_INVALID_RESULT or expected != source_result:
+            raise ValueError("line_sweep expected_result must match the pinned inclusive integer range-overlap scan")
+    elif algorithm == "leftist_heap":
+        source_result = leftist_heap_expected(values)
+        if source_result == LEFTIST_HEAP_INVALID_RESULT:
+            if expected != LEFTIST_HEAP_INVALID_RESULT:
+                raise ValueError("invalid leftist_heap inputs must use the -1e300 result sentinel")
+        elif expected == LEFTIST_HEAP_INVALID_RESULT or expected != source_result:
+            raise ValueError("leftist_heap expected_result must match the bounded source-ordered insert/merge/extract trace")
     elif algorithm == "lamberts_ellipsoidal_distance":
         source_result = lamberts_ellipsoidal_distance_expected(values)
         if source_result == LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT:
@@ -639,6 +694,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-6):
             raise ValueError("lamberts_ellipsoidal_distance expected_result must match the bounded WGS-84 Lambert distance in meters")
+    elif algorithm == "power_iteration":
+        source_result = power_iteration_expected(values)
+        if source_result == POWER_ITERATION_INVALID_RESULT:
+            if expected != POWER_ITERATION_INVALID_RESULT:
+                raise ValueError("invalid power_iteration inputs must use the -1e300 result sentinel")
+        elif expected == POWER_ITERATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("power_iteration expected_result must match the bounded Python Rayleigh quotient iteration")
+    elif algorithm == "pyramid":
+        source_result = pyramid_expected(values)
+        if source_result == PYRAMID_INVALID_RESULT:
+            if expected != PYRAMID_INVALID_RESULT:
+                raise ValueError("invalid pyramid inputs must use the -1e300 result sentinel")
+        elif expected == PYRAMID_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("pyramid expected_result must match the selected source geometry formula")
     elif algorithm == "p2_quantile_estimator":
         source_result = p2_quantile_expected(values)
         if source_result == P2_QUANTILE_INVALID_RESULT:

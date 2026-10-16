@@ -5,7 +5,7 @@ import "core:c"
 // Count a maximum set of non-overlapping half-open activities.
 @(export)
 activity_selection :: proc "c" (input: [^]i64, length: c.size_t) -> i64 {
-    if length == 0 || input[0] < 0 || input[0] > 64 do return -1
+    if input == nil || length == 0 || input[0] < 0 || input[0] > 64 do return -1
     count := int(input[0])
     if length != c.size_t(1 + 2 * count) do return -1
     if count == 0 do return 0

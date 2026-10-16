@@ -1,7 +1,7 @@
 const WA_TOR_MAX_WIDTH: usize = 8
 const WA_TOR_MAX_HEIGHT: usize = 8
 const WA_TOR_MAX_CELLS: usize = 64
-const WA_TOR_MAX_CHRONONS: i64 = 32
+const WA_TOR_MAX_CHRONONS: usize = 32
 const WA_TOR_MAX_ENTITY_RECORDS: usize = WA_TOR_MAX_CELLS * (WA_TOR_MAX_CHRONONS + 1)
 const WA_TOR_HASH_MODULUS: i64 = 2147483647
 const WA_TOR_HASH_MULTIPLIER: i64 = 1000003
@@ -102,7 +102,7 @@ def wa_tor_impl(values: i64&, length: usize) -> i64:
     width_value: i64 = values[0]
     height_value: i64 = values[1]
     chronons: i64 = values[2]
-    if width_value < 1 or width_value > 8 or height_value < 1 or height_value > 8 or chronons < 0 or chronons > WA_TOR_MAX_CHRONONS:
+    if width_value < 1 or width_value > 8 or height_value < 1 or height_value > 8 or chronons < 0 or chronons > WA_TOR_MAX_CHRONONS.i64():
         return -1
     width: usize = width_value.usize()
     height: usize = height_value.usize()

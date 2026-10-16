@@ -1,0 +1,43 @@
+const MAX_DECISIONS: usize = 64
+const MAX_CRITERIA: usize = 16
+const MAX_VALUE: i64 = 100000
+
+def decisions_convolutions_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3: return -1
+    method: i64 = input[0]
+    n_arg: i64 = input[1]
+    m_arg: i64 = input[2]
+    if (method != 0 and method != 1) or n_arg < 1 or n_arg > 64 or m_arg < 1 or m_arg > 16: return -1
+    n: usize = n_arg.usize()
+    m: usize = m_arg.usize()
+    if length != 3 + m + n * m: return -1
+    index: mutable usize = 0
+    while index < m:
+        value: i64 = input[3 + index]
+        if value < -MAX_VALUE or value > MAX_VALUE: return -1
+        index <- index + 1
+    index <- 0
+    while index < n * m:
+        value: i64 = input[3 + m + index]
+        if value < -MAX_VALUE or value > MAX_VALUE: return -1
+        index <- index + 1
+    best_score: mutable i64 = 0
+    best_index: mutable usize = 0
+    decision: mutable usize = 0
+    while decision < n:
+        score: mutable i64 = 0
+        criterion: mutable usize = 0
+        while criterion < m:
+            product: i64 = input[3 + m + decision * m + criterion] * input[3 + criterion]
+            if method == 0:
+                score <- score + product
+            else if criterion == 0 or product < score:
+                score <- product
+            criterion <- criterion + 1
+        if decision == 0 or score > best_score:
+            best_score <- score
+            best_index <- decision
+        decision <- decision + 1
+    best_index.i64()
+
+export fn decisions_convolutions(input: i64&, length: usize) -> i64 = decisions_convolutions_impl

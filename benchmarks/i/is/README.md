@@ -12,7 +12,7 @@ See [workload](workload.json), [independent oracle](../../is_oracle.py), and pin
 |---|---|
 | C | [`c/i/uint53_is.c`](../../../c/i/uint53_is.c) |
 | C3 | [`c3/i/uint53_is.c3`](../../../c3/i/uint53_is.c3) |
-| C++ | [`c++/i/uint53_is.cpp`](../../../c++/i/uint53_is.cpp) |
+| C++ | [`cpp/i/uint53_is.cpp`](../../../cpp/i/uint53_is.cpp) |
 | Elisa | [`elisa/i/uint53_is.elisa`](../../../elisa/i/uint53_is.elisa) |
 | Nim | [`nim/i/uint53_is.nim`](../../../nim/i/uint53_is.nim) |
 | Odin | [`odin/i/uint53_is.odin`](../../../odin/i/uint53_is.odin) |

@@ -13,9 +13,9 @@
   "cases": [
     {
       "id": "empty",
-      "input_length": 0,
-      "input_values": [],
-      "expected_result": -1
+      "input_length": 1,
+      "input_values": [0],
+      "expected_result": 0
     },
     {
       "id": "one_activity",

@@ -1,0 +1,155 @@
+def ec_run_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length != 7: return -1
+    prime: i64 = values[0]
+    coefficient: i64 = values[1]
+    curve_b: i64 = values[2]
+    gx: i64 = values[3]
+    gy: i64 = values[4]
+    alice: i64 = values[5]
+    bob: i64 = values[6]
+    if prime < 5 or prime > 251: return -1
+    divisor: mutable i64 = 2
+    while divisor * divisor <= prime:
+        if prime % divisor == 0: return -1
+        divisor <- divisor + 1
+    if coefficient < 0 or coefficient >= prime or curve_b < 0 or curve_b >= prime: return -1
+    if gx < 0 or gx >= prime or gy < 0 or gy >= prime: return -1
+    if alice < 1 or alice > 1024 or bob < 1 or bob > 1024: return -1
+    discriminant: mutable i64 = (4 * coefficient * coefficient * coefficient + 27 * curve_b * curve_b) % prime
+    while discriminant < 0: discriminant <- discriminant + prime
+    if discriminant == 0: return -1
+    on_curve: mutable i64 = (gy * gy - gx * gx * gx - coefficient * gx - curve_b) % prime
+    while on_curve < 0: on_curve <- on_curve + prime
+    if on_curve != 0: return -1
+    if capacity < 48 or output.is_null(): return -2
+    alice_x: mutable i64 = -1
+    alice_y: mutable i64 = -1
+    bob_x: mutable i64 = -1
+    bob_y: mutable i64 = -1
+    shared_x: mutable i64 = -1
+    shared_y: mutable i64 = -1
+    other_x: mutable i64 = -1
+    other_y: mutable i64 = -1
+    slope: mutable i64 = 0
+    exponent: mutable i64 = 0
+    inverse: mutable i64 = 1
+    base: mutable i64 = 0
+    nx: mutable i64 = 0
+    ny: mutable i64 = 0
+    stage: mutable i64 = 0
+    while stage < 4:
+        point_x: mutable i64 = gx
+        point_y: mutable i64 = gy
+        scalar: mutable i64 = alice
+        if stage == 1:
+            scalar <- bob
+        if stage == 2:
+            point_x <- alice_x
+            point_y <- alice_y
+            scalar <- bob
+        if stage == 3:
+            point_x <- bob_x
+            point_y <- bob_y
+        qx: mutable i64 = point_x
+        qy: mutable i64 = point_y
+        rx: mutable i64 = -1
+        ry: mutable i64 = -1
+        while scalar > 0:
+            if (scalar & 1) != 0:
+                if rx < 0:
+                    rx <- qx
+                    ry <- qy
+                else:
+                    if qx >= 0 and rx == qx and ((ry + qy) % prime) == 0:
+                        rx <- -1
+                        ry <- -1
+                    else:
+                        if qx >= 0:
+                            slope <- 0
+                            if rx == qx and ry == qy:
+                                exponent <- prime - 2
+                                inverse <- 1
+                                base <- (2 * ry) % prime
+                                while exponent > 0:
+                                    if (exponent & 1) != 0: inverse <- (inverse * base) % prime
+                                    base <- (base * base) % prime
+                                    exponent <- exponent >> 1
+                                slope <- ((3 * rx * rx + coefficient) * inverse) % prime
+                            else:
+                                exponent <- prime - 2
+                                inverse <- 1
+                                base <- (qx - rx) % prime
+                                while base < 0: base <- base + prime
+                                while exponent > 0:
+                                    if (exponent & 1) != 0: inverse <- (inverse * base) % prime
+                                    base <- (base * base) % prime
+                                    exponent <- exponent >> 1
+                                slope <- ((qy - ry) * inverse) % prime
+                            while slope < 0: slope <- slope + prime
+                            nx <- (slope * slope - rx - qx) % prime
+                            while nx < 0: nx <- nx + prime
+                            ny <- (slope * (rx - nx) - ry) % prime
+                            while ny < 0: ny <- ny + prime
+                            rx <- nx
+                            ry <- ny
+            scalar <- scalar >> 1
+            if scalar > 0:
+                if qx >= 0:
+                    if (2 * qy) % prime == 0:
+                        qx <- -1
+                        qy <- -1
+                    else:
+                        exponent <- prime - 2
+                        inverse <- 1
+                        base <- (2 * qy) % prime
+                        while exponent > 0:
+                            if (exponent & 1) != 0: inverse <- (inverse * base) % prime
+                            base <- (base * base) % prime
+                            exponent <- exponent >> 1
+                        slope <- ((3 * qx * qx + coefficient) * inverse) % prime
+                        while slope < 0: slope <- slope + prime
+                        nx <- (slope * slope - 2 * qx) % prime
+                        while nx < 0: nx <- nx + prime
+                        ny <- (slope * (qx - nx) - qy) % prime
+                        while ny < 0: ny <- ny + prime
+                        qx <- nx
+                        qy <- ny
+        if stage == 0:
+            alice_x <- rx
+            alice_y <- ry
+        if stage == 1:
+            bob_x <- rx
+            bob_y <- ry
+        if stage == 2:
+            shared_x <- rx
+            shared_y <- ry
+        if stage == 3:
+            other_x <- rx
+            other_y <- ry
+        stage <- stage + 1
+    if shared_x != other_x or shared_y != other_y: return -1
+    byte_index: mutable usize = 0
+    while byte_index < 48:
+        slot: usize = byte_index / 8
+        pair: usize = slot / 2
+        component: usize = slot % 2
+        value: mutable i64 = -1
+        if pair == 0:
+            if alice_x >= 0 and component == 0: value <- alice_x
+            if alice_x >= 0 and component == 1: value <- alice_y
+        if pair == 1:
+            if bob_x >= 0 and component == 0: value <- bob_x
+            if bob_x >= 0 and component == 1: value <- bob_y
+        if pair == 2:
+            if shared_x >= 0 and component == 0: value <- shared_x
+            if shared_x >= 0 and component == 1: value <- shared_y
+        bits: u64 = value.u64()
+        byte_offset: mutable usize = 0
+        while byte_offset < 8:
+            output[byte_index + byte_offset] <- ((bits >> (byte_offset * 8)) & 255).u8()
+            byte_offset <- byte_offset + 1
+        byte_index <- byte_index + 8
+    return 48
+
+
+export fn elliptic_curve_key_exchange(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ec_run_impl

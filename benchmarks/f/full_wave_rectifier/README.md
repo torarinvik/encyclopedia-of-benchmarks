@@ -17,7 +17,7 @@ Outputs are six IEEE-754 binary64 values serialized as 48 little-endian bytes, i
 
 Each port preserves the source operation order and binary64 constants. Invalid input returns `-1`; insufficient output capacity returns `-2`. Input validation takes precedence over output capacity, matching the byte-output ABI convention.
 
-The workload covers the pinned examples, positive and negative signals, zero signals, resistance boundaries, malformed lengths and domains, signed 64-bit extremes, and the 47/48-byte output-capacity boundary. See [`workload.json`](workload.json).
+The workload includes a combined pinned example for `max_load_current` and `dc_current`, plus positive and negative signals, zero signals, resistance boundaries, malformed lengths and domains, signed 64-bit extremes, and the 47/48-byte output-capacity boundary. See [`workload.json`](workload.json).
 
 ## Implementations
 

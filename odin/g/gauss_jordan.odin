@@ -1,0 +1,6 @@
+package gauss_jordan
+import "core:c"
+absf :: proc(x:f64)->f64{if x<0{return -x};return x}
+put :: proc(o:[^]u8,p:int,x:f64){bits:=transmute(u64)x;for k:=0;k<8;k+=1{o[p+k]=u8(bits>>(8*k))}}
+@(export)
+gauss_jordan :: proc "c"(v:[^]i64,n:c.size_t,o:[^]u8,cap:c.size_t)->i64{if v==nil||n<2||n>22 do return -1;r,c0:=v[0],v[1];if r<1||r>4||c0<1||c0>4||n!=c.size_t(2+r*c0+r) do return -1;a:[4][4]f64{};b:[4]f64{};for i:=i64(0);i<r;i+=1{for j:=i64(0);j<c0;j+=1{z:=v[2+i*c0+j];if z < -5000||z>5000 do return -1;a[i][j]=f64(z)/1000};z:=v[2+r*c0+i];if z < -5000||z>5000 do return -1;b[i]=f64(z)/1000};bytes:=c.size_t(r*c0+r)*8;if o==nil||cap<bytes do return -2;for col:=i64(0);col<c0;col+=1{pivot:=i64(-1);for row:=col;row<r;row+=1{if absf(a[row][col])>1e-8{pivot=row;break}};if pivot<0{continue};if pivot!=col{for j:=i64(0);j<c0;j+=1{t:=a[col][j];a[col][j]=a[pivot][j];a[pivot][j]=t};t:=b[col];b[col]=b[pivot];b[pivot]=t};pv:=a[col][col];for j:=i64(0);j<c0;j+=1{a[col][j]/=pv};b[col]/=pv;for row:=i64(0);row<r;row+=1{if row==col{continue};factor:=a[row][col];for j:=i64(0);j<c0;j+=1{a[row][j]-=factor*a[col][j]};b[row]-=factor*b[col]}};at:=0;for i:=i64(0);i<r;i+=1{for j:=i64(0);j<c0;j+=1{put(o,at*8,a[i][j]);at+=1}};for i:=i64(0);i<r;i+=1{put(o,at*8,b[i]);at+=1};return i64(bytes)}

@@ -1,0 +1,55 @@
+const GENERATE_SUBSETS_MAX_ITEMS: usize = 12
+const GENERATE_SUBSETS_MAX_SAFE: i64 = 9007199254740991
+
+def generate_sub_sets_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+    bits: mutable u32 = value
+    index: mutable usize = 0
+    while index < 4:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def generate_sub_sets_put64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    index: mutable usize = 0
+    while index < 8:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def generate_sub_sets_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > GENERATE_SUBSETS_MAX_ITEMS + 1: return -1
+    n_arg: i64 = input[0]
+    if n_arg < 0 or n_arg > 12: return -1
+    n: usize = n_arg.usize()
+    if length != n + 1: return -1
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < -GENERATE_SUBSETS_MAX_SAFE or value > GENERATE_SUBSETS_MAX_SAFE: return -1
+        index <- index + 1
+    subsets: usize = 1.usize() << n
+    total_items: usize = if n == 0: 0 else: n * (subsets / 2)
+    needed: usize = 4 + 4 * subsets + 8 * total_items
+    if output == null or capacity < needed: return -2
+    position: mutable usize = 0
+    generate_sub_sets_put32(output, position&, subsets.u32())
+    mask: mutable usize = 0
+    while mask < subsets:
+        count: mutable u32 = 0
+        index <- 0
+        while index < n:
+            if (mask & (1.usize() << index)) != 0: count <- count + 1
+            index <- index + 1
+        generate_sub_sets_put32(output, position&, count)
+        index <- 0
+        while index < n:
+            if (mask & (1.usize() << index)) != 0:
+                generate_sub_sets_put64(output, position&, input[index + 1])
+            index <- index + 1
+        mask <- mask + 1
+    position.i64()
+
+export fn generate_sub_sets(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = generate_sub_sets_impl

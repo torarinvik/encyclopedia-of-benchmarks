@@ -1,0 +1,34 @@
+const A: i64[11] = [1073741824,-3875279605,7242592440,-9849938776,11019995787,-10310050823,8022431451,-5130046574,2558322377,-874363774,153873500]
+const B: i64[11] = [60930872,-44894685,-5549718,-9621322,-7681698,30506759,-32060412,22380311,-4826655,8028337,-4488672]
+const HA: i64[3] = [1089966811,-2146993250,1057516837]
+const HB: i64[3] = [1073619225,-2147238449,1073619225]
+def equal_loudness_step(sample: i64, a: i64&, b: i64&, order: usize, x: mutable i64&, y: mutable i64&) -> i64:
+    acc: mutable i64 = b[0] * sample
+    for i in 1..<order+1:
+        acc <- acc + b[i] * x[i-1] - a[i] * y[i-1]
+    out: i64 = acc / a[0]
+    i: mutable usize = order
+    while i > 1:
+        x[i-1] <- x[i-2]
+        y[i-1] <- y[i-2]
+        i <- i - 1
+    if order > 0:
+        x[0] <- sample
+        y[0] <- out
+    out
+def equal_loudness_filter_impl(v: i64&, length: usize) -> i64:
+    if v == null or length < 1 or length > 33: return -1
+    count: i64 = v[0]
+    if count < 0 or count > 32 or length != count.usize()+1: return -1
+    x: mutable i64[10] = zeroed
+    y: mutable i64[10] = zeroed
+    hx: mutable i64[2] = zeroed
+    hy: mutable i64[2] = zeroed
+    out: mutable i64 = 0
+    for i in 0..<count.usize():
+        sample: i64 = v[i+1]
+        if sample < -1000000 or sample > 1000000: return -1
+        mid: i64 = equal_loudness_step(sample,A[0],B[0],10,x[0],y[0])
+        out <- equal_loudness_step(mid,HA[0],HB[0],2,hx[0],hy[0])
+    out
+export fn equal_loudness_filter(v: i64&, length: usize) -> i64 = equal_loudness_filter_impl

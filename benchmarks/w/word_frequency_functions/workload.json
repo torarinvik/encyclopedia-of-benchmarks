@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "id": "python-word-frequency-functions-op-dispatch-v1",
+  "algorithm": "word_frequency_functions",
+  "function_symbol": "word_frequency_functions",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "operation_layouts": {
+      "0": "[0, term_length, term ASCII bytes..., document_length, document ASCII bytes...]",
+      "1": "[1, term_length, term ASCII bytes..., corpus_length, corpus ASCII bytes...]",
+      "2": "[2, df, n, smoothing (0 or 1)]",
+      "3": "[3, tf, idf_milli]"
+    },
+    "term_length_range": [
+      0,
+      128
+    ],
+    "maximum_packed_length": 4227,
+    "text_length_range": [
+      0,
+      4096
+    ],
+    "ascii_byte_range": [
+      0,
+      127
+    ],
+    "document_frequency_and_corpus_size_range": [
+      0,
+      1000000
+    ],
+    "tf_range": [
+      0,
+      1000000
+    ],
+    "idf_milli_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "binary_tagged_frequency_result",
+    "encoding": "u32le result kind, then signed i64le payload: kind 0 = one integer, kind 1 = two integers, kind 2 = decimal thousandths; kind 3 = ZeroDivisionError, kind 4 = ValueError (tag only)",
+    "success_result": "encoded byte length",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 20
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "term_frequency_basic",
+      "input_values": [
+        0,
+        2,
+        116,
+        111,
+        19,
+        84,
+        111,
+        32,
+        98,
+        101,
+        44,
+        32,
+        111,
+        114,
+        32,
+        110,
+        111,
+        116,
+        32,
+        116,
+        111,
+        32,
+        98,
+        101
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "000000000200000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "term_frequency_punctuation_removed_from_document",
+      "input_values": [
+        0,
+        3,
+        98,
+        101,
+        44,
+        7,
+        98,
+        101,
+        44,
+        32,
+        98,
+        101,
+        33
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "000000000000000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "term_frequency_newlines_deleted_and_empty_tokens",
+      "input_values": [
+        0,
+        6,
+        102,
+        111,
+        111,
+        98,
+        97,
+        114,
+        16,
+        102,
+        111,
+        111,
+        10,
+        98,
+        97,
+        114,
+        32,
+        32,
+        102,
+        111,
+        111,
+        98,
+        97,
+        114,
+        32
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "000000000200000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "term_frequency_empty_document",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "000000000100000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "document_frequency_substring_and_trailing_empty_line",
+      "input_values": [
+        1,
+        2,
+        105,
+        115,
+        28,
+        84,
+        104,
+        105,
+        115,
+        32,
+        105,
+        115,
+        32,
+        97,
+        32,
+        108,
+        105,
+        110,
+        101,
+        10,
+        105,
+        115,
+        108,
+        97,
+        110,
+        100,
+        10,
+        110,
+        111,
+        105,
+        115,
+        101,
+        10
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "0100000003000000000000000400000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "document_frequency_empty_term_empty_corpus",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "0100000001000000000000000100000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "document_frequency_punctuation_case_and_substring",
+      "input_values": [
+        1,
+        3,
+        100,
+        111,
+        103,
+        15,
+        68,
+        111,
+        103,
+        33,
+        10,
+        100,
+        111,
+        103,
+        109,
+        97,
+        10,
+        67,
+        65,
+        84,
+        10
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "0100000002000000000000000400000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_unsmoothed_log10",
+      "input_values": [
+        2,
+        1,
+        3,
+        0
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "02000000dd01000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_smoothed_zero_df",
+      "input_values": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "02000000c505000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_df_larger_than_documents",
+      "input_values": [
+        2,
+        4,
+        3,
+        0
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "0200000083ffffffffffffff",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_zero_df_source_zero_division",
+      "input_values": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "03000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_zero_n_source_value_error",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "04000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "idf_smoothed_zero_n_source_value_error",
+      "input_values": [
+        2,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "04000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "tf_idf_positive",
+      "input_values": [
+        3,
+        2,
+        477
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "02000000ba03000000000000",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "tf_idf_negative_idf",
+      "input_values": [
+        3,
+        2,
+        -250
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000cfeffffffffffff",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        9
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "invalid_text_byte",
+      "input_values": [
+        0,
+        1,
+        128,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "malformed_text_layout",
+      "input_values": [
+        0,
+        2,
+        65,
+        1,
+        66
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "invalid_count_bound",
+      "input_values": [
+        3,
+        1000001,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 20
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        1,
+        2,
+        105,
+        115,
+        14,
+        84,
+        104,
+        105,
+        115,
+        32,
+        105,
+        115,
+        10,
+        105,
+        115,
+        108,
+        97,
+        110,
+        100
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 12
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "csharp-decisions-convolutions-fixed-decimal-v1",
+  "algorithm": "decisions_convolutions",
+  "function_symbol": "decisions_convolutions",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[method, decision_count, criterion_count, priorities..., row-major decision matrix...]",
+    "methods": {
+      "0": "linear: maximize the sum of criterion[i] * priority[i]",
+      "1": "max_min: maximize the minimum criterion[i] * priority[i]"
+    },
+    "decimal_encoding": "Each criterion and priority is a signed integer in thousandths; 100000 represents 100.000.",
+    "decision_count_range": [1, 64],
+    "criterion_count_range": [1, 16],
+    "value_range": [-100000, 100000],
+    "maximum_valid_array_length": 1043,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "zero-based index of the selected decision row; earliest row wins a score tie",
+    "valid_result_range": [0, 63],
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned C# source accepts decimal values, computes weighted sum or weighted minimum, maximizes the score, and returns the first row with the maximum score.",
+    "benchmark_domain": "All criteria and priorities are exact decimal thousandths in [-100.000,100.000]. Products and sums fit exactly in signed 64-bit scaled integers; this bounded subset avoids floating-point ordering differences."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"linear_weighted_sum","input_values":[0,3,3,5000,4000,3000,8000,2000,4000,5000,6000,7000,4000,10000,2000],"expected_result":1},
+    {"id":"maxmin_balanced_choice","input_values":[1,3,3,1000,1000,1000,10000,0,0,4000,3000,3000,6000,3000,3000],"expected_result":1},
+    {"id":"linear_tie_first_row","input_values":[0,3,2,1000,1000,10000,0,0,10000,5000,5000],"expected_result":0},
+    {"id":"negative_values_and_priorities","input_values":[0,3,2,2000,-1000,4000,2000,3000,-5000,0,0],"expected_result":1},
+    {"id":"single_criterion","input_values":[1,3,1,2000,3000,4000,1000],"expected_result":1},
+    {"id":"single_decision","input_values":[0,1,2,1000,-1000,5000,6000],"expected_result":0},
+    {"id":"all_scores_tied","input_values":[1,3,2,0,0,1000,1000,-1000,2000,5000,5000],"expected_result":0},
+    {"id":"invalid_method","input_values":[2,1,1,1000,1000],"expected_result":-1},
+    {"id":"invalid_decision_count","input_values":[0,0,1,1000],"expected_result":-1},
+    {"id":"invalid_criterion_count","input_values":[0,1,0],"expected_result":-1},
+    {"id":"short_matrix","input_values":[0,2,2,1000,1000,1000,1000,1000],"expected_result":-1},
+    {"id":"out_of_range_decimal","input_values":[0,1,1,100001,1000],"expected_result":-1},
+    {"id":"maximum_decimal_boundary","input_values":[0,2,1,100000,99999,100000],"expected_result":1}
+  ]
+}

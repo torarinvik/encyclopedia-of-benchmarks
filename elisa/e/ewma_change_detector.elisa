@@ -1,0 +1,23 @@
+def ewma_change_detector_impl(v: i64&, length: usize) -> i64:
+    if v == null or length < 1 or length > 16: return -1
+    count: i64 = v[0]
+    if count < 0 or count > 15 or length != count.usize()+1: return -1
+    exponent: mutable i64 = 0
+    numerator: mutable i64 = 0
+    encoded: mutable i64 = 0
+    for i in 0..<count.usize():
+        sample: i64 = v[i+1]
+        if sample < -8 or sample > 8: return -1
+        exponent <- exponent + 1
+        numerator <- numerator + sample * (1 << (exponent - 1))
+        signal: mutable i64 = 0
+        if 3*numerator*numerator > ((1 << (2*exponent)) - 1):
+            if numerator > 0:
+                signal <- 1
+            else:
+                signal <- 2
+            exponent <- 0
+            numerator <- 0
+        encoded <- encoded*4 + signal
+    encoded
+export fn ewma_change_detector(v: i64&, length: usize) -> i64 = ewma_change_detector_impl

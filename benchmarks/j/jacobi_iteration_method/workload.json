@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "python-jacobi-simultaneous-iterations-i64-array-v1",
+  "algorithm": "jacobi_iteration_method",
+  "function_symbol": "jacobi_iteration_method",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "linear_algebra/jacobi_iteration_method.py"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["dimension", "iteration_count", "row_major_coefficients", "rhs", "initial_vector"],
+    "maximum_dimension": 4,
+    "maximum_iterations": 8,
+    "coefficient_scale": 1000,
+    "coefficient_range": [0, 4000],
+    "vector_scale": 1000,
+    "vector_range": [-2000, 2000],
+    "maximum_input_values": 26
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution estimate after the requested simultaneous Jacobi iterations",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 32,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 32,
+    "meaning": "Maximum capacity for four little-endian binary64 solution coordinates"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "two_iterations", "input_values": [2, 2, 4000, 1000, 1000, 3000, 1000, 2000, 0, 0], "expected_result": 16, "expected_output": [0.08333333333333333, 0.5833333333333334]},
+    {"id": "one_iteration", "input_values": [2, 1, 3000, 0, 0, 2000, 1000, -1000, 1000, -1000], "expected_result": 16, "expected_output": [0.3333333333333333, -0.5]},
+    {"id": "insufficient_output_capacity", "input_values": [2, 2, 4000, 1000, 1000, 3000, 1000, 2000, 0, 0], "input_length": 10, "workspace_bytes": 15, "expected_result": -2, "expected_output": []}
+  ]
+}

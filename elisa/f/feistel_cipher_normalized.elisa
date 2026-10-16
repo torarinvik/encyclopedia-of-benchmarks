@@ -1,0 +1,38 @@
+def feistel_cipher_normalized_f(initial: u64, key: u64) -> u64:
+    x: mutable u64 = initial
+    i: mutable usize = 0
+    while i < 32:
+        x <- ((((x ^ 1431655765) * x) % 4294967296) % key) ^ key
+        i <- i + 1
+    x
+
+def feistel_cipher_normalized_rk(key: u64, round: usize) -> u64:
+    p: mutable u64 = 1
+    i: mutable usize = 0
+    while i < round + 2:
+        p <- (p * key) % 4294967296
+        i <- i + 1
+    p ^ key
+def feistel_cipher_normalized_impl(a: i64&, length: usize) -> i64:
+    if a == null or length != 3: return -1
+    if a[0] < 0 or a[0] > 1 or a[1] < 1 or a[1] > 4294967295: return -1
+    key: u64 = a[1].u64()
+    for round in 0..<32:
+        if feistel_cipher_normalized_rk(key, round) == 0: return -1
+    block: u64 = a[2].u64()
+    left: mutable u64 = (block >> 32) & 4294967295
+    right: mutable u64 = block & 4294967295
+    if a[0] == 0:
+        for round in 0..<32:
+            temp: u64 = right ^ feistel_cipher_normalized_f(left, feistel_cipher_normalized_rk(key, round))
+            right <- left
+            left <- temp
+    else:
+        for round in 0..<32:
+            rev: usize = 31 - round
+            temp: u64 = left ^ feistel_cipher_normalized_f(right, feistel_cipher_normalized_rk(key, rev))
+            left <- right
+            right <- temp
+    result: u64 = (left << 32) | right
+    result.i64()
+export fn feistel_cipher_normalized(a: i64&, length: usize) -> i64 = feistel_cipher_normalized_impl

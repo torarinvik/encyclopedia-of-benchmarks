@@ -1,0 +1,46 @@
+const ROTOR1 = "EGZWVONAHDCLFQMSIPJBYUKXTR"
+const ROTOR2 = "FOBHMDKEXQNRAULPGSJVTYICZW"
+const ROTOR3 = "ZJXESIUQLHAVRMDOYGTNFWPBKC"
+
+def enigma_machine2_rotor(which: usize, x: usize) -> usize:
+    if which == 0: return ROTOR1[x].usize() - 65
+    if which == 1: return ROTOR2[x].usize() - 65
+    return ROTOR3[x].usize() - 65
+
+def enigma_machine2_inverse(which: usize, x: usize) -> usize:
+    for i in 0..<26:
+        if enigma_machine2_rotor(which, i) == x: return i
+    return 0
+
+def enigma_machine2_impl(a: i64&, length: usize) -> i64:
+    if a == null or length < 4 or length > 16: return -1
+    n64: i64 = a[0]
+    if n64 < 0 or n64 > 12 or length != (4 + n64).usize(): return -1
+    n: usize = n64.usize()
+    p: mutable usize[3] = zeroed
+    for j in 0..<3:
+        value: i64 = a[1 + j]
+        if value < 1 or value > 26: return -1
+        p[j] <- (value - 1).usize()
+    for i in 0..<n:
+        if a[4 + i] < 0 or a[4 + i] > 25: return -1
+    output: mutable i64 = 0
+    for i in 0..<n:
+        x: mutable usize = a[4 + i].usize()
+        for r in 0..<3:
+            x <- enigma_machine2_rotor(r, (x + p[r]) % 26)
+        x <- (x + 13) % 26
+        for r in 0..<3:
+            rr: usize = 2 - r
+            x <- (enigma_machine2_inverse(rr, x) + 26 - p[rr]) % 26
+        output <- output * 26 + x.i64()
+        p[0] <- p[0] + 1
+        if p[0] == 26:
+            p[0] <- 0
+            p[1] <- p[1] + 1
+            if p[1] == 26:
+                p[1] <- 0
+                p[2] <- (p[2] + 1) % 26
+    output
+
+export fn enigma_machine2(a: i64&, length: usize) -> i64 = enigma_machine2_impl

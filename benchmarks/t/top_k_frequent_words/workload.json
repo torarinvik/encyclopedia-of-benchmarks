@@ -16,7 +16,11 @@
     "kind": "NUL_terminated_newline_separated_ASCII_bytes",
     "encoding": "ranked words, each followed by LF, followed by NUL; empty result is one NUL byte",
     "successful_result": "number of output bytes written including final NUL",
+    "invalid_result": -1,
     "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 1089
   },
   "cases": [
     {
@@ -64,6 +68,20 @@
       "id": "malformed_packing",
       "input_values": [1, 1, 2, 97],
       "expected_result": -1
+    },
+    {
+      "id": "empty_output_capacity_failure",
+      "input_values": [0, 0],
+      "workspace_bytes": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ranking_capacity_failure",
+      "input_values": [3, 3, 1, 97, 1, 98, 1, 99],
+      "workspace_bytes": 6,
+      "expected_result": -2,
+      "expected_output_hex": ""
     }
   ],
   "measurement": {

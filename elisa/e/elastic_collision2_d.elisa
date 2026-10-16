@@ -1,0 +1,26 @@
+extern hypot(x: f64, y: f64) -> f64
+extern floor(x: f64) -> f64
+const INVALID: i64 = -1
+def elastic_collision2_d_impl(v: i64&, n: usize) -> i64:
+    if v.is_null() or n != 12: return INVALID
+    for i in [0, 1, 6, 7]:
+        if v[i] < -200000 or v[i] > 200000: return INVALID
+    for i in [2, 3, 8, 9]:
+        if v[i] < -5000 or v[i] > 5000: return INVALID
+    if v[4] < 1000 or v[4] > 100000 or v[10] < 1000 or v[10] > 100000: return INVALID
+    if v[5] < 1 or v[5] > 10000 or v[11] < 1 or v[11] > 10000: return INVALID
+    dx: f64 = (v[6] - v[0]).f64(); dy: f64 = (v[7] - v[1]).f64()
+    dist: f64 = hypot(dx, dy)
+    if dist == 0.0: return INVALID
+    ox: mutable f64 = v[2].f64(); oy: mutable f64 = v[3].f64()
+    if not (dist < (v[5] + v[11]).f64()):
+        nx: f64 = dx / dist; ny: f64 = dy / dist
+        rv: f64 = (v[8] - v[2]).f64() * nx + (v[9] - v[3]).f64() * ny
+        if rv <= 0.0:
+            m1: f64 = v[4].f64(); m2: f64 = v[10].f64()
+            j: f64 = -2.0 * rv / (1.0 / m1 + 1.0 / m2)
+            ox <- ox - j * nx / m1; oy <- oy - j * ny / m1
+    qx: i64 = floor(ox + 0.5).i64(); qy: i64 = floor(oy + 0.5).i64()
+    if qx < -32768 or qx > 32767 or qy < -32768 or qy > 32767: return INVALID
+    ((qx & 0xffff) << 16) | (qy & 0xffff)
+export fn elastic_collision2_d(v: i64&, n: usize) -> i64 = elastic_collision2_d_impl

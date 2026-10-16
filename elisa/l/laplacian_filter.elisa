@@ -1,0 +1,5 @@
+def laplacian_filter(v: i64[], n: u64) -> f64:
+    if n != 9: return -1.0e300
+    for i in 0..<n:
+        if v[i] < 0 or v[i] > 255: return -1.0e300
+    return (4 * v[4] - v[1] - v[3] - v[5] - v[7]) as f64

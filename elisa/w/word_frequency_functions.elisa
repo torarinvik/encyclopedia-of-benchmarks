@@ -1,0 +1,147 @@
+extern log10(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const WF_MAX_TERM: usize = 128
+const WF_MAX_TEXT: usize = 4096
+const WF_MAX_PACKED: usize = 4227
+const WF_MAX_COUNT: i64 = 1000000
+
+def wf_punctuation(value: u8) -> bool:
+    (value >= 33 and value <= 47) or (value >= 58 and value <= 64) or (value >= 91 and value <= 96) or (value >= 123 and value <= 126)
+
+def wf_lower_ascii(value: u8) -> u8:
+    if value >= 65 and value <= 90: (value + 32).u8() else: value
+
+def wf_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+    bits: mutable u32 = value
+    index: mutable usize = 0
+    while index < 4:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def wf_put64(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    index: mutable usize = 0
+    while index < 8:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def wf_milli(value: f64) -> i64:
+    scaled: f64 = value * 1000.0
+    lower: f64 = floor(scaled)
+    fraction: f64 = scaled - lower
+    if fraction < 0.5: return lower.i64()
+    if fraction > 0.5: return (lower + 1.0).i64()
+    integer: i64 = lower.i64()
+    if integer % 2 == 0: integer else: integer + 1
+
+def word_frequency_functions_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > WF_MAX_PACKED: return -1
+    operation: i64 = input[0]
+    kind: mutable i64 = 0
+    first: mutable i64 = 0
+    second: mutable i64 = 0
+    output_length: mutable usize = 12
+    if operation == 0 or operation == 1:
+        if length < 3 or input[1] < 0 or input[1] > 128: return -1
+        term_length: usize = input[1].usize()
+        text_length_index: usize = 2 + term_length
+        if length < text_length_index + 1 or input[text_length_index] < 0 or input[text_length_index] > 4096: return -1
+        text_length: usize = input[text_length_index].usize()
+        text_index: usize = text_length_index + 1
+        if length != text_index + text_length: return -1
+        term: mutable u8[WF_MAX_TERM] = zeroed
+        text: mutable u8[WF_MAX_TEXT] = zeroed
+        clean: mutable u8[WF_MAX_TEXT] = zeroed
+        index: mutable usize = 0
+        while index < term_length:
+            value: i64 = input[2 + index]
+            if value < 0 or value > 127: return -1
+            term[index] <- wf_lower_ascii(value.u8())
+            index <- index + 1
+        index <- 0
+        while index < text_length:
+            value: i64 = input[text_index + index]
+            if value < 0 or value > 127: return -1
+            text[index] <- value.u8()
+            index <- index + 1
+        clean_length: mutable usize = 0
+        index <- 0
+        while index < text_length:
+            if not wf_punctuation(text[index]) and (operation != 0 or text[index] != 10):
+                clean[clean_length] <- if operation == 1: wf_lower_ascii(text[index]) else: text[index]
+                clean_length <- clean_length + 1
+            index <- index + 1
+        if operation == 0:
+            start: mutable usize = 0
+            index <- 0
+            while index <= clean_length:
+                if index == clean_length or clean[index] == 32:
+                    token_length: usize = index - start
+                    same: mutable bool = token_length == term_length
+                    offset: mutable usize = 0
+                    while same and offset < token_length:
+                        if wf_lower_ascii(clean[start + offset]) != term[offset]: same <- false
+                        offset <- offset + 1
+                    if same: first <- first + 1
+                    start <- index + 1
+                index <- index + 1
+        else:
+            kind <- 1
+            output_length <- 20
+            start <- 0
+            index <- 0
+            while index <= clean_length:
+                if index == clean_length or clean[index] == 10:
+                    doc_length: usize = index - start
+                    found: mutable bool = term_length == 0
+                    offset: mutable usize = 0
+                    while not found and offset + term_length <= doc_length:
+                        j: mutable usize = 0
+                        while j < term_length and clean[start + offset + j] == term[j]: j <- j + 1
+                        if j == term_length: found <- true
+                        offset <- offset + 1
+                    if found: first <- first + 1
+                    second <- second + 1
+                    start <- index + 1
+                index <- index + 1
+    else if operation == 2:
+        if length != 4: return -1
+        df: i64 = input[1]
+        n: i64 = input[2]
+        smoothing: i64 = input[3]
+        if df < 0 or df > WF_MAX_COUNT or n < 0 or n > WF_MAX_COUNT or (smoothing != 0 and smoothing != 1): return -1
+        if smoothing == 1 and n == 0:
+            kind <- 4
+            output_length <- 4
+        else if smoothing == 0 and df == 0:
+            kind <- 3
+            output_length <- 4
+        else if smoothing == 0 and n == 0:
+            kind <- 4
+            output_length <- 4
+        else:
+            value: f64 = if smoothing == 1: 1.0 + log10(n.f64() / (1 + df).f64()) else: log10(n.f64() / df.f64())
+            kind <- 2
+            first <- wf_milli(value)
+    else if operation == 3:
+        if length != 3 or input[1] < 0 or input[1] > WF_MAX_COUNT or input[2] < -WF_MAX_COUNT or input[2] > WF_MAX_COUNT: return -1
+        kind <- 2
+        first <- input[1] * input[2]
+    else:
+        return -1
+    if output == null or capacity < output_length: return -2
+    position: mutable usize = 0
+    wf_put32(output, position&, kind.u32())
+    if kind == 0 or kind == 2:
+        wf_put64(output, position&, first)
+    else if kind == 1:
+        wf_put64(output, position&, first)
+        wf_put64(output, position&, second)
+    position.i64()
+
+export fn word_frequency_functions(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_frequency_functions_impl

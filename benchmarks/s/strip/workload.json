@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "python-strip-ascii-i64-array-bytes-v1",
+  "algorithm": "strip",
+  "function_symbol": "strip",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[text_length, ASCII text bytes..., character_length, ASCII strip-set bytes...]",
+    "maximum_text_bytes": 256,
+    "maximum_character_bytes": 128,
+    "default_character_length": -1,
+    "default_characters_ascii": [9, 10, 13, 32],
+    "value_range": [0, 127],
+    "maximum_input_values": 386
+  },
+  "output": {
+    "kind": "byte_string",
+    "meaning": "input substring after removing matching leading and trailing characters",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "maximum_output_bytes": 256
+  },
+  "workspace": {"bytes": 256},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "strings/strip.py",
+    "function": "strip"
+  },
+  "cases": [
+    {"id": "default_ascii_whitespace", "input_values": [11, 32, 9, 32, 104, 101, 108, 108, 111, 32, 13, 10, -1], "expected_result": 5, "expected_output_hex": "68656c6c6f"},
+    {"id": "custom_period_set", "input_values": [11, 46, 46, 46, 119, 111, 114, 108, 100, 46, 46, 46, 1, 46], "expected_result": 5, "expected_output_hex": "776f726c64"},
+    {"id": "custom_character_set", "input_values": [11, 49, 50, 51, 104, 101, 108, 108, 111, 51, 50, 49, 3, 49, 50, 51], "expected_result": 5, "expected_output_hex": "68656c6c6f"},
+    {"id": "empty_custom_set_preserves_spaces", "input_values": [5, 32, 120, 121, 122, 32, 0], "expected_result": 5, "expected_output_hex": "2078797a20"},
+    {"id": "all_default_characters", "input_values": [3, 9, 32, 13, -1], "expected_result": 0, "expected_output_hex": ""},
+    {"id": "interior_characters_untouched", "input_values": [7, 97, 32, 98, 32, 99, 32, 100, 1, 32], "expected_result": 7, "expected_output_hex": "61206220632064"},
+    {"id": "capacity_failure", "input_values": [6, 32, 32, 111, 107, 32, 32, -1], "workspace_bytes": 1, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "invalid_negative_character_length", "input_values": [0, -2], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_text_byte", "input_values": [1, 128, -1], "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_trailing_values", "input_values": [0, -1, 65], "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

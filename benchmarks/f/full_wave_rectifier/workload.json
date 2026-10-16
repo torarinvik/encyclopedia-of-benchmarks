@@ -3,6 +3,11 @@
   "id": "full-wave-rectifier-i64-array-bytes-f64-vector-v1",
   "algorithm": "full_wave_rectifier",
   "function_symbol": "full_wave_rectifier",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "electronics/full_wave_rectifier.py"
+  },
   "input": {
     "kind": "signed_i64_array",
     "exact_length": 5,

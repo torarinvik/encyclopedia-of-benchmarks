@@ -28,6 +28,13 @@ The benchmark uses a bounded lowercase-ASCII word domain and a fixed-width count
 | V | [`v/t/top_k_frequent_words.v`](../../../v/t/top_k_frequent_words.v) |
 | Zig | [`zig/t/top_k_frequent_words.zig`](../../../zig/t/top_k_frequent_words.zig) |
 
+## Build and verify
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm top_k_frequent_words --language rust
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm top_k_frequent_words
+```
+
 ## Pinned sources
 
 - [Python `top_k_frequent_words.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/top_k_frequent_words.py)

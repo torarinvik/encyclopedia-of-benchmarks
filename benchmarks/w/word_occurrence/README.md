@@ -23,7 +23,9 @@ python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm word
 python3 benchmarks/run_i64_array_bytes_output.py --algorithm word_occurrence
 ```
 
-Run the full oracle and workload checks with python3 benchmarks/verify_i64_array_bytes_output.py --algorithm word_occurrence.\n\n## Language ports
+Run the full oracle and workload checks with python3 benchmarks/verify_i64_array_bytes_output.py --algorithm word_occurrence.
+
+## Language ports
 
 | Language | Source |
 | --- | --- |

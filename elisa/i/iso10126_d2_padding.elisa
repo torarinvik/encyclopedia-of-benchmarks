@@ -1,0 +1,83 @@
+const MAX_BUFFER_LENGTH: usize = 64
+const MAX_INPUT_VALUES: usize = 66
+
+def iso10126_d2_padding_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+
+    mode: i64 = input[0]
+    if mode == 0:
+        if length < 3:
+            return -1
+        offset_arg: i64 = input[1]
+        buffer_length_arg: i64 = input[2]
+        if buffer_length_arg < 1 or buffer_length_arg > MAX_BUFFER_LENGTH.i64() or offset_arg < 0 or offset_arg >= buffer_length_arg:
+            return -1
+        offset: usize = offset_arg.usize()
+        buffer_length: usize = buffer_length_arg.usize()
+        random_count: usize = buffer_length - offset - 1
+        if length != 3 + offset + random_count:
+            return -1
+
+        index: mutable usize = 3
+        while index < length:
+            value: i64 = input[index]
+            if value < 0 or value > 255:
+                return -1
+            index <- index + 1
+        index <- 3 + offset
+        while index < length:
+            if input[index] >= 255:
+                return -1
+            index <- index + 1
+
+        output_bytes: usize = buffer_length + 1
+        if output.is_null() or capacity < output_bytes:
+            return -2
+        padding_count: u8 = (buffer_length - offset).u8()
+        output[0] <- padding_count
+        position: mutable usize = 1
+        index <- 0
+        while index < offset:
+            output[position] <- input[3 + index].u8()
+            position <- position + 1
+            index <- index + 1
+        index <- 3 + offset
+        while index < length:
+            output[position] <- input[index].u8()
+            position <- position + 1
+            index <- index + 1
+        output[position] <- padding_count
+        return output_bytes.i64()
+
+    if (mode != 1 and mode != 2) or length < 3:
+        return -1
+    buffer_length_arg: i64 = input[1]
+    if buffer_length_arg < 1 or buffer_length_arg > MAX_BUFFER_LENGTH.i64() or length != 2 + buffer_length_arg.usize():
+        return -1
+    buffer_length: usize = buffer_length_arg.usize()
+    index <- 2
+    while index < length:
+        value: i64 = input[index]
+        if value < 0 or value > 255:
+            return -1
+        index <- index + 1
+    padding_count_arg: i64 = input[length - 1]
+    if padding_count_arg < 1 or padding_count_arg > buffer_length_arg:
+        return -1
+    output_bytes: usize = if mode == 1:
+        buffer_length - padding_count_arg.usize()
+    else:
+        1
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    if mode == 1:
+        index <- 0
+        while index < output_bytes:
+            output[index] <- input[2 + index].u8()
+            index <- index + 1
+    else:
+        output[0] <- padding_count_arg.u8()
+    output_bytes.i64()
+
+export fn iso10126_d2_padding(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = iso10126_d2_padding_impl

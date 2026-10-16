@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "python-gauss-jordan-rref-and-rhs-i64-array-v1",
+  "algorithm": "gauss_jordan",
+  "function_symbol": "gauss_jordan",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["row_count", "column_count", "row_major_coefficients", "rhs"],
+    "maximum_rows": 4,
+    "maximum_columns": 4,
+    "value_scale": 1000,
+    "value_range": [-5000, 5000],
+    "maximum_input_values": 22
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "row-major reduced coefficient matrix followed by transformed rhs",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 160,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "rank_deficient_square", "input_values": [3, 3, 1000, 2000, -1000, 2000, 4000, -2000, 1500, 3000, -1500, 1000, 2000, 1500], "expected_result": 96, "expected_output": [1.0, 2.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]},
+    {"id": "rectangular", "input_values": [2, 3, 1000, 1000, 0, 0, 1000, 1000, 1000, 2000], "expected_result": 64, "expected_output": [1.0, 0.0, -1.0, 0.0, 1.0, 1.0, -1.0, 2.0]}
+  ]
+}

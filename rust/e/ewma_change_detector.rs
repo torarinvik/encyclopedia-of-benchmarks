@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn ewma_change_detector(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>16{return -1}let a=unsafe{std::slice::from_raw_parts(v,n)};let count=a[0];if !(0..=15).contains(&count)||n!=count as usize+1{return -1}let(mut exponent,mut numerator,mut packed)=(0u32,0i64,0i64);for &sample in &a[1..]{if !(-8..=8).contains(&sample){return -1}exponent+=1;numerator+=sample*(1i64<<(exponent-1));let mut signal=0;if 3*numerator*numerator>((1i64<<(2*exponent))-1){signal=if numerator>0{1}else{2};exponent=0;numerator=0}packed=packed*4+signal;}packed}

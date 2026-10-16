@@ -101,7 +101,7 @@ fn predatorAction(entities: []Entity, entity_count: *usize, board: []i32,
 export fn wa_tor(values: [*c]const i64, length: usize) i64 {
     if (values == null or length < 3 or length > 196) return -1;
     if (values[0] < 1 or values[0] > @as(i64, @intCast(MAX_WIDTH)) or values[1] < 1 or values[1] > @as(i64, @intCast(MAX_HEIGHT)) or
-        values[2] < 0 or values[2] > MAX_CHRONONS) return -1;
+        values[2] < 0 or values[2] > @as(i64, @intCast(MAX_CHRONONS))) return -1;
     const width: usize = @intCast(values[0]);
     const height: usize = @intCast(values[1]);
     const chronons: usize = @intCast(values[2]);
@@ -167,10 +167,10 @@ export fn wa_tor(values: [*c]const i64, length: usize) i64 {
             const entity = entities[@intCast(board[cell])];
             if (entity.kind == 1) {
                 prey_count += 1;
-                code = entity.timer + 33;
+                code = @as(i64, entity.timer) + 33;
             } else {
                 predator_count += 1;
-                code = 1000 + 53 * entity.energy + entity.timer + 32;
+                code = 1000 + 53 * @as(i64, entity.energy) + @as(i64, entity.timer) + 32;
             }
         }
         state_hash = @mod(state_hash * HASH_MULTIPLIER + code, HASH_MODULUS);

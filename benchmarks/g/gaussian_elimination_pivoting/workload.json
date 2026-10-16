@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "python-gaussian-elimination-pivoting-i64-array-v1",
+  "algorithm": "gaussian_elimination_pivoting",
+  "function_symbol": "gaussian_elimination_pivoting",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["dimension", "row_major_augmented_matrix"],
+    "maximum_dimension": 4,
+    "value_scale": 1000,
+    "value_range": [-10000, 10000],
+    "maximum_input_values": 21
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution to the augmented linear system",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 32,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "row_swap_required", "input_values": [2, 0, 1000, 1000, 2000, 3000, 1000], "expected_result": 16, "expected_output": [-1.0, 1.0]},
+    {"id": "three_variable_system", "input_values": [3, 2000, 1000, -1000, 5000, -3000, -1000, 2000, -7000, -2000, 1000, 2000, -2000], "expected_result": 24, "expected_output": [1.0, 2.0, -1.0]}
+  ]
+}

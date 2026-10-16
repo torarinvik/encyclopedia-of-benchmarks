@@ -41,7 +41,7 @@ def data_normalization_standardization_impl(values: i64&, length: usize,
         for index in 0..<count:
             standardized: f64 = (values[index + 2].f64() - mean) / sample_deviation
             data_normalization_standardization_put_f64_le(standardized, output, index * 8)
-    output_bytes.i64()
+    return output_bytes.i64()
 
 export fn data_normalization_standardization(values: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64 = data_normalization_standardization_impl

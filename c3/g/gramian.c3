@@ -1,0 +1,4 @@
+module gramian;
+fn void put(uint8 *o,usz p,double x){ulong u=@bitcast(ulong,x);for(usz i=0;i<8;i++)o[p+i]=(uint8)(u>>(8*i));}
+fn void gram(long *v,long c,long p,long part,double *g){long n=c*p;for(long i=0;i<c;i++)for(long j=0;j<c;j++){double dot=0;for(long k=0;k<p;k++){dot+=(double)v[3+part*n+i*p+k]/1000.0*(double)v[3+part*n+j*p+k]/1000.0;}g[i*c+j]=dot/(double)n;}}
+fn long gramian(long *v,usz n,uint8 *out,usz cap) @export("gramian"){if(v==null||n<3||n>27)return -1;long op=v[0],c=v[1],p=v[2];if((op!=0&&op!=1)||c<1||c>3||p<1||p>4||n!=3+(usz)(c*p*(op==1?2:1)))return -1;for(usz i=3;i<n;i++)if(v[i] < -1000||v[i]>1000)return -1;usz count=op==1?1:(usz)(c*c),bytes=count*8;if(out==null||cap<bytes)return -2;double a[9]={0},b[9]={0},z[9]={0};gram(v,c,p,0,&a[0]);if(op==1){gram(v,c,p,1,&b[0]);for(long i=0;i<c*c;i++){double d=a[i]-b[i];z[0]+=d*d;}}else for(long i=0;i<c*c;i++)z[i]=a[i];for(usz i=0;i<count;i++)put(out,i*8,z[i]);return (long)bytes;}

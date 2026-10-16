@@ -23650,7 +23650,7 @@
       ],
       "benchmark_name": "data_normalization_standardization",
       "benchmark_contract": "benchmarks/d/data_normalization_standardization/README.md",
-      "review_notes": "The pinned R script defines both min-max normalization, (x - min(x)) / (max(x) - min(x)), and z-score standardization, (x - mean(x)) / sd(x). The shared contract selects either operation, bounds integer samples, and uses R's sample standard deviation (denominator n - 1); constant samples are excluded because the source expressions divide by zero."
+      "review_notes": "The pinned R script defines two distinct reusable vector transformations: min-max normalization `(x - min(x)) / (max(x) - min(x))` and z-score standardization `(x - mean(x)) / sd(x)`. The canonical package at benchmarks/d/data_normalization_standardization/README.md covers both under an explicit operation selector and uses R's sample standard deviation (denominator n - 1). It is distinct from standard_score, which divides a single supplied value by supplied mean and standard deviation, and standard_deviation, which returns only a population-deviation scalar. Constant vectors are excluded because both source transformations divide by zero; one-sample standardization is also outside the contract."
     },
     {
       "candidate_id": "data_processing",
@@ -24514,8 +24514,18 @@
       "source_repositories": [
         "C-Sharp"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -24524,7 +24534,9 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/DecisionsConvolutions.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C# class exposes two decision-selection methods: Linear maximizes the sum of criterion × priority, and MaxMin maximizes the minimum of those products. Both use Max followed by IndexOf, so the first row with the maximum score is selected; the source returns that row. The benchmark returns its zero-based row index under an exact decimal-thousandths subset in [-100.000, 100.000], preserving the selected row while keeping products and sums exact across languages.",
+      "benchmark_contract": "benchmarks/d/decisions_convolutions/README.md"
     },
     {
       "candidate_id": "decremental_connectivity",
@@ -25260,7 +25272,7 @@
       "local_source_folders": [
         "c"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C",
@@ -25290,7 +25302,10 @@
           "url": "https://github.com/TheAlgorithms/Swift/blob/2c9eb8b85dee6db46cb33452c0b904eb7d7d179c/graph/DFS/DFS.swift",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "depth_first_search",
+      "benchmark_contract": "benchmarks/d/depth_first_search/README.md",
+      "review_notes": "The pinned C dfs(Graph*, vertex) recursively marks and prints reachable vertices in preorder; its addEdge inserts both directions at adjacency-list heads, so neighbor order is reverse edge insertion. Haskell depthfirst returns a list (missing start gives []), while dfrecursive removes processed vertices and prepends incoming-then-outgoing adjacent vertices to its work list; connectedcomponents is an additional forest operation. Julia dfs returns a vector over a directed adjacency list, marks neighbors when pushed, and emits stack-pop order (default source 1). Swift dfs recursively prints one traversal, while testDFS builds an undirected graph and visits each 1-based component. These APIs differ in edge direction, order, and wrapper return/printing behavior, so this alias covers only their shared source-backed operation: reachability traversal from a selected start with visitation output normalized by the existing bounded depth_first_search contract. For C, Haskell, and Swift, undirected edges are represented by paired directed edges; for Julia, the directed input and selected start are direct. The benchmark defines deterministic ascending-neighbor recursive preorder and does not claim to reproduce each source’s incidental ordering or Swift’s all-components wrapper."
     },
     {
       "candidate_id": "dfs_recursive",
@@ -25493,8 +25508,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -25503,7 +25528,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/diff_views_of_binary_tree.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/d/diff_views_of_binary_tree/README.md",
+      "review_notes": "The pinned Python module contains four observable views: right side (last breadth-first node at each depth), left side (first node at each depth), top side (first breadth-first node at each horizontal distance), and bottom side (last node at each distance). This is not covered by print_top_viewof_tree: that benchmark returns only top-side values and emits them in BFS discovery order rather than ascending horizontal distance. vertical_order_traversal returns every node in each column, unlike the single visible top/bottom node per column. Implemented as a distinct four-selector benchmark with indexed-tree ABI and signed 32-bit values.",
+      "benchmark_name": "diff_views_of_binary_tree"
     },
     {
       "candidate_id": "difference_arr",
@@ -26135,7 +26163,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26144,6 +26172,14 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/dimensionality_reduction.py",
           "local_folder_source": null
         }
+      ],
+      "review_notes": "The pinned Python file is an umbrella module. Its PCA method is split into the bounded one-component contract at benchmarks/d/dimensionality_reduction_pca/README.md. That split preserves the source's feature-by-sample orientation, divisor-n covariance, and projection of the original uncentered matrix; it canonicalizes the eigenvector sign to make outputs portable. LDA projection and seeded t-SNE remain unresolved separate methods: generalized eigendecomposition plus SVD and seeded iterative embedding are not covered by the PCA slice. The module's covariance helper functions are support routines, not additional standalone benchmark contracts.",
+      "split_benchmarks": {
+        "principal_component_analysis": "benchmarks/d/dimensionality_reduction_pca/README.md"
+      },
+      "unresolved_split_methods": [
+        "linear_discriminant_analysis",
+        "t_distributed_stochastic_neighbor_embedding"
       ]
     },
     {
@@ -26153,7 +26189,7 @@
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "R",
@@ -26162,7 +26198,8 @@
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/data_preprocessing/dimensionality_reduction_algorithms.r",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned R source is only four top-level statements: it loads stats, calls princomp(train, cor = TRUE), and predicts scores for train and test. It defines no function or input contract and depends on ambient train/test variables, so it is a dataset-workflow snippet rather than a self-contained algorithm implementation. Its operation is correlation-based PCA, but it is not an alias of the R pca_algorithm candidate: that function accepts X and k and returns reduced scores, components, and eigenvalues. No mapped benchmark package exists locally."
     },
     {
       "candidate_id": "dinic",
@@ -26250,7 +26287,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -26259,7 +26296,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/blockchain/diophantine_equation.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "alias_of": "linear_diophantine_equations_solver",
+      "benchmark_contract": "benchmarks/l/linear_diophantine_equations_solver/README.md",
+      "review_notes": "The pinned Python diophantine(a,b,c) calls extended_gcd(a,b), asserts divisibility, scales the Bézout coefficients by c/d, and returns one pair as floats. For the solver contract subset a,b >= 0, (a,b) != (0,0), and |a|,|b|<=1000, |c|<=10000, Python extended_gcd has the same recursive quotient/remainder recurrence and selected coefficients as the pinned Java LinearDiophantineEquationsSolver, and its float scaling is exact throughout these bounds. The existing solver benchmark therefore represents this single-solution API on that subset; the Dart linear_diophantine_eqn benchmark only returns solvability. The file also contains diophantine_all_soln, which prints a requested arithmetic progression of solutions, and all_diophantine_solutions, which returns up to n signed integer pairs and handles (0,0,0) specially. Those enumeration/output APIs are not represented by the single-solution alias; extending coverage to them would be a separate contract, not an equivalence claim."
     },
     {
       "candidate_id": "directed_and_undirected_weighted_graph",
@@ -26268,7 +26308,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -26277,7 +26317,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/directed_and_undirected_weighted_graph.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "graph_lua_directed_weighted",
+      "benchmark_contract": "benchmarks/g/graph_lua_directed_weighted/README.md",
+      "review_notes": "The pinned Python file defines reusable DirectedGraph and Graph adjacency-list classes, not merely a demo. Both store (weight, neighbor) records, suppress exact duplicate weighted pairs, allow distinct parallel weights, and remove every edge between a selected endpoint pair. DirectedGraph adds one orientation; Graph adds/removes both orientations (a self-loop is stored once). It also bundles traversal, degree, topological, and cycle routines, which are outside this mapping. The existing graph_lua_directed_weighted operation trace represents the shared storage subset: nodes are pre-created, weights are bounded numeric values, each current ordered pair has at most one edge, add_pair is used only for absent pairs (mapped to set_weight), remove_pair maps to remove_edge, and get_weight/has_edge/final enumeration map to the corresponding trace queries. For Graph, undirected pairs are encoded as symmetric directed edges and the two orientations are updated atomically with no intervening query; self-loops use one orientation. The subset excludes multiple distinct weights on the same endpoint pair, insertion-ordered all_nodes behavior, traversal/graph algorithms, and random graph generation/timing helpers."
     },
     {
       "candidate_id": "directed_graph",
@@ -26286,7 +26329,6 @@
         "Haskell"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
       "implementations": [
         {
           "repository": "Haskell",
@@ -26295,7 +26337,11 @@
           "url": "https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Graph/DirectedGraph.hs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "graph_lua_directed_weighted",
+      "benchmark_contract": "benchmarks/g/graph_lua_directed_weighted/README.md",
+      "review_notes": "This is a reusable generic directed graph ADT backed by Map keys and Set-valued adjacency, not a demo record. The existing graph_lua_directed_weighted operation trace covers its portable edge-store subset: insertEdge maps to storing boolean true, adjacentNodes membership is observable through edge queries, and edges maps to final edge enumeration. Set union coalesces repeated Haskell edges, matching idempotent boolean set_weight. The contract does not represent Haskell-only deleteNode or transpose behavior, or the nodes operation's isolated-node enumeration."
     },
     {
       "candidate_id": "directed_weighted_graph",
@@ -26304,7 +26350,6 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -26313,7 +26358,11 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/Graph/DirectedWeightedGraph.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "graph_lua_directed_weighted",
+      "benchmark_contract": "benchmarks/g/graph_lua_directed_weighted/README.md",
+      "review_notes": "This is a reusable fixed-capacity directed weighted graph backed by an adjacency matrix, not an interface/demo record. The existing graph_lua_directed_weighted contract covers the edge-operation subset when all vertices are created before the trace, edge additions use unique nonzero integer weights, and vertex additions/removals are omitted: AddEdge maps to numeric set_weight, RemoveEdge to remove_edge, AreAdjacent to has_edge, AdjacentDistance to get_weight, and GetNeighbors to the source-sorted outgoing edges. The contract does not model C# vertex capacity, ownership checks, or RemoveVertex index compaction."
     },
     {
       "candidate_id": "disarium",
@@ -27142,7 +27191,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "reviewed_benchmark_contract",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -27160,7 +27209,8 @@
         }
       ],
       "benchmark_contract": "benchmarks/d/double_hash_hash_table/README.md",
-      "review_notes": "Both pinned C++ sources are interactive demonstrations of open-addressed double hashing, distinct from linear and quadratic probing. They use global mutable state, diagnostic I/O, std::hash, resizing, and an uninitialized empty sentinel, so they are not directly callable benchmark functions. The shared bounded contract ports the double-hash strategy with deterministic integer hashes, prime capacities, explicit tombstones, and insert/search/delete operation streams. The separate Python double_hash candidate only overrides a mutable HashTable collision hook and is independently marked non-benchmarkable; it is not an equivalent standalone benchmark."
+      "review_notes": "Both pinned C++ sources are interactive demonstrations of open-addressed double hashing, distinct from linear and quadratic probing. They use global mutable state, diagnostic I/O, std::hash, resizing, and an uninitialized empty sentinel, so they are not directly callable benchmark functions. The shared bounded contract ports the double-hash strategy with deterministic integer hashes, prime capacities, explicit tombstones, and insert/search/delete operation streams. The separate Python double_hash candidate only overrides a mutable HashTable collision hook and is independently marked non-benchmarkable; it is not an equivalent standalone benchmark.",
+      "benchmark_name": "double_hash_hash_table"
     },
     {
       "candidate_id": "double_linear_search",
@@ -27469,7 +27519,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -27478,7 +27528,10 @@
           "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/dsa/dsa.go",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "dsa_verify",
+      "benchmark_contract": "benchmarks/d/dsa_verify/README.md",
+      "review_notes": "The pinned Go package exposes deterministic DSA Verify alongside parameter/key generation and Sign. The bounded dsa_verify contract ports only the verification equation over small prime subgroups and big-endian messages; random crypto/rand parameter generation and nonce-based signing are excluded from deterministic benchmarking. Eight native ports passed the focused verifier; Elisa code generation emitted an unresolved dsa_verify_impl symbol at link time, so Elisa remains a source port but is not counted as passing."
     },
     {
       "candidate_id": "dsu_path_compression",
@@ -27960,7 +28013,7 @@
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_benchmark_contract",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Go",
@@ -27971,7 +28024,8 @@
         }
       ],
       "benchmark_contract": "benchmarks/d/dynamicarray/README.md",
-      "review_notes": "The pinned Go tests construct a zero-value DynamicArray{}, giving capacity 0 until the first Add invokes NewCapacity and allocates 10 slots; later growth doubles. The source exposes Add, Put, Get, Remove, IsEmpty, GetData, and Capacity. The existing dynamic_array benchmark covers only the common append/update/get/size subset and uses a different unobservable capacity model. This separate contract adds stable removal, capacity and empty queries, and final GetData contents, so it is not a complete alias."
+      "review_notes": "The pinned Go tests construct a zero-value DynamicArray{}, giving capacity 0 until the first Add invokes NewCapacity and allocates 10 slots; later growth doubles. The source exposes Add, Put, Get, Remove, IsEmpty, GetData, and Capacity. The existing dynamic_array benchmark covers only the common append/update/get/size subset and uses a different unobservable capacity model. This separate contract adds stable removal, capacity and empty queries, and final GetData contents, so it is not a complete alias.",
+      "benchmark_name": "dynamicarray"
     },
     {
       "candidate_id": "ear_clipping_polygon_triangulation",
@@ -28067,7 +28121,7 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "cpu_scheduling_algorithms",
+      "alias_of": "cpuschedulingalgorithms",
       "benchmark_contract": "benchmarks/c/cpu_scheduling_algorithms/README.md",
       "review_notes": "The pinned Java scheduleProcesses() stably sorts processes by ascending deadline, then runs each process to completion while accumulating waiting and turnaround times. This is exactly the existing CPU-scheduling mode 3 (non-preemptive ascending-priority) when arrivals are all zero and priority values are the deadlines. The alias is restricted to the shared bounded positive-burst domain; the canonical contract reports per-process metrics in input order, which normalizes away the Java method's sorted returned-list order. The source's console warnings for missed deadlines are side effects and are not part of the returned schedule semantics."
     },
@@ -28237,7 +28291,7 @@
       ],
       "benchmark_name": "edmonds",
       "benchmark_contract": "benchmarks/e/edmonds/README.md",
-      "review_notes": "The pinned Java Edmonds.java source implements Chu–Liu/Edmonds minimum spanning arborescence for a directed weighted graph rooted at a supplied vertex. It is distinct from edmonds_blossom_algorithm, which computes maximum-cardinality matching in undirected general graphs, and edmonds_karp, which computes maximum flow. The shared contract bounds the graph to five vertices and twelve edges, uses nonnegative weights, and returns the minimum rooted arborescence cost or -1 when none exists."
+      "review_notes": "The pinned Java Edmonds.java source implements Chu–Liu/Edmonds minimum spanning arborescence for a directed weighted graph rooted at a supplied vertex. It is distinct from edmonds_blossom_algorithm, which computes maximum-cardinality matching in undirected general graphs, and edmonds_karp, which computes maximum flow. The shared contract bounds the graph to five vertices and twelve edges, uses nonnegative weights, and returns the minimum rooted arborescence cost or -1 when none exists. All nine language ports pass 259 oracle arrays and five workload records each."
     },
     {
       "candidate_id": "edmonds_blossom_algorithm",
@@ -28456,7 +28510,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Java",
@@ -28465,7 +28519,8 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/ElGamalCipher.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Java class combines secure random safe-prime key generation (minimum modulus size 256 bits), randomized encryption with an internally sampled ephemeral exponent k, and BigInteger decryption. The signed-i64 benchmark ABI cannot represent the documented key sizes, and ciphertext output is nondeterministic because the source does not accept k or a random source as input. The encrypt/decrypt math is related to Diffie–Hellman modular exponentiation but is not equivalent to the existing shared-secret contract; mapping it would misrepresent the API. Excluded from deterministic portable benchmarking."
     },
     {
       "candidate_id": "elastic_collision2_d",
@@ -28473,8 +28528,18 @@
       "source_repositories": [
         "Java"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -28483,7 +28548,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/physics/ElasticCollision2D.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "elastic_collision2_d",
+      "benchmark_contract": "benchmarks/e/elastic_collision2_d/README.md",
+      "review_notes": "The pinned Java resolveCollision computes the center normal and relative velocity, leaves the first body unchanged when centers overlap or bodies move apart, and otherwise applies an elastic impulse with restitution 1. The bounded contract supplies two bodies as twelve fixed-thousandths integers, excludes coincident centers, and packs the first body’s rounded post-collision velocity components into signed 16-bit x/y words in an i64 result. The source impulse is still applied at exact tangency and, as written, to separated bodies when they are approaching."
     },
     {
       "candidate_id": "electric_conductivity",
@@ -28616,7 +28684,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Python",
@@ -28625,7 +28693,8 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/elgamal_key_generator.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python generate_key routine generates a random large prime, chooses random values, prints progress, and make_key_files writes public/private key files. Its 2048-bit default is outside the signed-i64 ABI; randomness and filesystem/output side effects prevent a deterministic single-call contract. Its primitive_root helper also does not check true primitivity: for prime p, pow(g, p, p) equals g, so it mainly rejects g=1 (along with squares equal to 1). It is key setup, not the Java cipher operation and not equivalent to the existing deterministic primitive_root or Diffie–Hellman benchmarks. Excluded from portable benchmarking."
     },
     {
       "candidate_id": "elliptic_curve",
@@ -28655,9 +28724,17 @@
         "C-Plus-Plus-1"
       ],
       "local_source_folders": [
-        "cpp"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -28673,7 +28750,9 @@
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/ciphers/elliptic_curve_key_exchange.cpp",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The two pinned C++ files implement affine point addition and binary double-and-add for an ECDH demo; the additional repository copy agrees on these operations. The benchmark standardizes that flow over validated small prime fields, computes both public points and the shared point in both directions, and emits three little-endian point pairs. It excludes the demo’s fixed large parameters, custom 128/256-bit arithmetic tests, and console output; the bounded benchmark makes no cryptographic-security claim.",
+      "benchmark_contract": "benchmarks/e/elliptic_curve_key_exchange/README.md"
     },
     {
       "candidate_id": "elu",
@@ -28844,7 +28923,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Python",
@@ -28853,7 +28932,8 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/hashes/enigma_machine.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned Python source uses a 94-character printable-ASCII alphabet, identity rotors, and a reversed reflector, but stores rotor positions and the output list in module-global mutable state. encode_or_decode advances those globals before processing and never resets or clears them, so output and subsequent calls depend on prior runtime history; menu() also performs interactive I/O. This is not equivalent to enigma_machine2's local-state uppercase rotor core and is excluded as stateful/non-deterministic for a repeatable single-call benchmark."
     },
     {
       "candidate_id": "enigma_machine2",
@@ -28862,7 +28942,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -28871,7 +28951,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/enigma_machine2.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "enigma_machine2",
+      "benchmark_contract": "benchmarks/e/enigma_machine2/README.md",
+      "review_notes": "The pinned Python implementation uses a 26-letter uppercase alphabet, three selectable permutation rotors, a reciprocal A↔N..M↔Z reflector, optional plugboard, and local per-call rotor positions. This benchmark selects the source's default three rotors, empty plugboard, and uppercase letter inputs; it preserves its 1-based initial positions and simple carry stepping (no notch turnover), with at most 12 letters encoded as a base-26 scalar. The sibling enigma_machine.py uses 94 printable ASCII symbols and persistent global mutable state, so it is not an alias. All nine ports pass 270 oracle arrays and five workload records."
     },
     {
       "candidate_id": "entropy",
@@ -28958,7 +29041,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -28967,7 +29050,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/audio_filters/equal_loudness_filter.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "equal_loudness_filter",
+      "benchmark_contract": "benchmarks/e/equal_loudness_filter/README.md",
+      "review_notes": "The pinned Python class cascades a 10th-order Yule–Walker filter with a 150 Hz Butterworth high-pass at 44,100 Hz, with per-call zeroed histories. The source designs Yule–Walker coefficients at runtime using loudness-curve data, FFT, least-squares solves, and root stabilization. The portable benchmark fixes the generated coefficients in signed Q30 and defines truncation-toward-zero integer recurrence on scaled bounded traces; this is an explicit fixed-coefficient profile, not runtime coefficient-design parity. It is distinct from the individual Butterworth coefficient benchmark and general IIR recurrence."
     },
     {
       "candidate_id": "equated_monthly_installments",
@@ -29764,7 +29850,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -29773,7 +29859,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/streaming/EwmaChangeDetector.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "ewma_change_detector",
+      "benchmark_contract": "benchmarks/e/ewma_change_detector/README.md",
+      "review_notes": "The pinned Java detector smooths samples around a target with an EWMA, tests a warm-up-dependent control limit, emits directional alarms, and resets its average to target after each alarm. This differs from EMAFilter, which only returns a smoothed trace, and from robust local outlier filters. The portable profile fixes target=0, sigma=1, alpha=1/2, width=1 and bounds integer samples to [-8,8] for at most 15 steps. It uses an exact rational EWMA numerator and squared control-limit comparison (3*d^2 > 4^n-1), with reset after alarms, and base-4 packs the signal trace."
     },
     {
       "candidate_id": "excel_title_to_column",
@@ -31530,7 +31619,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -31539,7 +31628,10 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Encoders/FeistelCipher.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "feistel_cipher_normalized",
+      "benchmark_contract": "benchmarks/f/feistel_cipher_normalized/README.md",
+      "review_notes": "The pinned C# source is a concrete 32-round, 64-bit toy Feistel cipher, distinct from standard DES and not a configurable generic network. Its Math.Pow(double)-to-uint round-key schedule has no 32-round key domain with defined portable semantics: key 1 produces a zero round key and keys >=2 exceed uint range during the schedule. The mapped feistel_cipher_normalized benchmark is explicitly a normalized variant, not exact source parity: it defines round keys as wrapping_pow_u32(key, round+2) XOR key and all arithmetic modulo 2^32, preserving the source's 32-step arithmetic F-function and 32 outer Feistel rounds. Keys whose normalized round keys are zero are invalid to avoid division by zero. Source ASCII block zero-padding and NUL-stripping are documented; the contract tests one raw 64-bit block so the cipher core remains reversible."
     },
     {
       "candidate_id": "fenwick_tree",
@@ -33832,8 +33924,18 @@
       "source_repositories": [
         "Clojure"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Clojure",
@@ -33842,7 +33944,10 @@
           "url": "https://github.com/TheAlgorithms/Clojure/blob/a9c5bec14928cb22fd4d69e951edf5bd15e16a18/src/data_structures/lists/flatten_nested_list.clj",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "flatten_nested_list",
+      "benchmark_contract": "benchmarks/f/flatten_nested_list/README.md",
+      "review_notes": "The pinned Clojure file implements recursive flatten-1 and tail-recursive flatten-2; both recursively splice nested collections and preserve left-to-right leaf order. The bounded contract encodes one nested integer-list root as a preorder stream with explicit open/close markers, depth at most 16 and at most 255 tokens, then hashes each flattened signed leaf as eight little-endian bytes with FNV-1a 64. Malformed streams return -1. The package measures the shared leaf-order behavior and omits Clojure collection allocation details."
     },
     {
       "candidate_id": "fletcher",
@@ -35206,8 +35311,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -35216,7 +35331,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/linear_algebra/gauss_jordan.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "gauss_jordan",
+      "benchmark_contract": "benchmarks/g/gauss_jordan/README.md",
+      "review_notes": "The pinned Python function accepts a two-dimensional coefficient matrix and matching RHS column vector, then applies Gauss-Jordan reduction. Per column it picks the first pivot not close to zero at or below that row, swaps and normalizes the pivot row, and eliminates from every other row; columns without pivots are skipped. The bounded contract retains rectangular and rank-deficient behavior and serializes the transformed matrix followed by RHS as binary64."
     },
     {
       "candidate_id": "gauss_jordan_elim",
@@ -35420,8 +35538,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -35430,7 +35558,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/linear_algebra/src/gaussian_elimination_pivoting.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "gaussian_elimination_pivoting",
+      "benchmark_contract": "benchmarks/g/gaussian_elimination_pivoting/README.md",
+      "review_notes": "The pinned Python solver copies an augmented matrix, selects the largest absolute pivot from the current row downward with first-row tie behavior, checks for pivots below 1e-8, then performs its source-ordered elimination using the previous pivot row after the next pivot selection. Back substitution updates right-hand-side entries in descending row order. The bounded all-nine-language contract supports 2–4 variable systems and packs the solution as binary64."
     },
     {
       "candidate_id": "gaussian_error_linear_unit",
@@ -35962,8 +36093,18 @@
       "source_repositories": [
         "JavaScript"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -35972,7 +36113,9 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/GenerateSubSets.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/s/generate_sub_sets/README.md",
+      "review_notes": "The pinned JavaScript function enumerates integer masks in ascending order and scans input positions from lowest to highest, preserving duplicate positions. Its nominal 32-element limit interacts with signed 32-bit bitwise shifts at the upper boundary; the bounded contract uses n<=12, where the source traversal is well-defined and practical."
     },
     {
       "candidate_id": "generate_subsets",
@@ -37279,8 +37422,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -37289,7 +37442,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/computer_vision/gramian.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "gramian",
+      "benchmark_contract": "benchmarks/g/gramian/README.md",
+      "review_notes": "The pinned Python source treats each feature map as shape (channels, height, width), reshapes it to (channels, height*width), computes vec @ vec.T, and divides by channels*height*width. Its gram_loss computes both normalized Gram matrices and returns the squared Frobenius norm of their difference. The bounded contract exposes both operations for channel-major fixed-point feature maps with at most three channels and four pixels, serializing the Gram matrix or one-element loss as little-endian binary64."
     },
     {
       "candidate_id": "graph",
@@ -43795,7 +43951,17 @@
       "source_repositories": [
         "Lua"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -43807,7 +43973,8 @@
         }
       ],
       "benchmark_contract": "benchmarks/i/is/README.md",
-      "review_notes": "The pinned Lua function returns true iff the argument has type number, is integral (`x % 1 == 0`), is nonnegative, and is strictly less than 2^53. The bounded one-element signed-integer array contract already guarantees numeric integrality, so its result is 1 exactly for 0 <= n < 2^53 and 0 otherwise; malformed array shape maps to -1."
+      "review_notes": "The pinned Lua function returns true iff the argument has type number, is integral (`x % 1 == 0`), is nonnegative, and is strictly less than 2^53. The bounded one-element signed-integer array contract already guarantees numeric integrality, so its result is 1 exactly for 0 <= n < 2^53 and 0 otherwise; malformed array shape maps to -1.",
+      "benchmark_name": "uint53_is"
     },
     {
       "candidate_id": "is_anagram",
@@ -44929,8 +45096,18 @@
       "source_repositories": [
         "C-Sharp"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -44939,7 +45116,9 @@
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Crypto/Paddings/Iso10126D2Padding.cs",
           "local_folder_source": null
         }
-      ]
+      ],
+      "review_notes": "The pinned C# class adds a final count byte after random fill, removes the number of bytes declared by the final byte, and reports that count only when it is within 1..input length. Remove/count do not validate the fill bytes. The benchmark supplies explicit 0..254 fill bytes to make AddPadding deterministic and standardizes the operations on buffers of at most 64 bytes, with byte output encoding the add count, removed prefix, or count.",
+      "benchmark_contract": "benchmarks/i/iso10126_d2_padding/README.md"
     },
     {
       "candidate_id": "iso7816_d4_padding",
@@ -45432,8 +45611,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -45442,7 +45631,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/linear_algebra/jacobi_iteration_method.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "jacobi_iteration_method",
+      "benchmark_contract": "benchmarks/j/jacobi_iteration_method/README.md",
+      "review_notes": "The pinned Python function validates square coefficient matrices, a matching column rhs and initial vector, and positive iteration count, then performs the Jacobi method with simultaneous vector updates. Its helper checks strict diagonal dominance by comparing each diagonal entry to the signed sum of off-diagonal coefficients. The bounded contract limits dimension to four and iterations to eight, uses nonnegative fixed-point coefficients so the source check also enforces diagonal dominance, and returns the final binary64 iterate vector."
     },
     {
       "candidate_id": "jacobsthal_number",
@@ -48817,7 +49009,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -48826,7 +49018,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/geodesy/lamberts_ellipsoidal_distance.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "lamberts_ellipsoidal_distance",
+      "benchmark_contract": "benchmarks/l/lamberts_ellipsoidal_distance/README.md",
+      "review_notes": "The pinned Python routine converts geodetic latitudes to reduced latitudes, derives the central angle from the Haversine helper using Earth radius 6,371,000 m, and applies Lambert’s WGS-84 ellipsoidal X/Y correction using axes 6,378,137.0 m and 6,356,752.314245 m. The bounded contract takes [lat1, lon1, lat2, lon2] in integer microdegrees, validates latitude to ±90° and longitude to ±180°, and returns distance in meters. Identical coordinate tuples return the invalid sentinel because the source formula divides by sin(sigma/2)^2; results use 1e-6 absolute and 1e-12 relative tolerance."
     },
     {
       "candidate_id": "lamport_signature",
@@ -48909,7 +49104,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -48918,7 +49113,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/filters/laplacian_filter.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "laplacian_filter",
+      "benchmark_contract": "benchmarks/l/laplacian_filter/README.md",
+      "review_notes": "The pinned Python my_laplacian selects a fixed 3x3 kernel for ksize=1: [[0,-1,0],[-1,4,-1],[0,-1,0]]. It applies OpenCV filter2D as correlation with BORDER_DEFAULT and anchor=(0,0). The bounded contract supplies a 3x3 row-major grayscale patch and returns the output at (0,0), whose referenced footprint stays in bounds: 4*pixel(1,1) minus its four axial neighbors. Inputs are bytes 0..255; invalid input returns -1e300."
     },
     {
       "candidate_id": "large_factorial",
@@ -49059,7 +49257,7 @@
       ],
       "benchmark_name": "largest_of_very_large_numbers",
       "benchmark_contract": "benchmarks/l/largest_of_very_large_numbers/README.md",
-      "review_notes": "The pinned Python helper compares exponent * log10(base) for positive base and exponent, returns 0 whenever the base is zero (including 0^0), and returns 1 for a positive base with zero exponent. The package preserves these branches and direct floating-point score comparisons over bounded nonnegative inputs; equal scores return 0."
+      "review_notes": "The pinned Python source compares powers through exponent * log10(base). The benchmark restricts positive bases to exact powers 10^k and normalizes log10(10^k) to the exact integer k, so it compares exact integer scores rather than platform libm results. It preserves the source's zero-base-first branch, then zero-exponent branch, for the bounded domain."
     },
     {
       "candidate_id": "largest_pow_of_two_le_num",
@@ -50504,7 +50702,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -50513,7 +50711,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/LineSweep.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "line_sweep",
+      "benchmark_contract": "benchmarks/l/line_sweep/README.md",
+      "review_notes": "The pinned Java LineSweep.isOverlap checks inclusive integer ranges by allocating a number line through the largest end point, incrementing at each start and decrementing just after each end, then scanning prefix counts for a value above one. Its helper sorts ranges by end and returns the final range end. The bounded contract accepts 0..8 ranges with endpoints in [0,20] and start<=end, returns false for an empty list, and maps overlap to 1.0 and no overlap to 0.0."
     },
     {
       "candidate_id": "linear",
@@ -52940,7 +53141,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -52949,7 +53150,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/lorentz_transformation_four_vector.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "lorentz_transformation_four_vector",
+      "benchmark_contract": "benchmarks/l/lorentz_transformation_four_vector/README.md",
+      "review_notes": "The pinned Python numeric path transforms a four-vector under a boost along x. It mutates the event time coordinate by multiplying by c=299,792,458, builds the matrix with gamma=1/sqrt(1-beta^2) and off-diagonal entries -gamma*beta, then multiplies the matrix by the event; y and z pass through. The bounded contract accepts integer velocity in [1,200,000,000] m/s, selected component 0..3, time in microseconds and spatial coordinates in centimeters, converts those fields to seconds/meters, and returns the selected transformed component. Invalid inputs return -1e300."
     },
     {
       "candidate_id": "loss_functions",
@@ -59776,8 +59980,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -59786,7 +60000,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/arrays/monotonic_array.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "monotonic_array",
+      "benchmark_contract": "benchmarks/m/monotonic_array/README.md",
+      "review_notes": "The pinned Python is_monotonic returns true when every adjacent pair is nondecreasing or every adjacent pair is nonincreasing; equal values are allowed, and empty/singleton inputs return true through vacuous all(). The bounded benchmark preserves that predicate for arrays of up to 256 signed integers in [-1,000,000,000, 1,000,000,000], returning 1/0 and reserving -1 for out-of-domain inputs."
     },
     {
       "candidate_id": "monotonic_queue",
@@ -67381,7 +67598,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Java",
@@ -67390,7 +67607,10 @@
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/PhoneticAlphabetConverter.java",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "phonetic_alphabet_converter",
+      "benchmark_contract": "benchmarks/p/phonetic_alphabet_converter/README.md",
+      "review_notes": "The pinned Java textToPhonetic uppercases the full input, skips Character.isWhitespace characters, maps A–Z and digits 0–9 to its fixed phonetic names, passes other characters through, inserts one separator between emitted tokens, and trims the result. The bounded benchmark restricts input to ASCII letters, digits, printable punctuation, and ASCII whitespace to avoid Java locale and Unicode case expansion while preserving the active ASCII behavior."
     },
     {
       "candidate_id": "photoelectric_effect",
@@ -68681,7 +68901,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -68697,7 +68917,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/linear_algebra/src/power_iteration.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "power_iteration",
+      "benchmark_contract": "benchmarks/p/power_iteration/README.md",
+      "review_notes": "The pinned Python implementation normalizes A·v by its Euclidean norm and stops when the relative change in the Rayleigh quotient is within the tolerance; it returns the eigenvalue and eigenvector. The bounded benchmark selects the eigenvalue for a positive-definite symmetric 2×2 matrix and positive initial vector, with tolerance 1e-12 and at most 100 iterations. The C# source uses a different stopping rule based on the dot product of successive vectors and returns the norm of A·v; that variant is documented as a source divergence."
     },
     {
       "candidate_id": "power_of_2",
@@ -77046,7 +77269,7 @@
         "JavaScript"
       ],
       "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "JavaScript",
@@ -77055,7 +77278,10 @@
           "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Geometry/Pyramid.js",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "pyramid",
+      "benchmark_contract": "benchmarks/p/pyramid/README.md",
+      "review_notes": "The pinned JavaScript Pyramid class computes square-base volume as (baseArea * height) / 3 and total surface area as baseArea + ((baseSide * 4) / 2) * sqrt((baseSide / 2)^2 + height^2). The benchmark exposes both formulas via an operation selector and encodes positive dimensions in thousandths on a bounded finite domain."
     },
     {
       "candidate_id": "pythagoras",
@@ -91019,8 +91245,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -91029,7 +91265,10 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/strip.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_name": "strip",
+      "benchmark_contract": "benchmarks/s/strip/README.md",
+      "review_notes": "The pinned Python strip scans inward from both ends while each character belongs to the supplied character set, defaulting to space, tab, line feed, and carriage return. The benchmark bounds inputs to ASCII and preserves the source substring and boundary membership behavior across all nine target languages."
     },
     {
       "candidate_id": "strobogrammatic_number",
@@ -94455,7 +94694,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -98582,8 +98831,18 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
-      "review_status": "unreviewed_filename_match",
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -98592,7 +98851,9 @@
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/cellular_automata/wa_tor.py",
           "local_folder_source": null
         }
-      ]
+      ],
+      "benchmark_contract": "benchmarks/w/wa_tor/README.md",
+      "review_notes": "The pinned Wa-Tor source uses random entity order, movement order, prey-target order, and an end-of-chronon population purge. The bounded 1-8 by 1-8 contract supplies the initial board, fixes the source's pre-shuffle direction priorities and row-major entity snapshot, and preserves movement, timer, reproduction, predation, and starvation rules. The 450-entity purge threshold and 500-entity cap are unreachable on this board."
     },
     {
       "candidate_id": "wave_sort",
@@ -100674,4 +100935,4 @@
       "review_notes": "The pinned Python file exposes generate_rule_30(size, generations): it allocates exactly the requested number of rows, seeds row zero at size // 2, and synchronously applies Rule 30 to later rows. The generation count includes the seeded row. This is distinct from rule_30_step, which is mapped through elementary_cellular_automaton to the one-step elementary benchmark."
     }
   ]
-}\n
+}

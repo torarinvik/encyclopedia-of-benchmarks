@@ -1,0 +1,1 @@
+export fn laplacian_filter(v: [*]const i64, n: usize) callconv(.c) f64 { if(n!=9)return -1.0e300; for(0..9)|i|{if(v[i]<0 or v[i]>255)return -1.0e300;} return @floatFromInt(4*v[4]-v[1]-v[3]-v[5]-v[7]); }

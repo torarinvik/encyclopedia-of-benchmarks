@@ -159,6 +159,8 @@ from constrained_shortest_path_oracle import INVALID_RESULT as CONSTRAINED_SHORT
 from constrained_shortest_path_oracle import MAX_EDGE_COUNT as MAX_CONSTRAINED_SHORTEST_PATH_EDGES
 from constrained_shortest_path_oracle import MAX_INPUT_LENGTH as MAX_CONSTRAINED_SHORTEST_PATH_INPUT_LENGTH
 from constrained_shortest_path_oracle import expected_result as constrained_shortest_path_oracle
+from dsa_verify_oracle import MAX_INPUT_LENGTH as MAX_DSA_VERIFY_INPUT_LENGTH
+from dsa_verify_oracle import expected_result as dsa_verify_oracle
 from jump_game_oracle import INVALID_RESULT as JUMP_GAME_INVALID_RESULT
 from jump_game_oracle import MAX_ARRAY_LENGTH as MAX_JUMP_GAME_VALUES
 from jump_game_oracle import MAX_INPUT_LENGTH as MAX_JUMP_GAME_INPUT_LENGTH
@@ -286,6 +288,18 @@ from largest_of_very_large_numbers_oracle import MAX_BASE as LARGEST_OF_VERY_LAR
 from largest_of_very_large_numbers_oracle import MAX_EXPONENT as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT
 from largest_of_very_large_numbers_oracle import MAX_INPUT_LENGTH as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH
 from largest_of_very_large_numbers_oracle import expected_result as largest_of_very_large_numbers_oracle
+from wa_tor_oracle import INVALID_RESULT as WA_TOR_INVALID_RESULT
+from wa_tor_oracle import MAX_CHRONONS as WA_TOR_MAX_CHRONONS
+from wa_tor_oracle import MAX_HEIGHT as WA_TOR_MAX_HEIGHT
+from wa_tor_oracle import MAX_PARSEABLE_INPUT_LENGTH as WA_TOR_MAX_PARSEABLE_INPUT_LENGTH
+from wa_tor_oracle import MAX_WIDTH as WA_TOR_MAX_WIDTH
+from wa_tor_oracle import expected_result as wa_tor_oracle
+from decisions_convolutions_oracle import INVALID_RESULT as DECISIONS_CONVOLUTIONS_INVALID_RESULT
+from decisions_convolutions_oracle import MAX_CRITERIA as DECISIONS_CONVOLUTIONS_MAX_CRITERIA
+from decisions_convolutions_oracle import MAX_DECISIONS as DECISIONS_CONVOLUTIONS_MAX_DECISIONS
+from decisions_convolutions_oracle import MAX_INPUT_LENGTH as MAX_DECISIONS_CONVOLUTIONS_INPUT_LENGTH
+from decisions_convolutions_oracle import MAX_VALUE as DECISIONS_CONVOLUTIONS_MAX_VALUE
+from decisions_convolutions_oracle import expected_result as decisions_convolutions_oracle
 from lexicographical_numbers_oracle import INVALID_RESULT as LEXICOGRAPHICAL_NUMBERS_INVALID_RESULT
 from lexicographical_numbers_oracle import MAX_NUMBER as LEXICOGRAPHICAL_NUMBERS_MAX_NUMBER
 from lexicographical_numbers_oracle import MAX_INPUT_LENGTH as MAX_LEXICOGRAPHICAL_NUMBERS_INPUT_LENGTH
@@ -422,6 +436,20 @@ from edmonds_oracle import MAX_EDGES as MAX_EDMONDS_EDGES
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
 from edmonds_oracle import MAX_VERTICES as MAX_EDMONDS_VERTICES
 from edmonds_oracle import expected_result as edmonds_oracle
+from enigma_machine2_oracle import MAX_INPUT_LENGTH as MAX_ENIGMA_MACHINE2_INPUT_LENGTH
+from enigma_machine2_oracle import expected_result as enigma_machine2_oracle
+from equal_loudness_filter_oracle import MAX_INPUT_LENGTH as MAX_EQUAL_LOUDNESS_FILTER_INPUT_LENGTH
+from equal_loudness_filter_oracle import SAMPLE_LIMIT as EQUAL_LOUDNESS_SAMPLE_LIMIT
+from equal_loudness_filter_oracle import MAX_SAMPLES as MAX_EQUAL_LOUDNESS_SAMPLES
+from equal_loudness_filter_oracle import expected_result as equal_loudness_filter_oracle
+from ewma_change_detector_oracle import MAX_INPUT_LENGTH as MAX_EWMA_CHANGE_DETECTOR_INPUT_LENGTH
+from ewma_change_detector_oracle import MAX_SAMPLES as MAX_EWMA_CHANGE_DETECTOR_SAMPLES
+from ewma_change_detector_oracle import SAMPLE_LIMIT as EWMA_CHANGE_DETECTOR_SAMPLE_LIMIT
+from ewma_change_detector_oracle import expected_result as ewma_change_detector_oracle
+from feistel_cipher_normalized_oracle import MAX_INPUT_LENGTH as MAX_FEISTEL_CIPHER_INPUT_LENGTH
+from feistel_cipher_normalized_oracle import expected_result as feistel_cipher_normalized_oracle
+from elastic_collision2_d_oracle import MAX_INPUT_LENGTH as MAX_ELASTIC_COLLISION2D_INPUT_LENGTH
+from elastic_collision2_d_oracle import expected_result as elastic_collision2_d_oracle
 from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
 from edmonds_karp_oracle import MAX_VERTICES as MAX_EDMONDS_KARP_VERTICES
 from edmonds_karp_oracle import MAX_CAPACITY as MAX_EDMONDS_KARP_CAPACITY
@@ -446,6 +474,7 @@ ALGORITHMS += ("merge_ksorted_arrays",)
 ALGORITHMS += ("jort_sort",)
 ALGORITHMS += ("substring",)
 ALGORITHMS += ("permutation_sort",)
+ALGORITHMS += ("dsa_verify",)
 ALGORITHMS += ("substring_search",)
 ALGORITHMS += ("substring_end",)
 ALGORITHMS += ("substring_minus",)
@@ -458,9 +487,16 @@ ALGORITHMS += ("push_relabel",)
 ALGORITHMS += ("wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated")
 ALGORITHMS += ("deep_clone_graph", "decremental_connectivity")
 ALGORITHMS += ("linked_deque",)
+ALGORITHMS += ("enigma_machine2",)
+ALGORITHMS += ("equal_loudness_filter",)
+ALGORITHMS += ("ewma_change_detector",)
+ALGORITHMS += ("feistel_cipher_normalized",)
 ALGORITHMS += ("iso7816_d4_padding",)
 ALGORITHMS += ("edmonds",)
 ALGORITHMS += ("davis_putnam_logemann_loveland",)
+ALGORITHMS += ("wa_tor",)
+ALGORITHMS += ("decisions_convolutions",)
+ALGORITHMS += ("elastic_collision2_d",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -897,6 +933,14 @@ def problem107_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "elastic_collision2_d":
+        return elastic_collision2_d_oracle(values)
+    if algorithm == "dsa_verify":
+        return dsa_verify_oracle(values)
+    if algorithm == "wa_tor":
+        return wa_tor_oracle(values)
+    if algorithm == "decisions_convolutions":
+        return decisions_convolutions_oracle(values)
     if algorithm == "iso7816_d4_padding":
         return iso7816_d4_padding_oracle(values)
     if algorithm == "linked_deque":
@@ -917,6 +961,14 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return edmonds_blossom_oracle(values)
     if algorithm == "edmonds":
         return edmonds_oracle(values)
+    if algorithm == "enigma_machine2":
+        return enigma_machine2_oracle(values)
+    if algorithm == "equal_loudness_filter":
+        return equal_loudness_filter_oracle(values)
+    if algorithm == "ewma_change_detector":
+        return ewma_change_detector_oracle(values)
+    if algorithm == "feistel_cipher_normalized":
+        return feistel_cipher_normalized_oracle(values)
     if algorithm == "edmonds_karp":
         return edmonds_karp_oracle(values)
     if algorithm == "push_relabel":
@@ -1001,6 +1053,45 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return directed_dfs_forest_count_oracle(values)
     if algorithm == "set_kth_bit":
         return set_kth_bit_oracle(values)
+    elif algorithm == "dsa_verify":
+        # Re-use the pinned workload, then generate valid small DSA subgroups and
+        # signatures with known private keys/nonces for deterministic verification.
+        import math
+        primes = (7, 11, 23, 31, 43, 47, 59, 67, 71, 79, 83, 103, 127, 139, 151, 167, 179, 191, 199, 211, 223, 227, 239, 251)
+        for p in primes:
+            for q in range(2, p):
+                if (p - 1) % q or any(q % d == 0 for d in range(2, int(q ** 0.5) + 1)):
+                    continue
+                generators = [g for g in range(2, p) if pow(g, q, p) == 1]
+                if not generators:
+                    continue
+                g = generators[0]
+                x = 1 + (p + q) % (q - 1)
+                y = pow(g, x, p)
+                k = 1 + (p * 3 + q) % (q - 1)
+                message = [p % 256, q % 256, (p * 17 + q) % 256]
+                h = 0
+                for byte in message:
+                    h = (h * 256 + byte) % q
+                r = pow(g, k, p) % q
+                if not r:
+                    continue
+                s = (pow(k, -1, q) * (h + x * r)) % q
+                if not s:
+                    continue
+                values = (p, q, g, y, r, s, len(message), *message)
+                cases[values] = oracle(algorithm, list(values))
+                mutated = list(values)
+                mutated[-1] = (mutated[-1] + 1) % 256
+                cases[tuple(mutated)] = oracle(algorithm, mutated)
+                if len(cases) > 512:
+                    break
+            if len(cases) > 512:
+                break
+        for values in ((), (7,), (7,3,2,2,2,2,9), (7,3,2,2,1,1,0),
+                       (9,2,8,1,1,1,0), (23,5,2,2,1,1,0),
+                       (7,3,2,2,1,1,1,256), (7,3,2,2,1,1,9,*([0]*9))):
+            cases[tuple(values)] = oracle(algorithm, list(values))
     if algorithm == "chaining":
         return chaining_oracle(values)
     if algorithm == "ceil_in_binary_search_tree":
@@ -1573,6 +1664,17 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_PUSH_RELABEL_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "enigma_machine2":
+        for _ in range(256):
+            text_length = rng.randint(0, 12)
+            values = [text_length, rng.randint(1, 26), rng.randint(1, 26), rng.randint(1, 26)]
+            values.extend(rng.randrange(26) for _ in range(text_length))
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (0,), (0,1,1,1,0), (13,1,1,1), (1,0,1,1,0),
+                     (1,1,27,1,0), (1,1,1,1,26), (2,1,1,1,0), (1,1,1,1,0,2))
+        for values in malformed:
+            if len(values) <= MAX_ENIGMA_MACHINE2_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
     elif algorithm == "edmonds":
         for vertex_count in range(1, MAX_EDMONDS_VERTICES + 1):
             root = (vertex_count - 1) % vertex_count
@@ -1616,6 +1718,42 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_EDMONDS_BLOSSOM_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "equal_loudness_filter":
+        for _ in range(256):
+            count = rng.randint(0, MAX_EQUAL_LOUDNESS_SAMPLES)
+            values = [count, *(rng.randint(-EQUAL_LOUDNESS_SAMPLE_LIMIT, EQUAL_LOUDNESS_SAMPLE_LIMIT)
+                               for _ in range(count))]
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (0, 0), (-1,), (MAX_EQUAL_LOUDNESS_SAMPLES + 1, 0),
+                     (1,), (1, EQUAL_LOUDNESS_SAMPLE_LIMIT + 1), (1, -EQUAL_LOUDNESS_SAMPLE_LIMIT - 1),
+                     (2, 0), (0, 1))
+        for values in malformed:
+            if len(values) <= MAX_EQUAL_LOUDNESS_FILTER_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "ewma_change_detector":
+        for _ in range(256):
+            count = rng.randint(0, MAX_EWMA_CHANGE_DETECTOR_SAMPLES)
+            values = [count, *(rng.randint(-EWMA_CHANGE_DETECTOR_SAMPLE_LIMIT,
+                                           EWMA_CHANGE_DETECTOR_SAMPLE_LIMIT)
+                               for _ in range(count))]
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (0, 0), (-1,), (16,), (1,), (1, 9), (1, -9),
+                     (2, 0), (0, 1))
+        for values in malformed:
+            if len(values) <= MAX_EWMA_CHANGE_DETECTOR_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "feistel_cipher_normalized":
+        for _ in range(256):
+            values = [rng.randrange(2), rng.randint(1, 0xFFFFFFFF), rng.randint(I64_MIN, I64_MAX)]
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (0,), (0, 1), (0, 1, 2, 3), (-1, 1, 0), (2, 1, 0),
+                     (0, 0, 0), (0, 0x100000000, 0), (1, 0xFFFFFFFF, I64_MIN))
+        for values in malformed:
+            if len(values) <= MAX_FEISTEL_CIPHER_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 3 -1\n")
     elif algorithm == "edmonds_karp":
         from itertools import product as cartesian_product
 
@@ -3794,6 +3932,131 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH + 1:
                 cases[values] = LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT
         special_records.append(f"NULL 1 {LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT}\n")
+    elif algorithm == "decisions_convolutions":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        maximum_input_length = MAX_DECISIONS_CONVOLUTIONS_INPUT_LENGTH
+        if (input_spec.get("decision_count_range") != [1, DECISIONS_CONVOLUTIONS_MAX_DECISIONS]
+                or input_spec.get("criterion_count_range") != [1, DECISIONS_CONVOLUTIONS_MAX_CRITERIA]
+                or input_spec.get("value_range") != [-DECISIONS_CONVOLUTIONS_MAX_VALUE,
+                                                     DECISIONS_CONVOLUTIONS_MAX_VALUE]
+                or input_spec.get("maximum_valid_array_length") != maximum_input_length
+                or input_spec.get("invalid_input_result") != DECISIONS_CONVOLUTIONS_INVALID_RESULT
+                or output_spec.get("valid_result_range") != [0, DECISIONS_CONVOLUTIONS_MAX_DECISIONS - 1]
+                or output_spec.get("invalid_input_result") != DECISIONS_CONVOLUTIONS_INVALID_RESULT):
+            raise ValueError("decisions_convolutions workload bounds/statuses must match its oracle")
+        methods = input_spec.get("methods", {})
+        if set(methods) != {"0", "1"}:
+            raise ValueError("decisions_convolutions workload must declare both method codes")
+
+        maximum_priorities = tuple(
+            DECISIONS_CONVOLUTIONS_MAX_VALUE if index % 2 == 0
+            else -DECISIONS_CONVOLUTIONS_MAX_VALUE
+            for index in range(DECISIONS_CONVOLUTIONS_MAX_CRITERIA)
+        )
+        maximum_matrix = tuple(
+            DECISIONS_CONVOLUTIONS_MAX_VALUE if (row + column) % 2 == 0
+            else -DECISIONS_CONVOLUTIONS_MAX_VALUE
+            for row in range(DECISIONS_CONVOLUTIONS_MAX_DECISIONS)
+            for column in range(DECISIONS_CONVOLUTIONS_MAX_CRITERIA)
+        )
+        for method in (0, 1):
+            maximum_input = (method, DECISIONS_CONVOLUTIONS_MAX_DECISIONS,
+                             DECISIONS_CONVOLUTIONS_MAX_CRITERIA,
+                             *maximum_priorities, *maximum_matrix)
+            if len(maximum_input) != maximum_input_length:
+                raise ValueError("decisions_convolutions maximum input does not match its contract")
+            cases[maximum_input] = oracle(algorithm, list(maximum_input))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            method = rng.randrange(2)
+            decision_count = rng.randint(1, DECISIONS_CONVOLUTIONS_MAX_DECISIONS)
+            criterion_count = rng.randint(1, DECISIONS_CONVOLUTIONS_MAX_CRITERIA)
+            priorities = [rng.randint(-DECISIONS_CONVOLUTIONS_MAX_VALUE,
+                                      DECISIONS_CONVOLUTIONS_MAX_VALUE)
+                          for _ in range(criterion_count)]
+            matrix = [rng.randint(-DECISIONS_CONVOLUTIONS_MAX_VALUE,
+                                  DECISIONS_CONVOLUTIONS_MAX_VALUE)
+                      for _ in range(decision_count * criterion_count)]
+            values = (method, decision_count, criterion_count, *priorities, *matrix)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 1), (2, 1, 1, 0, 0),
+            (0, 0, 1, 0), (0, DECISIONS_CONVOLUTIONS_MAX_DECISIONS + 1, 1),
+            (0, 1, 0), (0, 1, DECISIONS_CONVOLUTIONS_MAX_CRITERIA + 1),
+            (0, 1, 1), (0, 1, 1, 1000, 1000),
+            (0, 1, 1, DECISIONS_CONVOLUTIONS_MAX_VALUE + 1, 1),
+            (0, 1, 1, 1, DECISIONS_CONVOLUTIONS_MAX_VALUE + 1),
+            (I64_MIN, 1, 1), (0, I64_MAX, 1), (0, 1, I64_MIN),
+            (0, 1, 1, I64_MIN, 1), (0, 1, 1, 1, I64_MAX),
+            (0, DECISIONS_CONVOLUTIONS_MAX_DECISIONS,
+             DECISIONS_CONVOLUTIONS_MAX_CRITERIA,
+             *([0] * (maximum_input_length - 2))),
+        )
+        for values in malformed:
+            if len(values) <= maximum_input_length + 1:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {DECISIONS_CONVOLUTIONS_INVALID_RESULT}\n")
+    elif algorithm == "wa_tor":
+        if (workload["input"].get("width_range") != [1, WA_TOR_MAX_WIDTH]
+                or workload["input"].get("height_range") != [1, WA_TOR_MAX_HEIGHT]
+                or workload["input"].get("chronon_range") != [0, WA_TOR_MAX_CHRONONS]
+                or workload["input"].get("maximum_valid_array_length") != 3 + 3 * WA_TOR_MAX_WIDTH * WA_TOR_MAX_HEIGHT
+                or workload["input"].get("maximum_parseable_array_length") != WA_TOR_MAX_PARSEABLE_INPUT_LENGTH
+                or workload["input"].get("invalid_input_result") != WA_TOR_INVALID_RESULT
+                or workload["output"].get("invalid_input_result") != WA_TOR_INVALID_RESULT):
+            raise ValueError("wa_tor workload bounds must match its bounded deterministic oracle")
+        if not any(len(case["input_values"]) == 3 + 3 * WA_TOR_MAX_WIDTH * WA_TOR_MAX_HEIGHT
+                   for case in workload["cases"]):
+            raise ValueError("wa_tor workload is missing its maximum valid board")
+        if not any(case["expected_result"] == WA_TOR_INVALID_RESULT for case in workload["cases"]):
+            raise ValueError("wa_tor workload is missing invalid-input coverage")
+
+        boundary_cases = (
+            (1, 1, 0, 0, 0, 0),
+            (1, 1, WA_TOR_MAX_CHRONONS, 1, 0, 0),
+            (1, 1, 0, 1, 5, 0),
+            (1, 1, 0, 2, 20, 15),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            width = rng.randint(1, WA_TOR_MAX_WIDTH)
+            height = rng.randint(1, WA_TOR_MAX_HEIGHT)
+            chronons = rng.randint(0, WA_TOR_MAX_CHRONONS)
+            values = [width, height, chronons]
+            for _ in range(width * height):
+                kind = rng.choices((0, 1, 2), weights=(5, 3, 2), k=1)[0]
+                if kind == 0:
+                    values.extend((0, 0, 0))
+                elif kind == 1:
+                    values.extend((1, rng.randint(0, 5), 0))
+                else:
+                    values.extend((2, rng.randint(0, 20), rng.randint(0, 15)))
+            cases[tuple(values)] = oracle(algorithm, values)
+
+        maximum_board_with_extra = (WA_TOR_MAX_WIDTH, WA_TOR_MAX_HEIGHT, 0,
+                                    *([0, 0, 0] * (WA_TOR_MAX_WIDTH * WA_TOR_MAX_HEIGHT)), 0)
+        malformed = (
+            (), (1,), (1, 1), (0, 1, 0), (WA_TOR_MAX_WIDTH + 1, 1, 0),
+            (1, 0, 0), (1, WA_TOR_MAX_HEIGHT + 1, 0), (1, 1, -1),
+            (1, 1, WA_TOR_MAX_CHRONONS + 1), (1, 1, 0, 0, 0),
+            (1, 1, 0, 0, 0, 0, 0, 0, 0), (1, 1, 0, 3, 0, 0),
+            (1, 1, 0, 0, 1, 0), (1, 1, 0, 1, -1, 0),
+            (1, 1, 0, 1, 6, 0), (1, 1, 0, 1, 5, 1),
+            (1, 1, 0, 2, -1, 0), (1, 1, 0, 2, 21, 0),
+            (1, 1, 0, 2, 20, -1), (1, 1, 0, 2, 20, 16),
+            (I64_MIN, 1, 0), (1, I64_MAX, 0), (1, 1, I64_MIN),
+            maximum_board_with_extra,
+        )
+        for values in malformed:
+            if len(values) <= WA_TOR_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[values] = WA_TOR_INVALID_RESULT
+        special_records.append(f"NULL 1 {WA_TOR_INVALID_RESULT}\n")
     elif algorithm == "lexicographical_numbers":
         boundary_values = (
             (0,), (1,), (2,), (9,), (10,), (11,), (19,), (20,), (25,),
@@ -4877,6 +5140,26 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             [5, 1, 0, MAX_CHAINING_KEY + 1], [5, 129, *([0, 1] * 129)],
             [5, 130, *([0, 1] * 130)], [5, 64, *([1, 1] * 64)],
         ):
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    if algorithm == "elastic_collision2_d":
+        rng = random.Random(20261016)
+        for _ in range(256):
+            ax, ay = rng.randint(-200_000, 200_000), rng.randint(-200_000, 200_000)
+            dx, dy = rng.choice((1, -1)) * rng.randint(1, 100_000), rng.randint(-100_000, 100_000)
+            if dx == 0 and dy == 0:
+                dx = 1
+            values = [ax, ay, rng.randint(-5_000, 5_000), rng.randint(-5_000, 5_000),
+                      rng.randint(1_000, 100_000), rng.randint(1, 10_000),
+                      max(-200_000, min(200_000, ax + dx)),
+                      max(-200_000, min(200_000, ay + dy)),
+                      rng.randint(-5_000, 5_000), rng.randint(-5_000, 5_000),
+                      rng.randint(1_000, 100_000), rng.randint(1, 10_000)]
+            if values[0:2] == values[6:8]:
+                values[6] = values[0] + 1 if values[0] < 200_000 else values[0] - 1
+            cases[tuple(values)] = oracle(algorithm, values)
+        for values in ([], [0] * 11, [0] * 13,
+                       [0, 0, 0, 0, 1000, 1, 0, 0, 0, 0, 1000, 1],
+                       [200001, 0, 0, 0, 1000, 1, 1, 0, 0, 0, 1000, 1]):
             cases[tuple(values)] = oracle(algorithm, list(values))
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]

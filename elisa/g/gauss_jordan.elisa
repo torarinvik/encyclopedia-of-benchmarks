@@ -1,0 +1,58 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for k in 0..8:
+        out[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+def abs_f64(x: f64) -> f64: if x < 0.0: -x else: x
+def gauss_jordan_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 2 or length > 22: return -1
+    rows: i64 = v[0]
+    columns: i64 = v[1]
+    if rows < 1 or rows > 4 or columns < 1 or columns > 4 or length != (2+rows*columns+rows).usize(): return -1
+    a: mutable f64[16]
+    b: mutable f64[4]
+    for i in 0..rows:
+        for j in 0..columns:
+            value: i64 = v[2+i*columns+j]
+            if value < -5000 or value > 5000: return -1
+            a[i*columns+j] <- value.f64()/1000.0
+        value: i64 = v[2+rows*columns+i]
+        if value < -5000 or value > 5000: return -1
+        b[i] <- value.f64()/1000.0
+    bytes: usize = (rows*columns+rows).usize()*8
+    if out.is_null() or capacity < bytes: return -2
+    for column in 0..columns:
+        pivot: mutable i64 = -1
+        for row in column..rows:
+            if abs_f64(a[row*columns+column]) > 1e-8:
+                pivot <- row
+                break
+        if pivot < 0: continue
+        if pivot != column:
+            for j in 0..columns:
+                temporary: f64 = a[column*columns+j]
+                a[column*columns+j] <- a[pivot*columns+j]
+                a[pivot*columns+j] <- temporary
+            temporary: f64 = b[column]
+            b[column] <- b[pivot]
+            b[pivot] <- temporary
+        pivot_value: f64 = a[column*columns+column]
+        for j in 0..columns: a[column*columns+j] <- a[column*columns+j]/pivot_value
+        b[column] <- b[column]/pivot_value
+        for row in 0..rows:
+            if row == column: continue
+            factor: f64 = a[row*columns+column]
+            for j in 0..columns: a[row*columns+j] <- a[row*columns+j]-factor*a[column*columns+j]
+            b[row] <- b[row]-factor*b[column]
+    at: mutable usize = 0
+    for i in 0..rows:
+        for j in 0..columns:
+            put_f64(out, at*8, a[i*columns+j])
+            at <- at+1
+    for i in 0..rows:
+        put_f64(out, at*8, b[i])
+        at <- at+1
+    bytes.i64()
+export gauss_jordan(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gauss_jordan_impl

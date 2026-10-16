@@ -6,7 +6,7 @@
 
 int64_t activity_selection(const int64_t *input, size_t length)
 {
-    if (length == 0 || input[0] < 0 || input[0] > ACTIVITY_LIMIT) return -1;
+    if (input == NULL || length == 0 || input[0] < 0 || input[0] > ACTIVITY_LIMIT) return -1;
     const size_t count = (size_t)input[0];
     if (length != 1 + 2 * count) return -1;
     if (count == 0) return 0;

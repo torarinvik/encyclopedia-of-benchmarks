@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+#include <cmath>
+static void put(uint8_t*o,size_t p,double x){union{double f;uint64_t u;}b={.f=x};for(size_t k=0;k<8;k++)o[p+k]=uint8_t(b.u>>(8*k));}
+extern "C" int64_t gaussian_elimination_pivoting(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<1||n>21)return -1;auto d=v[0];if(d<2||d>4||n!=1+size_t(d*(d+1)))return -1;double a[4][5]{};for(int64_t i=0;i<d;i++)for(int64_t j=0;j<=d;j++){auto z=v[1+i*(d+1)+j];if(z < -10000||z>10000)return -1;a[i][j]=double(z)/1000.;}size_t bytes=size_t(d)*8;for(int64_t col=0;col<d;col++){for(int64_t i=col;i<d;i++)if(std::abs(a[i][col])>std::abs(a[col][col]))for(int64_t j=0;j<=d;j++){double t=a[col][j];a[col][j]=a[i][j];a[i][j]=t;}if(std::abs(a[col][col])<1e-8)return -1;if(col){auto prior=col-1;for(int64_t i=col;i<d;i++){double f=a[i][prior]/a[prior][prior];for(int64_t j=0;j<=d;j++)a[i][j]-=f*a[prior][j];}}}double x[4]{};for(int64_t col=d;col-->0;){x[col]=a[col][d]/a[col][col];for(int64_t i=col;i-->0;)a[i][d]-=a[i][col]*x[col];}if(!out||cap<bytes)return -2;for(int64_t i=0;i<d;i++)put(out,size_t(i)*8,x[i]);return int64_t(bytes);}

@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "id": "laplacian-filter-i64-array-float64-v1",
+  "algorithm": "laplacian_filter",
+  "comparison_model": null,
+  "absolute_tolerance": null,
+  "relative_tolerance": null,
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 0.0
+    },
+    {
+      "id": "single_center",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        255,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 1020.0
+    },
+    {
+      "id": "impulse_top_left",
+      "input_values": [
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 0.0
+    },
+    {
+      "id": "ramp",
+      "input_values": [
+        0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80
+      ],
+      "input_length": 9,
+      "expected_result": 0.0
+    },
+    {
+      "id": "cross_edges",
+      "input_values": [
+        1,
+        255,
+        2,
+        255,
+        128,
+        255,
+        3,
+        255,
+        4
+      ],
+      "input_length": 9,
+      "expected_result": -508.0
+    },
+    {
+      "id": "invalid_high",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        256,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_short",
+      "input_values": [
+        1,
+        2,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_overlong",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_pixel",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": -1e+300
+    }
+  ]
+}

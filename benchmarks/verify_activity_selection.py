@@ -81,11 +81,12 @@ def corpus(workload: dict) -> tuple[str, int]:
     for values in ((), (-1,), (65,), (2, 0, 1), (1, 0, 1, 2), (1, 2, 1), (0, 7)):
         cases[values] = oracle(list(values))
 
-    lines = [str(len(cases)) + "\n"]
+    special_records = ["NULL 1 -1\n"]
+    lines = [str(len(cases) + len(special_records)) + "\n", *special_records]
     for values, expected in sorted(cases.items()):
         suffix = "" if not values else " " + " ".join(map(str, values))
         lines.append(f"{len(values)} {expected}{suffix}\n")
-    return "".join(lines), len(cases)
+    return "".join(lines), len(cases) + len(special_records)
 
 
 def verify(language: str, directory: Path, elisa_compiler: str | None,

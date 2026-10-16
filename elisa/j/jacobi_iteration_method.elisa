@@ -1,0 +1,41 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for k in 0..8:
+        out[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+def jacobi_iteration_method_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 2 or length > 26: return -1
+    dimension: i64 = v[0]
+    iterations: i64 = v[1]
+    if dimension < 2 or dimension > 4 or iterations < 1 or iterations > 8 or length != (2+dimension*dimension+2*dimension).usize(): return -1
+    a: mutable f64[16]
+    b: mutable f64[4]
+    x: mutable f64[4]
+    y: mutable f64[4]
+    rhs: i64 = 2+dimension*dimension
+    initial: i64 = rhs+dimension
+    for i in 0..dimension:
+        off: mutable f64 = 0.0
+        for j in 0..dimension:
+            value: i64 = v[2+i*dimension+j]
+            if value < 0 or value > 4000: return -1
+            a[i*dimension+j] <- value.f64()/1000.0
+            if i != j: off <- off+a[i*dimension+j]
+        if a[i*dimension+i] <= off: return -1
+        if v[rhs+i] < -2000 or v[rhs+i] > 2000 or v[initial+i] < -2000 or v[initial+i] > 2000: return -1
+        b[i] <- v[rhs+i].f64()/1000.0
+        x[i] <- v[initial+i].f64()/1000.0
+    bytes: usize = dimension.usize()*8
+    if out.is_null() or capacity < bytes: return -2
+    for iteration in 0..iterations:
+        for i in 0..dimension:
+            total: mutable f64 = 0.0
+            for j in 0..dimension:
+                if i != j: total <- total-a[i*dimension+j]*x[j]
+            y[i] <- (total+b[i])/a[i*dimension+i]
+        for i in 0..dimension: x[i] <- y[i]
+    for i in 0..dimension: put_f64(out, i.usize()*8, x[i])
+    bytes.i64()
+export jacobi_iteration_method(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = jacobi_iteration_method_impl

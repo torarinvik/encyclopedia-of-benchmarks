@@ -6,7 +6,7 @@ This benchmark returns the maximum number of mutually compatible activities. Eac
 
 - The input is a signed 64-bit array encoded as `[activity_count, start_0, finish_0, ...]`.
 - There are at most 64 activities. A valid activity has `start <= finish`; zero-duration activities are allowed.
-- An empty activity list returns 0. A malformed layout, too many activities, or any reversed interval returns `-1`.
+- A present zero-activity schedule is encoded as `[0]` and returns 0. An absent input pointer, malformed layout, too many activities, or any reversed interval returns `-1`.
 - The result is the maximum number of activities that can be selected without overlap. Each port sorts a bounded local copy by finish time and greedily selects the next compatible interval.
 
 The source methods return selected activities or print their indices. This contract records the size of a maximum selection, so equivalent selections with different tie ordering have the same result.
@@ -19,9 +19,11 @@ The source methods return selected activities or print their indices. This contr
 
 Java and the `greedy_methods` Python source sort by finish time and accept a next activity when its start is at least the previous finish. The Python `other` source assumes finish-time ordering is already supplied and prints selected indices. The shared contract handles an empty input consistently and validates interval pairs.
 
+The Java reference declares its times as `int`; this package widens them to signed 64-bit values. The algorithm only compares times, so widening preserves interval ordering and compatibility while allowing the shared ABI to cover the full signed 64-bit range.
+
 ## Workload and verification
 
-[`workload.json`](workload.json) covers empty and maximum-length schedules, touching and duplicate intervals, negative and extreme signed times, malformed layouts, and reversed intervals. [`benchmarks/verify_activity_selection.py`](../../verify_activity_selection.py) compares all ports against an independent weighted-interval dynamic-programming oracle on exhaustive small schedules, deterministic random schedules, and the published workload.
+[`workload.json`](workload.json) covers empty and maximum-length schedules, touching and duplicate intervals, negative and extreme signed times, malformed layouts, and reversed intervals. Its `empty` case encodes a present zero-activity schedule as `[0]`; `missing_count` covers an empty array. The verifier also sends a positive-length `NULL` input canary to every port. [`benchmarks/verify_activity_selection.py`](../../verify_activity_selection.py) compares all ports against an independent weighted-interval dynamic-programming oracle on exhaustive small schedules, deterministic random schedules, and the published workload.
 
 ```sh
 python3 benchmarks/verify_activity_selection.py --elisa-compiler /absolute/path/to/elisac

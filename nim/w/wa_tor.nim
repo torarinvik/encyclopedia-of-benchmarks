@@ -18,7 +18,7 @@ type Entity = object
 proc breedTime(kind: int): int =
   if kind == 1: 5 else: 20
 
-proc moveAndReproduce(entities: var array[MaxCells, Entity], entityCount: var int,
+proc moveAndReproduce(entities: var array[MaxEntityRecords, Entity], entityCount: var int,
                       board: var array[MaxCells, int], entityId, width, height: int) =
   let oldRow = entities[entityId].row
   let oldCol = entities[entityId].col
@@ -50,7 +50,7 @@ proc moveAndReproduce(entities: var array[MaxCells, Entity], entityCount: var in
   else:
     dec entities[entityId].timer
 
-proc predatorAction(entities: var array[MaxCells, Entity], entityCount: var int,
+proc predatorAction(entities: var array[MaxEntityRecords, Entity], entityCount: var int,
                     board: var array[MaxCells, int], entityId, width, height: int) =
   let current = entities[entityId].row * width + entities[entityId].col
   if entities[entityId].energy == 0:

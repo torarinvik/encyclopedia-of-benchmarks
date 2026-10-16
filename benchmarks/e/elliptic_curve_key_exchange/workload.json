@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0.0",
+  "id": "elliptic-curve-ecdh-bounded-small-prime-v1",
+  "algorithm": "elliptic_curve_key_exchange",
+  "function_symbol": "elliptic_curve_key_exchange",
+  "description": "Compute both public points and the shared point using affine elliptic-curve double-and-add over a small prime field.",
+  "input": {
+    "kind": "i64_array",
+    "encoding": "[prime, curve_a, curve_b, base_x, base_y, alice_scalar, bob_scalar]",
+    "prime_range": [
+      5,
+      251
+    ],
+    "coefficient_range": "0..prime-1",
+    "point_coordinates_range": "0..prime-1",
+    "scalar_range": [
+      1,
+      1024
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "Three points as little-endian signed i64 pairs: Alice public, Bob public, shared; point at infinity is (-1,-1).",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 48
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "small_curve_p5",
+      "input_values": [
+        5,
+        1,
+        0,
+        0,
+        0,
+        1,
+        2
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "00000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "curve_p7",
+      "input_values": [
+        7,
+        1,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffff00000000000000000000000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "shared_infinity",
+      "input_values": [
+        5,
+        1,
+        0,
+        0,
+        0,
+        2,
+        3
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "ffffffffffffffffffffffffffffffff00000000000000000000000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "doubling_case",
+      "input_values": [
+        11,
+        1,
+        6,
+        2,
+        4,
+        7,
+        4
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "070000000000000009000000000000000a00000000000000090000000000000005000000000000000900000000000000"
+    },
+    {
+      "id": "nontrivial",
+      "input_values": [
+        17,
+        2,
+        2,
+        5,
+        1,
+        13,
+        7
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "100000000000000004000000000000000000000000000000060000000000000003000000000000001000000000000000"
+    },
+    {
+      "id": "invalid_singular",
+      "input_values": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_point",
+      "input_values": [
+        7,
+        1,
+        0,
+        0,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_scalar",
+      "input_values": [
+        7,
+        1,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

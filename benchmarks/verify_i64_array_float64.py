@@ -259,6 +259,15 @@ from centripetal_force_oracle import expected_result as centripetal_force_oracle
 from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
 from cohen_sutherland_oracle import MAX_COORDINATE_MICRO as COHEN_SUTHERLAND_MAX_COORDINATE_MICRO
 from cohen_sutherland_oracle import expected_result as cohen_sutherland_oracle
+from laplacian_filter_oracle import INVALID_RESULT as LAPLACIAN_FILTER_INVALID_RESULT
+from laplacian_filter_oracle import MAX_INPUT_LENGTH as MAX_LAPLACIAN_FILTER_INPUT_LENGTH
+from laplacian_filter_oracle import expected_result as laplacian_filter_oracle
+from line_sweep_oracle import INVALID_RESULT as LINE_SWEEP_INVALID_RESULT
+from line_sweep_oracle import MAX_INPUT_LENGTH as MAX_LINE_SWEEP_INPUT_LENGTH
+from line_sweep_oracle import expected_result as line_sweep_oracle
+from lorentz_transformation_four_vector_oracle import INVALID_RESULT as LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
+from lorentz_transformation_four_vector_oracle import MAX_INPUT_LENGTH as MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH
+from lorentz_transformation_four_vector_oracle import expected_result as lorentz_transformation_four_vector_oracle
 from peak_signal_to_noise_ratio_oracle import INVALID_RESULT as PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
 from peak_signal_to_noise_ratio_oracle import MAX_INPUT_LENGTH as MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH
 from peak_signal_to_noise_ratio_oracle import MAX_ABSOLUTE_PIXEL_DIFFERENCE as PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE
@@ -275,6 +284,8 @@ ALGORITHMS += ("reverse_polish_notation",)
 ALGORITHMS += ("units_converter",)
 ALGORITHMS += ("prefix_evaluation",)
 ALGORITHMS += ("peak_signal_to_noise_ratio",)
+ALGORITHMS += ("laplacian_filter",)
+ALGORITHMS += ("line_sweep", "lorentz_transformation_four_vector")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
@@ -393,6 +404,12 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return centripetal_force_oracle(values)
     if algorithm == "cohen_sutherland":
         return cohen_sutherland_oracle(values)
+    if algorithm == "laplacian_filter":
+        return laplacian_filter_oracle(values)
+    if algorithm == "line_sweep":
+        return line_sweep_oracle(values)
+    if algorithm == "lorentz_transformation_four_vector":
+        return lorentz_transformation_four_vector_oracle(values)
     if algorithm == "peak_signal_to_noise_ratio":
         return peak_signal_to_noise_ratio_oracle(values)
     if algorithm == "reverse_polish_notation":
@@ -1880,6 +1897,111 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = COHEN_SUTHERLAND_INVALID_RESULT
+    elif algorithm == "laplacian_filter":
+        if not any(len(case["input_values"]) == MAX_LAPLACIAN_FILTER_INPUT_LENGTH
+                   and case["expected_result"] != LAPLACIAN_FILTER_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("laplacian_filter workload is missing valid 3x3 coverage")
+        if not any(case["expected_result"] == LAPLACIAN_FILTER_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("laplacian_filter workload is missing invalid-input coverage")
+
+        boundary_cases = (
+            (0,) * MAX_LAPLACIAN_FILTER_INPUT_LENGTH,
+            (255,) * MAX_LAPLACIAN_FILTER_INPUT_LENGTH,
+            (0, 0, 0, 0, 255, 0, 0, 0, 0),
+            (255, 0, 0, 0, 0, 0, 0, 0, 0),
+            (1, 255, 2, 255, 128, 255, 3, 255, 4),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = tuple(rng.randint(0, 255)
+                           for _ in range(MAX_LAPLACIAN_FILTER_INPUT_LENGTH))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = [(), (0,) * 8, (0,) * (MAX_LAPLACIAN_FILTER_INPUT_LENGTH + 1),
+                     (I64_MIN,) + (0,) * 8, (I64_MAX,) + (0,) * 8]
+        for index in range(MAX_LAPLACIAN_FILTER_INPUT_LENGTH):
+            for invalid_pixel in (-1, 256):
+                values = [0] * MAX_LAPLACIAN_FILTER_INPUT_LENGTH
+                values[index] = invalid_pixel
+                malformed.append(tuple(values))
+        for values in malformed:
+            cases[values] = LAPLACIAN_FILTER_INVALID_RESULT
+    elif algorithm == "line_sweep":
+        if not any(case["expected_result"] == LINE_SWEEP_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("line_sweep workload is missing invalid-input coverage")
+
+        boundary_cases = (
+            (0,), (1, 0, 0), (1, 20, 20),
+            (2, 0, 2, 3, 5), (2, 0, 2, 2, 4),
+            (8, *([0, 20] * 8)),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            count = rng.randint(0, 8)
+            intervals = []
+            for _ in range(count):
+                start = rng.randint(0, 20)
+                end = rng.randint(start, 20)
+                intervals.extend((start, end))
+            values = (count, *intervals)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0), (-1,), (9,), (1,), (1, 0),
+            (2, 0, 1), (1, 5, 3), (1, -1, 0), (1, 0, 21),
+            (I64_MIN,), (I64_MAX,), (1, I64_MIN, 0), (1, 0, I64_MAX),
+            (8, *([0, 20] * 8), 0),
+        )
+        for values in malformed:
+            if len(values) <= MAX_LINE_SWEEP_INPUT_LENGTH + 1:
+                cases[values] = LINE_SWEEP_INVALID_RESULT
+    elif algorithm == "lorentz_transformation_four_vector":
+        if (not any(len(case["input_values"]) == MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH
+                    and case["expected_result"] != LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
+                    for case in workload["cases"])
+                or not any(case["expected_result"] == LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
+                           for case in workload["cases"])):
+            raise ValueError("Lorentz workload must cover a valid vector and invalid input")
+
+        boundary_vectors = (
+            (1, 0, -1_000_000, -100_000_000, 100_000_000, -100_000_000),
+            (200_000_000, 0, 1_000_000, 100_000_000, -100_000_000, 100_000_000),
+            (200_000_000, 1, -1_000_000, -100_000_000, 100_000_000, -100_000_000),
+        )
+        for values in boundary_vectors:
+            cases[values] = oracle(algorithm, list(values))
+        for component in range(4):
+            values = (200_000_000, component, 1_000_000,
+                      100_000_000, -100_000_000, 100_000_000)
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randint(1, 200_000_000), rng.randint(0, 3),
+                      rng.randint(-1_000_000, 1_000_000),
+                      *(rng.randint(-100_000_000, 100_000_000) for _ in range(3)))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (1, 0, 0, 0, 0), (1, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0), (200_000_001, 0, 0, 0, 0, 0),
+            (1, -1, 0, 0, 0, 0), (1, 4, 0, 0, 0, 0),
+            (1, 0, -1_000_001, 0, 0, 0), (1, 0, 1_000_001, 0, 0, 0),
+            (1, 0, 0, -100_000_001, 0, 0), (1, 0, 0, 0, 100_000_001, 0),
+            (I64_MIN, 0, 0, 0, 0, 0), (I64_MAX, 0, 0, 0, 0, 0),
+            (1, I64_MIN, 0, 0, 0, 0), (1, 0, 0, I64_MAX, 0, 0),
+        )
+        for values in malformed:
+            cases[values] = LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
     elif algorithm == "peak_signal_to_noise_ratio":
         rng = random.Random(20261022)
         for count in (1, 2, 3, 16, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS):
@@ -1993,6 +2115,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "center_of_mass": 2,
                     "centripetal_force": 3,
                     "cohen_sutherland": 9,
+                    "laplacian_filter": MAX_LAPLACIAN_FILTER_INPUT_LENGTH,
+                    "line_sweep": 1,
+                    "lorentz_transformation_four_vector": MAX_LORENTZ_TRANSFORMATION_FOUR_VECTOR_INPUT_LENGTH,
                     "peak_signal_to_noise_ratio": 0,
                     "reverse_polish_notation": 1}
     null_lengths["prefix_evaluation"] = 1
@@ -2049,6 +2174,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    CENTER_OF_MASS_INVALID_RESULT if algorithm == "center_of_mass" else
                    CENTRIPETAL_FORCE_INVALID_RESULT if algorithm == "centripetal_force" else
                    COHEN_SUTHERLAND_INVALID_RESULT if algorithm == "cohen_sutherland" else
+                   LAPLACIAN_FILTER_INVALID_RESULT if algorithm == "laplacian_filter" else
+                   LINE_SWEEP_INVALID_RESULT if algorithm == "line_sweep" else
+                   LORENTZ_TRANSFORMATION_FOUR_VECTOR_INVALID_RESULT
+                   if algorithm == "lorentz_transformation_four_vector" else
                    PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
                    if algorithm == "peak_signal_to_noise_ratio" else
                    REVERSE_POLISH_NOTATION_INVALID_RESULT

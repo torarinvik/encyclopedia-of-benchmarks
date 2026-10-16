@@ -22,7 +22,7 @@ fn breed_time(kind: i32) -> i32 {
     if kind == 1 { 5 } else { 20 }
 }
 
-fn move_and_reproduce(entities: &mut [Entity; MAX_CELLS], entity_count: &mut usize,
+fn move_and_reproduce(entities: &mut [Entity; MAX_ENTITY_RECORDS], entity_count: &mut usize,
                       board: &mut [i32; MAX_CELLS], entity_id: usize, width: usize, height: usize) {
     let old_row = entities[entity_id].row;
     let old_col = entities[entity_id].col;
@@ -64,7 +64,7 @@ fn move_and_reproduce(entities: &mut [Entity; MAX_CELLS], entity_count: &mut usi
     }
 }
 
-fn predator_action(entities: &mut [Entity; MAX_CELLS], entity_count: &mut usize,
+fn predator_action(entities: &mut [Entity; MAX_ENTITY_RECORDS], entity_count: &mut usize,
                    board: &mut [i32; MAX_CELLS], entity_id: usize, width: usize, height: usize) {
     let current = entities[entity_id].row * width + entities[entity_id].col;
     if entities[entity_id].energy == 0 {

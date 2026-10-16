@@ -1,0 +1,3 @@
+module power_iteration;
+extern fn double sqrt(double x);
+fn double power_iteration(long* v, ulong n) @export("power_iteration"){if(v==null||n!=5)return -1e300;for(ulong i=0;i<5;i++)if(v[i]<1||v[i]>1000)return -1e300;double a=(double)v[0],b=(double)v[1],d=(double)v[2];if(a*d<=b*b)return -1e300;double x=(double)v[3],y=(double)v[4],previous=0;for(int it=0;it<100;it++){double w0=a*x+b*y,w1=b*x+d*y,norm=sqrt(w0*w0+w1*w1);if(norm==0)return -1e300;x=w0/norm;y=w1/norm;double av0=a*x+b*y,av1=b*x+d*y,eig=x*av0+y*av1,diff=eig-previous;if(diff<0)diff=-diff;double error=diff/eig;if(error<=1e-12||it==99)return eig;previous=eig;}return -1e300;}

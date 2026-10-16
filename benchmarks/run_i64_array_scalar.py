@@ -35,6 +35,12 @@ from wine_problem_memoized_oracle import MAX_ITEMS as WINE_PROBLEM_MEMOIZED_MAX_
 from wine_problem_memoized_oracle import expected_result as wine_problem_memoized_expected
 from wine_problem_tabulated_oracle import MAX_ITEMS as WINE_PROBLEM_TABULATED_MAX_ITEMS
 from wine_problem_tabulated_oracle import expected_result as wine_problem_tabulated_expected
+from wa_tor_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_WA_TOR_PARSEABLE_INPUT_LENGTH
+from wa_tor_oracle import expected_result as wa_tor_expected
+from decisions_convolutions_oracle import MAX_CRITERIA as DECISIONS_CONVOLUTIONS_MAX_CRITERIA
+from decisions_convolutions_oracle import MAX_DECISIONS as DECISIONS_CONVOLUTIONS_MAX_DECISIONS
+from decisions_convolutions_oracle import MAX_INPUT_LENGTH as MAX_DECISIONS_CONVOLUTIONS_INPUT_LENGTH
+from decisions_convolutions_oracle import expected_result as decisions_convolutions_expected
 from detecting_english_programmatically_oracle import MAX_INPUT_LENGTH as MAX_DETECTING_ENGLISH_INPUT_LENGTH
 from detecting_english_programmatically_oracle import expected_result as detecting_english_expected
 from nimply_gate_oracle import expected_result as nimply_gate_expected
@@ -52,6 +58,14 @@ from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLO
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
 from edmonds_oracle import expected_result as edmonds_expected
+from enigma_machine2_oracle import MAX_INPUT_LENGTH as MAX_ENIGMA_MACHINE2_INPUT_LENGTH
+from enigma_machine2_oracle import expected_result as enigma_machine2_expected
+from equal_loudness_filter_oracle import MAX_INPUT_LENGTH as MAX_EQUAL_LOUDNESS_FILTER_INPUT_LENGTH
+from equal_loudness_filter_oracle import expected_result as equal_loudness_filter_expected
+from ewma_change_detector_oracle import MAX_INPUT_LENGTH as MAX_EWMA_CHANGE_DETECTOR_INPUT_LENGTH
+from ewma_change_detector_oracle import expected_result as ewma_change_detector_expected
+from feistel_cipher_normalized_oracle import MAX_INPUT_LENGTH as MAX_FEISTEL_CIPHER_INPUT_LENGTH
+from feistel_cipher_normalized_oracle import expected_result as feistel_cipher_normalized_expected
 from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
 from edmonds_karp_oracle import expected_result as edmonds_karp_expected
 from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGTH
@@ -102,6 +116,12 @@ from permutate_string_oracle import MAX_INPUT_LENGTH as MAX_PERMUTATE_STRING_INP
 from permutate_string_oracle import expected_result as permutate_string_expected
 from print_amatrix_in_spiral_order_oracle import MAX_INPUT_LENGTH as MAX_SPIRAL_MATRIX_INPUT_LENGTH
 from print_amatrix_in_spiral_order_oracle import expected_result as print_amatrix_in_spiral_order_expected
+from elastic_collision2_d_oracle import MAX_INPUT_LENGTH as MAX_ELASTIC_COLLISION2D_INPUT_LENGTH
+from elastic_collision2_d_oracle import expected_result as elastic_collision2_d_expected
+from flatten_nested_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH
+from flatten_nested_list_oracle import expected_result as flatten_nested_list_expected
+from monotonic_array_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_ARRAY_INPUT_LENGTH
+from monotonic_array_oracle import expected_result as monotonic_array_expected
 from two_pointer_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTER_INPUT_LENGTH
 from two_pointer_oracle import expected_result as two_pointer_expected
 from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
@@ -307,6 +327,8 @@ from is_oracle import MAX_INPUT_LENGTH as MAX_IS_INPUT_LENGTH
 from is_oracle import expected_result as is_expected
 from linear_diophantine_equations_solver_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH
 from linear_diophantine_equations_solver_oracle import expected_result as linear_diophantine_equations_solver_expected
+from dsa_verify_oracle import MAX_INPUT_LENGTH as MAX_DSA_VERIFY_INPUT_LENGTH
+from dsa_verify_oracle import expected_result as dsa_verify_expected
 from kth_element_from_end_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_FROM_END_INPUT_LENGTH
 from kth_element_from_end_oracle import expected_result as kth_element_from_end_expected
 from kth_element_in_a_list_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_IN_A_LIST_INPUT_LENGTH
@@ -812,6 +834,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     max_input_length = (MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
                         MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
                         MAX_EDMONDS_INPUT_LENGTH if algorithm == "edmonds" else
+                        MAX_ENIGMA_MACHINE2_INPUT_LENGTH if algorithm == "enigma_machine2" else
+                        MAX_EQUAL_LOUDNESS_FILTER_INPUT_LENGTH if algorithm == "equal_loudness_filter" else
+                        MAX_EWMA_CHANGE_DETECTOR_INPUT_LENGTH if algorithm == "ewma_change_detector" else
+                        MAX_FEISTEL_CIPHER_INPUT_LENGTH if algorithm == "feistel_cipher_normalized" else
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
                         MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
@@ -852,6 +878,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_PEAK_INPUT_LENGTH if algorithm == "peak"
                         else MAX_PARSE_DATE_INPUT_LENGTH if algorithm == "parse_date"
                         else MAX_PALINDROME_SINGLY_LINKED_LIST_INPUT_LENGTH if algorithm == "palindrome_singly_linked_list"
+                        else MAX_MONOTONIC_ARRAY_INPUT_LENGTH if algorithm == "monotonic_array"
+                        else MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH if algorithm == "flatten_nested_list"
+                        else MAX_ELASTIC_COLLISION2D_INPUT_LENGTH if algorithm == "elastic_collision2_d"
                         else MAX_SPIRAL_MATRIX_INPUT_LENGTH if algorithm == "print_amatrix_in_spiral_order"
                         else MAX_PERMUTATE_STRING_INPUT_LENGTH if algorithm == "permutate_string"
                         else MAX_PATTERN_MATCHING_INPUT_LENGTH if algorithm == "pattern_matching"
@@ -996,6 +1025,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_LIANG_BARSKY_INPUT_LENGTH if algorithm == "liang_barsky"
                         else MAX_IS_INPUT_LENGTH if algorithm == "is"
                         else MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH if algorithm == "linear_diophantine_equations_solver"
+                        else MAX_DSA_VERIFY_INPUT_LENGTH if algorithm == "dsa_verify"
                         else MAX_KAHN_INPUT_LENGTH if algorithm == "kahn"
                         else MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH if algorithm == "hex_to_oct"
                         else MAX_GRID_GET_INPUT_LENGTH if algorithm == "grid_get"
@@ -1109,6 +1139,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else WINE_PROBLEM_RECURSIVE_MAX_ITEMS + 2 if algorithm == "wine_problem_recursive"
                         else WINE_PROBLEM_MEMOIZED_MAX_ITEMS + 2 if algorithm == "wine_problem_memoized"
                         else WINE_PROBLEM_TABULATED_MAX_ITEMS + 2 if algorithm == "wine_problem_tabulated"
+                        else MAX_DECISIONS_CONVOLUTIONS_INPUT_LENGTH + 1
+                        if algorithm == "decisions_convolutions"
+                        else MAX_WA_TOR_PARSEABLE_INPUT_LENGTH if algorithm == "wa_tor"
                         else MAX_DETECTING_ENGLISH_INPUT_LENGTH
                         if algorithm == "detecting_english_programmatically"
                         else 516 if algorithm == "euler" else 100001)
@@ -1157,6 +1190,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = edmonds_expected(values)
         if expected != expected_from_source:
             raise ValueError("edmonds expected_result must match the bounded rooted minimum arborescence contract")
+    elif algorithm == "enigma_machine2":
+        expected_from_source = enigma_machine2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("enigma_machine2 expected_result must match the bounded fixed-rotor transform")
+    elif algorithm == "equal_loudness_filter":
+        expected_from_source = equal_loudness_filter_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("equal_loudness_filter expected_result must match the fixed Q30 cascade")
+    elif algorithm == "ewma_change_detector":
+        expected_from_source = ewma_change_detector_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ewma_change_detector expected_result must match the fixed-parameter EWMA chart")
+    elif algorithm == "feistel_cipher_normalized":
+        expected_from_source = feistel_cipher_normalized_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("feistel_cipher_normalized expected_result must match the modulo-u32 32-round block transform")
     elif algorithm == "edmonds_karp":
         expected_from_source = edmonds_karp_expected(values)
         if expected != expected_from_source:
@@ -1396,6 +1445,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = largest_of_very_large_numbers_expected(values)
         if expected != expected_from_source:
             raise ValueError("largest_of_very_large_numbers expected_result must match the exact power-of-ten log comparison")
+    elif algorithm == "wa_tor":
+        expected_from_source = wa_tor_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("wa_tor expected_result must match the bounded deterministic fixed-order simulation")
+    elif algorithm == "decisions_convolutions":
+        expected_from_source = decisions_convolutions_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("decisions_convolutions expected_result must match the bounded exact weighted decision selection")
     elif algorithm == "wine_problem_recursive":
         expected_from_source = wine_problem_recursive_expected(values)
         if expected != expected_from_source:
@@ -1496,6 +1553,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = linear_diophantine_equations_solver_expected(values)
         if expected != expected_from_source:
             raise ValueError("linear_diophantine_equations_solver expected_result must match the bounded Java extended-Euclidean solution branch")
+    elif algorithm == "dsa_verify":
+        expected_from_source = dsa_verify_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("dsa_verify expected_result must match the bounded Go DSA Verify equation")
     elif algorithm == "is":
         expected_from_source = is_expected(values)
         if expected != expected_from_source:
@@ -5438,6 +5499,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = palindrome_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("palindrome_singly_linked_list expected_result must match Java's optimized integer-node comparison")
+    elif algorithm == "monotonic_array":
+        expected_from_source = monotonic_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("monotonic_array expected_result must match the bounded nondecreasing-or-nonincreasing predicate")
+    elif algorithm == "flatten_nested_list":
+        expected_from_source = flatten_nested_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("flatten_nested_list expected_result must hash the bounded left-to-right flattened leaves")
+    elif algorithm == "elastic_collision2_d":
+        expected_from_source = elastic_collision2_d_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("elastic_collision2_d expected_result must encode the bounded first-body post-collision velocity")
     elif algorithm == "print_amatrix_in_spiral_order":
         expected_from_source = print_amatrix_in_spiral_order_expected(values)
         if expected != expected_from_source:

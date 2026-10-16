@@ -1,14 +1,13 @@
-module data_normalization_standardization;
+module data_norm_standardization;
 
 const usz MAX_SAMPLE_COUNT = 128;
 extern fn double sqrt(double value);
+extern fn void* memcpy(void* destination, void* source, usz count);
 
 fn void put_f64_le(double value, char* output, usz offset) {
-    ulong bits = @bitcast(ulong, value);
-    for (usz byte = 0; byte < 8; byte++) {
-        output[offset + byte] = (char)(bits & 255);
-        bits >>= 8;
-    }
+    char[8] bytes;
+    memcpy(&bytes[0], &value, 8);
+    for (usz byte = 0; byte < 8; byte++) output[offset + byte] = bytes[byte];
 }
 
 fn long data_normalization_standardization(long* values, usz length, char* output,

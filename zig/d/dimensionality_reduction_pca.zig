@@ -1,0 +1,4 @@
+const std=@import("std");
+export fn dimensionality_reduction_pca(input:[*c]const f64,n:usize,output:[*c]f64,cap:usize)i64{
+ if(input==null or n<7)return -1;const v=input[0..n];if(v[0]!=2 or v[2]!=1 or @floor(v[1])!=v[1] or v[1]<2 or v[1]>8)return -1;const m:usize=@intFromFloat(v[1]);if(n!=3+2*m)return -1;var x:[8]f64=undefined;var y:[8]f64=undefined;var mx:f64=0;var my:f64=0;for(0..m)|i|{x[i]=v[3+i];y[i]=v[3+m+i];if(!std.math.isFinite(x[i]) or !std.math.isFinite(y[i]) or @abs(x[i])>1e6 or @abs(y[i])>1e6)return -1;mx+=x[i];my+=y[i];}mx/=@floatFromInt(m);my/=@floatFromInt(m);var a:f64=0;var b:f64=0;var d:f64=0;for(0..m)|i|{const dx=x[i]-mx;const dy=y[i]-my;a+=dx*dx;b+=dx*dy;d+=dy*dy;}a/=@floatFromInt(m);b/=@floatFromInt(m);d/=@floatFromInt(m);if(b<=0 or @abs(a-d)+@abs(b)==0)return -1;const t=0.5*std.math.atan2(2*b,a-d);const vx=@cos(t);const vy=@sin(t);if(output==null or cap<m)return -2;for(0..m)|i|output[i]=vx*x[i]+vy*y[i];return @intCast(m);
+}

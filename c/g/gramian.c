@@ -1,0 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
+static void put(uint8_t *o,size_t p,double x){union{double f;uint64_t u;}b={.f=x};for(size_t i=0;i<8;i++)o[p+i]=(uint8_t)(b.u>>(8*i));}
+static void gram(const int64_t*v,int64_t c,int64_t p,int part,double*g){int64_t n=c*p;for(int64_t i=0;i<c;i++)for(int64_t j=0;j<c;j++){double dot=0;for(int64_t k=0;k<p;k++)dot+=((double)v[3+part*n+i*p+k]/1000.0)*((double)v[3+part*n+j*p+k]/1000.0);g[i*c+j]=dot/(double)n;}}
+int64_t gramian(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<3||n>27)return -1;int64_t op=v[0],c=v[1],p=v[2];if((op!=0&&op!=1)||c<1||c>3||p<1||p>4||n!=3+(size_t)(c*p*(op?2:1)))return -1;for(size_t i=3;i<n;i++)if(v[i]<-1000||v[i]>1000)return -1;size_t count=op?1:(size_t)(c*c),bytes=count*8;if(!out||cap<bytes)return -2;double a[9],b[9],result[9];gram(v,c,p,0,a);if(op){gram(v,c,p,1,b);double loss=0;for(int64_t i=0;i<c*c;i++){double d=a[i]-b[i];loss+=d*d;}result[0]=loss;}else for(int64_t i=0;i<c*c;i++)result[i]=a[i];for(size_t i=0;i<count;i++)put(out,i*8,result[i]);return (int64_t)bytes;}

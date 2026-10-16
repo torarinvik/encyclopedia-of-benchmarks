@@ -1,0 +1,2 @@
+module ewma_change_detector;
+fn long ewma_change_detector(long* v,usz n) @export("ewma_change_detector") {if(v==null||n<1||n>16)return -1;long count=v[0];if(count<0||count>15||n!=(usz)count+1)return -1;long exponent=0;long numerator=0;long packed=0;for(long i=0;i<count;i++){long sample=v[i+1];if(sample < -8||sample>8)return -1;exponent++;numerator+=sample*(1L<<(exponent-1));long signal=0;if(3*numerator*numerator>((1L<<(2*exponent))-1)){signal=numerator>0?1:2;exponent=0;numerator=0;}packed=packed*4+signal;}return packed;}

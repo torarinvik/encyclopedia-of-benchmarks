@@ -38,7 +38,8 @@ from words_to_number_oracle import MAX_INPUT as MAX_WORDS_TO_NUMBER_BYTE_LENGTH
 from words_to_number_oracle import expected_result as words_to_number_expected_output
 from word_occurrence_oracle import expected_result as word_occurrence_expected_output
 from word_occurrence_oracle import MAX_INPUT as MAX_WORD_OCCURRENCE_BYTE_LENGTH
-from word_occurrence_oracle import expected_result as word_occurrence_expected_output
+from strip_oracle import MAX_INPUT_LENGTH as MAX_STRIP_INPUT_LENGTH
+from strip_oracle import expected_output as strip_expected_output
 from ngram_oracle import MAX_INPUT_LENGTH as MAX_NGRAM_INPUT_LENGTH
 from ngram_oracle import expected_output as ngram_expected_output
 from hilbert_curve_oracle import expected_output as hilbert_curve_expected_output
@@ -134,6 +135,12 @@ from heaps_algorithm_oracle import MAX_INPUT_LENGTH as MAX_HEAPS_ALGORITHM_INPUT
 from heaps_algorithm_oracle import expected_output as heaps_algorithm_expected_output
 from cpu_scheduling_algorithms_oracle import MAX_INPUT_LENGTH as MAX_CPU_SCHEDULING_INPUT_LENGTH
 from cpu_scheduling_algorithms_oracle import expected_output as cpu_scheduling_expected_output
+from elliptic_curve_key_exchange_oracle import MAX_OUTPUT_BYTES as ELLIPTIC_CURVE_KEY_EXCHANGE_MAX_OUTPUT_BYTES
+from elliptic_curve_key_exchange_oracle import MAX_INPUT_LENGTH as MAX_ELLIPTIC_CURVE_KEY_EXCHANGE_INPUT_LENGTH
+from elliptic_curve_key_exchange_oracle import expected_output as elliptic_curve_key_exchange_expected_output
+from iso10126_d2_padding_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_ISO10126_D2_PADDING_INPUT_LENGTH
+from iso10126_d2_padding_oracle import MAX_OUTPUT_BYTES as ISO10126_D2_PADDING_MAX_OUTPUT_BYTES
+from iso10126_d2_padding_oracle import expected_output as iso10126_d2_padding_expected_output
 from bag_oracle import expected_output as bag_expected_output
 from barnsley_fern_oracle import expected_output as barnsley_fern_expected_output
 from ascon_digest_oracle import expected_output as ascon_digest_expected_output
@@ -393,6 +400,8 @@ MAX_ASCON_DIGEST_INPUT_LENGTH = 4098
 MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 RECORDER_WORKSPACE_ALGORITHMS = {
+    'elliptic_curve_key_exchange',
+    'iso10126_d2_padding',
     'dynamicarray',
     'double_point_crossover',
     'uniform_crossover',
@@ -400,7 +409,11 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'wus_line',
     'words_to_number',
     'word_occurrence',
-    'word_occurrence',
+    'strip',
+    'gramian',
+    'generate_sub_sets',
+    'top_k_frequent_words',
+    'jacobi_iteration_method',
     'a1z26_cipher',
     'a1z26_decipher',
     'account_merge',
@@ -572,6 +585,17 @@ from fuzzy_operations_oracle import MAX_INPUT_LENGTH as MAX_FUZZY_OPERATIONS_INP
 from fuzzy_operations_oracle import expected_output as fuzzy_operations_expected_output
 from gram_schmidt_oracle import MAX_INPUT_LENGTH as MAX_GRAM_SCHMIDT_INPUT_LENGTH
 from gram_schmidt_oracle import expected_output as gram_schmidt_expected_output
+from gramian_oracle import MAX_INPUT_LENGTH as MAX_GRAMIAN_INPUT_LENGTH
+from gramian_oracle import expected_output as gramian_expected_output
+from generate_sub_sets_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GENERATE_SUB_SETS_PARSEABLE_INPUT_LENGTH
+from generate_sub_sets_oracle import expected_output as generate_sub_sets_expected_output
+from top_k_frequent_words_oracle import expected_output as top_k_frequent_words_expected_output
+from jacobi_iteration_method_oracle import MAX_INPUT_LENGTH as MAX_JACOBI_ITERATION_METHOD_INPUT_LENGTH
+from jacobi_iteration_method_oracle import expected_output as jacobi_iteration_method_expected_output
+from gaussian_elimination_pivoting_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_ELIMINATION_PIVOTING_INPUT_LENGTH
+from gaussian_elimination_pivoting_oracle import expected_output as gaussian_elimination_pivoting_expected_output
+from gauss_jordan_oracle import MAX_INPUT_LENGTH as MAX_GAUSS_JORDAN_INPUT_LENGTH
+from gauss_jordan_oracle import expected_output as gauss_jordan_expected_output
 from fraction_oracle import MAX_INPUT_LENGTH as MAX_FRACTION_INPUT_LENGTH
 from fraction_oracle import expected_output as fraction_expected_output
 from flood_fill_oracle import expected_output as flood_fill_expected_output
@@ -1565,6 +1589,10 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(result) * 4, b"".join(struct.pack("<i", value) for value in result)
     if algorithm == "cpu_scheduling_algorithms":
         return cpu_scheduling_expected_output(values)
+    if algorithm == "elliptic_curve_key_exchange":
+        return elliptic_curve_key_exchange_expected_output(values)
+    if algorithm == "iso10126_d2_padding":
+        return iso10126_d2_padding_expected_output(values)
     if algorithm == "heaps":
         return heaps_expected_output(values)
     if algorithm == "heaps_algorithm":
@@ -1608,6 +1636,16 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return fuzzy_operations_expected_output(values)
     if algorithm == "gram_schmidt":
         return gram_schmidt_expected_output(values)
+    if algorithm == "gramian":
+        return gramian_expected_output(values)
+    if algorithm == "generate_sub_sets":
+        return generate_sub_sets_expected_output(values)
+    if algorithm == "jacobi_iteration_method":
+        return jacobi_iteration_method_expected_output(values)
+    if algorithm == "gaussian_elimination_pivoting":
+        return gaussian_elimination_pivoting_expected_output(values)
+    if algorithm == "gauss_jordan":
+        return gauss_jordan_expected_output(values)
     if algorithm == "fraction":
         return fraction_expected_output(values)
     if algorithm == "naive_bayes":
@@ -2942,9 +2980,6 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             candidates.append(bytes(65 + ((value - 65 - key) % 26) if 65 <= value <= 90 else value
                                    for value in message))
         return 26, b"\n".join(candidates)
-
-    if algorithm == "word_occurrence":
-        return word_occurrence_expected_output(values)
 
     if algorithm == "check_word_occurrence":
         if (not isinstance(values, list) or len(values) < 2
@@ -4399,6 +4434,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
 
     if algorithm == "dynamicarray":
         return dynamicarray_expected_output(values)
+    if algorithm == "strip":
+        return strip_expected_output(values)
 
     if algorithm == "decimal_to_fraction":
         if (not isinstance(values, list) or len(values) != 2
@@ -5610,57 +5647,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return top_kfrequent_words_expected_output(values)
 
     if algorithm == "top_k_frequent_words":
-        if (not isinstance(values, list) or not 2 <= len(values) <= 1090
-                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
-            return -1, b""
-        k, word_count = values[:2]
-        if not 0 <= k <= 64 or not 0 <= word_count <= 64:
-            return -1, b""
-        position = 2
-        frequencies: dict[bytes, int] = {}
-        for _ in range(word_count):
-            if position >= len(values) or not 1 <= values[position] <= 16:
-                return -1, b""
-            word_length = values[position]
-            position += 1
-            if word_length > len(values) - position:
-                return -1, b""
-            word_values = values[position:position + word_length]
-            if any(not 97 <= value <= 122 for value in word_values):
-                return -1, b""
-            word = bytes(word_values)
-            frequencies[word] = frequencies.get(word, 0) + 1
-            position += word_length
-        if position != len(values):
-            return -1, b""
-        heap = list(frequencies.items())
-
-        def max_heapify(index: int, size: int) -> None:
-            violation = index
-            left = 2 * index + 1
-            right = left + 1
-            if left < size and heap[left][1] > heap[violation][1]:
-                violation = left
-            if right < size and heap[right][1] > heap[violation][1]:
-                violation = right
-            if violation != index:
-                heap[index], heap[violation] = heap[violation], heap[index]
-                max_heapify(violation, size)
-
-        for index in range(len(heap) // 2 - 1, -1, -1):
-            max_heapify(index, len(heap))
-        ranked = []
-        size = len(heap)
-        for _ in range(min(k, size)):
-            ranked.append(heap[0][0])
-            if size == 1:
-                size = 0
-            else:
-                heap[0] = heap[size - 1]
-                size -= 1
-                max_heapify(0, size)
-        output = b"\n".join(ranked) + b"\0"
-        return len(output), output
+        return top_k_frequent_words_expected_output(values)
 
     if algorithm == "find_all_duplicates_hash_order":
         if (not isinstance(values, list) or len(values) > 1024
@@ -11973,6 +11960,12 @@ def main() -> int:
                             MAX_WUS_LINE_INPUT_LENGTH if algorithm == "wus_line" else
                             MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1 if algorithm == "words_to_number" else
                             MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1 if algorithm == "word_occurrence" else
+                            MAX_STRIP_INPUT_LENGTH if algorithm == "strip" else
+                            MAX_GRAMIAN_INPUT_LENGTH if algorithm == "gramian" else
+                            MAX_GENERATE_SUB_SETS_PARSEABLE_INPUT_LENGTH if algorithm == "generate_sub_sets" else
+                            MAX_JACOBI_ITERATION_METHOD_INPUT_LENGTH if algorithm == "jacobi_iteration_method" else
+                            MAX_GAUSSIAN_ELIMINATION_PIVOTING_INPUT_LENGTH if algorithm == "gaussian_elimination_pivoting" else
+                            MAX_GAUSS_JORDAN_INPUT_LENGTH if algorithm == "gauss_jordan" else
                             1 + 3 * UNIFORM_CROSSOVER_MAX_COUNT if algorithm == "uniform_crossover" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
                             4 if algorithm == "midpoint_integration" else
@@ -12049,6 +12042,7 @@ def main() -> int:
                             MAX_FUZZY_SET_OPERATIONS_INPUT_LENGTH if algorithm == "fuzzy_set_operations" else
                             MAX_FUZZY_OPERATIONS_INPUT_LENGTH if algorithm == "fuzzy_operations" else
                             MAX_GRAM_SCHMIDT_INPUT_LENGTH if algorithm == "gram_schmidt" else
+                            MAX_GRAMIAN_INPUT_LENGTH if algorithm == "gramian" else
                             MAX_DATE_TO_DAY_INPUT_LENGTH if algorithm == "date_to_day" else
                             MAX_EMA_FILTER_INPUT_LENGTH if algorithm == "ema_filter" else
                             MAX_EGYPTIAN_FRACTION_INPUT_LENGTH if algorithm == "egyptian_fraction" else
@@ -12106,6 +12100,8 @@ def main() -> int:
                             MAX_SHORTEST_PALINDROME_PARSEABLE_INPUT_LENGTH if algorithm == "shortest_palindrome" else
                             MAX_REVERSE_WORDS_IN_STRING_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_words_in_string" else
                             MAX_CPU_SCHEDULING_INPUT_LENGTH if algorithm == "cpu_scheduling_algorithms" else
+                            MAX_ELLIPTIC_CURVE_KEY_EXCHANGE_INPUT_LENGTH if algorithm == "elliptic_curve_key_exchange" else
+                            MAX_ISO10126_D2_PADDING_INPUT_LENGTH if algorithm == "iso10126_d2_padding" else
                             MAX_HEAPS_INPUT_LENGTH if algorithm == "heaps" else
                             MAX_HEAPS_ALGORITHM_INPUT_LENGTH if algorithm == "heaps_algorithm" else
                             MAX_RECURSIVE_SHUFFLER_INPUT_LENGTH if algorithm == "recursive_shuffler" else
@@ -12154,7 +12150,7 @@ def main() -> int:
                 "logistic_regression_cost_gradient",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0

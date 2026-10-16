@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn line_sweep(v:*const i64,n:usize)->f64{if n<1||n>17||v.is_null(){return -1e300}let a=unsafe{std::slice::from_raw_parts(v,n)};let count=a[0];if count<0||count>8||n!=1+2*count as usize{return -1e300}if count==0{return 0.0}let mut line=[0i32;22];for i in 0..count as usize{let s=a[1+2*i];let e=a[2+2*i];if s<0||e<s||e>20{return -1e300}line[s as usize]+=1;line[e as usize+1]-=1}let(mut c,mut m)=(0,0);for d in line{c+=d;if c>m{m=c}}if m>1{1.0}else{0.0}}

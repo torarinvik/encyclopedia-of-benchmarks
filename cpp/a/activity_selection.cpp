@@ -6,7 +6,7 @@
 extern "C" std::int64_t activity_selection(const std::int64_t *input,
                                              std::size_t length) noexcept
 {
-    if (length == 0 || input[0] < 0 || input[0] > 64) return -1;
+    if (input == nullptr || length == 0 || input[0] < 0 || input[0] > 64) return -1;
     const auto count = static_cast<std::size_t>(input[0]);
     if (length != 1 + 2 * count) return -1;
     if (count == 0) return 0;

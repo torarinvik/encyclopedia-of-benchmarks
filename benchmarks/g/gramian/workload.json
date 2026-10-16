@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "python-normalized-feature-gram-matrix-loss-i64-array-v1",
+  "algorithm": "gramian",
+  "function_symbol": "gramian",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "computer_vision/gramian.py"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["operation", "channels", "pixel_count", "feature_maps_channel_major"],
+    "operation_codes": {"gram_matrix": 0, "gram_loss": 1},
+    "maximum_channels": 3,
+    "maximum_pixels": 4,
+    "feature_scale": 1000,
+    "feature_range": [-1000, 1000],
+    "maximum_input_values": 27
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "row-major normalized Gram matrix or one-element squared Frobenius loss",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 72,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "fixed capacity for the largest 3 by 3 little-endian binary64 Gram matrix"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "gram_matrix", "input_values": [0, 2, 2, 1000, 0, 0, 1000], "workspace_bytes": 72, "expected_result": 32, "expected_output": [0.25, 0.0, 0.0, 0.25]},
+    {"id": "gram_loss", "input_values": [1, 1, 2, 1000, 0, 0, 0], "workspace_bytes": 72, "expected_result": 8, "expected_output": [0.25]},
+    {"id": "maximum_matrix_exact_capacity", "input_values": [0, 3, 1, 1000, 0, -1000], "workspace_bytes": 72, "expected_result": 72, "expected_output": [0.3333333333333333, 0.0, -0.3333333333333333, 0.0, 0.0, 0.0, -0.3333333333333333, 0.0, 0.3333333333333333]},
+    {"id": "maximum_matrix_insufficient_capacity", "input_values": [0, 3, 1, 1000, 0, -1000], "workspace_bytes": 71, "capacity_error_result": -2, "expected_result": -2, "expected_output": []}
+  ]
+}

@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+namespace {bool prime(std::int64_t n){if(n<2)return false;for(std::int64_t d=2;d*d<=n;++d)if(n%d==0)return false;return true;}std::int64_t mpow(std::int64_t a,std::int64_t e,std::int64_t m){std::int64_t r=1;a%=m;while(e>0){if(e&1)r=r*a%m;a=a*a%m;e>>=1;}return r;}}
+extern "C" std::int64_t dsa_verify(const std::int64_t*v,std::size_t n){if(!v||n<7||n>15)return -1;auto p=v[0],q=v[1],g=v[2],y=v[3],r=v[4],s=v[5],ml=v[6];if(ml<0||ml>8||n!=static_cast<std::size_t>(7+ml))return -1;if(p<5||p>251||!prime(p)||q<2||q>=p||(p-1)%q||!prime(q))return -1;if(g<2||g>=p||mpow(g,q,p)!=1||y<1||y>=p||mpow(y,q,p)!=1||r<1||r>=q||s<1||s>=q)return -1;std::int64_t h=0;for(std::size_t i=0;i<static_cast<std::size_t>(ml);++i){if(v[7+i]<0||v[7+i]>255)return -1;h=(h*256+v[7+i])%q;}auto w=mpow(s,q-2,q);auto u1=static_cast<std::int64_t>((h*w)%q);auto u2=(r*w)%q;return (((mpow(g,u1,p)*mpow(y,u2,p))%p)%q)==r;}

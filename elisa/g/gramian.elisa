@@ -1,0 +1,43 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_f64(out: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for i in 0..<8:
+        out[offset+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+def gram(v: i64&, channels: i64, pixels: i64, part: i64, result: mutable f64[9]) -> void:
+    total: i64 = channels*pixels
+    for i in 0..<channels:
+        for j in 0..<channels:
+            dot: mutable f64 = 0.0
+            for k in 0..<pixels:
+                left: f64 = v[3+part*total+i*pixels+k].f64()/1000.0
+                right: f64 = v[3+part*total+j*pixels+k].f64()/1000.0
+                dot <- dot+left*right
+            result[i*channels+j] <- dot/total.f64()
+def gramian_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 3 or length > 27: return -1
+    op: i64 = v[0]
+    channels: i64 = v[1]
+    pixels: i64 = v[2]
+    if (op != 0 and op != 1) or channels < 1 or channels > 3 or pixels < 1 or pixels > 4: return -1
+    if length != (3+channels*pixels*(if op == 1: 2 else: 1)).usize(): return -1
+    for i in 3..<length:
+        if v[i] < -1000 or v[i] > 1000: return -1
+    count: usize = if op == 1: 1 else: (channels*channels).usize()
+    bytes: usize = count*8
+    if out.is_null() or capacity < bytes: return -2
+    first: mutable f64[9] = zeroed
+    second: mutable f64[9] = zeroed
+    result: mutable f64[9] = zeroed
+    gram(v, channels, pixels, 0, first)
+    if op == 1:
+        gram(v, channels, pixels, 1, second)
+        for i in 0..<channels*channels:
+            delta: f64 = first[i]-second[i]
+            result[0] <- result[0]+delta*delta
+    else:
+        for i in 0..<channels*channels: result[i] <- first[i]
+    for i in 0..<count: put_f64(out, i*8, result[i])
+    bytes.i64()
+export gramian(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = gramian_impl

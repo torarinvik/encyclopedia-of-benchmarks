@@ -1,0 +1,25 @@
+extern sqrt(value: f64) -> f64
+const INVALID: f64 = -1e300
+def power_iteration_impl(v: i64&, n: usize) -> f64:
+    if v.is_null() or n != 5: return INVALID
+    i: mutable usize = 0
+    while i < 5:
+        if v[i] < 1 or v[i] > 1000: return INVALID
+        i <- i + 1
+    a: f64 = v[0].f64(); b: f64 = v[1].f64(); d: f64 = v[2].f64()
+    if a * d <= b * b: return INVALID
+    x: mutable f64 = v[3].f64(); y: mutable f64 = v[4].f64(); previous: mutable f64 = 0.0
+    iteration: mutable usize = 0
+    while iteration < 100:
+        w0: f64 = a * x + b * y; w1: f64 = b * x + d * y
+        norm: f64 = sqrt(w0 * w0 + w1 * w1)
+        if norm == 0.0: return INVALID
+        x <- w0 / norm; y <- w1 / norm
+        av0: f64 = a * x + b * y; av1: f64 = b * x + d * y
+        eigenvalue: f64 = x * av0 + y * av1
+        difference: f64 = eigenvalue - previous
+        if difference < 0.0: difference <- -difference
+        if difference / eigenvalue <= 1e-12 or iteration == 99: return eigenvalue
+        previous <- eigenvalue; iteration <- iteration + 1
+    INVALID
+export fn power_iteration(v: i64&, n: usize) -> f64 = power_iteration_impl

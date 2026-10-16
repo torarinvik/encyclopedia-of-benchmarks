@@ -18,8 +18,7 @@ data_normalization_standardization :: proc "c" (values: [^]i64, length: c.size_t
 	if values == nil || length < 4 || length > c.size_t(Max_Sample_Count + 2) do return -1
 	mode := values[0]
 	count_arg := values[1]
-	if (mode != 0 && mode != 1) || count_arg < 2 || count_arg > Max_Sample_Count ||
-		length != c.size_t(count_arg + 2) do return -1
+	if (mode != 0 && mode != 1) || count_arg < 2 || count_arg > Max_Sample_Count || length != c.size_t(count_arg + 2) do return -1
 	count := int(count_arg)
 	minimum := values[2]
 	maximum := values[2]

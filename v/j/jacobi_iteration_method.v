@@ -1,0 +1,5 @@
+module main
+import math
+fn put_f64(out &u8,at i64,x f64){mut bits:=math.bits_from_f64(x);for k in 0..8{unsafe{out[at+k]=u8(bits&255)};bits>>=8}}
+@[export: 'jacobi_iteration_method']
+pub fn jacobi_iteration_method(v &i64,n usize,out &u8,cap usize)i64{if isnil(v)||n<2||n>26{return -1};d:=unsafe{v[0]};it:=unsafe{v[1]};if d<2||d>4||it<1||it>8||n!=usize(2+d*d+2*d){return -1};mut a:=[][]f64{};mut b:=[]f64{len:int(d)};mut x:=[]f64{len:int(d)};mut y:=[]f64{len:int(d)};rhs:=2+d*d;ini:=rhs+d;for i in 0..d{mut row:=[]f64{len:int(d)};mut off:=f64(0);for j in 0..d{z:=unsafe{v[2+i*d+j]};if z<0||z>4000{return -1};row[j]=f64(z)/1000;if i!=j{off+=row[j]}};if row[i]<=off{return -1};rv:=unsafe{v[rhs+i]};iv:=unsafe{v[ini+i]};if rv < -2000||rv>2000||iv < -2000||iv>2000{return -1};b[i]=f64(rv)/1000;x[i]=f64(iv)/1000;a<<row};bytes:=usize(d*8);if isnil(out)||cap<bytes{return -2};for _ in 0..it{for i in 0..d{mut total:=f64(0);for j in 0..d{if i!=j{total-=a[i][j]*x[j]}};y[i]=(total+b[i])/a[i][i]};for i in 0..d{x[i]=y[i]}};for i in 0..d{put_f64(out,i*8,x[i])};return i64(bytes)}

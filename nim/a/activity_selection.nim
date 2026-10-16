@@ -1,7 +1,7 @@
 ## Count a maximum set of non-overlapping half-open activities.
 proc activity_selection*(input: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "activity_selection".} =
-  if length == 0 or input[0] < 0 or input[0] > 64: return -1
+  if input.isNil or length == 0 or input[0] < 0 or input[0] > 64: return -1
   let count = int(input[0])
   if length != csize_t(1 + 2 * count): return -1
   if count == 0: return 0

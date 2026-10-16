@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "clojure-flatten-nested-list-i64-array-i64-v1",
+  "algorithm": "flatten_nested_list",
+  "function_symbol": "flatten_nested_list",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "preorder nested-list stream with INT64_MIN=open-list and INT64_MIN+1=close-list; other tokens are integer leaves",
+    "maximum_input_length": 255,
+    "maximum_depth": 16,
+    "leaf_range": [
+      -1000000,
+      1000000
+    ]
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "signed FNV-1a 64-bit hash of left-to-right flattened leaves, each encoded as eight little-endian bytes; -1 is invalid",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Equivalent leaf order of the pinned Clojure recursive flatten-1 and tail-recursive flatten-2; collections flatten recursively, leaves preserve left-to-right order."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "nested_depth_first",
+      "input_values": [
+        -9223372036854775808,
+        1,
+        -9223372036854775808,
+        2,
+        -9223372036854775808,
+        3,
+        4,
+        -9223372036854775807,
+        5,
+        -9223372036854775807,
+        6,
+        -9223372036854775807
+      ],
+      "expected_result": -6635677175182172702
+    },
+    {
+      "id": "empty_nested_lists",
+      "input_values": [
+        -9223372036854775808,
+        -9223372036854775808,
+        -9223372036854775807,
+        -9223372036854775808,
+        -9223372036854775807,
+        -9223372036854775807
+      ],
+      "expected_result": -3750763034362895579
+    },
+    {
+      "id": "flat_leaves",
+      "input_values": [
+        -9223372036854775808,
+        -7,
+        0,
+        11,
+        -9223372036854775808,
+        13,
+        -9223372036854775807,
+        -9223372036854775807
+      ],
+      "expected_result": -2096890508609686787
+    },
+    {
+      "id": "deep_single_branch",
+      "input_values": [
+        -9223372036854775808,
+        -9223372036854775808,
+        -9223372036854775808,
+        -9223372036854775808,
+        -9223372036854775808,
+        42,
+        -9223372036854775807,
+        -9223372036854775807,
+        -9223372036854775807,
+        -9223372036854775807,
+        -9223372036854775807
+      ],
+      "expected_result": -55488592825689361
+    },
+    {
+      "id": "invalid_unbalanced",
+      "input_values": [
+        -9223372036854775808,
+        1,
+        -9223372036854775807,
+        -9223372036854775807
+      ],
+      "expected_result": -1
+    }
+  ]
+}

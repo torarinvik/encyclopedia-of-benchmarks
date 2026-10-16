@@ -1,6 +1,6 @@
 /// Count a maximum set of non-overlapping half-open activities.
-export fn activity_selection(input: [*]const i64, length: usize) i64 {
-    if (length == 0) return -1;
+export fn activity_selection(input: [*c]const i64, length: usize) i64 {
+    if (input == null or length == 0) return -1;
     if (input[0] < 0 or input[0] > 64) return -1;
     const count: usize = @intCast(input[0]);
     if (length != 1 + 2 * count) return -1;
