@@ -69,7 +69,7 @@ def verify(language: str,directory: Path,elisa_compiler: str|None,data: str,case
     records=[json.loads(line) for line in records_path.read_text().splitlines()]
     if len(records)!=len(workload['cases']): raise RuntimeError('unexpected workload record count')
     for case,record in zip(workload['cases'],records):
-        values=encode_case(case); expected=oracle(values)
+        values=encode_case(case, ALGORITHM); expected=oracle(values)
         if (expected!=case['expected_result'] or record['algorithm']!=ALGORITHM or record['implementation']['language']!=language or record['implementation']['source_sha256']!=manifest['source_sha256'] or record['workload']['input_length']!=len(values) or record['workload']['input_values']!=values or record['workload']['expected_result']!=expected or record['measurement']['observed_result']!=expected or len(record['measurement']['samples_ns'])!=1):
             raise RuntimeError(f'recorded result/provenance mismatch: {case["id"]}')
     return {'algorithm':ALGORITHM,'language':language,'status':'passed','oracle_cases':case_count,'source_sha256':manifest['source_sha256'],'workload_records':len(records),'build_manifest':str(directory/'build.json'),'build_manifest_sha256':sha256_file(directory/'build.json'),'recorder_output':str(records_path),'recorder_output_sha256':sha256_file(records_path)}
@@ -109,7 +109,7 @@ def main()->int:
     full=[v for i in range(CAPACITY) for v in (0,i)];cases[tuple(full)]=oracle(full)
     drain=full+[v for _ in range(CAPACITY) for v in (3,0)];cases[tuple(drain)]=oracle(drain)
     for case in workload['cases']:
-        packed=tuple(encode_case(case));expected=oracle(list(packed))
+        packed=tuple(encode_case(case, ALGORITHM));expected=oracle(list(packed))
         if expected!=case['expected_result']: parser.error(f'workload oracle mismatch: {case["id"]}')
         cases[packed]=expected
     data=checker_corpus(cases);results=[];failures=[]

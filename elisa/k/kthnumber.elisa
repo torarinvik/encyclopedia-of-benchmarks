@@ -1,0 +1,25 @@
+def partition(a: i64&, lo: i64, hi: i64) -> i64:
+    pivot = a[hi]; i = lo
+    for j in lo..hi:
+        if a[j] < pivot:
+            t=a[i];a[i]=a[j];a[j]=t;i+=1
+    t=a[i];a[i]=a[hi];a[hi]=t
+    i
+def kthnumber_impl(v: i64&, n: usize) -> i64:
+    if n < 4 or n > 19: return -1
+    count=v[0];mode=v[1];k=v[2]
+    if count<1 or count>16 or n!=count+3 or (mode!=1 and mode!=2) or k<1 or k>count:return -1
+    a=[0;16]
+    for i in 0..count:
+        a[i]=v[i+3]
+        if a[i]<-10000 or a[i]>10000:return -1
+    target=k-1
+    if mode==2:target=count-k
+    lo=0;hi=count-1
+    while lo<=hi:
+        q=partition(a,lo,hi)
+        if q==target:return a[q]
+        if q<target:lo=q+1
+        else:hi=q-1
+    -1
+export fn kthnumber(v: i64&, n: usize) -> i64 = kthnumber_impl

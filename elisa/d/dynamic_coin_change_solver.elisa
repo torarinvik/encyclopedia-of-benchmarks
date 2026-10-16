@@ -1,0 +1,70 @@
+def dynamic_coin_change_solver_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 11: return -1
+    amount: i64 = input[0]
+    count: i64 = input[1]
+    if amount < 1 or amount > 18 or count < 1 or count > 9 or length != (count + 2).usize(): return -1
+    coins: mutable i64[9] = zeroed
+    has_one: mutable bool = false
+    i: mutable usize = 0
+    j: mutable usize = 0
+    while i < count.usize():
+        value: i64 = input[i + 2]
+        if value < 1 or value > 9: return -1
+        coins[i] <- value
+        if value == 1: has_one <- true
+        j <- 0
+        while j < i:
+            if coins[j] == value: return -1
+            j <- j + 1
+        i <- i + 1
+    if not has_one: return -1
+    i <- 0
+    while i < count.usize():
+        j <- i + 1
+        while j < count.usize():
+            if coins[i] < coins[j]:
+                temporary: i64 = coins[i]
+                coins[i] <- coins[j]
+                coins[j] <- temporary
+            j <- j + 1
+        i <- i + 1
+    changes: mutable i64[171] = zeroed
+    sizes: mutable usize[19] = zeroed
+    value: mutable usize = 1
+    while value <= amount.usize():
+        i <- 0
+        while i < count.usize():
+            if coins[i] <= value.i64():
+                changes[value * 9 + sizes[value]] <- value.i64() - coins[i]
+                sizes[value] <- sizes[value] + 1
+            i <- i + 1
+        value <- value + 1
+    current: mutable usize = amount.usize()
+    code: mutable i64 = 0
+    step: mutable usize = 0
+    while step < 18:
+        next: mutable i64 = 2147483647
+        min_change: mutable i64 = 2147483647
+        i <- 0
+        while i < sizes[current]:
+            change: i64 = changes[current * 9 + i]
+            if change == 0:
+                next <- 0
+                break
+            minimum: mutable i64 = 2147483647
+            j <- 0
+            while j < sizes[change.usize()]:
+                if changes[change.usize() * 9 + j] < minimum: minimum <- changes[change.usize() * 9 + j]
+                j <- j + 1
+            if minimum < min_change:
+                min_change <- minimum
+                next <- change
+            i <- i + 1
+        if next == 2147483647: return -1
+        code <- code * 10 + current.i64() - next
+        if next == 0: return code
+        current <- next.usize()
+        step <- step + 1
+    -1
+
+export fn dynamic_coin_change_solver(input: i64&, length: usize) -> i64 = dynamic_coin_change_solver_impl

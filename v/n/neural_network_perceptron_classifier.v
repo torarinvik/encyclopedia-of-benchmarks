@@ -1,0 +1,2 @@
+@[export:'neural_network_perceptron_classifier']
+pub fn neural_network_perceptron_classifier(v &i64,n usize,o &u8,cap usize)i64{if isnil(v)||n<5{return -1};f:=unsafe{v[0]};s:=unsafe{v[1]};bias:=unsafe{v[2]};if f<1||f>3||s<1||s>4||bias < -10000||bias>10000||n!=usize(3+f+f*s){return -1};for i in 0..int(f){x:=unsafe{v[3+i]};if x < -10000||x>10000{return -1}};for i in 3+int(f)..int(n){x:=unsafe{v[i]};if x < -10||x>10{return -1}};if isnil(o)||cap<int(s){return -2};for j in 0..int(s){mut z:=bias;for i in 0..int(f){z+=unsafe{v[3+i]*v[3+int(f)+i*int(s)+j]}};unsafe{o[j]=u8(z>0)}};s}

@@ -14,7 +14,7 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,853 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,902 reviewed source candidates, of which 2,588 map to complete benchmark files; 300 sources are excluded from portable benchmark coverage: 28 invalid and 272 non-benchmarkable. The pinned inventory contains 3,854 candidate records, with 966 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 1,907 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 2,961 reviewed source candidates, of which 2,642 map to complete benchmark files; 302 sources are excluded from portable benchmark coverage: 28 invalid and 274 non-benchmarkable. The pinned inventory contains 3,854 candidate records, with 910 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
 
 
 [Directed simple cycles](benchmarks/d/directed_simple_cycles/README.md) ports the pinned Java DFS enumerator to all nine languages, preserving directed-cycle contents and source traversal order.
@@ -26,6 +26,8 @@ The latest static coverage audit finds 1,853 complete benchmark algorithms with 
 [Meter to feet conversion](benchmarks/m/meter_to_feet_conversion/README.md) ports both conversions from the pinned JavaScript module to all nine target languages using bounded milliunit inputs.
 
 [Power factor correction](benchmarks/p/power_factor_correction/README.md) ports the pinned Python shunt-capacitor and shunt-inductor formulas to all nine target languages with a bounded power-factor grid.
+
+[Peak signal-to-noise ratio](benchmarks/p/peak_signal_to_noise_ratio/README.md) ports the shared nonzero-MSE PSNR formula across all nine languages, bounding pairwise pixel differences to preserve agreement with Python's uint8 arithmetic.
 
 The pinned MATLAB-Octave `blobDetection.m` and `BlobUsingVideo.m` demos share an HSV-thresholding, morphological-opening, and area-filtered component pipeline with different tuned thresholds. The portable benchmark selects the source threshold profile and passes the displayed object count across all nine languages; see the [guide](benchmarks/b/blob_detection/README.md) and [verifier](benchmarks/verify_blob_detection.py).
 
@@ -199,6 +201,12 @@ C LeetCode candidates 461 and 485 are reviewed aliases of hamming_distance and m
 
 [Data normalization and standardization](benchmarks/d/data_normalization_standardization/README.md) ports the pinned R min-max and sample-standardization functions to all nine languages, preserving the sample-SD denominator.
 [Data transformations](benchmarks/d/data_transformations/README.md) ports the pinned Python min-max and sample-standardization functions to all nine languages, including the source's three-decimal ties-to-even rounding.
+[Davis–Putnam–Logemann–Loveland](benchmarks/d/davis_putnam_logemann_loveland/README.md) implements the intended DPLL decision procedure across all nine languages and documents branch-search defects in the pinned Python source.
+[Double-Ended Selection Sort](benchmarks/d/double_ended_selection_sort/README.md) maps the pinned Python `unknown_sort.py` source to its actual min/max extraction algorithm across all nine languages.
+[Double-point crossover](benchmarks/d/double_point_crossover/README.md) ports the pinned MATLAB-Octave parent splice to all nine languages with explicit, deterministic cut positions.
+[Deep clone graph](benchmarks/d/deep_clone_graph/README.md) models node identity and clones the root-reachable component, preserving duplicate values, cycles, and self-loops across all nine languages.
+[DES in ECB mode](benchmarks/d/des_ecb/README.md) ports the pinned DES block transform to all nine languages using a shared fixed-key, ASCII-byte contract.
+[Detecting English Programmatically](benchmarks/d/detecting_english_programmatically/README.md) ports the pinned Python dictionary-hit and retained-letter threshold detector to all nine languages with an explicit shared dictionary input.
 
 [Detect Capital Usage](benchmarks/d/detect_capital_usage/README.md) captures both C LeetCode 520 implementations: uppercase counting and repeated whole-word scans. Both variants passed 33,295 oracle arrays per language across all nine languages and recorded 17 workload cases each.
 
@@ -413,13 +421,19 @@ The pinned Python bilateral filter now has a bounded grayscale contract and nine
 
 [Union of Two Arrays](benchmarks/u/union_of_two_arrays/README.md) merges sorted arrays and emits each value once. All nine ports passed 280 oracle inputs and 21 workload cases, including duplicate values, empty arrays, and maximum-size output.
 
+[Uniform Crossover](benchmarks/u/uniform_crossover/README.md) ports the pinned MATLAB-Octave per-locus parent selection with an explicit deterministic mask across all nine languages.
+
 [Unique Letters Count](benchmarks/u/unique_letters_count/README.md) ports the pinned R ASCII-letter frequency example to all nine languages, preserving first-appearance order. Every port passed 276 oracle inputs and 18 workload cases.
+
+[Units Converter](benchmarks/u/units_converter/README.md) ports the pinned Java affine conversion closure across all nine languages, including inverse edges and composed conversions.
 
 [Complex Arithmetic](benchmarks/c/complex_arithmetic/README.md) ports the shared exact-integer complex operations from Lua and C++ to all nine languages with portable scalar arithmetic. Every port passed 277 oracle inputs and 15 workload cases.
 
 [Linear Regression Cost](benchmarks/l/linear_regression_cost/README.md) ports the pinned MATLAB/Octave multivariate half-mean-squared-error calculation to all nine languages. Every port passed 281 oracle inputs and 19 workload cases.
 
 [Factorize](benchmarks/f/factorize/README.md) ports the Lua prime-to-exponent map, including its `{0: 1}` and `{1: 1}` edge results, to all nine languages with sorted little-endian factor pairs. All nine ports passed 9,230 oracle/capacity cases each and recorded 12 workload cases; see the [capacity-aware verifier](benchmarks/verify_factorize.py).
+
+[Fuzzy Set Operations](benchmarks/f/fuzzy_set_operations/README.md) ports the pinned Python membership-vector formulas for triangular membership and eight fuzzy set operators to all nine languages using an explicit fixed-point input scale.
 
 [Logistic Regression Cost and Gradient](benchmarks/l/logistic_regression_cost_gradient/README.md) follows the pinned MATLAB-Octave cost function and returns binary cross-entropy with the full parameter-gradient vector. All nine ports compile and pass 11 workload cases.
 
@@ -430,6 +444,8 @@ The pinned Python bilateral filter now has a bounded grayscale contract and nine
 [Sentinel search](benchmarks/s/sentinel_search/README.md) reviews the pinned PHP and TypeScript sentinel scans and provides a shared mutable-array contract with nine portable implementations.
 
 [Reverse letters](benchmarks/r/reverse_letters/README.md) reviews the pinned F-Sharp and Python word-reversal functions and provides a nine-language ASCII benchmark.
+
+[Resistor Color Code](benchmarks/r/resistor_color_code/README.md) ports the pinned Python 3–6 band calculator across all nine languages, preserving its tolerance, temperature coefficient, and exact output-string behavior.
 
 The F-Sharp [`has_prefix`](benchmarks/s/string_prefix_suffix/README.md) and [`has_suffix`](benchmarks/s/string_prefix_suffix/README.md) candidates share the UTF-16 prefix/suffix benchmark.
 
@@ -443,8 +459,11 @@ Several H candidates reuse existing contracts: F-Sharp prefix/suffix checks, Pyt
 [Median of two sorted arrays](benchmarks/m/median_two_array/README.md) adds a bounded binary64 median benchmark across all nine languages.
 
 [Magic diamond pattern](benchmarks/m/magicdiamondpattern/README.md) preserves the pinned formatted Floyd diamond output, including trailing spaces and the nonpositive sentinel, across all nine languages.
+[Weddle's rule](benchmarks/w/weddles_rule/README.md) ports the pinned modulo-six composite quadrature weights to all nine languages using bounded fixed-point sample tables.
 [Word patterns](benchmarks/w/word_patterns/README.md) maps ASCII characters to their first-seen indices, preserving the pinned Python implementation's uppercase normalization across nine languages.
 [Welford's variance](benchmarks/w/welfords_variance/README.md) adds the one-pass online sample-variance recurrence across nine languages, distinct from the existing two-pass variance benchmark.
+
+[Welsh–Powell greedy coloring](benchmarks/w/welsh_powell/README.md) preserves the pinned Java degree sort, stable index ties, and its rule for admitting uncolored vertices to each color class across all nine languages.
 [XTEA](benchmarks/x/xtea/README.md) adds bounded 64-bit block encryption with the pinned Python source's big-endian encoding across nine languages.
 [Z-block substring search](benchmarks/z/zblock_substring_search/README.md) returns an exact, overlapping match count using Z blocks across nine languages.
 [Interleaving strings](benchmarks/i/interleavingstrings/README.md) adds the bounded two-source order-preserving dynamic program across nine languages.
@@ -540,3 +559,9 @@ The pinned Go `longestarithmeticsubsequence` implementation uses the same endpoi
 [Kinematics](benchmarks/k/kinematics/README.md) ports the four pinned Java SUVAT formulas across all nine languages with a bounded, exactly scaled integer result.
 [Lua uint53 bit iterator](benchmarks/i/ibits/README.md) ports the pinned least-significant-first iterator across all nine languages and reports its bounded yield count.
 [Local binary pattern](benchmarks/l/local_binary_pattern/README.md) ports the pinned Python neighbor comparisons and weight order across all nine languages for a bounded interior 3x3 patch.
+[K-th next greater element](benchmarks/k/kth_next_greater_element/README.md) ports the pinned Python strict-successor chain semantics across all nine languages and reports the bounded number of complete results.
+[Linked deque](benchmarks/l/linked_deque/README.md) ports the pinned Lua doubly linked deque operations across all nine languages and packs bounded query results.
+
+[ISO 7816-4 padding](benchmarks/i/iso7816_d4_padding/README.md) ports all three methods from the pinned C# class—padding addition, suffix removal, and padding count—to nine portable implementations.
+
+[Dynamic coin change solver](benchmarks/d/dynamic_coin_change_solver/README.md) preserves the pinned C# backward-induction selection order across all nine languages; its documented rule can return a longer sequence than the true minimum-count solution. [Pinned source](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/DynamicProgramming/CoinChange/DynamicCoinChangeSolver.cs).\n\n[Word occurrence](benchmarks/w/word_occurrence/README.md) ports the pinned Python case-sensitive token counter across all nine languages. The same-stem F# variant prints repeated words instead of incrementing their counts, so it is documented separately. [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/word_occurrence.py); [F# source](https://github.com/TheAlgorithms/F-Sharp/blob/e5441e8bfd2cda87541634b75f39f0868447ae5f/Algorithms/Strings/WordOccurrence.fs).\n

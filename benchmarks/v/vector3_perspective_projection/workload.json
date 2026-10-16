@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "workspace": {
+    "elements": 3
+  },
+  "id": "vector3-perspective-projection-float64-slice-io-v1",
+  "algorithm": "vector3_perspective_projection",
+  "function_symbol": "vector3_perspective_projection",
+  "input": {
+    "kind": "float64_array",
+    "length": 5,
+    "encoding": "[x, y, z, scale, distance]",
+    "input_abs_limit": 1000000.0,
+    "minimum_abs_denominator": 1e-06,
+    "singular_case": "z + distance == 0"
+  },
+  "output": {
+    "kind": "float64_array",
+    "meaning": "[projected_x, projected_y] in source expression order",
+    "maximum_abs_value": 1e+25,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_status": -1,
+    "short_or_null_output_status": -2
+  },
+  "cases": [
+    {
+      "id": "pinned-doctest",
+      "input_values": [
+        1.0,
+        2.0,
+        3.0,
+        10.0,
+        10.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        7.6923076923076925,
+        15.384615384615385
+      ]
+    },
+    {
+      "id": "negative-coordinates",
+      "input_values": [
+        -12.5,
+        3.25,
+        2.0,
+        4.0,
+        8.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -40.0,
+        10.4
+      ]
+    },
+    {
+      "id": "zero-scale",
+      "input_values": [
+        10.0,
+        -5.0,
+        2.0,
+        0.0,
+        10.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "zero-distance",
+      "input_values": [
+        100.0,
+        50.0,
+        -2.0,
+        12.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -0.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "negative-distance",
+      "input_values": [
+        1.0,
+        2.0,
+        1.0,
+        2.0,
+        -4.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        2.6666666666666665,
+        5.333333333333333
+      ]
+    },
+    {
+      "id": "minimum-denominator",
+      "input_values": [
+        1.0,
+        -1.0,
+        0.0,
+        1000.0,
+        1e-06
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        1000.0,
+        -1000.0
+      ]
+    },
+    {
+      "id": "large-finite",
+      "input_values": [
+        1000000.0,
+        -1000000.0,
+        1000000.0,
+        1000000.0,
+        1000000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        500000000000.0,
+        -500000000000.0
+      ]
+    },
+    {
+      "id": "singular-denominator",
+      "input_values": [
+        1.0,
+        2.0,
+        -10.0,
+        10.0,
+        10.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "too-close-to-singular",
+      "input_values": [
+        1.0,
+        2.0,
+        -0.9999995,
+        1.0,
+        1.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coordinate-out-of-range",
+      "input_values": [
+        1000001.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+#include <stddef.h>
+#include <stdint.h>
+
+static int32_t bound_shift(int32_t x) { int32_t shifted=(int32_t)((uint32_t)x<<1); return shifted<0?shifted+1:INT32_MAX; }
+static int compare(int64_t x,int64_t y){return (x>y)-(x<y);}
+static void left_run(const int64_t*a,int64_t key,int64_t base,int64_t hint,int64_t*out,int64_t*last){int64_t max=hint+1,offset=1,tmp=0;while(offset<max&&key<a[base+hint-offset]){tmp=offset;offset=bound_shift((int32_t)offset);}if(offset>max)offset=max;*last=hint-offset;*out=hint-tmp;}
+static void right_run(const int64_t*a,int64_t key,int64_t base,int64_t len,int64_t hint,int64_t*out,int64_t*last){int64_t offset=1,last0=0,max=len-hint;while(offset<max&&key>a[base+hint+offset]){last0=offset;offset=bound_shift((int32_t)offset);}if(offset>max)offset=max;*out=offset+hint;*last=last0+hint;}
+static int64_t final_offset(const int64_t*a,int64_t key,int64_t base,int64_t offset,int64_t last,int lt){last++;while(last<offset){int64_t mid=last+((uint64_t)(offset-last)>>1);if(compare(key,a[base+mid])<lt)offset=mid;else last=mid+1;}return offset;}
+int64_t galloping_strategy(const int64_t*v,size_t n){if(v==NULL||n<5||n>69)return -1;int64_t op=v[0],count=v[1],base=v[2],len=v[3],key=v[4];if((op!=0&&op!=1)||count<0||count>64||n!=5+(size_t)count||base<0||len<0||base>count||len>count-base||key<INT32_MIN||key>INT32_MAX)return -1;const int64_t*a=v+5;for(size_t i=0;i<(size_t)count;i++)if(a[i]<INT32_MIN||a[i]>INT32_MAX)return -1;if(count==0)return 0;if(len==0||base>=count)return -1;for(int64_t i=base;i+1<base+len;i++)if(a[i]>a[i+1])return -1;int64_t offset,last;if(op==0){if(key>a[base])right_run(a,key,base,len,0,&offset,&last);else left_run(a,key,base,0,&offset,&last);return final_offset(a,key,base,offset,last,1);}if(key<a[base])left_run(a,key,base,len,&offset,&last);else right_run(a,key,base,len,0,&offset,&last);return final_offset(a,key,base,offset,last,0);}

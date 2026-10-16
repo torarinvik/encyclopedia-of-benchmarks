@@ -1,0 +1,4 @@
+module prefix_evaluation;
+const double INVALID=-1e300;
+fn bool is_op(uint8 c){return c=='+'||c=='-'||c=='*'||c=='/';}
+fn double prefix_evaluation(long* v,usz n) @export("prefix_evaluation"){if(v==null||n<2||n>63||v[0]<1||v[0]>62||n!=(usz)v[0]+1)return INVALID;uint8[31] tokens;usz count=0;bool need=true;for(usz i=1;i<n;i++){long x=v[i];if(x<0||x>127)return INVALID;uint8 c=(uint8)x;if(c==' '){if(need)return INVALID;need=true;continue;}if(!(is_op(c)||(c>='0'&&c<='9'))||!need||count>=31)return INVALID;tokens[count++]=c;need=false;}if(need||count==0)return INVALID;double[31] stack;usz top=0;usz p=count;while(p>0){p--;uint8 c=tokens[p];if(c>='0'&&c<='9'){stack[top++]=(double)(c-'0');continue;}if(top<2)return INVALID;double a=stack[--top];double b=stack[--top];double result=0;if(c=='+')result=a+b;else if(c=='-')result=a-b;else if(c=='*')result=a*b;else{if(b==0)return INVALID;result=a/b;}stack[top++]=result;}if(top==1)return stack[0];return INVALID;}

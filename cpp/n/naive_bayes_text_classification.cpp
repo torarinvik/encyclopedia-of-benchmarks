@@ -1,0 +1,8 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
+static void putd(std::uint8_t*o,std::size_t p,double x){std::uint64_t b;std::memcpy(&b,&x,8);for(int k=0;k<8;k++)o[p+k]=std::uint8_t(b>>(8*k));}
+static bool token(const std::int64_t*v,int n,std::uint64_t&key){key=0;for(int i=0;i<n;i++){int x=int(v[i]);if(x>=65&&x<=90)x+=32;if(!((x>=97&&x<=122)||(x>=48&&x<=57)||x==39))return false;key=key*128+std::uint64_t(x);}return true;}
+extern "C" std::int64_t naive_bayes_text_classification(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<7)return -1;int d=int(v[0]);auto alpha=v[1];if(d<2||d>6||alpha<1||alpha>10000)return -1;std::uint64_t w[6]={},q=0;int lab[6]={},seen[2]={},total[2]={},p=2;for(int i=0;i<d;i++){if(std::size_t(p+2)>n)return -1;auto c=v[p++],l=v[p++];if((c!=0&&c!=1)||l<0||l>8||std::size_t(p+l)>n||!token(v+p,int(l),w[i]))return -1;lab[i]=int(c);seen[c]=1;total[c]+=l>0;p+=int(l);}if(std::size_t(p)>=n)return -1;auto ql=v[p++];if(ql<0||ql>8||std::size_t(p+ql)!=n||!token(v+p,int(ql),q)||!seen[0]||!seen[1])return -1;int vocab=0;for(int i=0;i<d;i++)if(w[i]){bool fresh=true;for(int j=0;j<i;j++)if(w[i]==w[j])fresh=false;vocab+=fresh;}if(!vocab&&ql)return -1;if(!out||cap<16)return -2;double s[2];for(int c=0;c<2;c++){int docs=0,count=0;for(int i=0;i<d;i++)if(lab[i]==c){docs++;count+=ql&&w[i]==q;}s[c]=std::log(double(docs)/d);if(ql){double a=double(alpha)/1000.;s[c]+=std::log((count+a)/(total[c]+a*vocab));}}double h=std::max(s[0],s[1]),a=std::exp(s[0]-h),b=std::exp(s[1]-h);putd(out,0,a/(a+b));putd(out,8,b/(a+b));return 16;}

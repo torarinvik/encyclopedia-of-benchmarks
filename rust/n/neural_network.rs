@@ -1,0 +1,4 @@
+unsafe fn putd(o:*mut u8,p:usize,x:f64){for(k,b)in x.to_le_bytes().iter().enumerate(){*o.add(p+k)=*b}}
+fn sig(x:f64)->f64{1.0/(1.0+(-x).exp())}
+#[no_mangle]
+pub unsafe extern "C" fn neural_network(v:*const i64,n:usize,o:*mut u8,cap:usize)->i64{if v.is_null()||n<7{return -1}let a=std::slice::from_raw_parts(v,n);let ni=a[0];let nh=a[1];let no=a[2];if !(1..=3).contains(&ni)||!(1..=3).contains(&nh)||!(1..=3).contains(&no)||n!=3+ni as usize+ni as usize*nh as usize+nh as usize*no as usize||a[3..].iter().any(|x|!(-1000..=1000).contains(x)){return -1}if o.is_null()||cap<no as usize*8{return -2}let x=3;let w1=x+ni as usize;let w2=w1+ni as usize*nh as usize;let mut h=[0.0;3];for j in 0..nh as usize{let mut z=0.0;for i in 0..ni as usize{z+=a[x+i] as f64/1000.0*(a[w1+i*nh as usize+j] as f64/1000.0)}h[j]=sig(z)}for j in 0..no as usize{let mut z=0.0;for i in 0..nh as usize{z+=h[i]*(a[w2+i*no as usize+j] as f64/1000.0)}putd(o,j*8,sig(z))}no*8}

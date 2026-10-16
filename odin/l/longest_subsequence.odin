@@ -1,0 +1,4 @@
+package longest_subsequence
+import "core:c"
+solve :: proc(a:[]i64,out:^[10]i64)->int{if len(a)<=1{if len(a)==1{out[0]=a[0]};return len(a)};pivot:=a[0];var best,sub,cand:[10]i64;bl:=0;i:=1;for i<len(a){if a[i]<pivot{m:=0;for j:=i+1;j<len(a);j+=1{if a[j]>=a[i]{sub[m]=a[j];m+=1}};sl:=solve(sub[:m],&cand);cand[0]=a[i];if sl+1>bl{bl=sl+1;best[0]=cand[0];i=1;for i<bl{best[i]=cand[i];i+=1}}};i+=1};m:=0;for i:=1;i<len(a);i+=1{if a[i]>=pivot{sub[m]=a[i];m+=1}};sl:=solve(sub[:m],&cand);cand[0]=pivot;if sl+1>bl{bl=sl+1;for q:=0;q<bl;q+=1{best[q]=cand[q]}};for q:=0;q<bl;q+=1{out[q]=best[q]};return bl}
+@(export) longest_subsequence :: proc "c"(v:[^]i64,n:c.size_t)->i64{if n<2||n>11{return -1};k:=v[0];if k<1||k>10||n!=k+1{return -1};var a:[10]i64;for i:=i64(0);i<k;i+=1{a[i]=v[i+1];if a[i]<-10||a[i]>10{return -1}};var out:[10]i64;length:=solve(a[:k],&out);r:=i64(length);for i:=0;i<length;i+=1{r=r*21+out[i]+10};return r}

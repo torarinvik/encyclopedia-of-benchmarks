@@ -38,5 +38,6 @@ export fn detecting_english_programmatically(input: [*c]const i64, length: usize
         }
         tlen = 0; i += 1;
     }
-    return @intFromBool(tokens > 0 and hits * 100 >= wp * tokens and retained * 100 >= lp * m);
+    if (tokens == 0) return -1;
+    return @intFromBool(hits * 100 >= wp * tokens and retained * 100 >= lp * m);
 }

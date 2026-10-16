@@ -22,33 +22,58 @@ TEMPERATURE_EDGES = (
 )
 
 
-def _add_if_needed(entries: list[tuple[int, int, float, float]], conversion: tuple[int, int, float, float]) -> None:
+def _add_if_needed(entries: dict[tuple[int, int], tuple[int, int, float, float]],
+                   conversion: tuple[int, int, float, float]) -> None:
     source, target, _, _ = conversion
     if source == target:
         return
-    if any(existing[0] == source and existing[1] == target for existing in entries):
+    if (source, target) in entries:
         return
-    entries.append(conversion)
+    entries[(source, target)] = conversion
 
 
-def _add_all(known: list[tuple[int, int, float, float]]) -> list[tuple[int, int, float, float]]:
-    inverted: list[tuple[int, int, float, float]] = []
-    for source, target, slope, intercept in known:
-        _add_if_needed(inverted, (source, target, slope, intercept))
-        _add_if_needed(inverted, (target, source, 1.0 / slope, -intercept / slope))
+def _ordered(entries: dict[tuple[int, int], tuple[int, int, float, float]],
+             unit_count: int) -> list[tuple[int, int, float, float]]:
+    return [entries[(source, target)]
+            for source in range(unit_count)
+            for target in range(unit_count)
+            if (source, target) in entries]
 
-    result: list[tuple[int, int, float, float]] = []
-    for first_source, first_target, first_slope, first_intercept in inverted:
-        _add_if_needed(result, (first_source, first_target, first_slope, first_intercept))
-        for second_source, second_target, second_slope, second_intercept in inverted:
-            if first_target == second_source:
+
+def _add_all(known: list[tuple[int, int, float, float]],
+             unit_count: int) -> list[tuple[int, int, float, float]]:
+    known_by_pair = {(source, target): (source, target, slope, intercept)
+                     for source, target, slope, intercept in known}
+    inverted: dict[tuple[int, int], tuple[int, int, float, float]] = {}
+    for source in range(unit_count):
+        for target in range(unit_count):
+            conversion = known_by_pair.get((source, target))
+            if conversion is None:
+                continue
+            _, _, slope, intercept = conversion
+            _add_if_needed(inverted, conversion)
+            _add_if_needed(inverted, (target, source, 1.0 / slope, -intercept / slope))
+
+    result: dict[tuple[int, int], tuple[int, int, float, float]] = {}
+    for first_source in range(unit_count):
+        for middle in range(unit_count):
+            first = inverted.get((first_source, middle))
+            if first is None:
+                continue
+            _, _, first_slope, first_intercept = first
+            _add_if_needed(result, first)
+            for target in range(unit_count):
+                second = inverted.get((middle, target))
+                if second is None:
+                    continue
+                _, _, second_slope, second_intercept = second
                 _add_if_needed(
                     result,
-                    (first_source, second_target,
+                    (first_source, target,
                      second_slope * first_slope,
                      second_slope * first_intercept + second_intercept),
                 )
-    return result
+    return _ordered(result, unit_count)
 
 
 def _is_i64_values(values: object) -> bool:
@@ -106,7 +131,7 @@ def expected_result(values: list[int]) -> float:
 
     known = edges
     for _ in range(MAX_UNITS + 1):
-        expanded = _add_all(known)
+        expanded = _add_all(known, unit_count)
         if len(expanded) == len(known):
             known = expanded
             break

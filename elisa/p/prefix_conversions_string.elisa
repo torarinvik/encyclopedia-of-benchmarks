@@ -1,0 +1,57 @@
+fn prefix_string_append_i64(output: mutable u8&, position: usize, value: i64) -> usize:
+    at: mutable usize = position
+    number: mutable i64 = value
+    if number < 0:
+        output[at] <- 45.u8()
+        at <- at + 1
+        number <- -number
+    if number == 0:
+        output[at] <- 48.u8()
+        return at + 1
+    digits: mutable u8[24]
+    count: mutable usize = 0
+    while number > 0:
+        digits[count] <- (48 + (number % 10).u8()).u8()
+        count <- count + 1
+        number <- number / 10
+    while count > 0:
+        count <- count - 1
+        output[at] <- digits[count]
+        at <- at + 1
+    at
+
+fn prefix_string_append_name(output: mutable u8&, position: mutable usize&, name: &str) -> void:
+    index: mutable usize = 0
+    while index < name.length():
+        output[position] <- name[index].u8()
+        position <- position + 1
+        index <- index + 1
+
+fn prefix_string_scaled(output: mutable u8&, value: i64, scale: i64, name: &str) -> i64:
+    if value % scale != 0: return -1
+    position: mutable usize = prefix_string_append_i64(output, 0, value / scale)
+    output[position] <- 46.u8()
+    output[position + 1] <- 48.u8()
+    output[position + 2] <- 32.u8()
+    position <- position + 3
+    prefix_string_append_name(output, position, name)
+    position.i64()
+
+fn prefix_conversions_string_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 2 or (input[0] != 0 and input[0] != 1) or input[1] < -1000000000000 or input[1] > 1000000000000: return -1
+    if output.is_null() or capacity < 8192: return -2
+    value: i64 = input[1]
+    if value <= 0: return prefix_string_append_i64(output, 0, value).i64()
+    if input[0] == 0:
+        if value > 1000000000: return prefix_string_scaled(output, value, 1000000000, "giga")
+        if value > 1000000: return prefix_string_scaled(output, value, 1000000, "mega")
+        if value > 1000: return prefix_string_scaled(output, value, 1000, "kilo")
+        if value > 100: return prefix_string_scaled(output, value, 100, "hecto")
+        if value > 10: return prefix_string_scaled(output, value, 10, "deca")
+    else:
+        if value > 1073741824: return prefix_string_scaled(output, value, 1073741824, "giga")
+        if value > 1048576: return prefix_string_scaled(output, value, 1048576, "mega")
+        if value > 1024: return prefix_string_scaled(output, value, 1024, "kilo")
+    prefix_string_append_i64(output, 0, value).i64()
+
+export fn prefix_conversions_string(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prefix_conversions_string_impl

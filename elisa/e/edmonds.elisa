@@ -1,0 +1,75 @@
+const NMAX: usize = 5
+const EMAX: usize = 12
+const INF: i64 = 1000000000
+
+def edmonds_impl(a: i64&, length: usize) -> i64:
+    if a == null or length < 3 or length > 39: return -1
+    n64: i64 = a[0]
+    root64: i64 = a[1]
+    m64: i64 = a[2]
+    if n64 < 1 or n64 > 5 or root64 < 0 or root64 >= n64 or m64 < 0 or m64 > 12: return -1
+    n: mutable usize = n64.usize()
+    root: mutable usize = root64.usize()
+    m: usize = m64.usize()
+    if length != 3 + 3 * m: return -1
+    eu: mutable usize[12] = zeroed
+    ev: mutable usize[12] = zeroed
+    ew: mutable i64[12] = zeroed
+    for i in 0..<m:
+        u: i64 = a[3 + 3 * i]
+        v: i64 = a[4 + 3 * i]
+        w: i64 = a[5 + 3 * i]
+        if u < 0 or u >= n64 or v < 0 or v >= n64 or w < 0 or w > 100: return -1
+        eu[i] <- u.usize()
+        ev[i] <- v.usize()
+        ew[i] <- w
+    answer: mutable i64 = 0
+    while true:
+        inn: mutable i64[5] = zeroed
+        pre: mutable i64[5] = zeroed
+        for i in 0..<n:
+            inn[i] <- INF
+            pre[i] <- -1
+        for i in 0..<m:
+            if eu[i] != ev[i] and ev[i] != root and ew[i] < inn[ev[i]]:
+                inn[ev[i]] <- ew[i]
+                pre[ev[i]] <- eu[i].i64()
+        inn[root] <- 0
+        for i in 0..<n:
+            if inn[i] == INF: return -1
+        ids: mutable i64[5] = zeroed
+        vis: mutable i64[5] = zeroed
+        for i in 0..<n:
+            ids[i] <- -1
+            vis[i] <- -1
+        cycles: mutable i64 = 0
+        for i in 0..<n:
+            answer <- answer + inn[i]
+            v: mutable usize = i
+            while vis[v] != i.i64() and ids[v] == -1 and v != root:
+                vis[v] <- i.i64()
+                v <- pre[v].usize()
+            if v != root and ids[v] == -1:
+                u: mutable usize = pre[v].usize()
+                while u != v:
+                    ids[u] <- cycles
+                    u <- pre[u].usize()
+                ids[v] <- cycles
+                cycles <- cycles + 1
+        if cycles == 0: return answer
+        for i in 0..<n:
+            if ids[i] == -1:
+                ids[i] <- cycles
+                cycles <- cycles + 1
+        for i in 0..<m:
+            old_v: usize = ev[i]
+            u: usize = ids[eu[i]].usize()
+            v: usize = ids[old_v].usize()
+            if u != v: ew[i] <- ew[i] - inn[old_v]
+            eu[i] <- u
+            ev[i] <- v
+        root <- ids[root].usize()
+        n <- cycles.usize()
+    return answer
+
+export fn edmonds(a: i64&, length: usize) -> i64 = edmonds_impl

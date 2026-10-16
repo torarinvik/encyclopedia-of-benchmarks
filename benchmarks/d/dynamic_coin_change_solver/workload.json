@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "id": "dynamic-coin-change-solver-i64-scalar-v1",
+  "algorithm": "dynamic_coin_change_solver",
+  "function_symbol": "dynamic_coin_change_solver",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[amount, coin_count, coin_0, ..., coin_(coin_count-1)]",
+    "amount_range": [
+      1,
+      18
+    ],
+    "coin_count_range": [
+      1,
+      9
+    ],
+    "denomination_range": [
+      1,
+      9
+    ],
+    "requirements": "denominations must be unique and include 1",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "decimal concatenation of the returned coin sequence; each denomination is one decimal digit (1 through 9), so the leading digit also preserves sequence length",
+    "example": "sequence [5,5,1,1] is returned as 5511",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "amount_one",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "minimum_coin_exact",
+      "input_values": [
+        6,
+        3,
+        1,
+        3,
+        4
+      ],
+      "expected_result": 33
+    },
+    {
+      "id": "non_optimal_backward_choice",
+      "input_values": [
+        12,
+        3,
+        1,
+        4,
+        5
+      ],
+      "expected_result": 5511
+    },
+    {
+      "id": "input_order_permutation",
+      "input_values": [
+        12,
+        3,
+        5,
+        1,
+        4
+      ],
+      "expected_result": 5511
+    },
+    {
+      "id": "descending_tie_break",
+      "input_values": [
+        7,
+        3,
+        1,
+        3,
+        4
+      ],
+      "expected_result": 43
+    },
+    {
+      "id": "large_bounded_amount",
+      "input_values": [
+        18,
+        4,
+        1,
+        4,
+        5,
+        7
+      ],
+      "expected_result": 774
+    },
+    {
+      "id": "two_coin_types",
+      "input_values": [
+        9,
+        2,
+        1,
+        4
+      ],
+      "expected_result": 441
+    },
+    {
+      "id": "single_coin_type",
+      "input_values": [
+        8,
+        1,
+        1
+      ],
+      "expected_result": 11111111
+    },
+    {
+      "id": "invalid_zero_amount",
+      "input_values": [
+        0,
+        1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_no_coin_types",
+      "input_values": [
+        6,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_missing_one",
+      "input_values": [
+        6,
+        2,
+        2,
+        3
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_duplicate_coin",
+      "input_values": [
+        6,
+        3,
+        1,
+        3,
+        3
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_nonpositive_coin",
+      "input_values": [
+        6,
+        2,
+        1,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_denomination_bound",
+      "input_values": [
+        10,
+        2,
+        1,
+        10
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_amount_bound",
+      "input_values": [
+        19,
+        2,
+        1,
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_shape",
+      "input_values": [
+        6,
+        2,
+        1
+      ],
+      "expected_result": -1
+    }
+  ]
+}

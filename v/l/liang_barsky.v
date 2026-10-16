@@ -1,0 +1,4 @@
+module liang_barsky
+fn rnd(x f64)i64{z:=x*1000.0;if z>=0{return i64(z+0.5)};return -i64(-z+0.5)}
+@[export: 'liang_barsky']
+pub fn liang_barsky(v &i64,n usize)i64{if n!=8{return -1};for i in 0..8{x:=unsafe{v[i]};if x < -5||x>5{return -1}};xmin:=f64(unsafe{v[0]});ymin:=f64(unsafe{v[1]});xmax:=f64(unsafe{v[2]});ymax:=f64(unsafe{v[3]});x0:=f64(unsafe{v[4]});y0:=f64(unsafe{v[5]});x1:=f64(unsafe{v[6]});y1:=f64(unsafe{v[7]});if xmin>=xmax||ymin>=ymax{return -1};dx:=x1-x0;dy:=y1-y0;p:=[4]f64{-dx,dx,-dy,dy};q:=[4]f64{x0-xmin,xmax-x0,y0-ymin,ymax-y0};mut t0:=f64(0);mut t1:=f64(1);for i in 0..4{t:=q[i]/p[i];if p[i]==0&&q[i]<0{return -1}else if p[i]<0{if t>t1{return -1};if t>t0{t0=t}}else if p[i]>0{if t<t0{return -1};if t<t1{t1=t}}};z:=[4]f64{x0+t0*dx,y0+t0*dy,x0+t1*dx,y0+t1*dy};mut r:=i64(0);for x in z{r=r*10001+rnd(x)+5000};return r}

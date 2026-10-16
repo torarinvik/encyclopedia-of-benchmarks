@@ -1,0 +1,96 @@
+{
+  "algorithm": "lamberts_ellipsoidal_distance",
+  "comparison_model": "i64_array_float64_call",
+  "absolute_tolerance": 1e-06,
+  "relative_tolerance": 1e-12,
+  "cases": [
+    {
+      "id": "case_0",
+      "input_values": [
+        37774856,
+        -122424227,
+        37864742,
+        -119537521
+      ],
+      "input_length": 4,
+      "expected_result": 254031.6888689841
+    },
+    {
+      "id": "case_1",
+      "input_values": [
+        40713019,
+        -74012647,
+        45443012,
+        12313071
+      ],
+      "input_length": 4,
+      "expected_result": 6686294.701456402
+    },
+    {
+      "id": "case_2",
+      "input_values": [
+        0,
+        0,
+        0,
+        90000000
+      ],
+      "input_length": 4,
+      "expected_result": 10018754.171394618
+    },
+    {
+      "id": "case_3",
+      "input_values": [
+        80000000,
+        0,
+        80000000,
+        90000000
+      ],
+      "input_length": 4,
+      "expected_result": 1570251.5626921933
+    },
+    {
+      "id": "case_4",
+      "input_values": [
+        0,
+        179000000,
+        0,
+        -179000000
+      ],
+      "input_length": 4,
+      "expected_result": 222638.9815865462
+    },
+    {
+      "id": "case_5",
+      "input_values": [
+        90000000,
+        0,
+        -90000000,
+        180000000
+      ],
+      "input_length": 4,
+      "expected_result": 20003917.356955625
+    },
+    {
+      "id": "case_6",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "case_7",
+      "input_values": [
+        90000001,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "java-p2-median-i64-array-f64-v1",
+  "algorithm": "p2_quantile_estimator",
+  "function_symbol": "p2_quantile_estimator",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[sample_count, signed_i32_samples...]",
+    "sample_count_range": [
+      1,
+      64
+    ],
+    "maximum_input_length": 65
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "P\u00b2 estimate for the median, p=0.5",
+    "invalid_input_result": -1e+300
+  },
+  "source_bound": {
+    "description": "Uses Java\u2019s exact initial-sample interpolation and five-marker P\u00b2 updates, preserving parabolic arithmetic grouping and strict fallback comparisons."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one_sample",
+      "input_values": [
+        1,
+        7
+      ],
+      "expected_result": 7.0
+    },
+    {
+      "id": "four_samples",
+      "input_values": [
+        4,
+        10,
+        40,
+        20,
+        30
+      ],
+      "expected_result": 25.0
+    },
+    {
+      "id": "ascending_stream",
+      "input_values": [
+        8,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "expected_result": 4.0
+    },
+    {
+      "id": "descending_stream",
+      "input_values": [
+        9,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "expected_result": 5.0
+    },
+    {
+      "id": "duplicate_stream",
+      "input_values": [
+        8,
+        3,
+        3,
+        3,
+        8,
+        8,
+        3,
+        8,
+        3
+      ],
+      "expected_result": 4.666666666666666
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

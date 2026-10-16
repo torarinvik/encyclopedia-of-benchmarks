@@ -110,7 +110,7 @@ int main(void)
         have_first_length = 0;
         if (header_result != 3 ||
             length > MAX_INPUT_LENGTH || expected_bytes > MAX_OUTPUT_BYTES ||
-            expected_count < -2 || expected_count > 100000) {
+            expected_count < -10 || expected_count > 100000) {
             fprintf(stderr, "invalid output-array case header\n");
             return 2;
         }

@@ -1,0 +1,181 @@
+const MAX_UNITS: usize = 8
+const MAX_CONVERSIONS: usize = MAX_UNITS * MAX_UNITS
+const MAX_VALUE_MICRO: i64 = 1000000000000
+const MAX_SLOPE_PPM: i64 = 5000000
+const MAX_INTERCEPT_MICRO: i64 = 1000000000000
+const INVALID_RESULT: f64 = -1.0e300
+
+def units_converter_find_root(parent: mutable usize&, node: usize) -> usize:
+    current: mutable usize = node
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def units_converter_put_if_needed(present: mutable i64&, slopes: mutable f64&,
+        intercepts: mutable f64&, source: usize, target: usize,
+        slope: f64, intercept: f64) -> bool:
+    if source == target:
+        return false
+    slot: usize = source * MAX_UNITS + target
+    if present[slot] != 0:
+        return false
+    present[slot] <- 1
+    slopes[slot] <- slope
+    intercepts[slot] <- intercept
+    true
+
+def units_converter_add_all(known_present: i64&, known_slopes: f64&,
+        known_intercepts: f64&, unit_count: usize,
+        result_present: mutable i64&, result_slopes: mutable f64&,
+        result_intercepts: mutable f64&) -> usize:
+    inverse_present: mutable i64[MAX_CONVERSIONS] = zeroed
+    inverse_slopes: mutable f64[MAX_CONVERSIONS] = zeroed
+    inverse_intercepts: mutable f64[MAX_CONVERSIONS] = zeroed
+    inverse_count: mutable usize = 0
+    for source in 0..<unit_count:
+        for target in 0..<unit_count:
+            slot: usize = source * MAX_UNITS + target
+            if known_present[slot] == 0:
+                continue
+            if units_converter_put_if_needed(&inverse_present[0], &inverse_slopes[0],
+                    &inverse_intercepts[0], source, target, known_slopes[slot], known_intercepts[slot]):
+                inverse_count <- inverse_count + 1
+            if units_converter_put_if_needed(&inverse_present[0], &inverse_slopes[0],
+                    &inverse_intercepts[0], target, source, 1.0 / known_slopes[slot],
+                    -known_intercepts[slot] / known_slopes[slot]):
+                inverse_count <- inverse_count + 1
+
+    result_count: mutable usize = 0
+    for first_source in 0..<unit_count:
+        for middle in 0..<unit_count:
+            first_slot: usize = first_source * MAX_UNITS + middle
+            if inverse_present[first_slot] == 0:
+                continue
+            if units_converter_put_if_needed(result_present, result_slopes, result_intercepts,
+                    first_source, middle, inverse_slopes[first_slot], inverse_intercepts[first_slot]):
+                result_count <- result_count + 1
+            for target in 0..<unit_count:
+                second_slot: usize = middle * MAX_UNITS + target
+                if inverse_present[second_slot] == 0:
+                    continue
+                if units_converter_put_if_needed(result_present, result_slopes, result_intercepts,
+                        first_source, target,
+                        inverse_slopes[second_slot] * inverse_slopes[first_slot],
+                        inverse_slopes[second_slot] * inverse_intercepts[first_slot] +
+                            inverse_intercepts[second_slot]):
+                    result_count <- result_count + 1
+    result_count
+
+def units_converter_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 4 or length > 35:
+        return INVALID_RESULT
+    source_value: i64 = 0
+    target_value: i64 = 0
+    value_micro: i64 = 0
+    unit_count: usize = 0
+    known_present: mutable i64[MAX_CONVERSIONS] = zeroed
+    known_slopes: mutable f64[MAX_CONVERSIONS] = zeroed
+    known_intercepts: mutable f64[MAX_CONVERSIONS] = zeroed
+    known_count: mutable usize = 0
+
+    if values[0] == 0:
+        if length != 4:
+            return INVALID_RESULT
+        source_value <- values[1]
+        target_value <- values[2]
+        value_micro <- values[3]
+        unit_count <- 6
+        known_present[1] <- 1
+        known_slopes[1] <- 1.0
+        known_intercepts[1] <- -273.15
+        known_present[1 * MAX_UNITS + 2] <- 1
+        known_slopes[1 * MAX_UNITS + 2] <- 9.0 / 5.0
+        known_intercepts[1 * MAX_UNITS + 2] <- 32.0
+        known_present[3 * MAX_UNITS + 1] <- 1
+        known_slopes[3 * MAX_UNITS + 1] <- 5.0 / 4.0
+        known_intercepts[3 * MAX_UNITS + 1] <- 0.0
+        known_present[4 * MAX_UNITS + 1] <- 1
+        known_slopes[4 * MAX_UNITS + 1] <- -2.0 / 3.0
+        known_intercepts[4 * MAX_UNITS + 1] <- 100.0
+        known_present[5 * MAX_UNITS] <- 1
+        known_slopes[5 * MAX_UNITS] <- 5.0 / 9.0
+        known_intercepts[5 * MAX_UNITS] <- 0.0
+        known_count <- 5
+    else if values[0] == 1:
+        if length < 6:
+            return INVALID_RESULT
+        unit_count_value: i64 = values[1]
+        edge_count: i64 = values[2]
+        source_value <- values[3]
+        target_value <- values[4]
+        value_micro <- values[5]
+        if unit_count_value < 2 or unit_count_value > 8 or edge_count < 0 or
+                edge_count > unit_count_value - 1 or length != (6 + 4 * edge_count).usize():
+            return INVALID_RESULT
+        unit_count <- unit_count_value.usize()
+        parent: mutable usize[MAX_UNITS] = zeroed
+        for unit in 0..<unit_count:
+            parent[unit] <- unit
+        for edge in 0..<edge_count.usize():
+            offset: usize = 6 + 4 * edge
+            from_value: i64 = values[offset]
+            to_value: i64 = values[offset + 1]
+            slope_ppm: i64 = values[offset + 2]
+            intercept_micro: i64 = values[offset + 3]
+            if from_value < 0 or from_value >= unit_count_value or to_value < 0 or
+                    to_value >= unit_count_value or from_value == to_value or slope_ppm == 0 or
+                    slope_ppm < -MAX_SLOPE_PPM or slope_ppm > MAX_SLOPE_PPM or
+                    intercept_micro < -MAX_INTERCEPT_MICRO or intercept_micro > MAX_INTERCEPT_MICRO:
+                return INVALID_RESULT
+            from_unit: usize = from_value.usize()
+            to_unit: usize = to_value.usize()
+            root_from: usize = units_converter_find_root(&parent[0], from_unit)
+            root_to: usize = units_converter_find_root(&parent[0], to_unit)
+            if root_from == root_to:
+                return INVALID_RESULT
+            parent[root_from] <- root_to
+            slot: usize = from_unit * MAX_UNITS + to_unit
+            known_present[slot] <- 1
+            known_slopes[slot] <- slope_ppm.f64() / 1000000.0
+            known_intercepts[slot] <- intercept_micro.f64() / 1000000.0
+            known_count <- known_count + 1
+    else:
+        return INVALID_RESULT
+
+    if source_value < 0 or source_value >= unit_count.i64() or target_value < 0 or
+            target_value >= unit_count.i64() or source_value == target_value or
+            value_micro < -MAX_VALUE_MICRO or value_micro > MAX_VALUE_MICRO:
+        return INVALID_RESULT
+
+    next_present: mutable i64[MAX_CONVERSIONS] = zeroed
+    next_slopes: mutable f64[MAX_CONVERSIONS] = zeroed
+    next_intercepts: mutable f64[MAX_CONVERSIONS] = zeroed
+    iteration: mutable usize = 0
+    stable: mutable bool = false
+    while iteration <= MAX_UNITS:
+        for slot in 0..<MAX_CONVERSIONS:
+            next_present[slot] <- 0
+            next_slopes[slot] <- 0.0
+            next_intercepts[slot] <- 0.0
+        next_count: usize = units_converter_add_all(&known_present[0], &known_slopes[0],
+                &known_intercepts[0], unit_count, &next_present[0], &next_slopes[0], &next_intercepts[0])
+        for slot in 0..<MAX_CONVERSIONS:
+            known_present[slot] <- next_present[slot]
+            known_slopes[slot] <- next_slopes[slot]
+            known_intercepts[slot] <- next_intercepts[slot]
+        if next_count == known_count:
+            stable <- true
+            break
+        known_count <- next_count
+        iteration <- iteration + 1
+    if not stable:
+        return INVALID_RESULT
+
+    result_slot: usize = source_value.usize() * MAX_UNITS + target_value.usize()
+    if known_present[result_slot] == 0:
+        return INVALID_RESULT
+    value: f64 = value_micro.f64() / 1000000.0
+    known_slopes[result_slot] * value + known_intercepts[result_slot]
+
+export fn units_converter(values: i64&, length: usize) -> f64 = units_converter_impl

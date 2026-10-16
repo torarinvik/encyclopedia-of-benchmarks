@@ -1,0 +1,470 @@
+{
+  "schema_version": "1.0.0",
+  "id": "java-units-converter-affine-closure-i64-array-float64-v1",
+  "algorithm": "units_converter",
+  "function_symbol": "units_converter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": {
+      "profile_0_temperature": "[0, from_unit, to_unit, value_micro]",
+      "profile_1_custom": "[1, unit_count, edge_count, from_unit, to_unit, value_micro, (edge_from, edge_to, slope_ppm, intercept_micro)...]"
+    },
+    "temperature_unit_ids": [
+      "Kelvin",
+      "Celsius",
+      "Fahrenheit",
+      "R\u00e9aumur",
+      "Delisle",
+      "Rankine"
+    ],
+    "temperature_edges": [
+      "Kelvin -> Celsius: slope 1.0, intercept -273.15",
+      "Celsius -> Fahrenheit: slope 9/5, intercept 32",
+      "R\u00e9aumur -> Celsius: slope 5/4, intercept 0",
+      "Delisle -> Celsius: slope -2/3, intercept 100",
+      "Rankine -> Kelvin: slope 5/9, intercept 0"
+    ],
+    "custom_unit_count_range": [
+      2,
+      8
+    ],
+    "custom_edge_count": "0 through unit_count - 1; edges form an undirected forest",
+    "custom_slope_ppm_range": [
+      -5000000,
+      5000000
+    ],
+    "custom_slope_excludes": 0,
+    "custom_intercept_micro_range": [
+      -1000000000000,
+      1000000000000
+    ],
+    "value_micro_range": [
+      -1000000000000,
+      1000000000000
+    ],
+    "scale": 1000000,
+    "maximum_valid_packed_values": 34,
+    "maximum_packed_values": 35,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Apply the source's composed affine conversion to value_micro / 1,000,000.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "temperature_celsius_boiling_to_fahrenheit",
+      "input_values": [
+        0,
+        1,
+        2,
+        100000000
+      ],
+      "input_length": 4,
+      "expected_result": 212.0
+    },
+    {
+      "id": "temperature_kelvin_freezing_to_fahrenheit",
+      "input_values": [
+        0,
+        0,
+        2,
+        273150000
+      ],
+      "input_length": 4,
+      "expected_result": 32.0
+    },
+    {
+      "id": "temperature_reaumur_to_fahrenheit",
+      "input_values": [
+        0,
+        3,
+        2,
+        80000000
+      ],
+      "input_length": 4,
+      "expected_result": 212.0
+    },
+    {
+      "id": "temperature_delisle_zero_to_fahrenheit",
+      "input_values": [
+        0,
+        4,
+        2,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 211.9999999999999
+    },
+    {
+      "id": "temperature_rankine_freezing_to_celsius",
+      "input_values": [
+        0,
+        5,
+        1,
+        491670000
+      ],
+      "input_length": 4,
+      "expected_result": 5.684341886080802e-14
+    },
+    {
+      "id": "temperature_fahrenheit_freezing_to_delisle",
+      "input_values": [
+        0,
+        2,
+        4,
+        32000000
+      ],
+      "input_length": 4,
+      "expected_result": 149.99999999999997
+    },
+    {
+      "id": "custom_two_edge_composition",
+      "input_values": [
+        1,
+        3,
+        2,
+        0,
+        2,
+        4000000,
+        0,
+        1,
+        2000000,
+        3000000,
+        1,
+        2,
+        500000,
+        -1000000
+      ],
+      "input_length": 14,
+      "expected_result": 4.5
+    },
+    {
+      "id": "custom_composition_reverse",
+      "input_values": [
+        1,
+        3,
+        2,
+        2,
+        0,
+        4500000,
+        0,
+        1,
+        2000000,
+        3000000,
+        1,
+        2,
+        500000,
+        -1000000
+      ],
+      "input_length": 14,
+      "expected_result": 4.0
+    },
+    {
+      "id": "custom_branch_route",
+      "input_values": [
+        1,
+        4,
+        3,
+        1,
+        3,
+        4000000,
+        0,
+        1,
+        1000000,
+        1000000,
+        0,
+        2,
+        -2000000,
+        5000000,
+        2,
+        3,
+        250000,
+        -2000000
+      ],
+      "input_length": 18,
+      "expected_result": -2.25
+    },
+    {
+      "id": "custom_maximum_eight_unit_chain",
+      "input_values": [
+        1,
+        8,
+        7,
+        0,
+        7,
+        0,
+        0,
+        1,
+        1000000,
+        1000000,
+        1,
+        2,
+        1000000,
+        1000000,
+        2,
+        3,
+        1000000,
+        1000000,
+        3,
+        4,
+        1000000,
+        1000000,
+        4,
+        5,
+        1000000,
+        1000000,
+        5,
+        6,
+        1000000,
+        1000000,
+        6,
+        7,
+        1000000,
+        1000000
+      ],
+      "input_length": 34,
+      "expected_result": 7.0
+    },
+    {
+      "id": "custom_disconnected_pair",
+      "input_values": [
+        1,
+        4,
+        2,
+        0,
+        3,
+        0,
+        0,
+        1,
+        1000000,
+        0,
+        2,
+        3,
+        1000000,
+        0
+      ],
+      "input_length": 14,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "custom_empty_map_missing_pair",
+      "input_values": [
+        1,
+        2,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_same_temperature_unit",
+      "input_values": [
+        0,
+        1,
+        1,
+        100000000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_same_custom_unit",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1000000,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_unknown_temperature_unit",
+      "input_values": [
+        0,
+        6,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_unknown_profile",
+      "input_values": [
+        2,
+        1,
+        2,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_custom_cycle",
+      "input_values": [
+        1,
+        3,
+        3,
+        0,
+        2,
+        0,
+        0,
+        1,
+        1000000,
+        0,
+        1,
+        2,
+        1000000,
+        0,
+        2,
+        0,
+        1000000,
+        0
+      ],
+      "input_length": 18,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_custom_zero_slope",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_custom_missing_edge_value",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1000000
+      ],
+      "input_length": 9,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_custom_edge_count",
+      "input_values": [
+        1,
+        2,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1000000,
+        0,
+        0,
+        1,
+        1000000,
+        0
+      ],
+      "input_length": 14,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_fixed_profile_extra_value",
+      "input_values": [
+        0,
+        1,
+        2,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_custom_maximum_one_extra",
+      "input_values": [
+        1,
+        8,
+        7,
+        0,
+        7,
+        0,
+        0,
+        1,
+        1000000,
+        1000000,
+        1,
+        2,
+        1000000,
+        1000000,
+        2,
+        3,
+        1000000,
+        1000000,
+        3,
+        4,
+        1000000,
+        1000000,
+        4,
+        5,
+        1000000,
+        1000000,
+        5,
+        6,
+        1000000,
+        1000000,
+        6,
+        7,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 35,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_temperature_value_above_bound",
+      "input_values": [
+        0,
+        1,
+        2,
+        1000000000001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}
+

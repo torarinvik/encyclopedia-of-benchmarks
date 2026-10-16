@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-dpll-bounded-cnf-i64-array-scalar-v1",
+  "algorithm": "davis_putnam_logemann_loveland",
+  "description": "DPLL satisfiability decision with unit and pure-literal propagation.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[variable_count, clause_count, clause_length, signed literals, ...]",
+    "variable_count_range": [
+      0,
+      5
+    ],
+    "clause_count_range": [
+      0,
+      10
+    ],
+    "clause_length_range": [
+      0,
+      5
+    ],
+    "literal_range": "nonzero signed variable ids in [-variable_count, variable_count]",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1 if the CNF formula is satisfiable, 0 otherwise",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "other/davis_putnam_logemann_loveland.py",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/davis_putnam_logemann_loveland.py",
+    "functions": [
+      "Clause.evaluate",
+      "find_pure_symbols",
+      "find_unit_clauses",
+      "dpll_algorithm"
+    ],
+    "source_issue": "The recursive branch uses Python or on nonempty tuples and aliases its true and false branch models; the benchmark implements the intended DPLL decision semantics."
+  },
+  "cases": [
+    {
+      "id": "empty_formula",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_formula_with_unused_symbols",
+      "input_values": [
+        5,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_clause_is_unsatisfiable",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "positive_unit_clause",
+      "input_values": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "contradictory_units",
+      "input_values": [
+        1,
+        2,
+        1,
+        1,
+        1,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "pure_literal_elimination",
+      "input_values": [
+        3,
+        2,
+        2,
+        1,
+        2,
+        2,
+        -1,
+        3
+      ],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "branching_satisfiable",
+      "input_values": [
+        2,
+        2,
+        2,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "branching_unsatisfiable",
+      "input_values": [
+        2,
+        4,
+        2,
+        1,
+        2,
+        2,
+        -1,
+        2,
+        1,
+        -2,
+        2,
+        -1,
+        -2
+      ],
+      "input_length": 13,
+      "expected_result": 0
+    },
+    {
+      "id": "tautological_clause",
+      "input_values": [
+        1,
+        1,
+        2,
+        1,
+        -1
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "repeated_literal_collapses",
+      "input_values": [
+        1,
+        1,
+        3,
+        1,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_literal_invalid",
+      "input_values": [
+        2,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_clause_invalid",
+      "input_values": [
+        2,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_source_sized_formula",
+      "input_values": [
+        5,
+        10,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5,
+        5,
+        1,
+        -2,
+        3,
+        -4,
+        5
+      ],
+      "input_length": 62,
+      "expected_result": 1
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+static void puti(uint8_t*o,int64_t x){uint64_t b;memcpy(&b,&x,8);for(int k=0;k<8;k++)o[k]=(uint8_t)(b>>(8*k));}
+int64_t naive_bayes(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<6)return -1;int nr=(int)v[0],f=(int)v[1];if(nr<2||nr>8||f<1||f>3||n!=2+(size_t)nr*(f+1)+(size_t)f)return -1;int labels[8],order[3],counts[3]={0},ci=0;double x[8][3]={{0}};size_t p=2;for(int r=0;r<nr;r++){int64_t lab=v[p++];if(lab<0||lab>2)return -1;int c=0;while(c<ci&&order[c]!=lab)c++;if(c==ci)order[ci++]=(int)lab;labels[r]=c;counts[c]++;for(int j=0;j<f;j++){int64_t a=v[p++];if(a < -10000||a>10000)return -1;x[r][j]=(double)a/1000.0;}}if(ci<2)return -1;double best=-INFINITY;int64_t answer=order[0];for(int c=0;c<ci;c++){double score=log((double)counts[c]/nr);for(int j=0;j<f;j++){double mean=0;for(int r=0;r<nr;r++)if(labels[r]==c)mean+=x[r][j];mean/=counts[c];double var=0;for(int r=0;r<nr;r++)if(labels[r]==c){double d=x[r][j]-mean;var+=d*d;}var=fmax(var/counts[c],1e-9);double q=(double)v[p+j]/1000.0;if(v[p+j] < -10000||v[p+j]>10000)return -1;score+=-0.5*log(6.2831853071795864769*var)-(q-mean)*(q-mean)/(2*var);}if(score>best){best=score;answer=order[c];}}if(!out||cap<8)return -2;puti(out,answer);return 8;}

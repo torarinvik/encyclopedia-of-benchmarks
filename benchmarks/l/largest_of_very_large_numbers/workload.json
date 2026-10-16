@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "id": "largest-of-very-large-numbers-log10-comparison-v1",
+  "id": "largest-of-very-large-numbers-exact-log-v2",
   "algorithm": "largest_of_very_large_numbers",
   "function_symbol": "largest_of_very_large_numbers",
   "input": {
@@ -18,7 +18,7 @@
     "maximum_valid_array_length": 4,
     "maximum_parseable_array_length": 5,
     "invalid_input_result": -2,
-    "comparison_domain": "exponents equal, or bases equal and both exponents are on the same zero/nonzero branch; equal zero bases permit any exponents"
+    "base_rule": "Each base is 0 or exactly 10^k for an integer k in 0..12; the two pairs may be combined arbitrarily."
   },
   "output": {
     "kind": "signed_i64_scalar",
@@ -30,8 +30,9 @@
     "invalid_input_result": -2
   },
   "source_bound": {
-    "description": "For nonzero base and exponent, score is exponent * log10(base); source helper returns 0 for base 0 and 1 when only exponent is zero.",
-    "benchmark_domain": "Two nonnegative bounded base/exponent pairs satisfying exponent_a == exponent_b or (base_a == base_b and (base_a == 0 or both exponents are simultaneously zero/nonzero)); comparisons use direct floating-point score ordering."
+    "description": "The pinned source returns score 0 for base 0 before checking the exponent, score 1 for a positive base with exponent 0, and otherwise exponent * log10(base).",
+    "benchmark_domain": "Each base is independently 0 or exactly 10^k for k in 0..12; each exponent is independently in 0..1000000000000. For the selected domain, log10(10^k) is normalized to exact integer k, so positive-base positive-exponent scores are exact integers and arbitrary pairings and ties are accepted.",
+    "comparison_rule": "Compare exact integer scores; do not use platform log10/libm results. This models the mathematical identity log10(10^k) = k, not bit-for-bit behavior of arbitrary libm implementations."
   },
   "measurement": {
     "comparison_model": "i64_array_scalar_call",
@@ -43,9 +44,9 @@
     {
       "id": "same-exponent-first-wins",
       "input_values": [
+        100,
         7,
-        7,
-        5,
+        10,
         7
       ],
       "input_length": 4,
@@ -54,9 +55,9 @@
     {
       "id": "same-exponent-second-wins",
       "input_values": [
-        5,
+        10,
         7,
-        7,
+        100,
         7
       ],
       "input_length": 4,
@@ -65,31 +66,64 @@
     {
       "id": "same-exponent-tie",
       "input_values": [
-        7,
+        100,
         5,
-        7,
+        100,
         5
       ],
       "input_length": 4,
       "expected_result": 0
     },
     {
-      "id": "adjacent-upper-bases-exponent-one",
+      "id": "different-exponent-cross-base-first-wins",
       "input_values": [
-        999999999999,
-        1,
+        1000,
+        2,
+        10,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "arbitrary-cross-power-tie",
+      "input_values": [
+        100,
+        3,
+        1000,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "different-scale-tie",
+      "input_values": [
+        10,
+        12,
+        100,
+        6
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "upper-decimal-power-exponent-one",
+      "input_values": [
         1000000000000,
+        1,
+        100000000000,
         1
       ],
       "input_length": 4,
-      "expected_result": -1
+      "expected_result": 1
     },
     {
-      "id": "adjacent-upper-bases-max-exponent",
+      "id": "upper-decimal-power-max-exponent",
       "input_values": [
         1000000000000,
         1000000000000,
-        999999999999,
+        100000000000,
         1000000000000
       ],
       "input_length": 4,
@@ -109,9 +143,9 @@
     {
       "id": "same-base-positive-exponents-first-wins",
       "input_values": [
-        10,
+        100,
         6,
-        10,
+        100,
         2
       ],
       "input_length": 4,
@@ -120,9 +154,9 @@
     {
       "id": "same-base-positive-exponents-second-wins",
       "input_values": [
+        100,
         2,
-        2,
-        2,
+        100,
         5
       ],
       "input_length": 4,
@@ -140,7 +174,7 @@
       "expected_result": 1
     },
     {
-      "id": "same-base-both-zero-exponents",
+      "id": "both-positive-bases-zero-exponent",
       "input_values": [
         1000000000000,
         0,
@@ -151,7 +185,7 @@
       "expected_result": 0
     },
     {
-      "id": "same-zero-base-any-exponents",
+      "id": "zero-base-any-exponents",
       "input_values": [
         0,
         0,
@@ -162,7 +196,7 @@
       "expected_result": 0
     },
     {
-      "id": "zero-exponent-zero-base-versus-positive-base",
+      "id": "zero-base-first-branch-before-zero-exponent",
       "input_values": [
         0,
         0,
@@ -173,7 +207,18 @@
       "expected_result": -1
     },
     {
-      "id": "base-one-and-zero-equal-positive-exponent",
+      "id": "zero-base-vs-positive-exponent-zero-score",
+      "input_values": [
+        0,
+        9,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "base-one-positive-exponent-vs-zero-base",
       "input_values": [
         1,
         2,
@@ -184,23 +229,34 @@
       "expected_result": 0
     },
     {
-      "id": "invalid-unrelated-cross-powers",
+      "id": "base-one-positive-exponent-vs-zero-exponent",
+      "input_values": [
+        1,
+        2,
+        10,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-non-power-base-two",
       "input_values": [
         2,
         10,
-        4,
+        100,
         5
       ],
       "input_length": 4,
       "expected_result": -2
     },
     {
-      "id": "invalid-same-base-zero-branch-mismatch",
+      "id": "invalid-non-power-base-eleven",
       "input_values": [
-        10,
-        0,
-        10,
-        1
+        100,
+        5,
+        11,
+        10
       ],
       "input_length": 4,
       "expected_result": -2
@@ -208,9 +264,9 @@
     {
       "id": "invalid-short-input",
       "input_values": [
-        2,
+        10,
         3,
-        4
+        100
       ],
       "input_length": 3,
       "expected_result": -2
@@ -218,11 +274,11 @@
     {
       "id": "invalid-long-input",
       "input_values": [
-        2,
+        10,
         3,
-        4,
+        100,
         5,
-        6
+        1
       ],
       "input_length": 5,
       "expected_result": -2
@@ -232,7 +288,7 @@
       "input_values": [
         -1,
         1,
-        -1,
+        10,
         1
       ],
       "input_length": 4,
@@ -243,7 +299,7 @@
       "input_values": [
         1000000000001,
         1,
-        1000000000001,
+        10,
         1
       ],
       "input_length": 4,
@@ -252,10 +308,10 @@
     {
       "id": "invalid-exponent-over-maximum",
       "input_values": [
-        2,
+        10,
         1000000000001,
-        2,
-        1000000000001
+        100,
+        1
       ],
       "input_length": 4,
       "expected_result": -2
@@ -263,10 +319,10 @@
     {
       "id": "invalid-negative-exponent",
       "input_values": [
-        2,
+        10,
         -1,
-        2,
-        -1
+        100,
+        1
       ],
       "input_length": 4,
       "expected_result": -2

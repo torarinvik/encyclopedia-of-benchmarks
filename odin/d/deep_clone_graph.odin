@@ -4,7 +4,7 @@ import "core:c"
 
 mix :: proc "contextless" (h0, x0: u64) -> u64 {
  h, x := h0, x0
- for _ in 0..<8 { h = (h ^ (x & 255u64)) * 1099511628211; x = x >> 8 }
+ for byte: int = 0; byte < 8; byte += 1 { h = ((h ~ (x & 255))) * 1099511628211; x = x >> 8 }
  return h
 }
 

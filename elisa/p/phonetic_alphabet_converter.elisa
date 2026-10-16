@@ -1,0 +1,69 @@
+const INVALID: i64 = -1
+const INSUFFICIENT: i64 = -2
+fn phonetic_word(code: u8) -> &str:
+    if code == 65: return "Alpha"
+    if code == 66: return "Bravo"
+    if code == 67: return "Charlie"
+    if code == 68: return "Delta"
+    if code == 69: return "Echo"
+    if code == 70: return "Foxtrot"
+    if code == 71: return "Golf"
+    if code == 72: return "Hotel"
+    if code == 73: return "India"
+    if code == 74: return "Juliett"
+    if code == 75: return "Kilo"
+    if code == 76: return "Lima"
+    if code == 77: return "Mike"
+    if code == 78: return "November"
+    if code == 79: return "Oscar"
+    if code == 80: return "Papa"
+    if code == 81: return "Quebec"
+    if code == 82: return "Romeo"
+    if code == 83: return "Sierra"
+    if code == 84: return "Tango"
+    if code == 85: return "Uniform"
+    if code == 86: return "Victor"
+    if code == 87: return "Whiskey"
+    if code == 88: return "X-ray"
+    if code == 89: return "Yankee"
+    if code == 90: return "Zulu"
+    if code == 48: return "Zero"
+    if code == 49: return "One"
+    if code == 50: return "Two"
+    if code == 51: return "Three"
+    if code == 52: return "Four"
+    if code == 53: return "Five"
+    if code == 54: return "Six"
+    if code == 55: return "Seven"
+    if code == 56: return "Eight"
+    if code == 57: return "Nine"
+    ""
+fn phonetic_alphabet_converter_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65 or input[0] < 0 or input[0] > 64 or length != input[0].usize() + 1: return INVALID
+    if output.is_null() or capacity < 576: return INSUFFICIENT
+    at: mutable usize = 0
+    emitted: mutable bool = false
+    i: mutable usize = 0
+    while i < input[0].usize():
+        raw: i64 = input[i + 1]
+        if not ((raw == 9 or raw == 10 or raw == 11 or raw == 12 or raw == 13 or raw == 32) or (raw >= 33 and raw <= 126): return INVALID
+        if raw == 9 or raw == 10 or raw == 11 or raw == 12 or raw == 13 or raw == 32:
+            i <- i + 1
+            continue
+        code: u8 = raw.u8()
+        if code >= 97 and code <= 122: code <- code - 32
+        if emitted: output[at] <- 32.u8(); at <- at + 1
+        emitted <- true
+        word: &str = phonetic_word(code)
+        if word.length() > 0:
+            j: mutable usize = 0
+            while j < word.length():
+                output[at] <- word[j].u8()
+                at <- at + 1
+                j <- j + 1
+        else:
+            output[at] <- code
+            at <- at + 1
+        i <- i + 1
+    at.i64()
+export fn phonetic_alphabet_converter(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = phonetic_alphabet_converter_impl

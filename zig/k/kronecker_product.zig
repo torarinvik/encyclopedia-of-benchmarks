@@ -1,0 +1,1 @@
+export fn kronecker_product(v: [*]const i64, n: usize) callconv(.c) i64 { if(n!=6)return -1;for(0..6)|i|{if(v[i] < -10 or v[i]>10)return -1;}const x=[_]i64{v[0]*v[4],v[0]*v[5],v[1]*v[4],v[1]*v[5],v[2]*v[4],v[2]*v[5],v[3]*v[4],v[3]*v[5]};var r:i64=0;for(x)|z|{r=r*201+z+100;}return r;}

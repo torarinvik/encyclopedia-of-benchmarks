@@ -1,0 +1,77 @@
+const INVALID: f64 = -1e300
+export fn p2_quantile_estimator(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > 65 or input[0] < 1 or input[0] > 64 or length != input[0].usize() + 1: return INVALID
+    q: mutable f64[5]
+    pos: mutable f64[5]
+    desired: mutable f64[5]
+    increments: f64[5] = [0.0, 0.25, 0.5, 0.75, 1.0]
+    seen: mutable usize = 0
+    z: mutable usize = 0
+    while z < input[0].usize():
+        if input[z + 1] < -2147483648 or input[z + 1] > 2147483647: return INVALID
+        value: f64 = input[z + 1].f64()
+        if seen < 5:
+            q[seen] <- value
+            seen <- seen + 1
+            if seen == 5:
+                i: mutable usize = 1
+                while i < 5:
+                    x: f64 = q[i]
+                    j: mutable usize = i
+                    while j > 0 and q[j - 1] > x:
+                        q[j] <- q[j - 1]
+                        j <- j - 1
+                    q[j] <- x
+                    i <- i + 1
+                i <- 0
+                while i < 5:
+                    pos[i] <- (i + 1).f64()
+                    desired[i] <- (i + 1).f64()
+                    i <- i + 1
+            z <- z + 1
+            continue
+        k: mutable usize = 3
+        if value < q[0]:
+            q[0] <- value
+            k <- 0
+        else:
+            i: mutable usize = 1
+            while i < 4:
+                if value < q[i]:
+                    k <- i - 1
+                    break
+                i <- i + 1
+            if value > q[4]: q[4] <- value
+        i <- k + 1
+        while i < 5: pos[i] <- pos[i] + 1.0; i <- i + 1
+        i <- 0
+        while i < 5: desired[i] <- desired[i] + increments[i]; i <- i + 1
+        i <- 1
+        while i < 4:
+            drift: f64 = desired[i] - pos[i]
+            right: bool = drift >= 1.0 and pos[i + 1] - pos[i] > 1.0
+            left: bool = drift <= -1.0 and pos[i - 1] - pos[i] < -1.0
+            if right or left:
+                direction: f64 = if right: 1.0 else: -1.0
+                span_left: f64 = pos[i] - pos[i - 1]
+                span_right: f64 = pos[i + 1] - pos[i]
+                candidate: f64 = q[i] + direction / (span_left + span_right) * ((span_left + direction) * (q[i + 1] - q[i]) / span_right + (span_right - direction) * (q[i] - q[i - 1]) / span_left)
+                if q[i - 1] < candidate and candidate < q[i + 1]: q[i] <- candidate
+                else:
+                    neighbor: usize = (i.f64() + direction).usize()
+                    q[i] <- q[i] + direction * (q[neighbor] - q[i]) / (pos[neighbor] - pos[i])
+                pos[i] <- pos[i] + direction
+            i <- i + 1
+        z <- z + 1
+    if seen < 5:
+        i: mutable usize = 1
+        while i < seen:
+            x: f64 = q[i]
+            j: mutable usize = i
+            while j > 0 and q[j - 1] > x: q[j] <- q[j - 1]; j <- j - 1
+            q[j] <- x; i <- i + 1
+        rank: f64 = 0.5 * (seen - 1).f64()
+        lower: usize = rank.usize()
+        upper: usize = if lower + 1 < seen: lower + 1 else: lower
+        return q[lower] + (rank - lower.f64()) * (q[upper] - q[lower])
+    q[2]

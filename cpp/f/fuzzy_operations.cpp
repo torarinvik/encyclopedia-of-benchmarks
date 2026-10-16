@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+static void putd(std::uint8_t*o,double x){std::uint64_t b;std::memcpy(&b,&x,8);for(int k=0;k<8;k++)o[k]=std::uint8_t(b>>(8*k));}
+extern "C" std::int64_t fuzzy_operations(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n!=8)return -1;int op=int(v[0]);if(op<0||op>3)return -1;for(int i=1;i<8;i++)if(v[i]<0||v[i]>1000)return -1;if(op==0){for(int i=4;i<8;i++)if(v[i])return -1;}else if(op==1||op==2){if(v[7])return -1;}else if(v[4]||v[5]||v[6]||!(v[1]<v[2]&&v[2]<v[3]))return -1;if(!out||cap<(op==3?8:24))return -2;double a=v[1]/1000.,b=v[2]/1000.,c=v[3]/1000.;if(op==0){putd(out,1-c);putd(out+8,1-a);putd(out+16,1-b);return 24;}if(op==1){putd(out,a>v[4]/1000.?a:v[4]/1000.);putd(out+8,c<v[6]/1000.?c:v[6]/1000.);putd(out+16,(b+v[5]/1000.)/2);return 24;}if(op==2){double d=v[4]/1000.,e=v[5]/1000.,f=v[6]/1000.;putd(out,a<d?a:d);putd(out+8,(b+e)/2);putd(out+16,c>f?c:f);return 24;}double x=v[7]/1000.;putd(out,x<=a||x>=c?0:x<=b?(x-a)/(b-a):(c-x)/(c-b));return 8;}

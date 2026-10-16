@@ -1,0 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+#define MAX_INPUT 256
+#define MAX_OUTPUT 2048
+static void store_le(uint8_t*out,size_t off,int64_t x){uint64_t u=(uint64_t)x;for(size_t b=0;b<8;b++)out[off+b]=(uint8_t)(u>>(8*b));}
+int64_t double_ended_selection_sort(const int64_t*v,size_t n,uint8_t*out,size_t cap){if((!v&&n>0)||n>257)return -1;if(n>MAX_INPUT)return -1;int64_t work[MAX_INPUT],start[MAX_INPUT],end[MAX_INPUT],result[MAX_INPUT];for(size_t i=0;i<n;i++)work[i]=v[i];size_t count=n,used=0,ends=0;while(count>1){size_t min_i=0,max_i=0;for(size_t i=1;i<count;i++){if(work[i]<work[min_i])min_i=i;if(work[i]>work[max_i])max_i=i;}int64_t min_v=work[min_i],max_v=work[max_i];start[used++]=min_v;end[ends++]=max_v;for(size_t i=min_i;i+1<count;i++)work[i]=work[i+1];count--;size_t max_pos=0;while(max_pos<count&&work[max_pos]!=max_v)max_pos++;if(max_pos==count)return -1;for(size_t i=max_pos;i+1<count;i++)work[i]=work[i+1];count--;}size_t out_n=0;for(size_t i=0;i<used;i++)result[out_n++]=start[i];for(size_t i=0;i<count;i++)result[out_n++]=work[i];for(size_t i=ends;i>0;i--)result[out_n++]=end[i-1];size_t bytes=8*out_n;if(!out||cap<bytes)return -2;for(size_t i=0;i<out_n;i++)store_le(out,8*i,result[i]);return (int64_t)bytes;}

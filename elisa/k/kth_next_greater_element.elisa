@@ -1,0 +1,22 @@
+def kth_next_greater_element_impl(v: i64&, length: usize) -> i64:
+    if length < 2 or length > 8: return -1
+    k: i64 = v[0]
+    if k < 1 or k > 7: return -1
+    for q in 1..<length:
+        if v[q] < -15 or v[q] > 15: return -1
+    count: mutable i64 = 0
+    m: usize = length - 1
+    for i in 0..<m:
+        cur: mutable i64 = v[i + 1]
+        pos: mutable usize = i + 1
+        ok: mutable i64 = 1
+        for z in 0..<k:
+            while pos < m and v[pos + 1] <= cur: pos <- pos + 1
+            if pos == m:
+                ok <- 0
+                break
+            cur <- v[pos + 1]
+            pos <- pos + 1
+        if ok == 1: count <- count + 1
+    count
+export fn kth_next_greater_element(v: i64&, length: usize) -> i64 = kth_next_greater_element_impl

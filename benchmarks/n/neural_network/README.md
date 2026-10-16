@@ -1,0 +1,3 @@
+# Neural network inference
+
+This benchmark follows the pinned C++ MLP's deterministic `single_predict` path for a network with one hidden layer and sigmoid activation at both layers. It supplies the model weights directly, avoiding random initialization, file I/O, and training. The source has no bias terms. Input is `[input_count, hidden_count, output_count, input_milli*, input_to_hidden_weights_milli_row_major*, hidden_to_output_weights_milli_row_major*]`; each dimension is 1–3 and scaled values are bounded to `[-1000,1000]`. Output is one little-endian binary64 sigmoid activation per output neuron. Invalid inputs return -1. Runtime oracle: `neural_network_oracle.py`.

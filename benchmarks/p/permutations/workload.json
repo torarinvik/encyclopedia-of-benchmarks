@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "python-rust-distinct-permutations-i64-array-scalar-v1",
+  "algorithm": "permutations",
+  "function_symbol": "permutations",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[count, strictly increasing signed-i32 values...]",
+    "count_range": [
+      1,
+      6
+    ],
+    "maximum_input_length": 7
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "32-bit FNV-1a hash of lexicographically ordered permutations; each value is serialized as little-endian signed-i32 bytes and each row ends with 0xFF",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The Python main routine calls permute_backtrack, which generates value-swap DFS permutations in input order. The pinned Rust implementation sorts values and backtracks distinct permutations. Restricting input to strictly increasing distinct values makes both sources emit the same lexicographic order; empty and duplicate inputs are outside the shared contract."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "single",
+      "input_values": [
+        1,
+        42
+      ],
+      "input_length": 2,
+      "expected_result": 3934349664
+    },
+    {
+      "id": "three_sorted",
+      "input_values": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 1641370335
+    },
+    {
+      "id": "four_sorted",
+      "input_values": [
+        4,
+        -2,
+        -1,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 2799577421
+    },
+    {
+      "id": "six_sorted",
+      "input_values": [
+        6,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 3928724213
+    },
+    {
+      "id": "empty_count",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "unsorted",
+      "input_values": [
+        3,
+        1,
+        3,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "duplicate",
+      "input_values": [
+        3,
+        1,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "out_of_i32",
+      "input_values": [
+        1,
+        2147483648
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

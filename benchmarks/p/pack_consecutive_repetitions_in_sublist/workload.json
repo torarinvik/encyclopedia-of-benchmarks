@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "clojure-consecutive-run-pack-i64-array-i64-v1",
+  "algorithm": "pack_consecutive_repetitions_in_sublist",
+  "function_symbol": "pack_consecutive_repetitions_in_sublist",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[count, signed-i32 values...]",
+    "count_range": [
+      0,
+      64
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "maximum_input_length": 65
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "32-bit FNV-1a hash of each consecutive run serialized as little-endian signed-i32 value and unsigned-i32 run length",
+    "invalid_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Clojure pack-1, pack-2, and pack-3 implementations all group maximal adjacent runs of equal values."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 2166136261
+    },
+    {
+      "id": "one_run",
+      "input_values": [
+        5,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_result": 383824404
+    },
+    {
+      "id": "alternating",
+      "input_values": [
+        6,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ],
+      "expected_result": 2991949542
+    },
+    {
+      "id": "separated_runs",
+      "input_values": [
+        7,
+        3,
+        3,
+        -1,
+        -1,
+        -1,
+        3,
+        3
+      ],
+      "expected_result": 1048575634
+    },
+    {
+      "id": "signed_values",
+      "input_values": [
+        4,
+        -2147483648,
+        -2147483648,
+        2147483647,
+        2147483647
+      ],
+      "expected_result": 1922357921
+    }
+  ]
+}

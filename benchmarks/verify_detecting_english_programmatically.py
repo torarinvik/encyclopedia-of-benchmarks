@@ -32,8 +32,10 @@ def corpus(workload):
     return "".join(lines), len(cases)
 
 def verify(language, directory, compiler, data, count, workload):
+    shims = ((ROOT / "benchmarks/harness/elisa_empty_stack_arena_free.c",)
+             if language == "elisa" else ())
     manifest = build(ALGORITHM, language, directory, compiler=compiler if language == "elisa" else None,
-                     with_checker=True, family="i64_array_scalar")
+                     with_checker=True, family="i64_array_scalar", extra_link_sources=shims)
     checker = manifest["binaries"]["i64_array_scalar_check"]["path"]
     checked = subprocess.run([checker], input=data, capture_output=True, text=True, timeout=180)
     if checked.returncode or json.loads(checked.stdout)["cases_checked"] != count:

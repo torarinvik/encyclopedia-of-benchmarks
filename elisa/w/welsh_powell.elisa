@@ -1,0 +1,101 @@
+def welsh_powell_bit(vertex: usize) -> u64:
+    return 1.u64() << vertex
+
+def welsh_powell_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
+        byte <- byte + 1
+
+def welsh_powell_impl(input: i64&, length: usize,
+                      output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 1027:
+        return -1
+    n64: i64 = input[0]
+    edge_count64: i64 = input[1]
+    if n64 < 0 or n64 > 32 or edge_count64 < 0 or edge_count64 > 512:
+        return -1
+    n: usize = n64.usize()
+    edge_count: usize = edge_count64.usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    adjacency: mutable u64[32] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left64: i64 = input[2 + 2 * edge]
+        right64: i64 = input[3 + 2 * edge]
+        if left64 < 0 or left64 >= n64 or right64 < 0 or right64 >= n64 or left64 == right64:
+            return -1
+        left: usize = left64.usize()
+        right: usize = right64.usize()
+        adjacency[left] <- adjacency[left] | welsh_powell_bit(right)
+        adjacency[right] <- adjacency[right] | welsh_powell_bit(left)
+        edge <- edge + 1
+
+    output_bytes: usize = n * 8
+    if output.is_null() or capacity < output_bytes:
+        return -2
+
+    degrees: mutable usize[32] = zeroed
+    order: mutable usize[32] = zeroed
+    colors: mutable i64[32] = zeroed
+    vertex: mutable usize = 0
+    while vertex < n:
+        colors[vertex] <- -1
+        order[vertex] <- vertex
+        neighbor: mutable usize = 0
+        while neighbor < n:
+            if (adjacency[vertex] & welsh_powell_bit(neighbor)) != 0:
+                degrees[vertex] <- degrees[vertex] + 1
+            neighbor <- neighbor + 1
+        vertex <- vertex + 1
+
+    # Stable descending degree order keeps equal-degree vertices by index.
+    index: mutable usize = 1
+    while index < n:
+        key: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and degrees[order[position - 1]] < degrees[key]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- key
+        index <- index + 1
+
+    colored_vertices: mutable u64 = 0
+    index <- 0
+    while index < n:
+        vertex = order[index]
+        if colors[vertex] >= 0:
+            index <- index + 1
+            continue
+        used_colors: mutable u64 = 0
+        neighbor <- 0
+        while neighbor < n:
+            if (adjacency[vertex] & welsh_powell_bit(neighbor)) != 0 and colors[neighbor] >= 0:
+                used_colors <- used_colors | welsh_powell_bit(colors[neighbor].usize())
+            neighbor <- neighbor + 1
+        color: mutable usize = 0
+        while (used_colors & welsh_powell_bit(color)) != 0:
+            color <- color + 1
+        colors[vertex] <- color.i64()
+        colored_vertices <- colored_vertices | welsh_powell_bit(vertex)
+
+        other_index: mutable usize = 0
+        while other_index < n:
+            other: usize = order[other_index]
+            if colors[other] < 0 and (adjacency[other] & colored_vertices) == 0:
+                colors[other] <- color.i64()
+                colored_vertices <- colored_vertices | welsh_powell_bit(other)
+            other_index <- other_index + 1
+        index <- index + 1
+
+    vertex <- 0
+    while vertex < n:
+        welsh_powell_put_i64(output, vertex * 8, colors[vertex])
+        vertex <- vertex + 1
+    output_bytes.i64()
+
+export fn welsh_powell(input: i64&, length: usize,
+                       output: mutable u8&, capacity: usize) -> i64 = welsh_powell_impl

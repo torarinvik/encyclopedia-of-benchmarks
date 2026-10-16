@@ -16,5 +16,6 @@ pub unsafe extern "C" fn detecting_english_programmatically(a: *const i64, n: us
         if letter{tok.push(if c>=97{c-32}else{c});i+=1;continue;}if !ws{i+=1;continue;}if tok.is_empty(){i+=1;continue;}
         tokens+=1;if dict.iter().any(|w|w==&tok){hits+=1;}tok.clear();i+=1;
     }
-    i64::from(tokens>0&&hits*100>=wp*tokens&&retained*100>=lp*m)
+    if tokens==0{return -1;}
+    i64::from(hits*100>=wp*tokens&&retained*100>=lp*m)
 }

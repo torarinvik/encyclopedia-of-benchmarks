@@ -1,0 +1,3 @@
+module least_square_approx;
+fn long rnd(long a,long b){long q=(a<0?-a:a)*100000; q=(q+b/2)/b; return a<0?-q:q;}
+fn long least_square_approx(long*v,usz n) @export("least_square_approx"){if(n<5||n>13)return -1;long k=v[0];if(k<2||k>6||n!=1+2*k)return -1;long sx=0,sy=0,sxx=0,sxy=0;for(long i=0;i<k;i++){long x=v[1+2*i],y=v[2+2*i];if(x < -20||x>20||y < -20||y>20)return -1;sx+=x;sy+=y;sxx+=x*x;sxy+=x*y;}long den=k*sxx-sx*sx;if(den<=0)return -1;long num=k*sxy-sx*sy;long sl=rnd(num,den),it=rnd(sy*den-num*sx,k*den);long o=100000001,r=200000003;if(sl<=-o||sl>=o||it<=-o||it>=o)return -1;return (sl+o)*r+(it+o);}

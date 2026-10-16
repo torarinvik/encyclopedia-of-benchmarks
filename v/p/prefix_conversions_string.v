@@ -1,0 +1,6 @@
+module prefix_conversions_string
+fn append_i64(mut out &u8, at0 int, x0 i64) int { unsafe { mut at:=at0;mut x:=x0;if x<0{out[at]=45;at++;x= -x};if x==0{out[at]=48;return at+1};mut rev:=[24]u8{};mut n:=0;for x>0{rev[n]=u8(48+x%10);n++;x/=10};for n>0{n--;out[at]=rev[n];at++};return at } }
+fn raw(mut out &u8,x i64)i64{return i64(append_i64(mut out,0,x))}
+fn scaled(mut out &u8,x i64,scale i64,name string)i64{if x%scale!=0{return -1};mut at:=append_i64(mut out,0,x/scale);unsafe{out[at]=46;out[at+1]=48;out[at+2]=32};at+=3;for c in name.bytes(){unsafe{out[at]=c};at++};return i64(at)}
+@[export: 'prefix_conversions_string']
+pub fn prefix_conversions_string(v &i64,n usize,mut output &u8,capacity usize)i64{unsafe{if v==nil||n!=2||(v[0]!=0&&v[0]!=1)||v[1]< -1000000000000||v[1]>1000000000000{return -1};if output==nil||capacity<8192{return -2};x:=v[1];if x<=0{return raw(mut output,x)};if v[0]==0{if x>1000000000{return scaled(mut output,x,1000000000,'giga')};if x>1000000{return scaled(mut output,x,1000000,'mega')};if x>1000{return scaled(mut output,x,1000,'kilo')};if x>100{return scaled(mut output,x,100,'hecto')};if x>10{return scaled(mut output,x,10,'deca')}}else{if x>1073741824{return scaled(mut output,x,1073741824,'giga')};if x>1048576{return scaled(mut output,x,1048576,'mega')};if x>1024{return scaled(mut output,x,1024,'kilo')}};return raw(mut output,x)}}

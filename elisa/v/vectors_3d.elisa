@@ -1,0 +1,108 @@
+extern sqrt(value: f64) -> f64
+extern acos(value: f64) -> f64
+
+const COMPONENT_LIMIT: f64 = 1000000.0
+const EPSILON: f64 = 1.0e-9
+
+def vectors_3d_dot(ax: f32, ay: f32, az: f32, bx: f32, by: f32, bz: f32) -> f32:
+    dot: mutable f32 = ax * bx
+    dot <- dot + ay * by
+    dot <- dot + az * bz
+    dot
+
+def vectors_3d_norm(x: f32, y: f32, z: f32) -> f32:
+    dot: f32 = vectors_3d_dot(x, y, z, x, y, z)
+    sqrt(dot.f64()).f32()
+
+def vectors_3d_impl(input: f64&, input_len: usize,
+                    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_len == 0:
+        return -1
+    operation_value: f64 = input[0]
+    if operation_value != operation_value or operation_value < 0.0 or operation_value > 7.0:
+        return -1
+    operation: i64 = operation_value.i64()
+    if operation_value != operation.f64():
+        return -1
+    required_length: usize = if operation <= 3 or operation == 7: 7 else: 4
+    if input_len != required_length:
+        return -1
+
+    components: mutable f32[6] = zeroed
+    component_count: usize = required_length - 1
+    index: mutable usize = 0
+    while index < component_count:
+        value: f64 = input[index + 1]
+        if value != value or value < -COMPONENT_LIMIT or value > COMPONENT_LIMIT:
+            return -1
+        components[index] <- value.f32()
+        index <- index + 1
+
+    ax: f32 = components[0]
+    ay: f32 = components[1]
+    az: f32 = components[2]
+    bx: f32 = components[3]
+    by: f32 = components[4]
+    bz: f32 = components[5]
+    result: mutable f64[9] = zeroed
+    result_length: mutable usize = 0
+
+    if operation == 0:
+        result_length <- 3
+        result[0] <- (ax + bx).f64()
+        result[1] <- (ay + by).f64()
+        result[2] <- (az + bz).f64()
+    else if operation == 1:
+        result_length <- 3
+        result[0] <- (ax - bx).f64()
+        result[1] <- (ay - by).f64()
+        result[2] <- (az - bz).f64()
+    else if operation == 2:
+        result_length <- 1
+        result[0] <- vectors_3d_dot(ax, ay, az, bx, by, bz).f64()
+    else if operation == 3:
+        result_length <- 3
+        result[0] <- (ay * bz - az * by).f64()
+        result[1] <- (-ax * bz + az * bx).f64()
+        result[2] <- (ax * by - ay * bx).f64()
+    else if operation == 4:
+        result_length <- 1
+        result[0] <- vectors_3d_norm(ax, ay, az).f64()
+    else if operation == 5:
+        result_length <- 3
+        norm: f32 = vectors_3d_norm(ax, ay, az)
+        if norm.f64() >= EPSILON and norm != 1.0.f32():
+            result[0] <- (ax / norm).f64()
+            result[1] <- (ay / norm).f64()
+            result[2] <- (az / norm).f64()
+    else if operation == 6:
+        result_length <- 9
+        result[0] <- 0.0
+        result[1] <- (-az).f64()
+        result[2] <- ay.f64()
+        result[3] <- az.f64()
+        result[4] <- 0.0
+        result[5] <- (-ax).f64()
+        result[6] <- (-ay).f64()
+        result[7] <- ax.f64()
+        result[8] <- 0.0
+    else:
+        result_length <- 1
+        norm_a: f32 = vectors_3d_norm(ax, ay, az)
+        norm_b: f32 = vectors_3d_norm(bx, by, bz)
+        if norm_a.f64() < EPSILON or norm_b.f64() < EPSILON:
+            result[0] <- acos(2.0)
+        else:
+            cosine: f32 = vectors_3d_dot(ax, ay, az, bx, by, bz) / (norm_a * norm_b)
+            result[0] <- acos(cosine.f64())
+
+    if output.is_null() or output_capacity < result_length:
+        return -2
+    index <- 0
+    while index < result_length:
+        output[index] <- result[index]
+        index <- index + 1
+    result_length.i64()
+
+export fn vectors_3d(input: f64&, input_len: usize,
+                     output: mutable f64&, output_capacity: usize) -> i64 = vectors_3d_impl

@@ -16,6 +16,14 @@ The source is [`maths/weddles_rule.py`](https://github.com/TheAlgorithms/Python/
 
 [`workload.json`](workload.json) includes one- and multi-panel tables, a maximum-size table, positive, negative, and zero steps, weight-boundary samples, and malformed inputs.
 
+## Build and verify
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm weddles_rule --language rust --with-checker
+python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/w/weddles_rule/rust/build.json
+python3 benchmarks/verify_i64_array_float64.py --algorithm weddles_rule
+```
+
 ## Implementations
 
 | Language | Source |

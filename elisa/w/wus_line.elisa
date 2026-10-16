@@ -1,0 +1,136 @@
+extern floor(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const COORDINATE_LIMIT: i64 = 64
+const MAX_PIXELS: usize = 258
+
+def wus_line_fraction(value: f64) -> f64:
+    value - floor(value)
+
+def wus_line_reverse_fraction(value: f64) -> f64:
+    1.0 - wus_line_fraction(value)
+
+def wus_line_add_pixel(pixel_x: mutable i64&, pixel_y: mutable i64&,
+        intensities: mutable f64&, count: mutable usize&,
+        x: i64, y: i64, intensity: f64, steep: bool) -> void:
+    output_x: mutable i64 = x
+    output_y: mutable i64 = y
+    if steep:
+        output_x <- y
+        output_y <- x
+    clamped: mutable f64 = intensity
+    if clamped < 0.0: clamped <- 0.0
+    if clamped > 1.0: clamped <- 1.0
+    pixel_x[count] <- output_x
+    pixel_y[count] <- output_y
+    intensities[count] <- clamped
+    count <- count + 1
+
+def wus_line_add_endpoint(pixel_x: mutable i64&, pixel_y: mutable i64&,
+        intensities: mutable f64&, count: mutable usize&,
+        x_pixel: i64, y_pixel: i64, y_end: f64, x_gap: f64, steep: bool) -> void:
+    fractional_y: f64 = wus_line_fraction(y_end)
+    complement: f64 = wus_line_reverse_fraction(y_end)
+    wus_line_add_pixel(pixel_x, pixel_y, intensities, count, x_pixel, y_pixel,
+            complement * x_gap, steep)
+    wus_line_add_pixel(pixel_x, pixel_y, intensities, count, x_pixel, y_pixel + 1,
+            fractional_y * x_gap, steep)
+
+def wus_line_write_i32(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u32 = value.i32().u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def wus_line_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def wus_line_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length != 4:
+        return -1
+    for index in 0..<4:
+        if values[index] < -COORDINATE_LIMIT or values[index] > COORDINATE_LIMIT:
+            return -1
+
+    x0: mutable i64 = values[0]
+    y0: mutable i64 = values[1]
+    x1: mutable i64 = values[2]
+    y1: mutable i64 = values[3]
+    delta_y_i: i64 = y1 - y0
+    delta_x_i: i64 = x1 - x0
+    if delta_y_i < 0: delta_y_i <- -delta_y_i
+    if delta_x_i < 0: delta_x_i <- -delta_x_i
+    steep: bool = delta_y_i > delta_x_i
+    if steep:
+        temporary: mutable i64 = x0
+        x0 <- y0
+        y0 <- temporary
+        temporary <- x1
+        x1 <- y1
+        y1 <- temporary
+    if x0 > x1:
+        temporary: mutable i64 = x0
+        x0 <- x1
+        x1 <- temporary
+        temporary <- y0
+        y0 <- y1
+        y1 <- temporary
+
+    delta_x: f64 = x1.f64() - x0.f64()
+    delta_y: f64 = y1.f64() - y0.f64()
+    gradient: f64 = 1.0
+    if delta_x != 0.0:
+        gradient <- delta_y / delta_x
+
+    first_x_end: f64 = floor(x0.f64() + 0.5)
+    first_y_end: f64 = y0.f64() + gradient * (first_x_end - x0.f64())
+    first_x_pixel: i64 = first_x_end.i64()
+    first_y_pixel: i64 = floor(first_y_end).i64()
+    first_gap: f64 = wus_line_reverse_fraction(x0.f64() + 0.5)
+    second_x_end: f64 = floor(x1.f64() + 0.5)
+    second_y_end: f64 = y1.f64() + gradient * (second_x_end - x1.f64())
+    second_x_pixel: i64 = second_x_end.i64()
+    second_y_pixel: i64 = floor(second_y_end).i64()
+    second_gap: f64 = wus_line_fraction(x1.f64() + 0.5)
+
+    pixel_x: mutable i64[MAX_PIXELS] = zeroed
+    pixel_y: mutable i64[MAX_PIXELS] = zeroed
+    intensities: mutable f64[MAX_PIXELS] = zeroed
+    pixel_count: mutable usize = 0
+    wus_line_add_endpoint(&pixel_x[0], &pixel_y[0], &intensities[0], &pixel_count,
+            first_x_pixel, first_y_pixel, first_y_end, first_gap, steep)
+    wus_line_add_endpoint(&pixel_x[0], &pixel_y[0], &intensities[0], &pixel_count,
+            second_x_pixel, second_y_pixel, second_y_end, second_gap, steep)
+
+    intersection_y: mutable f64 = first_y_end + gradient
+    x: mutable i64 = first_x_pixel + 1
+    while x < second_x_pixel:
+        y_floor: i64 = floor(intersection_y).i64()
+        fractional: f64 = wus_line_fraction(intersection_y)
+        complement: f64 = wus_line_reverse_fraction(intersection_y)
+        wus_line_add_pixel(&pixel_x[0], &pixel_y[0], &intensities[0], &pixel_count,
+                x, y_floor, complement, steep)
+        wus_line_add_pixel(&pixel_x[0], &pixel_y[0], &intensities[0], &pixel_count,
+                x, y_floor + 1, fractional, steep)
+        intersection_y <- intersection_y + gradient
+        x <- x + 1
+
+    required: usize = pixel_count * 16
+    if output == null or output_capacity < required:
+        return -2
+    for index in 0..<pixel_count:
+        offset: usize = index * 16
+        wus_line_write_i32(output, offset, pixel_x[index])
+        wus_line_write_i32(output, offset + 4, pixel_y[index])
+        wus_line_write_f64(output, offset + 8, intensities[index])
+    required.i64()
+
+export fn wus_line(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = wus_line_impl

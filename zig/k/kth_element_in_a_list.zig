@@ -1,0 +1,1 @@
+export fn kth_element_in_a_list(v: [*]const i64, n: usize) callconv(.c) i64 { if(n<3 or n>34)return -1;const k=v[0];const pos=v[1];if(k<1 or k>16 or n!=@as(usize,@intCast(k+2)) or pos<1 or pos>k)return -1;for(0..@intCast(k))|i|{if(v[i+2] < -10000 or v[i+2]>10000)return -1;}return v[@intCast(pos+1)];}

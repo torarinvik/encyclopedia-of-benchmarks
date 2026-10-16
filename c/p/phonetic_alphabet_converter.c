@@ -1,0 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+static const char* const words[36]={"Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu", "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+int64_t phonetic_alphabet_converter(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<1||n>65||v[0]<0||v[0]>64||n!=(size_t)v[0]+1)return -1;if(!out||cap<576)return -2;size_t at=0;int emitted=0;for(size_t i=0;i<(size_t)v[0];i++){int64_t z=v[i+1];if(z<0||z>127||!((z>=33&&z<=126)||z==9||z==10||z==11||z==12||z==13||z==32))return -1;int c=(int)z;if(c==9||c==10||c==11||c==12||c==13||c==32)continue;if(c>='a'&&c<='z')c-=32;if(emitted++)out[at++]=' ';if(c>='A'&&c<='Z'){const char*w=words[c-'A'];size_t m=strlen(w);memcpy(out+at,w,m);at+=m;}else if(c>='0'&&c<='9'){const char*w=words[26+c-'0'];size_t m=strlen(w);memcpy(out+at,w,m);at+=m;}else out[at++]=(uint8_t)c;}return (int64_t)at;}

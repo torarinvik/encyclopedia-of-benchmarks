@@ -1,0 +1,27 @@
+def iso7816_d4_padding_impl(v: i64&, n: usize) -> i64:
+    if n < 3 or n > 27: return -1
+    mode=v[0]; block=v[1]; length=v[2]
+    if mode<0 or mode>2 or (mode==0 and (block<1 or block>8)) or (mode!=0 and block!=0) or length<0 or length>24 or n!=length+3:return -1
+    data=[0;32]
+    for i in 0..length:
+        if v[i+3]<0 or v[i+3]>255:return -1
+        data[i]=v[i+3]
+    if mode==0:
+        output=(length//block+1)*block
+        if output>32:return -1
+        data[length]=128
+        for i in length+1..output:data[i]=0
+        return output-length
+    if mode==1:
+        i=length-1
+        while i>=0 and data[i]==0:i-=1
+        if i>=0 and data[i]==128:return i
+        return -1
+    marker=-1; zero_suffix=true; j=length-1
+    while j>=0:
+        if zero_suffix and data[j]==128:marker=j
+        if data[j]!=0:zero_suffix=false
+        j-=1
+    if marker>=0:return length-marker
+    -1
+export fn iso7816_d4_padding(v: i64&, n: usize) -> i64 = iso7816_d4_padding_impl

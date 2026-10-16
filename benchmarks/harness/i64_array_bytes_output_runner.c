@@ -148,7 +148,7 @@ static int run_benchmark(int64_t *values, size_t length, int64_t expected_count,
                          uint64_t samples_arg, uint64_t warmups_arg, uint64_t repetitions_arg,
                          int float64_vector, double absolute_tolerance, double relative_tolerance)
 {
-    if (expected_count < -2 || expected_count > 100000 ||
+    if (expected_count < -10 || expected_count > 100000 ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000 ||
         expected_length > output_capacity || output_capacity > MAX_OUTPUT_BYTES ||

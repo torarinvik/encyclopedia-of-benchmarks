@@ -1,0 +1,6 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+static void putd(std::uint8_t*o,std::size_t p,double x){std::uint64_t b;std::memcpy(&b,&x,8);for(int k=0;k<8;k++)o[p+k]=std::uint8_t(b>>(8*k));}
+extern "C" std::int64_t fuzzy_set_operations(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<8)return -1;int op=int(v[0]),m=int(v[1]);if(op<0||op>8||m<1||m>8||n!=5+std::size_t(m)*3)return -1;auto l=v[2],p=v[3],r=v[4];for(std::size_t i=5;i<n;i++)if(v[i]<0||v[i]>1000)return -1;if(op==0){if(l<0||p<l||r<p||r>1000)return -1;for(int i=0;i<m;i++)if(v[5+m+i]||v[5+2*m+i])return -1;}else{if(l||p||r)return -1;for(int i=0;i<m;i++)if(v[5+i])return -1;}if(!out||cap<std::size_t(m)*8)return -2;for(int i=0;i<m;i++){double z;if(op==0){double x=v[5+i]/1000.,a=l/1000.,b=p/1000.,c=r/1000.;double u=b>a?(x-a)/(b-a):(x<b?0:1),w=c>b?(c-x)/(c-b):(x>c?0:1);z=std::min(1.,std::max(0.,std::min(u,w)));}else{double a=v[5+m+i]/1000.,b=v[5+2*m+i]/1000.;switch(op){case 1:z=std::max(a,b);break;case 2:z=std::min(a,b);break;case 3:z=1-a;break;case 4:z=std::min(a,1-b);break;case 5:z=a+b-a*b;break;case 6:z=a*b;break;case 7:z=std::min(1.,a+b);break;default:z=std::max(0.,a+b-1);}}putd(out,std::size_t(i)*8,z);}return std::int64_t(m)*8;}

@@ -1,0 +1,53 @@
+extern memcpy(destination: mutable u64&, source: i64&, length: usize) -> mutable u64&
+def puti(output: mutable u8&, value: i64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    k: mutable usize = 0
+    while k < 8:
+        output[k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def naive_bayes_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 6: return -1
+    nr: i64 = v[0]; f: i64 = v[1]
+    if nr < 2 or nr > 8 or f < 1 or f > 3 or length != (2+nr*(f+1)+f).usize(): return -1
+    labels: [8]usize; order: [3]i64; counts: [3]usize; cc: mutable usize = 0; x: [8][3]f64; p: mutable usize = 2
+    r: mutable usize = 0
+    while r < nr.usize():
+        lab: i64 = v[p]; p <- p+1
+        if lab < 0 or lab > 2: return -1
+        c: mutable usize = 0
+        while c < cc and order[c] != lab: c <- c+1
+        if c == cc: order[cc] <- lab; cc <- cc+1
+        labels[r] <- c; counts[c] <- counts[c]+1
+        j: mutable usize = 0
+        while j < f.usize():
+            z: i64 = v[p]; p <- p+1
+            if z < -10000 or z > 10000: return -1
+            x[r][j] <- z.f64()/1000.0; j <- j+1
+        r <- r+1
+    if cc < 2: return -1
+    best: mutable f64 = -1e300; answer: mutable i64 = order[0]; c <- 0
+    while c < cc:
+        score: mutable f64 = ln(counts[c].f64()/nr.f64()); j <- 0
+        while j < f.usize():
+            mean: mutable f64 = 0.0; r <- 0
+            while r < nr.usize():
+                if labels[r] == c: mean <- mean+x[r][j]
+                r <- r+1
+            mean <- mean/counts[c].f64(); variance: mutable f64 = 0.0; r <- 0
+            while r < nr.usize():
+                if labels[r] == c:
+                    d: f64 = x[r][j]-mean; variance <- variance+d*d
+                r <- r+1
+            variance <- max(variance/counts[c].f64(),0.000000001)
+            raw: i64 = v[p+j]
+            if raw < -10000 or raw > 10000: return -1
+            q: f64 = raw.f64()/1000.0
+            score <- score-0.5*ln(6.283185307179586*variance)-(q-mean)*(q-mean)/(2.0*variance)
+            j <- j+1
+        if score > best: best <- score; answer <- order[c]
+        c <- c+1
+    if capacity < 8: return -2
+    puti(output,answer); 8
+export naive_bayes(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = naive_bayes_impl

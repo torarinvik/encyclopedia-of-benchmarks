@@ -1,0 +1,14 @@
+{
+  "schema_version":1,
+  "id":"fuzzy-operations-triangular-source-semantics-v1",
+  "algorithm":"fuzzy_operations",
+  "function_symbol":"fuzzy_operations",
+  "input":{"kind":"signed_i64_array","layout":"[operation,A_left,A_peak,A_right,B_left,B_peak,B_right,x]","maximum_input_values":8},
+  "output":{"kind":"float64_vector","values":"membership scalar or source-ordered triangular set triple","byte_order":"little_endian","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"maximum_output_bytes":24,"invalid_result":-1},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":4,"warmup_rounds":1,"repetitions_per_sample":1000,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"complement","input_values":[0,400,1000,600,0,0,0,0],"expected_result":24,"expected_output":[0.4,0.6,0.0]},
+    {"id":"intersection_argument_order","input_values":[1,100,200,300,400,500,600,0],"expected_result":24,"expected_output":[0.4,0.3,0.35]},
+    {"id":"membership_rising_side","input_values":[3,100,200,300,0,0,0,150],"expected_result":8,"expected_output":[0.5]}
+  ]
+}

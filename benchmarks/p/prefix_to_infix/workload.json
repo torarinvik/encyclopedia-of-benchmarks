@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "java-prefix-to-infix-stack-v1",
+  "algorithm": "prefix_to_infix",
+  "function_symbol": "prefix_to_infix",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[token_count, ASCII prefix bytes...]",
+    "count_range": [
+      0,
+      63
+    ],
+    "element_range": [
+      0,
+      127
+    ],
+    "maximum_input_length": 64
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "return_value": "bytes written",
+    "meaning": "infix expression with every binary operation parenthesized",
+    "maximum_output_bytes": 125,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 8192
+  },
+  "source_bound": {
+    "description": "The pinned Java implementation scans right to left; each operator pops operand A then operand B and constructs (A operator B). The benchmark accepts empty input and a single ASCII letter, and otherwise restricts operands to ASCII letters and operators to + - * / ^."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_letter",
+      "input_values": [
+        1,
+        120
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "78"
+    },
+    {
+      "id": "one_operator",
+      "input_values": [
+        3,
+        43,
+        97,
+        98
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "28612b6229"
+    },
+    {
+      "id": "nested_mixed",
+      "input_values": [
+        7,
+        42,
+        43,
+        97,
+        98,
+        45,
+        99,
+        100
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "2828612b62292a28632d642929"
+    },
+    {
+      "id": "exponent",
+      "input_values": [
+        3,
+        94,
+        120,
+        121
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "28785e7929"
+    },
+    {
+      "id": "underflow",
+      "input_values": [
+        2,
+        43,
+        97
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_operands",
+      "input_values": [
+        2,
+        97,
+        98
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_token",
+      "input_values": [
+        3,
+        43,
+        97,
+        64
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

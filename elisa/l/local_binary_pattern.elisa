@@ -1,9 +1,9 @@
 def local_binary_pattern_impl(v: i64&, length: usize) -> i64:
     if length != 9: return -1
-    for i in 0..9:
+    for i in 0..<9:
         if v[i] < 0 or v[i] > 255: return -1
     out: mutable i64 = 0
-    for i in 0..8:
+    for i in 0..<8:
         index: usize = 0
         if i == 0: index <- 2
         if i == 1: index <- 5

@@ -1,0 +1,6 @@
+package naive_bayes
+import "core:c"
+import "core:math"
+puti :: proc(o:[^]u8,x:i64){bits:=transmute(u64)x;for k:=0;k<8;k+=1{o[k]=u8(bits>>u64(k*8))}}
+@(export)
+naive_bayes :: proc "c" (v:[^]i64,n:c.size_t,o:[^]u8,cap:c.size_t)->i64{if v==nil||n<6 do return -1;nr,f:=v[0],v[1];if nr<2||nr>8||f<1||f>3||int(n)!=2+int(nr)*(int(f)+1)+int(f) do return -1;labs:[8]int;order:[3]i64;counts:[3]int;cc:=0;x:[8][3]f64;p:=2;for r:=0;r<int(nr);r+=1{lab:=v[p];p+=1;if lab<0||lab>2 do return -1;c0:=0;for c0<cc&&order[c0]!=lab{c0+=1};if c0==cc{order[cc]=lab;cc+=1};labs[r]=c0;counts[c0]+=1;for j:=0;j<int(f);j+=1{z:=v[p];p+=1;if z < -10000||z>10000 do return -1;x[r][j]=f64(z)/1000.0}};if cc<2 do return -1;best:=-1e300;ans:=order[0];for c0:=0;c0<cc;c0+=1{score:=math.ln(f64(counts[c0])/f64(nr));for j:=0;j<int(f);j+=1{mean:=0.0;for r:=0;r<int(nr);r+=1{if labs[r]==c0{mean+=x[r][j]}};mean/=f64(counts[c0]);variance:=0.0;for r:=0;r<int(nr);r+=1{if labs[r]==c0{d:=x[r][j]-mean;variance+=d*d}};variance=math.max(variance/f64(counts[c0]),1e-9);raw:=v[p+j];if raw < -10000||raw>10000 do return -1;q:=f64(raw)/1000.0;score+=-0.5*math.ln(6.283185307179586*variance)-(q-mean)*(q-mean)/(2*variance)};if score>best{best=score;ans=order[c0]}};if o==nil||cap<8 do return -2;puti(o,ans);return 8}

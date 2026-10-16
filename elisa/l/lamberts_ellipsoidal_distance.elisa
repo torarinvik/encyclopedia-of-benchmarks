@@ -1,0 +1,21 @@
+extern sin(value:f64)->f64
+extern cos(value:f64)->f64
+extern sqrt(value:f64)->f64
+extern asin(value:f64)->f64
+extern atan(value:f64)->f64
+extern tan(value:f64)->f64
+const PI:f64=3.14159265358979323846264338327950288
+def lamberts_ellipsoidal_distance_impl(v:i64&,n:usize)->f64:
+    if n!=4:return -1e300
+    if v[0]<-90000000 or v[0]>90000000 or v[2]<-90000000 or v[2]>90000000 or v[1]<-180000000 or v[1]>180000000 or v[3]<-180000000 or v[3]>180000000:return -1e300
+    if v[0]==v[2] and v[1]==v[3]:return -1e300
+    lat1=v[0].f64()/1e6;lon1=v[1].f64()/1e6;lat2=v[2].f64()/1e6;lon2=v[3].f64()/1e6
+    p1=lat1*PI/180;p2=lat2*PI/180;l1=lon1*PI/180;l2=lon2*PI/180
+    h=sqrt(sin((p2-p1)/2)**2+cos(p1)*cos(p2)*sin((l2-l1)/2)**2)
+    if h==0:return -1e300
+    sigma=2*asin(h);f=(6378137.0-6356752.314245)/6378137.0
+    b1=atan((1-f)*tan(lat1*PI/180));b2=atan((1-f)*tan(lat2*PI/180));p=(b1+b2)/2;q=(b2-b1)/2
+    x=(sigma-sin(sigma))*((sin(p)**2*cos(q)**2)/(cos(sigma/2)**2))
+    y=(sigma+sin(sigma))*((cos(p)**2*sin(q)**2)/(sin(sigma/2)**2))
+    6378137.0*(sigma-(f/2)*(x+y))
+export fn lamberts_ellipsoidal_distance(v:i64&,n:usize)->f64=lamberts_ellipsoidal_distance_impl

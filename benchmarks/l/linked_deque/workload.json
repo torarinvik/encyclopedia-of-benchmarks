@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "lua-linked-deque-trace-v1",
+  "algorithm": "linked_deque",
+  "function_symbol": "linked_deque",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "pairs [operation,argument] with operations 0 push_head, 1 push_tail, 2 pop_head, 3 pop_tail, 4 get_head, 5 get_tail, 6 empty",
+    "operation_count_range": [
+      1,
+      10
+    ],
+    "push_value_range": [
+      -15,
+      15
+    ],
+    "maximum_input_length": 20,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "base-32 packed query results in event order, least significant event first; nil=0, a deque value=v maps to v+16, empty true=1 and false=2"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Lua",
+    "commit": "cedc141018ad48884318fe08a6db278664b17128",
+    "path": "src/data_structures/linked_deque.lua"
+  },
+  "cases": [
+    {
+      "id": "both_ends",
+      "input_values": [
+        0,
+        4,
+        1,
+        7,
+        4,
+        0,
+        5,
+        0,
+        2,
+        0,
+        3,
+        0,
+        6,
+        0
+      ],
+      "expected_result": 1823476,
+      "input_length": 14
+    },
+    {
+      "id": "empty_pops",
+      "input_values": [
+        2,
+        0,
+        3,
+        0,
+        6,
+        0
+      ],
+      "expected_result": 1024,
+      "input_length": 6
+    },
+    {
+      "id": "single_and_remove",
+      "input_values": [
+        1,
+        -3,
+        5,
+        0,
+        3,
+        0,
+        6,
+        0
+      ],
+      "expected_result": 1453,
+      "input_length": 8
+    },
+    {
+      "id": "maximum_operations",
+      "input_values": [
+        0,
+        5,
+        1,
+        -2,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0
+      ],
+      "expected_result": 34375109077,
+      "input_length": 20
+    },
+    {
+      "id": "invalid_odd_shape",
+      "input_values": [
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "invalid_too_many_operations",
+      "input_values": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 22,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_operation_code",
+      "input_values": [
+        7,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_non_push_argument",
+      "input_values": [
+        4,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_push_value",
+      "input_values": [
+        1,
+        16
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_operation_count",
+      "input_values": [
+        0,
+        15,
+        1,
+        -15,
+        0,
+        7,
+        1,
+        8,
+        0,
+        -1,
+        1,
+        0,
+        3,
+        0,
+        4,
+        0,
+        6,
+        0,
+        2,
+        0
+      ],
+      "input_length": 20,
+      "expected_result": 494064
+    }
+  ]
+}

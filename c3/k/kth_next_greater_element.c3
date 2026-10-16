@@ -1,0 +1,2 @@
+module kth_next_greater_element;
+fn long kth_next_greater_element(long*v,usz n) @export("kth_next_greater_element"){if(v==null||n<2||n>8)return -1;long k=v[0];if(k<1||k>7)return -1;usz m=n-1;for(usz q=1;q<n;q++)if(v[q]<-15||v[q]>15)return -1;long count=0;for(usz i=0;i<m;i++){long cur=v[i+1];usz pos=i+1;bool ok=true;for(long z=0;z<k;z++){while(pos<m&&v[pos+1]<=cur)pos++;if(pos==m){ok=false;break;}cur=v[pos+1];pos++;}if(ok)count++;}return count;}

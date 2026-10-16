@@ -2,13 +2,13 @@ def intensity_based_segmentation_impl(v: i64&, length: usize) -> i64:
     if length < 2 or length > 12: return -1
     k: i64 = v[0]
     if k < 0 or k > 4 or length <= k + 1 or length > k + 8: return -1
-    for j in 1..length:
+    for j in 1..<length:
         if v[j] < 0 or v[j] > 255: return -1
     out: mutable i64 = 0
     place: mutable i64 = 1
-    for p in (k + 1)..length:
+    for p in (k + 1)..<length:
         label: mutable i64 = 0
-        for i in 0..k:
+        for i in 0..<k:
             if v[p] > v[i + 1]: label <- i + 1
         out <- out + label * place
         place <- place * 5

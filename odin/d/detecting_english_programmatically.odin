@@ -47,6 +47,7 @@ detecting_english_programmatically :: proc(input: [^]i64, length: uint) -> i64 {
 		}
 		tlen = 0; i += 1
 	}
-	if tokens > 0 && hits*100 >= wp*tokens && retained*100 >= lp*m do return 1
+	if tokens == 0 do return -1
+	if hits*100 >= wp*tokens && retained*100 >= lp*m do return 1
 	return 0
 }

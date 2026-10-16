@@ -20,6 +20,7 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
+from decremental_connectivity_oracle import expected_result as decremental_connectivity_oracle
 from wine_problem_recursive_oracle import MAX_ITEMS as WINE_PROBLEM_RECURSIVE_MAX_ITEMS
 from wine_problem_recursive_oracle import MAX_PRICE as WINE_PROBLEM_RECURSIVE_MAX_PRICE
 from wine_problem_recursive_oracle import expected_result as wine_problem_recursive_oracle
@@ -407,6 +408,8 @@ from how_many_times_rotated_oracle import expected_result as how_many_times_rota
 from is_valid_email_address_oracle import expected_result as is_valid_email_address_oracle
 from n_in_a_row_board_status_oracle import MAX_BOARD_SIZE as MAX_N_IN_A_ROW_BOARD_SIZE
 from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_status_oracle
+from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first_search_tic_tac_toe_oracle
+from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_oracle
 from run_i64_array_scalar import encode_case
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
@@ -415,6 +418,10 @@ from edmonds_blossom_algorithm_oracle import MAX_EDGES as MAX_EDMONDS_BLOSSOM_ED
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import MAX_VERTICES as MAX_EDMONDS_BLOSSOM_VERTICES
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_oracle
+from edmonds_oracle import MAX_EDGES as MAX_EDMONDS_EDGES
+from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
+from edmonds_oracle import MAX_VERTICES as MAX_EDMONDS_VERTICES
+from edmonds_oracle import expected_result as edmonds_oracle
 from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
 from edmonds_karp_oracle import MAX_VERTICES as MAX_EDMONDS_KARP_VERTICES
 from edmonds_karp_oracle import MAX_CAPACITY as MAX_EDMONDS_KARP_CAPACITY
@@ -423,9 +430,17 @@ from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGT
 from push_relabel_oracle import MAX_VERTICES as MAX_PUSH_RELABEL_VERTICES
 from push_relabel_oracle import MAX_CAPACITY as MAX_PUSH_RELABEL_CAPACITY
 from push_relabel_oracle import expected_result as push_relabel_oracle
+from linked_deque_oracle import MAX_INPUT_LENGTH as MAX_LINKED_DEQUE_INPUT_LENGTH
+from linked_deque_oracle import expected_result as linked_deque_oracle
+from iso7816_d4_padding_oracle import MAX_BYTE_COUNT as MAX_ISO7816_D4_PADDING_BYTES
+from iso7816_d4_padding_oracle import expected_result as iso7816_d4_padding_oracle
+from davis_putnam_logemann_loveland_oracle import MAX_INPUT_LENGTH as MAX_DPLL_INPUT_LENGTH
+from davis_putnam_logemann_loveland_oracle import expected_result as davis_putnam_logemann_loveland_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("sort_the_odd",)
+ALGORITHMS += ("depth_first_search_tic_tac_toe",)
+ALGORITHMS += ("dynamic_coin_change_solver",)
 ALGORITHMS += ("merge_sorted",)
 ALGORITHMS += ("merge_ksorted_arrays",)
 ALGORITHMS += ("jort_sort",)
@@ -441,7 +456,11 @@ ALGORITHMS += ("largest_of_very_large_numbers",)
 ALGORITHMS += ("lexicographical_numbers",)
 ALGORITHMS += ("push_relabel",)
 ALGORITHMS += ("wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated")
-ALGORITHMS += ("deep_clone_graph",)
+ALGORITHMS += ("deep_clone_graph", "decremental_connectivity")
+ALGORITHMS += ("linked_deque",)
+ALGORITHMS += ("iso7816_d4_padding",)
+ALGORITHMS += ("edmonds",)
+ALGORITHMS += ("davis_putnam_logemann_loveland",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -878,8 +897,16 @@ def problem107_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "iso7816_d4_padding":
+        return iso7816_d4_padding_oracle(values)
+    if algorithm == "linked_deque":
+        return linked_deque_oracle(values)
+    if algorithm == "davis_putnam_logemann_loveland":
+        return davis_putnam_logemann_loveland_oracle(values)
     if algorithm == "deep_clone_graph":
         return deep_clone_graph_oracle(values)
+    if algorithm == "decremental_connectivity":
+        return decremental_connectivity_oracle(values)
     if algorithm == "wine_problem_recursive":
         return wine_problem_recursive_oracle(values)
     if algorithm == "wine_problem_memoized":
@@ -888,6 +915,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return wine_problem_tabulated_oracle(values)
     if algorithm == "edmonds_blossom_algorithm":
         return edmonds_blossom_oracle(values)
+    if algorithm == "edmonds":
+        return edmonds_oracle(values)
     if algorithm == "edmonds_karp":
         return edmonds_karp_oracle(values)
     if algorithm == "push_relabel":
@@ -956,6 +985,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return count_singly_linked_list_oracle(values)
     if algorithm == "n_in_a_row_board_status":
         return n_in_a_row_board_status_oracle(values)
+    if algorithm == "depth_first_search_tic_tac_toe":
+        return depth_first_search_tic_tac_toe_oracle(values)
+    if algorithm == "dynamic_coin_change_solver":
+        return dynamic_coin_change_solver_oracle(values)
     if algorithm == "check_cycle":
         return check_cycle_oracle(values)
     if algorithm == "undirected_cycle_check":
@@ -1394,7 +1427,87 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         # special NULL records require a positive length and are rejected at parse time.
         cases[()] = oracle(algorithm, [])
     rng = random.Random(20261014)
-    if algorithm in {"wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated"}:
+    if algorithm == "iso7816_d4_padding":
+        for byte_count in range(8):
+            data = [((index * 37 + byte_count * 11) & 255) for index in range(byte_count)]
+            for block_size in range(1, 9):
+                values = (0, block_size, byte_count, *data)
+                cases[values] = oracle(algorithm, list(values))
+        for payload_count in range(9):
+            payload = [((index * 53 + payload_count * 7) & 255) for index in range(payload_count)]
+            for padding_count in range(1, min(8, MAX_ISO7816_D4_PADDING_BYTES - payload_count) + 1):
+                data = [*payload, 128, *([0] * (padding_count - 1))]
+                for mode in (1, 2):
+                    values = (mode, 0, len(data), *data)
+                    cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (-1, 0, 0), (3, 0, 0), (0, 0, 0), (0, 9, 0),
+            (1, 1, 0), (2, -1, 0), (1, 0, 0), (2, 0, 0),
+            (1, 0, 1, 0), (2, 0, 1, 0), (1, 0, 4, 128, 0, 1, 0),
+            (0, 1, 1, -1), (0, 1, 1, 256), (0, 8, 2, 42),
+            (2, 0, 25),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(256):
+            mode = rng.randrange(3)
+            if mode == 0:
+                byte_count = rng.randrange(MAX_ISO7816_D4_PADDING_BYTES + 1)
+                values = (0, rng.randrange(1, 9), byte_count,
+                          *(rng.randrange(256) for _ in range(byte_count)))
+            else:
+                payload_count = rng.randrange(MAX_ISO7816_D4_PADDING_BYTES)
+                padding_count = rng.randrange(1, min(8, MAX_ISO7816_D4_PADDING_BYTES - payload_count) + 1)
+                data = [*(rng.randrange(256) for _ in range(payload_count)), 128,
+                        *([0] * (padding_count - 1))]
+                values = (mode, 0, len(data), *data)
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "linked_deque":
+        for _ in range(256):
+            operation_count = rng.randint(1, MAX_LINKED_DEQUE_INPUT_LENGTH // 2 - 1)
+            values: list[int] = []
+            for _ in range(operation_count):
+                operation = rng.randrange(7)
+                argument = rng.randint(-15, 15) if operation in (0, 1) else 0
+                values.extend((operation, argument))
+            cases[tuple(values)] = oracle(algorithm, values)
+
+        malformed = (
+            (), (0,), (-1, 0), (7, 0), (4, 1), (5, -1),
+            (0, -16), (1, 16), tuple([0, 0] * (MAX_LINKED_DEQUE_INPUT_LENGTH // 2)),
+            (0, I64_MIN), (1, I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= MAX_LINKED_DEQUE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "davis_putnam_logemann_loveland":
+        for _ in range(256):
+            variable_count = rng.randint(0, 5)
+            clause_count = rng.randint(0, 10)
+            values = [variable_count, clause_count]
+            for _ in range(clause_count):
+                length = rng.randint(0, 5)
+                values.append(length)
+                values.extend((rng.choice((-1, 1)) * rng.randint(1, variable_count)
+                               if variable_count else 0) for _ in range(length))
+            # Zero variables cannot have literals; replace generated impossible clauses
+            # with empty clauses while retaining valid input.
+            if variable_count == 0:
+                for index, value in enumerate(values):
+                    if value == 0 and index >= 2:
+                        # Rebuild below to avoid interpreting literal zero as malformed.
+                        pass
+                values = [0, clause_count] + [0] * clause_count
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (0,), (-1, 0), (6, 0), (1, -1), (1, 1, -1, 1),
+                     (1, 1, 1, 0), (1, 1, 1, 2), (1, 0, 0))
+        for values in malformed:
+            if len(values) <= MAX_DPLL_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm in {"wine_problem_recursive", "wine_problem_memoized", "wine_problem_tabulated"}:
         if algorithm == "wine_problem_recursive":
             max_items = WINE_PROBLEM_RECURSIVE_MAX_ITEMS
             min_price = 0
@@ -1460,6 +1573,24 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_PUSH_RELABEL_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "edmonds":
+        for vertex_count in range(1, MAX_EDMONDS_VERTICES + 1):
+            root = (vertex_count - 1) % vertex_count
+            cases[(vertex_count, root, 0)] = oracle(algorithm, [vertex_count, root, 0])
+        for _ in range(256):
+            vertex_count = rng.randint(1, MAX_EDMONDS_VERTICES)
+            root = rng.randrange(vertex_count)
+            edge_count = rng.randint(0, MAX_EDMONDS_EDGES)
+            values = [vertex_count, root, edge_count]
+            values.extend(item for _ in range(edge_count) for item in (
+                rng.randrange(vertex_count), rng.randrange(vertex_count), rng.randint(0, 100)))
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = ((), (1,), (0, 0, 0), (6, 0, 0), (1, 1, 0),
+                     (2, 0, 1, -1, 1, 1), (2, 0, 1, 0, 2, 1),
+                     (2, 0, 1, 0, 1, 101), (2, 0, 1, 0, 1))
+        for values in malformed:
+            if len(values) <= MAX_EDMONDS_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
     elif algorithm == "edmonds_blossom_algorithm":
         from itertools import combinations
 
@@ -2789,6 +2920,25 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in invalid_cases:
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "dynamic_coin_change_solver":
+        for mask in range(1 << 8):
+            coins = (1, *(coin for bit, coin in enumerate(range(2, 10)) if mask & (1 << bit)))
+            for amount in range(1, 19):
+                values = (amount, len(coins), *coins)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((), (1,), (1, 1), (1, 1, 1), (0, 1, 1),
+                       (1, 0), (3, 2, 2, 3), (3, 2, 1, 1),
+                       (4, 2, 1, 10), (19, 1, 1), (2, 1, 2)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "depth_first_search_tic_tac_toe":
+        for side in (1, 2):
+            for cells in product((0, 1, 2), repeat=9):
+                values = (side, *cells)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((), (1,), (1, *([0] * 8)), (1, *([0] * 10)),
+                       (0, *([0] * 9)), (3, *([0] * 9)),
+                       (1, 0, 0, 0, 0, 0, 0, 0, 0, 3)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "n_in_a_row_board_status":
         for player in (1, 2):
             for cells in product((0, 1, 2), repeat=4):
@@ -3576,16 +3726,34 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             raise ValueError("largest_of_very_large_numbers base bound must match its oracle")
         if workload["input"].get("exponent_range") != [0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT]:
             raise ValueError("largest_of_very_large_numbers exponent bound must match its oracle")
-        if workload["input"].get("comparison_domain") != (
-                "exponents equal, or bases equal and both exponents are on the same zero/nonzero branch; "
-                "equal zero bases permit any exponents"):
-            raise ValueError("largest_of_very_large_numbers workload must declare the portable log-score comparison domain")
+        max_decimal_power = len(str(LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE)) - 1
+        if 10 ** max_decimal_power != LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE:
+            raise ValueError("largest_of_very_large_numbers maximum base must be an exact power of ten")
+        valid_bases = (0, *(10 ** power for power in range(max_decimal_power + 1)))
+        expected_base_rule = (
+            f"Each base is 0 or exactly 10^k for an integer k in 0..{max_decimal_power}; "
+            "the two pairs may be combined arbitrarily.")
+        if workload["input"].get("base_rule") != expected_base_rule:
+            raise ValueError("largest_of_very_large_numbers workload must declare the exact power-of-ten base domain")
+        expected_benchmark_domain = (
+            f"Each base is independently 0 or exactly 10^k for k in 0..{max_decimal_power}; "
+            f"each exponent is independently in 0..{LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT}. "
+            "For the selected domain, log10(10^k) is normalized to exact integer k, so positive-base "
+            "positive-exponent scores are exact integers and arbitrary pairings and ties are accepted.")
+        expected_comparison_rule = (
+            "Compare exact integer scores; do not use platform log10/libm results. This models the "
+            "mathematical identity log10(10^k) = k, not bit-for-bit behavior of arbitrary libm implementations.")
+        source_bound = workload.get("source_bound", {})
+        if (source_bound.get("benchmark_domain") != expected_benchmark_domain
+                or source_bound.get("comparison_rule") != expected_comparison_rule):
+            raise ValueError("largest_of_very_large_numbers workload must declare the exact-log comparison domain")
 
         boundary_cases = (
             (7, 7, 5, 7), (5, 7, 7, 7), (7, 5, 7, 5),
             (0, 0, 0, 1), (0, 1, 0, 2), (0, 0, 10, 0),
             (1, 2, 0, 2), (1, 1, 1, 2), (1, 0, 1, 0),
             (10, 6, 10, 2), (2, 2, 2, 5),
+            (1, 0, 1, 1), (10, 0, 10, 1), (100, 0, 100, 1),
             (999_999_999_999, 1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE, 1),
             (LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE,
              LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT,
@@ -3600,28 +3768,22 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             cases[values] = oracle(algorithm, list(values))
 
         rng = random.Random(20261016)
-        for _ in range(128):
-            exponent = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
-            values = (rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE), exponent,
-                      rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE), exponent)
+        for _ in range(256):
+            values = (rng.choice(valid_bases),
+                      rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT),
+                      rng.choice(valid_bases),
+                      rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT))
             cases[values] = oracle(algorithm, list(values))
         for _ in range(128):
-            base = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE)
-            if base == 0:
-                exponent_a = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
-                exponent_b = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
-            elif rng.randrange(2) == 0:
-                exponent_a = exponent_b = 0
-            else:
-                exponent_a = rng.randint(1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
-                exponent_b = rng.randint(1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+            base = rng.choice(valid_bases)
+            exponent_a = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+            exponent_b = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
             values = (base, exponent_a, base, exponent_b)
             cases[values] = oracle(algorithm, list(values))
 
         malformed = (
             (), (1, 2, 3), (1, 2, 3, 4, 5),
-            (2, 10, 4, 5), (10, 0, 10, 1), (1, 0, 2, 1),
-            (0, 0, 1, 1),
+            (2, 10, 4, 5), (1, 0, 2, 1),
             (-1, 1, 1, 1), (1, -1, 1, 1),
             (LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE + 1, 1, 1, 1),
             (1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT + 1, 1, 1),

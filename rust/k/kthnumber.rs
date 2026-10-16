@@ -1,0 +1,3 @@
+fn part(a:&mut [i64],lo:usize,hi:usize)->usize{let p=a[hi];let mut i=lo;for j in lo..hi{if a[j]<p{a.swap(i,j);i+=1;}}a.swap(i,hi);i}
+#[no_mangle]
+pub extern "C" fn kthnumber(v:*const i64,n:usize)->i64{if n<4||n>19||v.is_null(){return -1;}let s=unsafe{std::slice::from_raw_parts(v,n)};let count=s[0];let mode=s[1];let k=s[2];if count<1||count>16||n!=count as usize+3||(mode!=1&&mode!=2)||k<1||k>count{return -1;}let mut a=[0i64;16];for i in 0..count as usize{a[i]=s[i+3];if !(-10000..=10000).contains(&a[i]){return -1;}}let target=if mode==1{k-1}else{count-k} as usize;let(mut lo,mut hi)=(0usize,count as usize-1);while lo<=hi{let q=part(&mut a,lo,hi);if q==target{return a[q];}if q<target{lo=q+1;}else{if q==0{break;}hi=q-1;}}-1}

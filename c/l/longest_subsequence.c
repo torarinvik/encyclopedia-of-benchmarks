@@ -1,0 +1,4 @@
+#include <stddef.h>
+#include <stdint.h>
+static int solve(const int64_t*a,int n,int64_t*out){if(n<=1){if(n)out[0]=a[0];return n;}int64_t pivot=a[0],best[10],sub[10],cand[10];int bl=0;int i=1;while(i<n){if(a[i]<pivot){int m=0;for(int j=i+1;j<n;j++)if(a[j]>=a[i])sub[m++]=a[j];int sl=solve(sub,m,cand+1);cand[0]=a[i];if(sl+1>bl){bl=sl+1;best[0]=cand[0];for(i=1;i<bl;i++)best[i]=cand[i];}}i++;}int m=0;for(int i=1;i<n;i++)if(a[i]>=pivot)sub[m++]=a[i];int sl=solve(sub,m,cand+1);cand[0]=pivot;if(sl+1>bl){bl=sl+1;for(int q=0;q<bl;q++)best[q]=cand[q];}for(int q=0;q<bl;q++)out[q]=best[q];return bl;}
+int64_t longest_subsequence(const int64_t*v,size_t n){if(n<2||n>11)return -1;int64_t k=v[0],a[10],out[10];if(k<1||k>10||n!=(size_t)(k+1))return -1;for(int i=0;i<k;i++){a[i]=v[i+1];if(a[i]<-10||a[i]>10)return -1;}int len=solve(a,(int)k,out);int64_t r=len;for(int i=0;i<len;i++)r=r*21+out[i]+10;return r;}

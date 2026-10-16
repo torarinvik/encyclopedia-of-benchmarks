@@ -1,0 +1,58 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def putd(output: mutable u8&, offset: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    k: mutable usize = 0
+    while k < 8:
+        output[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def ordinary_least_squares_regressor_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 6: return -1
+    nr: i64 = v[0]; f: i64 = v[1]; t: i64 = v[2]
+    if nr < 2 or nr > 8 or f != 2 or t < 1 or t > 3 or length != (3+nr*3+t*2).usize(): return -1
+    gram: [3][3]f64; rhs: [3]f64
+    p: mutable usize = 3; r: mutable usize = 0
+    while r < nr.usize():
+        x: i64 = v[p]; y: i64 = v[p+1]; target: i64 = v[p+2]; p <- p+3
+        if x < -100 or x > 100 or y < -100 or y > 100 or target < -1000 or target > 1000: return -1
+        row: [3]f64 = [x.f64(),y.f64(),1.0]
+        i: mutable usize = 0
+        while i < 3:
+            rhs[i] <- rhs[i]+row[i]*target.f64()
+            j: mutable usize = 0
+            while j < 3:
+                gram[i][j] <- gram[i][j]+row[i]*row[j]
+                j <- j+1
+            i <- i+1
+        r <- r+1
+    c: mutable usize = 0
+    while c < 3:
+        q: mutable usize = c; r <- c+1
+        while r < 3:
+            if abs(gram[r][c]) > abs(gram[q][c]): q <- r
+            r <- r+1
+        if abs(gram[q][c]) < 0.000000000001: return -1
+        j: mutable usize = 0
+        while j < 3:
+            temp: f64 = gram[c][j]; gram[c][j] <- gram[q][j]; gram[q][j] <- temp; j <- j+1
+        temp: f64 = rhs[c]; rhs[c] <- rhs[q]; rhs[q] <- temp
+        scale: f64 = gram[c][c]; j <- c
+        while j < 3: gram[c][j] <- gram[c][j]/scale; j <- j+1
+        rhs[c] <- rhs[c]/scale
+        r <- 0
+        while r < 3:
+            if r != c:
+                factor: f64 = gram[r][c]; j <- c
+                while j < 3: gram[r][j] <- gram[r][j]-factor*gram[c][j]; j <- j+1
+                rhs[r] <- rhs[r]-factor*rhs[c]
+            r <- r+1
+        c <- c+1
+    if capacity < t.usize()*8: return -2
+    r <- 0
+    while r < t.usize():
+        x: i64 = v[p]; y: i64 = v[p+1]; p <- p+2
+        if x < -100 or x > 100 or y < -100 or y > 100: return -1
+        putd(output,r*8,x.f64()*rhs[0]+y.f64()*rhs[1]+rhs[2]); r <- r+1
+    (t*8)
+export ordinary_least_squares_regressor(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ordinary_least_squares_regressor_impl

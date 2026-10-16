@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn kth_next_greater_element(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>8{return -1;}let a=unsafe{std::slice::from_raw_parts(v,n)};let k=a[0];if !(1..=7).contains(&k)||a[1..].iter().any(|&x|!(-15..=15).contains(&x)){return -1;}let m=n-1;let mut count=0;for i in 0..m{let mut cur=a[i+1];let mut pos=i+1;let mut ok=true;for _ in 0..k{while pos<m&&a[pos+1]<=cur{pos+=1;}if pos==m{ok=false;break;}cur=a[pos+1];pos+=1;}if ok{count+=1;}}count}

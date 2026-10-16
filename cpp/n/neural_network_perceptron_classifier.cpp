@@ -1,0 +1,3 @@
+#include <cstddef>
+#include <cstdint>
+extern "C" std::int64_t neural_network_perceptron_classifier(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<5)return -1;int f=int(v[0]),s=int(v[1]);auto bias=v[2];if(f<1||f>3||s<1||s>4||bias < -10000||bias>10000||n!=3+std::size_t(f)+std::size_t(f)*s)return -1;for(int i=0;i<f;i++)if(v[3+i]<-10000||v[3+i]>10000)return -1;for(std::size_t i=3+f;i<n;i++)if(v[i]<-10||v[i]>10)return -1;if(!out||cap<std::size_t(s))return -2;for(int j=0;j<s;j++){std::int64_t z=bias;for(int i=0;i<f;i++)z+=v[3+i]*v[3+f+std::size_t(i)*s+j];out[j]=std::uint8_t(z>0);}return s;}

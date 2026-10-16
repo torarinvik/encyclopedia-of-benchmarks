@@ -46,6 +46,7 @@ pub fn detecting_english_programmatically(input &i64, length usize) i64 {
 		}
 		tok.clear(); i++
 	}
-	if tokens > 0 && hits * 100 >= wp * tokens && retained * 100 >= lp * m { return 1 }
+	if tokens == 0 { return -1 }
+	if hits * 100 >= wp * tokens && retained * 100 >= lp * m { return 1 }
 	return 0
 }

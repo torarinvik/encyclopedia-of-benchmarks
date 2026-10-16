@@ -3,7 +3,7 @@
 MAX_DICTIONARY_WORDS = 8
 MAX_WORD_LENGTH = 12
 MAX_MESSAGE_LENGTH = 64
-MAX_INPUT_LENGTH = 2 + MAX_DICTIONARY_WORDS * (MAX_WORD_LENGTH + 1) + MAX_MESSAGE_LENGTH + 1
+MAX_INPUT_LENGTH = 3 + MAX_DICTIONARY_WORDS * (MAX_WORD_LENGTH + 1) + MAX_MESSAGE_LENGTH
 
 
 def expected_result(values: list[int]) -> int:
@@ -36,5 +36,7 @@ def expected_result(values: list[int]) -> int:
     retained = bytes(b for b in message if (65 <= b <= 90 or 97 <= b <= 122 or b in (9, 10, 32)))
     tokens = retained.upper().split()
     known = set(words)
-    return int(bool(tokens) and sum(w.decode("ascii") in known for w in tokens) * 100 >= word_pct * len(tokens)
+    if not tokens:
+        return -1
+    return int(sum(w.decode("ascii") in known for w in tokens) * 100 >= word_pct * len(tokens)
                and len(retained) * 100 >= letter_pct * len(message))

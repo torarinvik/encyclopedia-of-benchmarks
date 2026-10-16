@@ -26,12 +26,27 @@ import sys
 
 from build_abi import ROOT, sha256_file
 from trifid_cipher_oracle import expected_output as trifid_cipher_expected_output
+from double_point_crossover_oracle import expected_result as double_point_crossover_expected_output
+from dynamicarray_oracle import expected_output as dynamicarray_expected_output
+from uniform_crossover_oracle import MAX_COUNT as UNIFORM_CROSSOVER_MAX_COUNT
+from uniform_crossover_oracle import expected_result as uniform_crossover_expected_output
+from welsh_powell_oracle import MAX_VALIDATION_LENGTH as MAX_WELSH_POWELL_INPUT_LENGTH
+from welsh_powell_oracle import expected_output as welsh_powell_expected_output
+from wus_line_oracle import MAX_INPUT_LENGTH as MAX_WUS_LINE_INPUT_LENGTH
+from wus_line_oracle import expected_output as wus_line_expected_output
+from words_to_number_oracle import MAX_INPUT as MAX_WORDS_TO_NUMBER_BYTE_LENGTH
+from words_to_number_oracle import expected_result as words_to_number_expected_output
+from word_occurrence_oracle import expected_result as word_occurrence_expected_output
+from word_occurrence_oracle import MAX_INPUT as MAX_WORD_OCCURRENCE_BYTE_LENGTH
+from word_occurrence_oracle import expected_result as word_occurrence_expected_output
 from ngram_oracle import MAX_INPUT_LENGTH as MAX_NGRAM_INPUT_LENGTH
 from ngram_oracle import expected_output as ngram_expected_output
 from hilbert_curve_oracle import expected_output as hilbert_curve_expected_output
 from hill_encoder_oracle import expected_output as hill_encoder_expected_output
 from natural_sort_oracle import MAX_INPUT_LENGTH as MAX_NATURAL_SORT_INPUT_LENGTH
 from natural_sort_oracle import expected_output as natural_sort_expected_output
+from naive_bayes_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_BAYES_INPUT_LENGTH
+from naive_bayes_oracle import expected_output as naive_bayes_expected_output
 from optimal_job_scheduling_oracle import MAX_INPUT_LENGTH as MAX_OPTIMAL_JOB_SCHEDULING_INPUT_LENGTH
 from optimal_job_scheduling_oracle import expected_output as optimal_job_scheduling_expected_output
 from one_hot_encode_oracle import MAX_INPUT_LENGTH as MAX_ONE_HOT_ENCODE_INPUT_LENGTH
@@ -49,6 +64,12 @@ from non_preemptive_priority_scheduling_oracle import MAX_INPUT_LENGTH as MAX_NO
 from non_preemptive_priority_scheduling_oracle import expected_output as non_preemptive_priority_scheduling_expected_output
 from nesterov_accelerated_sgd_oracle import MAX_INPUT_LENGTH as MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH
 from nesterov_accelerated_sgd_oracle import expected_output as nesterov_accelerated_sgd_expected_output
+from neural_network_oracle import MAX_INPUT_LENGTH as MAX_NEURAL_NETWORK_INPUT_LENGTH
+from neural_network_oracle import expected_output as neural_network_expected_output
+from neural_network_perceptron_classifier_oracle import MAX_INPUT_LENGTH as MAX_NEURAL_NETWORK_PERCEPTRON_CLASSIFIER_INPUT_LENGTH
+from neural_network_perceptron_classifier_oracle import expected_output as neural_network_perceptron_classifier_expected_output
+from naive_bayes_text_classification_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_BAYES_TEXT_CLASSIFICATION_INPUT_LENGTH
+from naive_bayes_text_classification_oracle import expected_output as naive_bayes_text_classification_expected_output
 from open_knight_tour_oracle import MAX_INPUT_LENGTH as MAX_OPEN_KNIGHT_TOUR_INPUT_LENGTH
 from open_knight_tour_oracle import expected_output as open_knight_tour_expected_output
 from operators_oracle import MAX_INPUT_LENGTH as MAX_OPERATORS_INPUT_LENGTH
@@ -58,6 +79,8 @@ from orbital_transfer_work_oracle import expected_output as orbital_transfer_wor
 from node_neighbors_oracle import expected_output as node_neighbors_expected_output
 from ordinary_least_squares_regression_oracle import MAX_INPUT_LENGTH as MAX_OLS_REGRESSION_INPUT_LENGTH
 from ordinary_least_squares_regression_oracle import expected_output as ordinary_least_squares_regression_expected_output
+from ordinary_least_squares_regressor_oracle import MAX_INPUT_LENGTH as MAX_OLS_REGRESSOR_INPUT_LENGTH
+from ordinary_least_squares_regressor_oracle import expected_output as ordinary_least_squares_regressor_expected_output
 from otsu_threshold_oracle import MAX_INPUT_LENGTH as MAX_OTSU_THRESHOLD_INPUT_LENGTH
 from otsu_threshold_oracle import expected_output as otsu_threshold_expected_output
 from number_container_system_oracle import MAX_INPUT_LENGTH as MAX_NUMBER_CONTAINER_SYSTEM_INPUT_LENGTH
@@ -75,6 +98,12 @@ from pairwise_iteration_oracle import MAX_INPUT_LENGTH as MAX_PAIRWISE_ITERATION
 from pairwise_iteration_oracle import expected_output as pairwise_iteration_expected_output
 from postfix_to_infix_oracle import MAX_INPUT_LENGTH as MAX_POSTFIX_TO_INFIX_INPUT_LENGTH
 from postfix_to_infix_oracle import expected_output as postfix_to_infix_expected_output
+from prefix_to_infix_oracle import MAX_INPUT_LENGTH as MAX_PREFIX_TO_INFIX_INPUT_LENGTH
+from prefix_to_infix_oracle import expected_output as prefix_to_infix_expected_output
+from prefix_conversions_string_oracle import MAX_INPUT_LENGTH as MAX_PREFIX_CONVERSIONS_STRING_INPUT_LENGTH
+from prefix_conversions_string_oracle import expected_output as prefix_conversions_string_expected_output
+from phonetic_alphabet_converter_oracle import MAX_INPUT_LENGTH as MAX_PHONETIC_ALPHABET_CONVERTER_INPUT_LENGTH
+from phonetic_alphabet_converter_oracle import expected_output as phonetic_alphabet_converter_expected_output
 from pig_latin_oracle import MAX_INPUT_LENGTH as MAX_PIG_LATIN_INPUT_LENGTH
 from pig_latin_oracle import expected_output as pig_latin_expected_output
 from polybius_oracle import MAX_INPUT_LENGTH as MAX_POLYBIUS_INPUT_LENGTH
@@ -174,6 +203,8 @@ from join_oracle import MAX_PARSEABLE_LENGTH as JOIN_MAX_PARSEABLE_INPUT_LENGTH
 from join_oracle import expected_output as join_expected_output
 from resistor_color_code_oracle import MAX_INPUT_LENGTH as MAX_RESISTOR_COLOR_CODE_INPUT_LENGTH
 from resistor_color_code_oracle import expected_output as resistor_color_code_expected_output
+from double_ended_selection_sort_oracle import MAX_PARSEABLE_LENGTH as DOUBLE_ENDED_SELECTION_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from double_ended_selection_sort_oracle import expected_output as double_ended_selection_sort_expected_output
 from move_to_front_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH
 from move_to_front_oracle import expected_output as move_to_front_expected_output
 from word_boggle_oracle import expected_output as word_boggle_expected_output
@@ -275,6 +306,8 @@ from nearest_neighbor_interpolation_oracle import MAX_INPUT_LENGTH as MAX_NEARES
 from nearest_neighbor_interpolation_oracle import expected_output as nearest_neighbor_interpolation_expected_output
 from dbscan_oracle import MAX_INPUT_LENGTH as MAX_DBSCAN_INPUT_LENGTH
 from dbscan_oracle import expected_output as dbscan_expected_output
+from des_ecb_oracle import MAX_INPUT_LENGTH as MAX_DES_ECB_INPUT_LENGTH
+from des_ecb_oracle import expected_output as des_ecb_expected_output
 from composite_lfsr_majority_clock_oracle import expected_output as composite_lfsr_majority_clock_expected_output
 from non_empty_subsequences_oracle import MAX_INPUT_LENGTH as MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH
 from non_empty_subsequences_oracle import expected_output as non_empty_subsequences_expected_output
@@ -360,6 +393,14 @@ MAX_ASCON_DIGEST_INPUT_LENGTH = 4098
 MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 RECORDER_WORKSPACE_ALGORITHMS = {
+    'dynamicarray',
+    'double_point_crossover',
+    'uniform_crossover',
+    'welsh_powell',
+    'wus_line',
+    'words_to_number',
+    'word_occurrence',
+    'word_occurrence',
     'a1z26_cipher',
     'a1z26_decipher',
     'account_merge',
@@ -413,6 +454,7 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'data_normalization_standardization',
     'data_transformations',
     'date_to_day',
+    'des_ecb',
     'dbscan',
     'depreciation',
     'depth_first_search_target_route',
@@ -463,6 +505,9 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'ones_complement',
     'particle_swarm_optimization',
     'postfix_to_infix',
+    'prefix_to_infix',
+    'prefix_conversions_string',
+    'phonetic_alphabet_converter',
     'power_for_huge_numbers',
     'railway_time_conversion',
     'range_in_sorted_array',
@@ -493,6 +538,7 @@ RECORDER_WORKSPACE_ALGORITHMS = {
     'two_sat',
     'union_of_two_arrays',
     'unique_letters_count',
+    'double_ended_selection_sort',
     'upper',
     'word_ladder',
     'word_ladder_dfs',
@@ -520,6 +566,14 @@ MAX_BRIDGES_INPUT_LENGTH = 2 + 2 * 2047
 MAX_SCC_INPUT_LENGTH = 2 + 2 * 2047
 MAX_BOUNDARY_FILL_INPUT_LENGTH = 6 + 32 * 32
 from flood_fill_oracle import MAX_INPUT_LENGTH as MAX_FLOOD_FILL_INPUT_LENGTH
+from fuzzy_set_operations_oracle import MAX_INPUT_LENGTH as MAX_FUZZY_SET_OPERATIONS_INPUT_LENGTH
+from fuzzy_set_operations_oracle import expected_output as fuzzy_set_operations_expected_output
+from fuzzy_operations_oracle import MAX_INPUT_LENGTH as MAX_FUZZY_OPERATIONS_INPUT_LENGTH
+from fuzzy_operations_oracle import expected_output as fuzzy_operations_expected_output
+from gram_schmidt_oracle import MAX_INPUT_LENGTH as MAX_GRAM_SCHMIDT_INPUT_LENGTH
+from gram_schmidt_oracle import expected_output as gram_schmidt_expected_output
+from fraction_oracle import MAX_INPUT_LENGTH as MAX_FRACTION_INPUT_LENGTH
+from fraction_oracle import expected_output as fraction_expected_output
 from flood_fill_oracle import expected_output as flood_fill_expected_output
 MAX_BACONIAN_PAYLOAD_LENGTH = 1024
 MAX_CROSS_CORRELATION_INPUT_LENGTH = 66
@@ -1323,6 +1377,18 @@ def round_half_away_from_zero(value: float) -> int:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "double_point_crossover":
+        return double_point_crossover_expected_output(values)
+    if algorithm == "uniform_crossover":
+        return uniform_crossover_expected_output(values)
+    if algorithm == "welsh_powell":
+        return welsh_powell_expected_output(values)
+    if algorithm == "wus_line":
+        return wus_line_expected_output(values)
+    if algorithm == "words_to_number":
+        return words_to_number_expected_output(values)
+    if algorithm == "word_occurrence":
+        return word_occurrence_expected_output(values)
     if algorithm == "rgb_hsl_conversion":
         return rgb_hsl_conversion_expected_output(values)
     if algorithm == "rgb_hsv_conversion":
@@ -1359,6 +1425,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return join_expected_output(values)
     if algorithm == "resistor_color_code":
         return resistor_color_code_expected_output(values)
+    if algorithm == "double_ended_selection_sort":
+        return double_ended_selection_sort_expected_output(values)
     if algorithm == "move_to_front":
         return move_to_front_expected_output(values)
 
@@ -1534,6 +1602,16 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return remove_vowels_expected_output(values)
     if algorithm == "natural_sort":
         return natural_sort_expected_output(values)
+    if algorithm == "fuzzy_set_operations":
+        return fuzzy_set_operations_expected_output(values)
+    if algorithm == "fuzzy_operations":
+        return fuzzy_operations_expected_output(values)
+    if algorithm == "gram_schmidt":
+        return gram_schmidt_expected_output(values)
+    if algorithm == "fraction":
+        return fraction_expected_output(values)
+    if algorithm == "naive_bayes":
+        return naive_bayes_expected_output(values)
     if algorithm == "optimal_job_scheduling":
         return optimal_job_scheduling_expected_output(values)
     if algorithm == "one_hot_encode":
@@ -1548,6 +1626,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return n_body_simulation_expected_output(values)
     if algorithm == "nesterov_accelerated_sgd":
         return nesterov_accelerated_sgd_expected_output(values)
+    if algorithm == "neural_network_perceptron_classifier":
+        return neural_network_perceptron_classifier_expected_output(values)
+    if algorithm == "naive_bayes_text_classification":
+        return naive_bayes_text_classification_expected_output(values)
+    if algorithm == "neural_network":
+        return neural_network_expected_output(values)
     if algorithm == "non_preemptive_priority_scheduling":
         return non_preemptive_priority_scheduling_expected_output(values)
     if algorithm == "open_knight_tour":
@@ -1560,6 +1644,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return node_neighbors_expected_output(values)
     if algorithm == "ordinary_least_squares_regression":
         return ordinary_least_squares_regression_expected_output(values)
+    if algorithm == "ordinary_least_squares_regressor":
+        return ordinary_least_squares_regressor_expected_output(values)
     if algorithm == "otsu_threshold":
         return otsu_threshold_expected_output(values)
     if algorithm == "number_container_system":
@@ -2856,6 +2942,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             candidates.append(bytes(65 + ((value - 65 - key) % 26) if 65 <= value <= 90 else value
                                    for value in message))
         return 26, b"\n".join(candidates)
+
+    if algorithm == "word_occurrence":
+        return word_occurrence_expected_output(values)
 
     if algorithm == "check_word_occurrence":
         if (not isinstance(values, list) or len(values) < 2
@@ -4308,6 +4397,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = b"".join(struct.pack("<q", word) for word in words)
         return len(words), output
 
+    if algorithm == "dynamicarray":
+        return dynamicarray_expected_output(values)
+
     if algorithm == "decimal_to_fraction":
         if (not isinstance(values, list) or len(values) != 2
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -5194,6 +5286,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return nearest_neighbor_interpolation_expected_output(values)
     if algorithm == "dbscan":
         return dbscan_expected_output(values)
+    if algorithm == "des_ecb":
+        return des_ecb_expected_output(values)
     if algorithm == "non_empty_subsequences":
         return non_empty_subsequences_expected_output(values)
     if algorithm == "particle_swarm_optimization":
@@ -7889,6 +7983,15 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
 
     if algorithm == "postfix_to_infix":
         return postfix_to_infix_expected_output(values)
+
+    if algorithm == "prefix_to_infix":
+        return prefix_to_infix_expected_output(values)
+
+    if algorithm == "phonetic_alphabet_converter":
+        return phonetic_alphabet_converter_expected_output(values)
+
+    if algorithm == "prefix_conversions_string":
+        return prefix_conversions_string_expected_output(values)
 
     if algorithm == "polybius":
         return polybius_expected_output(values)
@@ -11865,6 +11968,12 @@ def main() -> int:
                             MATRIX_TRANSPOSE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "matrix_transpose" else
                             JOIN_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "join" else
                             MAX_RESISTOR_COLOR_CODE_INPUT_LENGTH + 1 if algorithm == "resistor_color_code" else
+                            DOUBLE_ENDED_SELECTION_SORT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "double_ended_selection_sort" else
+                            MAX_WELSH_POWELL_INPUT_LENGTH if algorithm == "welsh_powell" else
+                            MAX_WUS_LINE_INPUT_LENGTH if algorithm == "wus_line" else
+                            MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1 if algorithm == "words_to_number" else
+                            MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1 if algorithm == "word_occurrence" else
+                            1 + 3 * UNIFORM_CROSSOVER_MAX_COUNT if algorithm == "uniform_crossover" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
                             4 if algorithm == "midpoint_integration" else
                             2 if algorithm == "hilbert_curve" else
@@ -11880,6 +11989,7 @@ def main() -> int:
                             MAX_JARVIS_SCAN_INPUT_LENGTH if algorithm == "jarvis_scan" else
                             MAX_NGRAM_INPUT_LENGTH if algorithm == "ngram" else
                             MAX_NATURAL_SORT_INPUT_LENGTH if algorithm == "natural_sort" else
+                            MAX_NAIVE_BAYES_INPUT_LENGTH if algorithm == "naive_bayes" else
                             MAX_OPTIMAL_JOB_SCHEDULING_INPUT_LENGTH if algorithm == "optimal_job_scheduling" else
                             MAX_ONE_HOT_ENCODE_INPUT_LENGTH if algorithm == "one_hot_encode" else
                             MAX_ONE_DIMENSIONAL_INPUT_LENGTH if algorithm == "one_dimensional" else
@@ -11887,12 +11997,16 @@ def main() -> int:
                             MAX_NEAREST_NEIGHBOUR_SEARCH_INPUT_LENGTH if algorithm == "nearest_neighbour_search" else
                             MAX_N_BODY_SIMULATION_INPUT_LENGTH if algorithm == "n_body_simulation" else
                             MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH if algorithm == "nesterov_accelerated_sgd" else
+                            MAX_NEURAL_NETWORK_INPUT_LENGTH if algorithm == "neural_network" else
+                            MAX_NEURAL_NETWORK_PERCEPTRON_CLASSIFIER_INPUT_LENGTH if algorithm == "neural_network_perceptron_classifier" else
+                            MAX_NAIVE_BAYES_TEXT_CLASSIFICATION_INPUT_LENGTH if algorithm == "naive_bayes_text_classification" else
                             MAX_NON_PREEMPTIVE_PRIORITY_SCHEDULING_INPUT_LENGTH if algorithm == "non_preemptive_priority_scheduling" else
                             MAX_OPEN_KNIGHT_TOUR_INPUT_LENGTH if algorithm == "open_knight_tour" else
                             MAX_ORBITAL_TRANSFER_WORK_INPUT_LENGTH if algorithm == "orbital_transfer_work" else
                             MAX_OPERATORS_INPUT_LENGTH if algorithm == "operators" else
                             MAX_NODE_NEIGHBORS_INPUT_LENGTH if algorithm == "node_neighbors" else
                             MAX_OLS_REGRESSION_INPUT_LENGTH if algorithm == "ordinary_least_squares_regression" else
+                            MAX_OLS_REGRESSOR_INPUT_LENGTH if algorithm == "ordinary_least_squares_regressor" else
                             MAX_OTSU_THRESHOLD_INPUT_LENGTH if algorithm == "otsu_threshold" else
                             MAX_NUMBER_CONTAINER_SYSTEM_INPUT_LENGTH if algorithm == "number_container_system" else
                             MAX_NEAREST_NEIGHBOUR_ALGORITHM_INPUT_LENGTH if algorithm == "nearest_neighbour_algorithm" else
@@ -11901,6 +12015,9 @@ def main() -> int:
                             PREFIX_FUNCTION_MAX_INPUT_LENGTH if algorithm == "prefix_function" else
                             MAX_PAIRWISE_ITERATION_INPUT_LENGTH if algorithm == "pairwise_iteration" else
                             MAX_POSTFIX_TO_INFIX_INPUT_LENGTH if algorithm == "postfix_to_infix" else
+                            MAX_PREFIX_TO_INFIX_INPUT_LENGTH if algorithm == "prefix_to_infix" else
+                            MAX_PHONETIC_ALPHABET_CONVERTER_INPUT_LENGTH if algorithm == "phonetic_alphabet_converter" else
+                            MAX_PREFIX_CONVERSIONS_STRING_INPUT_LENGTH if algorithm == "prefix_conversions_string" else
                             MAX_POLYBIUS_INPUT_LENGTH if algorithm == "polybius" else
                             MAX_PIG_LATIN_INPUT_LENGTH if algorithm == "pig_latin" else
                             MAX_PARENTHESES_GENERATOR_INPUT_LENGTH if algorithm == "parentheses_generator" else
@@ -11929,6 +12046,9 @@ def main() -> int:
                             MAX_BRANCH_AND_BOUND_KNAPSACK_INPUT_LENGTH if algorithm == "branch_and_bound_knapsack_solver" else
                             MAX_BOUNDARY_FILL_INPUT_LENGTH if algorithm == "boundary_fill" else
                             MAX_FLOOD_FILL_INPUT_LENGTH if algorithm == "flood_fill" else
+                            MAX_FUZZY_SET_OPERATIONS_INPUT_LENGTH if algorithm == "fuzzy_set_operations" else
+                            MAX_FUZZY_OPERATIONS_INPUT_LENGTH if algorithm == "fuzzy_operations" else
+                            MAX_GRAM_SCHMIDT_INPUT_LENGTH if algorithm == "gram_schmidt" else
                             MAX_DATE_TO_DAY_INPUT_LENGTH if algorithm == "date_to_day" else
                             MAX_EMA_FILTER_INPUT_LENGTH if algorithm == "ema_filter" else
                             MAX_EGYPTIAN_FRACTION_INPUT_LENGTH if algorithm == "egyptian_fraction" else
@@ -11967,6 +12087,7 @@ def main() -> int:
                             MAX_DILATION_OPERATION_INPUT_LENGTH if algorithm == "dilation_operation" else
                             MAX_NEAREST_NEIGHBOR_INTERPOLATION_INPUT_LENGTH if algorithm == "nearest_neighbor_interpolation" else
                             MAX_DBSCAN_INPUT_LENGTH if algorithm == "dbscan" else
+                            MAX_DES_ECB_INPUT_LENGTH if algorithm == "des_ecb" else
                             MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH if algorithm == "non_empty_subsequences" else
                             MAX_PARTICLE_SWARM_INPUT_LENGTH if algorithm == "particle_swarm_optimization" else
                             MAX_CONVOLVE_1D_INPUT_LENGTH if algorithm == "convolve_1d" else
@@ -12007,6 +12128,7 @@ def main() -> int:
                             MAX_A_STAR_INPUT_LENGTH if algorithm == "a_star_search" else
                             MAX_NAIVE_SHUFFLER_INPUT_LENGTH if algorithm == "naive_shuffler" else
                             MAX_AFFINE_CIPHER_INPUT_LENGTH if algorithm == "affine_cipher" else
+                            MAX_FRACTION_INPUT_LENGTH if algorithm == "fraction" else
                             MAX_SQUARE_STREAK_INPUT_LENGTH if algorithm == "longest_square_streak" else
                             MAX_SQUARED_ARRAY_INPUT_LENGTH if algorithm == "squares_of_a_sorted_array" else
                             MAX_SORT_ARRAY_BY_PARITY_INPUT_LENGTH if algorithm == "sort_array_by_parity" else
@@ -12032,7 +12154,7 @@ def main() -> int:
                 "logistic_regression_cost_gradient",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "n_body_simulation", "nesterov_accelerated_sgd", "orbital_transfer_work"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0

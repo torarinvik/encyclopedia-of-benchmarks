@@ -1,0 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+static void putd(uint8_t*o,size_t p,double x){uint64_t b;memcpy(&b,&x,8);for(int k=0;k<8;k++)o[p+k]=(uint8_t)(b>>(8*k));}
+int64_t fuzzy_set_operations(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<8)return -1;int op=(int)v[0],m=(int)v[1];if(op<0||op>8||m<1||m>8||n!=5+(size_t)m*3)return -1;int64_t l=v[2],p=v[3],r=v[4];for(size_t i=5;i<n;i++)if(v[i]<0||v[i]>1000)return -1;if(op==0){if(l<0||p<l||r<p||r>1000)return -1;for(int i=0;i<m;i++)if(v[5+m+i]||v[5+2*m+i])return -1;}else{if(l||p||r)return -1;for(int i=0;i<m;i++)if(v[5+i])return -1;}if(!out||cap<(size_t)m*8)return -2;for(int i=0;i<m;i++){double z;if(op==0){double x=(double)v[5+i]/1000.,a=(double)l/1000.,b=(double)p/1000.,c=(double)r/1000.;double u=b>a?(x-a)/(b-a):(x<b?0:1),w=c>b?(c-x)/(c-b):(x>c?0:1);z=u<w?u:w;if(z<0)z=0;if(z>1)z=1;}else{double a=(double)v[5+m+i]/1000.,b=(double)v[5+2*m+i]/1000.;switch(op){case 1:z=a>b?a:b;break;case 2:z=a<b?a:b;break;case 3:z=1-a;break;case 4:z=a<1-b?a:1-b;break;case 5:z=a+b-a*b;break;case 6:z=a*b;break;case 7:z=a+b<1?a+b:1;break;default:z=a+b-1>0?a+b-1:0;}}putd(out,(size_t)i*8,z);}return (int64_t)m*8;}

@@ -1,0 +1,6 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <cmath>
+static void puti(std::uint8_t*o,std::int64_t x){std::uint64_t b;std::memcpy(&b,&x,8);for(int k=0;k<8;k++)o[k]=std::uint8_t(b>>(8*k));}
+extern "C" std::int64_t naive_bayes(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<6)return -1;int nr=int(v[0]),f=int(v[1]);if(nr<2||nr>8||f<1||f>3||n!=2+std::size_t(nr)*(f+1)+std::size_t(f))return -1;int labels[8],order[3],counts[3]={},cc=0;double x[8][3]={};std::size_t p=2;for(int r=0;r<nr;r++){auto lab=v[p++];if(lab<0||lab>2)return -1;int c=0;while(c<cc&&order[c]!=lab)c++;if(c==cc)order[cc++]=int(lab);labels[r]=c;counts[c]++;for(int j=0;j<f;j++){auto a=v[p++];if(a < -10000||a>10000)return -1;x[r][j]=double(a)/1000.;}}if(cc<2)return -1;double best=-INFINITY;std::int64_t ans=order[0];for(int c=0;c<cc;c++){double score=std::log(double(counts[c])/nr);for(int j=0;j<f;j++){double mean=0;for(int r=0;r<nr;r++)if(labels[r]==c)mean+=x[r][j];mean/=counts[c];double var=0;for(int r=0;r<nr;r++)if(labels[r]==c){double d=x[r][j]-mean;var+=d*d;}var=std::fmax(var/counts[c],1e-9);auto raw=v[p+j];if(raw < -10000||raw>10000)return -1;double q=double(raw)/1000.;score+=-0.5*std::log(6.2831853071795864769*var)-(q-mean)*(q-mean)/(2*var);}if(score>best){best=score;ans=order[c];}}if(!out||cap<8)return -2;puti(out,ans);return 8;}

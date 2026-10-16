@@ -1,0 +1,72 @@
+const MAX_INPUT: usize = 1024
+const MAX_ENTRIES: usize = 512
+
+def word_occurrence_ws(value: u8) -> bool:
+    (value >= 9 and value <= 13) or (value >= 28 and value <= 32)
+
+def word_occurrence_put32(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+    bits: mutable u32 = value
+    index: mutable usize = 0
+    while index < 4:
+        output[position] <- (bits & 255).u8()
+        position <- position + 1
+        bits <- bits >> 8
+        index <- index + 1
+
+def word_occurrence_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT + 1: return -1
+    n_arg: i64 = input[0]
+    if n_arg < 0 or n_arg > MAX_INPUT.i64() or length != n_arg.usize() + 1: return -1
+    n: usize = n_arg.usize()
+    text: mutable u8[MAX_INPUT] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 127: return -1
+        text[index] <- value.u8()
+        index <- index + 1
+    starts: mutable usize[MAX_ENTRIES] = zeroed
+    lengths: mutable usize[MAX_ENTRIES] = zeroed
+    counts: mutable u32[MAX_ENTRIES] = zeroed
+    entries: mutable usize = 0
+    index <- 0
+    while index < n:
+        while index < n and word_occurrence_ws(text[index]): index <- index + 1
+        if index == n: break
+        start: usize = index
+        while index < n and not word_occurrence_ws(text[index]): index <- index + 1
+        token_length: usize = index - start
+        entry: mutable usize = 0
+        while entry < entries:
+            if lengths[entry] == token_length:
+                offset: mutable usize = 0
+                while offset < token_length and text[starts[entry] + offset] == text[start + offset]: offset <- offset + 1
+                if offset == token_length: break
+            entry <- entry + 1
+        if entry == entries:
+            if entries >= MAX_ENTRIES: return -1
+            starts[entry] <- start
+            lengths[entry] <- token_length
+            entries <- entries + 1
+        counts[entry] <- counts[entry] + 1
+    needed: mutable usize = 4
+    entry: usize = 0
+    while entry < entries:
+        needed <- needed + 8 + lengths[entry]
+        entry <- entry + 1
+    if output == null or capacity < needed: return -2
+    position: mutable usize = 0
+    word_occurrence_put32(output, position&, entries.u32())
+    entry <- 0
+    while entry < entries:
+        word_occurrence_put32(output, position&, lengths[entry].u32())
+        index <- 0
+        while index < lengths[entry]:
+            output[position] <- text[starts[entry] + index]
+            position <- position + 1
+            index <- index + 1
+        word_occurrence_put32(output, position&, counts[entry])
+        entry <- entry + 1
+    position.i64()
+
+export fn word_occurrence(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_occurrence_impl

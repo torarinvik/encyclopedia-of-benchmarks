@@ -1,0 +1,3 @@
+# Triangular fuzzy-set methods
+
+This benchmark follows the pinned Python `FuzzySet` methods for complement, intersection, union, and membership. Input is `[operation, A_left, A_peak, A_right, B_left, B_peak, B_right, x]` in milli-units over `[0,1]`. Operations 0/3 use only A and require the B triple to be zero; operations 1/2 use both sets and require x=0. Membership requires strictly ordered A boundaries. The returned set operations preserve the source's exact constructor argument order, including its intersection peak/right calculation. Output is one binary64 membership value or a three-value `[left,peak,right]` triple. Invalid inputs return -1. Runtime oracle: `fuzzy_operations_oracle.py`.

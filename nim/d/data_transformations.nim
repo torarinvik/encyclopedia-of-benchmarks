@@ -22,8 +22,8 @@ proc roundThreeDecimals(value: float64): float64 =
         let half = 1'u64 shl (shift - 1)
         if remainder > half or (remainder == half and (rounded and 1'u64) != 0):
           inc rounded
-  let result = float64(rounded) / 1000.0
-  if negative: -result else: result
+  let roundedValue = float64(rounded) / 1000.0
+  if negative: -roundedValue else: roundedValue
 
 proc putF64Le(output: ptr UncheckedArray[uint8], offset: int, value: float64) =
   let bits = cast[uint64](value)

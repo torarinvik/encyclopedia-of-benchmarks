@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "java-spiral-i64-array-scalar-v1",
+  "algorithm": "print_amatrix_in_spiral_order",
+  "function_symbol": "print_amatrix_in_spiral_order",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[rows, columns, row_major_i32_values...]",
+    "rows_range": [
+      1,
+      8
+    ],
+    "columns_range": [
+      1,
+      8
+    ],
+    "maximum_input_length": 66
+  },
+  "output": {
+    "kind": "signed_i64",
+    "meaning": "32-bit FNV-1a of clockwise spiral values, each encoded as four little-endian bytes",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Pinned Java source traverses top row, right column, bottom row backward, and left column backward while shrinking the matrix bounds."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_cell",
+      "input_values": [
+        1,
+        1,
+        42
+      ],
+      "expected_result": 1926778335
+    },
+    {
+      "id": "single_row",
+      "input_values": [
+        1,
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 1041505217
+    },
+    {
+      "id": "single_column",
+      "input_values": [
+        4,
+        1,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 1041505217
+    },
+    {
+      "id": "rectangular",
+      "input_values": [
+        3,
+        4,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "expected_result": 2955828361
+    },
+    {
+      "id": "invalid_dimensions",
+      "input_values": [
+        0,
+        2,
+        1,
+        2
+      ],
+      "expected_result": -1
+    }
+  ]
+}

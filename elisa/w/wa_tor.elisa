@@ -1,0 +1,174 @@
+const WA_TOR_MAX_WIDTH: usize = 8
+const WA_TOR_MAX_HEIGHT: usize = 8
+const WA_TOR_MAX_CELLS: usize = 64
+const WA_TOR_MAX_CHRONONS: i64 = 32
+const WA_TOR_MAX_ENTITY_RECORDS: usize = WA_TOR_MAX_CELLS * (WA_TOR_MAX_CHRONONS + 1)
+const WA_TOR_HASH_MODULUS: i64 = 2147483647
+const WA_TOR_HASH_MULTIPLIER: i64 = 1000003
+
+struct WaTorEntity:
+    kind: i64
+    row: i64
+    col: i64
+    timer: i64
+    energy: i64
+    alive: bool
+
+def wa_tor_breed_time(kind: i64) -> i64:
+    if kind == 1: 5 else: 20
+
+def wa_tor_move_and_reproduce(entities: mutable WaTorEntity&, entity_count: mutable usize&,
+                              board: mutable i64&, entity_id: usize, width: usize, height: usize) -> void:
+    old_row: i64 = entities[entity_id].row
+    old_col: i64 = entities[entity_id].col
+    direction: mutable usize = 0
+    moved: mutable bool = false
+    while direction < 4:
+        delta_row: mutable i64 = 0
+        delta_col: mutable i64 = 0
+        if direction == 0: delta_row <- -1
+        else if direction == 1: delta_col <- 1
+        else if direction == 2: delta_row <- 1
+        else: delta_col <- -1
+        row: i64 = old_row + delta_row
+        col: i64 = old_col + delta_col
+        if row >= 0 and row < height.i64() and col >= 0 and col < width.i64():
+            destination: usize = row.usize() * width + col.usize()
+            if board[destination] == -1:
+                board[old_row.usize() * width + old_col.usize()] <- -1
+                board[destination] <- entity_id.i64()
+                entities[entity_id].row <- row
+                entities[entity_id].col <- col
+                moved <- true
+                break
+        direction <- direction + 1
+    if moved and entities[entity_id].timer <= 0:
+        if entity_count < WA_TOR_MAX_ENTITY_RECORDS:
+            child_id: usize = entity_count
+            kind: i64 = entities[entity_id].kind
+            breed_time: i64 = wa_tor_breed_time(kind)
+            entities[child_id].kind <- kind
+            entities[child_id].row <- old_row
+            entities[child_id].col <- old_col
+            entities[child_id].timer <- breed_time
+            entities[child_id].energy <- if kind == 1: 0 else: 15
+            entities[child_id].alive <- true
+            board[old_row.usize() * width + old_col.usize()] <- child_id.i64()
+            entities[entity_id].timer <- breed_time
+            entity_count <- entity_count + 1
+    else:
+        entities[entity_id].timer <- entities[entity_id].timer - 1
+
+def wa_tor_predator_action(entities: mutable WaTorEntity&, entity_count: mutable usize&,
+                           board: mutable i64&, entity_id: usize, width: usize, height: usize) -> void:
+    current: usize = entities[entity_id].row.usize() * width + entities[entity_id].col.usize()
+    if entities[entity_id].energy == 0:
+        board[current] <- -1
+        entities[entity_id].alive <- false
+        return
+    direction: mutable usize = 0
+    target: mutable i64 = -1
+    while direction < 4:
+        delta_row: mutable i64 = 0
+        delta_col: mutable i64 = 0
+        if direction == 0: delta_row <- -1
+        else if direction == 1: delta_row <- 1
+        else if direction == 2: delta_col <- -1
+        else: delta_col <- 1
+        row: i64 = entities[entity_id].row + delta_row
+        col: i64 = entities[entity_id].col + delta_col
+        if row >= 0 and row < height.i64() and col >= 0 and col < width.i64():
+            cell: usize = row.usize() * width + col.usize()
+            occupant: i64 = board[cell]
+            if occupant >= 0 and entities[occupant.usize()].kind == 1:
+                target <- cell.i64()
+                break
+        direction <- direction + 1
+    if target >= 0:
+        prey_id: usize = board[target.usize()].usize()
+        entities[prey_id].alive <- false
+        board[current] <- -1
+        board[target.usize()] <- entity_id.i64()
+        entities[entity_id].row <- target / width.i64()
+        entities[entity_id].col <- target % width.i64()
+        entities[entity_id].energy <- entities[entity_id].energy + 5
+    else:
+        wa_tor_move_and_reproduce(entities, entity_count, board, entity_id, width, height)
+    entities[entity_id].energy <- entities[entity_id].energy - 1
+
+def wa_tor_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 3 or length > 196:
+        return -1
+    width_value: i64 = values[0]
+    height_value: i64 = values[1]
+    chronons: i64 = values[2]
+    if width_value < 1 or width_value > 8 or height_value < 1 or height_value > 8 or chronons < 0 or chronons > WA_TOR_MAX_CHRONONS:
+        return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    cell_count: usize = width * height
+    if length != 3 + 3 * cell_count:
+        return -1
+
+    entities: mutable WaTorEntity[WA_TOR_MAX_ENTITY_RECORDS] = zeroed
+    entity_count: mutable usize = 0
+    board: mutable i64[WA_TOR_MAX_CELLS] = zeroed
+    snapshot: mutable usize[WA_TOR_MAX_CELLS] = zeroed
+    for cell in 0..<cell_count: board[cell] <- -1
+    for cell in 0..<cell_count:
+        kind: i64 = values[3 + 3 * cell]
+        timer: i64 = values[4 + 3 * cell]
+        energy: i64 = values[5 + 3 * cell]
+        if kind == 0:
+            if timer != 0 or energy != 0: return -1
+            continue
+        else if kind == 1:
+            if timer < 0 or timer > 5 or energy != 0: return -1
+        else if kind == 2:
+            if timer < 0 or timer > 20 or energy < 0 or energy > 15: return -1
+        else:
+            return -1
+        entities[entity_count].kind <- kind
+        entities[entity_count].row <- (cell / width).i64()
+        entities[entity_count].col <- (cell % width).i64()
+        entities[entity_count].timer <- timer
+        entities[entity_count].energy <- energy
+        entities[entity_count].alive <- true
+        board[cell] <- entity_count.i64()
+        entity_count <- entity_count + 1
+
+    chronon: mutable i64 = 0
+    while chronon < chronons:
+        snapshot_count: mutable usize = 0
+        for cell in 0..<cell_count:
+            if board[cell] >= 0:
+                snapshot[snapshot_count] <- board[cell].usize()
+                snapshot_count <- snapshot_count + 1
+        index: mutable usize = 0
+        while index < snapshot_count:
+            entity_id: usize = snapshot[index]
+            if entities[entity_id].alive:
+                if entities[entity_id].kind == 1:
+                    wa_tor_move_and_reproduce(&entities[0], entity_count, &board[0], entity_id, width, height)
+                else:
+                    wa_tor_predator_action(&entities[0], entity_count, &board[0], entity_id, width, height)
+            index <- index + 1
+        chronon <- chronon + 1
+
+    prey_count: mutable i64 = 0
+    predator_count: mutable i64 = 0
+    state_hash: mutable i64 = 0
+    for cell in 0..<cell_count:
+        code: mutable i64 = 0
+        if board[cell] >= 0:
+            entity: WaTorEntity = entities[board[cell].usize()]
+            if entity.kind == 1:
+                prey_count <- prey_count + 1
+                code <- entity.timer + 33
+            else:
+                predator_count <- predator_count + 1
+                code <- 1000 + 53 * entity.energy + entity.timer + 32
+        state_hash <- (state_hash * WA_TOR_HASH_MULTIPLIER + code) % WA_TOR_HASH_MODULUS
+    state_hash * 4225 + 65 * prey_count + predator_count
+
+export fn wa_tor(values: i64&, length: usize) -> i64 = wa_tor_impl

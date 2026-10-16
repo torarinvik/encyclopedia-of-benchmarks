@@ -1,0 +1,2 @@
+module neural_network_perceptron_classifier;
+fn long neural_network_perceptron_classifier(long *v,usz n,char *o,usz cap) @export("neural_network_perceptron_classifier"){if(v==null||n<5)return -1;int f=(int)v[0],s=(int)v[1];long bias=v[2];if(f<1||f>3||s<1||s>4||bias < -10000||bias>10000||n!=3+(usz)f+(usz)f*(usz)s)return -1;for(int i=0;i<f;i++)if(v[3+i] < -10000||v[3+i]>10000)return -1;for(usz i=3+(usz)f;i<n;i++)if(v[i] < -10||v[i]>10)return -1;if(o==null||cap<(usz)s)return -2;for(int j=0;j<s;j++){long z=bias;for(int i=0;i<f;i++)z+=v[3+i]*v[3+f+i*s+j];o[j]=z>0?1:0;}return s;}

@@ -1,0 +1,6 @@
+package ordinary_least_squares_regressor
+import "core:c"
+import "core:math"
+putd :: proc(o:[^]u8,p:int,x:f64){bits:=transmute(u64)x;for k:=0;k<8;k+=1{o[p+k]=u8(bits>>u64(k*8))}}
+@(export)
+ordinary_least_squares_regressor :: proc "c" (v:[^]i64,n:c.size_t,o:[^]u8,cap:c.size_t)->i64{if v==nil||n<6 do return -1;nr,f,t:=v[0],v[1],v[2];if nr<2||nr>8||f!=2||t<1||t>3||int(n)!=3+int(nr)*3+int(t)*2 do return -1;g:[3][3]f64;b:[3]f64;p:=3;for r:=0;r<int(nr);r+=1{x,y,z:=v[p],v[p+1],v[p+2];p+=3;if x < -100||x>100||y < -100||y>100||z < -1000||z>1000 do return -1;row:=[3]f64{f64(x),f64(y),1};for i:=0;i<3;i+=1{b[i]+=row[i]*f64(z);for j:=0;j<3;j+=1{g[i][j]+=row[i]*row[j]}}};for c0:=0;c0<3;c0+=1{q:=c0;for r:=c0+1;r<3;r+=1{if math.abs(g[r][c0])>math.abs(g[q][c0]) do q=r};if math.abs(g[q][c0])<1e-12 do return -1;for j:=0;j<3;j+=1{z:=g[c0][j];g[c0][j]=g[q][j];g[q][j]=z};z:=b[c0];b[c0]=b[q];b[q]=z;s:=g[c0][c0];for j:=c0;j<3;j+=1{g[c0][j]/=s};b[c0]/=s;for r:=0;r<3;r+=1{if r!=c0{k:=g[r][c0];for j:=c0;j<3;j+=1{g[r][j]-=k*g[c0][j]};b[r]-=k*b[c0]}}};if o==nil||cap<c.size_t(t*8) do return -2;for r:=0;r<int(t);r+=1{x,y:=v[p],v[p+1];p+=2;if x < -100||x>100||y < -100||y>100 do return -1;putd(o,r*8,f64(x)*b[0]+f64(y)*b[1]+b[2])};return t*8}

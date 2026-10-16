@@ -54,5 +54,6 @@ int64_t detecting_english_programmatically(const int64_t *a, size_t n) {
         }
         token_len = 0; ++i;
     }
-    return tokens != 0 && hits * 100 >= wp * (int64_t)tokens && retained * 100 >= lp * m;
+    if (tokens == 0) return -1;
+    return hits * 100 >= wp * (int64_t)tokens && retained * 100 >= lp * m;
 }

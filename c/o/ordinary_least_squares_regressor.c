@@ -1,0 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+static void putd(uint8_t*o,size_t p,double x){uint64_t b;memcpy(&b,&x,8);for(int k=0;k<8;k++)o[p+k]=(uint8_t)(b>>(8*k));}
+int64_t ordinary_least_squares_regressor(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<6)return -1;int rows=(int)v[0],f=(int)v[1],t=(int)v[2];if(rows<2||rows>8||f!=2||t<1||t>3||n!=3+(size_t)rows*3+(size_t)t*2)return -1;double a[3][3]={{0}},b[3]={0};size_t p=3;for(int r=0;r<rows;r++){int64_t x[2]={v[p],v[p+1]},y=v[p+2];p+=3;if(x[0]<-100||x[0]>100||x[1]<-100||x[1]>100||y<-1000||y>1000)return -1;double z[3]={(double)x[0],(double)x[1],1};for(int i=0;i<3;i++){b[i]+=z[i]*y;for(int j=0;j<3;j++)a[i][j]+=z[i]*z[j];}}for(int c=0;c<3;c++){int pivot=c;for(int r=c+1;r<3;r++)if(fabs(a[r][c])>fabs(a[pivot][c]))pivot=r;if(fabs(a[pivot][c])<1e-12)return -1;for(int j=0;j<3;j++){double q=a[c][j];a[c][j]=a[pivot][j];a[pivot][j]=q;}double q=b[c];b[c]=b[pivot];b[pivot]=q;double scale=a[c][c];for(int j=c;j<3;j++)a[c][j]/=scale;b[c]/=scale;for(int r=0;r<3;r++)if(r!=c){double k=a[r][c];for(int j=c;j<3;j++)a[r][j]-=k*a[c][j];b[r]-=k*b[c];}}if(!out||cap<(size_t)t*8)return -2;for(int r=0;r<t;r++){double y=0;for(int j=0;j<2;j++){int64_t x=v[p++];if(x<-100||x>100)return -1;y+=(double)x*b[j];}y+=b[2];putd(out,(size_t)r*8,y);}return (int64_t)t*8;}

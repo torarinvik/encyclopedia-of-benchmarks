@@ -1,0 +1,5 @@
+# Galloping insertion bounds
+
+This benchmark ports the pinned C# `GallopingStrategy<T>.GallopLeft` and `GallopRight` methods for ascending signed 32-bit arrays. Input is `[operation, array_length, base_index, range_length, key, ...array]`; operation 0 invokes `GallopLeft` and operation 1 invokes `GallopRight`, returning the source method's offset relative to the selected subrange. Arrays are limited to 64 values and the selected subrange must be sorted. Empty arrays return 0 as in the source. Invalid inputs return -1.
+
+The source's `BoundLeftShift` returns `int.MaxValue` for the bounded positive offsets used here, so its run search saturates to a range edge before the final binary search. The ports preserve this source behavior. `GallopRight` also has a source tie quirk: when the key equals the first value, the initial right run may stop at offset 1 before examining a longer equal run. The helper's standalone integer operation is not measured. Runtime oracle: `galloping_strategy_oracle.py`.

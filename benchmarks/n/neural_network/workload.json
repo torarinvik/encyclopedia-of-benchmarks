@@ -1,0 +1,13 @@
+{
+  "schema_version":1,
+  "id":"neural-network-one-hidden-layer-sigmoid-inference-v1",
+  "algorithm":"neural_network",
+  "function_symbol":"neural_network",
+  "input":{"kind":"signed_i64_array","layout":"[input_count,hidden_count,output_count,input_milli*,input-hidden row-major weights milli*,hidden-output row-major weights milli*]","maximum_input_values":24},
+  "output":{"kind":"float64_vector","values":"output layer sigmoid activations","byte_order":"little_endian","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"maximum_output_bytes":24,"invalid_result":-1},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":3,"warmup_rounds":1,"repetitions_per_sample":1000,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"zero_input_zero_weights","input_values":[2,2,1,0,0,0,0,0,0,0,0],"expected_result":8,"expected_output":[0.5]},
+    {"id":"bounded_two_layer","input_values":[2,2,1,500,0,1000,0,0,1000,1000,-1000],"expected_result":8,"expected_output":[0.5305792348339279]}
+  ]
+}

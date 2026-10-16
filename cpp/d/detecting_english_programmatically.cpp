@@ -27,5 +27,5 @@ extern "C" int64_t detecting_english_programmatically(const int64_t *a, size_t n
         if(i<(size_t)m&&(letter||ws))++retained;if(letter){token.push_back(c>=97?c-32:c);++i;continue;}if(!ws){++i;continue;}if(token.empty()){++i;continue;}
         ++tokens;for(int64_t w=0;w<count;++w){if(lens[w]!=token.size())continue;size_t k=0;while(k<token.size()&&a[starts[w]+k]==token[k])++k;if(k==token.size()){++hits;break;}}token.clear();++i;
     }
-    return tokens!=0&&hits*100>=wp*tokens&&retained*100>=lp*m;
+    if(tokens==0)return -1;return hits*100>=wp*tokens&&retained*100>=lp*m;
 }

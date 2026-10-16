@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "vectors-3d-float64-slice-io-v1",
+  "algorithm": "vectors_3d",
+  "function_symbol": "vectors_3d",
+  "input": {
+    "kind": "float64_array",
+    "operation_codes": {
+      "0": "add",
+      "1": "subtract",
+      "2": "dot_product",
+      "3": "cross_product",
+      "4": "norm",
+      "5": "unit_vector",
+      "6": "cross_product_matrix",
+      "7": "angle"
+    },
+    "unary_encoding": "[operation, ax, ay, az]",
+    "binary_encoding": "[operation, ax, ay, az, bx, by, bz]",
+    "exact_length_by_operation": {
+      "0": 7,
+      "1": 7,
+      "2": 7,
+      "3": 7,
+      "4": 4,
+      "5": 4,
+      "6": 4,
+      "7": 7
+    },
+    "component_abs_limit": 1000000.0,
+    "source_component_format": "binary32",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "binary64 values widened from source float results; angle is binary64",
+    "layout_by_operation": {
+      "0": "[x, y, z]",
+      "1": "[x, y, z]",
+      "2": "[dot]",
+      "3": "[x, y, z]",
+      "4": "[norm]",
+      "5": "[x, y, z]",
+      "6": "row-major 3x3 cross-product matrix",
+      "7": "[angle_in_radians]"
+    },
+    "maximum_elements": 9,
+    "absolute_tolerance": 0.000001,
+    "relative_tolerance": 0.000001,
+    "nan_marker": "NaN"
+  },
+  "workspace": {
+    "elements": 9,
+    "meaning": "maximum output vector/matrix element capacity"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "absolute_tolerance": 0.000001,
+    "relative_tolerance": 0.000001,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "add-vectors", "input_values": [0, 1.25, -2, 3, 4, 0.5, -1], "input_length": 7, "expected_result": 3, "expected_output": [5.25, -1.5, 2]},
+    {"id": "subtract-vectors", "input_values": [1, 1, 2, 3, 4, 5, 6], "input_length": 7, "expected_result": 3, "expected_output": [-3, -3, -3]},
+    {"id": "dot-product", "input_values": [2, 1, 2, 3, 4, 5, 6], "input_length": 7, "expected_result": 1, "expected_output": [32]},
+    {"id": "cross-product", "input_values": [3, 1, 0, 0, 0, 1, 0], "input_length": 7, "expected_result": 3, "expected_output": [0, 0, 1]},
+    {"id": "norm-seven", "input_values": [4, 2, 3, 6], "input_length": 4, "expected_result": 1, "expected_output": [7]},
+    {"id": "unit-vector-three-four", "input_values": [5, 3, 4, 0], "input_length": 4, "expected_result": 3, "expected_output": [0.6000000238418579, 0.800000011920929, 0]},
+    {"id": "unit-vector-exact-norm-one-source-defect", "input_values": [5, 1, 0, 0], "input_length": 4, "expected_result": 3, "expected_output": [0, 0, 0]},
+    {"id": "unit-vector-below-epsilon", "input_values": [5, 1e-10, 0, 0], "input_length": 4, "expected_result": 3, "expected_output": [0, 0, 0]},
+    {"id": "unit-vector-at-epsilon-source-double-threshold", "input_values": [5, 1e-9, 0, 0], "input_length": 4, "expected_result": 3, "expected_output": [0, 0, 0]},
+    {"id": "cross-product-matrix-row-major", "input_values": [6, 1, 2, 3], "input_length": 4, "expected_result": 9, "expected_output": [0, -3, 2, 3, 0, -1, -2, 1, 0]},
+    {"id": "right-angle", "input_values": [7, 1, 0, 0, 0, 1, 0], "input_length": 7, "expected_result": 1, "expected_output": [1.5707963267948966]},
+    {"id": "angle-with-near-zero-vector-is-nan", "input_values": [7, 1e-10, 0, 0, 1, 0, 0], "input_length": 7, "expected_result": 1, "expected_output": ["NaN"]},
+    {"id": "angle-at-epsilon-source-double-threshold-is-nan", "input_values": [7, 1e-9, 0, 0, 1, 0, 0], "input_length": 7, "expected_result": 1, "expected_output": ["NaN"]},
+    {"id": "maximum-component-norm", "input_values": [4, 1000000, 0, 0], "input_length": 4, "expected_result": 1, "expected_output": [1000000]},
+    {"id": "invalid-operation-code", "input_values": [8, 1, 2, 3], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-nonintegral-operation-code", "input_values": [1.5, 1, 2, 3, 4, 5, 6], "input_length": 7, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-unary-length", "input_values": [4, 1, 2, 3, 0], "input_length": 5, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-binary-length", "input_values": [0, 1, 2, 3, 4, 5], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-component-out-of-range", "input_values": [4, 1000001, 0, 0], "input_length": 4, "expected_result": -1, "expected_output": []}
+  ]
+}

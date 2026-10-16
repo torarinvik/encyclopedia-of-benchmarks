@@ -19,8 +19,33 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from dynamicarray_oracle import expected_output as dynamicarray_oracle
 from cholesky_decomposition_oracle import expected_output as cholesky_decomposition_oracle
 from two_sat_oracle import expected_output as two_sat_oracle
+from double_point_crossover_oracle import expected_result as double_point_crossover_oracle
+from uniform_crossover_oracle import MAX_COUNT as UNIFORM_CROSSOVER_MAX_COUNT
+from uniform_crossover_oracle import expected_result as uniform_crossover_oracle
+from welsh_powell_oracle import MAX_EDGE_PAIRS as WELSH_POWELL_MAX_EDGE_PAIRS
+from welsh_powell_oracle import I64_MAX as WELSH_POWELL_I64_MAX
+from welsh_powell_oracle import I64_MIN as WELSH_POWELL_I64_MIN
+from welsh_powell_oracle import MAX_VALIDATION_LENGTH as MAX_WELSH_POWELL_INPUT_LENGTH
+from welsh_powell_oracle import MAX_VERTICES as WELSH_POWELL_MAX_VERTICES
+from welsh_powell_oracle import expected_output as welsh_powell_oracle
+from wus_line_oracle import COORDINATE_LIMIT as WUS_LINE_MAX_COORDINATE
+from wus_line_oracle import MAX_INPUT_LENGTH as MAX_WUS_LINE_INPUT_LENGTH
+from wus_line_oracle import MAX_OUTPUT_BYTES as WUS_LINE_MAX_OUTPUT_BYTES
+from wus_line_oracle import expected_output as wus_line_oracle
+from words_to_number_oracle import MAX_INPUT as MAX_WORDS_TO_NUMBER_BYTE_LENGTH
+from words_to_number_oracle import MAX_OUTPUT_BYTES as WORDS_TO_NUMBER_MAX_OUTPUT_BYTES
+from words_to_number_oracle import NUMBERS as WORDS_TO_NUMBER_NUMBERS
+from words_to_number_oracle import SCALES as WORDS_TO_NUMBER_SCALES
+from words_to_number_oracle import expected_result as words_to_number_oracle
+from word_occurrence_oracle import MAX_INPUT as WORD_OCCURRENCE_MAX_INPUT
+from word_occurrence_oracle import expected_result as word_occurrence_oracle
+from word_occurrence_oracle import ASCII_WHITESPACE as WORD_OCCURRENCE_ASCII_WHITESPACE
+from word_occurrence_oracle import MAX_INPUT as MAX_WORD_OCCURRENCE_BYTE_LENGTH
+from word_occurrence_oracle import MAX_OUTPUT_BYTES as WORD_OCCURRENCE_MAX_OUTPUT_BYTES
+from word_occurrence_oracle import expected_result as word_occurrence_oracle
 from depreciation_oracle import expected_output as depreciation_oracle
 from brainfuck_oracle import expected_output as brainfuck_oracle
 from chaos_machine_oracle import MAX_INPUT_LENGTH as MAX_CHAOS_MACHINE_INPUT_LENGTH
@@ -80,6 +105,19 @@ from join_oracle import MAX_OUTPUT_LENGTH as JOIN_MAX_OUTPUT_LENGTH
 from join_oracle import MAX_PARSEABLE_LENGTH as JOIN_MAX_PARSEABLE_INPUT_LENGTH
 from join_oracle import MAX_SEPARATOR_LENGTH as JOIN_MAX_SEPARATOR_LENGTH
 from join_oracle import expected_output as join_oracle
+from resistor_color_code_oracle import MAX_INPUT_LENGTH as RESISTOR_COLOR_CODE_MAX_INPUT_LENGTH
+from resistor_color_code_oracle import MAX_TEXT_LENGTH as RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH
+from resistor_color_code_oracle import MULTIPLIERS as RESISTOR_COLOR_CODE_MULTIPLIERS
+from resistor_color_code_oracle import SIGNIFICANT as RESISTOR_COLOR_CODE_SIGNIFICANT
+from resistor_color_code_oracle import TEMPERATURES as RESISTOR_COLOR_CODE_TEMPERATURES
+from resistor_color_code_oracle import TOLERANCES as RESISTOR_COLOR_CODE_TOLERANCES
+from resistor_color_code_oracle import expected_output as resistor_color_code_oracle
+from double_ended_selection_sort_oracle import I64_MAX as DOUBLE_ENDED_SELECTION_SORT_I64_MAX
+from double_ended_selection_sort_oracle import I64_MIN as DOUBLE_ENDED_SELECTION_SORT_I64_MIN
+from double_ended_selection_sort_oracle import MAX_INPUT_LENGTH as DOUBLE_ENDED_SELECTION_SORT_MAX_INPUT_LENGTH
+from double_ended_selection_sort_oracle import MAX_OUTPUT_BYTES as DOUBLE_ENDED_SELECTION_SORT_MAX_OUTPUT_BYTES
+from double_ended_selection_sort_oracle import MAX_PARSEABLE_LENGTH as DOUBLE_ENDED_SELECTION_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from double_ended_selection_sort_oracle import expected_output as double_ended_selection_sort_oracle
 from move_to_front_oracle import MAX_ALPHABET_LENGTH as MOVE_TO_FRONT_MAX_ALPHABET_LENGTH
 from move_to_front_oracle import MAX_INPUT_LENGTH as MOVE_TO_FRONT_MAX_INPUT_LENGTH
 from move_to_front_oracle import MAX_OUTPUT_LENGTH as MOVE_TO_FRONT_MAX_OUTPUT_LENGTH
@@ -252,6 +290,10 @@ from dbscan_oracle import MAX_INPUT_LENGTH as MAX_DBSCAN_INPUT_LENGTH
 from dbscan_oracle import MAX_OUTPUT_BYTES as MAX_DBSCAN_OUTPUT_BYTES
 from dbscan_oracle import MAX_POINTS as MAX_DBSCAN_POINTS
 from dbscan_oracle import expected_output as dbscan_oracle
+from des_ecb_oracle import MAX_INPUT_LENGTH as MAX_DES_ECB_INPUT_LENGTH
+from des_ecb_oracle import MAX_TEXT_BYTES as MAX_DES_ECB_TEXT_BYTES
+from des_ecb_oracle import MAX_OUTPUT_BYTES as MAX_DES_ECB_OUTPUT_BYTES
+from des_ecb_oracle import expected_output as des_ecb_oracle
 from combination_sum_oracle import MAX_CANDIDATES as MAX_COMBINATION_SUM_CANDIDATES
 from combination_sum_oracle import MAX_PACKED_INPUT_LENGTH as MAX_COMBINATION_SUM_INPUT_LENGTH
 from combination_sum_oracle import MAX_OUTPUT_WORDS as MAX_COMBINATION_SUM_OUTPUT_WORDS
@@ -444,7 +486,7 @@ ALGORITHMS = ("letter_combinations_of_phone_number", "blake2b", "charoccurrence"
               "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
               "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
               "serialize_deserialize_binary_tree", "cramers_rule_2x2", "create_binary_tree_from_inorder_preorder",
-              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination")
+              "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "floor_and_ceiling", "cusum_detector", "complex_number_multiply", "complex_arithmetic", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "composite_lfsr_majority_clock", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination")
 ALGORITHMS = (*ALGORITHMS, "recursive_shuffler", "graph_coloring", "fisher_yates_shuffle")
 ALGORITHMS = (*ALGORITHMS, "heaps", "heaps_algorithm")
 ALGORITHMS = (*ALGORITHMS, "cpu_scheduling_algorithms")
@@ -474,6 +516,16 @@ ALGORITHMS = (*ALGORITHMS, "move_hash_to_end")
 ALGORITHMS = (*ALGORITHMS, "simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher")
 ALGORITHMS = (*ALGORITHMS, "rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270", "rotate_matrix_transpose", "matrix_transpose")
 ALGORITHMS = (*ALGORITHMS, "join")
+ALGORITHMS = (*ALGORITHMS, "resistor_color_code")
+ALGORITHMS = (*ALGORITHMS, "double_ended_selection_sort")
+ALGORITHMS = (*ALGORITHMS, "double_point_crossover")
+ALGORITHMS = (*ALGORITHMS, "dynamicarray")
+ALGORITHMS = (*ALGORITHMS, "uniform_crossover")
+ALGORITHMS = (*ALGORITHMS, "welsh_powell")
+ALGORITHMS = (*ALGORITHMS, "wus_line")
+ALGORITHMS = (*ALGORITHMS, "words_to_number")
+ALGORITHMS = (*ALGORITHMS, "word_occurrence")
+ALGORITHMS = (*ALGORITHMS, "word_occurrence")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -508,7 +560,7 @@ WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_uniq
                         "a1z26_cipher", "a1z26_decipher", "centroid_decomposition", "chacha", "chebyshev_iteration", "date_to_day",
                         "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
                         "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination", "create_binary_tree_from_inorder_preorder",
-                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
+                        "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
 WORKSPACE_ALGORITHMS.update({"recursive_shuffler", "graph_coloring", "fisher_yates_shuffle", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms"})
 WORKSPACE_ALGORITHMS.add("eulerian_path")
 WORKSPACE_ALGORITHMS.add("directed_simple_cycles")
@@ -517,6 +569,7 @@ WORKSPACE_ALGORITHMS.add("horizontal_projectile_motion")
 WORKSPACE_ALGORITHMS.add("jarvis_scan")
 WORKSPACE_ALGORITHMS.add("floor_and_ceiling")
 WORKSPACE_ALGORITHMS.add("solve_quadratic_equation")
+WORKSPACE_ALGORITHMS.add("dynamicarray")
 WORKSPACE_ALGORITHMS.add("generate_rule_30_grid")
 WORKSPACE_ALGORITHMS.add("crossword_solver")
 WORKSPACE_ALGORITHMS.add("crossword_puzzle_solver")
@@ -540,6 +593,16 @@ WORKSPACE_ALGORITHMS.add("move_hash_to_end")
 WORKSPACE_ALGORITHMS.update({"simple_keyword_cypher_encipher", "simple_keyword_cypher_decipher"})
 WORKSPACE_ALGORITHMS.update({"rotate_matrix_90", "rotate_matrix_180", "rotate_matrix_270", "rotate_matrix_transpose", "matrix_transpose"})
 WORKSPACE_ALGORITHMS.add("join")
+WORKSPACE_ALGORITHMS.add("resistor_color_code")
+WORKSPACE_ALGORITHMS.add("double_ended_selection_sort")
+WORKSPACE_ALGORITHMS.add("des_ecb")
+WORKSPACE_ALGORITHMS.add("double_point_crossover")
+WORKSPACE_ALGORITHMS.add("uniform_crossover")
+WORKSPACE_ALGORITHMS.add("welsh_powell")
+WORKSPACE_ALGORITHMS.add("wus_line")
+WORKSPACE_ALGORITHMS.add("words_to_number")
+WORKSPACE_ALGORITHMS.add("word_occurrence")
+WORKSPACE_ALGORITHMS.add("word_occurrence")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -1245,7 +1308,53 @@ def red_black_tree_oracle(values: tuple[int, ...] | list[int]) -> tuple[int, byt
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     records: list[tuple[tuple[int, ...], int, bytes, int | None]] = []
     null_input_cases: set[tuple[tuple[int, ...], int | None]] = set()
-    if algorithm == "trifid_cipher":
+    if algorithm == "word_occurrence":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity < 4:
+            raise ValueError("word_occurrence workspace must provide at least four bytes")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = word_occurrence_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = word_occurrence_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"word_occurrence workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for byte in range(128):
+            add((1, byte))
+            add((3, byte, 32, byte))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            text_length = rng.randint(0, 128)
+            text = tuple(rng.randrange(128) for _ in range(text_length))
+            add((text_length, *text))
+
+        capacity_probe = (5, 97, 32, 98, 32, 97)
+        _, required_output = word_occurrence_oracle(capacity_probe)
+        for capacity in (0, 3, 4, len(required_output) - 1, len(required_output), default_capacity):
+            add(capacity_probe, capacity)
+        for values in (
+            (), (I64_MIN,), (I64_MAX,), (-1,), (0, 0), (1,), (1, -1), (1, 128),
+            (1, 256), (2, 65), (WORD_OCCURRENCE_MAX_INPUT + 1, *([65] * (WORD_OCCURRENCE_MAX_INPUT + 1))),
+        ):
+            add(values)
+
+        null_probe = (8, 119, 111, 114, 100, 95, 111, 99, 99)
+        null_key = (null_probe, default_capacity)
+        if null_key in cases:
+            raise ValueError("word_occurrence null-input canary collides with another case")
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "trifid_cipher":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes", 256)
         if type(default_capacity) is not int or default_capacity < 256:
@@ -1768,6 +1877,158 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             raise ValueError("join maximum output length is inconsistent")
 
         null_key = ((1, 0, 127), default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "resistor_color_code":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < workload.get("output", {}).get("maximum_output_bytes", 0)):
+            raise ValueError("invalid resistor_color_code output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = resistor_color_code_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = resistor_color_code_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"resistor_color_code workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        significant_colors = tuple(RESISTOR_COLOR_CODE_SIGNIFICANT)
+        multiplier_colors = tuple(RESISTOR_COLOR_CODE_MULTIPLIERS)
+        tolerance_colors = tuple(RESISTOR_COLOR_CODE_TOLERANCES)
+        temperature_colors = tuple(RESISTOR_COLOR_CODE_TEMPERATURES)
+        for _ in range(256):
+            band_count = rng.randint(3, 6)
+            significant_count = 2 if band_count <= 4 else 3
+            colors = [rng.choice(significant_colors) for _ in range(significant_count)]
+            colors.append(rng.choice(multiplier_colors))
+            if band_count >= 4:
+                colors.append(rng.choice(tolerance_colors))
+            if band_count == 6:
+                colors.append(rng.choice(temperature_colors))
+            encoded = ",".join(colors).encode("ascii")
+            add((len(encoded), *encoded))
+
+        maximum_text = "Orange,Orange,Orange,Silver,Silver,Violet"
+        maximum_encoded = maximum_text.encode("ascii")
+        if len(maximum_encoded) != RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH:
+            raise ValueError("resistor_color_code maximum text length is inconsistent")
+        maximum_values = (len(maximum_encoded), *maximum_encoded)
+        maximum_result, maximum_output = resistor_color_code_oracle(
+            list(maximum_values), default_capacity)
+        if maximum_result < 0:
+            raise ValueError("resistor_color_code maximum valid input is rejected")
+        add(maximum_values)
+
+        capacity_probe_text = "White,White,White,White,Silver,Violet"
+        capacity_probe_bytes = capacity_probe_text.encode("ascii")
+        capacity_probe = (len(capacity_probe_bytes), *capacity_probe_bytes)
+        required_result, required_output = resistor_color_code_oracle(list(capacity_probe))
+        if required_result != len(required_output) or required_result <= 0:
+            raise ValueError("resistor_color_code capacity probe is invalid")
+        for capacity in (0, required_result - 1, required_result,
+                         required_result + 1, default_capacity):
+            add(capacity_probe, capacity)
+
+        malformed_texts = (
+            b"", b"Brown,Green", b"Brown,Green,Silver,Gold,Blue,Red,Black",
+            b"Chartreuse,Green,Silver", b"brown,Green,Silver",
+            b"Gold,Black,Red", b"Red,Red,White", b"Red,Red,Red,Black",
+            b"Red,Red,Red,Red,Red,Gold", b"Brown,,Silver",
+        )
+        for text in malformed_texts:
+            add((len(text), *text))
+        for values in (
+                (), (0,), (0, 0), (-1, ord("A")),
+                (RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH + 1,
+                 *([ord("A")] * (RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH + 1))),
+                (RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH,
+                 *([ord("A")] * (RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH - 1))),
+                (3, ord("A"), 128, ord("B")), (3, ord("A"), -1, ord("B")),
+                (3, ord("A"), ord("B")), (1, ord("A"), ord("B")),
+                tuple([0] * (RESISTOR_COLOR_CODE_MAX_INPUT_LENGTH + 1)),
+        ):
+            if len(values) <= RESISTOR_COLOR_CODE_MAX_INPUT_LENGTH + 1:
+                add(values)
+
+        if RESISTOR_COLOR_CODE_MAX_INPUT_LENGTH != RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH + 1:
+            raise ValueError("resistor_color_code valid input length is inconsistent")
+        if RESISTOR_COLOR_CODE_MAX_INPUT_LENGTH + 1 != RESISTOR_COLOR_CODE_MAX_TEXT_LENGTH + 2:
+            raise ValueError("resistor_color_code parseable input length is inconsistent")
+
+        null_text = "Brown,Green,Silver".encode("ascii")
+        null_values = (len(null_text), *null_text)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "double_ended_selection_sort":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity < DOUBLE_ENDED_SELECTION_SORT_MAX_OUTPUT_BYTES):
+            raise ValueError("invalid double_ended_selection_sort output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = double_ended_selection_sort_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = double_ended_selection_sort_oracle(list(values), capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"double_ended_selection_sort workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            length = rng.randint(0, DOUBLE_ENDED_SELECTION_SORT_MAX_INPUT_LENGTH)
+            values = tuple(
+                (rng.getrandbits(64) if rng.randrange(2) else rng.randint(-1000, 1000))
+                for _ in range(length)
+            )
+            values = tuple(value if value <= DOUBLE_ENDED_SELECTION_SORT_I64_MAX
+                           else value - (1 << 64) for value in values)
+            add(values)
+
+        maximum_values = tuple(range(-128, 128))
+        maximum_result, maximum_output = double_ended_selection_sort_oracle(
+            list(maximum_values), default_capacity)
+        if (len(maximum_values) != DOUBLE_ENDED_SELECTION_SORT_MAX_INPUT_LENGTH
+                or maximum_result != DOUBLE_ENDED_SELECTION_SORT_MAX_OUTPUT_BYTES
+                or len(maximum_output) != DOUBLE_ENDED_SELECTION_SORT_MAX_OUTPUT_BYTES):
+            raise ValueError("double_ended_selection_sort maximum input/output bounds are inconsistent")
+        add(maximum_values)
+
+        capacity_probe = (42, -7, 0)
+        required_result, required_output = double_ended_selection_sort_oracle(list(capacity_probe))
+        if required_result != len(required_output) or required_result != 3 * 8:
+            raise ValueError("double_ended_selection_sort capacity probe is invalid")
+        for capacity in (0, required_result - 1, required_result,
+                         required_result + 1, default_capacity):
+            add(capacity_probe, capacity)
+
+        parseable_invalid = tuple([0] * DOUBLE_ENDED_SELECTION_SORT_MAX_PARSEABLE_INPUT_LENGTH)
+        add(parseable_invalid)
+        if DOUBLE_ENDED_SELECTION_SORT_MAX_PARSEABLE_INPUT_LENGTH != DOUBLE_ENDED_SELECTION_SORT_MAX_INPUT_LENGTH + 1:
+            raise ValueError("double_ended_selection_sort valid/parseable input bounds are inconsistent")
+
+        null_values = (314159,)
+        if any(tuple(case["input_values"]) == null_values for case in workload["cases"]):
+            raise ValueError("double_ended_selection_sort positive-length NULL canary duplicates a workload fixture")
+        null_key = (null_values, default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
@@ -2778,6 +3039,42 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                      (1, 1, 2, 0, 0), (1, 1, 1, 1_000_001, 0), (2, 1, 2, 0, 0, 0, 0),
                      (2, 1, 1, 0, 0), tuple([1, 1, 1, 0, 0] + [0] * MAX_DBSCAN_INPUT_LENGTH))
         for values in malformed:
+            add(values)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "des_ecb":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if type(default_capacity) is not int or default_capacity < MAX_DES_ECB_OUTPUT_BYTES:
+            raise ValueError("invalid DES ECB output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = des_ecb_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = des_ecb_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"DES ECB workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            length = rng.randint(0, MAX_DES_ECB_TEXT_BYTES)
+            key = rng.randint(-(1 << 63), (1 << 63) - 1)
+            values = (length, key, *(rng.randint(0, 127) for _ in range(length)))
+            add(values)
+            needed = ((length + 7) // 8) * 8
+            if needed:
+                add(values, needed - 1)
+        for values in ((), (0,), (0, 0, 0), (1, 0),
+                       (1, 0, 128), (1, 0, -1),
+                       (MAX_DES_ECB_TEXT_BYTES + 1, 0, *([0] * (MAX_DES_ECB_TEXT_BYTES + 1))),
+                       tuple([MAX_DES_ECB_TEXT_BYTES, 0] + [65] * MAX_DES_ECB_TEXT_BYTES
+                             + [0])):
             add(values)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
@@ -8648,7 +8945,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        tuple([0] * MAX_HSV_TO_RGB_CONVERSION_INPUT_LENGTH)):
             add(values)
 
-        for values in ((), capacity_probe):
+        for values in (capacity_probe,):
             null_key = (values, default_capacity)
             cases[null_key] = (-1, b"")
             null_input_cases.add(null_key)
@@ -8695,6 +8992,432 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             null_key = (values, default_capacity)
             cases[null_key] = (-1, b"")
             null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "double_point_crossover":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != 1024:
+            raise ValueError("invalid double_point_crossover workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = double_point_crossover_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = double_point_crossover_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"double_point_crossover workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for count in range(2, 9):
+            for first_cut in range(1, count):
+                for second_cut in range(first_cut + 1, count + 1):
+                    parent_one = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+                    parent_two = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+                    add((count, first_cut, second_cut, *parent_one, *parent_two))
+        for values in (
+            (), (2,), (2, 1), (2, 1, 2), (2, 1, 2, 1, 2, 3),
+            (2, 1, 1, 1, 2, 3, 4), (2, 2, 1, 1, 2, 3, 4),
+            (2, 0, 2, 1, 2, 3, 4), (2, 1, 3, 1, 2, 3, 4),
+            (65, 1, 2), (2, 1, 2, 0, 1 << 31, 3, 4),
+            (2, 1, 2, 0, -(1 << 31) - 1, 3, 4),
+            tuple([0] * (3 + 2 * 64)),
+        ):
+            add(values)
+        probe = tuple([2, 1, 2, 1, 2, 3, 4])
+        for capacity in range(33):
+            add(probe, capacity)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "uniform_crossover":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != 1024:
+            raise ValueError("invalid uniform_crossover workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = uniform_crossover_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = uniform_crossover_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"uniform_crossover workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for count in range(1, UNIFORM_CROSSOVER_MAX_COUNT + 1):
+            mask = tuple(rng.randrange(2) for _ in range(count))
+            parent_one = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+            parent_two = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+            add((count, *mask, *parent_one, *parent_two))
+        for _ in range(255):
+            count = rng.randint(1, UNIFORM_CROSSOVER_MAX_COUNT)
+            mask = tuple(rng.randrange(2) for _ in range(count))
+            parent_one = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+            parent_two = tuple(rng.randint(-(1 << 31), (1 << 31) - 1) for _ in range(count))
+            add((count, *mask, *parent_one, *parent_two))
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_count")
+        maximum_values = tuple(maximum_case["input_values"])
+        add(maximum_values, default_capacity - 1)
+        add(maximum_values, default_capacity)
+        capacity_probe = tuple([1, 1, 8, 13])
+        add(capacity_probe, default_capacity)
+        for capacity in range(17):
+            add(capacity_probe, capacity)
+        for values in (
+            (), (0,), (UNIFORM_CROSSOVER_MAX_COUNT + 1, *([0] * (3 * UNIFORM_CROSSOVER_MAX_COUNT))),
+            (2, 0, 1, 10, 20, 30), (1, 2, 5, 9),
+            (1, 0, 1 << 31, 9), (1, 0, -(1 << 31) - 1, 9),
+            (1, 0, 5, 1 << 63), (1, 0, 5, -(1 << 63)),
+        ):
+            add(values)
+
+        for values in (capacity_probe,):
+            null_key = (values, default_capacity - 1)
+            cases[null_key] = (-1, b"")
+            null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "dynamicarray":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != 1560:
+            raise ValueError("dynamicarray output workspace must be 1560 bytes")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = dynamicarray_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = dynamicarray_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"dynamicarray workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        edges = [-(2**63), -(2**63) + 1, -1, 0, 1, 2**63 - 2, 2**63 - 1]
+        for _ in range(256):
+            ops: list[list[int]] = []
+            size = 0
+            capacity = 10
+            for _step in range(rng.randint(0, 64)):
+                choices = [0, 4, 5, 6]
+                if size:
+                    choices += [1, 2, 3]
+                op = rng.choice(choices)
+                if op == 0 and size < 64:
+                    ops.append([0, rng.choice(edges) if rng.randrange(4) == 0 else rng.randint(-1000, 1000)])
+                    if size == capacity:
+                        capacity *= 2
+                    size += 1
+                elif op == 1:
+                    ops.append([1, rng.randrange(size), rng.choice(edges)])
+                elif op == 2:
+                    ops.append([2, rng.randrange(size)])
+                elif op == 3:
+                    ops.append([3, rng.randrange(size)])
+                    size -= 1
+                else:
+                    ops.append([op])
+            flat = (len(ops), *(item for op in ops for item in op))
+            add(tuple(flat))
+        growth = (64, *(item for i in range(64) for item in (0, i)))
+        add(tuple(growth))
+        for values in ((), (0,), (-1,), (129,), (1, 8), (1, 0), (1, 1, 0),
+                       (1, 2), (1, 2, -1), (1, 2, 0, 7), (1, 3, 0),
+                       (1, 4, 1), (1, 5, 0), (1, 6, 7), (1, 7),
+                       (1, 0, 99), (1, 1, 0, 0),
+                       (65, *(item for i in range(65) for item in (0, i)))):
+            add(tuple(values))
+        probe = (3, 0, 9, 4, 5)
+        output_length = len(dynamicarray_oracle(probe)[1])
+        for capacity in (0, 1, output_length - 1, output_length):
+            add(probe, capacity)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "welsh_powell":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != 256:
+            raise ValueError("invalid welsh_powell output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = welsh_powell_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = welsh_powell_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"welsh_powell workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            vertex_count = rng.randint(0, WELSH_POWELL_MAX_VERTICES)
+            possible_edges = [(left, right) for left in range(vertex_count)
+                              for right in range(left + 1, vertex_count)]
+            edge_count = rng.randint(0, min(WELSH_POWELL_MAX_EDGE_PAIRS, len(possible_edges)))
+            edges = rng.sample(possible_edges, edge_count)
+            values = (vertex_count, edge_count,
+                      *(endpoint for edge in edges for endpoint in edge))
+            add(values)
+
+        maximum_graph = (WELSH_POWELL_MAX_VERTICES, 0)
+        add(maximum_graph, default_capacity - 1)
+        add(maximum_graph, default_capacity)
+        maximum_valid_values = (2, WELSH_POWELL_MAX_EDGE_PAIRS,
+                                *([0, 1] * WELSH_POWELL_MAX_EDGE_PAIRS))
+        add(maximum_valid_values)
+        capacity_probe = (2, 1, 0, 1)
+        for capacity in range(17):
+            add(capacity_probe, capacity)
+        for values in (
+            (), (0,), (-1, 0), (WELSH_POWELL_MAX_VERTICES + 1, 0),
+            (1, WELSH_POWELL_MAX_EDGE_PAIRS + 1), (1, 1, 0, 0),
+            (2, 1, -1, 1), (2, 1, 0, 2), (WELSH_POWELL_I64_MIN,),
+            (WELSH_POWELL_I64_MAX,),
+            tuple([0] * MAX_WELSH_POWELL_INPUT_LENGTH),
+        ):
+            add(values)
+
+        null_probe = (2, 0)
+        add(null_probe)
+        null_key = (null_probe, default_capacity - 1)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "wus_line":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != WUS_LINE_MAX_OUTPUT_BYTES:
+            raise ValueError("invalid wus_line output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = wus_line_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = wus_line_oracle(values)
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"wus_line workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for x0 in (-WUS_LINE_MAX_COORDINATE, 0, WUS_LINE_MAX_COORDINATE):
+            for y0 in (-WUS_LINE_MAX_COORDINATE, 0, WUS_LINE_MAX_COORDINATE):
+                for x1 in (-WUS_LINE_MAX_COORDINATE, 0, WUS_LINE_MAX_COORDINATE):
+                    for y1 in (-WUS_LINE_MAX_COORDINATE, 0, WUS_LINE_MAX_COORDINATE):
+                        add((x0, y0, x1, y1))
+        for _ in range(256):
+            add(tuple(rng.randint(-WUS_LINE_MAX_COORDINATE, WUS_LINE_MAX_COORDINATE)
+                      for _ in range(4)))
+
+        capacity_probe = (0, 0, 4, 0)
+        capacity_output_length = wus_line_oracle(capacity_probe)[0]
+        for capacity in (0, capacity_output_length - 1, capacity_output_length):
+            add(capacity_probe, capacity)
+        maximum_output_probe = (-WUS_LINE_MAX_COORDINATE, 0,
+                                WUS_LINE_MAX_COORDINATE, WUS_LINE_MAX_COORDINATE - 1)
+        add(maximum_output_probe, default_capacity - 1)
+        add(maximum_output_probe, default_capacity)
+        for values in (
+            (), (0,), (0, 0, 0), (0, 0, 0, 0, 0),
+            (-WUS_LINE_MAX_COORDINATE - 1, 0, 0, 0),
+            (0, WUS_LINE_MAX_COORDINATE + 1, 0, 0),
+            (0, 0, 0, -WUS_LINE_MAX_COORDINATE - 1),
+        ):
+            add(values)
+
+        null_probe = (WUS_LINE_MAX_COORDINATE, 1, 32, -63)
+        add(null_probe)
+        null_key = (null_probe, default_capacity - 1)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "words_to_number":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != WORDS_TO_NUMBER_MAX_OUTPUT_BYTES:
+            raise ValueError("invalid words_to_number output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = words_to_number_oracle(values, capacity)
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = words_to_number_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"words_to_number workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for word in WORDS_TO_NUMBER_NUMBERS:
+            encoded = word.encode("ascii")
+            add((len(encoded), *encoded))
+        for phrase in (
+            "one hundred", "nine hundred ninety nine", "one thousand",
+            "one million", "one billion", "one trillion", "one hundred and twenty three",
+            "negative zero", "point zero zero one", "one point zero zero one",
+        ):
+            encoded = phrase.encode("ascii")
+            add((len(encoded), *encoded))
+
+        maximum_text = "one" + (" " * (MAX_WORDS_TO_NUMBER_BYTE_LENGTH - 3))
+        maximum_bytes = maximum_text.encode("ascii")
+        add((MAX_WORDS_TO_NUMBER_BYTE_LENGTH, *maximum_bytes))
+
+        rng = random.Random(20261016)
+        token_pool = (*WORDS_TO_NUMBER_NUMBERS, "hundred", *WORDS_TO_NUMBER_SCALES,
+                      "and", "negative", "point", "unknown")
+        separators = (" ", "  ", ",", "-", " , ", "--")
+        for _ in range(256):
+            tokens = [rng.choice(token_pool) for _ in range(rng.randint(1, 12))]
+            text = "".join((token if index == 0 else rng.choice(separators) + token)
+                           for index, token in enumerate(tokens))
+            if len(text) <= MAX_WORDS_TO_NUMBER_BYTE_LENGTH:
+                selector = rng.randrange(8)
+                if selector == 0:
+                    text = text.upper()
+                elif selector == 1:
+                    text = text.title()
+                encoded = text.encode("ascii")
+                add((len(encoded), *encoded))
+
+        capacity_text = b"one hundred and twenty three"
+        capacity_probe = (len(capacity_text), *capacity_text)
+        for capacity in (*range(4), default_capacity):
+            add(capacity_probe, capacity)
+
+        for values in (
+            (), (0,), (1,), (2, 111), (MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1,
+                                       *([32] * (MAX_WORDS_TO_NUMBER_BYTE_LENGTH + 1))),
+            (3, 111, 110), (1, 31), (1, 127), (1, 256), (-1,),
+            (4, 116, 119, 111),
+        ):
+            add(values)
+
+        null_probe = (3, 116, 119, 111)
+        add(null_probe)
+        null_key = (null_probe, default_capacity - 1)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "word_occurrence":
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != WORD_OCCURRENCE_MAX_OUTPUT_BYTES:
+            raise ValueError("invalid word_occurrence output workspace size")
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            result, output = word_occurrence_oracle(values, capacity)
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = word_occurrence_oracle(values, capacity)
+            if (case.get("input_length") not in (None, len(values))
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"word_occurrence workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        for whitespace in sorted(WORD_OCCURRENCE_ASCII_WHITESPACE):
+            payload = (65, whitespace, 65, 66, whitespace)
+            add((len(payload), *payload))
+
+        non_whitespace = tuple(value for value in range(128)
+                               if value not in WORD_OCCURRENCE_ASCII_WHITESPACE)
+        single_tokens = [bytes((value,)) for value in non_whitespace]
+        pair_tokens = [bytes((left, right))
+                       for left in non_whitespace for right in non_whitespace][:263]
+        maximum_payload = b" ".join((*single_tokens, *pair_tokens))
+        if len(maximum_payload) != MAX_WORD_OCCURRENCE_BYTE_LENGTH:
+            raise ValueError("word_occurrence high-cardinality input must reach its byte-length bound")
+        maximum_values = (len(maximum_payload), *maximum_payload)
+        maximum_result, maximum_output = word_occurrence_oracle(maximum_values, default_capacity)
+        if maximum_result != len(maximum_output) or maximum_result < 0:
+            raise ValueError("word_occurrence maximum-output probe must fit its declared workspace")
+        add(maximum_values)
+        add(maximum_values, maximum_result - 1)
+        add(maximum_values, maximum_result)
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            byte_length = rng.randint(0, MAX_WORD_OCCURRENCE_BYTE_LENGTH)
+            payload = tuple(rng.randrange(128) for _ in range(byte_length))
+            add((byte_length, *payload))
+
+        capacity_payload = b"red blue red"
+        capacity_probe = (len(capacity_payload), *capacity_payload)
+        capacity_result = word_occurrence_oracle(capacity_probe, default_capacity)[0]
+        for capacity in (0, capacity_result - 1, capacity_result, default_capacity):
+            add(capacity_probe, capacity)
+
+        for values in (
+            (), (0, 65), (1,), (2, 65), (-1,),
+            (MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1,
+             *([65] * (MAX_WORD_OCCURRENCE_BYTE_LENGTH + 1))),
+            (1, -1), (1, 128), (1, 256),
+        ):
+            add(values)
+
+        null_probe = (4, 122, 32, 122, 0)
+        add(null_probe)
+        null_key = (null_probe, default_capacity - 1)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     else:

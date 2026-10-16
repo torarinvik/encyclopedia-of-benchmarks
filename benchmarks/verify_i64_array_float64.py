@@ -106,6 +106,24 @@ from trapezoidal_integration_oracle import expected_result as trapezoidal_integr
 from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
 from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
 from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_oracle
+from weddles_rule_oracle import INVALID_RESULT as WEDDLES_RULE_INVALID_RESULT
+from weddles_rule_oracle import MAX_INPUT_LENGTH as MAX_WEDDLES_RULE_INPUT_LENGTH
+from weddles_rule_oracle import MAX_PANELS as WEDDLES_RULE_MAX_PANELS
+from weddles_rule_oracle import MAX_STEP_NANOUNITS as WEDDLES_RULE_MAX_STEP_NANOUNITS
+from weddles_rule_oracle import MAX_SAMPLE_MICRO as WEDDLES_RULE_MAX_SAMPLE_MICRO
+from weddles_rule_oracle import expected_result as weddles_rule_oracle
+from units_converter_oracle import INVALID_RESULT as UNITS_CONVERTER_INVALID_RESULT
+from units_converter_oracle import MAX_EDGES as UNITS_CONVERTER_MAX_EDGES
+from units_converter_oracle import MAX_INTERCEPT_MICRO as UNITS_CONVERTER_MAX_INTERCEPT_MICRO
+from units_converter_oracle import MAX_INPUT_LENGTH as MAX_UNITS_CONVERTER_INPUT_LENGTH
+from units_converter_oracle import MAX_SLOPE_PPM as UNITS_CONVERTER_MAX_SLOPE_PPM
+from units_converter_oracle import MAX_UNITS as UNITS_CONVERTER_MAX_UNITS
+from units_converter_oracle import MAX_VALUE_MICRO as UNITS_CONVERTER_MAX_VALUE_MICRO
+from units_converter_oracle import expected_result as units_converter_oracle
+from prefix_evaluation_oracle import INVALID_RESULT as PREFIX_EVALUATION_INVALID_RESULT
+from prefix_evaluation_oracle import MAX_INPUT_LENGTH as MAX_PREFIX_EVALUATION_INPUT_LENGTH
+from prefix_evaluation_oracle import MAX_TOKENS as PREFIX_EVALUATION_MAX_TOKENS
+from prefix_evaluation_oracle import expected_result as prefix_evaluation_oracle
 from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
 from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
 from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_oracle
@@ -241,14 +259,22 @@ from centripetal_force_oracle import expected_result as centripetal_force_oracle
 from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
 from cohen_sutherland_oracle import MAX_COORDINATE_MICRO as COHEN_SUTHERLAND_MAX_COORDINATE_MICRO
 from cohen_sutherland_oracle import expected_result as cohen_sutherland_oracle
+from peak_signal_to_noise_ratio_oracle import INVALID_RESULT as PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
+from peak_signal_to_noise_ratio_oracle import MAX_INPUT_LENGTH as MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH
+from peak_signal_to_noise_ratio_oracle import MAX_ABSOLUTE_PIXEL_DIFFERENCE as PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE
+from peak_signal_to_noise_ratio_oracle import MAX_PIXELS as PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS
+from peak_signal_to_noise_ratio_oracle import expected_result as peak_signal_to_noise_ratio_oracle
 from reverse_polish_notation_oracle import INVALID_RESULT as REVERSE_POLISH_NOTATION_INVALID_RESULT
 from reverse_polish_notation_oracle import MAX_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_INPUT_LENGTH
 from reverse_polish_notation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
 from reverse_polish_notation_oracle import MAX_TOKEN_COUNT as REVERSE_POLISH_NOTATION_MAX_TOKEN_COUNT
 from reverse_polish_notation_oracle import expected_result as reverse_polish_notation_oracle
 
-ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
+ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
+ALGORITHMS += ("units_converter",)
+ALGORITHMS += ("prefix_evaluation",)
+ALGORITHMS += ("peak_signal_to_noise_ratio",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
@@ -299,6 +325,12 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return trapezoidal_integration_oracle(values)
     if algorithm == "midpoint_integral_method":
         return midpoint_integral_method_oracle(values)
+    if algorithm == "weddles_rule":
+        return weddles_rule_oracle(values)
+    if algorithm == "units_converter":
+        return units_converter_oracle(values)
+    if algorithm == "prefix_evaluation":
+        return prefix_evaluation_oracle(values)
     if algorithm == "ternary_search_min_max_recursive":
         return ternary_search_min_max_oracle(values)
     if algorithm == "cosine_similarity":
@@ -361,6 +393,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return centripetal_force_oracle(values)
     if algorithm == "cohen_sutherland":
         return cohen_sutherland_oracle(values)
+    if algorithm == "peak_signal_to_noise_ratio":
+        return peak_signal_to_noise_ratio_oracle(values)
     if algorithm == "reverse_polish_notation":
         return reverse_polish_notation_oracle(values)
     raise ValueError(f"no oracle for {algorithm}")
@@ -924,6 +958,135 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH:
                 cases[values] = MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
+    elif algorithm == "weddles_rule":
+        rng = random.Random(20261016)
+        for panels in (1, 2, 3, 7, WEDDLES_RULE_MAX_PANELS):
+            samples = [((index * 104_729) % (2 * WEDDLES_RULE_MAX_SAMPLE_MICRO + 1))
+                       - WEDDLES_RULE_MAX_SAMPLE_MICRO
+                       for index in range(6 * panels + 1)]
+            for step_nanounits in (0, 1, -1, WEDDLES_RULE_MAX_STEP_NANOUNITS,
+                                   -WEDDLES_RULE_MAX_STEP_NANOUNITS):
+                values = (panels, step_nanounits, *samples)
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            panels = rng.randint(1, WEDDLES_RULE_MAX_PANELS)
+            values = (panels, rng.randint(-WEDDLES_RULE_MAX_STEP_NANOUNITS,
+                                          WEDDLES_RULE_MAX_STEP_NANOUNITS),
+                      *(rng.randint(-WEDDLES_RULE_MAX_SAMPLE_MICRO,
+                                    WEDDLES_RULE_MAX_SAMPLE_MICRO)
+                        for _ in range(6 * panels + 1)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (1,), (0, 0, *([0] * 7)),
+            (WEDDLES_RULE_MAX_PANELS + 1, 0, *([0] * 7)),
+            (1, 0, *([0] * 6)), (1, 0, *([0] * 8)),
+            (1, WEDDLES_RULE_MAX_STEP_NANOUNITS + 1, *([0] * 7)),
+            (1, -WEDDLES_RULE_MAX_STEP_NANOUNITS - 1, *([0] * 7)),
+            (1, 0, WEDDLES_RULE_MAX_SAMPLE_MICRO + 1, *([0] * 6)),
+            (1, 0, 0, WEDDLES_RULE_MAX_SAMPLE_MICRO + 1, *([0] * 5)),
+            (1, 0, *([0] * 6), -WEDDLES_RULE_MAX_SAMPLE_MICRO - 1),
+            (1, 0, *([0] * (MAX_WEDDLES_RULE_INPUT_LENGTH - 2))),
+        )
+        for values in malformed:
+            if len(values) <= MAX_WEDDLES_RULE_INPUT_LENGTH:
+                cases[values] = WEDDLES_RULE_INVALID_RESULT
+    elif algorithm == "units_converter":
+        for source in range(6):
+            for target in range(6):
+                if source == target:
+                    continue
+                for value_micro in (-UNITS_CONVERTER_MAX_VALUE_MICRO, 0,
+                                    UNITS_CONVERTER_MAX_VALUE_MICRO):
+                    values = (0, source, target, value_micro)
+                    cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            unit_count = rng.randint(2, UNITS_CONVERTER_MAX_UNITS)
+            edges = []
+            for target in range(1, unit_count):
+                source = rng.randrange(target)
+                slope = rng.choice((-2_000_000, -1_500_000, -1_000_000, -500_000,
+                                    500_000, 1_000_000, 1_500_000, 2_000_000))
+                intercept = rng.randint(-100_000_000, 100_000_000)
+                edges.extend((source, target, slope, intercept))
+            source = rng.randrange(unit_count)
+            target = rng.randrange(unit_count - 1)
+            if target >= source:
+                target += 1
+            values = (1, unit_count, unit_count - 1, source, target,
+                      rng.randint(-UNITS_CONVERTER_MAX_VALUE_MICRO,
+                                  UNITS_CONVERTER_MAX_VALUE_MICRO), *edges)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (2, 0, 0, 1), (0, 1, 1, 0), (0, -1, 2, 0),
+            (0, 0, 6, 0), (0, 0, 1, UNITS_CONVERTER_MAX_VALUE_MICRO + 1),
+            (1, 1, 0, 0, 0, 0),
+            (1, UNITS_CONVERTER_MAX_UNITS + 1, 0, 0, 1, 0),
+            (1, 2, UNITS_CONVERTER_MAX_EDGES + 1, 0, 1, 0),
+            (1, 2, 1, 0, 1, 0, 0, 2, 1_000_000, 0),
+            (1, 2, 1, 0, 1, 0, 0, 1, 1_000_000, 0),
+            (1, 2, 1, 0, 1, 0, 0, 1, 0, 0),
+            (1, 2, 1, 0, 1, 0, 0, 1, UNITS_CONVERTER_MAX_SLOPE_PPM + 1, 0),
+            (1, 2, 1, 0, 1, 0, 0, 1, 1_000_000,
+             UNITS_CONVERTER_MAX_INTERCEPT_MICRO + 1),
+            (1, 3, 3, 0, 2, 0, 0, 1, 1_000_000, 0,
+             1, 2, 1_000_000, 0, 2, 0, 1_000_000, 0),
+            (I64_MIN,), (I64_MAX,), tuple([0] * MAX_UNITS_CONVERTER_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_UNITS_CONVERTER_INPUT_LENGTH:
+                cases[values] = UNITS_CONVERTER_INVALID_RESULT
+    elif algorithm == "prefix_evaluation":
+        def encode_expression(expression: str) -> tuple[int, ...]:
+            encoded = expression.encode("ascii")
+            return (len(encoded), *encoded)
+
+        for operator in "+-*/":
+            for first in range(10):
+                for second in range(10):
+                    values = encode_expression(f"{operator} {first} {second}")
+                    cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+
+        def random_expression(depth: int) -> tuple[str, float]:
+            if depth == 0 or rng.randrange(4) == 0:
+                digit = rng.randrange(10)
+                return str(digit), float(digit)
+            operator = rng.choice("+-*/")
+            left_text, left_value = random_expression(depth - 1)
+            right_text, right_value = random_expression(depth - 1)
+            if operator == "/" and right_value == 0.0:
+                operator = rng.choice("+-*")
+            if operator == "+":
+                result = left_value + right_value
+            elif operator == "-":
+                result = left_value - right_value
+            elif operator == "*":
+                result = left_value * right_value
+            else:
+                result = left_value / right_value
+            return f"{operator} {left_text} {right_text}", result
+
+        for _ in range(256):
+            expression, _expected = random_expression(4)
+            values = encode_expression(expression)
+            if len(values) <= MAX_PREFIX_EVALUATION_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+
+        malformed_expressions = (
+            b"", b"+ 1", b"1 2", b"+ 1 2 ", b" + 1 2", b"+  1 2",
+            b"+\t1\t2", b"+ 10 2", b"/ 1 0", b"? 1 2",
+            b"+ 1 -", b"+ 1 2 3", bytes([43, 32, 49, 32, 255]),
+            b"1" * (MAX_PREFIX_EVALUATION_INPUT_LENGTH - 1),
+        )
+        malformed = [(len(expression), *expression) for expression in malformed_expressions]
+        malformed.extend(((), (0,), (MAX_PREFIX_EVALUATION_INPUT_LENGTH + 1,)))
+        for values in malformed:
+            if len(values) <= MAX_PREFIX_EVALUATION_INPUT_LENGTH:
+                cases[values] = PREFIX_EVALUATION_INVALID_RESULT
     elif algorithm == "ternary_search_min_max_recursive":
         rng = random.Random(20261016)
         interval_pairs = {}
@@ -1717,6 +1880,40 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = COHEN_SUTHERLAND_INVALID_RESULT
+    elif algorithm == "peak_signal_to_noise_ratio":
+        rng = random.Random(20261022)
+        for count in (1, 2, 3, 16, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS):
+            for difference in (1, -1, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE,
+                               -PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE):
+                original = [15 + (index * 37) % 226 for index in range(count)]
+                compressed = [pixel + difference for pixel in original]
+                values = (count, *original, *compressed)
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            count = rng.randint(1, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS)
+            original = [rng.randrange(256) for _ in range(count)]
+            compressed = [max(0, min(255, pixel + rng.randint(
+                -PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE,
+                PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE))) for pixel in original]
+            if all(a == b for a, b in zip(original, compressed)):
+                compressed[0] = original[0] + 1 if original[0] < 255 else 254
+            values = (count, *original, *compressed)
+            cases[values] = oracle(algorithm, list(values))
+
+        identical = (2, 10, 20, 10, 20)
+        malformed = (
+            (), (0,), (1,), (1, 0), (2, 0, 0, 0),
+            (PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS + 1, *([0] * 128)),
+            (1, -1, 0), (1, 256, 0),
+            (1, 0, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE + 1),
+            (1, PEAK_SIGNAL_TO_NOISE_RATIO_MAX_DIFFERENCE + 1, 0),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, 0, 0), identical,
+            tuple([64] + [0] * (2 * PEAK_SIGNAL_TO_NOISE_RATIO_MAX_PIXELS)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH:
+                cases[values] = PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
     elif algorithm == "reverse_polish_notation":
         for expression in (
             b"42", b"3 4 +", b"5 2 -", b"3 4 *", b"3 4 /",
@@ -1767,6 +1964,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "durand_kerner_roots": 0,
                     "trapezoidal_integration": 4,
                     "midpoint_integral_method": 4,
+                    "weddles_rule": 9,
+                    "units_converter": 6,
                     "ternary_search_min_max_recursive": 4,
                     "cosine_similarity": 2,
                     "present_value": 3,
@@ -1794,7 +1993,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "center_of_mass": 2,
                     "centripetal_force": 3,
                     "cohen_sutherland": 9,
+                    "peak_signal_to_noise_ratio": 0,
                     "reverse_polish_notation": 1}
+    null_lengths["prefix_evaluation"] = 1
     null_lengths["energy"] = 3
     null_length = null_lengths[algorithm]
     null_result = (COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
@@ -1813,6 +2014,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    ENERGY_INVALID_RESULT if algorithm == "energy" else
                    TRAPEZOIDAL_INTEGRATION_INVALID_RESULT if algorithm == "trapezoidal_integration" else
                    MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT if algorithm == "midpoint_integral_method" else
+                   WEDDLES_RULE_INVALID_RESULT if algorithm == "weddles_rule" else
+                   UNITS_CONVERTER_INVALID_RESULT if algorithm == "units_converter" else
+                   PREFIX_EVALUATION_INVALID_RESULT if algorithm == "prefix_evaluation" else
                    TERNARY_SEARCH_MIN_MAX_INVALID_RESULT if algorithm == "ternary_search_min_max_recursive" else
                    COSINE_SIMILARITY_INVALID_RESULT if algorithm == "cosine_similarity" else
                    MACAULAY_DURATION_INVALID_RESULT if algorithm == "macaulay_duration" else
@@ -1845,6 +2049,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    CENTER_OF_MASS_INVALID_RESULT if algorithm == "center_of_mass" else
                    CENTRIPETAL_FORCE_INVALID_RESULT if algorithm == "centripetal_force" else
                    COHEN_SUTHERLAND_INVALID_RESULT if algorithm == "cohen_sutherland" else
+                   PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
+                   if algorithm == "peak_signal_to_noise_ratio" else
                    REVERSE_POLISH_NOTATION_INVALID_RESULT
                    if algorithm == "reverse_polish_notation" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else

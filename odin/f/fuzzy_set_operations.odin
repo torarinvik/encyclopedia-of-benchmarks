@@ -1,0 +1,6 @@
+package fuzzy_set_operations
+import "core:c"
+import "core:math"
+putd :: proc(o:[^]u8,p:int,x:f64){bits:=transmute(u64)x;for k:=0;k<8;k+=1{o[p+k]=u8(bits>>u64(k*8))}}
+@(export)
+fuzzy_set_operations :: proc "c" (v:[^]i64,n:c.size_t,o:[^]u8,cap:c.size_t)->i64{if v==nil||n<8 do return -1;op,m:=v[0],v[1];if op<0||op>8||m<1||m>8||int(n)!=5+3*int(m) do return -1;for i:=5;i<int(n);i+=1{if v[i]<0||v[i]>1000 do return -1};l,p,r:=v[2],v[3],v[4];if op==0{if l<0||p<l||r<p||r>1000 do return -1;for i:=0;i<int(m);i+=1{if v[5+int(m)+i]!=0||v[5+2*int(m)+i]!=0 do return -1}}else{if l!=0||p!=0||r!=0 do return -1;for i:=0;i<int(m);i+=1{if v[5+i]!=0 do return -1}};if o==nil||cap<c.size_t(m*8) do return -2;for i:=0;i<int(m);i+=1{z:=0.0;if op==0{x:=f64(v[5+i])/1000.0;a:=f64(l)/1000.0;b:=f64(p)/1000.0;c0:=f64(r)/1000.0;u:=if b>a{(x-a)/(b-a)}else if x<b{0.0}else{1.0};w:=if c0>b{(c0-x)/(c0-b)}else if x>c0{0.0}else{1.0};z=math.max(0.0,math.min(1.0,math.min(u,w)))}else{a:=f64(v[5+int(m)+i])/1000.0;b:=f64(v[5+2*int(m)+i])/1000.0;switch op{case 1:z=math.max(a,b);case 2:z=math.min(a,b);case 3:z=1-a;case 4:z=math.min(a,1-b);case 5:z=a+b-a*b;case 6:z=a*b;case 7:z=math.min(1,a+b);case: z=math.max(0,a+b-1)}};putd(o,i*8,z)};return m*8}

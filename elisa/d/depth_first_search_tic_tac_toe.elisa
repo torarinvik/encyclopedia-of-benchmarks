@@ -1,0 +1,116 @@
+def tic_tac_toe_won(board: i64&, player: i64) -> bool:
+    line: mutable usize = 0
+    while line < 8:
+        a: mutable usize = 0
+        b: mutable usize = 0
+        c: mutable usize = 0
+        if line < 3:
+            a <- line * 3
+            b <- a + 1
+            c <- a + 2
+        elif line < 6:
+            a <- line - 3
+            b <- a + 3
+            c <- a + 6
+        elif line == 6:
+            a <- 0
+            b <- 4
+            c <- 8
+        else:
+            a <- 2
+            b <- 4
+            c <- 6
+        if board[a] == player and board[b] == player and board[c] == player: return true
+        line <- line + 1
+    false
+
+def tic_tac_toe_record(best_rank: mutable i64&, best_score: mutable i64&, best_mask: mutable i64&, side: i64, index: usize, score: i64) -> void:
+    rank: mutable i64 = 0
+    if score == side: rank <- 2
+    elif score == 0: rank <- 1
+    if rank > best_rank:
+        best_rank <- rank
+        best_score <- score
+        best_mask <- 1 << index
+    elif rank == best_rank: best_mask <- best_mask | (1 << index)
+
+def tic_tac_toe_search(board: mutable i64&, side: i64) -> i64:
+    # Explicit depth stack avoids host recursion limits while preserving row-major DFS.
+    if tic_tac_toe_won(board, 1) or tic_tac_toe_won(board, 2): return -1
+    root_available: mutable bool = false
+    root_index: mutable usize = 0
+    while root_index < 9:
+        if board[root_index] == 0: root_available <- true
+        root_index <- root_index + 1
+    if not root_available: return -1
+    boards: mutable i64[90] = zeroed
+    sides: mutable i64[10] = zeroed
+    cursors: mutable usize[10] = zeroed
+    best_ranks: mutable i64[10] = zeroed
+    best_scores: mutable i64[10] = zeroed
+    best_masks: mutable i64[10] = zeroed
+    pending: mutable usize[10] = zeroed
+    index: mutable usize = 0
+    while index < 9:
+        boards[index] <- board[index]
+        index <- index + 1
+    sides[0] <- side
+    best_ranks[0] <- -1
+    depth: mutable usize = 0
+    while true:
+        offset: usize = depth * 9
+        cursor: mutable usize = cursors[depth]
+        while cursor < 9 and boards[offset + cursor] != 0: cursor <- cursor + 1
+        cursors[depth] <- cursor + 1
+        if cursor >= 9:
+            result: i64 = best_scores[depth] * 512 + best_masks[depth]
+            if depth == 0: return result
+            depth <- depth - 1
+            parent_offset: usize = depth * 9
+            move_index: usize = pending[depth]
+            boards[parent_offset + move_index] <- 0
+            tic_tac_toe_record(&best_ranks[depth], &best_scores[depth], &best_masks[depth], sides[depth], move_index, result / 512)
+        else:
+            player: i64 = sides[depth]
+            boards[offset + cursor] <- player
+            score: mutable i64 = -1
+            if tic_tac_toe_won(&boards[offset], 1): score <- 1
+            elif tic_tac_toe_won(&boards[offset], 2): score <- 2
+            else:
+                full: mutable bool = true
+                index <- 0
+                while index < 9:
+                    if boards[offset + index] == 0: full <- false
+                    index <- index + 1
+                if full: score <- 0
+            if score >= 0:
+                boards[offset + cursor] <- 0
+                tic_tac_toe_record(&best_ranks[depth], &best_scores[depth], &best_masks[depth], player, cursor, score)
+            else:
+                pending[depth] <- cursor
+                depth <- depth + 1
+                child_offset: usize = depth * 9
+                index <- 0
+                while index < 9:
+                    boards[child_offset + index] <- boards[offset + index]
+                    index <- index + 1
+                sides[depth] <- 3 - player
+                cursors[depth] <- 0
+                best_ranks[depth] <- -1
+                best_scores[depth] <- 0
+                best_masks[depth] <- 0
+    -1
+
+def depth_first_search_tic_tac_toe_impl(input: i64&, length: usize) -> i64:
+    if length != 10 or (input[0] != 1 and input[0] != 2): return -1
+    board: mutable i64[9] = zeroed
+    index: mutable usize = 0
+    while index < 9:
+        if input[index + 1] < 0 or input[index + 1] > 2: return -1
+        board[index] <- input[index + 1]
+        index <- index + 1
+    result: i64 = tic_tac_toe_search(&board[0], input[0])
+    if result < 0: return 0
+    1 + result
+
+export fn depth_first_search_tic_tac_toe(input: i64&, length: usize) -> i64 = depth_first_search_tic_tac_toe_impl

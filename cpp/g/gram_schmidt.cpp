@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+static void put_f64(uint8_t*out,size_t at,double x){union{double f;uint64_t u;}b={.f=x};for(size_t i=0;i<8;i++)out[at+i]=uint8_t(b.u>>(8*i));}
+extern "C" int64_t gram_schmidt(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<2||n>18)return -1;int64_t r=v[0],d=v[1];if(r<1||r>4||d<r||d>4||n!=2+size_t(r*d))return -1;double a[4][4]{},q[4][4]{};for(int64_t i=0;i<r;i++)for(int64_t j=0;j<d;j++){auto x=v[2+i*d+j];if(x < -1000||x>1000||(j<i&&x!=0)||(j==i&&(x<100||x>1000)))return -1;a[i][j]=double(x)/1000.;}size_t bytes=size_t(r*d)*8;if(!out||cap<bytes)return -2;for(int64_t k=0;k<r;k++){double p[4]={};for(int64_t i=0;i<k;i++){double dot=0,norm=0;for(int64_t j=0;j<d;j++){dot+=a[k][j]*q[i][j];norm+=q[i][j]*q[i][j];}double f=dot/norm;for(int64_t j=0;j<d;j++)p[j]+=q[i][j]*f;}for(int64_t j=0;j<d;j++)q[k][j]=a[k][j]-p[j];}for(int64_t i=0;i<r;i++)for(int64_t j=0;j<d;j++)put_f64(out,size_t(i*d+j)*8,q[i][j]);return int64_t(bytes);}

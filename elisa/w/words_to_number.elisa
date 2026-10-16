@@ -1,0 +1,226 @@
+const MAX_INPUT: usize = 128
+const MAX_TOKENS: usize = 128
+
+def words_to_number_match(input: i64&, start: usize, finish: usize, word: &str) -> bool:
+    if finish - start != word.len(): return false
+    index: mutable usize = 0
+    while index < word.len():
+        value: i64 = input[1 + start + index]
+        if value >= 65 and value <= 90: value <- value + 32
+        if value != word.byte(index).i64(): return false
+        index <- index + 1
+    return true
+
+def words_to_number_word_id(input: i64&, start: usize, finish: usize) -> i64:
+    if words_to_number_match(input, start, finish, "zero"): return 1
+    if words_to_number_match(input, start, finish, "one"): return 2
+    if words_to_number_match(input, start, finish, "two"): return 3
+    if words_to_number_match(input, start, finish, "three"): return 4
+    if words_to_number_match(input, start, finish, "four"): return 5
+    if words_to_number_match(input, start, finish, "five"): return 6
+    if words_to_number_match(input, start, finish, "six"): return 7
+    if words_to_number_match(input, start, finish, "seven"): return 8
+    if words_to_number_match(input, start, finish, "eight"): return 9
+    if words_to_number_match(input, start, finish, "nine"): return 10
+    if words_to_number_match(input, start, finish, "ten"): return 11
+    if words_to_number_match(input, start, finish, "eleven"): return 12
+    if words_to_number_match(input, start, finish, "twelve"): return 13
+    if words_to_number_match(input, start, finish, "thirteen"): return 14
+    if words_to_number_match(input, start, finish, "fourteen"): return 15
+    if words_to_number_match(input, start, finish, "fifteen"): return 16
+    if words_to_number_match(input, start, finish, "sixteen"): return 17
+    if words_to_number_match(input, start, finish, "seventeen"): return 18
+    if words_to_number_match(input, start, finish, "eighteen"): return 19
+    if words_to_number_match(input, start, finish, "nineteen"): return 20
+    if words_to_number_match(input, start, finish, "twenty"): return 21
+    if words_to_number_match(input, start, finish, "thirty"): return 22
+    if words_to_number_match(input, start, finish, "forty"): return 23
+    if words_to_number_match(input, start, finish, "fifty"): return 24
+    if words_to_number_match(input, start, finish, "sixty"): return 25
+    if words_to_number_match(input, start, finish, "seventy"): return 26
+    if words_to_number_match(input, start, finish, "eighty"): return 27
+    if words_to_number_match(input, start, finish, "ninety"): return 28
+    if words_to_number_match(input, start, finish, "hundred"): return 29
+    if words_to_number_match(input, start, finish, "thousand"): return 30
+    if words_to_number_match(input, start, finish, "million"): return 31
+    if words_to_number_match(input, start, finish, "billion"): return 32
+    if words_to_number_match(input, start, finish, "trillion"): return 33
+    if words_to_number_match(input, start, finish, "and"): return 34
+    if words_to_number_match(input, start, finish, "point"): return 35
+    if words_to_number_match(input, start, finish, "negative"): return 36
+    return 0
+
+def words_to_number_value(id: i64) -> i64:
+    if id >= 1 and id <= 20: return id - 1
+    if id >= 21 and id <= 28: return (id - 19) * 10
+    return -1
+
+def words_to_number_digits(value: i64) -> i64:
+    x: mutable i64 = value
+    count: mutable i64 = 1
+    while x >= 10:
+        x <- x / 10
+        count <- count + 1
+    return count
+
+def words_to_number_append_uint(out: mutable u8&, position: mutable usize&, value: i64) -> void:
+    digits: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    magnitude: mutable i64 = value
+    while true:
+        digits[count] <- (48 + magnitude % 10).u8()
+        count <- count + 1
+        magnitude <- magnitude / 10
+        if magnitude == 0: break
+    while count > 0:
+        count <- count - 1
+        out[position] <- digits[count]
+        position <- position + 1
+
+def words_to_number_separator(value: i64) -> bool = value == 32 or value == 44 or value == 45
+
+def words_to_number_parse(input: i64&, byte_count: usize, text: mutable u8&, text_length: mutable usize&) -> i64:
+    tokens: mutable i64[MAX_TOKENS] = zeroed
+    count: mutable usize = 0
+    start: mutable usize = MAX_INPUT + 1
+    index: mutable usize = 0
+    while index < byte_count:
+        value: i64 = input[index + 1]
+        if value < 32 or value > 126: return -1
+        if words_to_number_separator(value):
+            if start != MAX_INPUT + 1:
+                if count >= MAX_TOKENS: return -1
+                tokens[count] <- words_to_number_word_id(input, start, index)
+                count <- count + 1
+                start <- MAX_INPUT + 1
+        else if start == MAX_INPUT + 1:
+            start <- index
+        index <- index + 1
+    if start != MAX_INPUT + 1:
+        if count >= MAX_TOKENS: return -1
+        tokens[count] <- words_to_number_word_id(input, start, byte_count)
+        count <- count + 1
+    if count == 0: return -3
+
+    negative: bool = tokens[0] == 36
+    position: usize = if negative: 1 else: 0
+    chunks: mutable i64[MAX_TOKENS] = zeroed
+    chunk_count: mutable usize = 0
+    current: mutable i64 = 0
+    prev_hundred: mutable bool = false
+    prev_scale: mutable bool = false
+    fraction: mutable u8[16] = zeroed
+    fraction_length: mutable usize = 0
+    has_point: mutable bool = false
+    index <- position
+    while index < count:
+        id: i64 = tokens[index]
+        if id == 34:
+            if index + 1 >= count: return -10
+            next_value: i64 = words_to_number_value(tokens[index + 1])
+            after: i64 = if index + 2 < count: tokens[index + 2] else: -1
+            if (not prev_hundred and not prev_scale) or next_value < 0 or not (next_value >= 10 or after == -1 or after == 35): return -10
+            index <- index + 1
+            continue
+        if id == 29:
+            if current >= 10 or prev_scale: return -5
+            if current == 0: current <- 1
+            current <- current * 100
+            prev_hundred <- true
+            index <- index + 1
+            continue
+        prev_hundred <- false
+        if id >= 30 and id <= 33:
+            if current == 0 or prev_scale: return -5
+            scale: i64 = if id == 30: 1000 else if id == 31: 1000000 else if id == 32: 1000000000 else: 1000000000000
+            next_chunk: i64 = current * scale
+            if chunk_count > 0 and words_to_number_digits(chunks[chunk_count - 1]) <= words_to_number_digits(next_chunk): return -5
+            chunks[chunk_count] <- next_chunk
+            chunk_count <- chunk_count + 1
+            current <- 0
+            prev_scale <- true
+            index <- index + 1
+            continue
+        prev_scale <- false
+        number: i64 = words_to_number_value(id)
+        if number >= 0:
+            if number == 0 and not (current == 0 and chunk_count == 0): return -5
+            if current != 0 and words_to_number_digits(current) <= words_to_number_digits(number): return -5
+            current <- current + number
+            index <- index + 1
+            continue
+        if id == 35:
+            if current != 0:
+                chunks[chunk_count] <- current
+                chunk_count <- chunk_count + 1
+            current <- 0
+            has_point <- true
+            words: mutable usize = 0
+            scan: mutable usize = index + 1
+            while scan < count:
+                digit: i64 = words_to_number_value(tokens[scan])
+                if digit < 0: return -6
+                words <- words + 1
+                if words > 3: return -1
+                digits: mutable u8[24] = zeroed
+                digit_count: mutable usize = 0
+                magnitude: mutable i64 = digit
+                while true:
+                    digits[digit_count] <- (48 + magnitude % 10).u8()
+                    digit_count <- digit_count + 1
+                    magnitude <- magnitude / 10
+                    if magnitude == 0: break
+                while digit_count > 0:
+                    digit_count <- digit_count - 1
+                    fraction[fraction_length] <- digits[digit_count]
+                    fraction_length <- fraction_length + 1
+                scan <- scan + 1
+            if words == 0: return -7
+            index <- count
+            continue
+        if id == 36: return if negative: -8 else: -9
+        return -4
+    if current != 0:
+        chunks[chunk_count] <- current
+        chunk_count <- chunk_count + 1
+    total: mutable i64 = 0
+    index <- 0
+    while index < chunk_count:
+        total <- total + chunks[index]
+        index <- index + 1
+    fraction_nonzero: mutable bool = false
+    index <- 0
+    while index < fraction_length:
+        if fraction[index] != 48u8: fraction_nonzero <- true
+        index <- index + 1
+    text_length <- 0
+    if negative and (total != 0 or fraction_nonzero):
+        text[text_length] <- 45u8
+        text_length <- text_length + 1
+    words_to_number_append_uint(text, text_length&, total)
+    if has_point:
+        text[text_length] <- 46u8
+        text_length <- text_length + 1
+        index <- 0
+        while index < fraction_length:
+            text[text_length] <- fraction[index]
+            text_length <- text_length + 1
+            index <- index + 1
+    return 0
+
+def words_to_number_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT + 1: return -1
+    byte_length: i64 = input[0]
+    if byte_length < 0 or byte_length > MAX_INPUT or length != byte_length.usize() + 1: return -1
+    text: mutable u8[64] = zeroed
+    text_length: mutable usize = 0
+    status: i64 = words_to_number_parse(input, byte_length.usize(), text, text_length&)
+    if status != 0: return status
+    if output == null or capacity < text_length: return -2
+    index: mutable usize = 0
+    while index < text_length:
+        output[index] <- text[index]
+        index <- index + 1
+    return text_length.i64()
+
+export fn words_to_number(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = words_to_number_impl

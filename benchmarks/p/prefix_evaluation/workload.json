@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "python-prefix-evaluation-i64-array-f64-v1",
+  "algorithm": "prefix_evaluation",
+  "function_symbol": "prefix_evaluation",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[ASCII byte length, expression bytes...]",
+    "expression_grammar": "single-digit operands and + - * / separated by exactly one ASCII space",
+    "maximum_tokens": 31,
+    "maximum_input_length": 63
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "result of source-order prefix evaluation",
+    "invalid_input_result": -1e+300
+  },
+  "source_bound": {
+    "description": "The pinned Python evaluate scans reversed whitespace-separated tokens, pushes single-digit operands, and pops first then second operands for each operator. This benchmark preserves that stack order and excludes malformed expressions and division by zero."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "addition_and_multiplication",
+      "input_values": [
+        9,
+        43,
+        32,
+        57,
+        32,
+        42,
+        32,
+        50,
+        32,
+        54
+      ],
+      "input_length": 10,
+      "expected_result": 21.0
+    },
+    {
+      "id": "single_operand",
+      "input_values": [
+        1,
+        50
+      ],
+      "input_length": 2,
+      "expected_result": 2.0
+    },
+    {
+      "id": "division_and_nested",
+      "input_values": [
+        13,
+        47,
+        32,
+        42,
+        32,
+        56,
+        32,
+        50,
+        32,
+        43,
+        32,
+        49,
+        32,
+        51
+      ],
+      "input_length": 14,
+      "expected_result": 4.0
+    },
+    {
+      "id": "fractional_result",
+      "input_values": [
+        13,
+        45,
+        32,
+        47,
+        32,
+        57,
+        32,
+        50,
+        32,
+        42,
+        32,
+        50,
+        32,
+        51
+      ],
+      "input_length": 14,
+      "expected_result": -1.5
+    },
+    {
+      "id": "nested_mixed",
+      "input_values": [
+        13,
+        43,
+        32,
+        42,
+        32,
+        50,
+        32,
+        51,
+        32,
+        47,
+        32,
+        56,
+        32,
+        52
+      ],
+      "input_length": 14,
+      "expected_result": 8.0
+    },
+    {
+      "id": "divide_by_zero",
+      "input_values": [
+        5,
+        47,
+        32,
+        49,
+        32,
+        48
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "underflow",
+      "input_values": [
+        3,
+        43,
+        32,
+        49
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_operand",
+      "input_values": [
+        3,
+        49,
+        32,
+        50
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "repeated_space",
+      "input_values": [
+        6,
+        43,
+        32,
+        32,
+        49,
+        32,
+        50
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    }
+  ]
+}

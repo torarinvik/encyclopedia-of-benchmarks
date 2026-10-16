@@ -1,0 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+static void putd(uint8_t*o,double x){uint64_t b;memcpy(&b,&x,8);for(int k=0;k<8;k++)o[k]=(uint8_t)(b>>(8*k));}
+int64_t fuzzy_operations(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n!=8)return -1;int op=(int)v[0];if(op<0||op>3)return -1;for(int i=1;i<8;i++)if(v[i]<0||v[i]>1000)return -1;int64_t* z=(int64_t*)v;if(op==0){for(int i=4;i<8;i++)if(z[i])return -1;}else if(op==1||op==2){if(z[7])return -1;}else{if(z[4]||z[5]||z[6]||!(z[1]<z[2]&&z[2]<z[3]))return -1;}if(!out||cap<(op==3?8:24))return -2;double a=z[1]/1000.,b=z[2]/1000.,c=z[3]/1000.;if(op==0){putd(out,1-c);putd(out+8,1-a);putd(out+16,1-b);return 24;}if(op==1){putd(out,a>z[4]/1000.?a:z[4]/1000.);putd(out+8,c<z[6]/1000.?c:z[6]/1000.);putd(out+16,(b+z[5]/1000.)/2);return 24;}if(op==2){double d=z[4]/1000.,e=z[5]/1000.,f=z[6]/1000.;putd(out,a<d?a:d);putd(out+8,(b+e)/2);putd(out+16,c>f?c:f);return 24;}double x=z[7]/1000.;double y=x<=a||x>=c?0:x<=b?(x-a)/(b-a):(c-x)/(c-b);putd(out,y);return 8;}

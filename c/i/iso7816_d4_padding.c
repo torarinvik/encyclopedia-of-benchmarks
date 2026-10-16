@@ -1,0 +1,3 @@
+#include <stddef.h>
+#include <stdint.h>
+int64_t iso7816_d4_padding(const int64_t*v,size_t n){if(n<3||n>27)return -1;int64_t mode=v[0],block=v[1],len=v[2];if((mode<0||mode>2)||(mode==0&&(block<1||block>8))||(mode!=0&&block!=0)||len<0||len>24||n!=(size_t)(len+3))return -1;unsigned char b[32];for(int64_t i=0;i<len;i++){if(v[i+3]<0||v[i+3]>255)return -1;b[i]=(unsigned char)v[i+3];}if(mode==0){int64_t out=(len/block+1)*block;if(out>32)return -1;b[len]=128;for(int64_t i=len+1;i<out;i++)b[i]=0;return out-len;}if(mode==1){int64_t i=len-1;while(i>=0&&b[i]==0)i--;return i>=0&&b[i]==128?i:-1;}int64_t marker=-1;int zero_suffix=1;for(int64_t j=len-1;j>=0;j--){if(zero_suffix&&b[j]==128)marker=j;if(b[j]!=0)zero_suffix=0;}return marker>=0?len-marker:-1;}

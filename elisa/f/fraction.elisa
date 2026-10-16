@@ -1,0 +1,33 @@
+def gcd_pos(a0: i64, b0: i64) -> i64:
+    a: mutable i64 = if a0 < 0: -a0 else: a0
+    b: mutable i64 = if b0 < 0: -b0 else: b0
+    while b != 0:
+        r: i64 = a % b
+        a <- b
+        b <- r
+    a
+def put64(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        output[offset+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+        i <- i+1
+def fraction_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 4: return -1
+    n1: i64 = v[0]; d1: i64 = v[1]; n2: i64 = v[2]; d2: i64 = v[3]
+    if n1 < -10000 or n1 > 10000 or n2 < -10000 or n2 > 10000 or d1 < -1000 or d1 > 1000 or d2 < -1000 or d2 > 1000 or d1 == 0 or d2 == 0: return -1
+    if capacity < 16: return -2
+    g: i64 = gcd_pos(d1,d2)
+    numerator: mutable i64 = (d2/g)*n1+(d1/g)*n2
+    denominator: mutable i64 = (d1/g)*d2
+    reduction: i64 = gcd_pos(numerator,denominator)
+    numerator <- numerator/reduction
+    denominator <- denominator/reduction
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    put64(output,0,numerator)
+    put64(output,8,denominator)
+    16
+export fraction(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fraction_impl

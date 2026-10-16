@@ -1,15 +1,5 @@
-def mix_hash(h0: u64, x0: u64) -> u64:
-    h: mutable u64 = h0
-    x: mutable u64 = x0
-    b: mutable usize = 0
-    while b < 8:
-        h <- (h ^ (x & 255)) * 1099511628211
-        x <- x >> 8
-        b <- b + 1
-    h
-
 def deep_clone_graph_impl(a: i64&, length: usize) -> i64:
-    if a.is_null() or length < 4 or length > 34:
+    if length < 4 or length > 34:
         return -1
     n64: i64 = a[0]
     root64: i64 = a[1]
@@ -55,13 +45,34 @@ def deep_clone_graph_impl(a: i64&, length: usize) -> i64:
                     node_stack[top] <- v
                     top <- top + 1
                 v <- v + 1
-    h: u64 = mix_hash(14695981039346656037, count)
-    h <- mix_hash(h, root64.u64())
+    h: mutable u64 = 14695981039346656037
+    words: mutable u64[2] = zeroed
+    words[0] <- count
+    words[1] <- root64.u64()
+    word_index: mutable usize = 0
+    while word_index < 2:
+        bits: mutable u64 = words[word_index]
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            h <- (h ^ (bits & 255)) * 1099511628211
+            bits <- bits >> 8
+            byte_index <- byte_index + 1
+        word_index <- word_index + 1
     i <- 0
     while i < n:
         if seen[i]:
-            h <- mix_hash(h, labels[i].u64())
-            h <- mix_hash(h, copied[i])
+            bits: mutable u64 = labels[i].u64()
+            byte_index: mutable usize = 0
+            while byte_index < 8:
+                h <- (h ^ (bits & 255)) * 1099511628211
+                bits <- bits >> 8
+                byte_index <- byte_index + 1
+            bits <- copied[i]
+            byte_index <- 0
+            while byte_index < 8:
+                h <- (h ^ (bits & 255)) * 1099511628211
+                bits <- bits >> 8
+                byte_index <- byte_index + 1
         i <- i + 1
     h.i64()
 

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "des-ecb-zero-padded-ascii-bytes-i64-array-bytes-v1",
+  "algorithm": "des_ecb",
+  "function_symbol": "des_ecb",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": [
+      "plaintext byte count",
+      "64-bit key bit pattern interpreted modulo 2^64",
+      "ASCII plaintext bytes"
+    ],
+    "length_rule": "exactly 2 + plaintext byte count",
+    "plaintext_byte_count_range": [
+      0,
+      40
+    ],
+    "plaintext_byte_range": [
+      0,
+      127
+    ],
+    "key_range": "any signed 64-bit value; its two's-complement bit pattern is the DES key",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "raw_ciphertext_bytes",
+    "definition": "DES encryption in ECB mode",
+    "block_size_bytes": 8,
+    "padding": "append zero bytes to the final partial block; do not add a block for empty or block-aligned plaintext",
+    "successful_result": "ciphertext byte count",
+    "key_schedule": "standard DES PC-1, 16 rounds of standard shifts/PC-2; DES parity bits are ignored"
+  },
+  "workspace": {
+    "bytes": 40,
+    "meaning": "Maximum ciphertext for 40 plaintext bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0,
+        1383827165325090801
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-byte",
+      "input_values": [
+        1,
+        1383827165325090801,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "024c142a621e999e"
+    },
+    {
+      "id": "exact-block",
+      "input_values": [
+        8,
+        1383827165325090801,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "8b96b79529cca218"
+    },
+    {
+      "id": "two-block-zero-padded",
+      "input_values": [
+        11,
+        1383827165325090801,
+        84,
+        101,
+        115,
+        116,
+        32,
+        115,
+        116,
+        114,
+        105,
+        110,
+        103
+      ],
+      "input_length": 13,
+      "expected_result": 16,
+      "expected_output_hex": "0c84e3c8fb646872720b224896db4f60"
+    },
+    {
+      "id": "maximum-length",
+      "input_values": [
+        40,
+        1383827165325090801,
+        84,
+        104,
+        101,
+        65,
+        108,
+        103,
+        111,
+        114,
+        105,
+        116,
+        104,
+        109,
+        115,
+        32,
+        68,
+        69,
+        83,
+        32,
+        69,
+        67,
+        66,
+        32,
+        98,
+        101,
+        110,
+        99,
+        104,
+        109,
+        97,
+        114,
+        107,
+        32,
+        116,
+        101,
+        115,
+        116,
+        32,
+        48,
+        49,
+        50
+      ],
+      "input_length": 42,
+      "expected_result": 40,
+      "expected_output_hex": "ebb62f84ed634d7ce67952c1cacab6c593f95c4e625f0e3f265b5866ab069349b54755d891a912d8"
+    },
+    {
+      "id": "invalid-non-ascii-byte",
+      "input_values": [
+        1,
+        1383827165325090801,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-length",
+      "input_values": [
+        1,
+        1383827165325090801
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        1,
+        1383827165325090801,
+        65
+      ],
+      "input_length": 3,
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    }
+  ]
+}

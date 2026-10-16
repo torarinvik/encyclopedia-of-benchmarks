@@ -1,0 +1,54 @@
+def bound_shift(value: i64) -> i64: 2147483647
+def left_run(v: i64&, key: i64, base: i64, hint: i64) -> (i64, i64):
+    maximum: i64 = hint+1
+    offset: mutable i64 = 1
+    temporary: mutable i64 = 0
+    while offset < maximum and key < v[5+base+hint-offset]:
+        temporary <- offset
+        offset <- bound_shift(offset)
+    if offset > maximum: offset <- maximum
+    (hint-temporary, hint-offset)
+def right_run(v: i64&, key: i64, base: i64, length: i64, hint: i64) -> (i64, i64):
+    offset: mutable i64 = 1
+    last: mutable i64 = 0
+    maximum: i64 = length-hint
+    while offset < maximum and key > v[5+base+hint+offset]:
+        last <- offset
+        offset <- bound_shift(offset)
+    if offset > maximum: offset <- maximum
+    (offset+hint, last+hint)
+def final_offset(v: i64&, key: i64, base: i64, offset_value: i64, last_value: i64, lt: i64) -> i64:
+    offset: mutable i64 = offset_value
+    last: mutable i64 = last_value+1
+    while last < offset:
+        middle: i64 = last+((offset-last).u64() >> 1).i64()
+        value: i64 = v[5+base+middle]
+        comparison: i64 = if key < value: -1 else: if key > value: 1 else: 0
+        if comparison < lt: offset <- middle
+        else: last <- middle+1
+    offset
+def galloping_strategy_impl(v: i64&, length: usize) -> i64:
+    if length < 5 or length > 69: return -1
+    operation: i64 = v[0]
+    count: i64 = v[1]
+    base: i64 = v[2]
+    range_length: i64 = v[3]
+    key: i64 = v[4]
+    if (operation != 0 and operation != 1) or count < 0 or count > 64 or length != (5+count).usize() or base < 0 or range_length < 0 or base > count or range_length > count-base or key < -2147483648 or key > 2147483647: return -1
+    i: mutable i64 = 0
+    while i < count:
+        if v[5+i] < -2147483648 or v[5+i] > 2147483647: return -1
+        i <- i+1
+    if count == 0: return 0
+    if range_length == 0 or base >= count: return -1
+    i <- base
+    while i+1 < base+range_length:
+        if v[5+i] > v[5+i+1]: return -1
+        i <- i+1
+    offsets: (i64, i64)
+    if operation == 0:
+        offsets <- if key > v[5+base]: right_run(v,key,base,range_length,0) else: left_run(v,key,base,0)
+        return final_offset(v,key,base,offsets.0,offsets.1,1)
+    offsets <- if key < v[5+base]: left_run(v,key,base,range_length) else: right_run(v,key,base,range_length,0)
+    final_offset(v,key,base,offsets.0,offsets.1,0)
+export galloping_strategy(v: i64&, length: usize) -> i64 = galloping_strategy_impl

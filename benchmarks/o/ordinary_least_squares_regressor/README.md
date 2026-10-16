@@ -1,0 +1,3 @@
+# Ordinary least squares regressor
+
+This benchmark follows the pinned C++ multivariate ordinary least-squares model: append an intercept column, fit coefficients from the normal equations, then predict each test row. Input is `[training_count, feature_count, test_count, (feature_0, feature_1, target)*, test_features...]`. The portable domain fixes feature count at two, uses 2–8 training rows, and 1–3 test rows. Features are signed integers in `[-100,100]`, targets in `[-1000,1000]`; the augmented design matrix must have full column rank. Output is one little-endian binary64 prediction per test row. Invalid inputs return -1. Runtime oracle: `ordinary_least_squares_regressor_oracle.py`.

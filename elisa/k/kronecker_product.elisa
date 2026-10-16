@@ -1,0 +1,9 @@
+def kronecker_product_impl(v: i64&, n: usize) -> i64:
+    if n != 6: return -1
+    for i in 0..6:
+        if v[i] < -10 or v[i] > 10: return -1
+    out = [v[0]*v[4],v[0]*v[5],v[1]*v[4],v[1]*v[5],v[2]*v[4],v[2]*v[5],v[3]*v[4],v[3]*v[5]]
+    result = 0
+    for x in out: result = result*201+x+100
+    result
+export fn kronecker_product(v: i64&, n: usize) -> i64 = kronecker_product_impl

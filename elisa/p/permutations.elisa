@@ -1,0 +1,43 @@
+fn mix(hash: u64, byte: u8) -> u64:
+    ((hash ^ byte.u64()) * 16777619) & 4294967295
+fn next_perm(values: i32&, count: usize) -> bool:
+    i: mutable usize = count - 1
+    while i > 0 and values[i - 1] >= values[i]: i <- i - 1
+    if i == 0: return false
+    j: mutable usize = count - 1
+    while values[j] <= values[i - 1]: j <- j - 1
+    temporary: mutable i32 = values[i - 1]
+    values[i - 1] <- values[j]
+    values[j] <- temporary
+    left: mutable usize = i
+    right: mutable usize = count - 1
+    while left < right:
+        temporary <- values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    true
+export fn permutations(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 7 or input[0] < 1 or input[0] > 6 or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    values: mutable i32[6]
+    i: mutable usize = 0
+    while i < count:
+        if input[i + 1] < -2147483648 or input[i + 1] > 2147483647: return -1
+        values[i] <- input[i + 1].i32()
+        if i > 0 and values[i - 1] >= values[i]: return -1
+        i <- i + 1
+    hash: mutable u64 = 2166136261
+    repeat:
+        i <- 0
+        while i < count:
+            bits: u32 = values[i].u32()
+            b: mutable usize = 0
+            while b < 4:
+                hash <- mix(hash, (bits >> (8 * b)).u8())
+                b <- b + 1
+            i <- i + 1
+        hash <- mix(hash, 255)
+        if not next_perm(values[0], count): break
+    hash.i64()

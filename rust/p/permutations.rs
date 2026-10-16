@@ -1,0 +1,4 @@
+fn mix(h:u32,b:u8)->u32{(h^u32::from(b)).wrapping_mul(16_777_619)}
+fn next_perm(a:&mut [i32;6],n:usize)->bool{let mut i=n-1;while i>0&&a[i-1]>=a[i]{i-=1}if i==0{return false}let mut j=n-1;while a[j]<=a[i-1]{j-=1}a.swap(i-1,j);a[i..n].reverse();true}
+#[no_mangle]
+pub unsafe extern "C" fn permutations(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>7{return -1}let x=std::slice::from_raw_parts(v,n);if !(1..=6).contains(&x[0])||n!=x[0] as usize+1{return -1}let count=x[0] as usize;let mut a=[0i32;6];for i in 0..count{if x[i+1]<i32::MIN as i64||x[i+1]>i32::MAX as i64{return -1}a[i]=x[i+1] as i32;if i>0&&a[i-1]>=a[i]{return -1}}let mut h=2_166_136_261u32;loop{for value in &a[..count]{let u=*value as u32;for shift in [0,8,16,24]{h=mix(h,(u>>shift) as u8)}}h=mix(h,255);if !next_perm(&mut a,count){break}}i64::from(h)}

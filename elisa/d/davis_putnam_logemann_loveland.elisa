@@ -1,0 +1,85 @@
+const MAX_VARIABLES: usize = 5
+const MAX_CLAUSES: usize = 10
+const MAX_CLAUSE_LENGTH: usize = 5
+const MAX_INPUT_LENGTH: usize = 62
+
+def davis_putnam_logemann_loveland_dpll(positive: u8[10]&, negative: u8[10]&,
+        variable_count: usize, clause_count: usize, assigned_input: u8, truth_input: u8) -> bool:
+    universe: u8 = ((1.u16() << variable_count) - 1).u8()
+    assigned: mutable u8 = assigned_input
+    truth: mutable u8 = truth_input
+    while true:
+        changed: mutable bool = false
+        all_satisfied: mutable bool = true
+        for clause in 0..<clause_count:
+            pos: u8 = positive[clause]
+            neg: u8 = negative[clause]
+            if (pos & neg) != 0 or (pos & truth) != 0 or (neg & (assigned & ~truth)) != 0: continue
+            all_satisfied <- false
+            open: u8 = (pos | neg) & universe & ~assigned
+            if open == 0: return false
+            if (open & (open - 1)) == 0:
+                if (pos & open) != 0: truth <- truth | open
+                else: truth <- truth & ~open
+                assigned <- assigned | open
+                changed <- true
+                break
+        if all_satisfied: return true
+        if changed: continue
+        positive_occurrences: mutable u8 = 0
+        negative_occurrences: mutable u8 = 0
+        for clause in 0..<clause_count:
+            pos: u8 = positive[clause]
+            neg: u8 = negative[clause]
+            if (pos & neg) != 0 or (pos & truth) != 0 or (neg & (assigned & ~truth)) != 0: continue
+            open: u8 = (pos | neg) & universe & ~assigned
+            positive_occurrences <- positive_occurrences | (pos & open)
+            negative_occurrences <- negative_occurrences | (neg & open)
+        pure_true: u8 = positive_occurrences & ~negative_occurrences
+        pure_false: u8 = negative_occurrences & ~positive_occurrences
+        pure: u8 = pure_true | pure_false
+        if pure != 0:
+            truth <- (truth | pure_true) & ~pure_false
+            assigned <- assigned | pure
+            continue
+        break
+    for variable in 0..<variable_count:
+        bit: u8 = (1.u16() << variable).u8()
+        if (assigned & bit) == 0:
+            return davis_putnam_logemann_loveland_dpll(positive, negative, variable_count, clause_count,
+                assigned | bit, truth | bit) or
+                davis_putnam_logemann_loveland_dpll(positive, negative, variable_count, clause_count,
+                assigned | bit, truth & ~bit)
+    return false
+
+def davis_putnam_logemann_loveland_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    variable_arg: i64 = values[0]
+    clause_arg: i64 = values[1]
+    if variable_arg < 0 or variable_arg > 5 or clause_arg < 0 or clause_arg > 10: return -1
+    variable_count: usize = variable_arg.usize()
+    clause_count: usize = clause_arg.usize()
+    positive: mutable u8[10] = zeroed
+    negative: mutable u8[10] = zeroed
+    position: mutable usize = 2
+    for clause in 0..<clause_count:
+        if position >= length: return -1
+        literal_count: i64 = values[position]
+        position <- position + 1
+        if literal_count < 0 or literal_count > 5 or literal_count.usize() > length - position: return -1
+        for _ in 0..<literal_count.usize():
+            literal: i64 = values[position]
+            position <- position + 1
+            if literal == 0 or literal < -variable_arg or literal > variable_arg: return -1
+            variable: mutable i64 = literal
+            if literal < 0: variable <- -literal
+            bit: u8 = (1.u16() << (variable - 1).usize()).u8()
+            if literal > 0:
+                positive[clause] <- positive[clause] | bit
+            else:
+                negative[clause] <- negative[clause] | bit
+    if position != length: return -1
+    if davis_putnam_logemann_loveland_dpll(positive, negative, variable_count, clause_count, 0, 0): return 1
+    return 0
+
+export fn davis_putnam_logemann_loveland(values: i64&, length: usize) -> i64 = davis_putnam_logemann_loveland_impl

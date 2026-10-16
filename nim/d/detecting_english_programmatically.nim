@@ -49,5 +49,6 @@ proc detecting_english_programmatically*(a: ptr UncheckedArray[int64], n: csize_
       while k < tokLen and a[starts[w]+k] == token[k]: inc k
       if k == tokLen: inc hits; break
     tokLen = 0; inc i
-  if tokens > 0 and hits * 100 >= wp * tokens and int64(retained) * 100 >= lp * m: return 1
+  if tokens == 0: return -1
+  if hits * 100 >= wp * tokens and int64(retained) * 100 >= lp * m: return 1
   return 0

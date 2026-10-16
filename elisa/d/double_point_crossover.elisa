@@ -1,0 +1,32 @@
+def double_point_crossover_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 7 or length > 131: return -1
+    n: i64 = input[0]
+    j1: i64 = input[1]
+    j2: i64 = input[2]
+    if n < 2 or n > 64 or length != (3 + 2 * n).usize() or j1 < 1 or j1 >= j2 or j2 > n: return -1
+    index: mutable usize = 0
+    while index < (2 * n).usize():
+        if input[3 + index] < -2147483648 or input[3 + index] > 2147483647: return -1
+        index <- index + 1
+    count: usize = n.usize()
+    bytes: usize = count * 16
+    if capacity < bytes: return -2
+    index <- 0
+    while index < count:
+        first: mutable i64 = input[3 + index]
+        second: mutable i64 = input[3 + count + index]
+        if index >= j1.usize() and index < j2.usize():
+            temp: i64 = first
+            first <- second
+            second <- temp
+        first_bits: u64 = first.u64()
+        second_bits: u64 = second.u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((first_bits >> (8 * byte)) & 255).u8()
+            output[(count + index) * 8 + byte] <- ((second_bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn double_point_crossover(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = double_point_crossover_impl

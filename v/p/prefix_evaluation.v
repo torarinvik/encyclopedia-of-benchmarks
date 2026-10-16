@@ -1,0 +1,5 @@
+const max_bytes=62
+const invalid_result=f64(-1e300)
+fn is_op(c u8)bool{return c==`+`||c==`-`||c==`*`||c==`/`}
+@[export:'prefix_evaluation']
+pub fn prefix_evaluation(v &i64,n usize)f64{unsafe{if v==nil||n<2||n>63||v[0]<1||v[0]>max_bytes||n!=usize(v[0]+1){return invalid_result};mut tokens:=[31]u8{};mut count:=0;mut need:=true;for i in 1..int(n){x:=v[i];if x<0||x>127{return invalid_result};c:=u8(x);if c==` `{if need{return invalid_result};need=true;continue};if !(is_op(c)||(c>=`0`&&c<=`9`))||!need||count>=31{return invalid_result};tokens[count]=c;count++;need=false};if need||count==0{return invalid_result};mut stack:=[31]f64{};mut top:=0;mut p:=count-1;for p>=0{c:=tokens[p];if c>=`0`&&c<=`9`{stack[top]=f64(c-`0`);top++;p--;continue};if top<2{return invalid_result};top--;a:=stack[top];top--;b:=stack[top];mut result:=f64(0);if c==`+`{result=a+b}else if c==`-`{result=a-b}else if c==`*`{result=a*b}else{if b==0{return invalid_result};result=a/b};stack[top]=result;top++;p--};if top==1&&stack[0].is_finite(){return stack[0]};return invalid_result}}

@@ -1,0 +1,13 @@
+{
+  "schema_version":1,
+  "id":"naive-bayes-gaussian-population-variance-v1",
+  "algorithm":"naive_bayes",
+  "function_symbol":"naive_bayes",
+  "input":{"kind":"signed_i64_array","layout":"[sample_count,feature_count,(class_label,feature_milli*)*,query_feature_milli*]","maximum_input_values":37},
+  "output":{"kind":"byte_array","semantics":"predicted signed 64-bit class label","byte_order":"little_endian","comparison":"exact bytes","maximum_output_bytes":8,"invalid_result":-1},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":3,"warmup_rounds":1,"repetitions_per_sample":500},
+  "cases":[
+    {"id":"near_class_zero","input_values":[4,1,0,0,0,1000,1,9000,1,10000,500],"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"near_class_one","input_values":[4,1,0,0,0,1000,1,9000,1,10000,9500],"expected_result":8,"expected_output_hex":"0100000000000000"}
+  ]
+}

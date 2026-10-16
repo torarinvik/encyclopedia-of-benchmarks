@@ -1,0 +1,24 @@
+def rnd(x:f64)->i64:
+    z=x*1000.0
+    if z>=0:return (z+0.5).i64()
+    -(-z+0.5).i64()
+def liang_barsky_impl(v:i64&,n:usize)->i64:
+    if n!=8:return -1
+    for i in 0..8:
+        if v[i]<-5 or v[i]>5:return -1
+    xmin=v[0].f64();ymin=v[1].f64();xmax=v[2].f64();ymax=v[3].f64();x0=v[4].f64();y0=v[5].f64();x1=v[6].f64();y1=v[7].f64()
+    if xmin>=xmax or ymin>=ymax:return -1
+    dx=x1-x0;dy=y1-y0;p=[-dx,dx,-dy,dy];q=[x0-xmin,xmax-x0,y0-ymin,ymax-y0];t0=0.0;t1=1.0
+    for i in 0..4:
+        t=q[i]/p[i]
+        if p[i]==0 and q[i]<0:return -1
+        if p[i]<0:
+            if t>t1:return -1
+            if t>t0:t0=t
+        elif p[i]>0:
+            if t<t0:return -1
+            if t<t1:t1=t
+    z=[x0+t0*dx,y0+t0*dy,x0+t1*dx,y0+t1*dy];r=0
+    for x in z:r=r*10001+rnd(x)+5000
+    r
+export fn liang_barsky(v:i64&,n:usize)->i64=liang_barsky_impl

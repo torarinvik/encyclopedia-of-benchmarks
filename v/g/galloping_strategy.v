@@ -1,0 +1,7 @@
+module main
+fn bound_shift(x i64)i64{return 2147483647}
+fn left_run(a &i64,k i64,b i64,h i64)(i64,i64){m:=h+1;mut x:=i64(1);mut t:=i64(0);for x<m&&k<unsafe{a[b+h-x]}{t=x;x=bound_shift(x)};if x>m{x=m};return h-t,h-x}
+fn right_run(a &i64,k i64,b i64,n i64,h i64)(i64,i64){mut x:=i64(1);mut last:=i64(0);m:=n-h;for x<m&&k>unsafe{a[b+h+x]}{last=x;x=bound_shift(x)};if x>m{x=m};return x+h,last+h}
+fn final_offset(a &i64,k i64,b i64,o0 i64,l0 i64,lt i64)i64{mut o:=o0;mut l:=l0+1;for l<o{mid:=l+((u64(o-l))>>1);cmp:=if k<unsafe{a[b+mid]}{-1}else if k>unsafe{a[b+mid]}{1}else{0};if cmp<lt{o=mid}else{l=mid+1}};return o}
+@[export: 'galloping_strategy']
+pub fn galloping_strategy(v &i64,n usize)i64{if isnil(v)||n<5||n>69{return -1};op:=unsafe{v[0]};count:=unsafe{v[1]};base:=unsafe{v[2]};length:=unsafe{v[3]};key:=unsafe{v[4]};if (op!=0&&op!=1)||count<0||count>64||n!=5+usize(count)||base<0||length<0||base>count||length>count-base||key < -2147483648||key>2147483647{return -1};for i in 0..count{z:=unsafe{v[5+i]};if z < -2147483648||z>2147483647{return -1}};if count==0{return 0};if length==0||base>=count{return -1};for i in base..base+length-1{if unsafe{v[5+i]>v[5+i+1]}{return -1}};a:=unsafe{&v[5]};mut o:=i64(0);mut l:=i64(0);if op==0{if key>unsafe{a[base]}{o,l=right_run(a,key,base,length,0)}else{o,l=left_run(a,key,base,0)};return final_offset(a,key,base,o,l,1)};if key<unsafe{a[base]}{o,l=left_run(a,key,base,length)}else{o,l=right_run(a,key,base,length,0)};final_offset(a,key,base,o,l,0)}

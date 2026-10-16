@@ -14,6 +14,14 @@ The pinned [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b0
 
 The workload covers isolated roots, paths, cycles, self-loops, duplicate values, disconnected input, a complete graph, and malformed input.
 
+## Build and verify
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_scalar --algorithm deep_clone_graph --language rust
+python3 benchmarks/run_scalar.py --build-manifest build/i64_array_scalar/d/deep_clone_graph/rust/build.json
+python3 benchmarks/verify_i64_array_scalar.py --algorithms deep_clone_graph --languages rust
+```
+
 ## Implementations
 
 | Language | Source |

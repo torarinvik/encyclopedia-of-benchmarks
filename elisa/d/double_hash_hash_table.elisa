@@ -1,0 +1,75 @@
+# Bounded double-hashing table: insert=1, search=2, delete=3.
+def double_hash_hash_table_impl(input: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    cap64: i64 = input[0]
+    count: i64 = input[1]
+    if cap64 < 3 or cap64 > 101 or count < 0 or count > 512:
+        return -1
+    cap: usize = cap64.usize()
+    if length != 2 + count.usize() * 2:
+        return -1
+    divisor: mutable usize = 2
+    while divisor * divisor <= cap:
+        if cap % divisor == 0:
+            return -1
+        divisor <- divisor + 1
+    states: mutable i64[101] = zeroed
+    keys: mutable i64[101] = zeroed
+    successes: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count.usize():
+        op: i64 = input[2 + index * 2]
+        key: i64 = input[3 + index * 2]
+        if op < 1 or op > 3:
+            return -1
+        first_rem: mutable i64 = key % cap64
+        if first_rem < 0:
+            first_rem <- first_rem + cap64
+        first: usize = first_rem.usize()
+        step_rem: mutable i64 = key % (cap64 - 1)
+        if step_rem < 0:
+            step_rem <- step_rem + cap64 - 1
+        step: usize = 1 + step_rem.usize()
+        if op == 1:
+            tomb: mutable usize = cap
+            inserted: mutable bool = false
+            probe: mutable usize = 0
+            while probe < cap:
+                slot: usize = (first + probe * step) % cap
+                if states[slot] == 1 and keys[slot] == key:
+                    tomb <- cap
+                    break
+                if states[slot] == 2 and tomb == cap:
+                    tomb <- slot
+                if states[slot] == 0:
+                    target: usize = slot
+                    if tomb != cap:
+                        target = tomb
+                    states[target] <- 1
+                    keys[target] <- key
+                    inserted <- true
+                    break
+                probe <- probe + 1
+            if not inserted and tomb != cap:
+                states[tomb] <- 1
+                keys[tomb] <- key
+                inserted <- true
+            if inserted:
+                successes <- successes + 1
+        else:
+            probe: mutable usize = 0
+            while probe < cap:
+                slot: usize = (first + probe * step) % cap
+                if states[slot] == 0:
+                    break
+                if states[slot] == 1 and keys[slot] == key:
+                    successes <- successes + 1
+                    if op == 3:
+                        states[slot] <- 2
+                    break
+                probe <- probe + 1
+        index <- index + 1
+    successes
+
+export fn double_hash_hash_table(input: i64&, length: usize) -> i64 = double_hash_hash_table_impl

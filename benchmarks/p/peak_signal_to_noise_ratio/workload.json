@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "python-rust-psnr-i64-array-f64-v1",
+  "algorithm": "peak_signal_to_noise_ratio",
+  "function_symbol": "peak_signal_to_noise_ratio",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[pixel_count, original_pixels..., compressed_pixels...]",
+    "pixel_count_range": [
+      1,
+      64
+    ],
+    "pixel_range": [
+      0,
+      255
+    ],
+    "maximum_absolute_pixel_difference": 15,
+    "maximum_input_length": 129
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "PSNR in decibels using peak pixel value 255",
+    "identical_image_result": -1e+300,
+    "invalid_input_result": -1e+300
+  },
+  "source_bound": {
+    "description": "The Python image path applies subtraction and squaring to uint8 arrays, which wraps squared differences above 255; the common input domain limits each absolute pixel difference to 15 so its squared error agrees with Rust's f64 calculation. Python returns 100 and Rust returns positive infinity for zero MSE; identical images are excluded and mapped to the invalid sentinel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_pixel_difference",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "expected_result": 48.1308036086791
+    },
+    {
+      "id": "uniform_difference",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        10,
+        10,
+        10,
+        10
+      ],
+      "expected_result": 28.130803608679106
+    },
+    {
+      "id": "mixed_difference",
+      "input_values": [
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        11,
+        18,
+        33,
+        39,
+        45
+      ],
+      "expected_result": 39.099903738759664
+    },
+    {
+      "id": "max_range_difference",
+      "input_values": [
+        3,
+        0,
+        128,
+        255,
+        15,
+        113,
+        240
+      ],
+      "expected_result": 24.60897842756548
+    },
+    {
+      "id": "difference_above_shared_domain",
+      "input_values": [
+        1,
+        0,
+        16
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "identical_excluded",
+      "input_values": [
+        2,
+        0,
+        255,
+        0,
+        255
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -37,9 +37,24 @@ from cone_oracle import INVALID_RESULT as CONE_INVALID_RESULT
 from cone_oracle import expected_result as cone_expected
 from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
 from cohen_sutherland_oracle import expected_result as cohen_sutherland_expected
+from lamberts_ellipsoidal_distance_oracle import INVALID_RESULT as LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT
+from lamberts_ellipsoidal_distance_oracle import MAX_INPUT_LENGTH as MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
+from lamberts_ellipsoidal_distance_oracle import expected_result as lamberts_ellipsoidal_distance_expected
 from reverse_polish_notation_oracle import INVALID_RESULT as REVERSE_POLISH_NOTATION_INVALID_RESULT
 from reverse_polish_notation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
 from reverse_polish_notation_oracle import expected_result as reverse_polish_notation_expected
+from prefix_evaluation_oracle import INVALID_RESULT as PREFIX_EVALUATION_INVALID_RESULT
+from prefix_evaluation_oracle import MAX_INPUT_LENGTH as MAX_PREFIX_EVALUATION_INPUT_LENGTH
+from prefix_evaluation_oracle import expected_result as prefix_evaluation_expected
+from units_converter_oracle import INVALID_RESULT as UNITS_CONVERTER_INVALID_RESULT
+from units_converter_oracle import MAX_INPUT_LENGTH as MAX_UNITS_CONVERTER_INPUT_LENGTH
+from units_converter_oracle import expected_result as units_converter_expected
+from peak_signal_to_noise_ratio_oracle import INVALID_RESULT as PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT
+from peak_signal_to_noise_ratio_oracle import MAX_INPUT_LENGTH as MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH
+from peak_signal_to_noise_ratio_oracle import expected_result as peak_signal_to_noise_ratio_expected
+from p2_quantile_estimator_oracle import INVALID_RESULT as P2_QUANTILE_INVALID_RESULT
+from p2_quantile_estimator_oracle import MAX_INPUT_LENGTH as MAX_P2_QUANTILE_INPUT_LENGTH
+from p2_quantile_estimator_oracle import expected_result as p2_quantile_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -141,6 +156,9 @@ from neville_oracle import expected_result as neville_expected
 from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
 from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
 from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_expected
+from weddles_rule_oracle import INVALID_RESULT as WEDDLES_RULE_INVALID_RESULT
+from weddles_rule_oracle import MAX_INPUT_LENGTH as MAX_WEDDLES_RULE_INPUT_LENGTH
+from weddles_rule_oracle import expected_result as weddles_rule_expected
 from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
 from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
 from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_expected
@@ -296,6 +314,9 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "neville" else
                         MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
                         if algorithm == "midpoint_integral_method" else
+                        MAX_WEDDLES_RULE_INPUT_LENGTH
+                        if algorithm == "weddles_rule" else
+                        MAX_UNITS_CONVERTER_INPUT_LENGTH if algorithm == "units_converter" else
                         MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
                         if algorithm == "ternary_search_min_max_recursive" else
                         MAX_COSINE_SIMILARITY_INPUT_LENGTH
@@ -304,6 +325,11 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH if algorithm == "newton_raphson" else
                         MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
                         if algorithm == "reverse_polish_notation" else
+                        MAX_P2_QUANTILE_INPUT_LENGTH if algorithm == "p2_quantile_estimator" else
+                        MAX_PEAK_SIGNAL_TO_NOISE_RATIO_INPUT_LENGTH if algorithm == "peak_signal_to_noise_ratio" else
+                        MAX_LAMBERTS_ELLIPSOIDAL_DISTANCE_INPUT_LENGTH
+                        if algorithm == "lamberts_ellipsoidal_distance" else
+                        MAX_PREFIX_EVALUATION_INPUT_LENGTH if algorithm == "prefix_evaluation" else
                         MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH if algorithm == "newton_raphson_method" else
                         MAX_REYNOLDS_NUMBER_PARSEABLE_INPUT_LENGTH if algorithm == "reynolds_number" else
                         MAX_INTEGRAL_APPROXIMATION_INPUT_LENGTH if algorithm == "integral_approximation" else
@@ -605,6 +631,38 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == COHEN_SUTHERLAND_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
             raise ValueError("cohen_sutherland expected_result must match the selected clipped coordinate or acceptance flag")
+    elif algorithm == "lamberts_ellipsoidal_distance":
+        source_result = lamberts_ellipsoidal_distance_expected(values)
+        if source_result == LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT:
+            if expected != LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT:
+                raise ValueError("invalid lamberts_ellipsoidal_distance inputs must use the -1e300 result sentinel")
+        elif expected == LAMBERTS_ELLIPSOIDAL_DISTANCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-6):
+            raise ValueError("lamberts_ellipsoidal_distance expected_result must match the bounded WGS-84 Lambert distance in meters")
+    elif algorithm == "p2_quantile_estimator":
+        source_result = p2_quantile_expected(values)
+        if source_result == P2_QUANTILE_INVALID_RESULT:
+            if expected != P2_QUANTILE_INVALID_RESULT:
+                raise ValueError("invalid p2_quantile_estimator inputs must use the -1e300 result sentinel")
+        elif expected == P2_QUANTILE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("p2_quantile_estimator expected_result must match the bounded Java P² median updates")
+    elif algorithm == "peak_signal_to_noise_ratio":
+        source_result = peak_signal_to_noise_ratio_expected(values)
+        if source_result == PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT:
+            if expected != PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT:
+                raise ValueError("invalid peak_signal_to_noise_ratio inputs must use the -1e300 result sentinel")
+        elif expected == PEAK_SIGNAL_TO_NOISE_RATIO_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("peak_signal_to_noise_ratio expected_result must match the bounded non-identical image formula")
+    elif algorithm == "prefix_evaluation":
+        source_result = prefix_evaluation_expected(values)
+        if source_result == PREFIX_EVALUATION_INVALID_RESULT:
+            if expected != PREFIX_EVALUATION_INVALID_RESULT:
+                raise ValueError("invalid prefix_evaluation input must use the -1e300 result sentinel")
+        elif expected == PREFIX_EVALUATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("prefix_evaluation expected_result must match the bounded prefix stack evaluation")
     elif algorithm == "reverse_polish_notation":
         source_result = reverse_polish_notation_expected(values)
         if source_result == REVERSE_POLISH_NOTATION_INVALID_RESULT:
@@ -809,6 +867,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("midpoint_integral_method expected_result must match the source-order midpoint sum")
+    elif algorithm == "weddles_rule":
+        source_result = weddles_rule_expected(values)
+        if source_result == WEDDLES_RULE_INVALID_RESULT:
+            if expected != WEDDLES_RULE_INVALID_RESULT:
+                raise ValueError("invalid weddles_rule inputs must use the -1e300 result sentinel")
+        elif expected == WEDDLES_RULE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("weddles_rule expected_result must match the source-order weighted sample sum")
+    elif algorithm == "units_converter":
+        source_result = units_converter_expected(values)
+        if source_result == UNITS_CONVERTER_INVALID_RESULT:
+            if expected != UNITS_CONVERTER_INVALID_RESULT:
+                raise ValueError("invalid units_converter inputs must use the -1e300 result sentinel")
+        elif expected == UNITS_CONVERTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("units_converter expected_result must match the bounded affine conversion closure")
     elif algorithm == "ternary_search_min_max_recursive":
         source_result = ternary_search_min_max_expected(values)
         if source_result == TERNARY_SEARCH_MIN_MAX_INVALID_RESULT:
