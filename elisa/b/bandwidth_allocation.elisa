@@ -1,0 +1,54 @@
+# Stable descending value-per-demand greedy allocation with the source's integer result.
+def bandwidth_allocation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2:
+        return -1
+    bandwidth: i64 = input[0]
+    count_value: i64 = input[1]
+    if bandwidth < 0 or bandwidth > 100000 or count_value < 0 or count_value > 64:
+        return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count:
+        return -1
+    for index in 0..<count:
+        demand: i64 = input[2 + index]
+        value: i64 = input[2 + count + index]
+        if demand < 1 or demand > 1000 or value < 0 or value > 10000:
+            return -1
+
+    ratios: mutable f64[64] = zeroed
+    order: mutable usize[64] = zeroed
+    for index in 0..<count:
+        demand: i64 = input[2 + index]
+        value: i64 = input[2 + count + index]
+        ratios[index] <- value.f64() / demand.f64()
+        order[index] <- index
+
+    sort_index: mutable usize = 1
+    while sort_index < count:
+        key_ratio: f64 = ratios[sort_index]
+        key_index: usize = order[sort_index]
+        position: mutable usize = sort_index
+        while position > 0 and ratios[position - 1] < key_ratio:
+            ratios[position] <- ratios[position - 1]
+            order[position] <- order[position - 1]
+            position <- position - 1
+        ratios[position] <- key_ratio
+        order[position] <- key_index
+        sort_index <- sort_index + 1
+
+    remaining: mutable i64 = bandwidth
+    total: mutable i64 = 0
+    for position in 0..<count:
+        index: usize = order[position]
+        demand: i64 = input[2 + index]
+        value: i64 = input[2 + count + index]
+        if remaining >= demand:
+            total <- total + value
+            remaining <- remaining - demand
+        else:
+            partial_value: f64 = ratios[position] * remaining.f64()
+            total <- total + partial_value.i64()
+            break
+    total
+
+export fn bandwidth_allocation(input: i64&, length: usize) -> i64 = bandwidth_allocation_impl

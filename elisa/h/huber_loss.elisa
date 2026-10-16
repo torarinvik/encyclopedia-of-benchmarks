@@ -1,0 +1,36 @@
+def huber_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > 133:
+        return -1.0e300
+    delta_value: i64 = values[0]
+    true_count: i64 = values[1]
+    pred_count: i64 = values[2]
+    if delta_value < 0 or delta_value > 1000000000 or
+            true_count < 0 or true_count > 65 or pred_count < 0 or pred_count > 65:
+        return -1.0e300
+    if length != (3 + true_count + pred_count).usize() or true_count != pred_count or
+            pred_count == 0 or true_count > 64:
+        return -1.0e300
+
+    count: usize = true_count.usize()
+    index: mutable usize = 0
+    while index < count * 2:
+        if values[3 + index] < -1000000000 or values[3 + index] > 1000000000:
+            return -1.0e300
+        index <- index + 1
+
+    delta: f64 = delta_value.f64() / 1000000.0
+    total_loss: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        true_value: f64 = values[3 + index].f64() / 1000000.0
+        predicted_value: f64 = values[3 + count + index].f64() / 1000000.0
+        difference: f64 = true_value - predicted_value
+        residual: f64 = if difference < 0.0: -difference else: difference
+        if residual <= delta:
+            total_loss <- total_loss + 0.5 * (residual * residual)
+        else:
+            total_loss <- total_loss + delta * residual - 0.5 * (delta * delta)
+        index <- index + 1
+    total_loss / count.f64()
+
+export fn huber_loss(values: i64&, length: usize) -> f64 = huber_loss_impl

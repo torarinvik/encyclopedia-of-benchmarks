@@ -1,0 +1,59 @@
+def gcd_positive(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def continued_fraction_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 2:
+        return -1
+    numerator: mutable i64 = input[0]
+    denominator: mutable i64 = input[1]
+    if numerator < -1000000 or numerator > 1000000 or denominator < -1000000 or denominator > 1000000 or denominator == 0:
+        return -1
+    abs_numerator: mutable i64 = numerator
+    abs_denominator: mutable i64 = denominator
+    if abs_numerator < 0:
+        abs_numerator <- -abs_numerator
+    if abs_denominator < 0:
+        abs_denominator <- -abs_denominator
+    divisor: i64 = gcd_positive(abs_numerator, abs_denominator)
+    numerator <- numerator / divisor
+    denominator <- denominator / divisor
+    if denominator < 0:
+        numerator <- -numerator
+        denominator <- -denominator
+    coefficients: mutable i64[32] = zeroed
+    count: mutable usize = 0
+    while true:
+        quotient: mutable i64 = numerator / denominator
+        remainder: mutable i64 = numerator % denominator
+        if remainder < 0:
+            quotient <- quotient - 1
+            remainder <- remainder + denominator
+        if count == 32:
+            return -1
+        coefficients[count] <- quotient
+        count <- count + 1
+        if remainder == 0:
+            break
+        numerator <- denominator
+        denominator <- remainder
+    bytes: usize = count * 8
+    if bytes > capacity or output == null:
+        return -2
+    index: mutable usize = 0
+    while index < count:
+        bits: mutable u64 = coefficients[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn continued_fraction(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = continued_fraction_impl

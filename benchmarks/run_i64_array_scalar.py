@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+from collections import deque
 import datetime as dt
+import heapq
 import json
 import math
 import os
@@ -14,14 +16,194 @@ import shlex
 import struct
 import subprocess
 import sys
+import zlib
 from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
+from ceil_in_binary_search_tree_oracle import expected_result as ceil_in_bst_expected
+from check_cycle_oracle import MAX_INPUT_LENGTH as MAX_CHECK_CYCLE_INPUT_LENGTH
+from check_cycle_oracle import expected_result as check_cycle_expected
+from count_homogenous_oracle import MAX_INPUT_LENGTH as MAX_COUNT_HOMOGENOUS_INPUT_LENGTH
+from count_homogenous_oracle import expected_result as count_homogenous_expected
+from count_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
+from count_singly_linked_list_recursion_oracle import expected_result as count_singly_linked_list_expected
+from dice_throw_oracle import expected_result as dice_throw_expected
+from depth_first_search_iterative_oracle import MAX_INPUT_LENGTH as MAX_DEPTH_FIRST_SEARCH_ITERATIVE_VALID_INPUT_LENGTH
+from depth_first_search_iterative_oracle import expected_result as depth_first_search_iterative_expected
+from depth_first_search_recursive_oracle import MAX_INPUT_LENGTH as MAX_DEPTH_FIRST_SEARCH_RECURSIVE_INPUT_LENGTH
+from depth_first_search_recursive_oracle import expected_result as depth_first_search_recursive_expected
+from elf_hash_oracle import MAX_INPUT_LENGTH as MAX_ELF_HASH_INPUT_LENGTH
+from elf_hash_oracle import expected_result as elf_hash_expected
+from is_isomorphic_oracle import MAX_INPUT_LENGTH as MAX_IS_ISOMORPHIC_INPUT_LENGTH
+from is_isomorphic_oracle import expected_result as is_isomorphic_expected
+from is_graph_bipartite_oracle import MAX_INPUT_LENGTH as MAX_IS_GRAPH_BIPARTITE_INPUT_LENGTH
+from is_graph_bipartite_oracle import expected_result as is_graph_bipartite_expected
+from karatsuba_oracle import MAX_INPUT_LENGTH as MAX_KARATSUBA_INPUT_LENGTH
+from karatsuba_oracle import expected_result as karatsuba_expected
+from parse_integer_oracle import MAX_INPUT_LENGTH as MAX_PARSE_INTEGER_INPUT_LENGTH
+from parse_integer_oracle import expected_result as parse_integer_expected
+from good_pairs_oracle import MAX_INPUT_LENGTH as MAX_GOOD_PAIRS_INPUT_LENGTH
+from good_pairs_oracle import expected_result as good_pairs_expected
+from good_pairs_hash_oracle import MAX_INPUT_LENGTH as MAX_GOOD_PAIRS_HASH_INPUT_LENGTH
+from good_pairs_hash_oracle import expected_result as good_pairs_hash_expected
+from find_kth_number_oracle import MAX_INPUT_LENGTH as MAX_FIND_KTH_NUMBER_INPUT_LENGTH
+from find_kth_number_oracle import expected_result as find_kth_number_expected
+from non_repeating_element_oracle import MAX_INPUT_LENGTH as MAX_NON_REPEATING_ELEMENT_INPUT_LENGTH
+from non_repeating_element_oracle import expected_result as non_repeating_element_expected
+from partition_problem_oracle import MAX_ITEMS as MAX_PARTITION_PROBLEM_ITEMS
+from partition_problem_oracle import expected_result as partition_problem_expected
+from in_static_equilibrium_oracle import MAX_INPUT_LENGTH as MAX_IN_STATIC_EQUILIBRIUM_INPUT_LENGTH
+from in_static_equilibrium_oracle import expected_result as in_static_equilibrium_expected
+from index_2d_array_in_1d_oracle import MAX_INPUT_LENGTH as MAX_INDEX_2D_ARRAY_IN_1D_INPUT_LENGTH
+from index_2d_array_in_1d_oracle import expected_result as index_2d_array_in_1d_expected
+from gas_station_oracle import MAX_INPUT_LENGTH as MAX_GAS_STATION_INPUT_LENGTH
+from gas_station_oracle import expected_result as gas_station_expected
+from find_second_largest_element_oracle import MAX_INPUT_LENGTH as MAX_FIND_SECOND_LARGEST_ELEMENT_INPUT_LENGTH
+from find_second_largest_element_oracle import expected_result as find_second_largest_element_expected
+from second_min_max_oracle import MAX_INPUT_LENGTH as MAX_SECOND_MIN_MAX_INPUT_LENGTH
+from second_min_max_oracle import expected_result as second_min_max_expected
+from constrained_shortest_path_oracle import MAX_INPUT_LENGTH as MAX_CONSTRAINED_SHORTEST_PATH_INPUT_LENGTH
+from constrained_shortest_path_oracle import expected_result as constrained_shortest_path_expected
+from jump_game_oracle import MAX_INPUT_LENGTH as MAX_JUMP_GAME_INPUT_LENGTH
+from jump_game_oracle import expected_result as jump_game_expected
+from pairs_with_given_sum_oracle import MAX_INPUT_LENGTH as MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH
+from pairs_with_given_sum_oracle import expected_result as pairs_with_given_sum_expected
+from comparison_oracle import MAX_INPUT_LENGTH as MAX_COMPARISON_INPUT_LENGTH
+from comparison_oracle import expected_result as comparison_expected
+from count_less_equal_in_sorted_array_oracle import MAX_INPUT_LENGTH as MAX_COUNT_LESS_EQUAL_INPUT_LENGTH
+from count_less_equal_in_sorted_array_oracle import expected_result as count_less_equal_expected
+from one_bit_difference_oracle import MAX_INPUT_LENGTH as MAX_ONE_BIT_DIFFERENCE_INPUT_LENGTH
+from one_bit_difference_oracle import expected_result as one_bit_difference_expected
+from lipogram_oracle import MAX_TEXT_BYTES as MAX_LIPOGRAM_TEXT_BYTES
+from lipogram_oracle import expected_result as lipogram_expected
+from s.saddleback_search_oracle import MAX_INPUT_LENGTH as MAX_SADDLEBACK_SEARCH_INPUT_LENGTH
+from s.saddleback_search_oracle import expected_result as saddleback_search_expected
+from iqr_outlier_indices_oracle import MAX_LENGTH as MAX_IQR_OUTLIER_INDICES_LENGTH
+from iqr_outlier_indices_oracle import expected_result as iqr_outlier_indices_expected
+from max_area_of_island_oracle import MAX_INPUT_LENGTH as MAX_MAX_AREA_OF_ISLAND_INPUT_LENGTH
+from max_area_of_island_oracle import expected_result as max_area_of_island_expected
+from directed_dfs_forest_count_oracle import MAX_INPUT_LENGTH as MAX_DIRECTED_DFS_FOREST_COUNT_INPUT_LENGTH
+from directed_dfs_forest_count_oracle import expected_result as directed_dfs_forest_count_expected
+from car_pool_oracle import MAX_INPUT_LENGTH as MAX_CAR_POOL_INPUT_LENGTH
+from car_pool_oracle import expected_result as car_pool_expected
+from chaining_oracle import MAX_INPUT_LENGTH as MAX_CHAINING_INPUT_LENGTH
+from chaining_oracle import expected_result as chaining_expected
+from burkes_dithering_oracle import MAX_INPUT_LENGTH as MAX_BURKES_DITHERING_INPUT_LENGTH
+from burkes_dithering_oracle import expected_result as burkes_dithering_expected
+from burstballoons_oracle import MAX_BALLOONS as MAX_BURST_BALLOONS
+from burstballoons_oracle import expected_result as burstballoons_expected
+from brightness_oracle import MAX_INPUT_LENGTH as MAX_BRIGHTNESS_INPUT_LENGTH
+from brightness_oracle import expected_result as brightness_expected
+from bst_from_sorted_array_oracle import MAX_INPUT_LENGTH as MAX_BST_FROM_SORTED_ARRAY_INPUT_LENGTH
+from bst_from_sorted_array_oracle import expected_result as bst_from_sorted_array_expected
+from bron_kerbosch_oracle import MAX_INPUT_LENGTH as MAX_BRON_KERBOSCH_INPUT_LENGTH
+from bron_kerbosch_oracle import expected_result as bron_kerbosch_expected
+from blob_detection_oracle import MAX_INPUT_LENGTH as MAX_BLOB_DETECTION_INPUT_LENGTH
+from blob_detection_oracle import blob_detection_count
+from checkequal_oracle import MAX_INPUT_LENGTH as MAX_CHECKEQUAL_INPUT_LENGTH
+from checkequal_oracle import expected_result as checkequal_expected
+from coinchange_oracle import MAX_COINS as MAX_COINCHANGE_COINS
+from coinchange_oracle import expected_result as coinchange_expected
+from hamming_distance_bytes_oracle import MAX_INPUT_LENGTH as MAX_HAMMING_DISTANCE_BYTES_INPUT_LENGTH
+from hamming_distance_bytes_oracle import expected_result as hamming_distance_bytes_expected
+from hamming_distance_strings_oracle import MAX_INPUT_LENGTH as MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH
+from hamming_distance_strings_oracle import expected_result as hamming_distance_strings_expected
+from hexa_decimal_to_decimal_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_HEXA_DECIMAL_PARSEABLE_INPUT_LENGTH
+from hexa_decimal_to_decimal_oracle import expected_result as hexa_decimal_to_decimal_expected
+from djb2_oracle import MAX_INPUT_LENGTH as MAX_DJB2_INPUT_LENGTH
+from djb2_oracle import expected_result as djb2_expected
+from hash_djb2_oracle import MAX_INPUT_LENGTH as MAX_HASH_DJB2_INPUT_LENGTH
+from hash_djb2_oracle import expected_result as hash_djb2_expected
+from hash_xor8_oracle import MAX_INPUT_LENGTH as MAX_HASH_XOR8_INPUT_LENGTH
+from hash_xor8_oracle import expected_result as hash_xor8_expected
+from hex_to_oct_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH
+from hex_to_oct_oracle import expected_result as hex_to_oct_expected
+from grid_get_oracle import MAX_INPUT_LENGTH as MAX_GRID_GET_INPUT_LENGTH
+from grid_get_oracle import expected_result as grid_get_expected
+from number_of_subarrays_with_odd_sum_oracle import MAX_INPUT_LENGTH as MAX_ODD_SUM_SUBARRAY_INPUT_LENGTH
+from number_of_subarrays_with_odd_sum_oracle import expected_result as odd_sum_subarray_expected
+from maximum_circular_subarray_oracle import MAX_INPUT_LENGTH as MAX_MAX_CIRCULAR_SUBARRAY_INPUT_LENGTH
+from maximum_circular_subarray_oracle import expected_result as maximum_circular_subarray_expected
+from maximum_product_subarray_oracle import MAX_INPUT_LENGTH as MAX_MAX_PRODUCT_SUBARRAY_INPUT_LENGTH
+from maximum_product_subarray_oracle import expected_result as maximum_product_subarray_expected
+from maximum_subarray_int32_oracle import MAX_INPUT_LENGTH as MAX_MAXIMUM_SUBARRAY_INT32_INPUT_LENGTH
+from maximum_subarray_int32_oracle import expected_result as maximum_subarray_int32_expected
+from maximum_subarray_allow_empty_oracle import MAX_INPUT_LENGTH as MAX_MAXIMUM_SUBARRAY_ALLOW_EMPTY_INPUT_LENGTH
+from maximum_subarray_allow_empty_oracle import expected_result as maximum_subarray_allow_empty_expected
+from median_search_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_SEARCH_INPUT_LENGTH
+from median_search_oracle import expected_result as median_search_expected
+from largest_rectangle_histogram_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_RECTANGLE_HISTOGRAM_INPUT_LENGTH
+from largest_rectangle_histogram_oracle import expected_result as largest_rectangle_histogram_expected
+from hamiltonian_path_exists_oracle import MAX_INPUT_LENGTH as MAX_HAMILTONIAN_PATH_EXISTS_INPUT_LENGTH
+from hamiltonian_path_exists_oracle import expected_output as hamiltonian_path_exists_expected
+from fast_searcher_oracle import MAX_INPUT_LENGTH as MAX_FAST_SEARCHER_INPUT_LENGTH
+from fast_searcher_oracle import expected_result as fast_searcher_expected
+from minimum_sum_partition_oracle import MAX_INPUT_LENGTH as MAX_MINIMUM_SUM_PARTITION_INPUT_LENGTH
+from minimum_sum_partition_oracle import expected_result as minimum_sum_partition_expected
+from upper_bound_oracle import MAX_INPUT_LENGTH as MAX_UPPER_BOUND_INPUT_LENGTH
+from upper_bound_oracle import expected_result as upper_bound_expected
+from longest_subarray_with_sum_at_most_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_SUBARRAY_INPUT_LENGTH
+from longest_subarray_with_sum_at_most_oracle import expected_result as longest_subarray_with_sum_at_most_expected
+from longest_subarray_with_sum_less_or_equal_to_k_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_SUBARRAY_LEQ_K_INPUT_LENGTH
+from longest_subarray_with_sum_less_or_equal_to_k_oracle import expected_result as longest_subarray_with_sum_less_or_equal_to_k_expected
+from pow_logarithmic_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_POW_LOGARITHMIC_PARSEABLE_INPUT_LENGTH
+from pow_logarithmic_oracle import expected_result as pow_logarithmic_expected
+from length_of_last_word_oracle import MAX_INPUT_LENGTH as MAX_LENGTH_OF_LAST_WORD_INPUT_LENGTH
+from length_of_last_word_oracle import expected_result as length_of_last_word_expected
+from find_min_iterator_oracle import MAX_INPUT_LENGTH as MAX_FIND_MIN_ITERATOR_INPUT_LENGTH
+from find_min_iterator_oracle import expected_result as find_min_iterator_expected
+from digit_dp_oracle import MAX_BOUND as MAX_DIGIT_DP_BOUND
+from digit_dp_oracle import MAX_INPUT_LENGTH as MAX_DIGIT_DP_INPUT_LENGTH
+from digit_dp_oracle import expected_result as digit_dp_expected
+from modular_exponentiation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH
+from modular_exponentiation_oracle import expected_result as modular_exponentiation_expected
+from modpow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODPOW_INPUT_LENGTH
+from modpow_oracle import expected_result as modpow_expected
+from divisors_oracle import MAX_INPUT_LENGTH as MAX_DIVISORS_INPUT_LENGTH
+from divisors_oracle import expected_result as divisors_expected
+from xor_search_missing_number_oracle import MAX_INPUT_LENGTH as MAX_XOR_SEARCH_MISSING_NUMBER_INPUT_LENGTH
+from xor_search_missing_number_oracle import expected_result as xor_search_missing_number_expected
+from maximum_sum_bst_oracle import MAX_INPUT_LENGTH as MAX_MAXIMUM_SUM_BST_INPUT_LENGTH
+from maximum_sum_bst_oracle import expected_result as maximum_sum_bst_expected
+from how_many_times_rotated_oracle import MAX_INPUT_LENGTH as MAX_HOW_MANY_TIMES_ROTATED_INPUT_LENGTH
+from how_many_times_rotated_oracle import expected_result as how_many_times_rotated_expected
+from is_valid_email_address_oracle import expected_result as is_valid_email_address_expected
+from n_in_a_row_board_status_oracle import MAX_INPUT_LENGTH as MAX_N_IN_A_ROW_INPUT_LENGTH
+from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_status_expected
+from string_prefix_suffix_oracle import MAX_INPUT_LENGTH as MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
+from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SLIDING_WINDOW_INPUT_LENGTH = 100002
 MAX_DOUBLE_LINEAR_SEARCH_INPUT_LENGTH = 100002
+MAX_WORD_LENGTH_SUM_INPUT_LENGTH = 4096
+MAX_BIT_ARRAY_COUNT_ZERO_BITS_INPUT_LENGTH = 4096
+MAX_BANDWIDTH_ALLOCATION_INPUT_LENGTH = 130
+MAX_PROBLEM18_INPUT_LENGTH = 121
+MAX_PROBLEM54_INPUT_LENGTH = 10000
+MAX_PROBLEM59_INPUT_LENGTH = 4096
+MAX_PROBLEM67_INPUT_LENGTH = 5051
+MAX_PROBLEM81_INPUT_LENGTH = 6401
+MAX_PROBLEM82_INPUT_LENGTH = 6402
+MAX_PROBLEM99_INPUT_LENGTH = 2001
+MAX_PROBLEM102_INPUT_LENGTH = 6000
+MAX_PROBLEM107_INPUT_LENGTH = 781
+MAX_PROBLEM345_INPUT_LENGTH = 226
+MAX_TREE_PATH_VALUE_INPUT_LENGTH = 122  # one extra slot keeps the over-bound fixture in the workload
+MAX_MODE_INPUT_LENGTH = 4097  # one extra slot keeps the over-bound fixture in the workload
+MAX_N_BONACCI_INPUT_LENGTH = 3  # one extra slot keeps the malformed-length fixture in the workload
+MAX_NUMBER_OF_POSITIVE_DIVISORS_INPUT_LENGTH = 2  # one extra slot keeps the malformed multi-value fixture
+MAX_EGG_DROPPING_INPUT_LENGTH = 3  # one extra slot keeps the malformed extra-value fixture
+MAX_CALCULATE_MEDIAN_INPUT_LENGTH = 1025  # one extra value exercises the direct-selection bound
+MAX_VALIDATE_CREDIT_CARD_INPUT_LENGTH = 66  # one extra value checks the text-length bound
+MAX_SUBARRAY_SUM_EQUALS_K_INPUT_LENGTH = 514
+MAX_BURST_BALLOONS_INPUT_LENGTH = MAX_BURST_BALLOONS + 1  # include one over-bound workload case
+MAX_COINCHANGE_INPUT_LENGTH = MAX_COINCHANGE_COINS + 2
+MAX_DICE_THROW_INPUT_LENGTH = 4  # one extra element keeps the malformed-length workload case
+# Include two trailing values for the 257-edge malformed DFS workload case.
+MAX_DEPTH_FIRST_SEARCH_ITERATIVE_INPUT_LENGTH = MAX_DEPTH_FIRST_SEARCH_ITERATIVE_VALID_INPUT_LENGTH + 2
 
 
 def same_trees_expected(values: list[int]) -> int:
@@ -94,17 +276,1374 @@ def same_trees_expected(values: list[int]) -> int:
     return 1
 
 
+def problem22_names_score(values: list[int]) -> int:
+    """Decode, sort, and score the packed Project Euler 22 name input."""
+    if not values:
+        return -1
+    count = values[0]
+    if not 0 <= count <= 6000:
+        return -1
+    offset = 1
+    names: list[tuple[int, ...]] = []
+    for _ in range(count):
+        if offset >= len(values):
+            return -1
+        length = values[offset]
+        offset += 1
+        if not 1 <= length <= 19 or offset + length > len(values):
+            return -1
+        name = tuple(values[offset:offset + length])
+        if any(not 1 <= letter <= 26 for letter in name):
+            return -1
+        names.append(name)
+        offset += length
+    if offset != len(values):
+        return -1
+    return sum(position * sum(name) for position, name in enumerate(sorted(names), 1))
+
+
+def problem59_source_result(values: list[int]) -> int:
+    """Mirror the pinned three-byte XOR-key search and ordered word filters."""
+    if (not 1 <= len(values) <= MAX_PROBLEM59_INPUT_LENGTH
+            or any(not 0 <= byte <= 255 for byte in values)):
+        return -1
+    allowed = set(range(32, 127)) | set(range(9, 14))
+    candidates: list[tuple[int, ...]] = []
+    for first in range(ord("a"), ord("z") + 1):
+        for second in range(ord("a"), ord("z") + 1):
+            for third in range(ord("a"), ord("z") + 1):
+                key = (first, second, third)
+                decoded = tuple(byte ^ key[index % 3] for index, byte in enumerate(values))
+                if all(byte in allowed for byte in decoded):
+                    candidates.append(decoded)
+    for word in (b"the", b"be", b"to", b"of", b"and", b"in", b"that", b"have"):
+        candidates = [candidate for candidate in candidates
+                      if word in bytes(candidate)]
+        if len(candidates) == 1:
+            break
+    return sum(candidates[0]) if candidates else -1
+
+
+def problem71_source_result(values: list[int]) -> int:
+    if (len(values) != 3 or any(type(value) is not int for value in values)):
+        return -1
+    target_numerator, target_denominator, limit = values
+    if (not 0 < target_numerator < target_denominator <= 1_000_000
+            or math.gcd(target_numerator, target_denominator) != 1
+            or not 1 <= limit <= 1_000_000):
+        return -1
+    best_numerator, best_denominator = 0, 1
+    for denominator in range(1, limit + 1):
+        numerator = denominator * target_numerator // target_denominator
+        if denominator % target_denominator == 0:
+            numerator -= 1
+        if numerator * best_denominator > best_numerator * denominator:
+            best_numerator, best_denominator = numerator, denominator
+    return best_numerator
+
+
+def problem81_source_result(values: list[int]) -> int:
+    """Validate packed square matrices and apply the pinned one-row path DP."""
+    if (not 2 <= len(values) <= MAX_PROBLEM81_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    dimension = values[0]
+    if (not 1 <= dimension <= 80 or len(values) != 1 + dimension * dimension
+            or any(not 0 <= value <= 9999 for value in values[1:])):
+        return -1
+    best = [0] * dimension
+    offset = 1
+    for row in range(dimension):
+        for column in range(dimension):
+            value = values[offset]
+            offset += 1
+            if row == 0 and column == 0:
+                best[column] = value
+            elif row == 0:
+                best[column] = best[column - 1] + value
+            elif column == 0:
+                best[column] += value
+            else:
+                best[column] = min(best[column], best[column - 1]) + value
+    return best[-1]
+
+
+def problem82_source_result(values: list[int]) -> int:
+    """Validate packed rectangular matrices and use the source column relaxations."""
+    if (not 3 <= len(values) <= MAX_PROBLEM82_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    rows, columns = values[:2]
+    if (not 1 <= rows <= 80 or not 1 <= columns <= 80
+            or len(values) != 2 + rows * columns
+            or any(not 0 <= value <= 9999 for value in values[2:])):
+        return -1
+    costs = values[2:]
+    totals = [costs[row * columns] for row in range(rows)]
+    for column in range(1, columns):
+        for row in range(rows):
+            totals[row] += costs[row * columns + column]
+        for row in range(1, rows):
+            totals[row] = min(totals[row], totals[row - 1] + costs[row * columns + column])
+        for row in range(rows - 2, -1, -1):
+            totals[row] = min(totals[row], totals[row + 1] + costs[row * columns + column])
+    return min(totals)
+
+
+def problem99_source_result(values: list[int]) -> int:
+    if (not 1 <= len(values) <= MAX_PROBLEM99_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    pair_count = values[0]
+    if not 0 <= pair_count <= 1000 or len(values) != 1 + 2 * pair_count:
+        return -1
+    largest, result = 0.0, 0
+    for index in range(pair_count):
+        base, exponent = values[1 + 2 * index:3 + 2 * index]
+        if not 1 <= base <= 1_000_000 or not 0 <= exponent <= 1_200_000:
+            return -1
+        score = exponent * math.log10(base)
+        if score > largest:
+            largest, result = score, index + 1
+    return result
+
+
+def problem102_source_result(values: list[int]) -> int:
+    if (not 6 <= len(values) <= MAX_PROBLEM102_INPUT_LENGTH
+            or len(values) % 6 != 0
+            or any(type(value) is not int or not -1000 <= value <= 1000 for value in values)):
+        return -1
+    count = 0
+    for offset in range(0, len(values), 6):
+        ax, ay, bx, by, cx, cy = values[offset:offset + 6]
+        abx, aby, acx, acy = bx - ax, by - ay, cx - ax, cy - ay
+        denominator = acx * aby - acy * abx
+        numerator_a = -(ax * aby - ay * abx)
+        numerator_b = ax * acy - ay * acx
+        if denominator == 0:
+            return -1
+        if denominator < 0:
+            denominator, numerator_a, numerator_b = -denominator, -numerator_a, -numerator_b
+        count += numerator_a > 0 and numerator_b > 0 and numerator_a + numerator_b < denominator
+    return count
+
+
+def problem107_source_result(values: list[int]) -> int:
+    if (not 1 <= len(values) <= MAX_PROBLEM107_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    vertex_count = values[0]
+    if (not 1 <= vertex_count <= 40
+            or len(values) != 1 + vertex_count * (vertex_count - 1) // 2
+            or any(not -1 <= value <= 999 for value in values[1:])):
+        return -1
+    edges = []
+    total_weight = 0
+    offset = 1
+    for row in range(1, vertex_count):
+        for column in range(row):
+            weight = values[offset]
+            offset += 1
+            if weight >= 0:
+                edges.append((row, column, weight))
+                total_weight += weight
+    visited = [False] * vertex_count
+    visited[0] = True
+    tree_weight = 0
+    for _ in range(vertex_count - 1):
+        chosen = None
+        for left, right, weight in edges:
+            if visited[left] != visited[right] and (chosen is None or weight < chosen[2]):
+                chosen = (left, right, weight)
+        if chosen is None:
+            return -1
+        left, right, weight = chosen
+        visited[left] = visited[right] = True
+        tree_weight += weight
+    return total_weight - tree_weight
+
+
+def problem345_source_result(values: list[int]) -> int:
+    """Mirror the source's memoized row-to-unused-column assignment recursion."""
+    if (not 2 <= len(values) <= MAX_PROBLEM345_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    size = values[0]
+    if (not 1 <= size <= 15 or len(values) != size * size + 1
+            or any(not 0 <= value <= 1000 for value in values[1:])):
+        return -1
+    matrix = [values[1 + row * size:1 + (row + 1) * size] for row in range(size)]
+
+    @lru_cache(maxsize=None)
+    def assign(row: int, used_columns: int) -> int:
+        if row == size:
+            return 0
+        return max(matrix[row][column] + assign(row + 1, used_columns | (1 << column))
+                   for column in range(size) if not used_columns & (1 << column))
+
+    return assign(0, 0)
+
+
+def problem67_triangle_sum(values: list[int]) -> int:
+    """Validate the packed triangle and apply the pinned source's row fold."""
+    if (not 2 <= len(values) <= MAX_PROBLEM67_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    rows = values[0]
+    if (not 1 <= rows <= 100 or len(values) != 1 + rows * (rows + 1) // 2
+            or any(not 0 <= value <= 1_000_000 for value in values[1:])):
+        return -1
+    best = values[1:]
+    for row in range(rows - 1, 0, -1):
+        parent_start = (row - 1) * row // 2
+        child_start = row * (row + 1) // 2
+        for column in range(row):
+            best[parent_start + column] += max(best[child_start + column],
+                                               best[child_start + column + 1])
+    return best[0]
+
+
+def problem18_triangle_path_sum(values: list[int]) -> int:
+    """Validate the packed triangle and fold maximum path totals upward."""
+    if (not values or any(type(value) is not int for value in values)):
+        return -1
+    rows = values[0]
+    if not 1 <= rows <= 15 or len(values) != 1 + rows * (rows + 1) // 2:
+        return -1
+    if any(not 0 <= value <= 1_000_000 for value in values[1:]):
+        return -1
+    totals = values[1:].copy()
+    for row in range(rows - 2, -1, -1):
+        for column in range(row + 1):
+            parent = row * (row + 1) // 2 + column
+            child = (row + 1) * (row + 2) // 2 + column
+            totals[parent] += max(totals[child], totals[child + 1])
+    return totals[0]
+
+
+def problem54_rank_hand(cards: list[int]) -> tuple[int, ...]:
+    ranks = sorted((card // 4 + 2 for card in cards), reverse=True)
+    suits = [card % 4 for card in cards]
+    counts = {rank: ranks.count(rank) for rank in set(ranks)}
+    groups = sorted(((count, rank) for rank, count in counts.items()), reverse=True)
+    flush = len(set(suits)) == 1
+    straight_high = 0
+    if len(counts) == 5 and ranks[0] - ranks[-1] == 4:
+        straight_high = ranks[0]
+    elif ranks == [14, 5, 4, 3, 2]:
+        straight_high = 5
+    if flush and straight_high:
+        return (9 if straight_high == 14 else 8, straight_high)
+    if groups[0][0] == 4:
+        return (7, groups[0][1], groups[1][1])
+    if groups[0][0] == 3 and groups[1][0] == 2:
+        return (6, groups[0][1], groups[1][1])
+    if flush:
+        return (5, *ranks)
+    if straight_high:
+        return (4, straight_high)
+    if groups[0][0] == 3:
+        kickers = sorted((rank for rank, count in counts.items() if count == 1), reverse=True)
+        return (3, groups[0][1], *kickers)
+    pairs = sorted((rank for rank, count in counts.items() if count == 2), reverse=True)
+    singles = sorted((rank for rank, count in counts.items() if count == 1), reverse=True)
+    if len(pairs) == 2:
+        return (2, *pairs, singles[0])
+    if len(pairs) == 1:
+        return (1, pairs[0], *singles)
+    return (0, *ranks)
+
+
+def problem54_player_one_wins(values: list[int]) -> int:
+    if (len(values) != MAX_PROBLEM54_INPUT_LENGTH
+            or any(type(card) is not int or not 0 <= card < 52 for card in values)):
+        return -1
+    wins = 0
+    for offset in range(0, len(values), 10):
+        deal = values[offset:offset + 10]
+        if len(set(deal)) != 10:
+            return -1
+        if problem54_rank_hand(deal[:5]) > problem54_rank_hand(deal[5:]):
+            wins += 1
+    return wins
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_SLIDING_WINDOW_INPUT_LENGTH
+    max_input_length = (MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
+                        MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
+                        if algorithm == "count_singly_linked_list_recursion"
+                        else MAX_CHECK_CYCLE_INPUT_LENGTH if algorithm == "check_cycle"
+                        else MAX_COUNT_HOMOGENOUS_INPUT_LENGTH if algorithm == "count_homogenous"
+                        else MAX_MAX_AREA_OF_ISLAND_INPUT_LENGTH if algorithm == "max_area_of_island"
+                        else MAX_DIRECTED_DFS_FOREST_COUNT_INPUT_LENGTH + 1 if algorithm == "directed_dfs_forest_count"
+                        else MAX_CHAINING_INPUT_LENGTH if algorithm == "chaining"
+                        else MAX_CEIL_IN_BST_INPUT_LENGTH if algorithm == "ceil_in_binary_search_tree"
+                        else MAX_CAR_POOL_INPUT_LENGTH if algorithm == "car_pool"
+                        else MAX_BLOB_DETECTION_INPUT_LENGTH
+                        if algorithm == "blob_detection"
+                        else MAX_BRON_KERBOSCH_INPUT_LENGTH if algorithm == "bron_kerbosch"
+                        else MAX_BRIGHTNESS_INPUT_LENGTH if algorithm == "brightness"
+                        else MAX_BURKES_DITHERING_INPUT_LENGTH if algorithm == "burkes_dithering"
+                        else MAX_BST_FROM_SORTED_ARRAY_INPUT_LENGTH if algorithm == "bst_from_sorted_array"
+                        else MAX_BURST_BALLOONS_INPUT_LENGTH if algorithm == "burstballoons"
+                        else MAX_CHECKEQUAL_INPUT_LENGTH if algorithm == "checkequal"
+                        else MAX_COINCHANGE_INPUT_LENGTH if algorithm == "coinchange"
+                        else MAX_BANDWIDTH_ALLOCATION_INPUT_LENGTH
+                        if algorithm == "bandwidth_allocation"
+                        else MAX_PROBLEM54_INPUT_LENGTH
+                        if algorithm == "problem54"
+                        else MAX_PROBLEM59_INPUT_LENGTH
+                        if algorithm == "problem59"
+                        else MAX_PROBLEM67_INPUT_LENGTH
+                        if algorithm == "problem67"
+                        else MAX_PROBLEM81_INPUT_LENGTH
+                        if algorithm == "problem81"
+                        else MAX_PROBLEM82_INPUT_LENGTH
+                        if algorithm == "problem82"
+                        else MAX_PROBLEM99_INPUT_LENGTH
+                        if algorithm == "problem99"
+                        else MAX_PROBLEM102_INPUT_LENGTH
+                        if algorithm == "problem102"
+                        else MAX_PROBLEM107_INPUT_LENGTH
+                        if algorithm == "problem107"
+                        else MAX_PROBLEM345_INPUT_LENGTH if algorithm == "problem345"
+                        else MAX_PROBLEM18_INPUT_LENGTH
+                        if algorithm == "problem18"
+                        else MAX_WORD_LENGTH_SUM_INPUT_LENGTH
+                        if algorithm == "word_length_sum"
+                        else MAX_BIT_ARRAY_COUNT_ZERO_BITS_INPUT_LENGTH
+                        if algorithm == "bit_array_count_zero_bits"
+                        else MAX_TREE_PATH_VALUE_INPUT_LENGTH
+                        if algorithm == "tree_path_value"
+                        else MAX_MODE_INPUT_LENGTH if algorithm == "mode"
+                        else MAX_N_BONACCI_INPUT_LENGTH if algorithm == "n_bonacci"
+                        else MAX_NUMBER_OF_POSITIVE_DIVISORS_INPUT_LENGTH
+                        if algorithm == "number_of_positive_divisors"
+                        else MAX_DIVISORS_INPUT_LENGTH if algorithm == "divisors"
+                        else MAX_EGG_DROPPING_INPUT_LENGTH if algorithm == "egg_dropping"
+                        else MAX_SUBARRAY_SUM_EQUALS_K_INPUT_LENGTH
+                        if algorithm == "subarray_sum_equals_k"
+                        else MAX_N_IN_A_ROW_INPUT_LENGTH if algorithm == "n_in_a_row_board_status"
+                        else MAX_SLIDING_WINDOW_INPUT_LENGTH
                         if algorithm in {"min_sum_ksize_subarray", "max_sum_sliding_window"}
+                        else 100007 if algorithm == "crc8_model"
                         else MAX_DOUBLE_LINEAR_SEARCH_INPUT_LENGTH
-                        if algorithm == "double_linear_search" else 100001)
+                        if algorithm == "double_linear_search"
+                        else MAX_CALCULATE_MEDIAN_INPUT_LENGTH
+                        if algorithm == "calculate_median"
+                        else MAX_VALIDATE_CREDIT_CARD_INPUT_LENGTH
+                        if algorithm == "validate_credit_card"
+                        else MAX_HAMMING_DISTANCE_BYTES_INPUT_LENGTH
+                        if algorithm == "hamming_distance_bytes"
+                        else MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH
+                        if algorithm == "hamming_distance_strings"
+                        else MAX_HEXA_DECIMAL_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "hexa_decimal_to_decimal"
+                        else MAX_DJB2_INPUT_LENGTH if algorithm == "djb2"
+                        else MAX_HASH_DJB2_INPUT_LENGTH if algorithm == "hash_djb2"
+                        else MAX_HASH_XOR8_INPUT_LENGTH + 1 if algorithm == "hash_xor8"
+                        else MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH if algorithm == "hex_to_oct"
+                        else MAX_GRID_GET_INPUT_LENGTH if algorithm == "grid_get"
+                        else MAX_ODD_SUM_SUBARRAY_INPUT_LENGTH + 1
+                        if algorithm == "number_of_subarrays_with_odd_sum" else
+                        MAX_MAX_CIRCULAR_SUBARRAY_INPUT_LENGTH
+                        if algorithm == "maximum_circular_subarray" else
+                        MAX_MAX_PRODUCT_SUBARRAY_INPUT_LENGTH
+                        if algorithm == "maximum_product_subarray" else
+                        MAX_MAXIMUM_SUBARRAY_INT32_INPUT_LENGTH
+                        if algorithm == "maximum_subarray_int32" else
+                        MAX_MAXIMUM_SUBARRAY_ALLOW_EMPTY_INPUT_LENGTH
+                        if algorithm == "maximum_subarray_allow_empty" else
+                        MAX_MEDIAN_SEARCH_INPUT_LENGTH
+                        if algorithm == "median_search" else
+                        MAX_LARGEST_RECTANGLE_HISTOGRAM_INPUT_LENGTH
+                        if algorithm == "largest_rectangle_histogram" else
+                        MAX_HAMILTONIAN_PATH_EXISTS_INPUT_LENGTH
+                        if algorithm == "hamiltonian_path_exists" else
+                        MAX_FAST_SEARCHER_INPUT_LENGTH
+                        if algorithm == "fast_searcher" else
+                        MAX_MINIMUM_SUM_PARTITION_INPUT_LENGTH
+                        if algorithm == "minimum_sum_partition" else
+                        MAX_UPPER_BOUND_INPUT_LENGTH
+                        if algorithm == "upper_bound" else
+                        MAX_LONGEST_SUBARRAY_INPUT_LENGTH
+                        if algorithm == "longest_subarray_with_sum_at_most"
+                        else MAX_LONGEST_SUBARRAY_LEQ_K_INPUT_LENGTH
+                        if algorithm == "longest_subarray_with_sum_less_or_equal_to_k"
+                        else MAX_POW_LOGARITHMIC_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "pow_logarithmic"
+                        else MAX_LENGTH_OF_LAST_WORD_INPUT_LENGTH
+                        if algorithm == "length_of_last_word"
+                        else MAX_FIND_MIN_ITERATOR_INPUT_LENGTH
+                        if algorithm == "find_min_iterator"
+                        else MAX_DIGIT_DP_INPUT_LENGTH + 1
+                        if algorithm == "digit_dp"
+                        else MAX_XOR_SEARCH_MISSING_NUMBER_INPUT_LENGTH
+                        if algorithm == "xor_search_missing_number"
+                        else MAX_MAXIMUM_SUM_BST_INPUT_LENGTH
+                        if algorithm == "maximum_sum_bst"
+                        else MAX_HOW_MANY_TIMES_ROTATED_INPUT_LENGTH + 1
+                        if algorithm == "how_many_times_rotated"
+                        else MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH
+                        if algorithm == "modular_exponentiation"
+                        else MAX_MODPOW_INPUT_LENGTH if algorithm == "modpow"
+                        else MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
+                        if algorithm == "string_prefix_suffix"
+                        else 100002 if algorithm == "is_valid_email_address"
+                        else MAX_DICE_THROW_INPUT_LENGTH if algorithm == "dice_throw"
+                        else MAX_DEPTH_FIRST_SEARCH_ITERATIVE_INPUT_LENGTH
+                        if algorithm == "depth_first_search_iterative"
+                        else MAX_DEPTH_FIRST_SEARCH_RECURSIVE_INPUT_LENGTH
+                        if algorithm == "depth_first_search_recursive"
+                        else 10 if algorithm == "endianness"
+                        else MAX_ELF_HASH_INPUT_LENGTH if algorithm == "elf_hash"
+                        else MAX_IS_ISOMORPHIC_INPUT_LENGTH if algorithm == "is_isomorphic"
+                        else MAX_IS_GRAPH_BIPARTITE_INPUT_LENGTH if algorithm == "is_graph_bipartite"
+                        else MAX_KARATSUBA_INPUT_LENGTH if algorithm == "karatsuba"
+                        else MAX_GOOD_PAIRS_INPUT_LENGTH if algorithm == "good_pairs"
+                        else MAX_GOOD_PAIRS_HASH_INPUT_LENGTH if algorithm == "good_pairs_hash"
+                        else MAX_FIND_KTH_NUMBER_INPUT_LENGTH if algorithm == "find_kth_number"
+                        else MAX_NON_REPEATING_ELEMENT_INPUT_LENGTH if algorithm == "non_repeating_element"
+                        else MAX_IN_STATIC_EQUILIBRIUM_INPUT_LENGTH if algorithm == "in_static_equilibrium"
+                        else MAX_INDEX_2D_ARRAY_IN_1D_INPUT_LENGTH if algorithm == "index_2d_array_in_1d"
+                        else MAX_GAS_STATION_INPUT_LENGTH if algorithm == "gas_station"
+                        else MAX_FIND_SECOND_LARGEST_ELEMENT_INPUT_LENGTH if algorithm == "find_second_largest_element"
+                        else MAX_SECOND_MIN_MAX_INPUT_LENGTH if algorithm == "second_min_max"
+                        else MAX_CONSTRAINED_SHORTEST_PATH_INPUT_LENGTH if algorithm == "constrained_shortest_path"
+                        else MAX_JUMP_GAME_INPUT_LENGTH if algorithm == "jump_game"
+                        else MAX_PAIRS_WITH_GIVEN_SUM_INPUT_LENGTH + 1 if algorithm == "pairs_with_given_sum"
+                        else MAX_COMPARISON_INPUT_LENGTH + 1 if algorithm == "comparison"
+                        else MAX_COUNT_LESS_EQUAL_INPUT_LENGTH if algorithm == "count_less_equal_in_sorted_array"
+                        else MAX_LIPOGRAM_TEXT_BYTES + 2 if algorithm == "lipogram"
+                        else MAX_ONE_BIT_DIFFERENCE_INPUT_LENGTH if algorithm == "one_bit_difference"
+                        else MAX_PARSE_INTEGER_INPUT_LENGTH if algorithm == "parse_integer"
+                        else MAX_SADDLEBACK_SEARCH_INPUT_LENGTH if algorithm == "saddleback_search"
+                        else MAX_PARTITION_PROBLEM_ITEMS + 1 if algorithm == "partition_problem" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "hopcroft_karp_cardinality":
+    if algorithm == "count_singly_linked_list_recursion":
+        expected_from_source = count_singly_linked_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("count_singly_linked_list_recursion expected_result must match the packed node count")
+    elif algorithm == "check_cycle":
+        expected_from_source = check_cycle_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("check_cycle expected_result must match bounded directed-cycle detection")
+    elif algorithm == "count_homogenous":
+        expected_from_source = count_homogenous_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("count_homogenous expected_result must count maximal contiguous equal-byte runs")
+    elif algorithm == "max_area_of_island":
+        expected_from_source = max_area_of_island_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("max_area_of_island expected_result must match the bounded four-neighbor component size")
+    elif algorithm == "directed_dfs_forest_count":
+        expected_from_source = directed_dfs_forest_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("directed_dfs_forest_count expected_result must match the ordered outgoing-DFS forest count")
+    elif algorithm == "chaining":
+        expected_from_source = chaining_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("chaining expected_result must encode the separate-chain membership trace")
+    elif algorithm == "ceil_in_binary_search_tree":
+        expected_from_source = ceil_in_bst_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ceil_in_binary_search_tree expected_result must match the BST ceiling query")
+    elif algorithm == "car_pool":
+        expected_from_source = car_pool_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("car_pool expected_result must match the portable passenger timeline")
+    elif algorithm == "bst_from_sorted_array":
+        expected_from_source = bst_from_sorted_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("bst_from_sorted_array expected_result must encode the constructed tree shape")
+    elif algorithm == "burstballoons":
+        expected_from_source = burstballoons_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("burstballoons expected_result must match the bounded interval recurrence")
+    elif algorithm == "checkequal":
+        expected_from_source = checkequal_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("checkequal expected_result must match the bounded packed-matrix comparison")
+    elif algorithm == "coinchange":
+        expected_from_source = coinchange_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("coinchange expected_result must match bounded amount-minus-one combinations")
+    elif algorithm == "bron_kerbosch":
+        expected_from_source = bron_kerbosch_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("bron_kerbosch expected_result must encode the maximal clique set")
+    elif algorithm == "brightness":
+        expected_from_source = brightness_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("brightness expected_result must match the fixed RGB nearest-neighbor classifier")
+    elif algorithm == "burkes_dithering":
+        expected_from_source = burkes_dithering_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("burkes_dithering expected_result must match the deterministic Burkes pixel bitset")
+    elif algorithm == "string_prefix_suffix":
+        expected_from_source = string_prefix_suffix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("string_prefix_suffix expected_result must match UTF-16 code-unit prefix/suffix comparison")
+    elif algorithm == "is_valid_email_address":
+        expected_from_source = is_valid_email_address_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("is_valid_email_address expected_result must match the pinned ASCII character and dot rules")
+    elif algorithm == "hamming_distance_bytes":
+        expected_from_source = hamming_distance_bytes_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hamming_distance_bytes expected_result must match differing byte positions")
+    elif algorithm == "hamming_distance_strings":
+        expected_from_source = hamming_distance_strings_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hamming_distance_strings expected_result must match Go's equal-length byte comparison")
+    elif algorithm == "hexa_decimal_to_decimal":
+        expected_from_source = hexa_decimal_to_decimal_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hexa_decimal_to_decimal expected_result must match Java's signed-int hexadecimal conversion")
+    elif algorithm == "djb2":
+        expected_from_source = djb2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("djb2 expected_result must match the bounded Python 32-bit character-code hash")
+    elif algorithm == "hash_djb2":
+        expected_from_source = hash_djb2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_djb2 expected_result must match the bounded 64-bit NUL-terminated byte hash")
+    elif algorithm == "hash_xor8":
+        expected_from_source = hash_xor8_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hash_xor8 expected_result must match the bounded 8-bit NUL-terminated byte checksum")
+    elif algorithm == "hex_to_oct":
+        expected_from_source = hex_to_oct_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hex_to_oct expected_result must match the bounded Java hexadecimal-to-octal conversion")
+    elif algorithm == "grid_get":
+        expected_from_source = grid_get_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("grid_get expected_result must match the bounded one-based grid coordinate")
+    elif algorithm == "number_of_subarrays_with_odd_sum":
+        expected_from_source = odd_sum_subarray_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("number_of_subarrays_with_odd_sum expected_result must match prefix-parity counting")
+    elif algorithm == "maximum_circular_subarray":
+        expected_from_source = maximum_circular_subarray_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_circular_subarray expected_result must match nonempty circular Kadane")
+    elif algorithm == "maximum_product_subarray":
+        expected_from_source = maximum_product_subarray_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_product_subarray expected_result must match the bounded nonempty maximum product")
+    elif algorithm == "maximum_subarray_int32":
+        expected_from_source = maximum_subarray_int32_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_subarray_int32 expected_result must match bounded nonempty Kadane")
+    elif algorithm == "maximum_subarray_allow_empty":
+        expected_from_source = maximum_subarray_allow_empty_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_subarray_allow_empty expected_result must match empty-allowed Kadane")
+    elif algorithm == "median_search":
+        expected_from_source = median_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("median_search expected_result must match bounded median-of-medians selection")
+    elif algorithm == "largest_rectangle_histogram":
+        expected_from_source = largest_rectangle_histogram_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_rectangle_histogram expected_result must match the bounded histogram maximum area")
+    elif algorithm == "hamiltonian_path_exists":
+        expected_from_source = hamiltonian_path_exists_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("hamiltonian_path_exists expected_result must match bounded directed Hamiltonian path existence")
+    elif algorithm == "fast_searcher":
+        expected_from_source = fast_searcher_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("fast_searcher expected_result must match bounded strictly increasing search")
+    elif algorithm == "minimum_sum_partition":
+        expected_from_source = minimum_sum_partition_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimum_sum_partition expected_result must match bounded minimum subset-sum difference")
+    elif algorithm == "upper_bound":
+        expected_from_source = upper_bound_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("upper_bound expected_result must match the Java inclusive-bound search")
+    elif algorithm == "longest_subarray_with_sum_at_most":
+        expected_from_source = longest_subarray_with_sum_at_most_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longest_subarray_with_sum_at_most expected_result must match the bounded nonnegative sliding window")
+    elif algorithm == "longest_subarray_with_sum_less_or_equal_to_k":
+        expected_from_source = longest_subarray_with_sum_less_or_equal_to_k_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longest_subarray_with_sum_less_or_equal_to_k expected_result must match the bounded signed-int sliding window")
+    elif algorithm == "pow_logarithmic":
+        expected_from_source = pow_logarithmic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pow_logarithmic expected_result must match bounded integer exponentiation by squaring")
+    elif algorithm == "length_of_last_word":
+        expected_from_source = length_of_last_word_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("length_of_last_word expected_result must match Java's space-delimited backward scan")
+    elif algorithm == "find_min_iterator":
+        expected_from_source = find_min_iterator_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("find_min_iterator expected_result must match the minimum of the bounded iterable")
+    elif algorithm == "digit_dp":
+        expected_from_source = digit_dp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("digit_dp expected_result must match the inclusive range digit-sum count")
+    elif algorithm == "xor_search_missing_number":
+        expected_from_source = xor_search_missing_number_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("xor_search_missing_number expected_result must match the bounded distinct-value missing number")
+    elif algorithm == "maximum_sum_bst":
+        expected_from_source = maximum_sum_bst_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("maximum_sum_bst expected_result must match the bounded heap-indexed strict-BST subtree maximum")
+    elif algorithm == "modular_exponentiation":
+        expected_from_source = modular_exponentiation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_exponentiation expected_result must match Python's signed-i32 modular power")
+    elif algorithm == "modpow":
+        expected_from_source = modpow_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modpow expected_result must match the bounded Lua modular-power recurrence")
+    elif algorithm == "how_many_times_rotated":
+        expected_from_source = how_many_times_rotated_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("how_many_times_rotated expected_result must match the minimum-element index")
+    elif algorithm == "endianness":
+        expected_from_source = -1
+        if values:
+            operation = values[0]
+            if operation in (0, 1, 2) and len(values) == 2:
+                value = values[1]
+                if operation == 0 and 0 <= value <= 0xffff:
+                    expected_from_source = int.from_bytes(value.to_bytes(2, "little"), "big")
+                elif operation == 1 and 0 <= value <= 0xffffffff:
+                    expected_from_source = int.from_bytes(value.to_bytes(4, "little"), "big")
+                elif operation == 2:
+                    bits = value % (1 << 64)
+                    swapped = int.from_bytes(bits.to_bytes(8, "little"), "big")
+                    expected_from_source = swapped if swapped <= I64_MAX else swapped - (1 << 64)
+            elif operation in (3, 4) and len(values) >= 3:
+                count = values[1]
+                payload = values[2:]
+                if 1 <= count <= 8 and len(payload) == count and all(0 <= byte <= 255 for byte in payload):
+                    raw = bytes(payload)
+                    converted = int.from_bytes(raw, "little" if operation == 3 else "big")
+                    expected_from_source = converted if converted <= I64_MAX else converted - (1 << 64)
+            elif operation in (5, 6) and len(values) == 3:
+                value, count = values[1:]
+                if 1 <= count <= 8 and (count == 8 or (value >= 0 and value < (1 << (8 * count)))):
+                    bits = value % (1 << 64)
+                    byte_values = bits.to_bytes(8, "little")[:count]
+                    if operation == 6:
+                        byte_values = byte_values[::-1]
+                    packed = int.from_bytes(byte_values, "little")
+                    expected_from_source = packed if packed <= I64_MAX else packed - (1 << 64)
+        if expected != expected_from_source:
+            raise ValueError("endianness expected_result must match the selected bounded byte conversion")
+    elif algorithm == "blob_detection":
+        expected_from_source = blob_detection_count(values)
+        if expected != expected_from_source:
+            raise ValueError("blob_detection expected_result must match the portable threshold/opening/component pipeline")
+    elif algorithm == "mode":
+        valid = 1 <= len(values) <= 4096 and all(0 <= value <= 255 for value in values)
+        expected_from_source = -1
+        if valid:
+            counts = [0] * 256
+            for value in values:
+                counts[value] += 1
+            maximum = max(counts)
+            modes = [value for value, count in enumerate(counts) if count == maximum]
+            if len(modes) == 1:
+                expected_from_source = modes[0]
+        if expected != expected_from_source:
+            raise ValueError("mode expected_result must match the unique maximum frequency in the bounded array")
+    elif algorithm == "n_bonacci":
+        valid = (len(values) == 2 and 1 <= values[0] < values[1] <= 64)
+        expected_from_source = -1
+        if valid:
+            order, count = values
+            terms = [0] * count
+            terms[order - 1] = 1
+            terms[order] = 1
+            for index in range(order + 1, count):
+                terms[index] = 2 * terms[index - 1] - terms[index - 1 - order]
+            expected_from_source = terms[count - 1]
+        if expected != expected_from_source:
+            raise ValueError("n_bonacci expected_result must match the bounded final N-bonacci term")
+    elif algorithm == "calculate_median":
+        valid = (1 <= len(values) <= 1024
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values)
+                 and all(left <= right for left, right in zip(values, values[1:])))
+        expected_from_source = I64_MIN
+        if valid:
+            middle = len(values) // 2
+            expected_from_source = (2 * values[middle] if len(values) % 2
+                                    else values[middle - 1] + values[middle])
+        if expected != expected_from_source:
+            raise ValueError("calculate_median expected_result must match the sorted-array twice-median encoding")
+    elif algorithm == "validate_credit_card":
+        valid = (1 <= len(values) <= MAX_VALIDATE_CREDIT_CARD_INPUT_LENGTH
+                 and 0 <= values[0] <= 64 and len(values) == values[0] + 1
+                 and all(0 <= codepoint <= 127 for codepoint in values[1:]))
+        expected_from_source = -1
+        if valid:
+            codepoints = values[1:]
+            expected_from_source = 0
+            if (13 <= len(codepoints) <= 16
+                    and all(48 <= codepoint <= 57 for codepoint in codepoints)):
+                first = codepoints[0] - 48
+                second = codepoints[1] - 48
+                has_prefix = (first in (4, 5, 6)
+                              or (first == 3 and second in (4, 5, 7)))
+                if has_prefix:
+                    checksum = 0
+                    for index, codepoint in enumerate(codepoints):
+                        digit = codepoint - 48
+                        if index % 2 == 0:
+                            digit *= 2
+                            if digit > 9:
+                                digit -= 9
+                        checksum += digit
+                    expected_from_source = int(checksum % 10 == 0)
+        if expected != expected_from_source:
+            raise ValueError("validate_credit_card expected_result must match left-index-even Luhn and prefix checks")
+    elif algorithm == "bandwidth_allocation":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 100_000
+                 and 0 <= values[1] <= 64 and len(values) == 2 + 2 * values[1])
+        expected_from_source = -1
+        if valid:
+            bandwidth, user_count = values[:2]
+            demands = values[2:2 + user_count]
+            gains = values[2 + user_count:]
+            valid = (all(1 <= demand <= 1_000 for demand in demands)
+                     and all(0 <= gain <= 10_000 for gain in gains))
+        if valid:
+            order = sorted(range(user_count),
+                           key=lambda index: gains[index] / demands[index], reverse=True)
+            remaining = bandwidth
+            expected_from_source = 0
+            for index in order:
+                if remaining >= demands[index]:
+                    expected_from_source += gains[index]
+                    remaining -= demands[index]
+                else:
+                    expected_from_source += int((gains[index] / demands[index]) * remaining)
+                    break
+        if expected != expected_from_source:
+            raise ValueError("bandwidth_allocation expected_result must match the bounded stable value-per-demand greedy routine")
+    elif algorithm == "problem54":
+        expected_from_source = problem54_player_one_wins(values)
+        if expected != expected_from_source:
+            raise ValueError("problem54 expected_result must count wins from the 1,000 validated poker deals")
+    elif algorithm == "problem59":
+        expected_from_source = problem59_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem59 expected_result must match the pinned lowercase XOR-key search and ordered word filters")
+    elif algorithm == "problem67":
+        expected_from_source = problem67_triangle_sum(values)
+        if expected != expected_from_source:
+            raise ValueError("problem67 expected_result must match the bounded packed maximum-path triangle fold")
+    elif algorithm == "problem71":
+        expected_from_source = problem71_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem71 expected_result must match the bounded strict-below fraction scan")
+    elif algorithm == "problem81":
+        expected_from_source = problem81_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem81 expected_result must match the packed square-matrix path minimum")
+    elif algorithm == "problem82":
+        expected_from_source = problem82_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem82 expected_result must match the column-wise up/down/right path minimum")
+    elif algorithm == "problem99":
+        expected_from_source = problem99_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem99 expected_result must preserve strict logarithmic comparison and earliest ties")
+    elif algorithm == "problem102":
+        expected_from_source = problem102_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem102 expected_result must count strict origin containment using exact barycentric signs")
+    elif algorithm == "problem107":
+        expected_from_source = problem107_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem107 expected_result must match the source Prim-network saving")
+    elif algorithm == "problem345":
+        expected_from_source = problem345_source_result(values)
+        if expected != expected_from_source:
+            raise ValueError("problem345 expected_result must match the memoized matrix assignment")
+    elif algorithm == "problem18":
+        expected_from_source = problem18_triangle_path_sum(values)
+        if expected != expected_from_source:
+            raise ValueError("problem18 expected_result must match the bounded maximum triangle path sum")
+    elif algorithm == "problem22":
+        expected_from_source = problem22_names_score(values)
+        if expected != expected_from_source:
+            raise ValueError("problem22 expected_result must match sorted rank-weighted alphabetic name scores")
+    elif algorithm == "word_length_sum":
+        valid = (len(values) <= MAX_WORD_LENGTH_SUM_INPUT_LENGTH
+                 and all(0 <= value <= 255 for value in values))
+        expected_from_source = sum(value != 32 for value in values) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("word_length_sum expected_result must count every byte except literal ASCII spaces")
+    elif algorithm == "bit_array_count_zero_bits":
+        valid = (len(values) <= MAX_BIT_ARRAY_COUNT_ZERO_BITS_INPUT_LENGTH
+                 and all(value in (0, 1) for value in values))
+        expected_from_source = values.count(0) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("bit_array_count_zero_bits expected_result must count zero-valued bits")
+    elif algorithm == "tree_path_value":
+        valid = (1 <= len(values) <= MAX_TREE_PATH_VALUE_INPUT_LENGTH
+                 and 1 <= values[0] <= 14
+                 and len(values) - 1 <= 120
+                 and (len(values) == 1 or -1000 <= values[1] <= 1000)
+                 and all(1 <= value <= 1000 for value in values[2:]))
+        expected_from_source = -1
+        if valid:
+            depth = values[0]
+            node_values = values[1:]
+            if not node_values:
+                expected_from_source = 0
+            else:
+                left_children = [-1] * len(node_values)
+                right_children = [-1] * len(node_values)
+                row_start, width = 0, 1
+                while row_start < len(node_values):
+                    for column in range(width):
+                        if row_start + column >= len(node_values):
+                            break
+                        parent = row_start + column
+                        left_index = row_start + width + column
+                        right_index = left_index + 1
+                        if left_index < len(node_values):
+                            left_children[parent] = left_index
+                        if right_index < len(node_values):
+                            right_children[parent] = right_index
+                    row_start += width
+                    width += 1
+
+                pivot = 0
+                expected_from_source = node_values[0]
+                while left_children[pivot] >= 0:
+                    stack = [(pivot, depth, expected_from_source)]
+                    while stack:
+                        node, steps_left, path_sum = stack.pop()
+                        if steps_left == 0:
+                            if path_sum > expected_from_source:
+                                expected_from_source = path_sum
+                                pivot = node
+                            continue
+                        right = right_children[node]
+                        if right >= 0:
+                            stack.append((right, steps_left - 1,
+                                          path_sum + node_values[right]))
+                        left = left_children[node]
+                        if left >= 0:
+                            stack.append((left, steps_left - 1,
+                                          path_sum + node_values[left]))
+                        elif path_sum > expected_from_source:
+                            expected_from_source = path_sum
+                            pivot = node
+        if expected != expected_from_source:
+            raise ValueError("tree_path_value expected_result must match the bounded Go Problem18 chunked pivot search")
+    elif algorithm == "problem18":
+        valid = (1 <= len(values) and 1 <= values[0] <= 15
+                 and len(values) == 1 + values[0] * (values[0] + 1) // 2
+                 and all(0 <= value <= 1_000_000 for value in values[1:]))
+        expected_from_source = -1
+        if valid:
+            row_count = values[0]
+            best_path_sum = -(2**63)
+
+            def visit(row: int, column: int, running_sum: int) -> None:
+                nonlocal best_path_sum
+                if row + 1 == row_count:
+                    best_path_sum = max(best_path_sum, running_sum)
+                    return
+                child_row_offset = 1 + (row + 1) * (row + 2) // 2
+                visit(row + 1, column,
+                      running_sum + values[child_row_offset + column])
+                visit(row + 1, column + 1,
+                      running_sum + values[child_row_offset + column + 1])
+
+            visit(0, 0, values[1])
+            expected_from_source = best_path_sum
+        if expected != expected_from_source:
+            raise ValueError("problem18 expected_result must match exhaustive top-to-bottom adjacent-path enumeration")
+    elif algorithm == "bipartite_graph_dfs":
+        valid = (len(values) >= 2 and 1 <= values[0] <= 64
+                 and 0 <= values[1] <= 256 and len(values) == 2 + 2 * values[1])
+        expected_from_source = -1
+        if valid:
+            vertex_count, edge_count = values[:2]
+            adjacency = [set() for _ in range(vertex_count)]
+            for offset in range(2, len(values), 2):
+                first, second = values[offset:offset + 2]
+                if not 0 <= first < vertex_count or not 0 <= second < vertex_count:
+                    valid = False
+                    break
+                adjacency[first].add(second)
+                adjacency[second].add(first)
+        if valid:
+            colors = [0] * vertex_count
+            bipartite = True
+            for root in range(vertex_count):
+                if colors[root]:
+                    continue
+                colors[root] = 1
+                pending = [root]
+                for vertex in pending:
+                    for neighbor in adjacency[vertex]:
+                        if colors[neighbor] == 0:
+                            colors[neighbor] = -colors[vertex]
+                            pending.append(neighbor)
+                        elif colors[neighbor] == colors[vertex]:
+                            bipartite = False
+                            break
+                    if not bipartite:
+                        break
+                if not bipartite:
+                    break
+            expected_from_source = int(bipartite)
+        if expected != expected_from_source:
+            raise ValueError("bipartite_graph_dfs expected_result must match the bounded component-wide graph coloring check")
+    elif algorithm == "breadth_first_search_zero_one_shortest_path":
+        valid = (len(values) >= 4 and 1 <= values[0] <= 64
+                 and 0 <= values[1] <= 256 and len(values) == 4 + 3 * values[1])
+        expected_from_source = -2
+        if valid:
+            vertex_count, edge_count, source, target = values[:4]
+            valid = 0 <= source < vertex_count and 0 <= target < vertex_count
+            adjacency = [[] for _ in range(vertex_count)]
+            if valid:
+                for offset in range(4, len(values), 3):
+                    origin, destination, weight = values[offset:offset + 3]
+                    if (not 0 <= origin < vertex_count or not 0 <= destination < vertex_count
+                            or weight not in (0, 1)):
+                        valid = False
+                        break
+                    adjacency[origin].append((destination, weight))
+        if valid:
+            distances = [None] * vertex_count
+            distances[source] = 0
+            pending = deque([source])
+            while pending:
+                vertex = pending.popleft()
+                for neighbor, weight in adjacency[vertex]:
+                    candidate = distances[vertex] + weight
+                    if distances[neighbor] is None or candidate < distances[neighbor]:
+                        distances[neighbor] = candidate
+                        if weight == 0:
+                            pending.appendleft(neighbor)
+                        else:
+                            pending.append(neighbor)
+            expected_from_source = -1 if distances[target] is None else distances[target]
+        if expected != expected_from_source:
+            raise ValueError("breadth_first_search_zero_one_shortest_path expected_result must match bounded directed 0–1 BFS distance")
+    elif algorithm == "bidirectional_dijkstra":
+        valid = (len(values) >= 4 and 1 <= values[0] <= 64
+                 and 0 <= values[1] <= 256
+                 and len(values) == 4 + 3 * values[1])
+        expected_from_source = -1
+        if valid:
+            vertex_count, edge_count, source, target = values[:4]
+            valid = 0 <= source < vertex_count and 0 <= target < vertex_count
+            adjacency = [[] for _ in range(vertex_count)]
+            if valid:
+                for offset in range(4, len(values), 3):
+                    origin, destination, weight = values[offset:offset + 3]
+                    if (not 0 <= origin < vertex_count or not 0 <= destination < vertex_count
+                            or not 0 <= weight <= 1_000_000):
+                        valid = False
+                        break
+                    adjacency[origin].append((destination, weight))
+        if valid:
+            distances = [None] * vertex_count
+            distances[source] = 0
+            pending = [(0, source)]
+            while pending:
+                distance, vertex = heapq.heappop(pending)
+                if distance != distances[vertex]:
+                    continue
+                if vertex == target:
+                    break
+                for neighbor, weight in adjacency[vertex]:
+                    candidate = distance + weight
+                    if distances[neighbor] is None or candidate < distances[neighbor]:
+                        distances[neighbor] = candidate
+                        heapq.heappush(pending, (candidate, neighbor))
+            if distances[target] is not None:
+                expected_from_source = distances[target]
+        if expected != expected_from_source:
+            raise ValueError("bidirectional_dijkstra expected_result must match bounded directed nonnegative Dijkstra distance")
+    elif algorithm == "binary_indexed_tree":
+        valid = (len(values) >= 2 and 2 <= values[0] <= 256
+                 and values[0] & (values[0] - 1) == 0
+                 and 0 <= values[1] <= 512
+                 and len(values) == 2 + 3 * values[1])
+        expected_from_source = -1
+        if valid:
+            item_count, operation_count = values[:2]
+            operations = [values[index:index + 3] for index in range(2, len(values), 3)]
+            for opcode, first, second in operations:
+                if opcode == 0:
+                    if not 0 <= first < item_count or not -1_000_000 <= second <= 1_000_000:
+                        valid = False
+                        break
+                elif opcode == 1:
+                    if not 0 <= first <= second < item_count:
+                        valid = False
+                        break
+                else:
+                    valid = False
+                    break
+        if valid:
+            data = [0] * item_count
+            checksum = 0
+            query_offset = 131_072_000_001
+            final_offset = 512_000_001
+            for operation_index, (opcode, first, second) in enumerate(operations):
+                if opcode == 0:
+                    data[first] += second
+                else:
+                    range_sum = sum(data[first:second + 1])
+                    checksum += (operation_index + 1) * (range_sum + query_offset)
+            for index, value in enumerate(data):
+                checksum += (operation_count + index + 1) * (value + final_offset)
+            expected_from_source = checksum
+        if expected != expected_from_source:
+            raise ValueError("binary_indexed_tree expected_result must match its bounded weighted point-update/range-sum checksum")
+    elif algorithm == "binary_tree_is_full":
+        valid = (len(values) >= 2 and 1 <= values[0] <= 1024
+                 and len(values) == 2 + 2 * values[0])
+        expected_from_source = -1
+        if valid:
+            node_count, root = values[:2]
+            valid = 0 <= root < node_count
+            children = []
+            parent_count = [0] * node_count
+            if valid:
+                for offset in range(2, len(values), 2):
+                    left, right = values[offset:offset + 2]
+                    if any(child < -1 or child >= node_count for child in (left, right)):
+                        valid = False
+                        break
+                    if left == offset // 2 - 1 or right == offset // 2 - 1:
+                        valid = False
+                        break
+                    for child in (left, right):
+                        if child >= 0:
+                            parent_count[child] += 1
+                            if parent_count[child] > 1:
+                                valid = False
+                                break
+                    if not valid:
+                        break
+                    children.append((left, right))
+            if valid:
+                valid = (parent_count[root] == 0 and all(
+                    parent_count[index] == 1 for index in range(node_count) if index != root
+                ))
+            if valid:
+                seen = {root}
+                pending = [root]
+                for node in pending:
+                    left, right = children[node]
+                    for child in (left, right):
+                        if child >= 0:
+                            if child in seen:
+                                valid = False
+                                break
+                            seen.add(child)
+                            pending.append(child)
+                    if not valid:
+                        break
+                valid = valid and len(seen) == node_count
+            if valid:
+                expected_from_source = int(all(
+                    (left == -1) == (right == -1) for left, right in children
+                ))
+        if expected != expected_from_source:
+            raise ValueError("binary_tree_is_full expected_result must match bounded rooted-tree validation and full-tree predicate")
+    elif algorithm == "hex_to_bin":
+        valid = (1 <= len(values) <= 5
+                 and all(0 <= byte <= 127 for byte in values))
+        expected_from_source = I64_MIN
+        if valid:
+            negative = values[0] == 45
+            digits = values[1:] if negative else values
+            valid = (1 <= len(digits) <= 4
+                     and all(48 <= byte <= 57 or 65 <= byte <= 70 or 97 <= byte <= 102
+                             for byte in digits))
+            if valid:
+                number = int(bytes(digits).decode("ascii"), 16)
+                if number != 0:
+                    binary_digits = bin(number)[2:]
+                    expected_from_source = int(binary_digits) * (-1 if negative else 1)
+        if expected != expected_from_source:
+            raise ValueError("hex_to_bin expected_result must match the bounded source-generated binary digits")
+    elif algorithm == "ipv4_conversion":
+        valid = len(values) == 4 and all(0 <= octet <= 255 for octet in values)
+        expected_from_source = I64_MIN
+        if valid:
+            octet0, octet1, octet2, octet3 = values
+            expected_from_source = ((octet0 << 24) | (octet1 << 16)
+                                    | (octet2 << 8) | octet3)
+        if expected != expected_from_source:
+            raise ValueError("ipv4_conversion expected_result must match four-octet big-endian packing")
+    elif algorithm == "subset_sum_nonnegative_exists":
+        valid = (1 <= len(values) <= 65 and 0 <= values[0] <= 4096
+                 and all(0 <= item <= 4096 for item in values[1:]))
+        if valid:
+            target = values[0]
+            reachable = 1
+            for item in values[1:]:
+                reachable |= reachable << item
+            expected_from_source = int(bool(reachable & (1 << target)))
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("subset_sum_nonnegative_exists expected_result must match bounded nonnegative subset-sum reachability")
+    elif algorithm == "breadth_first_search_shortest_path_distance":
+        valid = (len(values) >= 4 and 1 <= values[0] <= 26
+                 and 0 <= values[1] <= 256 and len(values) == 4 + 2 * values[1])
+        expected_from_source = -1
+        if valid:
+            vertex_count, edge_count, source, target = values[:4]
+            valid = (0 <= source < vertex_count and 0 <= target < vertex_count)
+            adjacency = [[] for _ in range(vertex_count)]
+            if valid:
+                for offset in range(4, len(values), 2):
+                    origin, destination = values[offset:offset + 2]
+                    if not 0 <= origin < vertex_count or not 0 <= destination < vertex_count:
+                        valid = False
+                        break
+                    adjacency[origin].append(destination)
+        if valid:
+            distances = [-1] * vertex_count
+            distances[source] = 0
+            pending = [source]
+            for vertex in pending:
+                if vertex == target:
+                    break
+                for neighbor in adjacency[vertex]:
+                    if distances[neighbor] == -1:
+                        distances[neighbor] = distances[vertex] + 1
+                        pending.append(neighbor)
+            expected_from_source = distances[target]
+        if expected != expected_from_source:
+            raise ValueError("breadth_first_search_shortest_path_distance expected_result must match bounded directed BFS edge distance")
+    elif algorithm == "bfprt":
+        invalid = -2_147_483_649
+        valid = (len(values) >= 2 and 1 <= values[0] <= 1024
+                 and 1 <= values[1] <= values[0]
+                 and len(values) == 2 + values[0]
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[2:]))
+        expected_from_source = sorted(values[2:])[values[1] - 1] if valid else invalid
+        if expected != expected_from_source:
+            raise ValueError("bfprt expected_result must match bounded one-based signed-i32 order selection")
+    elif algorithm == "n_queens_solution_count":
+        valid = len(values) == 1 and 0 <= values[0] <= 8
+        if valid:
+            n = values[0]
+            mask = (1 << n) - 1
+
+            def count_placements(row: int, columns: int, descending: int, ascending: int) -> int:
+                if row == n:
+                    return 1
+                available = mask & ~(columns | descending | ascending)
+                total = 0
+                while available:
+                    bit = available & -available
+                    available -= bit
+                    total += count_placements(
+                        row + 1,
+                        columns | bit,
+                        ((descending | bit) << 1) & mask,
+                        (ascending | bit) >> 1,
+                    )
+                return total
+
+            expected_from_source = count_placements(0, 0, 0, 0)
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("n_queens_solution_count expected_result must match bounded n-queens enumeration")
+    elif algorithm == "hamiltonian_cycle_exists":
+        valid = (len(values) >= 2 and 3 <= values[0] <= 8
+                 and 0 <= values[1] <= values[0] * (values[0] - 1) // 2
+                 and len(values) == 2 + 2 * values[1])
+        expected_from_source = -1
+        if valid:
+            vertex_count, edge_count = values[:2]
+            adjacency = [0] * vertex_count
+            edges = set()
+            for offset in range(2, len(values), 2):
+                first, second = values[offset:offset + 2]
+                edge = (min(first, second), max(first, second))
+                if (not 0 <= first < vertex_count or not 0 <= second < vertex_count
+                        or first == second or edge in edges):
+                    valid = False
+                    break
+                edges.add(edge)
+                adjacency[first] |= 1 << second
+                adjacency[second] |= 1 << first
+        if valid:
+            complete = (1 << vertex_count) - 1
+
+            def has_cycle(vertex: int, visited: int) -> bool:
+                if visited == complete:
+                    return bool(adjacency[vertex] & 1)
+                available = adjacency[vertex] & ~visited
+                while available:
+                    bit = available & -available
+                    available -= bit
+                    if has_cycle(bit.bit_length() - 1, visited | bit):
+                        return True
+                return False
+
+            expected_from_source = int(has_cycle(0, 1))
+        if expected != expected_from_source:
+            raise ValueError("hamiltonian_cycle_exists expected_result must match the bounded fixed-start Hamiltonian-cycle search")
+    elif algorithm == "knuth_morris_pratt_contains":
+        valid = len(values) >= 2
+        expected_from_source = -1
+        if valid:
+            text_length, pattern_length = values[:2]
+            valid = (0 <= text_length <= 4096 and 0 <= pattern_length <= 4096
+                     and len(values) == 2 + text_length + pattern_length)
+        if valid:
+            text_bytes = values[2:2 + text_length]
+            pattern = values[2 + text_length:]
+            valid = (all(0 <= byte <= 127 for byte in text_bytes)
+                     and all(0 <= byte <= 127 for byte in pattern))
+        if valid:
+            if not pattern:
+                expected_from_source = 0
+            else:
+                prefix = [0] * len(pattern)
+                matched = 0
+                for index in range(1, len(pattern)):
+                    while matched and pattern[index] != pattern[matched]:
+                        matched = prefix[matched - 1]
+                    if pattern[index] == pattern[matched]:
+                        matched += 1
+                    prefix[index] = matched
+                matched = 0
+                expected_from_source = 0
+                for byte in text_bytes:
+                    while matched and byte != pattern[matched]:
+                        matched = prefix[matched - 1]
+                    if byte == pattern[matched]:
+                        matched += 1
+                        if matched == len(pattern):
+                            expected_from_source = 1
+                            break
+        if expected != expected_from_source:
+            raise ValueError("knuth_morris_pratt_contains expected_result must match the bounded ASCII KMP search")
+    elif algorithm == "bitap_string_match":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 63
+                 and len(values) == 2 + values[0] + values[1]
+                 and all(97 <= value <= 122 for value in values[2:]))
+        if not valid:
+            expected_from_source = -2
+        else:
+            text_length, pattern_length = values[:2]
+            if pattern_length == 0:
+                expected_from_source = 0
+            elif pattern_length > text_length:
+                expected_from_source = -1
+            else:
+                text = bytes(values[2:2 + text_length])
+                pattern = bytes(values[2 + text_length:])
+                expected_from_source = text.find(pattern)
+        if expected != expected_from_source:
+            raise ValueError("bitap_string_match expected_result must match the bounded lowercase-ASCII first-match contract")
+    elif algorithm == "bitap_exact_match_31":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 4096 and 0 <= values[1] <= 31
+                 and len(values) == 2 + values[0] + values[1]
+                 and all(97 <= value <= 122 for value in values[2:]))
+        if not valid:
+            expected_from_source = -2
+        else:
+            text_length, pattern_length = values[:2]
+            if pattern_length == 0:
+                expected_from_source = 0
+            elif pattern_length > text_length:
+                expected_from_source = -1
+            else:
+                text = bytes(values[2:2 + text_length])
+                pattern = bytes(values[2 + text_length:])
+                expected_from_source = text.find(pattern)
+        if expected != expected_from_source:
+            raise ValueError("bitap_exact_match_31 expected_result must match the 31-bit lowercase-ASCII first-match contract")
+    elif algorithm == "reversort_cost":
+        valid = (len(values) <= 256
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values))
+        if not valid:
+            expected_from_source = -1
+        else:
+            working = values.copy()
+            expected_from_source = 0
+            for index in range(len(working) - 1):
+                minimum = min(range(index, len(working)), key=working.__getitem__)
+                working[index:minimum + 1] = reversed(working[index:minimum + 1])
+                expected_from_source += minimum - index + 1
+        if expected != expected_from_source:
+            raise ValueError("reversort_cost expected_result must match the bounded signed-i32 Reversort cost")
+    elif algorithm == "crc8_model":
+        valid = len(values) >= 6
+        expected_from_source = -1
+        if valid:
+            polynomial, initial, reflect_input, reflect_output, xor_output, byte_count = values[:6]
+            valid = (0 <= polynomial <= 255 and 0 <= initial <= 255
+                     and reflect_input in (0, 1) and reflect_output in (0, 1)
+                     and 0 <= xor_output <= 255 and 0 <= byte_count <= 100001
+                     and len(values) == 6 + byte_count
+                     and all(0 <= byte <= 255 for byte in values[6:]))
+        if valid:
+            def reflect8(byte: int) -> int:
+                result = 0
+                for _ in range(8):
+                    result = (result << 1) | (byte & 1)
+                    byte >>= 1
+                return result
+
+            checksum = initial
+            for byte in values[6:]:
+                if reflect_input:
+                    byte = reflect8(byte)
+                checksum ^= byte
+                for _ in range(8):
+                    if checksum & 0x80:
+                        checksum = ((checksum << 1) & 0xFF) ^ polynomial
+                    else:
+                        checksum = (checksum << 1) & 0xFF
+            if reflect_output:
+                checksum = reflect8(checksum)
+            expected_from_source = checksum ^ xor_output
+        if expected != expected_from_source:
+            raise ValueError("crc8_model expected_result must match the bounded parameterized MSB-first CRC-8 model")
+    elif algorithm == "crc16":
+        valid = len(values) <= 100001 and all(0 <= byte <= 255 for byte in values)
+        checksum = 0xFFFF
+        if valid:
+            for byte in values:
+                checksum ^= byte << 8
+                for _ in range(8):
+                    if checksum & 0x8000:
+                        checksum = ((checksum << 1) & 0xFFFF) ^ 0x1021
+                    else:
+                        checksum = (checksum << 1) & 0xFFFF
+            expected_from_source = checksum
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("crc16 expected_result must match the bounded CRC-16/CCITT-FALSE byte recurrence")
+    elif algorithm == "hopcroft_karp_cardinality":
         valid = (
             len(values) >= 3
             and 0 <= values[0] <= 64
@@ -196,6 +1735,70 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("fast_inverse_sqrt_java_check expected_result must match the selected Java exact-equality overload")
+    elif algorithm == "binomial_expansion":
+        valid = (len(values) == 3 and -2 <= values[0] <= 2
+                 and -2 <= values[1] <= 2 and 0 <= values[2] <= 31)
+        if valid:
+            first, second, exponent = values
+            expected_from_source = sum(
+                math.comb(exponent, index)
+                * first ** (exponent - index)
+                * second ** index
+                for index in range(exponent + 1)
+            )
+        else:
+            expected_from_source = I64_MIN
+        if expected != expected_from_source:
+            raise ValueError("binomial_expansion expected_result must match the bounded exact integer binomial sum")
+    elif algorithm == "n_in_a_row_board_status":
+        expected_from_source = n_in_a_row_board_status_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("n_in_a_row_board_status expected_result must match bounded board win/draw/continue semantics")
+    elif algorithm == "board_path":
+        valid = (len(values) == 2 and 0 <= values[0] <= values[1] <= 30)
+        if valid:
+            start, end = values
+            ways = [0] * (end - start + 1)
+            ways[0] = 1
+            for offset in range(1, len(ways)):
+                ways[offset] = sum(ways[max(0, offset - 6):offset])
+            expected_from_source = ways[-1]
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("board_path expected_result must match the bounded six-sided-die path recurrence")
+    elif algorithm == "determinant":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 6
+                 and len(values) == 1 + values[0] * values[0]
+                 and all(-9 <= value <= 9 for value in values[1:]))
+        expected_from_source = I64_MIN
+        if valid:
+            dimension = values[0]
+            matrix = [values[1 + row * dimension:1 + (row + 1) * dimension]
+                      for row in range(dimension)]
+            sign = 1
+            previous_pivot = 1
+            for pivot_index in range(dimension - 1):
+                pivot_row = next((row for row in range(pivot_index, dimension)
+                                  if matrix[row][pivot_index] != 0), None)
+                if pivot_row is None:
+                    expected_from_source = 0
+                    break
+                if pivot_row != pivot_index:
+                    matrix[pivot_index], matrix[pivot_row] = matrix[pivot_row], matrix[pivot_index]
+                    sign = -sign
+                pivot = matrix[pivot_index][pivot_index]
+                for row in range(pivot_index + 1, dimension):
+                    for column in range(pivot_index + 1, dimension):
+                        numerator = (matrix[row][column] * pivot
+                                     - matrix[row][pivot_index] * matrix[pivot_index][column])
+                        matrix[row][column] = numerator // previous_pivot
+                    matrix[row][pivot_index] = 0
+                previous_pivot = pivot
+            else:
+                expected_from_source = sign * matrix[dimension - 1][dimension - 1]
+        if expected != expected_from_source:
+            raise ValueError("determinant expected_result must match the bounded exact signed-integer determinant")
     elif algorithm == "ncr_modulo_p":
         valid = (len(values) == 4 and 0 <= values[0] <= 64
                  and 2 <= values[1] <= 1009 and 0 <= values[2] <= values[0]
@@ -311,6 +1914,52 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("apriori expected_result must match the frequent association-rule count")
+    elif algorithm == "bitmask_assignment_count":
+        valid = (2 <= len(values) <= 106 and 0 <= values[0] <= 8
+                 and 0 <= values[1] <= 12)
+        expected_from_source = -1
+        if valid:
+            people, tasks = values[:2]
+            rows: list[list[int]] = []
+            offset = 2
+            for _ in range(people):
+                if offset >= len(values):
+                    valid = False
+                    break
+                entry_count = values[offset]
+                offset += 1
+                if not 0 <= entry_count <= 12 or offset + entry_count > len(values):
+                    valid = False
+                    break
+                entries = values[offset:offset + entry_count]
+                if any(not 1 <= task_id <= tasks for task_id in entries):
+                    valid = False
+                    break
+                rows.append(entries)
+                offset += entry_count
+            valid = valid and offset == len(values)
+            if valid:
+                full_mask = (1 << people) - 1
+
+                @lru_cache(maxsize=None)
+                def count_assignments(mask: int, task_id: int) -> int:
+                    if mask == full_mask:
+                        return 1
+                    if task_id > tasks:
+                        return 0
+                    total = count_assignments(mask, task_id + 1)
+                    for person, eligible_ids in enumerate(rows):
+                        bit = 1 << person
+                        if mask & bit == 0:
+                            total += sum(
+                                count_assignments(mask | bit, task_id + 1)
+                                for eligible_id in eligible_ids if eligible_id == task_id
+                            )
+                    return total
+
+                expected_from_source = count_assignments(0, 1)
+        if expected != expected_from_source:
+            raise ValueError("bitmask_assignment_count expected_result must match duplicate-preserving task assignment count")
     elif algorithm == "assignment_using_bitmask":
         valid = (len(values) >= 2 and 0 <= values[0] <= 10 and 0 <= values[1] <= 10
                  and len(values) == 2 + values[0])
@@ -1037,6 +2686,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = int(has_subset(0, target))
         if expected != expected_from_source:
             raise ValueError("subset_sum_dynamic expected_result does not match memoized subset existence")
+    elif algorithm == "partition_problem":
+        expected_from_source = partition_problem_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("partition_problem expected_result must match equal-sum subset partition")
     elif algorithm == "hash_sdbm":
         valid = 1 <= len(values) <= 64 and all(1 <= byte <= 127 for byte in values)
         if not valid:
@@ -1419,6 +3072,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 right -= 1
         if expected != expected_from_source:
             raise ValueError("double_linear_search expected_result must match the left-then-right endpoint probe order")
+    elif algorithm == "double_linear_search_recursion":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 1024
+                 and len(values) == 2 + values[0]
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
+        expected_from_source = -2
+        if valid:
+            target, items = values[1], values[2:]
+            left, right = 0, len(items) - 1
+            expected_from_source = -1
+            while left <= right:
+                if items[left] == target:
+                    expected_from_source = left
+                    break
+                if items[right] == target:
+                    expected_from_source = right
+                    break
+                left += 1
+                right -= 1
+        if expected != expected_from_source:
+            raise ValueError("double_linear_search_recursion expected_result must match the bounded recursive left-then-right scan")
     elif algorithm == "order_agnostic_binary_search":
         valid = (len(values) >= 2 and 1 <= values[1] <= 99_999
                  and len(values) == values[1] + 2
@@ -1450,6 +3123,33 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                     left = middle + 1
         if expected != expected_from_source:
             raise ValueError("order_agnostic_binary_search expected_result must match the source midpoint search")
+    elif algorithm == "iterative_ternary_search":
+        # The packed array stores the target first, followed by the sorted values.
+        valid = (1 <= len(values) <= 257
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values)
+                 and all(left <= right for left, right in zip(values[1:], values[2:])))
+        expected_from_source = -1
+        if valid:
+            target, items = values[0], values[1:]
+            if len(items) == 1:
+                expected_from_source = 0 if items[0] == target else -1
+            elif len(items) > 1:
+                left, right = 0, len(items) - 1
+                while right > left:
+                    if items[left] == target:
+                        expected_from_source = left
+                        break
+                    if items[right] == target:
+                        expected_from_source = right
+                        break
+                    left_third = left + (right - left) // 3 + 1
+                    right_third = right - (right - left) // 3 - 1
+                    if items[left_third] <= target:
+                        left = left_third
+                    else:
+                        right = right_third
+        if expected != expected_from_source:
+            raise ValueError("iterative_ternary_search expected_result must match the pinned Java interval updates")
     elif algorithm == "minimum_cost_path":
         invalid = I64_MIN
         if (len(values) < 2 or not (1 <= values[0] <= 16 and 1 <= values[1] <= 16)
@@ -2001,7 +3701,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                                     and left[row - 1] == right[column - 2]
                                     and left[row - 2] == right[column - 1]):
                                 distances[row][column] = min(
-                                    distances[row][column], distances[row - 2][column - 2] + 1
+                                    distances[row][column],
+                                    distances[row - 2][column - 2] + substitution_cost,
                                 )
                     expected_from_source = distances[left_length][right_length]
         if expected != expected_from_source:
@@ -2234,7 +3935,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 terms.append((numerator, denominator))
         expected_from_source = -1
         if valid:
-            expected_from_source = int(all(
+            expected_from_source = int(bool(terms) and all(
                 abs(numerator * (index + 1) - (1 if index % 2 == 0 else -1) * denominator) * 1_000_000_000
                 <= denominator * (index + 1)
                 for index, (numerator, denominator) in enumerate(terms)
@@ -2445,6 +4146,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 expected_from_source = expected_from_source * (n - index) // (index + 1)
         if expected != expected_from_source:
             raise ValueError("combinations expected_result must match the bounded multiply-then-divide binomial recurrence")
+    elif algorithm == "crc32":
+        valid = len(values) <= 100001 and all(0 <= value <= 255 for value in values)
+        expected_from_source = zlib.crc32(bytes(values)) if valid else -1
+        if expected != expected_from_source:
+            raise ValueError("crc32 expected_result must match the standard unsigned CRC-32 over the input bytes")
     elif algorithm in {"cycle_check_directed_graph", "cycle_check_directed_graph_kahn"}:
         valid = (len(values) >= 1 and len(values) <= 65 and (len(values) - 1) % 2 == 0
                  and 0 <= values[0] <= 64 and (len(values) - 1) // 2 <= 32)
@@ -2495,6 +4201,303 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError(f"{algorithm} expected_result must match the bounded directed-graph cycle check")
+    elif algorithm == "celebrity_finder":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 64
+                 and len(values) == 1 + values[0] * values[0]
+                 and all(value in (0, 1) for value in values[1:]))
+        if not valid:
+            expected_from_source = -2
+        else:
+            person_count = values[0]
+            knows = values[1:]
+            candidate = 0
+            for person in range(1, person_count):
+                if knows[candidate * person_count + person] == 1:
+                    candidate = person
+            expected_from_source = candidate
+            for person in range(person_count):
+                if person != candidate and (
+                        knows[person * person_count + candidate] != 1
+                        or knows[candidate * person_count + person] != 0):
+                    expected_from_source = -1
+                    break
+        if expected != expected_from_source:
+            raise ValueError("celebrity_finder expected_result must match stack elimination and candidate verification")
+    elif algorithm == "boolean_algebra_gates":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 5 and 0 <= values[1] <= 4096
+                 and len(values) == values[1] + 2
+                 and all(bit in (0, 1) for bit in values[2:])
+                 and (values[0] != 2 or values[1] == 1))
+        expected_from_source = -1
+        if valid:
+            gate, count = values[:2]
+            bits = values[2:]
+            if gate == 0:
+                expected_from_source = int(all(bits))
+            elif gate == 1:
+                expected_from_source = int(any(bits))
+            elif gate == 2:
+                expected_from_source = 1 - bits[0]
+            elif gate == 3:
+                expected_from_source = sum(bits) % 2
+            elif gate == 4:
+                expected_from_source = int(not all(bits))
+            else:
+                expected_from_source = int(not any(bits))
+        if expected != expected_from_source:
+            raise ValueError("boolean_algebra_gates expected_result must match the selected bounded Boolean operation")
+    elif algorithm == "damm":
+        valid = (len(values) >= 3 and values[0] in (0, 1) and 1 <= values[1] <= 256
+                 and len(values) == values[1] + 2
+                 and all(0 <= digit <= 9 for digit in values[2:]))
+        expected_from_source = -1
+        if valid:
+            table = (
+                0, 3, 1, 7, 5, 9, 8, 6, 4, 2,
+                7, 0, 9, 2, 1, 5, 4, 8, 6, 3,
+                4, 2, 0, 6, 8, 7, 1, 3, 5, 9,
+                1, 7, 5, 0, 9, 8, 3, 4, 2, 6,
+                6, 1, 2, 3, 0, 4, 5, 9, 7, 8,
+                3, 6, 7, 4, 2, 0, 9, 5, 8, 1,
+                5, 8, 6, 9, 7, 2, 0, 1, 3, 4,
+                8, 9, 4, 5, 3, 6, 2, 0, 1, 7,
+                9, 4, 3, 8, 6, 1, 7, 2, 0, 5,
+                2, 5, 8, 1, 4, 3, 6, 7, 9, 0,
+            )
+            state = 0
+            for digit in values[2:]:
+                state = table[state * 10 + digit]
+            expected_from_source = int(state == 0) if values[0] == 0 else state
+        if expected != expected_from_source:
+            raise ValueError("damm expected_result must match the pinned quasigroup state update")
+    elif algorithm == "minimum_path_sum":
+        valid = (3 <= len(values) <= 66 and 1 <= values[0] <= 8 and 1 <= values[1] <= 8
+                 and len(values) == 2 + values[0] * values[1]
+                 and all(0 <= cost <= 1000 for cost in values[2:]))
+        expected_from_source = I64_MIN
+        if valid:
+            rows, columns = values[:2]
+            costs = values[2:]
+            best = [0] * columns
+            for row in range(rows):
+                for column in range(columns):
+                    cost = costs[row * columns + column]
+                    if row == 0 and column == 0:
+                        best[column] = cost
+                    elif row == 0:
+                        best[column] = best[column - 1] + cost
+                    elif column == 0:
+                        best[column] += cost
+                    else:
+                        best[column] = min(best[column], best[column - 1]) + cost
+            expected_from_source = best[-1]
+        if expected != expected_from_source:
+            raise ValueError("minimum_path_sum expected_result must match the bounded right/down grid dynamic program")
+    elif algorithm == "minimum_waiting_time":
+        valid = (len(values) <= 64 and all(0 <= duration <= 1000 for duration in values))
+        if valid:
+            ordered = sorted(values)
+            expected_from_source = sum(
+                duration * (len(ordered) - index - 1)
+                for index, duration in enumerate(ordered)
+            )
+        else:
+            expected_from_source = I64_MIN
+        if expected != expected_from_source:
+            raise ValueError("minimum_waiting_time expected_result must match the bounded sorted-duration weighted sum")
+    elif algorithm == "credit_card_validator":
+        valid = (len(values) >= 1 and 0 <= values[0] <= 64
+                 and len(values) == values[0] + 1
+                 and all(0 <= codepoint <= 127 for codepoint in values[1:]))
+        expected_from_source = -1
+        if valid:
+            codepoints = values[1:]
+            if all(48 <= codepoint <= 57 for codepoint in codepoints):
+                length = len(codepoints)
+                if 13 <= length <= 16:
+                    has_prefix = (codepoints[:2] in ([51, 52], [51, 53], [51, 55])
+                                  or codepoints[0] in (52, 53, 54))
+                    if has_prefix:
+                        checksum = 0
+                        for offset, codepoint in enumerate(reversed(codepoints)):
+                            digit = codepoint - 48
+                            if offset % 2 == 1:
+                                digit *= 2
+                                if digit > 9:
+                                    digit -= 9
+                            checksum += digit
+                        expected_from_source = int(checksum % 10 == 0)
+                    else:
+                        expected_from_source = 0
+                else:
+                    expected_from_source = 0
+            else:
+                expected_from_source = 0
+        if expected != expected_from_source:
+            raise ValueError("credit_card_validator expected_result must match the ASCII prefix and Luhn checks")
+    elif algorithm == "number_of_positive_divisors":
+        valid = (len(values) == 1 and -1_000_000_000 <= values[0] <= 1_000_000_000)
+        expected_from_source = -1
+        if valid:
+            number = abs(values[0])
+            expected_from_source = 1
+            factor = 2
+            while factor * factor <= number:
+                exponent = 0
+                while number % factor == 0:
+                    number //= factor
+                    exponent += 1
+                if exponent:
+                    expected_from_source *= exponent + 1
+                factor += 1
+            if number > 1:
+                expected_from_source *= 2
+        if expected != expected_from_source:
+            raise ValueError("number_of_positive_divisors expected_result must match bounded prime-factor exponents and zero behavior")
+    elif algorithm == "divisors":
+        expected_from_source = divisors_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("divisors expected_result must match the positive-divisor bit mask")
+    elif algorithm == "egg_dropping":
+        valid = (len(values) == 2 and 1 <= values[0] <= 12 and 1 <= values[1] <= 128)
+        expected_from_source = I64_MIN
+        if valid:
+            eggs, floors = values
+            dp = [[0] * (floors + 1) for _ in range(eggs + 1)]
+            for egg in range(1, eggs + 1):
+                dp[egg][1] = 1
+            for floor in range(1, floors + 1):
+                dp[1][floor] = floor
+            for egg in range(2, eggs + 1):
+                for floor in range(1, floors + 1):
+                    dp[egg][floor] = min(
+                        1 + max(dp[egg - 1][drop - 1], dp[egg][floor - drop])
+                        for drop in range(1, floor + 1)
+                    )
+            expected_from_source = dp[eggs][floors]
+        if expected != expected_from_source:
+            raise ValueError("egg_dropping expected_result must match the bounded worst-case DP recurrence")
+    elif algorithm == "subarray_sum_equals_k":
+        valid = (len(values) >= 2 and 0 <= values[0] <= 512
+                 and len(values) == 2 + values[0]
+                 and all(-(2**31) <= value <= 2**31 - 1 for value in values[1:]))
+        expected_from_source = I64_MIN
+        if valid:
+            target = values[1]
+            prefix_frequency = {0: 1}
+            prefix_sum = 0
+            subarray_count = 0
+            for value in values[2:]:
+                prefix_sum += value
+                subarray_count += prefix_frequency.get(prefix_sum - target, 0)
+                prefix_frequency[prefix_sum] = prefix_frequency.get(prefix_sum, 0) + 1
+            expected_from_source = subarray_count
+        if expected != expected_from_source:
+            raise ValueError("subarray_sum_equals_k expected_result must match the bounded prefix-frequency count")
+    elif algorithm == "dice_throw":
+        expected_from_source = dice_throw_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("dice_throw expected_result must match the pinned bounded two-dimensional DP")
+    elif algorithm == "depth_first_search_iterative":
+        expected_from_source = depth_first_search_iterative_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("depth_first_search_iterative expected_result must match bounded undirected reachability")
+    elif algorithm == "depth_first_search_recursive":
+        expected_from_source = depth_first_search_recursive_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("depth_first_search_recursive expected_result must match bounded undirected reachability")
+    elif algorithm == "elf_hash":
+        expected_from_source = elf_hash_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("elf_hash expected_result must match the bounded Python ELF recurrence")
+    elif algorithm == "is_isomorphic":
+        expected_from_source = is_isomorphic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("is_isomorphic expected_result must match the bounded one-to-one mapping predicate")
+    elif algorithm == "is_graph_bipartite":
+        expected_from_source = is_graph_bipartite_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("is_graph_bipartite expected_result must match bounded undirected BFS coloring")
+    elif algorithm == "karatsuba":
+        expected_from_source = karatsuba_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("karatsuba expected_result must match the bounded exact product")
+    elif algorithm == "good_pairs":
+        expected_from_source = good_pairs_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("good_pairs expected_result must match the bounded identical-index-pair count")
+    elif algorithm == "good_pairs_hash":
+        expected_from_source = good_pairs_hash_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("good_pairs_hash expected_result must match the packed frequency-map pair count")
+    elif algorithm == "find_kth_number":
+        expected_from_source = find_kth_number_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("find_kth_number expected_result must match the bounded one-based rank selection")
+    elif algorithm == "non_repeating_element":
+        expected_from_source = non_repeating_element_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("non_repeating_element expected_result must match the packed singleton pair order")
+    elif algorithm == "in_static_equilibrium":
+        expected_from_source = in_static_equilibrium_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("in_static_equilibrium expected_result must match the bounded torque-balance predicate")
+    elif algorithm == "index_2d_array_in_1d":
+        expected_from_source = index_2d_array_in_1d_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("index_2d_array_in_1d expected_result must match bounded row-major flat lookup")
+    elif algorithm == "gas_station":
+        expected_from_source = gas_station_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("gas_station expected_result must match the bounded greedy circuit-start scan")
+    elif algorithm == "find_second_largest_element":
+        expected_from_source = find_second_largest_element_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("find_second_largest_element expected_result must skip duplicate maximum values")
+    elif algorithm == "second_min_max":
+        expected_from_source = second_min_max_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("second_min_max expected_result must match Java's distinct second-value scan")
+    elif algorithm == "constrained_shortest_path":
+        expected_from_source = constrained_shortest_path_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("constrained_shortest_path expected_result must match resource-indexed dynamic programming")
+    elif algorithm == "jump_game":
+        expected_from_source = jump_game_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("jump_game expected_result must match backward reachability")
+    elif algorithm == "pairs_with_given_sum":
+        expected_from_source = pairs_with_given_sum_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pairs_with_given_sum expected_result must count every matching index pair")
+    elif algorithm == "comparison":
+        expected_from_source = comparison_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("comparison expected_result must match bounded ASCII lexicographic ordering")
+    elif algorithm == "count_less_equal_in_sorted_array":
+        expected_from_source = count_less_equal_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("count_less_equal_in_sorted_array expected_result must match the upper-bound search")
+    elif algorithm == "lipogram":
+        expected_from_source = lipogram_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lipogram expected_result must match the bounded ASCII missing-letter set")
+    elif algorithm == "one_bit_difference":
+        expected_from_source = one_bit_difference_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("one_bit_difference expected_result must match the signed-i32 XOR predicate")
+    elif algorithm == "parse_integer":
+        expected_from_source = parse_integer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parse_integer expected_result must match whole-string Java int wraparound")
+    elif algorithm == "saddleback_search":
+        expected_from_source = saddleback_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("saddleback_search expected_result must match the bounded monotone-matrix search")
+    elif algorithm == "iqr_outlier_indices":
+        expected_from_source = iqr_outlier_indices_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("iqr_outlier_indices expected_result must encode strict R type-7 IQR outlier positions")
     return values
 
 

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-191-prize-strings-v1",
+  "algorithm": "problem191",
+  "function_symbol": "problem191",
+  "input": {
+    "kind": "attendance_period_days",
+    "minimum": 0,
+    "maximum": 65,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of prize strings under the pinned source state rules: fewer than two total A entries and no run of three consecutive L entries."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_days",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one_day",
+      "input_value": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "source_four_day_example",
+      "input_value": 4,
+      "expected_result": 43
+    },
+    {
+      "id": "ten_days",
+      "input_value": 10,
+      "expected_result": 3536
+    },
+    {
+      "id": "canonical_thirty_days",
+      "input_value": 30,
+      "expected_result": 1918080160
+    },
+    {
+      "id": "signed_safe_day_64",
+      "input_value": 64,
+      "expected_result": 3981003420903802721
+    },
+    {
+      "id": "maximum_signed_safe_day_65",
+      "input_value": 65,
+      "expected_result": 7434261599749973875
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_overflow_bound",
+      "input_value": 66,
+      "expected_result": -1
+    }
+  ]
+}

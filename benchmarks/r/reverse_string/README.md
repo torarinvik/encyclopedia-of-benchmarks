@@ -14,6 +14,12 @@ The sources reverse strings using split/reverse/join, Java's StringBuilder, inde
 
 The [workload](workload.json) covers empty and one-byte strings, mixed case and punctuation, repeated characters, the maximum length, malformed input, and insufficient output capacity.
 
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm reverse_string --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm reverse_string
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm reverse_string --languages rust
+```
+
 ## Implementations
 
 | Language | Source |

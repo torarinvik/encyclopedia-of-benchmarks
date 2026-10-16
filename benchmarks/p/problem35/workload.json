@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-35-fixed-search-v1",
+  "algorithm": "problem35",
+  "function_symbol": "problem35",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of circular primes found by the fixed source search through 1,000,000 inclusive.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_fixed_search",
+      "input_value": 0,
+      "expected_result": 55
+    },
+    {
+      "id": "nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+const MAX_N: usize = 1024
+
+def binary_tree_is_full_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or input[0] < 1 or input[0] > 1024:
+        return -1
+    n: usize = input[0].usize()
+    root_value: i64 = input[1]
+    if root_value < 0 or root_value >= n.i64() or length != 2 + 2 * n:
+        return -1
+    left: mutable i64[MAX_N] = zeroed
+    right: mutable i64[MAX_N] = zeroed
+    parents: mutable i64[MAX_N] = zeroed
+    pending: mutable usize[MAX_N] = zeroed
+    seen: mutable bool[MAX_N] = zeroed
+    full: mutable bool = true
+    for i in 0..<n:
+        l: i64 = input[2 + 2 * i]
+        r: i64 = input[3 + 2 * i]
+        if l < -1 or l >= n.i64() or r < -1 or r >= n.i64() or l == i.i64() or r == i.i64():
+            return -1
+        left[i] <- l
+        right[i] <- r
+        if l >= 0:
+            parents[l.usize()] <- parents[l.usize()] + 1
+        if r >= 0:
+            parents[r.usize()] <- parents[r.usize()] + 1
+        if (l < 0) != (r < 0):
+            full <- false
+    root: usize = root_value.usize()
+    if parents[root] != 0:
+        return -1
+    for i in 0..<n:
+        if i != root and parents[i] != 1:
+            return -1
+    top: mutable usize = 1
+    visited: mutable usize = 0
+    pending[0] <- root
+    while top > 0:
+        top <- top - 1
+        node: usize = pending[top]
+        if seen[node]:
+            return -1
+        seen[node] <- true
+        visited <- visited + 1
+        if left[node] >= 0:
+            pending[top] <- left[node].usize()
+            top <- top + 1
+        if right[node] >= 0:
+            pending[top] <- right[node].usize()
+            top <- top + 1
+    if visited != n:
+        return -1
+    if full:
+        return 1
+    0
+
+export fn binary_tree_is_full(input: i64&, length: usize) -> i64 = binary_tree_is_full_impl

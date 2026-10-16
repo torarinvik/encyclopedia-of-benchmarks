@@ -1,0 +1,145 @@
+# Apply the portable RGB threshold, disk opening, and bounded blob count.
+const MAX_SIDE: usize = 128
+const MAX_CELLS: usize = 16384
+const MAX_INPUT_LENGTH: usize = 49155
+
+def blob_detection_is_target_color(red: i64, green: i64, blue: i64, profile: i64) -> bool:
+    maximum: mutable i64 = red
+    if green > maximum:
+        maximum <- green
+    if blue > maximum:
+        maximum <- blue
+    minimum: mutable i64 = red
+    if green < minimum:
+        minimum <- green
+    if blue < minimum:
+        minimum <- blue
+    delta: i64 = maximum - minimum
+    hue_minimum: mutable i64 = 379
+    hue_maximum: mutable i64 = 496
+    saturation_minimum: mutable i64 = 436
+    if profile == 1:
+        hue_minimum <- 398
+        hue_maximum <- 498
+        saturation_minimum <- 355
+    if maximum == 0 or delta == 0 or 1000 * delta < saturation_minimum * maximum:
+        return false
+
+    hue_numerator: mutable i64 = 0
+    if maximum == red:
+        hue_numerator <- (green - blue) % (6 * delta)
+        if hue_numerator < 0:
+            hue_numerator <- hue_numerator + 6 * delta
+    elif maximum == green:
+        hue_numerator <- 2 * delta + blue - red
+    else:
+        hue_numerator <- 4 * delta + red - green
+    hue_minimum * 6 * delta <= 1000 * hue_numerator and 1000 * hue_numerator <= hue_maximum * 6 * delta
+
+def blob_detection_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    height_value: i64 = input[0]
+    width_value: i64 = input[1]
+    profile: i64 = input[2]
+    if height_value < 1 or height_value > 128 or width_value < 1 or width_value > 128:
+        return -1
+    height: usize = height_value.usize()
+    width: usize = width_value.usize()
+    cells: usize = height * width
+    if (profile != 0 and profile != 1) or length != 3 + 3 * cells:
+        return -1
+    for channel in 0..<(3 * cells):
+        if input[3 + channel] < 0 or input[3 + channel] > 255:
+            return -1
+
+    mask: mutable bool[MAX_CELLS] = zeroed
+    eroded: mutable bool[MAX_CELLS] = zeroed
+    opened: mutable bool[MAX_CELLS] = zeroed
+    visited: mutable bool[MAX_CELLS] = zeroed
+    queue: mutable usize[MAX_CELLS] = zeroed
+    for index in 0..<cells:
+        mask[index] <- blob_detection_is_target_color(input[3 + 3 * index],
+            input[4 + 3 * index], input[5 + 3 * index], profile)
+
+    row: mutable usize = 0
+    while row < height:
+        column: mutable usize = 0
+        while column < width:
+            keep: mutable bool = true
+            dy: mutable i64 = -3
+            while dy <= 3 and keep:
+                dx: mutable i64 = -3
+                while dx <= 3:
+                    if dx * dx + dy * dy <= 9:
+                        y: i64 = row.i64() + dy
+                        x: i64 = column.i64() + dx
+                        if y >= 0 and y < height_value and x >= 0 and x < width_value and not mask[y.usize() * width + x.usize()]:
+                            keep <- false
+                            break
+                    dx <- dx + 1
+                dy <- dy + 1
+            eroded[row * width + column] <- keep
+            column <- column + 1
+        row <- row + 1
+
+    row <- 0
+    while row < height:
+        column: mutable usize = 0
+        while column < width:
+            set: mutable bool = false
+            dy: mutable i64 = -3
+            while dy <= 3 and not set:
+                dx: mutable i64 = -3
+                while dx <= 3:
+                    if dx * dx + dy * dy <= 9:
+                        y: i64 = row.i64() + dy
+                        x: i64 = column.i64() + dx
+                        if y >= 0 and y < height_value and x >= 0 and x < width_value and eroded[y.usize() * width + x.usize()]:
+                            set <- true
+                            break
+                    dx <- dx + 1
+                dy <- dy + 1
+            opened[row * width + column] <- set
+            column <- column + 1
+        row <- row + 1
+
+    object_count: mutable i64 = 0
+    start: mutable usize = 0
+    while start < cells:
+        if opened[start] and not visited[start]:
+            head: mutable usize = 0
+            queue_end: mutable usize = 0
+            area: mutable usize = 0
+            visited[start] <- true
+            queue[queue_end] <- start
+            queue_end <- queue_end + 1
+            while head < queue_end:
+                index: usize = queue[head]
+                head <- head + 1
+                area <- area + 1
+                pixel_row: i64 = (index / width).i64()
+                pixel_column: i64 = (index % width).i64()
+                row_delta: mutable i64 = -1
+                while row_delta <= 1:
+                    column_delta: mutable i64 = -1
+                    while column_delta <= 1:
+                        if row_delta != 0 or column_delta != 0:
+                            y: i64 = pixel_row + row_delta
+                            x: i64 = pixel_column + column_delta
+                            if y >= 0 and y < height_value and x >= 0 and x < width_value:
+                                neighbor: usize = y.usize() * width + x.usize()
+                                if opened[neighbor] and not visited[neighbor]:
+                                    visited[neighbor] <- true
+                                    queue[queue_end] <- neighbor
+                                    queue_end <- queue_end + 1
+                        column_delta <- column_delta + 1
+                    row_delta <- row_delta + 1
+            if area >= 200 and area <= 5000:
+                object_count <- object_count + 1
+        start <- start + 1
+    if object_count > 50:
+        return 50
+    object_count
+
+export fn blob_detection(input: i64&, length: usize) -> i64 = blob_detection_impl

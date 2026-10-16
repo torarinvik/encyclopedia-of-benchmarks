@@ -1,0 +1,15 @@
+# Bounded port of TheAlgorithms/Python Project Euler 28 layer summation.
+def problem28_impl(size: i64) -> i64:
+    if size < 0 or size > 100000:
+        return -1
+    total: mutable i64 = 1
+    layer_count: i64 = (size + 1) / 2
+    layer: mutable i64 = 1
+    while layer < layer_count:
+        odd_corner: i64 = 2 * layer + 1
+        even_corner: i64 = 2 * layer
+        total <- total + 4 * odd_corner * odd_corner - 6 * even_corner
+        layer <- layer + 1
+    total
+
+export fn problem28(size: i64) -> i64 = problem28_impl

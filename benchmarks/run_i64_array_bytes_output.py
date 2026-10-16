@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from collections import deque
+import bisect
+from collections import Counter, deque
 import datetime as dt
 from functools import lru_cache
 from fractions import Fraction
@@ -13,6 +14,7 @@ import hashlib
 from itertools import permutations
 import json
 import math
+import math as _math
 import os
 from pathlib import Path
 import platform
@@ -23,8 +25,161 @@ import subprocess
 import sys
 
 from build_abi import ROOT, sha256_file
+from bag_oracle import expected_output as bag_expected_output
+from barnsley_fern_oracle import expected_output as barnsley_fern_expected_output
+from ascon_digest_oracle import expected_output as ascon_digest_expected_output
+from charoccurrence_oracle import MAX_INPUT as MAX_CHAROCCURRENCE_INPUT_LENGTH
+from charoccurrence_oracle import expected_output as charoccurrence_expected_output
+from swap_case_oracle import MAX_INPUT_LENGTH as MAX_SWAP_CASE_INPUT_LENGTH
+from swap_case_oracle import expected_output as swap_case_expected_output
+from string_switch_case_oracle import MAX_INPUT_LENGTH as MAX_STRING_SWITCH_CASE_INPUT_LENGTH
+from string_switch_case_oracle import expected_output as string_switch_case_expected_output
+from bm25_inverted_index_oracle import MAX_INPUT_LENGTH as MAX_BM25_INPUT_LENGTH
+from bm25_inverted_index_oracle import expected_output as bm25_inverted_index_expected_output
+from bpe_tokenizer_oracle import MAX_INPUT_LENGTH as MAX_BPE_TOKENIZER_INPUT_LENGTH
+from bpe_tokenizer_oracle import expected_output as bpe_tokenizer_expected_output
+from p_series_oracle import MAX_INPUT_LENGTH as MAX_P_SERIES_INPUT_LENGTH
+from p_series_oracle import expected_output as p_series_expected_output
+from logarithmic_series_oracle import MAX_INPUT_LENGTH as MAX_LOGARITHMIC_SERIES_INPUT_LENGTH
+from logarithmic_series_oracle import expected_output as logarithmic_series_expected_output
+from proper_fractions_oracle import MAX_INPUT_LENGTH as MAX_PROPER_FRACTIONS_INPUT_LENGTH
+from proper_fractions_oracle import expected_output as proper_fractions_expected_output
+from sumset_oracle import MAX_INPUT_LENGTH as MAX_SUMSET_INPUT_LENGTH
+from sumset_oracle import expected_output as sumset_expected_output
+from braikenridge_maclaurin_construction_oracle import MAX_INPUT_LENGTH as MAX_BRAIKENRIDGE_MACLAURIN_INPUT_LENGTH
+from braikenridge_maclaurin_construction_oracle import expected_output as braikenridge_maclaurin_expected_output
+from brainfuck_oracle import MAX_INPUT_LENGTH as MAX_BRAINFUCK_INPUT_LENGTH
+from brainfuck_oracle import expected_output as brainfuck_expected_output
+from branch_and_bound_knapsack_oracle import MAX_INPUT_LENGTH as MAX_BRANCH_AND_BOUND_KNAPSACK_INPUT_LENGTH
+from branch_and_bound_knapsack_oracle import expected_output as branch_and_bound_knapsack_expected_output
+from chaos_machine_oracle import MAX_INPUT_LENGTH as MAX_CHAOS_MACHINE_INPUT_LENGTH
+from chaos_machine_oracle import expected_output as chaos_machine_expected_output
+from canny_oracle import expected_output as canny_expected_output
+from centroid_decomposition_oracle import expected_output as centroid_decomposition_expected_output
+from chacha_oracle import expected_output as chacha_expected_output
+from chebyshev_iteration_oracle import expected_output as chebyshev_iteration_expected_output
+from choiceset_oracle import expected_output as choiceset_expected_output
+from chudnovsky_algorithm_oracle import expected_output as chudnovsky_algorithm_expected_output
+from conjugate_gradient_oracle import expected_output as conjugate_gradient_expected_output
+from convolution_neural_network_oracle import expected_output as convolution_neural_network_expected_output
+from circular_look_scheduling_oracle import MAX_INPUT_LENGTH as MAX_CIRCULAR_LOOK_INPUT_LENGTH
+from circular_look_scheduling_oracle import expected_output as circular_look_scheduling_expected_output
+from circular_scan_scheduling_oracle import MAX_INPUT_LENGTH as MAX_CIRCULAR_SCAN_INPUT_LENGTH
+from circular_scan_scheduling_oracle import expected_output as circular_scan_scheduling_expected_output
+from back_propagation_oracle import back_propagation_step
+from common_characters_frequency_quotient_oracle import expected_output as common_characters_frequency_quotient_expected_output
+from remove_duplicate_characters_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH
+from remove_duplicate_characters_oracle import expected_output as remove_duplicate_characters_expected_output
+from gronsfeld_oracle import MAX_INPUT_LENGTH as MAX_GRONSFELD_INPUT_LENGTH
+from gronsfeld_oracle import expected_output as gronsfeld_expected_output
+from remove_duplicate_words_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_WORDS_INPUT_LENGTH
+from remove_duplicate_words_oracle import expected_output as remove_duplicate_words_expected_output
+from continued_fraction_oracle import expected_output as continued_fraction_expected_output
+from date_to_day_oracle import MAX_INPUT_LENGTH as MAX_DATE_TO_DAY_INPUT_LENGTH
+from date_to_day_oracle import expected_output as date_to_day_expected_output
+from ema_filter_oracle import MAX_INPUT_LENGTH as MAX_EMA_FILTER_INPUT_LENGTH
+from ema_filter_oracle import expected_output as ema_filter_expected_output
+from egyptian_fraction_oracle import MAX_INPUT_LENGTH as MAX_EGYPTIAN_FRACTION_INPUT_LENGTH
+from egyptian_fraction_oracle import expected_output as egyptian_fraction_expected_output
+from count_nucleotide_oracle import MAX_SEQUENCE_LENGTH as MAX_COUNT_NUCLEOTIDE_SEQUENCE_LENGTH
+from count_nucleotide_oracle import expected_output as count_nucleotide_expected_output
+from flash_sort_oracle import MAX_INPUT_LENGTH as MAX_FLASH_SORT_INPUT_LENGTH
+from flash_sort_oracle import expected_output as flash_sort_expected_output
+from coordinate_compression_oracle import MAX_INPUT_LENGTH as MAX_COORDINATE_COMPRESSION_INPUT_LENGTH
+from coordinate_compression_oracle import expected_output as coordinate_compression_expected_output
+from string_compression_oracle import MAX_INPUT_LENGTH as MAX_STRING_COMPRESSION_INPUT_LENGTH
+from string_compression_oracle import expected_output as string_compression_expected_output
+from create_binary_tree_from_inorder_preorder_oracle import MAX_INPUT_LENGTH as MAX_CREATE_BINARY_TREE_INPUT_LENGTH
+from create_binary_tree_from_inorder_preorder_oracle import expected_output as create_binary_tree_expected_output
+from cramers_rule_2x2_oracle import MAX_INPUT_LENGTH as MAX_CRAMERS_RULE_2X2_INPUT_LENGTH
+from cramers_rule_2x2_oracle import expected_output as cramers_rule_2x2_expected_output
+from convolution_oracle import MAX_INPUT_LENGTH as MAX_CONVOLUTION_INPUT_LENGTH
+from convolution_oracle import expected_output as convolution_expected_output
+from image_convolution_oracle import expected_output as image_convolution_expected_output
+from matrix_copy_oracle import expected_output as matrix_copy_expected_output
+from damped_oscillator_oracle import MAX_INPUT_LENGTH as MAX_DAMPED_OSCILLATOR_INPUT_LENGTH
+from damped_oscillator_oracle import expected_output as damped_oscillator_expected_output
+from difference_array_oracle import MAX_INPUT_LENGTH as MAX_DIFFERENCE_ARRAY_INPUT_LENGTH
+from difference_array_oracle import expected_output as difference_array_expected_output
+from complex_number_multiply_oracle import MAX_INPUT_LENGTH as MAX_COMPLEX_NUMBER_MULTIPLY_INPUT_LENGTH
+from complex_number_multiply_oracle import expected_output as complex_number_multiply_expected_output
+from complex_arithmetic_oracle import MAX_INPUT_LENGTH as MAX_COMPLEX_ARITHMETIC_INPUT_LENGTH
+from complex_arithmetic_oracle import expected_output as complex_arithmetic_expected_output
+from dice_thrower_oracle import MAX_INPUT_LENGTH as MAX_DICE_THROWER_INPUT_LENGTH
+from dice_thrower_oracle import expected_output as dice_thrower_expected_output
+from hampel_filter_oracle import MAX_INPUT_LENGTH as MAX_HAMPEL_FILTER_INPUT_LENGTH
+from hampel_filter_oracle import expected_output as hampel_filter_expected_output
+from intersection_of_two_arrays_oracle import MAX_INPUT_LENGTH as MAX_INTERSECTION_OF_TWO_ARRAYS_INPUT_LENGTH
+from intersection_of_two_arrays_oracle import expected_output as intersection_of_two_arrays_expected_output
+from union_of_two_arrays_oracle import MAX_INPUT_LENGTH as MAX_UNION_OF_TWO_ARRAYS_INPUT_LENGTH
+from union_of_two_arrays_oracle import expected_output as union_of_two_arrays_expected_output
+from get_products_of_all_other_elements_oracle import MAX_INPUT_LENGTH as MAX_GET_PRODUCTS_OF_ALL_OTHER_ELEMENTS_INPUT_LENGTH
+from get_products_of_all_other_elements_oracle import expected_output as get_products_of_all_other_elements_expected_output
+from correlation_matrix_analysis_oracle import MAX_OUTPUT_BYTES as MAX_CORRELATION_MATRIX_ANALYSIS_OUTPUT_BYTES
+from correlation_matrix_analysis_oracle import MAX_VARIABLES as MAX_CORRELATION_MATRIX_ANALYSIS_VARIABLES
+from correlation_matrix_analysis_oracle import OBSERVATIONS as CORRELATION_MATRIX_ANALYSIS_OBSERVATIONS
+from correlation_matrix_analysis_oracle import expected_output as correlation_matrix_analysis_expected_output
+from unique_letters_count_oracle import MAX_PACKED_INPUT_LENGTH as MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH
+from unique_letters_count_oracle import expected_output as unique_letters_count_expected_output
+from convex_hull_graham_oracle import MAX_INPUT_LENGTH as MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH
+from convex_hull_graham_oracle import expected_output as convex_hull_graham_expected_output
+from sorted_arrays_intersection_oracle import MAX_INPUT_LENGTH as MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH
+from sorted_arrays_intersection_oracle import expected_output as sorted_arrays_intersection_expected_output
+from compress_oracle import MAX_INPUT_LENGTH as MAX_COMPRESS_INPUT_LENGTH
+from compress_oracle import expected_output as compress_expected_output
+from dilation_operation_oracle import MAX_INPUT_LENGTH as MAX_DILATION_OPERATION_INPUT_LENGTH
+from dilation_operation_oracle import expected_output as dilation_operation_expected_output
+from nearest_neighbor_interpolation_oracle import MAX_INPUT_LENGTH as MAX_NEAREST_NEIGHBOR_INTERPOLATION_INPUT_LENGTH
+from nearest_neighbor_interpolation_oracle import expected_output as nearest_neighbor_interpolation_expected_output
+from composite_lfsr_majority_clock_oracle import expected_output as composite_lfsr_majority_clock_expected_output
+from non_empty_subsequences_oracle import MAX_INPUT_LENGTH as MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH
+from non_empty_subsequences_oracle import expected_output as non_empty_subsequences_expected_output
+from particle_swarm_optimization_oracle import MAX_INPUT_LENGTH as MAX_PARTICLE_SWARM_INPUT_LENGTH
+from particle_swarm_optimization_oracle import expected_output as particle_swarm_expected_output
+from convolve_1d_oracle import MAX_INPUT_LENGTH as MAX_CONVOLVE_1D_INPUT_LENGTH
+from convolve_1d_oracle import expected_output as convolve_1d_expected_output
+from depth_first_search_target_route_oracle import MAX_INPUT_LENGTH as MAX_DFS_TARGET_ROUTE_INPUT_LENGTH
+from depth_first_search_target_route_oracle import expected_output as depth_first_search_target_route_expected_output
+from convolution_fft_oracle import MAX_INPUT_LENGTH as MAX_CONVOLUTION_FFT_INPUT_LENGTH
+from convolution_fft_oracle import expected_output as convolution_fft_expected_output
+from text_justification_oracle import MAX_INPUT_LENGTH as MAX_TEXT_JUSTIFICATION_INPUT_LENGTH
+from text_justification_oracle import expected_output as text_justification_expected_output
+from remove_duplicate_from_string_oracle import MAX_INPUT_LENGTH as MAX_REMOVE_DUPLICATE_FROM_STRING_INPUT_LENGTH
+from remove_duplicate_from_string_oracle import expected_output as remove_duplicate_from_string_expected_output
+from max_word_oracle import MAX_INPUT_LENGTH as MAX_MAX_WORD_INPUT_LENGTH
+from max_word_oracle import expected_output as max_word_expected_output
+from keyword_shifted_alphabet_oracle import MAX_INPUT_LENGTH as MAX_KEYWORD_SHIFTED_ALPHABET_INPUT_LENGTH
+from keyword_shifted_alphabet_oracle import expected_output as keyword_shifted_alphabet_expected_output
+from integer_to_english_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_INTEGER_TO_ENGLISH_INPUT_LENGTH
+from integer_to_english_oracle import expected_output as integer_to_english_expected_output
+from largest_smallest_words_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_SMALLEST_WORDS_INPUT_LENGTH
+from largest_smallest_words_oracle import expected_output as largest_smallest_words_expected_output
+from hexa_decimal_to_binary_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_HEXA_DECIMAL_TO_BINARY_INPUT_LENGTH
+from hexa_decimal_to_binary_oracle import expected_output as hexa_decimal_to_binary_expected_output
+from ones_complement_oracle import MAX_INPUT_LENGTH as MAX_ONES_COMPLEMENT_INPUT_LENGTH
+from ones_complement_oracle import expected_output as ones_complement_expected_output
+from rgbto_hex_oracle import MAX_INPUT_LENGTH as MAX_RGBTO_HEX_INPUT_LENGTH
+from rgbto_hex_oracle import expected_output as rgbto_hex_expected_output
+from ipconverter_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_IPCONVERTER_PARSEABLE_INPUT_LENGTH
+from ipconverter_oracle import expected_output as ipconverter_expected_output
+from shortest_palindrome_oracle import MAX_INPUT_LENGTH as MAX_SHORTEST_PALINDROME_PARSEABLE_INPUT_LENGTH
+from shortest_palindrome_oracle import expected_output as shortest_palindrome_expected_output
+from reverse_words_in_string_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_WORDS_IN_STRING_PARSEABLE_INPUT_LENGTH
+from reverse_words_in_string_oracle import expected_output as reverse_words_in_string_expected_output
+from numeric_string_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_NUMERIC_STRING_SORT_PARSEABLE_INPUT_LENGTH
+from numeric_string_sort_oracle import expected_output as numeric_string_sort_expected_output
+from range_in_sorted_array_oracle import MAX_INPUT_LENGTH as MAX_RANGE_IN_SORTED_ARRAY_INPUT_LENGTH
+from range_in_sorted_array_oracle import expected_output as range_in_sorted_array_expected_output
+from cusum_detector_oracle import MAX_INPUT_LENGTH as MAX_CUSUM_DETECTOR_INPUT_LENGTH
+from cusum_detector_oracle import expected_output as cusum_detector_expected_output
+from serialize_deserialize_binary_tree_oracle import MAX_INPUT_LENGTH as MAX_SERIALIZE_DESERIALIZE_BINARY_TREE_INPUT_LENGTH
 
 MAX_INPUT_LENGTH = 4096
+MAX_CORRELATION_MATRIX_ANALYSIS_INPUT_LENGTH = (
+    2 + CORRELATION_MATRIX_ANALYSIS_OBSERVATIONS * (MAX_CORRELATION_MATRIX_ANALYSIS_VARIABLES + 1)
+)
+MAX_BLAKE2B_INPUT_LENGTH = MAX_INPUT_LENGTH + 1
+MAX_ASCON_DIGEST_INPUT_LENGTH = 4098
 MAX_MATRIX_INPUT_LENGTH = 100002
 MAX_SQUARE_STREAK_INPUT_LENGTH = 100001
 MAX_OUTPUT_CAPACITY = 400004
@@ -38,13 +193,19 @@ MAX_REDUNDANT_CONNECTION_INPUT_LENGTH = 2000
 MAX_A_STAR_INPUT_LENGTH = 4 + 256 + 2 * 4096
 MAX_NAIVE_SHUFFLER_INPUT_LENGTH = 2 + 256
 MAX_ACCOUNT_MERGE_INPUT_LENGTH = 100002
+MAX_ADAM_INPUT_LENGTH = 7 + 16 + 256 * 16
 MAX_BURROWS_WHEELER_LENGTH = 256
 MAX_BFS_QUEUE_INPUT_LENGTH = 4 + 2 * 2046
+MAX_BIDIRECTIONAL_SEARCH_INPUT_LENGTH = 4 + 2 * 4032
+MAX_BIDIRECTIONAL_BFS_INPUT_LENGTH = 4 + 2 * 4096
 MAX_ZERO_ONE_BFS_INPUT_LENGTH = 3 + 3 * 1024
 MAX_ARTICULATION_POINTS_INPUT_LENGTH = 2 + 2 * 2047
 MAX_BRIDGES_INPUT_LENGTH = 2 + 2 * 2047
 MAX_SCC_INPUT_LENGTH = 2 + 2 * 2047
+MAX_BOUNDARY_FILL_INPUT_LENGTH = 6 + 32 * 32
 MAX_BACONIAN_PAYLOAD_LENGTH = 1024
+MAX_CROSS_CORRELATION_INPUT_LENGTH = 66
+MAX_COUNT_NUCLEOTIDE_INPUT_LENGTH = MAX_COUNT_NUCLEOTIDE_SEQUENCE_LENGTH + 2
 MAX_VERNAM_TEXT_LENGTH = 1024
 MAX_VERNAM_KEY_LENGTH = 1024
 MAX_AUTOKEY_TEXT_LENGTH = 1024
@@ -798,6 +959,1269 @@ def round_half_away_from_zero(value: float) -> int:
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "circular_look_scheduling":
+        return circular_look_scheduling_expected_output(values)
+    if algorithm == "circular_scan_scheduling":
+        return circular_scan_scheduling_expected_output(values)
+    if algorithm == "choiceset":
+        return choiceset_expected_output(values)
+    if algorithm == "chudnovsky_algorithm":
+        return chudnovsky_algorithm_expected_output(values)
+    if algorithm == "chebyshev_iteration":
+        return chebyshev_iteration_expected_output(values)
+    if algorithm == "centroid_decomposition":
+        return centroid_decomposition_expected_output(values)
+    if algorithm == "chacha":
+        return chacha_expected_output(values)
+    if algorithm == "canny":
+        return canny_expected_output(values)
+    if algorithm == "continued_fraction":
+        return continued_fraction_expected_output(values)
+    if algorithm == "remove_duplicate_words":
+        return remove_duplicate_words_expected_output(values)
+    if algorithm == "gronsfeld":
+        return gronsfeld_expected_output(values)
+    if algorithm == "remove_duplicate_characters":
+        return remove_duplicate_characters_expected_output(values)
+    if algorithm == "common_characters_frequency_quotient":
+        return common_characters_frequency_quotient_expected_output(values)
+    if algorithm == "chaos_machine":
+        return chaos_machine_expected_output(values)
+    if algorithm == "convert_to_negative":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 4096
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        channel_count, *channels = values
+        if not 0 <= channel_count <= 4095 or channel_count != len(channels):
+            return -1, b""
+        if any(not 0 <= channel <= 255 for channel in channels):
+            return -1, b""
+        return channel_count, bytes(255 - channel for channel in channels)
+    if algorithm == "change_brightness":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 4096
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        level, *channels = values
+        if not -255 <= level <= 255 or any(not 0 <= channel <= 255 for channel in channels):
+            return -1, b""
+        return len(channels), bytes(min(255, max(0, channel + level)) for channel in channels)
+    if algorithm == "change_contrast":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 4096
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        level, *channels = values
+        if not -255 <= level <= 255 or any(not 0 <= channel <= 255 for channel in channels):
+            return -1, b""
+        denominator = 255 * (259 - level)
+        output = bytearray()
+        for channel in channels:
+            numerator = 128 * denominator + 259 * (level + 255) * (channel - 128)
+            transformed = (numerator // denominator if numerator >= 0
+                           else -((-numerator) // denominator))
+            output.append(min(255, max(0, transformed)))
+        return len(channels), bytes(output)
+    if algorithm == "charoccurrence":
+        return charoccurrence_expected_output(values)
+    if algorithm == "string_compression":
+        return string_compression_expected_output(values)
+    if algorithm == "flash_sort":
+        return flash_sort_expected_output(values)
+    if algorithm == "coordinate_compression":
+        return coordinate_compression_expected_output(values)
+    if algorithm == "convolution":
+        return convolution_expected_output(values)
+
+    if algorithm == "image_convolution":
+        return image_convolution_expected_output(values)
+
+    if algorithm == "matrix_copy":
+        return matrix_copy_expected_output(values)
+    if algorithm == "damped_oscillator":
+        return damped_oscillator_expected_output(values)
+    if algorithm == "difference_array":
+        return difference_array_expected_output(values)
+    if algorithm == "complex_number_multiply":
+        return complex_number_multiply_expected_output(values)
+    if algorithm == "complex_arithmetic":
+        return complex_arithmetic_expected_output(values)
+    if algorithm == "cusum_detector":
+        return cusum_detector_expected_output(values)
+    if algorithm == "dice_thrower":
+        return dice_thrower_expected_output(values)
+    if algorithm == "hampel_filter":
+        return hampel_filter_expected_output(values)
+    if algorithm == "range_in_sorted_array":
+        return range_in_sorted_array_expected_output(values)
+    if algorithm == "swap_case":
+        return swap_case_expected_output(values)
+    if algorithm == "string_switch_case":
+        return string_switch_case_expected_output(values)
+    if algorithm == "bm25_inverted_index":
+        return bm25_inverted_index_expected_output(values)
+    if algorithm == "bpe_tokenizer":
+        return bpe_tokenizer_expected_output(values)
+    if algorithm == "p_series":
+        return p_series_expected_output(values)
+    if algorithm == "logarithmic_series":
+        return logarithmic_series_expected_output(values)
+    if algorithm == "proper_fractions":
+        return proper_fractions_expected_output(values)
+    if algorithm == "sumset":
+        return sumset_expected_output(values)
+    if algorithm == "braikenridge_maclaurin_construction":
+        return braikenridge_maclaurin_expected_output(values)
+    if algorithm == "brainfuck":
+        return brainfuck_expected_output(values)
+    if algorithm == "branch_and_bound_knapsack_solver":
+        return branch_and_bound_knapsack_expected_output(values)
+
+    if algorithm == "boundary_fill":
+        import struct
+        if (not isinstance(values, list) or len(values) < 6
+                or len(values) > MAX_BOUNDARY_FILL_INPUT_LENGTH
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        width, height, start_x, start_y, new_color, boundary_color = values[:6]
+        if (not 1 <= width <= 32 or not 1 <= height <= 32
+                or len(values) != 6 + width * height
+                or not 0 <= start_x < width or not 0 <= start_y < height
+                or not -(2**31) <= new_color <= 2**31 - 1
+                or not -(2**31) <= boundary_color <= 2**31 - 1
+                or any(not -(2**31) <= pixel <= 2**31 - 1 for pixel in values[6:])):
+            return -1, b""
+        pixels = values[6:]
+        start = start_x * height + start_y
+        if pixels[start] != new_color and pixels[start] != boundary_color:
+            pixels[start] = new_color
+            pending = [(start_x, start_y)]
+            while pending:
+                x, y = pending.pop()
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        if dx == 0 and dy == 0:
+                            continue
+                        next_x, next_y = x + dx, y + dy
+                        if 0 <= next_x < width and 0 <= next_y < height:
+                            next_index = next_x * height + next_y
+                            if pixels[next_index] != new_color and pixels[next_index] != boundary_color:
+                                pixels[next_index] = new_color
+                                pending.append((next_x, next_y))
+        encoded = b"".join(struct.pack("<q", pixel) for pixel in pixels)
+        return len(encoded), encoded
+    if algorithm == "barnsley_fern":
+        return barnsley_fern_expected_output(values)
+
+    if algorithm == "bag":
+        return bag_expected_output(values)
+
+    # Some algorithm branches import struct locally. Bind it before any branch
+    # so byte-vector branches can also use struct when reached directly.
+    import struct
+
+    if algorithm == "bilateral_filter":
+        import math
+        if (not isinstance(values, list) or not 5 <= len(values) <= 1029
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        height, width, kernel_size, spatial_q, intensity_q = values[:5]
+        if (not 1 <= height <= 32 or not 1 <= width <= 32
+                or kernel_size not in (1, 3, 5, 7)
+                or not 1 <= spatial_q <= 1_000_000
+                or not 1 <= intensity_q <= 1_000_000
+                or len(values) != 5 + height * width
+                or any(not 0 <= value <= 1_000_000 for value in values[5:])):
+            return -1, b""
+        spatial_variance = spatial_q / 1_000_000.0
+        intensity_variance = intensity_q / 1_000_000.0
+        image = values[5:]
+        result = [0] * (height * width)
+        radius = kernel_size // 2
+        for row in range(radius, height - radius):
+            for column in range(radius, width - radius):
+                center = image[row * width + column] / 1_000_000.0
+                weighted_sum = 0.0
+                weight_sum = 0.0
+                for kernel_row in range(-radius, radius + 1):
+                    for kernel_column in range(-radius, radius + 1):
+                        sample = image[(row + kernel_row) * width + column + kernel_column] / 1_000_000.0
+                        spatial_distance_squared = kernel_row * kernel_row + kernel_column * kernel_column
+                        intensity_difference = sample - center
+                        weight = math.exp(-spatial_distance_squared / (2.0 * spatial_variance))
+                        weight *= math.exp(-(intensity_difference * intensity_difference) / (2.0 * intensity_variance))
+                        weighted_sum += sample * weight
+                        weight_sum += weight
+                scaled = weighted_sum / weight_sum * 1_000_000.0
+                result[row * width + column] = math.floor(scaled + 0.5)
+        return len(result) * 8, b"".join(struct.pack("<q", value) for value in result)
+
+    if algorithm == "bezier_curve":
+        import math
+        if (not isinstance(values, list) or not 4 <= len(values) <= 34
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        point_count, parameter_q = values[:2]
+        if (not 1 <= point_count <= 16 or not 0 <= parameter_q <= 1_000_000
+                or len(values) != 2 + 2 * point_count
+                or any(not -1_000_000 <= value <= 1_000_000 for value in values[2:])):
+            return -1, b""
+        parameter = parameter_q / 1_000_000.0
+        degree = point_count - 1
+
+        def power(base: float, exponent: int) -> float:
+            result = 1.0
+            for _ in range(exponent):
+                result *= base
+            return result
+
+        point_x = point_y = derivative_x = derivative_y = 0.0
+        for index in range(point_count):
+            weight = (math.comb(degree, index)
+                      * power(1.0 - parameter, degree - index)
+                      * power(parameter, index))
+            point_x += weight * values[2 + 2 * index]
+            point_y += weight * values[3 + 2 * index]
+        for index in range(degree):
+            weight = (degree * math.comb(degree - 1, index)
+                      * power(1.0 - parameter, degree - 1 - index)
+                      * power(parameter, index))
+            derivative_x += weight * (values[4 + 2 * index] - values[2 + 2 * index])
+            derivative_y += weight * (values[5 + 2 * index] - values[3 + 2 * index])
+
+        def round_half_away(value: float) -> int:
+            scaled = value * 1_000_000.0
+            return math.floor(scaled + 0.5) if scaled >= 0.0 else math.ceil(scaled - 0.5)
+
+        output_values = tuple(round_half_away(value) for value in
+                              (point_x, point_y, derivative_x, derivative_y))
+        return 32, struct.pack("<qqqq", *output_values)
+
+    if algorithm == "string_genetic_algorithm":
+        if (not isinstance(values, list) or not 5 <= len(values) <= 44
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        target_length, gene_count, state, max_generations = values[:4]
+        if (not 1 <= target_length <= 8 or not 1 <= gene_count <= 32
+                or not 1 <= state < 2_147_483_647 or not 1 <= max_generations <= 1000
+                or len(values) != 4 + target_length + gene_count):
+            return -2, b""
+        target = values[4:4 + target_length]
+        genes = values[4 + target_length:]
+        if (any(not 32 <= value <= 126 for value in (*target, *genes))
+                or not set(target).issubset(genes)):
+            return -2, b""
+
+        def random_below(bound: int) -> int:
+            nonlocal state
+            state = (state * 48_271) % 2_147_483_647
+            return state % bound
+
+        population = []
+        for _ in range(200):
+            individual = 0
+            for position in range(target_length):
+                individual |= genes[random_below(gene_count)] << (8 * position)
+            population.append(individual)
+
+        total_population = 0
+        for generation in range(1, max_generations + 1):
+            total_population += len(population)
+            scores = [sum(((individual >> (8 * position)) & 0xFF) == target[position]
+                          for position in range(target_length))
+                      for individual in population]
+            if target_length in scores:
+                return 16, struct.pack("<qq", generation, total_population)
+            order = sorted(range(len(population)), key=scores.__getitem__, reverse=True)
+            next_population = [population[index] for index in order[:66]]
+            for parent_rank in range(50):
+                first = population[order[parent_rank]]
+                child_count = min(10, scores[order[parent_rank]] * 100 // target_length + 1)
+                for _ in range(child_count):
+                    second = population[order[random_below(51)]]
+                    cut = random_below(target_length)
+                    child_a = child_b = 0
+                    for position in range(target_length):
+                        shift = 8 * position
+                        first_gene = (first >> shift) & 0xFF
+                        second_gene = (second >> shift) & 0xFF
+                        child_a |= (first_gene if position < cut else second_gene) << shift
+                        child_b |= (second_gene if position < cut else first_gene) << shift
+                    children = [child_a, child_b]
+                    for child_index in range(2):
+                        if random_below(5) < 2:
+                            position = random_below(target_length)
+                            shift = 8 * position
+                            replacement = genes[random_below(gene_count)]
+                            children[child_index] = ((children[child_index] & ~(0xFF << shift))
+                                                     | (replacement << shift))
+                        if len(next_population) < 200:
+                            next_population.append(children[child_index])
+                    if len(next_population) == 200:
+                        break
+                if len(next_population) == 200:
+                    break
+            population = next_population
+        return -1, b""
+
+    if algorithm == "entropy":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 513
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        text_length = values[0]
+        codepoints = values[1:]
+        if (not 1 <= text_length <= 512 or len(codepoints) != text_length
+                or any(not 0 <= codepoint <= 127 for codepoint in codepoints)):
+            return -1, b""
+
+        text = "".join(chr(codepoint) for codepoint in codepoints)
+        singles = Counter(text)
+        bigrams = Counter([" " + text[0], *(text[index:index + 2]
+                                             for index in range(text_length - 1))])
+        alphabet = " abcdefghijklmnopqrstuvwxyz"
+        single_sum = 0.0
+        for symbol in alphabet:
+            count = singles[symbol]
+            if count:
+                probability = count / text_length
+                single_sum += probability * math.log2(probability)
+        bigram_sum = 0.0
+        for first in alphabet:
+            for second in alphabet:
+                count = bigrams[first + second]
+                if count:
+                    probability = count / text_length
+                    bigram_sum += probability * math.log2(probability)
+
+        # Preserve Python's integer round (ties-to-even), then its one-decimal
+        # formatting. The final conditional-style value may be negative, so a
+        # valid result can require 13 bytes instead of 12.
+        output = "".join(f"{round(value):.1f}\n" for value in (
+            -single_sum, -bigram_sum, (-bigram_sum) - (-single_sum)
+        )).encode("ascii")
+        return len(output), output
+
+    if algorithm == "conway":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 129
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        text_length = values[0]
+        codepoints = values[1:]
+        if (not 1 <= text_length <= 128 or len(codepoints) != text_length
+                or any(not 0 <= codepoint <= 127 for codepoint in codepoints)):
+            return -1, b""
+        output = bytearray()
+        start = 0
+        while start < text_length:
+            end = start + 1
+            while (end < text_length
+                   and (codepoints[end - 1] == codepoints[end]
+                        or codepoints[end - 1] in (10, 13))):
+                end += 1
+            output.extend(str(end - start).encode("ascii"))
+            output.append(codepoints[start])
+            start = end
+        return len(output), bytes(output)
+
+    if algorithm == "turkish_to_latin_conversion":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        byte_length = values[0]
+        if not 0 <= byte_length <= 1024 or len(values) != byte_length + 1:
+            return -1, b""
+        if any(not 0 <= value <= 255 for value in values[1:]):
+            return -1, b""
+        try:
+            text = bytes(values[1:]).decode("utf-8", errors="strict")
+        except UnicodeDecodeError:
+            return -1, b""
+        replacements = str.maketrans({
+            "ı": "i", "İ": "I", "ü": "u", "Ü": "U", "ö": "o", "Ö": "O",
+            "ş": "s", "Ş": "S", "ç": "c", "Ç": "C", "ğ": "g", "Ğ": "G",
+        })
+        output = text.translate(replacements).encode("utf-8")
+        return len(output), output
+
+    if algorithm in {"triplet_sum", "triplet_sum_two_pointer"}:
+        import struct
+
+        max_items = 10 if algorithm == "triplet_sum" else 1024
+        if (not isinstance(values, list) or not 1 <= len(values) <= max_items + 1
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        target, items = values[0], values[1:]
+        if not -3_000_000 <= target <= 3_000_000 or any(
+                not -1_000_000 <= value <= 1_000_000 for value in items):
+            return -1, b""
+
+        triplet = (0, 0, 0)
+        if algorithm == "triplet_sum":
+            for permutation in permutations(items, 3):
+                if sum(permutation) == target:
+                    triplet = tuple(sorted(permutation))
+                    break
+        else:
+            ordered = sorted(items)
+            found = False
+            for first in range(len(ordered) - 1):
+                left, right = first + 1, len(ordered) - 1
+                while left < right:
+                    total = ordered[first] + ordered[left] + ordered[right]
+                    if total == target:
+                        triplet = (ordered[first], ordered[left], ordered[right])
+                        found = True
+                        break
+                    if total < target:
+                        left += 1
+                    else:
+                        right -= 1
+                if found:
+                    break
+        return 3, struct.pack("<qqq", *triplet)
+
+    if algorithm == "wave_string":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 513
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        text_length = values[0]
+        if not 0 <= text_length <= 512 or len(values) != 1 + text_length:
+            return -1, b""
+        text = values[1:]
+        if any(not 32 <= byte <= 126 for byte in text):
+            return -1, b""
+        output = bytearray()
+        variants = 0
+        for position, byte in enumerate(text):
+            if not (65 <= byte <= 90 or 97 <= byte <= 122):
+                continue
+            output.extend((text_length & 255, text_length >> 8))
+            output.extend(text[:position])
+            output.append(byte - 32 if 97 <= byte <= 122 else byte)
+            output.extend(text[position + 1:])
+            variants += 1
+        return variants, bytes(output)
+
+    if algorithm == "cyclic_sort":
+        import struct
+
+        if (not isinstance(values, list) or len(values) > 1024
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        length = len(values)
+        seen = bytearray(length + 1)
+        for value in values:
+            if not 1 <= value <= length or seen[value]:
+                return -1, b""
+            seen[value] = 1
+        output = struct.pack("<" + "q" * length, *sorted(values)) if length else b""
+        return length, output
+
+    if algorithm == "longest_word_in_sentence":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        text_length = values[0]
+        if not 0 <= text_length <= 1024 or len(values) != 1 + text_length:
+            return -1, b""
+        text = values[1:]
+        whitespace = {9, 10, 11, 12, 13, 32}
+        if any(value not in whitespace and not 33 <= value <= 126 for value in text):
+            return -1, b""
+        words = bytes(text).split()
+        longest = max(words, key=len, default=b"")
+        return len(longest), longest
+
+    if algorithm == "remove_duplicate":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 1025
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        text_length = values[0]
+        if not 0 <= text_length <= 1024 or len(values) != 1 + text_length:
+            return -1, b""
+        text = values[1:]
+        if any(value != 32 and not 97 <= value <= 122 for value in text):
+            return -1, b""
+        words = sorted(set(bytes(text).split(b" ")) - {b""})
+        output = b" ".join(words)
+        return len(output), output
+
+    if algorithm == "autocomplete_using_trie":
+        import struct
+
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        word_count = values[0]
+        if not 0 <= word_count <= 32:
+            return -1, b""
+        position = 1
+        words: set[bytes] = set()
+        for _ in range(word_count):
+            if position >= len(values):
+                return -1, b""
+            word_length = values[position]
+            position += 1
+            if (not 1 <= word_length <= 16
+                    or position + word_length > len(values)):
+                return -1, b""
+            word_values = values[position:position + word_length]
+            if any(not 97 <= value <= 122 for value in word_values):
+                return -1, b""
+            words.add(bytes(word_values))
+            position += word_length
+        if position >= len(values):
+            return -1, b""
+        query_count = values[position]
+        position += 1
+        if not 0 <= query_count <= 16:
+            return -1, b""
+        prefixes = []
+        for _ in range(query_count):
+            if position >= len(values):
+                return -1, b""
+            prefix_length = values[position]
+            position += 1
+            if (not 0 <= prefix_length <= 16
+                    or position + prefix_length > len(values)):
+                return -1, b""
+            prefix_values = values[position:position + prefix_length]
+            if any(not 97 <= value <= 122 for value in prefix_values):
+                return -1, b""
+            prefixes.append(bytes(prefix_values))
+            position += prefix_length
+        if position != len(values):
+            return -1, b""
+        output_values = [query_count]
+        for prefix in prefixes:
+            completions = sorted(word for word in words if word.startswith(prefix))
+            output_values.append(len(completions))
+            for word in completions:
+                output_values.extend((len(word), *word))
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "binomial_heap":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 128
+                or len(values) != 1 + 2 * operation_count):
+            return -1, b""
+        heap: list[int] = []
+        query_results: list[int] = []
+        for offset in range(1, len(values), 2):
+            opcode, argument = values[offset:offset + 2]
+            if opcode == 0:
+                if not -(2**31) <= argument <= 2**31 - 1:
+                    return -1, b""
+                heapq.heappush(heap, argument)
+            elif opcode == 1:
+                if argument != 0 or not heap:
+                    return -1, b""
+                query_results.append(heap[0])
+            elif opcode == 2:
+                if argument != 0 or not heap:
+                    return -1, b""
+                query_results.append(heapq.heappop(heap))
+            elif opcode == 3:
+                if argument != 0:
+                    return -1, b""
+                query_results.append(int(not heap))
+            else:
+                return -1, b""
+        output = b"".join(struct.pack("<q", value) for value in query_results)
+        return len(query_results), output
+
+    if algorithm == "bentley_ottmann":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        segment_count = values[0]
+        if (not 0 <= segment_count <= 24
+                or len(values) != 1 + 4 * segment_count):
+            return -1, b""
+        segments = []
+        endpoints_x = []
+        for offset in range(1, len(values), 4):
+            x1, y1, x2, y2 = values[offset:offset + 4]
+            if (any(not -1000 <= coordinate <= 1000
+                    for coordinate in (x1, y1, x2, y2)) or x1 == x2):
+                return -1, b""
+            if x1 > x2:
+                x1, y1, x2, y2 = x2, y2, x1, y1
+            segments.append((x1, y1, x2, y2))
+            endpoints_x.extend((x1, x2))
+        if len(set(endpoints_x)) != len(endpoints_x):
+            return -1, b""
+
+        intersections = set()
+        intersection_x = set()
+        for index, (x1, y1, x2, y2) in enumerate(segments):
+            rx, ry = x2 - x1, y2 - y1
+            for qx1, qy1, qx2, qy2 in segments[index + 1:]:
+                sx, sy = qx2 - qx1, qy2 - qy1
+                qpx, qpy = qx1 - x1, qy1 - y1
+                denominator = rx * sy - ry * sx
+                if denominator == 0:
+                    if qpx * ry - qpy * rx == 0:
+                        left = max(x1, qx1)
+                        right = min(x2, qx2)
+                        if left <= right:
+                            return -1, b""
+                    continue
+                t_numerator = qpx * sy - qpy * sx
+                u_numerator = qpx * ry - qpy * rx
+                if denominator < 0:
+                    denominator = -denominator
+                    t_numerator = -t_numerator
+                    u_numerator = -u_numerator
+                if not (0 <= t_numerator <= denominator
+                        and 0 <= u_numerator <= denominator):
+                    continue
+                if (t_numerator in (0, denominator)
+                        or u_numerator in (0, denominator)):
+                    return -1, b""
+                x_numerator = x1 * denominator + t_numerator * rx
+                y_numerator = y1 * denominator + t_numerator * ry
+                if x_numerator % denominator or y_numerator % denominator:
+                    return -1, b""
+                point = (x_numerator // denominator, y_numerator // denominator)
+                if point[0] in endpoints_x or point[0] in intersection_x:
+                    return -1, b""
+                intersections.add(point)
+                intersection_x.add(point[0])
+        ordered = sorted(intersections)
+        output_values = [len(ordered)]
+        for x, y in ordered:
+            output_values.extend((x, y))
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "bidirectional_search":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        vertex_count, start, goal, arc_count = values[:4]
+        if (not 1 <= vertex_count <= 64 or not 0 <= arc_count <= 4032
+                or len(values) != 4 + 2 * arc_count
+                or not 0 <= start < vertex_count or not 0 <= goal < vertex_count):
+            return -1, b""
+        adjacency = [[] for _ in range(vertex_count)]
+        arcs = set()
+        for offset in range(4, len(values), 2):
+            origin, neighbor = values[offset:offset + 2]
+            if (not 0 <= origin < vertex_count or not 0 <= neighbor < vertex_count
+                    or origin == neighbor or (origin, neighbor) in arcs):
+                return -1, b""
+            arcs.add((origin, neighbor))
+            adjacency[origin].append(neighbor)
+        if any((neighbor, origin) not in arcs for origin, neighbor in arcs):
+            return -1, b""
+
+        if start == goal:
+            path = [start]
+        else:
+            parents = [[None] * vertex_count for _ in range(2)]
+            parents[0][start] = parents[1][goal] = -1
+            queues = [[start], [goal]]
+            heads = [0, 0]
+            meeting = -1
+            while heads[0] < len(queues[0]) and heads[1] < len(queues[1]) and meeting < 0:
+                for side in range(2):
+                    if heads[side] >= len(queues[side]):
+                        break
+                    vertex = queues[side][heads[side]]
+                    heads[side] += 1
+                    for neighbor in adjacency[vertex]:
+                        if parents[side][neighbor] is not None:
+                            continue
+                        parents[side][neighbor] = vertex
+                        queues[side].append(neighbor)
+                        if parents[1 - side][neighbor] is not None:
+                            meeting = neighbor
+                            break
+                    if meeting >= 0:
+                        break
+            if meeting < 0:
+                path = []
+            else:
+                prefix = []
+                vertex = meeting
+                while vertex >= 0:
+                    prefix.append(vertex)
+                    vertex = parents[0][vertex]
+                path = list(reversed(prefix))
+                vertex = parents[1][meeting]
+                while vertex is not None and vertex >= 0:
+                    path.append(vertex)
+                    vertex = parents[1][vertex]
+        output_values = [len(path), *path]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "bidirectional_bfs":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63
+                       for value in values)):
+            return -1, b""
+        vertex_count, start, target, arc_count = values[:4]
+        if (not 1 <= vertex_count <= 64 or not 0 <= arc_count <= 4096
+                or len(values) != 4 + 2 * arc_count
+                or not 0 <= start < vertex_count or not 0 <= target < vertex_count):
+            return -1, b""
+        adjacency = [[] for _ in range(vertex_count)]
+        arcs = set()
+        for offset in range(4, len(values), 2):
+            origin, neighbor = values[offset:offset + 2]
+            if not 0 <= origin < vertex_count or not 0 <= neighbor < vertex_count:
+                return -1, b""
+            adjacency[origin].append(neighbor)
+            arcs.add((origin, neighbor))
+        if any((neighbor, origin) not in arcs for origin, neighbor in arcs):
+            return -1, b""
+
+        if start == target:
+            path = [start]
+        else:
+            parents = [[None] * vertex_count for _ in range(2)]
+            parents[0][start] = parents[1][target] = -1
+            queues = [[start], [target]]
+            meeting = -1
+            while queues[0] and queues[1] and meeting < 0:
+                for side in range(2):
+                    next_queue = []
+                    for vertex in queues[side]:
+                        for neighbor in adjacency[vertex]:
+                            if parents[side][neighbor] is None:
+                                parents[side][neighbor] = vertex
+                                next_queue.append(neighbor)
+                    queues[side] = next_queue
+                    for candidate in range(vertex_count):
+                        if (parents[0][candidate] is not None
+                                and parents[1][candidate] is not None):
+                            meeting = candidate
+                            break
+                    if meeting >= 0:
+                        break
+            if meeting < 0:
+                path = []
+            else:
+                prefix = []
+                vertex = meeting
+                while vertex >= 0:
+                    prefix.append(vertex)
+                    vertex = parents[0][vertex]
+                path = list(reversed(prefix))
+                vertex = parents[1][meeting]
+                while vertex is not None and vertex >= 0:
+                    path.append(vertex)
+                    vertex = parents[1][vertex]
+        output_values = [len(path), *path]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "binary_tree_traversal":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        order, node_count, root = values[:3]
+        if (order not in (0, 1, 2, 3, 4, 5, 6) or not 0 <= node_count <= 64
+                or len(values) != 3 + 3 * node_count):
+            return -1, b""
+        if node_count == 0:
+            return (0, b"") if root == -1 else (-1, b"")
+        if not 0 <= root < node_count:
+            return -1, b""
+
+        nodes = []
+        parent_count = [0] * node_count
+        for offset in range(3, len(values), 3):
+            value, left, right = values[offset:offset + 3]
+            if any(child < -1 or child >= node_count for child in (left, right)):
+                return -1, b""
+            if left == offset // 3 - 1 or right == offset // 3 - 1:
+                return -1, b""
+            for child in (left, right):
+                if child != -1:
+                    parent_count[child] += 1
+                    if parent_count[child] > 1:
+                        return -1, b""
+            nodes.append((value, left, right))
+        if parent_count[root] != 0 or any(
+                parent_count[index] != 1 for index in range(node_count) if index != root):
+            return -1, b""
+
+        ordered = []
+        if order in (3, 4, 6):
+            queue = [root]
+            level = 0
+            for index in queue:
+                value, left, right = nodes[index]
+                if order in (3, 4):
+                    ordered.append(value)
+                elif order == 6:
+                    ordered.append(value)
+                children = (left, right) if order in (3, 6) else (right, left)
+                queue.extend(child for child in children if child != -1)
+            if len(queue) != node_count:
+                return -1, b""
+            if order == 6:
+                ordered = []
+                level_nodes = [root]
+                level = 0
+                while level_nodes:
+                    values_at_level = [nodes[index][0] for index in level_nodes]
+                    if level % 2 == 1:
+                        values_at_level.reverse()
+                    ordered.extend(values_at_level)
+                    next_level = []
+                    for index in level_nodes:
+                        _, left, right = nodes[index]
+                        if left != -1:
+                            next_level.append(left)
+                        if right != -1:
+                            next_level.append(right)
+                    level_nodes = next_level
+                    level += 1
+        else:
+            stack = [(root, 0)]
+            visited = 0
+            while stack:
+                index, state = stack.pop()
+                value, left, right = nodes[index]
+                if state == 0:
+                    visited += 1
+                    if order == 0:
+                        ordered.append(value)
+                    stack.append((index, 1))
+                    first_child = right if order == 5 else left
+                    if first_child != -1:
+                        stack.append((first_child, 0))
+                elif state == 1:
+                    if order in (1, 5):
+                        ordered.append(value)
+                    stack.append((index, 2))
+                    second_child = left if order == 5 else right
+                    if second_child != -1:
+                        stack.append((second_child, 0))
+                elif order == 2:
+                    ordered.append(value)
+            if visited != node_count:
+                return -1, b""
+        output = b"".join(struct.pack("<q", value) for value in ordered)
+        return len(output), output
+
+    if algorithm == "subset_sum_values_enumeration":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        target = values[0]
+        items = values[1:]
+        if (not 0 <= target <= 256 or len(items) > 11
+                or any(not 1 <= item <= 64 for item in items)):
+            return -1, b""
+        output = bytearray()
+        if target == 0:
+            output.extend(struct.pack("<q", 0))
+        else:
+            subset: list[int] = []
+
+            def enumerate_subsets(index: int, total: int) -> None:
+                if total == target:
+                    output.extend(struct.pack("<q", len(subset)))
+                    for item in subset:
+                        output.extend(struct.pack("<q", item))
+                    return
+                if total > target or index == len(items):
+                    return
+                subset.append(items[index])
+                enumerate_subsets(index + 1, total + items[index])
+                subset.pop()
+                enumerate_subsets(index + 1, total)
+
+            enumerate_subsets(0, 0)
+        return len(output), bytes(output)
+
+    if algorithm == "lfsr":
+        if (not isinstance(values, list) or len(values) < 6
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        width, clock_index, tap_count, clock_count, session_key, frame = values[:6]
+        if (not 1 <= width <= 63 or not 0 <= clock_index < width
+                or not 0 <= tap_count <= 63 or not 0 <= clock_count <= 256
+                or not 0 <= frame <= 4_194_303 or len(values) != 6 + tap_count):
+            return -1, b""
+        taps = values[6:]
+        if any(not 0 <= tap < width for tap in taps):
+            return -1, b""
+        mask = (1 << width) - 1
+        state = 0
+
+        def feed_bit(input_bit: int) -> None:
+            nonlocal state
+            feedback = 0
+            for tap in taps:
+                feedback ^= (state >> tap) & 1
+            state = ((state << 1) | (input_bit ^ feedback)) & mask
+
+        for bit_index in range(63, -1, -1):
+            feed_bit((session_key >> bit_index) & 1)
+        for bit_index in range(21, -1, -1):
+            feed_bit((frame >> bit_index) & 1)
+        output_bits = []
+        for _ in range(clock_count):
+            output_bits.append((state >> (width - 1)) & 1)
+            feed_bit(0)
+        output_values = [clock_count, *output_bits, state]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "composite_lfsr_majority_clock":
+        return composite_lfsr_majority_clock_expected_output(values)
+
+    if algorithm == "bidirectional_a_star":
+        if (not isinstance(values, list) or len(values) < 6
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        rows, columns, start_row, start_column, goal_row, goal_column = values[:6]
+        if (not 1 <= rows <= 20 or not 1 <= columns <= 20
+                or len(values) != 6 + rows * columns
+                or not 0 <= start_row < rows or not 0 <= start_column < columns
+                or not 0 <= goal_row < rows or not 0 <= goal_column < columns
+                or any(cell not in (0, 1) for cell in values[6:])):
+            return -1, b""
+        cell_count = rows * columns
+        start = start_row * columns + start_column
+        goal = goal_row * columns + goal_column
+        blocked = [cell == 1 for cell in values[6:]]
+        if blocked[start] or blocked[goal]:
+            return -1, b""
+
+        infinity = cell_count + 1
+        distances = [[infinity] * cell_count for _ in range(2)]
+        parents = [[-1] * cell_count for _ in range(2)]
+        discovery_order = [[0] * cell_count for _ in range(2)]
+        opened = [[False] * cell_count for _ in range(2)]
+        closed = [[False] * cell_count for _ in range(2)]
+        next_order = [1, 1]
+        distances[0][start] = distances[1][goal] = 0
+        opened[0][start] = opened[1][goal] = True
+        best_distance = infinity
+        meeting = -1
+        directions = ((-1, 0), (0, -1), (1, 0), (0, 1))
+
+        def heuristic(vertex: int, target: int) -> int:
+            dy = vertex // columns - target // columns
+            dx = vertex % columns - target % columns
+            return math.isqrt(dy * dy + dx * dx)
+
+        while True:
+            minima = [
+                min((distances[side][vertex] for vertex in range(cell_count)
+                     if opened[side][vertex]), default=infinity)
+                for side in range(2)
+            ]
+            if best_distance < infinity and (
+                    minima[0] == infinity or minima[1] == infinity
+                    or minima[0] + minima[1] >= best_distance):
+                break
+            for side in range(2):
+                target = goal if side == 0 else start
+                chosen = -1
+                chosen_f = infinity
+                for vertex in range(cell_count):
+                    if not opened[side][vertex]:
+                        continue
+                    score = distances[side][vertex] + heuristic(vertex, target)
+                    if (chosen == -1 or score < chosen_f
+                            or (score == chosen_f
+                                and discovery_order[side][vertex] < discovery_order[side][chosen])):
+                        chosen, chosen_f = vertex, score
+                if chosen == -1:
+                    continue
+                opened[side][chosen] = False
+                closed[side][chosen] = True
+                if (distances[1 - side][chosen] < infinity
+                        and distances[side][chosen] + distances[1 - side][chosen] < best_distance):
+                    best_distance = distances[side][chosen] + distances[1 - side][chosen]
+                    meeting = chosen
+                row, column = divmod(chosen, columns)
+                for dy, dx in directions:
+                    next_row, next_column = row + dy, column + dx
+                    if not (0 <= next_row < rows and 0 <= next_column < columns):
+                        continue
+                    neighbor = next_row * columns + next_column
+                    if blocked[neighbor] or closed[side][neighbor]:
+                        continue
+                    candidate = distances[side][chosen] + 1
+                    if candidate < distances[side][neighbor]:
+                        distances[side][neighbor] = candidate
+                        parents[side][neighbor] = chosen
+                        opened[side][neighbor] = True
+                        discovery_order[side][neighbor] = next_order[side]
+                        next_order[side] += 1
+                        if (distances[1 - side][neighbor] < infinity
+                                and candidate + distances[1 - side][neighbor] < best_distance):
+                            best_distance = candidate + distances[1 - side][neighbor]
+                            meeting = neighbor
+            if not any(opened[side][vertex]
+                       for side in range(2) for vertex in range(cell_count)):
+                break
+
+        path = []
+        if meeting < 0:
+            path = [start]
+        else:
+            forward = []
+            vertex = meeting
+            while vertex >= 0:
+                forward.append(vertex)
+                vertex = parents[0][vertex]
+            path.extend(reversed(forward))
+            vertex = parents[1][meeting]
+            while vertex >= 0:
+                path.append(vertex)
+                vertex = parents[1][vertex]
+        output_values = [len(path)]
+        for vertex in path:
+            output_values.extend(divmod(vertex, columns))
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "bidirectional_breadth_first_search":
+        if (not isinstance(values, list) or len(values) < 5
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        rows, columns, start, goal, blocked_count = values[:5]
+        cell_count = rows * columns if 1 <= rows <= 8 and 1 <= columns <= 8 else 0
+        if (cell_count == 0 or not 0 <= start < cell_count or not 0 <= goal < cell_count
+                or not 0 <= blocked_count <= cell_count or len(values) != 5 + blocked_count):
+            return -1, b""
+        blocked_values = values[5:]
+        if (len(set(blocked_values)) != blocked_count
+                or any(not 0 <= cell < cell_count for cell in blocked_values)
+                or start in blocked_values or goal in blocked_values):
+            return -1, b""
+        blocked = set(blocked_values)
+        distances = [[-1] * cell_count for _ in range(2)]
+        parents = [[-1] * cell_count for _ in range(2)]
+        queues = [[start], [goal]]
+        heads = [0, 0]
+        distances[0][start] = distances[1][goal] = 0
+        meeting = start if start == goal else -1
+        directions = (-columns, -1, columns, 1)
+        while meeting < 0 and heads[0] < len(queues[0]) and heads[1] < len(queues[1]):
+            for side in (0, 1):
+                if meeting >= 0:
+                    break
+                layer_end = len(queues[side])
+                while heads[side] < layer_end:
+                    vertex = queues[side][heads[side]]
+                    heads[side] += 1
+                    row, column = divmod(vertex, columns)
+                    for direction, (dy, dx) in enumerate(((-1, 0), (0, -1), (1, 0), (0, 1))):
+                        next_row, next_column = row + dy, column + dx
+                        if not (0 <= next_row < rows and 0 <= next_column < columns):
+                            continue
+                        neighbor = next_row * columns + next_column
+                        if neighbor in blocked or distances[side][neighbor] != -1:
+                            continue
+                        distances[side][neighbor] = distances[side][vertex] + 1
+                        parents[side][neighbor] = vertex
+                        queues[side].append(neighbor)
+                        if distances[1 - side][neighbor] >= 0:
+                            meeting = neighbor
+                            break
+                    if meeting >= 0:
+                        break
+
+        if meeting < 0:
+            path = []
+        else:
+            prefix = []
+            vertex = meeting
+            while vertex >= 0:
+                prefix.append(vertex)
+                if vertex == start:
+                    break
+                vertex = parents[0][vertex]
+            path = list(reversed(prefix))
+            vertex = parents[1][meeting]
+            while vertex >= 0:
+                path.append(vertex)
+                vertex = parents[1][vertex]
+        output_values = [len(path), *path]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "binary_lifting_kth_ancestor":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        node_count, root, edge_count, query_count = values[:4]
+        if (not 1 <= node_count <= 256 or not 0 <= root < node_count
+                or edge_count != node_count - 1 or not 0 <= query_count <= 1024
+                or len(values) != 4 + 2 * edge_count + 2 * query_count):
+            return -1, b""
+
+        adjacency: list[list[int]] = [[] for _ in range(node_count)]
+        edges: set[tuple[int, int]] = set()
+        query_offset = 4 + 2 * edge_count
+        for offset in range(4, query_offset, 2):
+            first, second = values[offset:offset + 2]
+            edge = (min(first, second), max(first, second))
+            if (not 0 <= first < node_count or not 0 <= second < node_count
+                    or first == second or edge in edges):
+                return -1, b""
+            edges.add(edge)
+            adjacency[first].append(second)
+            adjacency[second].append(first)
+
+        parents = [-1] * node_count
+        parents[root] = root
+        pending = [root]
+        for vertex in pending:
+            for neighbor in adjacency[vertex]:
+                if neighbor == parents[vertex]:
+                    continue
+                if parents[neighbor] != -1:
+                    return -1, b""
+                parents[neighbor] = vertex
+                pending.append(neighbor)
+        if len(pending) != node_count:
+            return -1, b""
+
+        answers = []
+        for offset in range(query_offset, len(values), 2):
+            vertex, distance = values[offset:offset + 2]
+            if not 0 <= vertex < node_count or distance < 0:
+                return -1, b""
+            for _ in range(min(distance, node_count)):
+                vertex = parents[vertex]
+            answers.append(vertex)
+        output_values = [query_count, *answers]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "bellman_ford_pair":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, input_edge_count, source, target = values[:4]
+        if (not 1 <= vertex_count <= 64 or not 0 <= input_edge_count <= 256
+                or not 0 <= source < vertex_count or not 0 <= target < vertex_count
+                or len(values) != 4 + 3 * input_edge_count):
+            return -1, b""
+        edge_map: dict[tuple[int, int], int] = {}
+        for offset in range(4, len(values), 3):
+            origin, destination, weight = values[offset:offset + 3]
+            if (not 0 <= origin < vertex_count or not 0 <= destination < vertex_count
+                    or not -1000 <= weight <= 1000):
+                return -1, b""
+            edge_map[(origin, destination)] = weight
+        if len(edge_map) > 128:
+            return -1, b""
+        edges = [(origin, destination, weight)
+                 for (origin, destination), weight in sorted(edge_map.items())]
+        distances: list[int | None] = [None] * vertex_count
+        distances[source] = 0
+        for _ in range(vertex_count):
+            changed = False
+            for origin, destination, weight in edges:
+                if distances[origin] is None:
+                    continue
+                candidate = distances[origin] + weight
+                if distances[destination] is None or candidate < distances[destination]:
+                    distances[destination] = candidate
+                    changed = True
+            if not changed:
+                break
+        negative_cycle = any(
+            distances[origin] is not None
+            and (distances[destination] is None or distances[origin] + weight < distances[destination])
+            for origin, destination, weight in edges
+        )
+        if negative_cycle:
+            output_values = (-1, 0, 0)
+        elif distances[target] is None:
+            output_values = (0, 0, 0)
+        else:
+            output_values = (0, 1, distances[target])
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "breadth_first_search_shortest_path":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count, start, goal = values[:4]
+        if (not 1 <= vertex_count <= 32 or not 0 <= edge_count <= 256
+                or not 0 <= start < vertex_count or not 0 <= goal < vertex_count
+                or len(values) != 4 + 2 * edge_count):
+            return -1, b""
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        for offset in range(4, len(values), 2):
+            origin, destination = values[offset:offset + 2]
+            if not 0 <= origin < vertex_count or not 0 <= destination < vertex_count:
+                return -1, b""
+            adjacency[origin].append(destination)
+        parent = [-1] * vertex_count
+        parent[start] = start
+        pending = [start]
+        cursor = 0
+        while cursor < len(pending) and parent[goal] == -1:
+            origin = pending[cursor]
+            cursor += 1
+            for destination in adjacency[origin]:
+                if parent[destination] == -1:
+                    parent[destination] = origin
+                    pending.append(destination)
+                    if destination == goal:
+                        break
+        path = []
+        if parent[goal] != -1:
+            vertex = goal
+            while vertex != start:
+                path.append(vertex)
+                vertex = parent[vertex]
+            path.append(start)
+            path.reverse()
+        output_values = [len(path), *path]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "game_of_life":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        side = values[0]
+        if (not 0 <= side <= 32 or len(values) != 1 + side * side
+                or any(cell not in (0, 1) for cell in values[1:])):
+            return -1, b""
+        output = bytearray(side * side)
+        for row in range(side):
+            for column in range(side):
+                neighbors = sum(
+                    values[1 + neighbor_row * side + neighbor_column]
+                    for neighbor_row in range(max(0, row - 1), min(side, row + 2))
+                    for neighbor_column in range(max(0, column - 1), min(side, column + 2))
+                    if (neighbor_row, neighbor_column) != (row, column)
+                )
+                alive = values[1 + row * side + column]
+                output[row * side + column] = int(
+                    (alive == 1 and neighbors in (2, 3)) or (alive == 0 and neighbors == 3)
+                )
+        return len(output), bytes(output)
+
     if algorithm == "fast_fourier_transform":
         if (not isinstance(values, list) or len(values) < 1
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -1155,6 +2579,51 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output.append(0)
         return byte_length, bytes(output)
 
+    if algorithm == "weight_conversions":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, amount = values
+        if not 0 <= operation <= 5 or not -1_000_000 <= amount <= 1_000_000:
+            return -1, b""
+
+        def ruby_round_cents(value: float) -> int:
+            scaled = value * 100.0
+            cents = math.floor(scaled + 0.5) if scaled >= 0.0 else math.ceil(scaled - 0.5)
+            # MRI corrects the scaled binary64 result at decimal half-cent boundaries.
+            if value > 0.0 and (cents + 0.5) / 100.0 <= value:
+                cents += 1
+            elif value < 0.0 and (cents - 0.5) / 100.0 >= value:
+                cents -= 1
+            return cents
+
+        def formatted_float(value: float) -> str:
+            cents = ruby_round_cents(value)
+            sign = "-" if cents < 0 else ""
+            whole, fraction = divmod(abs(cents), 100)
+            if fraction == 0:
+                fractional = ".0"
+            elif fraction % 10 == 0:
+                fractional = "." + str(fraction // 10)
+            else:
+                fractional = "." + f"{fraction:02d}"
+            return sign + str(whole) + fractional
+
+        if operation == 0:
+            text = f"{amount} kg = {amount * 1000} g"
+        elif operation == 1:
+            text = f"{amount} g = {amount // 1000} kg"
+        elif operation == 2:
+            text = f"{amount} lb = {amount * 16} oz"
+        elif operation == 3:
+            text = f"{amount} oz = {amount // 16} lb"
+        elif operation == 4:
+            text = f"{amount} kg = {formatted_float(float(amount) * 2.205)} lb"
+        else:
+            text = f"{amount} lb = {formatted_float(float(amount) / 2.205)} kg"
+        encoded = text.encode("ascii") + b"\0"
+        return len(encoded) - 1, encoded
+
     if algorithm == "md5":
         if (not isinstance(values, list) or len(values) > 4096
                 or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
@@ -1179,6 +2648,18 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             return -1, b""
         output = bytes(96 + value for value in values)
         return len(output), output
+
+    if algorithm == "date_to_day":
+        return date_to_day_expected_output(values)
+
+    if algorithm == "ema_filter":
+        return ema_filter_expected_output(values)
+
+    if algorithm == "egyptian_fraction":
+        return egyptian_fraction_expected_output(values)
+
+    if algorithm == "count_nucleotide":
+        return count_nucleotide_expected_output(values)
 
     if algorithm == "binary_to_hexadecimal":
         if (not isinstance(values, list) or not 1 <= len(values) <= 63
@@ -1246,6 +2727,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         output = bytes(97 + (value - 97 + 13) % 26 if 97 <= value <= 122 else value
                        for value in values)
         return len(output), output
+
+    if algorithm == "blake2b":
+        if (not isinstance(values, list) or len(values) > MAX_INPUT_LENGTH
+                or any(type(value) is not int or not 0 <= value <= 255 for value in values)):
+            return -1, b""
+        return 64, hashlib.blake2b(bytes(values), digest_size=64).digest()
 
     if algorithm == "sha1":
         if (not isinstance(values, list) or len(values) > 4096
@@ -1476,6 +2963,142 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         encoded = b"".join(struct.pack("<d", value) for value in solution)
         return len(encoded), encoded
 
+    if algorithm == "cholesky_decomposition":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 37
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        dimension = values[0]
+        if not 1 <= dimension <= 6 or len(values) != 1 + dimension * dimension:
+            return -1, b""
+        if any(not -1_000_000_000 <= value <= 1_000_000_000 for value in values[1:]):
+            return -1, b""
+        matrix = [[values[1 + row * dimension + column] / 1_000_000.0
+                   for column in range(dimension)] for row in range(dimension)]
+        for row in range(dimension):
+            for column in range(dimension):
+                left, right = matrix[row][column], matrix[column][row]
+                if abs(left - right) > 1.0e-8 + 1.0e-5 * abs(right):
+                    return -1, b""
+        lower = [[0.0] * dimension for _ in range(dimension)]
+        for row in range(dimension):
+            for column in range(row + 1):
+                residual = matrix[row][column] - sum(
+                    lower[row][index] * lower[column][index] for index in range(column))
+                if row == column:
+                    if residual <= 0.0:
+                        return -1, b""
+                    lower[row][column] = math.sqrt(residual)
+                else:
+                    lower[row][column] = residual / lower[column][column]
+        encoded = b"".join(struct.pack("<d", value) for row in lower for value in row)
+        return len(encoded), encoded
+
+    if algorithm == "conjugate_gradient":
+        return conjugate_gradient_expected_output(values)
+
+    if algorithm == "convolution_neural_network":
+        return convolution_neural_network_expected_output(values)
+
+    if algorithm == "depreciation":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 20
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        method = values[0]
+        rate = None
+        units = None
+        if method in (0, 3, 4):
+            if len(values) != 4:
+                return -1, b""
+            years, purchase_scaled, residual_scaled = values[1:]
+        elif method == 1:
+            if len(values) != 5:
+                return -1, b""
+            years, purchase_scaled, residual_scaled, rate_scaled = values[1:]
+            if not 1 <= rate_scaled <= 1_000_000:
+                return -1, b""
+            rate = rate_scaled / 1_000_000.0
+        elif method == 2:
+            if len(values) < 5:
+                return -1, b""
+            purchase_scaled, residual_scaled, total_units, *units = values[1:]
+            years = len(units)
+            if (not 1 <= total_units <= 1_000_000_000
+                    or any(abs(unit) > 1_000_000_000 for unit in units)
+                    or abs(sum(units) - total_units) > 1.0e-6 * total_units):
+                return -1, b""
+        else:
+            return -1, b""
+        if (not 1 <= years <= 16 or not 0 <= purchase_scaled <= 1_000_000_000_000
+                or not -1_000_000_000_000 <= residual_scaled <= purchase_scaled):
+            return -1, b""
+        purchase = purchase_scaled / 1_000_000.0
+        residual = residual_scaled / 1_000_000.0
+        depreciable_cost = purchase - residual
+        if method == 0:
+            annual = depreciable_cost / years
+            schedule = []
+            accumulated = 0.0
+            for period in range(years):
+                if period == years - 1:
+                    schedule.append(depreciable_cost - accumulated)
+                else:
+                    accumulated += annual
+                    schedule.append(annual)
+        elif method == 1:
+            assert rate is not None
+            schedule = []
+            book_value = purchase
+            for period in range(years):
+                if period == years - 1:
+                    schedule.append(book_value - residual)
+                else:
+                    expense = min(book_value * rate, book_value - residual)
+                    schedule.append(expense)
+                    book_value -= expense
+        elif method == 2:
+            assert units is not None
+            per_unit = depreciable_cost / total_units
+            schedule = []
+            accumulated = 0.0
+            for index, units_in_period in enumerate(units):
+                if index == years - 1:
+                    schedule.append(depreciable_cost - accumulated)
+                else:
+                    expense = units_in_period * per_unit
+                    accumulated += expense
+                    schedule.append(expense)
+        elif method == 3:
+            syd = years * (years + 1.0) / 2.0
+            schedule = []
+            accumulated = 0.0
+            for period in range(1, years + 1):
+                if period == years:
+                    schedule.append(depreciable_cost - accumulated)
+                else:
+                    expense = ((years - period + 1.0) / syd) * depreciable_cost
+                    accumulated += expense
+                    schedule.append(expense)
+        else:
+            rate = 2.0 / years
+            schedule = []
+            book_value = purchase
+            accumulated = 0.0
+            for period in range(1, years + 1):
+                remaining_years = years - period + 1.0
+                ddb_expense = max(book_value * rate, 0.0)
+                sl_expense = max((book_value - residual) / remaining_years, 0.0)
+                expense = min(max(ddb_expense, sl_expense), book_value - residual)
+                if period == years:
+                    schedule.append(depreciable_cost - accumulated)
+                else:
+                    accumulated += expense
+                    schedule.append(expense)
+                    book_value -= expense
+        if not all(math.isfinite(value) for value in schedule):
+            return -1, b""
+        encoded = b"".join(struct.pack("<d", value) for value in schedule)
+        return len(encoded), encoded
+
     if algorithm == "triangle":
         if (not isinstance(values, list) or len(values) != 6
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -1599,6 +3222,9 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             denominator = 2.0 * a
             roots = ((-b + root) / denominator, (-b - root) / denominator)
         return len(roots), b"".join(struct.pack("<d", value) for value in roots)
+
+    if algorithm == "cramers_rule_2x2":
+        return cramers_rule_2x2_expected_output(values)
 
     if algorithm == "npv_sensitivity":
         if (not isinstance(values, list) or len(values) < 2
@@ -2575,42 +4201,7 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(output), output
 
     if algorithm == "create_binary_tree_from_inorder_preorder":
-        if (not isinstance(values, list) or not 1 <= len(values) <= 127
-                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
-            return -1, b""
-        count = values[0]
-        if (not 0 <= count <= 63 or len(values) != 1 + 2 * count
-                or any(not -(2**31) <= value <= 2**31 - 1 for value in values[1:])):
-            return -1, b""
-        preorder = values[1:1 + count]
-        inorder = values[1 + count:]
-        if len(set(preorder)) != count or len(set(inorder)) != count or set(preorder) != set(inorder):
-            return -1, b""
-        preorder_index = 0
-
-        def serialize_tree(start: int, end: int) -> bytes:
-            nonlocal preorder_index
-            if start == end:
-                return b"\0"
-            if preorder_index >= count:
-                raise ValueError("preorder ended before the inorder interval")
-            root_value = preorder[preorder_index]
-            preorder_index += 1
-            try:
-                root_position = inorder.index(root_value, start, end)
-            except ValueError as error:
-                raise ValueError("preorder root is absent from the current inorder interval") from error
-            return (b"\1" + struct.pack("<i", root_value)
-                    + serialize_tree(start, root_position)
-                    + serialize_tree(root_position + 1, end))
-
-        try:
-            output = serialize_tree(0, count)
-        except ValueError:
-            return -1, b""
-        if preorder_index != count:
-            return -1, b""
-        return count, output
+        return create_binary_tree_expected_output(values)
 
     if algorithm == "unique_permutation":
         if (not isinstance(values, list) or not 1 <= len(values) <= 7
@@ -2857,29 +4448,62 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return len(arranged), output
 
     if algorithm == "sorted_arrays_intersection":
-        if (not isinstance(values, list) or not 3 <= len(values) <= 195
-                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
-            return -1, b""
-        arrays = []
-        position = 0
-        for _ in range(3):
-            if position >= len(values) or not 0 <= values[position] <= 64:
-                return -1, b""
-            count = values[position]
-            position += 1
-            if count > len(values) - position:
-                return -1, b""
-            array = values[position:position + count]
-            if (any(not -(2**31) <= value <= 2**31 - 1 for value in array)
-                    or any(array[index - 1] >= array[index] for index in range(1, count))):
-                return -1, b""
-            arrays.append(array)
-            position += count
-        if position != len(values):
-            return -1, b""
-        common = sorted(set(arrays[0]).intersection(arrays[1], arrays[2]))
-        output = b"".join(struct.pack("<i", value) for value in common)
-        return len(common), output
+        return sorted_arrays_intersection_expected_output(values)
+    if algorithm == "compress":
+        return compress_expected_output(values)
+    if algorithm == "dilation_operation":
+        return dilation_operation_expected_output(values)
+    if algorithm == "nearest_neighbor_interpolation":
+        return nearest_neighbor_interpolation_expected_output(values)
+    if algorithm == "non_empty_subsequences":
+        return non_empty_subsequences_expected_output(values)
+    if algorithm == "particle_swarm_optimization":
+        return particle_swarm_expected_output(values)
+    if algorithm == "convolve_1d":
+        return convolve_1d_expected_output(values)
+    if algorithm == "depth_first_search_target_route":
+        return depth_first_search_target_route_expected_output(values)
+    if algorithm == "convolution_fft":
+        return convolution_fft_expected_output(values)
+    if algorithm == "text_justification":
+        return text_justification_expected_output(values)
+    if algorithm == "remove_duplicate_from_string":
+        return remove_duplicate_from_string_expected_output(values)
+    if algorithm == "max_word":
+        return max_word_expected_output(values)
+    if algorithm == "keyword_shifted_alphabet":
+        return keyword_shifted_alphabet_expected_output(values)
+    if algorithm == "integer_to_english":
+        return integer_to_english_expected_output(values)
+    if algorithm == "largest_smallest_words":
+        return largest_smallest_words_expected_output(values)
+    if algorithm == "hexa_decimal_to_binary":
+        return hexa_decimal_to_binary_expected_output(values)
+    if algorithm == "ones_complement":
+        return ones_complement_expected_output(values)
+    if algorithm == "rgbto_hex":
+        return rgbto_hex_expected_output(values)
+    if algorithm == "ipconverter":
+        return ipconverter_expected_output(values)
+    if algorithm == "shortest_palindrome":
+        return shortest_palindrome_expected_output(values)
+    if algorithm == "reverse_words_in_string":
+        return reverse_words_in_string_expected_output(values)
+    if algorithm == "numeric_string_sort":
+        return numeric_string_sort_expected_output(values)
+
+    if algorithm == "intersection_of_two_arrays":
+        return intersection_of_two_arrays_expected_output(values)
+    if algorithm == "union_of_two_arrays":
+        return union_of_two_arrays_expected_output(values)
+    if algorithm == "get_products_of_all_other_elements":
+        return get_products_of_all_other_elements_expected_output(values)
+    if algorithm == "correlation_matrix_analysis":
+        return correlation_matrix_analysis_expected_output(values)
+    if algorithm == "unique_letters_count":
+        return unique_letters_count_expected_output(values)
+    if algorithm == "convex_hull_graham":
+        return convex_hull_graham_expected_output(values)
 
     if algorithm == "cantor_set":
         if (not isinstance(values, list) or len(values) != 3
@@ -6191,6 +7815,23 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
                 state[origin] = 2
         return len(order), bytes(order)
 
+    if algorithm == "find_isolated_nodes":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 65
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)
+                or (len(values) - 1) % 2 != 0):
+            return -2, b""
+        vertex_count = values[0]
+        if not 0 <= vertex_count <= 64:
+            return -2, b""
+        adjacency = [0] * vertex_count
+        for offset in range(1, len(values), 2):
+            origin, destination = values[offset:offset + 2]
+            if not 0 <= origin < vertex_count or not 0 <= destination < vertex_count:
+                return -2, b""
+            adjacency[origin] |= 1 << destination
+        isolated = [vertex for vertex, neighbors in enumerate(adjacency) if neighbors == 0]
+        return len(isolated), bytes(isolated)
+
     if algorithm == "topological":
         if (not 1 <= len(values) <= MAX_SMALL_INPUT_LENGTH
                 or any(type(value) is not int for value in values)
@@ -7710,6 +9351,158 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         prediction = int(sum(label for _, label in nearest) > k // 2)
         return 8, struct.pack("<q", prediction)
 
+    if algorithm == "back_propagation_neural_network":
+        return back_propagation_step(values)
+
+    if algorithm == "ascon_digest":
+        return ascon_digest_expected_output(values)
+
+    if algorithm == "graph_coloring_backtracking":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 0 <= vertex_count <= 64 or not 0 <= edge_count <= 2016
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        adjacency = [set() for _ in range(vertex_count)]
+        for offset in range(2, len(values), 2):
+            left, right = values[offset:offset + 2]
+            if not 0 <= left < vertex_count or not 0 <= right < vertex_count or left == right:
+                return -1, b""
+            adjacency[left].add(right)
+            adjacency[right].add(left)
+
+        # Independent greedy oracle: on this contract the pinned source's
+        # recursive search cannot backtrack, because it has vertex_count colors.
+        colors = [0] * vertex_count
+        for vertex in range(vertex_count):
+            unavailable = {colors[neighbor] for neighbor in adjacency[vertex] if neighbor < vertex}
+            colors[vertex] = next(color for color in range(1, vertex_count + 1)
+                                  if color not in unavailable) if vertex_count else 0
+        result = [vertex_count, *colors, max(colors, default=0)]
+        encoded = b"".join(struct.pack("<q", value) for value in result)
+        return len(encoded), encoded
+
+    if algorithm == "graph_m_coloring_backtracking":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, max_colors = values[:2]
+        if (not 0 <= vertex_count <= 12 or not 0 <= max_colors <= 12
+                or len(values) != 2 + vertex_count * vertex_count):
+            return -1, b""
+        matrix = values[2:]
+        if any(value not in (0, 1) for value in matrix):
+            return -1, b""
+        adjacency = [matrix[row * vertex_count:(row + 1) * vertex_count]
+                     for row in range(vertex_count)]
+        for row in range(vertex_count):
+            if adjacency[row][row] != 0:
+                return -1, b""
+            for column in range(row):
+                if adjacency[row][column] != adjacency[column][row]:
+                    return -1, b""
+
+        # Independent DFS oracle for TheAlgorithms/Python's first valid m-coloring.
+        colors = [-1] * vertex_count
+
+        def assign(vertex: int) -> bool:
+            if vertex == vertex_count:
+                return True
+            for color in range(max_colors):
+                if any(adjacency[vertex][neighbor] == 1 and colors[neighbor] == color
+                       for neighbor in range(vertex_count)):
+                    continue
+                colors[vertex] = color
+                if assign(vertex + 1):
+                    return True
+                colors[vertex] = -1
+            return False
+
+        if not assign(0):
+            return 0, b""
+        encoded = b"".join(struct.pack("<q", color) for color in colors)
+        return len(encoded), encoded
+
+    if algorithm == "columnar_transposition":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation, text_length, raw_key_length = values[:3]
+        if (operation not in (0, 1) or not 0 <= text_length <= 256
+                or not 1 <= raw_key_length <= 32
+                or len(values) != 3 + text_length + raw_key_length):
+            return -1, b""
+        text = values[3:3 + text_length]
+        raw_key = values[3 + text_length:]
+        if any(not 0 <= byte <= 127 for byte in text + raw_key):
+            return -1, b""
+        key = [byte - 32 if 97 <= byte <= 122 else byte
+               for byte in raw_key if 65 <= byte <= 90 or 97 <= byte <= 122]
+        if not key:
+            return -1, b""
+        order = sorted(range(len(key)), key=lambda index: (key[index], index))
+        columns = len(key)
+        rows = (text_length + columns - 1) // columns
+        if operation == 0:
+            encoded = bytearray()
+            for column in order:
+                for row in range(rows):
+                    index = row * columns + column
+                    if index < text_length:
+                        encoded.append(text[index])
+        else:
+            short_columns = text_length % columns
+            lengths = [rows if short_columns == 0 or column < short_columns else rows - 1
+                       for column in range(columns)]
+            column_data = [bytearray(length) for length in lengths]
+            offset = 0
+            for column in order:
+                length = lengths[column]
+                column_data[column][:] = bytes(text[offset:offset + length])
+                offset += length
+            decoded = bytearray()
+            for row in range(rows):
+                for column in range(columns):
+                    if row < lengths[column]:
+                        decoded.append(column_data[column][row])
+            encoded = decoded
+        return len(encoded), bytes(encoded)
+
+    if algorithm == "combination_sum":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        candidate_count, target = values[:2]
+        candidates = values[2:]
+        if (not 1 <= candidate_count <= 8 or not 0 <= target <= 20
+                or len(candidates) != candidate_count
+                or any(not 1 <= value <= 24 for value in candidates)
+                or any(candidates[index - 1] >= candidates[index] for index in range(1, candidate_count))):
+            return -1, b""
+        combinations_found: list[list[int]] = []
+
+        def search(start: int, remaining: int, path: list[int]) -> None:
+            if remaining == 0:
+                combinations_found.append(path.copy())
+                return
+            for index in range(start, candidate_count):
+                candidate = candidates[index]
+                if candidate > remaining:
+                    break
+                path.append(candidate)
+                search(index, remaining - candidate, path)
+                path.pop()
+
+        search(0, target, [])
+        packed = [len(combinations_found)]
+        for combination in combinations_found:
+            packed.append(len(combination))
+            packed.extend(combination)
+        encoded = b"".join(struct.pack("<q", value) for value in packed)
+        return len(encoded), encoded
+
     if algorithm == "bfs_graph_coloring":
         if (not isinstance(values, list) or len(values) < 2
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -7771,6 +9564,74 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         encoded = b"".join(struct.pack("<q", value) for value in result)
         return len(encoded), encoded
 
+    if algorithm == "binary_heap_indexed_operations":
+        if (not isinstance(values, list) or not 2 <= len(values) <= 1538
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        capacity, operation_count = values[:2]
+        if (not 1 <= capacity <= 256 or not 0 <= operation_count <= 512
+                or len(values) != 2 + 3 * operation_count):
+            return -1, b""
+        heap: list[int] = []
+        observations: list[int] = []
+
+        def bubble_up(index: int) -> None:
+            while index > 0:
+                parent = (index - 1) // 2
+                if heap[parent] <= heap[index]:
+                    break
+                heap[parent], heap[index] = heap[index], heap[parent]
+                index = parent
+
+        def sift_down(index: int) -> None:
+            while True:
+                left = 2 * index + 1
+                right = left + 1
+                smallest = index
+                if left < len(heap) and heap[left] < heap[smallest]:
+                    smallest = left
+                if right < len(heap) and heap[right] < heap[smallest]:
+                    smallest = right
+                if smallest == index:
+                    break
+                heap[index], heap[smallest] = heap[smallest], heap[index]
+                index = smallest
+
+        for offset in range(2, len(values), 3):
+            operation, arg1, arg2 = values[offset:offset + 3]
+            if operation == 0:
+                if not -(2**31) <= arg1 <= 2**31 - 1 or arg2 != 0:
+                    return -1, b""
+                if len(heap) < capacity:
+                    heap.append(arg1)
+                    bubble_up(len(heap) - 1)
+            elif operation in (1, 2):
+                if arg1 != 0 or arg2 != 0 or (operation == 1 and not heap):
+                    return -1, b""
+                observations.append(heap[0] if heap else 2**31 - 1)
+                if operation == 2 and heap:
+                    heap[0] = heap.pop()
+                    if heap:
+                        sift_down(0)
+            elif operation == 3:
+                if (arg1 < 0 or arg1 >= len(heap) or not -(2**31) <= arg2 <= 2**31 - 1
+                        or arg2 > heap[arg1]):
+                    return -1, b""
+                heap[arg1] = arg2
+                bubble_up(arg1)
+            elif operation == 4:
+                if arg1 < 0 or arg1 >= len(heap) or arg2 != 0:
+                    return -1, b""
+                heap[arg1] = -(2**31)
+                bubble_up(arg1)
+                heap[0] = heap.pop()
+                if heap:
+                    sift_down(0)
+            else:
+                return -1, b""
+        encoded = b"".join(struct.pack("<q", value) for value in observations)
+        return len(encoded), encoded
+
     if algorithm == "binary_heap_min_push_peek_pop":
         if (not isinstance(values, list) or not 2 <= len(values) <= 257
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
@@ -7805,6 +9666,1310 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
             weighted_cost += merged
             heapq.heappush(weights, merged)
         return weighted_cost, struct.pack("<q", weighted_cost)
+
+    if algorithm == "dijkstra_positive_connected":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 2 <= vertex_count <= 4
+                or not vertex_count - 1 <= edge_count <= vertex_count * (vertex_count - 1) // 2
+                or len(values) != 2 + 3 * edge_count):
+            return -1, b""
+        adjacency = [[] for _ in range(vertex_count)]
+        seen_edges = set()
+        for offset in range(2, len(values), 3):
+            left, right, weight = values[offset:offset + 3]
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count or left == right
+                    or not 1 <= weight <= 255):
+                return -1, b""
+            edge = (min(left, right), max(left, right))
+            if edge in seen_edges:
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[left].append((right, weight))
+            adjacency[right].append((left, weight))
+        distances = [None] * vertex_count
+        distances[0] = 0
+        queue = [(0, 0)]
+        while queue:
+            distance_value, vertex = heapq.heappop(queue)
+            if distance_value != distances[vertex]:
+                continue
+            for neighbor, weight in adjacency[vertex]:
+                candidate = distance_value + weight
+                if distances[neighbor] is None or candidate < distances[neighbor]:
+                    distances[neighbor] = candidate
+                    heapq.heappush(queue, (candidate, neighbor))
+        if any(distance_value is None for distance_value in distances):
+            return -1, b""
+        encoded = b"".join(struct.pack("<q", distance_value) for distance_value in distances)
+        return len(encoded), encoded
+
+    if algorithm == "skip_list_unique_key_set":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 128 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        keys: set[int] = set()
+        for offset in range(1, len(values), 2):
+            opcode, key = values[offset:offset + 2]
+            if opcode not in (0, 1, 2) or not -(2**31) < key < 2**31 - 1:
+                return -1, b""
+            if opcode == 0:
+                if key in keys:
+                    return -1, b""
+                keys.add(key)
+            elif opcode == 1:
+                # Membership queries are validated but the canonical output is
+                # the final ordered set, so they do not add output records.
+                _present = key in keys
+            else:
+                if key not in keys:
+                    return -1, b""
+                keys.remove(key)
+        encoded = b"".join(struct.pack("<q", key) for key in sorted(keys))
+        return len(encoded), encoded
+
+    if algorithm == "adams_bashforth":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        order, forecast_steps = values[:2]
+        initial_scaled = values[2:]
+        if (order not in (2, 3, 4, 5) or not 1 <= forecast_steps <= 4
+                or len(initial_scaled) != order
+                or any(not -100_000 <= value <= 100_000 for value in initial_scaled)):
+            return -1, b""
+        coefficients = {2: (3, -1), 3: (23, -16, 5),
+                        4: (55, -59, 37, -9), 5: (1901, -2774, -2616, -1274, 251)}[order]
+        denominator = {2: 2.0, 3: 12.0, 4: 24.0, 5: 720.0}[order]
+        xs = [index * 0.25 for index in range(order)]
+        ys = [value / 100_000.0 for value in initial_scaled]
+        iterations = forecast_steps + (1 if order in (3, 5) else 0)
+        for _ in range(iterations):
+            weighted = 0.0
+            for offset, coefficient in enumerate(coefficients):
+                index = len(ys) - 1 - offset
+                weighted += coefficient * (xs[index] + ys[index])
+            ys.append(ys[-1] + (0.25 / denominator) * weighted)
+            xs.append(xs[-1] + 0.25)
+        output = ",".join(str(int(value * 1_000_000.0)) for value in ys).encode("ascii")
+        return len(output), output
+
+    if algorithm == "allocation_number":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        number_of_bytes, partitions = values
+        if not 1 <= number_of_bytes <= 1_000_000 or not 1 <= partitions <= 128 or partitions > number_of_bytes:
+            return -1, b""
+        block = number_of_bytes // partitions
+        ranges = []
+        for index in range(partitions):
+            start = index * block + 1
+            end = (index + 1) * block if index + 1 < partitions else number_of_bytes
+            ranges.append(f"{start}-{end}")
+        output = ",".join(ranges).encode("ascii")
+        return len(output), output
+
+    if algorithm == "auto_correlation":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        signal = values[1:]
+        if (not 1 <= count <= 64 or len(signal) != count
+                or any(not -1_000_000 <= value <= 1_000_000 for value in signal)):
+            return -1, b""
+        coefficients = []
+        for index in range(2 * count - 1):
+            k_min = max(0, index - (count - 1))
+            k_max = min(index, count - 1)
+            y_start = max(0, count - index - 1)
+            total = 0
+            for k in range(k_min, k_max + 1):
+                total += signal[k] * signal[y_start + k - k_min]
+            coefficients.append(total)
+        output = b"".join(struct.pack("<q", value) for value in coefficients)
+        return len(output), output
+
+    if algorithm == "booths_algorithm":
+        if (not isinstance(values, list) or not 1 <= len(values) <= 256
+                or any(type(value) is not int or not 0 <= value <= 127 for value in values)):
+            return -1, b""
+        rotation = min(tuple(values[index:] + values[:index]) for index in range(len(values)))
+        output = bytes(rotation)
+        return len(output), output
+
+    if algorithm == "circular_convolution":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        a_length, b_length = values[:2]
+        if (not 1 <= a_length <= 8 or not 1 <= b_length <= 8
+                or len(values) != 2 + a_length + b_length):
+            return -1, b""
+        a_values = values[2:2 + a_length]
+        b_values = values[2 + a_length:]
+        if any(not -2 <= value <= 2 for value in a_values + b_values):
+            return -1, b""
+        size = max(a_length, b_length)
+        a_values = a_values + [0] * (size - a_length)
+        b_values = b_values + [0] * (size - b_length)
+        result = [sum(a_values[index] * b_values[(output_index - index) % size]
+                      for index in range(size)) for output_index in range(size)]
+        return size, bytes(value & 0xFF for value in result)
+
+    if algorithm == "decimal_expansion":
+        if (not isinstance(values, list) or len(values) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        numerator, denominator, base = values
+        if not 0 <= numerator <= denominator <= 256 or not 2 <= base <= 10:
+            return -1, b""
+        if numerator == 0:
+            whole, digits, repeat = 0, [], -1
+        elif numerator == denominator:
+            whole, digits, repeat = 1, [], -1
+        else:
+            whole = 0
+            remainder = numerator
+            first_seen = {}
+            digits = []
+            while remainder and remainder not in first_seen:
+                first_seen[remainder] = len(digits)
+                digit, remainder = divmod(remainder * base, denominator)
+                digits.append(digit)
+            repeat = first_seen[remainder] if remainder else -1
+        output = struct.pack("<qqq", whole, len(digits), repeat) + bytes(digits)
+        return len(output), output
+
+    if algorithm == "euler_method":
+        if (not isinstance(values, list) or len(values) != 4
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        x_start, y_start, denominator_power, step_count = values
+        if (not -8 <= x_start <= 8 or not -8 <= y_start <= 8
+                or not 1 <= denominator_power <= 4 or not 1 <= step_count <= 16):
+            return -1, b""
+        step = 1.0 / (1 << denominator_power)
+        x, y = float(x_start), float(y_start)
+        trajectory = [y]
+        for _ in range(step_count):
+            y = y + step * (x + y)
+            x = x + step
+            trajectory.append(y)
+        output = b"".join(struct.pack("<d", value) for value in trajectory)
+        return len(output), output
+
+    if algorithm == "exponential_moving_average":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        window_size, count = values[:2]
+        prices = values[2:]
+        if (not 2 <= window_size <= 32 or not 1 <= count <= 256 or len(prices) != count
+                or any(not -1_000_000 <= value <= 1_000_000 for value in prices)):
+            return -1, b""
+        averages = [float(prices[0])]
+        alpha = 2.0 / (1.0 + window_size)
+        for index in range(1, count):
+            price = float(prices[index])
+            previous = averages[-1]
+            if index <= window_size:
+                averages.append((previous + price) * 0.5)
+            else:
+                averages.append(alpha * price + (1.0 - alpha) * previous)
+        output = b"".join(struct.pack("<d", value) for value in averages)
+        return len(output), output
+
+    if algorithm == "exponential_moving_average_java_stream":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        seed, count = values[:2]
+        samples = values[2:]
+        if (not -1_000_000 <= seed <= 1_000_000 or not 0 <= count <= 256
+                or len(samples) != count or any(not -1_000_000 <= value <= 1_000_000 for value in samples)):
+            return -1, b""
+        mean = float(seed)
+        variance = 0.0
+        for sample in samples:
+            deviation = float(sample) - mean
+            mean += 0.25 * deviation
+            variance = 0.75 * (variance + 0.25 * deviation * deviation)
+        output = struct.pack("<ddq", mean, variance, count)
+        return len(output), output
+
+    if algorithm == "farey_approximation":
+        if (not isinstance(values, list) or len(values) != 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        decimal_millionths, repetitions = values
+        if not 0 < decimal_millionths < 1_000_000 or not 1 <= repetitions <= 20:
+            return -1, b""
+        lower_num, lower_den = 0, 1
+        upper_num, upper_den = 1, 1
+        result_num, result_den = 0, 1
+        for _ in range(repetitions):
+            result_num = lower_num + upper_num
+            result_den = lower_den + upper_den
+            if decimal_millionths * result_den > 1_000_000 * result_num:
+                lower_num, lower_den = result_num, result_den
+            else:
+                upper_num, upper_den = result_num, result_den
+        output = struct.pack("<qq", result_num, result_den)
+        return len(output), output
+
+    if algorithm == "linear_congruential_generator":
+        if (not isinstance(values, list) or len(values) != 5
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        seed, multiplier, increment, modulo, count = values
+        if (not 2 <= modulo <= 2**32 or not 0 <= seed < modulo
+                or not 0 <= multiplier <= 65_535 or not 0 <= increment <= 2**32 - 1
+                or not 0 <= count <= 512):
+            return -1, b""
+        states = []
+        state = seed
+        for _ in range(count):
+            state = (multiplier * state + increment) % modulo
+            states.append(state)
+        output = b"".join(struct.pack("<Q", state) for state in states)
+        return len(output), output
+
+    if algorithm == "matrix_multiplication":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -2, b""
+        dimension = values[0]
+        if not 2 <= dimension <= 8 or len(values) != 1 + 2 * dimension * dimension:
+            return -2, b""
+        cells = values[1:]
+        if any(not -1000 <= value <= 1000 for value in cells):
+            return -2, b""
+        split = dimension * dimension
+        left = cells[:split]
+        right = cells[split:]
+        product = []
+        for row in range(dimension):
+            for column in range(dimension):
+                total = 0
+                for inner in range(dimension):
+                    total += left[row * dimension + inner] * right[inner * dimension + column]
+                product.append(total)
+        output = b"".join(struct.pack("<q", value) for value in product)
+        return dimension * dimension, output
+
+    if algorithm in {"simple_moving_average", "streaming_moving_average"}:
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        window_size, count = values[:2]
+        data = values[2:]
+        if (not 1 <= window_size <= 256 or not 1 <= count <= 256 or len(data) != count
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in data)):
+            return -1, b""
+        encoded = bytearray()
+        for index in range(count):
+            start = max(0, index + 1 - window_size)
+            if algorithm == "simple_moving_average" and index + 1 < window_size:
+                encoded.extend(struct.pack("<Q", 0x7FF8000000000000))
+            else:
+                window = data[start:index + 1]
+                average = sum(window) / float(len(window))
+                encoded.extend(struct.pack("<d", average))
+        return len(encoded), bytes(encoded)
+
+    if algorithm == "weighted_interval_scheduling":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        count = values[0]
+        if not 0 <= count <= 64 or len(values) != 1 + 3 * count:
+            return -1, b""
+        intervals = []
+        for index in range(count):
+            start, end, weight = values[1 + 3 * index:4 + 3 * index]
+            if (not -100_000 <= start <= 100_000 or not -100_000 <= end <= 100_000
+                    or start >= end or not 0 <= weight <= 1_000_000):
+                return -1, b""
+            intervals.append((start, end, weight, index))
+        ordered = sorted(intervals, key=lambda interval: interval[1])
+        ends = [interval[1] for interval in ordered]
+        predecessors = []
+        best = [0] * (count + 1)
+        for index, (start, end, weight, original_index) in enumerate(ordered):
+            predecessor_count = bisect.bisect_right(ends, start, 0, index)
+            predecessors.append(predecessor_count)
+            include = weight + best[predecessor_count]
+            best[index + 1] = include if include > best[index] else best[index]
+        selected = []
+        current = count
+        while current:
+            index = current - 1
+            start, end, weight, original_index = ordered[index]
+            include = weight + best[predecessors[index]]
+            if include > best[current - 1]:
+                selected.append(original_index)
+                current = predecessors[index]
+            else:
+                current -= 1
+        selected.reverse()
+        output = struct.pack("<qq", best[count], len(selected))
+        output += b"".join(struct.pack("<i", index) for index in selected)
+        return len(output), output
+
+    if algorithm == "graph_c_undirected_simple":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 1 <= vertex_count <= 32 or not 0 <= edge_count <= 2047
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        matrix = [[0] * vertex_count for _ in range(vertex_count)]
+        for offset in range(2, len(values), 2):
+            left, right = values[offset:offset + 2]
+            if not 0 <= left < vertex_count or not 0 <= right < vertex_count:
+                return -1, b""
+            matrix[left][right] = matrix[right][left] = 1
+        output = b"".join(struct.pack("<q", cell) for row in matrix for cell in row)
+        return len(output), output
+
+    if algorithm == "graph_rust_weighted":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 0 <= vertex_count <= 64 or not 0 <= edge_count <= 256
+                or len(values) != 2 + 3 * edge_count):
+            return -1, b""
+        adjacency: list[list[tuple[int, int]]] = [[] for _ in range(vertex_count)]
+        for offset in range(2, len(values), 3):
+            left, right, weight = values[offset:offset + 3]
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                    or not -(2**31) <= weight <= 2**31 - 1):
+                return -1, b""
+            adjacency[left].append((right, weight))
+            adjacency[right].append((left, weight))
+        output_values = [vertex_count]
+        for neighbors in adjacency:
+            output_values.append(len(neighbors))
+            for neighbor, weight in neighbors:
+                output_values.extend((neighbor, weight))
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "graph_js_undirected_unweighted":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count = values[0]
+        if not 1 <= vertex_count <= 26 or len(values) < vertex_count + 3:
+            return -1, b""
+        vertices = values[1:1 + vertex_count]
+        if (len(set(vertices)) != vertex_count
+                or any(not 97 <= vertex <= 122 for vertex in vertices)):
+            return -1, b""
+        edge_count_index = 1 + vertex_count
+        edge_count = values[edge_count_index]
+        if (not 0 <= edge_count <= 256
+                or len(values) != vertex_count + 3 + 2 * edge_count):
+            return -1, b""
+        start = values[-1]
+        if start not in vertices:
+            return -1, b""
+        adjacency = {vertex: [] for vertex in vertices}
+        edge_start = edge_count_index + 1
+        for offset in range(edge_start, edge_start + 2 * edge_count, 2):
+            left, right = values[offset:offset + 2]
+            if not 97 <= left <= 122 or not 97 <= right <= 122:
+                return -1, b""
+            # The JavaScript Graph.addEdge implementation creates/uses map
+            # entries by key; workload semantics ignore endpoints not declared.
+            if left in adjacency and right in adjacency:
+                adjacency[left].append(right)
+                adjacency[right].append(left)
+        output_values = [vertex_count]
+        for vertex in vertices:
+            output_values.extend((vertex, len(adjacency[vertex]), *adjacency[vertex]))
+        levels = {start: 0}
+        queue = [start]
+        bfs_order = []
+        cursor = 0
+        while cursor < len(queue):
+            vertex = queue[cursor]
+            cursor += 1
+            bfs_order.append(vertex)
+            for neighbor in adjacency[vertex]:
+                if neighbor not in levels:
+                    levels[neighbor] = levels[vertex] + 1
+                    queue.append(neighbor)
+        output_values.append(len(bfs_order))
+        for vertex in bfs_order:
+            output_values.extend((vertex, levels[vertex]))
+        visited = set()
+        dfs_order = []
+        def visit(vertex: int) -> None:
+            if vertex in visited:
+                return
+            visited.add(vertex)
+            dfs_order.append(vertex)
+            for neighbor in adjacency[vertex]:
+                visit(neighbor)
+        visit(start)
+        output_values.extend((len(dfs_order), *dfs_order))
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "graph_lua_directed_weighted":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        node_count, operation_count = values[:2]
+        if (not 1 <= node_count <= 16 or not 0 <= operation_count <= 63
+                or len(values) != 2 + 4 * operation_count):
+            return -1, b""
+        edges: dict[tuple[int, int], tuple[int, int]] = {}
+        results: list[tuple[int, int]] = []
+        for offset in range(2, len(values), 4):
+            operation, source, target, value = values[offset:offset + 4]
+            if not 0 <= source < node_count or not 0 <= target < node_count:
+                return -1, b""
+            if operation == 0:
+                if not -1000 <= value <= 1000:
+                    return -1, b""
+                edges[source, target] = (2, value)
+                results.append((-1, 0))
+            elif operation == 1:
+                if value != 0:
+                    return -1, b""
+                edges[source, target] = (1, 0)
+                results.append((-1, 0))
+            elif operation == 2:
+                if value != 0:
+                    return -1, b""
+                edges.pop((source, target), None)
+                results.append((-1, 0))
+            elif operation == 3:
+                if value != 0 or (source, target) in edges:
+                    return -1, b""
+                edges[source, target] = (1, 0)
+                results.append((-1, 0))
+            elif operation == 4:
+                if value != 0:
+                    return -1, b""
+                results.append(edges.get((source, target), (0, 0)))
+            elif operation == 5:
+                if value != 0:
+                    return -1, b""
+                results.append((int((source, target) in edges), 0))
+            else:
+                return -1, b""
+        output_values = [operation_count]
+        for result in results:
+            output_values.extend(result)
+        ordered_edges = sorted(edges.items())
+        output_values.append(len(ordered_edges))
+        for (source, target), (kind, weight) in ordered_edges:
+            output_values.extend((source, target, kind, weight))
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "min_heap_bulk_extract_sorted":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        count = values[0]
+        if (not 1 <= count <= 4095 or len(values) != count + 1
+                or any(not -(2**31) <= value <= 2**31 - 1 for value in values[1:])):
+            return -1, b""
+        output = b"".join(struct.pack("<q", value) for value in sorted(values[1:]))
+        return len(output), output
+
+    if algorithm == "graph_swift_directed_paths":
+        if (not isinstance(values, list) or len(values) < 3
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if not 1 <= vertex_count <= 32 or not 0 <= edge_count <= 256:
+            return -1, b""
+        query_count_index = 2 + 2 * edge_count
+        if (query_count_index >= len(values)
+                or len(values) < query_count_index + 1):
+            return -1, b""
+        query_count = values[query_count_index]
+        if (not 1 <= query_count <= 64
+                or len(values) != 3 + 2 * edge_count + 3 * query_count):
+            return -1, b""
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        for offset in range(2, query_count_index, 2):
+            source, destination = values[offset:offset + 2]
+            if not 0 <= source < destination < vertex_count:
+                return -1, b""
+            adjacency[source].append(destination)
+
+        output_values = []
+        queries_start = query_count_index + 1
+        for offset in range(queries_start, len(values), 3):
+            mode, start, destination = values[offset:offset + 3]
+            if mode not in (0, 1) or not 0 <= start < vertex_count or not 0 <= destination < vertex_count:
+                return -1, b""
+            if start == destination:
+                output_values.append(0)
+                continue
+            if mode == 0:
+                visited: set[int] = set()
+                path: list[int] = []
+
+                def find_depth_first(vertex: int) -> bool:
+                    if vertex == destination:
+                        return True
+                    visited.add(vertex)
+                    for neighbor in adjacency[vertex]:
+                        if neighbor not in visited:
+                            path.append(neighbor)
+                            if find_depth_first(neighbor):
+                                return True
+                            path.pop()
+                    return False
+
+                found = find_depth_first(start)
+            else:
+                parents: dict[int, int | None] = {start: None}
+                queue = [start]
+                cursor = 0
+                while cursor < len(queue) and destination not in parents:
+                    vertex = queue[cursor]
+                    cursor += 1
+                    for neighbor in adjacency[vertex]:
+                        if neighbor not in parents:
+                            parents[neighbor] = vertex
+                            queue.append(neighbor)
+                found = destination in parents
+                path = []
+                if found:
+                    current = destination
+                    while current != start:
+                        path.append(current)
+                        parent = parents[current]
+                        assert parent is not None
+                        current = parent
+                    path.reverse()
+            if found:
+                output_values.extend((len(path), *path))
+            else:
+                output_values.append(-1)
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "red_black_tree_unique_key_ops":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 128 or len(values) != 1 + 2 * operation_count):
+            return -1, b""
+        keys: set[int] = set()
+        searches = []
+        for offset in range(1, len(values), 2):
+            operation, key = values[offset:offset + 2]
+            if operation not in (0, 1, 2) or not -(2**31) <= key <= 2**31 - 1:
+                return -1, b""
+            if operation == 0:
+                if key in keys:
+                    return -1, b""
+                keys.add(key)
+            elif operation == 1:
+                searches.append(int(key in keys))
+            else:
+                if key not in keys:
+                    return -1, b""
+                keys.remove(key)
+        ordered = sorted(keys)
+        output_values = [len(ordered), *ordered, len(searches), *searches]
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "red_black_tree_insert_search":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if (not 0 <= operation_count <= 128 or len(values) != 1 + 2 * operation_count):
+            return -1, b""
+        keys: set[int] = set()
+        searches = []
+        for offset in range(1, len(values), 2):
+            operation, key = values[offset:offset + 2]
+            if operation not in (0, 1) or not -(2**31) <= key <= 2**31 - 1:
+                return -1, b""
+            if operation == 0:
+                if key in keys:
+                    return -1, b""
+                keys.add(key)
+            else:
+                searches.append(int(key in keys))
+        ordered = sorted(keys)
+        output_values = [len(ordered), *ordered, len(searches), *searches]
+        output = b"".join(struct.pack("<q", value) for value in output_values)
+        return len(output), output
+
+    if algorithm == "heavy_light_decomposition_metadata":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 1 <= vertex_count <= 128 or edge_count != vertex_count - 1
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        seen_edges: set[tuple[int, int]] = set()
+        for offset in range(2, len(values), 2):
+            left, right = values[offset:offset + 2]
+            edge = (min(left, right), max(left, right))
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                    or left == right or edge in seen_edges):
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[left].append(right)
+            adjacency[right].append(left)
+
+        parent = [-2] * vertex_count
+        parent[0] = -1
+        order = [0]
+        for vertex in order:
+            for neighbor in adjacency[vertex]:
+                if neighbor == parent[vertex]:
+                    continue
+                if parent[neighbor] != -2:
+                    return -1, b""
+                parent[neighbor] = vertex
+                order.append(neighbor)
+        if len(order) != vertex_count:
+            return -1, b""
+
+        subtree_size = [1] * vertex_count
+        heavy_child = [-1] * vertex_count
+        for vertex in reversed(order[1:]):
+            p = parent[vertex]
+            subtree_size[p] += subtree_size[vertex]
+        for vertex in range(vertex_count):
+            for child in adjacency[vertex]:
+                if parent[child] != vertex:
+                    continue
+                current_heavy = heavy_child[vertex]
+                if current_heavy == -1 or subtree_size[child] > subtree_size[current_heavy]:
+                    heavy_child[vertex] = child
+
+        positions = [0] * vertex_count
+        chain_heads = [0] * vertex_count
+        next_position = 0
+        chains = [(0, 0)]
+        while chains:
+            vertex, head = chains.pop()
+            positions[vertex] = next_position
+            chain_heads[vertex] = head
+            next_position += 1
+            # Stack light children in reverse so they are visited in adjacency
+            # order after the heavy child's full subtree.
+            light_children = [child for child in adjacency[vertex]
+                              if parent[child] == vertex and child != heavy_child[vertex]]
+            for child in reversed(light_children):
+                chains.append((child, child))
+            if heavy_child[vertex] != -1:
+                chains.append((heavy_child[vertex], head))
+        output_values = [vertex_count]
+        for vertex in range(vertex_count):
+            output_values.extend((positions[vertex], chain_heads[vertex], heavy_child[vertex]))
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "btree_unique_key_set":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        insert_count = values[0]
+        if not 0 <= insert_count <= 2048 or len(values) < insert_count + 2:
+            return -1, b""
+        insert_start = 1
+        query_count_index = insert_start + insert_count
+        query_count = values[query_count_index]
+        if not 0 <= query_count <= 1024 or len(values) < query_count_index + query_count + 2:
+            return -1, b""
+        query_start = query_count_index + 1
+        delete_count_index = query_start + query_count
+        delete_count = values[delete_count_index]
+        if (not 0 <= delete_count <= 1024
+                or len(values) != delete_count_index + delete_count + 1):
+            return -1, b""
+        inserted = values[insert_start:query_count_index]
+        queries = values[query_start:delete_count_index]
+        deleted = values[delete_count_index + 1:]
+        if any(not -(2**31) <= key <= 2**31 - 1 for key in (*inserted, *queries, *deleted)):
+            return -1, b""
+        if len(set(inserted)) != insert_count:
+            return -1, b""
+        active = set(inserted)
+        if any(key not in active for key in deleted) or len(set(deleted)) != delete_count:
+            return -1, b""
+        present = [int(key in active) for key in queries]
+        active.difference_update(deleted)
+        ordered = sorted(active)
+        output_values = [query_count, *present, len(ordered), *ordered]
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "heavy_light_path_sum":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, operation_count = values[:2]
+        if (not 1 <= vertex_count <= 64 or not 0 <= operation_count <= 128
+                or len(values) != 3 * vertex_count + 3 * operation_count):
+            return -1, b""
+        value_start = 2
+        values_end = value_start + vertex_count
+        node_values = values[value_start:values_end]
+        if any(not -(2**31) <= item <= 2**31 - 1 for item in node_values):
+            return -1, b""
+        edge_start = values_end
+        edge_end = edge_start + 2 * (vertex_count - 1)
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        seen_edges: set[tuple[int, int]] = set()
+        for offset in range(edge_start, edge_end, 2):
+            left, right = values[offset:offset + 2]
+            edge = (min(left, right), max(left, right))
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                    or left == right or edge in seen_edges):
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[left].append(right)
+            adjacency[right].append(left)
+        parents = [-2] * vertex_count
+        parents[0] = -1
+        order = [0]
+        for vertex in order:
+            for neighbor in adjacency[vertex]:
+                if neighbor == parents[vertex]:
+                    continue
+                if parents[neighbor] != -2:
+                    return -1, b""
+                parents[neighbor] = vertex
+                order.append(neighbor)
+        if len(order) != vertex_count:
+            return -1, b""
+
+        output_values = []
+        for offset in range(edge_end, len(values), 3):
+            operation, first, second_or_value = values[offset:offset + 3]
+            if operation == 0:
+                if (not 0 <= first < vertex_count
+                        or not -(2**31) <= second_or_value <= 2**31 - 1):
+                    return -1, b""
+                node_values[first] = second_or_value
+            elif operation == 1:
+                destination = second_or_value
+                if not 0 <= first < vertex_count or not 0 <= destination < vertex_count:
+                    return -1, b""
+                path_parent = [-2] * vertex_count
+                path_parent[first] = -1
+                stack = [first]
+                while stack and path_parent[destination] == -2:
+                    vertex = stack.pop()
+                    for neighbor in adjacency[vertex]:
+                        if path_parent[neighbor] == -2:
+                            path_parent[neighbor] = vertex
+                            stack.append(neighbor)
+                total = 0
+                cursor = destination
+                while cursor != -1:
+                    total += node_values[cursor]
+                    if cursor == first:
+                        break
+                    cursor = path_parent[cursor]
+                output_values.append(total)
+            else:
+                return -1, b""
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "heavy_light_path_max":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, operation_count = values[:2]
+        if (not 1 <= vertex_count <= 64 or not 0 <= operation_count <= 128
+                or len(values) != 3 * vertex_count + 3 * operation_count):
+            return -1, b""
+        values_end = 2 + vertex_count
+        node_values = values[2:values_end]
+        if any(not -(2**31) <= item <= 2**31 - 1 for item in node_values):
+            return -1, b""
+        edge_end = values_end + 2 * (vertex_count - 1)
+        adjacency: list[list[int]] = [[] for _ in range(vertex_count)]
+        seen_edges: set[tuple[int, int]] = set()
+        for offset in range(values_end, edge_end, 2):
+            left, right = values[offset:offset + 2]
+            edge = (min(left, right), max(left, right))
+            if (not 0 <= left < vertex_count or not 0 <= right < vertex_count
+                    or left == right or edge in seen_edges):
+                return -1, b""
+            seen_edges.add(edge)
+            adjacency[left].append(right)
+            adjacency[right].append(left)
+        parents = [-2] * vertex_count
+        parents[0] = -1
+        order = [0]
+        for vertex in order:
+            for neighbor in adjacency[vertex]:
+                if neighbor == parents[vertex]:
+                    continue
+                if parents[neighbor] != -2:
+                    return -1, b""
+                parents[neighbor] = vertex
+                order.append(neighbor)
+        if len(order) != vertex_count:
+            return -1, b""
+
+        output_values = []
+        for offset in range(edge_end, len(values), 3):
+            operation, first, second_or_value = values[offset:offset + 3]
+            if operation == 0:
+                if (not 0 <= first < vertex_count
+                        or not -(2**31) <= second_or_value <= 2**31 - 1):
+                    return -1, b""
+                node_values[first] = second_or_value
+            elif operation == 1:
+                destination = second_or_value
+                if not 0 <= first < vertex_count or not 0 <= destination < vertex_count:
+                    return -1, b""
+                path_parent = [-2] * vertex_count
+                path_parent[first] = -1
+                stack = [first]
+                while stack and path_parent[destination] == -2:
+                    vertex = stack.pop()
+                    for neighbor in adjacency[vertex]:
+                        if path_parent[neighbor] == -2:
+                            path_parent[neighbor] = vertex
+                            stack.append(neighbor)
+                maximum = node_values[destination]
+                cursor = destination
+                while cursor != -1:
+                    maximum = max(maximum, node_values[cursor])
+                    if cursor == first:
+                        break
+                    cursor = path_parent[cursor]
+                output_values.append(maximum)
+            else:
+                return -1, b""
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "count_min_sketch_width_one_collision":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        operation_count = values[0]
+        if not 0 <= operation_count <= 256 or len(values) != 1 + 2 * operation_count:
+            return -1, b""
+        insert_count = 0
+        query_results = []
+        for offset in range(1, len(values), 2):
+            operation, key = values[offset:offset + 2]
+            if operation not in (0, 1) or not -1_000_000 <= key <= 1_000_000:
+                return -1, b""
+            if operation == 0:
+                insert_count += 1
+            else:
+                query_results.append(insert_count)
+        output = b"".join(struct.pack("<q", result) for result in query_results)
+        return len(output), output
+
+    if algorithm == "autocomplete_using_trie":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        word_count = values[0]
+        if not 0 <= word_count <= 32:
+            return -1, b""
+        cursor = 1
+        words = []
+        for _ in range(word_count):
+            if cursor >= len(values):
+                return -1, b""
+            length = values[cursor]
+            cursor += 1
+            if not 1 <= length <= 16 or cursor + length > len(values):
+                return -1, b""
+            codes = values[cursor:cursor + length]
+            if any(not 97 <= code <= 122 for code in codes):
+                return -1, b""
+            words.append(bytes(codes).decode("ascii"))
+            cursor += length
+        if len(set(words)) != word_count or cursor >= len(values):
+            return -1, b""
+        query_count = values[cursor]
+        cursor += 1
+        if not 0 <= query_count <= 16:
+            return -1, b""
+        prefixes = []
+        for _ in range(query_count):
+            if cursor >= len(values):
+                return -1, b""
+            length = values[cursor]
+            cursor += 1
+            if not 0 <= length <= 16 or cursor + length > len(values):
+                return -1, b""
+            codes = values[cursor:cursor + length]
+            if any(not 97 <= code <= 122 for code in codes):
+                return -1, b""
+            prefixes.append(bytes(codes).decode("ascii"))
+            cursor += length
+        if cursor != len(values):
+            return -1, b""
+        output_values = [query_count]
+        for prefix in prefixes:
+            matches = sorted(word for word in words if word.startswith(prefix))
+            output_values.append(len(matches))
+            for word in matches:
+                output_values.extend((len(word), *(ord(character) for character in word)))
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "transitive_closure_reflexive_matrix":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 1 <= vertex_count <= 32 or not 0 <= edge_count <= vertex_count * (vertex_count - 1)
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        reachability = [[int(row == column) for column in range(vertex_count)]
+                        for row in range(vertex_count)]
+        edges = set()
+        for offset in range(2, len(values), 2):
+            source, destination = values[offset:offset + 2]
+            edge = (source, destination)
+            if (not 0 <= source < vertex_count or not 0 <= destination < vertex_count
+                    or source == destination or edge in edges):
+                return -1, b""
+            edges.add(edge)
+            reachability[source][destination] = 1
+        for intermediate in range(vertex_count):
+            for source in range(vertex_count):
+                if reachability[source][intermediate]:
+                    for destination in range(vertex_count):
+                        reachability[source][destination] |= reachability[intermediate][destination]
+        output = b"".join(struct.pack("<q", value)
+                           for row in reachability for value in row)
+        return len(output), output
+
+    if algorithm == "set_algebra":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        operation, left_count, right_count, membership_key = values[:4]
+        if (operation not in range(9) or not 0 <= left_count <= 64
+                or not 0 <= right_count <= 64
+                or not -1_000_000 <= membership_key <= 1_000_000
+                or len(values) != 4 + left_count + right_count):
+            return -1, b""
+        left_values = values[4:4 + left_count]
+        right_values = values[4 + left_count:]
+        if any(not -1_000_000 <= item <= 1_000_000
+               for item in (*left_values, *right_values)):
+            return -1, b""
+        left, right = set(left_values), set(right_values)
+        if operation == 0:
+            output = struct.pack("<q", int(membership_key in left))
+        elif operation == 1:
+            output = struct.pack("<q", int(left <= right))
+        elif operation == 2:
+            output = struct.pack("<q", int(left < right))
+        elif operation == 3:
+            output = struct.pack("<q", int(left >= right))
+        elif operation == 4:
+            output = struct.pack("<q", int(left > right))
+        elif operation == 5:
+            output = b"".join(struct.pack("<q", item) for item in sorted(left | right))
+        elif operation == 6:
+            output = b"".join(struct.pack("<q", item) for item in sorted(left & right))
+        elif operation == 7:
+            output = b"".join(struct.pack("<q", item) for item in sorted(left - right))
+        else:
+            output = b"".join(struct.pack("<q", item) for item in sorted(left ^ right))
+        return len(output), output
+
+    if algorithm == "tournament_sort":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        count = values[0]
+        if (not 0 <= count <= 512 or len(values) != count + 1
+                or any(not -(2**31) <= item <= 2**31 - 1 for item in values[1:])):
+            return -1, b""
+        output_values = [count, *sorted(values[1:])]
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "min_max_heap_double_ended":
+        if (not isinstance(values, list) or not values
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        initial_count = values[0]
+        if not 0 <= initial_count <= 64 or len(values) < initial_count + 2:
+            return -1, b""
+        operation_count_index = initial_count + 1
+        operation_count = values[operation_count_index]
+        if not 0 <= operation_count <= 128:
+            return -1, b""
+        expected_length = operation_count_index + 1 + 2 * operation_count
+        if len(values) != expected_length:
+            return -1, b""
+        heap_values = values[1:operation_count_index]
+        if any(not -(2**31) <= item <= 2**31 - 1 for item in heap_values):
+            return -1, b""
+        heap_values = list(heap_values)
+        events = []
+        for offset in range(operation_count_index + 1, len(values), 2):
+            operation, argument = values[offset:offset + 2]
+            if operation == 0:
+                if not -(2**31) <= argument <= 2**31 - 1:
+                    return -1, b""
+                heap_values.append(argument)
+            elif operation in (1, 2, 3, 4, 5):
+                if argument != 0:
+                    return -1, b""
+                if operation == 5:
+                    events.append(len(heap_values))
+                    continue
+                if not heap_values:
+                    return -1, b""
+                if operation in (1, 3):
+                    selected = min(range(len(heap_values)), key=heap_values.__getitem__)
+                else:
+                    selected = max(range(len(heap_values)), key=heap_values.__getitem__)
+                result = heap_values[selected]
+                events.append(result)
+                if operation in (3, 4):
+                    heap_values.pop(selected)
+            else:
+                return -1, b""
+        output_values = [len(events), *events, len(heap_values), *sorted(heap_values)]
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "eulerian_trail_undirected_simple":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        vertex_count, edge_count = values[:2]
+        if (not 2 <= vertex_count <= 10 or not 0 <= edge_count <= 45
+                or len(values) != 2 + 2 * edge_count):
+            return -1, b""
+        if edge_count == 0:
+            output = struct.pack("<qqq", 1, 1, 1)
+            return len(output), output
+        adjacency: list[list[tuple[int, int]]] = [[] for _ in range(vertex_count)]
+        edge_ids: set[tuple[int, int]] = set()
+        degree = [0] * vertex_count
+        for edge_id, offset in enumerate(range(2, len(values), 2)):
+            first, second = values[offset:offset + 2]
+            edge = (min(first, second), max(first, second))
+            if (not 0 <= first < vertex_count or not 0 <= second < vertex_count
+                    or first == second or edge in edge_ids):
+                return -1, b""
+            edge_ids.add(edge)
+            adjacency[first].append((second, edge_id))
+            adjacency[second].append((first, edge_id))
+            degree[first] += 1
+            degree[second] += 1
+        odd_vertices = [vertex for vertex, count in enumerate(degree) if count % 2]
+        if len(odd_vertices) not in (0, 2):
+            return -1, b""
+        if not odd_vertices and degree[1] == 0:
+            return -1, b""
+        start = max(odd_vertices) if odd_vertices else 1
+        active = {vertex for vertex, count in enumerate(degree) if count}
+        seen = {start}
+        pending = [start]
+        for vertex in pending:
+            for neighbor, _ in adjacency[vertex]:
+                if neighbor not in seen:
+                    seen.add(neighbor)
+                    pending.append(neighbor)
+        if seen != active:
+            return -1, b""
+        used_edges: set[int] = set()
+        reverse_trail = []
+
+        def traverse(vertex: int) -> None:
+            for neighbor, edge_id in adjacency[vertex]:
+                if edge_id in used_edges:
+                    continue
+                used_edges.add(edge_id)
+                traverse(neighbor)
+            reverse_trail.append(vertex)
+
+        traverse(start)
+        if len(used_edges) != edge_count:
+            return -1, b""
+        trail = list(reversed(reverse_trail))
+        status = 2 if odd_vertices else 1
+        output_values = [status, len(trail), *trail]
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if algorithm == "knight_tour_open_dfs":
+        if not isinstance(values, list) or values:
+            return -1, b""
+        tour = (0, 17, 34, 51, 61, 55, 38, 23, 6, 12, 29, 46, 63, 53, 47, 30,
+                15, 5, 22, 39, 45, 62, 52, 37, 54, 44, 27, 21, 31, 14, 4, 10,
+                20, 3, 9, 24, 18, 8, 2, 19, 36, 26, 32, 49, 59, 42, 57, 40,
+                25, 35, 41, 56, 50, 60, 43, 58, 48, 33, 16, 1, 11, 28, 13, 7)
+        output = b"".join(struct.pack("<q", square) for square in tour)
+        return len(output), output
+
+    if algorithm == "knights_tour_warnsdorff_open":
+        if not isinstance(values, list) or values:
+            return -1, b""
+        tour = (0, 10, 4, 14, 31, 46, 63, 53, 47, 62, 52, 58, 48, 33, 16, 1,
+                11, 5, 15, 30, 20, 3, 9, 24, 18, 8, 2, 17, 32, 26, 41, 56,
+                50, 35, 25, 40, 57, 42, 59, 49, 43, 60, 54, 37, 27, 12, 6, 21,
+                36, 51, 61, 55, 45, 39, 22, 7, 13, 23, 38, 28, 34, 19, 29, 44)
+        output = b"".join(struct.pack("<q", square) for square in tour)
+        return len(output), output
+
+    if algorithm == "logistic_regression_python_binary_gd":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        sample_count, feature_count, epochs, learning_rate_q = values[:4]
+        if (not 1 <= sample_count <= 32 or not 1 <= feature_count <= 8
+                or not 0 <= epochs <= 128 or not 1 <= learning_rate_q <= 100_000
+                or len(values) != 4 + sample_count * feature_count + sample_count):
+            return -1, b""
+        feature_end = 4 + sample_count * feature_count
+        feature_values = values[4:feature_end]
+        labels = values[feature_end:]
+        if (any(not -1_000_000 <= item <= 1_000_000 for item in feature_values)
+                or any(label not in (0, 1) for label in labels)):
+            return -1, b""
+        samples = [
+            [feature_values[row * feature_count + column] / 1_000_000.0
+             for column in range(feature_count)]
+            for row in range(sample_count)
+        ]
+        learning_rate = learning_rate_q / 1_000_000.0
+        theta = [0.0] * feature_count
+        for _ in range(epochs):
+            gradient = [0.0] * feature_count
+            for row, label in zip(samples, labels):
+                linear = sum(feature * weight for feature, weight in zip(row, theta))
+                if linear >= 0.0:
+                    probability = 1.0 / (1.0 + math.exp(-linear))
+                else:
+                    exp_linear = math.exp(linear)
+                    probability = exp_linear / (1.0 + exp_linear)
+                error = probability - label
+                for column, feature in enumerate(row):
+                    gradient[column] += feature * error / sample_count
+            theta = [weight - learning_rate * derivative
+                     for weight, derivative in zip(theta, gradient)]
+        output = b"".join(struct.pack("<d", weight) for weight in theta)
+        return len(output), output
+
+    if algorithm == "logistic_regression_rust_binary_gd":
+        if (not isinstance(values, list) or len(values) < 4
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        sample_count, feature_count, epochs, learning_rate_q = values[:4]
+        if (not 1 <= sample_count <= 32 or not 1 <= feature_count <= 8
+                or not 0 <= epochs <= 128 or not 1 <= learning_rate_q <= 100_000
+                or len(values) != 4 + sample_count * (feature_count + 1)):
+            return -1, b""
+        feature_end = 4 + sample_count * feature_count
+        feature_values = values[4:feature_end]
+        label_values = values[feature_end:]
+        if (any(not -1_000_000 <= item <= 1_000_000 for item in feature_values)
+                or any(not 0 <= label <= 1_000_000 for label in label_values)):
+            return -1, b""
+        samples = [
+            [feature_values[row * feature_count + column] / 1_000_000.0
+             for column in range(feature_count)]
+            for row in range(sample_count)
+        ]
+        labels = [label / 1_000_000.0 for label in label_values]
+        learning_rate = learning_rate_q / 1_000_000.0
+        bias = 0.0
+        weights = [0.0] * feature_count
+        for _ in range(epochs):
+            bias_gradient = 0.0
+            weight_gradient = [0.0] * feature_count
+            for row, label in zip(samples, labels):
+                linear = bias
+                for feature, weight in zip(row, weights):
+                    linear += feature * weight
+                if linear >= 0.0:
+                    probability = 1.0 / (1.0 + math.exp(-linear))
+                else:
+                    exp_linear = math.exp(linear)
+                    probability = exp_linear / (1.0 + exp_linear)
+                error = probability - label
+                bias_gradient += error
+                for column, feature in enumerate(row):
+                    weight_gradient[column] += error * feature
+            bias -= learning_rate * bias_gradient
+            weights = [weight - learning_rate * gradient
+                       for weight, gradient in zip(weights, weight_gradient)]
+        output = b"".join(struct.pack("<d", parameter) for parameter in (bias, *weights))
+        return len(output), output
+
+    if algorithm == "logistic_regression_cost_gradient":
+        if (not isinstance(values, list) or len(values) < 2
+                or any(type(value) is not int for value in values)):
+            return -1, b""
+        sample_count, feature_count = values[:2]
+        if (not 1 <= sample_count <= 64 or not 1 <= feature_count <= 8
+                or len(values) != 2 + sample_count * feature_count + feature_count + sample_count):
+            return -1, b""
+        features_end = 2 + sample_count * feature_count
+        theta_end = features_end + feature_count
+        feature_values = values[2:features_end]
+        theta_values = values[features_end:theta_end]
+        labels = values[theta_end:]
+        if (any(not -1_000_000 <= value <= 1_000_000 for value in feature_values)
+                or any(not -1_000_000 <= value <= 1_000_000 for value in theta_values)
+                or any(label not in (0, 1) for label in labels)):
+            return -1, b""
+        features = [
+            [feature_values[row * feature_count + column] / 1_000_000.0
+             for column in range(feature_count)]
+            for row in range(sample_count)
+        ]
+        theta = [value / 1_000_000.0 for value in theta_values]
+        loss = 0.0
+        gradient = [0.0] * feature_count
+        for row, label in zip(features, labels):
+            score = 0.0
+            for feature, weight in zip(row, theta):
+                score += feature * weight
+            probability = 1.0 / (1.0 + _math.exp(-score))
+            label_value = float(label)
+            loss += (-label_value * _math.log(probability)
+                     - (1.0 - label_value) * _math.log(1.0 - probability))
+            error = probability - label_value
+            for column, feature in enumerate(row):
+                gradient[column] += error * feature
+        output_values = [loss / sample_count,
+                         *(value / sample_count for value in gradient)]
+        output = b"".join(struct.pack("<d", value) for value in output_values)
+        return len(output), output
 
     raise ValueError(f"no byte-output oracle for {algorithm}")
 
@@ -7864,11 +11029,83 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = case.get("input_values")
-        max_input_length = (MAX_BACONIAN_PAYLOAD_LENGTH + 2 if algorithm == "baconian_cipher" else
+        max_input_length = (MAX_REMOVE_DUPLICATE_WORDS_INPUT_LENGTH + 1 if algorithm == "remove_duplicate_words" else
+                            MAX_GRONSFELD_INPUT_LENGTH if algorithm == "gronsfeld" else
+                            MAX_REMOVE_DUPLICATE_CHARACTERS_INPUT_LENGTH + 1 if algorithm == "remove_duplicate_characters" else
+                            MAX_ASCON_DIGEST_INPUT_LENGTH if algorithm == "ascon_digest" else
+                            MAX_CHAOS_MACHINE_INPUT_LENGTH if algorithm == "chaos_machine" else
+                            MAX_BLAKE2B_INPUT_LENGTH if algorithm == "blake2b" else
+                            MAX_CHAROCCURRENCE_INPUT_LENGTH if algorithm == "charoccurrence" else
+                            MAX_SWAP_CASE_INPUT_LENGTH if algorithm == "swap_case" else
+                            MAX_STRING_SWITCH_CASE_INPUT_LENGTH if algorithm == "string_switch_case" else
+                            MAX_BM25_INPUT_LENGTH if algorithm == "bm25_inverted_index" else
+                            MAX_BPE_TOKENIZER_INPUT_LENGTH if algorithm == "bpe_tokenizer" else
+                            MAX_P_SERIES_INPUT_LENGTH if algorithm == "p_series" else
+                            MAX_LOGARITHMIC_SERIES_INPUT_LENGTH if algorithm == "logarithmic_series" else
+                            MAX_PROPER_FRACTIONS_INPUT_LENGTH if algorithm == "proper_fractions" else
+                            MAX_SUMSET_INPUT_LENGTH if algorithm == "sumset" else
+                            MAX_BRAIKENRIDGE_MACLAURIN_INPUT_LENGTH if algorithm == "braikenridge_maclaurin_construction" else
+                            MAX_BRAINFUCK_INPUT_LENGTH if algorithm == "brainfuck" else
+                            MAX_BRANCH_AND_BOUND_KNAPSACK_INPUT_LENGTH if algorithm == "branch_and_bound_knapsack_solver" else
+                            MAX_BOUNDARY_FILL_INPUT_LENGTH if algorithm == "boundary_fill" else
+                            MAX_DATE_TO_DAY_INPUT_LENGTH if algorithm == "date_to_day" else
+                            MAX_EMA_FILTER_INPUT_LENGTH if algorithm == "ema_filter" else
+                            MAX_EGYPTIAN_FRACTION_INPUT_LENGTH if algorithm == "egyptian_fraction" else
+                            MAX_COUNT_NUCLEOTIDE_INPUT_LENGTH if algorithm == "count_nucleotide" else
+                            MAX_COORDINATE_COMPRESSION_INPUT_LENGTH if algorithm == "coordinate_compression" else
+                            MAX_FLASH_SORT_INPUT_LENGTH if algorithm == "flash_sort" else
+                            MAX_CIRCULAR_LOOK_INPUT_LENGTH if algorithm == "circular_look_scheduling" else
+                            MAX_CIRCULAR_SCAN_INPUT_LENGTH if algorithm == "circular_scan_scheduling" else
+                            MAX_STRING_COMPRESSION_INPUT_LENGTH if algorithm == "string_compression" else
+                            MAX_CREATE_BINARY_TREE_INPUT_LENGTH if algorithm == "create_binary_tree_from_inorder_preorder" else
+                            MAX_SERIALIZE_DESERIALIZE_BINARY_TREE_INPUT_LENGTH if algorithm == "serialize_deserialize_binary_tree" else
+                            MAX_CRAMERS_RULE_2X2_INPUT_LENGTH if algorithm == "cramers_rule_2x2" else
+                            MAX_CONVOLUTION_INPUT_LENGTH if algorithm == "convolution" else
+                            MAX_DAMPED_OSCILLATOR_INPUT_LENGTH if algorithm == "damped_oscillator" else
+                            MAX_DIFFERENCE_ARRAY_INPUT_LENGTH if algorithm == "difference_array" else
+                            MAX_COMPLEX_NUMBER_MULTIPLY_INPUT_LENGTH if algorithm == "complex_number_multiply" else
+                            MAX_COMPLEX_ARITHMETIC_INPUT_LENGTH if algorithm == "complex_arithmetic" else
+                            MAX_CUSUM_DETECTOR_INPUT_LENGTH if algorithm == "cusum_detector" else
+                            MAX_DICE_THROWER_INPUT_LENGTH if algorithm == "dice_thrower" else
+                            MAX_HAMPEL_FILTER_INPUT_LENGTH if algorithm == "hampel_filter" else
+                            MAX_INTERSECTION_OF_TWO_ARRAYS_INPUT_LENGTH if algorithm == "intersection_of_two_arrays" else
+                            MAX_UNION_OF_TWO_ARRAYS_INPUT_LENGTH if algorithm == "union_of_two_arrays" else
+                            MAX_UNIQUE_LETTERS_COUNT_INPUT_LENGTH if algorithm == "unique_letters_count" else
+                            MAX_CONVEX_HULL_GRAHAM_INPUT_LENGTH if algorithm == "convex_hull_graham" else
+                            MAX_SORTED_ARRAYS_INTERSECTION_INPUT_LENGTH if algorithm == "sorted_arrays_intersection" else
+                            MAX_COMPRESS_INPUT_LENGTH if algorithm == "compress" else
+                            MAX_DILATION_OPERATION_INPUT_LENGTH if algorithm == "dilation_operation" else
+                            MAX_NEAREST_NEIGHBOR_INTERPOLATION_INPUT_LENGTH if algorithm == "nearest_neighbor_interpolation" else
+                            MAX_NON_EMPTY_SUBSEQUENCES_INPUT_LENGTH if algorithm == "non_empty_subsequences" else
+                            MAX_PARTICLE_SWARM_INPUT_LENGTH if algorithm == "particle_swarm_optimization" else
+                            MAX_CONVOLVE_1D_INPUT_LENGTH if algorithm == "convolve_1d" else
+                            MAX_DFS_TARGET_ROUTE_INPUT_LENGTH + 1 if algorithm == "depth_first_search_target_route" else
+                            MAX_CONVOLUTION_FFT_INPUT_LENGTH if algorithm == "convolution_fft" else
+                            MAX_TEXT_JUSTIFICATION_INPUT_LENGTH if algorithm == "text_justification" else
+                            MAX_REMOVE_DUPLICATE_FROM_STRING_INPUT_LENGTH if algorithm == "remove_duplicate_from_string" else
+                            MAX_MAX_WORD_INPUT_LENGTH if algorithm == "max_word" else
+                            MAX_KEYWORD_SHIFTED_ALPHABET_INPUT_LENGTH if algorithm == "keyword_shifted_alphabet" else
+                            MAX_INTEGER_TO_ENGLISH_INPUT_LENGTH if algorithm == "integer_to_english" else
+                            MAX_LARGEST_SMALLEST_WORDS_INPUT_LENGTH if algorithm == "largest_smallest_words" else
+                            MAX_HEXA_DECIMAL_TO_BINARY_INPUT_LENGTH if algorithm == "hexa_decimal_to_binary" else
+                            MAX_ONES_COMPLEMENT_INPUT_LENGTH + 1 if algorithm == "ones_complement" else
+                            MAX_RGBTO_HEX_INPUT_LENGTH + 1 if algorithm == "rgbto_hex" else
+                            MAX_IPCONVERTER_PARSEABLE_INPUT_LENGTH if algorithm == "ipconverter" else
+                            MAX_SHORTEST_PALINDROME_PARSEABLE_INPUT_LENGTH if algorithm == "shortest_palindrome" else
+                            MAX_REVERSE_WORDS_IN_STRING_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_words_in_string" else
+                            MAX_NUMERIC_STRING_SORT_PARSEABLE_INPUT_LENGTH if algorithm == "numeric_string_sort" else
+                            MAX_GET_PRODUCTS_OF_ALL_OTHER_ELEMENTS_INPUT_LENGTH if algorithm == "get_products_of_all_other_elements" else
+                            MAX_CORRELATION_MATRIX_ANALYSIS_INPUT_LENGTH if algorithm == "correlation_matrix_analysis" else
+                            MAX_RANGE_IN_SORTED_ARRAY_INPUT_LENGTH if algorithm == "range_in_sorted_array" else
+                            MAX_CROSS_CORRELATION_INPUT_LENGTH if algorithm == "cross_correlation" else
+                            MAX_BACONIAN_PAYLOAD_LENGTH + 2 if algorithm == "baconian_cipher" else
+                            MAX_BIDIRECTIONAL_BFS_INPUT_LENGTH if algorithm == "bidirectional_bfs" else
+                            MAX_BIDIRECTIONAL_SEARCH_INPUT_LENGTH if algorithm == "bidirectional_search" else
                             MAX_BURROWS_WHEELER_LENGTH + 1 if algorithm in {
                                 "burrows_wheeler_transform", "burrows_wheeler_transform_case_insensitive"} else
                             MAX_MATRIX_INPUT_LENGTH if algorithm == "ones_minus_zeros" else
                             MAX_ACCOUNT_MERGE_INPUT_LENGTH if algorithm == "account_merge" else
+                            MAX_ADAM_INPUT_LENGTH if algorithm == "adam" else
                             MAX_A_STAR_INPUT_LENGTH if algorithm == "a_star_search" else
                             MAX_NAIVE_SHUFFLER_INPUT_LENGTH if algorithm == "naive_shuffler" else
                             MAX_AFFINE_CIPHER_INPUT_LENGTH if algorithm == "affine_cipher" else
@@ -7886,17 +11123,47 @@ def main() -> int:
             raise ValueError(f"declared input length differs for {case['id']}")
         required_count, required_output = expected_output(values, algorithm)
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
-        if float64_vector and algorithm not in {"quadratic_roots", "npv_sensitivity", "triangle", "gaussian_elimination"}:
+        if float64_vector and algorithm not in {
+                "quadratic_roots", "npv_sensitivity", "triangle", "gaussian_elimination",
+                "logistic_regression_python_binary_gd", "logistic_regression_rust_binary_gd",
+                "logistic_regression_cost_gradient",
+                "cholesky_decomposition", "conjugate_gradient", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
+                "particle_swarm_optimization", "convolve_1d", "convolution_fft"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0
         if (float64_vector and (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0
                                 or not math.isfinite(relative_tolerance) or relative_tolerance < 0)):
             raise ValueError("float64 vector tolerances must be finite and nonnegative")
-        output_capacity = case.get("workspace_bytes", len(required_output))
+        output_capacity = case.get(
+            "workspace_bytes",
+            workload.get("workspace", {}).get("bytes", len(required_output))
+                            if algorithm in {"charoccurrence", "coordinate_compression", "flash_sort", "string_compression", "create_binary_tree_from_inorder_preorder", "serialize_deserialize_binary_tree", "cramers_rule_2x2", "convolution", "damped_oscillator", "difference_array", "complex_number_multiply", "complex_arithmetic", "cusum_detector", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "composite_lfsr_majority_clock", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "swap_case", "string_switch_case", "reverse_string", "common_characters_frequency_quotient", "remove_duplicate_characters", "remove_duplicate_words", "continued_fraction", "account_merge", "adagrad", "adam", "cholesky_decomposition", "conjugate_gradient", "convolution_neural_network", "depreciation", "chebyshev_iteration", "choiceset", "chudnovsky_algorithm", "circular_look_scheduling", "circular_scan_scheduling", "adaline_learning", "adams_bashforth", "adfgvxcipher", "upper", "all_construct", "allocation_number", "booths_algorithm", "association", "auto_correlation", "baconian_cipher", "a1z26_cipher", "a1z26_decipher", "date_to_day", "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "get_products_of_all_other_elements", "correlation_matrix_analysis"} else len(required_output),
+        )
         if (type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_CAPACITY):
             raise ValueError(f"invalid output capacity in {case['id']}")
-        if output_capacity < len(required_output):
+        if algorithm == "compress":
+            expected_count, expected = compress_expected_output(values, output_capacity)
+        elif algorithm == "union_of_two_arrays":
+            first_length = values[0] if values else -1
+            second_position = 1 + first_length if type(first_length) is int and first_length >= 0 else len(values)
+            required_capacity = (first_length + values[second_position]) * 4 if second_position < len(values) else 0
+            if required_count == -1:
+                expected_count, expected = -1, b""
+            elif output_capacity < required_capacity:
+                expected_count, expected = -2, b""
+            else:
+                expected_count, expected = required_count, required_output
+        elif algorithm == "unique_letters_count":
+            text_length = values[0] if values and type(values[0]) is int else -1
+            required_capacity = min(text_length, 26) * 8 if 0 <= text_length <= 256 else 0
+            if required_count == -1:
+                expected_count, expected = -1, b""
+            elif output_capacity < required_capacity:
+                expected_count, expected = -2, b""
+            else:
+                expected_count, expected = required_count, required_output
+        elif output_capacity < len(required_output):
             expected_count = case.get("capacity_error_result", -2)
             expected = b""
         else:

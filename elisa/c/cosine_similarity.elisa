@@ -1,0 +1,51 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_STRING_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 132
+const ALPHABET_SIZE: usize = 95
+const INVALID_RESULT: f64 = -1.0e300
+
+def cosine_similarity_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    left_length_value: i64 = input[0]
+    right_length_value: i64 = input[1]
+    if left_length_value < 0 or left_length_value > 64 or right_length_value < 0 or right_length_value > 64:
+        return INVALID_RESULT
+    left_length: usize = left_length_value.usize()
+    right_length: usize = right_length_value.usize()
+    if length != 2 + left_length + right_length:
+        return INVALID_RESULT
+
+    left_counts: mutable i64[ALPHABET_SIZE] = zeroed
+    right_counts: mutable i64[ALPHABET_SIZE] = zeroed
+    index: mutable usize = 0
+    while index < left_length:
+        value: mutable i64 = input[2 + index]
+        if value < 32 or value > 126: return INVALID_RESULT
+        if value >= 65 and value <= 90: value <- value + 32
+        left_counts[(value - 32).usize()] <- left_counts[(value - 32).usize()] + 1
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        value: mutable i64 = input[2 + left_length + index]
+        if value < 32 or value > 126: return INVALID_RESULT
+        if value >= 65 and value <= 90: value <- value + 32
+        right_counts[(value - 32).usize()] <- right_counts[(value - 32).usize()] + 1
+        index <- index + 1
+
+    dot_product: mutable f64 = 0.0
+    left_magnitude_squared: mutable f64 = 0.0
+    right_magnitude_squared: mutable f64 = 0.0
+    index <- 0
+    while index < ALPHABET_SIZE:
+        left: f64 = left_counts[index].f64()
+        right: f64 = right_counts[index].f64()
+        dot_product <- dot_product + left * right
+        left_magnitude_squared <- left_magnitude_squared + left * left
+        right_magnitude_squared <- right_magnitude_squared + right * right
+        index <- index + 1
+    if left_magnitude_squared <= 0.0 or right_magnitude_squared <= 0.0: return 0.0
+    dot_product / (sqrt(left_magnitude_squared) * sqrt(right_magnitude_squared))
+
+export fn cosine_similarity(input: i64&, length: usize) -> f64 = cosine_similarity_impl

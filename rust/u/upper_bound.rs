@@ -9,15 +9,15 @@ fn upper_bound_range(values: &[i64], target: i64, left: i64, right: i64) -> i64 
 }
 
 #[no_mangle]
-pub extern "C" fn upper_bound(values: *const i64, length: usize, target: i64) -> i64 {
-    if length > 512 || target < i32::MIN as i64 || target > i32::MAX as i64 { return -1; }
-    let slice: &[i64] = if length == 0 { &[] } else {
-        // The C caller guarantees a valid array for nonzero length.
-        unsafe { std::slice::from_raw_parts(values, length) }
-    };
-    for (i, &value) in slice.iter().enumerate() {
+pub extern "C" fn upper_bound(values: *const i64, length: usize) -> i64 {
+    if values.is_null() || length == 0 || length > 513 { return -1; }
+    let packed = unsafe { std::slice::from_raw_parts(values, length) };
+    let target = packed[0];
+    if target < i32::MIN as i64 || target > i32::MAX as i64 { return -1; }
+    let array = &packed[1..];
+    for (index, &value) in array.iter().enumerate() {
         if value < i32::MIN as i64 || value > i32::MAX as i64 { return -1; }
-        if i > 0 && slice[i - 1] > value { return -1; }
+        if index > 0 && array[index - 1] > value { return -1; }
     }
-    upper_bound_range(slice, target, 0, length as i64 - 1)
+    upper_bound_range(array, target, 0, array.len() as i64 - 1)
 }

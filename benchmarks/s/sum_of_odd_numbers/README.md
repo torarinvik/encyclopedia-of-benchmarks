@@ -22,4 +22,7 @@ python3 benchmarks/build_abi.py --family scalar --algorithm sum_of_odd_numbers -
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/s/sum_of_odd_numbers/c/build.json
 ```
 
+Verify the nine ports against the independent square-identity oracle with
+`python3 benchmarks/verify_scalar.py --algorithms sum_of_odd_numbers`.
+
 The nine implementations are in `c/s/sum_of_odd_numbers.c`, `c3/s/sum_of_odd_numbers.c3`, `cpp/s/sum_of_odd_numbers.cpp`, `elisa/s/sum_of_odd_numbers.elisa`, `nim/s/sum_of_odd_numbers.nim`, `odin/s/sum_of_odd_numbers.odin`, `rust/s/sum_of_odd_numbers.rs`, `v/s/sum_of_odd_numbers.v`, and `zig/s/sum_of_odd_numbers.zig`.

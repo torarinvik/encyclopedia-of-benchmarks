@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-686-scalar-v1",
+  "algorithm": "problem686",
+  "function_symbol": "problem686",
+  "input": {
+    "kind": "leading-prefix_occurrence_index",
+    "minimum": 1,
+    "maximum": 678910,
+    "definition": "Return the exponent of the requested occurrence of a power of two beginning with decimal digits 123.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Exponent of the requested power of two.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "first-occurrence", "input_value": 1, "expected_result": 90},
+    {"id": "tenth-occurrence", "input_value": 10, "expected_result": 2515},
+    {"id": "source-example-45", "input_value": 45, "expected_result": 12710},
+    {"id": "source-example-1000", "input_value": 1000, "expected_result": 284168},
+    {"id": "source-example-56000", "input_value": 56000, "expected_result": 15924915},
+    {"id": "canonical-occurrence", "input_value": 678910, "expected_result": 193060223},
+    {"id": "zero-occurrences", "input_value": 0, "expected_result": -1},
+    {"id": "above-supported-occurrences", "input_value": 678911, "expected_result": -1}
+  ]
+}

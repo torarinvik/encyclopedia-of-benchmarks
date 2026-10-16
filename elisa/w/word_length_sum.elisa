@@ -1,0 +1,13 @@
+# Go Problem17: sum byte lengths after splitting on ASCII space.
+def word_length_sum_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    total: mutable i64 = 0
+    for index in 0..<length:
+        if values[index] < 0 or values[index] > 255:
+            return -1
+        if values[index] != 32:
+            total <- total + 1
+    total
+
+export fn word_length_sum(values: i64&, length: usize) -> i64 = word_length_sum_impl

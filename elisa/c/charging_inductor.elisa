@@ -1,0 +1,56 @@
+extern exp(value: f64) -> f64
+
+def round_three_python(value: f64) -> f64:
+    if value == 0.0:
+        return value
+    negative: bool = value < 0.0
+    normalized: mutable f64 = if negative: -value else: value
+    exponent: mutable i64 = 0
+    while normalized >= 1.0:
+        normalized <- normalized * 0.5
+        exponent <- exponent + 1
+    while normalized < 0.5:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    significand: u64 = (normalized * 9007199254740992.0).u64()
+    numerator: u64 = significand * 1000.u64()
+    shift: i64 = 53 - exponent
+    milliunits: mutable u64 = 0.u64()
+    if shift < 0:
+        milliunits <- numerator << (-shift).u32()
+    else if shift == 0:
+        milliunits <- numerator
+    else if shift < 64:
+        denominator: u64 = 1.u64() << shift.u32()
+        milliunits <- numerator >> shift.u32()
+        remainder: u64 = numerator & (denominator - 1.u64())
+        half: u64 = denominator >> 1
+        if remainder > half or (remainder == half and (milliunits & 1.u64()) != 0.u64()):
+            milliunits <- milliunits + 1.u64()
+    rounded: f64 = milliunits.f64() / 1000.0
+    if negative:
+        return -rounded
+    return rounded
+
+def charging_inductor_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 4:
+        return -1.0e300
+    voltage_micro: i64 = values[0]
+    resistance_micro: i64 = values[1]
+    inductance_micro: i64 = values[2]
+    time_micro: i64 = values[3]
+    if voltage_micro < 1 or voltage_micro > 1000000000000 or
+        resistance_micro < 10000 or resistance_micro > 1000000000000000 or
+        inductance_micro < 1 or inductance_micro > 1000000000000 or
+        time_micro < -1000000000000 or time_micro > 1000000000000:
+        return -1.0e300
+    source_voltage: f64 = voltage_micro.f64() / 1000000.0
+    resistance: f64 = resistance_micro.f64() / 1000000.0
+    inductance: f64 = inductance_micro.f64() / 1000000.0
+    time_sec: f64 = time_micro.f64() / 1000000.0
+    exponent: f64 = (-time_sec * resistance) / inductance
+    if exponent > 10.0:
+        return -1.0e300
+    round_three_python(source_voltage / resistance * (1.0 - exp(exponent)))
+
+export fn charging_inductor(values: i64&, length: usize) -> f64 = charging_inductor_impl

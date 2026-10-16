@@ -1,0 +1,15 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+def exponential_dist_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return -1.0e300
+    operation: i64 = values[0]
+    rate_micro: i64 = values[1]
+    if operation < 0 or operation > 2 or rate_micro <= 0 or rate_micro > 1000000000:
+        return -1.0e300
+    rate: f64 = rate_micro.f64() / 1000000.0
+    if operation == 1:
+        return 1.0 / pow(rate, 2.0)
+    return 1.0 / rate
+
+export fn exponential_dist(values: i64&, length: usize) -> f64 = exponential_dist_impl

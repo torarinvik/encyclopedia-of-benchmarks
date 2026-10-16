@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-53-fixed-combination-count-v1",
+  "algorithm": "problem53",
+  "function_symbol": "problem53",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of (n,r) pairs with 1 <= n <= 100, 1 <= r <= n, and nCr strictly greater than 1,000,000.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_fixed_combination_count",
+      "input_value": 0,
+      "expected_result": 4075
+    },
+    {
+      "id": "nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,808 @@
+{
+  "schema_version": 1,
+  "id": "rust-speed-i64-array-f64-v1",
+  "algorithm": "speed",
+  "function_symbol": "speed",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": "[speed_micro, from_unit, to_unit]",
+    "minimum_length": 3,
+    "maximum_length": 3,
+    "scale": 1000000,
+    "speed_units": [
+      -1000000000000000,
+      1000000000000000
+    ],
+    "unit_selectors": {
+      "0": "km/h",
+      "1": "m/s",
+      "2": "mph",
+      "3": "knot",
+      "4": "ft/s",
+      "5": "Mach",
+      "6": "c"
+    },
+    "maximum_absolute_intermediate_result_times_1000": 9007199254740992,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "(speed * from.as_kmh_multiplier() * to.kmh_multiplier()) rounded to three decimal places using Rust ties-away-from-zero semantics",
+    "maximum_absolute_value": 9007199254741,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-16,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "unit-pair-0-0",
+      "input_values": [
+        100000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "unit-pair-0-1",
+      "input_values": [
+        100000000,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 27.778
+    },
+    {
+      "id": "unit-pair-0-2",
+      "input_values": [
+        100000000,
+        0,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 62.137
+    },
+    {
+      "id": "unit-pair-0-3",
+      "input_values": [
+        100000000,
+        0,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 53.996
+    },
+    {
+      "id": "unit-pair-0-4",
+      "input_values": [
+        100000000,
+        0,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 91.134
+    },
+    {
+      "id": "unit-pair-0-5",
+      "input_values": [
+        100000000,
+        0,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.082
+    },
+    {
+      "id": "unit-pair-0-6",
+      "input_values": [
+        100000000,
+        0,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-1-0",
+      "input_values": [
+        100000000,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 360.0
+    },
+    {
+      "id": "unit-pair-1-1",
+      "input_values": [
+        100000000,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "unit-pair-1-2",
+      "input_values": [
+        100000000,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 223.694
+    },
+    {
+      "id": "unit-pair-1-3",
+      "input_values": [
+        100000000,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 194.384
+    },
+    {
+      "id": "unit-pair-1-4",
+      "input_values": [
+        100000000,
+        1,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 328.084
+    },
+    {
+      "id": "unit-pair-1-5",
+      "input_values": [
+        100000000,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.294
+    },
+    {
+      "id": "unit-pair-1-6",
+      "input_values": [
+        100000000,
+        1,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-2-0",
+      "input_values": [
+        100000000,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 160.934
+    },
+    {
+      "id": "unit-pair-2-1",
+      "input_values": [
+        100000000,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 44.704
+    },
+    {
+      "id": "unit-pair-2-2",
+      "input_values": [
+        100000000,
+        2,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "unit-pair-2-3",
+      "input_values": [
+        100000000,
+        2,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 86.898
+    },
+    {
+      "id": "unit-pair-2-4",
+      "input_values": [
+        100000000,
+        2,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 146.667
+    },
+    {
+      "id": "unit-pair-2-5",
+      "input_values": [
+        100000000,
+        2,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.131
+    },
+    {
+      "id": "unit-pair-2-6",
+      "input_values": [
+        100000000,
+        2,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-3-0",
+      "input_values": [
+        100000000,
+        3,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 185.2
+    },
+    {
+      "id": "unit-pair-3-1",
+      "input_values": [
+        100000000,
+        3,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 51.444
+    },
+    {
+      "id": "unit-pair-3-2",
+      "input_values": [
+        100000000,
+        3,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 115.078
+    },
+    {
+      "id": "unit-pair-3-3",
+      "input_values": [
+        100000000,
+        3,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "unit-pair-3-4",
+      "input_values": [
+        100000000,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 168.781
+    },
+    {
+      "id": "unit-pair-3-5",
+      "input_values": [
+        100000000,
+        3,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.151
+    },
+    {
+      "id": "unit-pair-3-6",
+      "input_values": [
+        100000000,
+        3,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-4-0",
+      "input_values": [
+        100000000,
+        4,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 109.728
+    },
+    {
+      "id": "unit-pair-4-1",
+      "input_values": [
+        100000000,
+        4,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 30.48
+    },
+    {
+      "id": "unit-pair-4-2",
+      "input_values": [
+        100000000,
+        4,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 68.182
+    },
+    {
+      "id": "unit-pair-4-3",
+      "input_values": [
+        100000000,
+        4,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 59.248
+    },
+    {
+      "id": "unit-pair-4-4",
+      "input_values": [
+        100000000,
+        4,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "unit-pair-4-5",
+      "input_values": [
+        100000000,
+        4,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.09
+    },
+    {
+      "id": "unit-pair-4-6",
+      "input_values": [
+        100000000,
+        4,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-5-0",
+      "input_values": [
+        100000000,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 122508.0
+    },
+    {
+      "id": "unit-pair-5-1",
+      "input_values": [
+        100000000,
+        5,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 34030.0
+    },
+    {
+      "id": "unit-pair-5-2",
+      "input_values": [
+        100000000,
+        5,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 76122.942
+    },
+    {
+      "id": "unit-pair-5-3",
+      "input_values": [
+        100000000,
+        5,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 66149.028
+    },
+    {
+      "id": "unit-pair-5-4",
+      "input_values": [
+        100000000,
+        5,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 111646.982
+    },
+    {
+      "id": "unit-pair-5-5",
+      "input_values": [
+        100000000,
+        5,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 99.987
+    },
+    {
+      "id": "unit-pair-5-6",
+      "input_values": [
+        100000000,
+        5,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "unit-pair-6-0",
+      "input_values": [
+        100000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 107925284880.0
+    },
+    {
+      "id": "unit-pair-6-1",
+      "input_values": [
+        100000000,
+        6,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 29979245823.983
+    },
+    {
+      "id": "unit-pair-6-2",
+      "input_values": [
+        100000000,
+        6,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 67061662912.825
+    },
+    {
+      "id": "unit-pair-6-3",
+      "input_values": [
+        100000000,
+        6,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 58274991786.669
+    },
+    {
+      "id": "unit-pair-6-4",
+      "input_values": [
+        100000000,
+        6,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 98357105612.672
+    },
+    {
+      "id": "unit-pair-6-5",
+      "input_values": [
+        100000000,
+        6,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 88084732.209
+    },
+    {
+      "id": "unit-pair-6-6",
+      "input_values": [
+        100000000,
+        6,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 100.0
+    },
+    {
+      "id": "python-rust-example-mach-to-kmh",
+      "input_values": [
+        1000000,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1225.08
+    },
+    {
+      "id": "python-rust-example-mach-to-mps",
+      "input_values": [
+        1000000,
+        5,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 340.3
+    },
+    {
+      "id": "python-rust-example-kmh-to-mach",
+      "input_values": [
+        1000000000,
+        0,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0.816
+    },
+    {
+      "id": "python-rust-example-two-mach-to-kmh",
+      "input_values": [
+        2000000,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 2450.16
+    },
+    {
+      "id": "python-rust-example-light-to-mps",
+      "input_values": [
+        1000000,
+        6,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 299792458.24
+    },
+    {
+      "id": "python-rust-example-light-to-kmh",
+      "input_values": [
+        1000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1079252848.8
+    },
+    {
+      "id": "python-rust-example-mps-to-light",
+      "input_values": [
+        299792458000000,
+        1,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "python-rust-example-tenth-light-to-mps",
+      "input_values": [
+        100000,
+        6,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 29979245.824
+    },
+    {
+      "id": "positive-half-tie-away-from-zero",
+      "input_values": [
+        1062500,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.063
+    },
+    {
+      "id": "negative-half-tie-away-from-zero",
+      "input_values": [
+        -1062500,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1.063
+    },
+    {
+      "id": "negative-speed-kmh-to-mps",
+      "input_values": [
+        -100000000,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -27.778
+    },
+    {
+      "id": "zero-speed",
+      "input_values": [
+        0,
+        4,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "minimum-speed-identity",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-speed-identity",
+      "input_values": [
+        1000000000000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "minimum-negative-speed-identity",
+      "input_values": [
+        -1000000000000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1000000000.0
+    },
+    {
+      "id": "maximum-output-near-cap",
+      "input_values": [
+        8000000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 8634022790400.0
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one-field",
+      "input_values": [
+        1000000
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "two-fields",
+      "input_values": [
+        1000000,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra-field",
+      "input_values": [
+        1000000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "speed-above-bound",
+      "input_values": [
+        1000000000000001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "speed-below-bound",
+      "input_values": [
+        -1000000000000001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-from-selector",
+      "input_values": [
+        1000000,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "from-selector-above-range",
+      "input_values": [
+        1000000,
+        7,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-to-selector",
+      "input_values": [
+        1000000,
+        0,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "to-selector-above-range",
+      "input_values": [
+        1000000,
+        0,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "scaled-output-above-rounding-bound",
+      "input_values": [
+        9000000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "maximum-input-c-to-kmh-overflow-bound",
+      "input_values": [
+        1000000000000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

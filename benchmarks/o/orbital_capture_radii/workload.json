@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "orbital-capture-radii-python-v1",
+  "algorithm": "orbital_capture_radii",
+  "function_symbol": "orbital_capture_radii",
+  "input": {
+    "kind": "bounded_binary64_orbital_parameters",
+    "argument_order": [
+      "target_radius_m",
+      "target_mass_kg",
+      "projectile_velocity_m_s"
+    ],
+    "bounds": {
+      "target_radius_m": [
+        1e-06,
+        10000000000.0
+      ],
+      "target_mass_kg": [
+        0,
+        2e+30
+      ],
+      "projectile_velocity_m_s": [
+        1000000.0,
+        299792458.0
+      ]
+    },
+    "formula": "round(target_radius * sqrt(1 + ((2 * G * target_mass) / target_radius) / velocity^2), 0), G = 6.67430e-11",
+    "rounding": "Nearest integer, ties to even; matches Python round(value, 0).",
+    "invalid_result": -1e+300,
+    "verification_relative_tolerance": 1e-12,
+    "verification_absolute_tolerance": 1e-09
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "round(target_radius * sqrt(1 + ((2 * G * target_mass) / target_radius) / velocity^2), 0), G = 6.67430e-11",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-35,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "source-solar-example",
+      "input_values": [
+        695700000.0,
+        1.99e+30,
+        25000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-mass-rounds-down-even",
+      "input_values": [
+        2.5,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "zero-mass-rounds-up-even",
+      "input_values": [
+        3.5,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": 4.0
+    },
+    {
+      "id": "zero-mass-half-to-zero",
+      "input_values": [
+        0.5,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero-mass-quarter",
+      "input_values": [
+        2.25,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "minimum-radius",
+      "input_values": [
+        1e-06,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-radius-zero-mass",
+      "input_values": [
+        10000000000.0,
+        0.0,
+        299792458.0
+      ],
+      "expected_result": 10000000000.0
+    },
+    {
+      "id": "strong-focusing",
+      "input_values": [
+        10000000000.0,
+        2e+30,
+        1000000.0
+      ],
+      "expected_result": 10132606772.0
+    },
+    {
+      "id": "earth-example",
+      "input_values": [
+        6400000.0,
+        5.97e+24,
+        11000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mass-at-upper-bound",
+      "input_values": [
+        100000000.0,
+        2e+30,
+        2000000.0
+      ],
+      "expected_result": 129129005.0
+    },
+    {
+      "id": "speed-at-light",
+      "input_values": [
+        695700000.0,
+        1.99e+30,
+        299792458.0
+      ],
+      "expected_result": 695701478.0
+    },
+    {
+      "id": "zero-radius-invalid",
+      "input_values": [
+        0.0,
+        1.0,
+        1000000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-radius-invalid",
+      "input_values": [
+        -1.0,
+        1.0,
+        1000000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-mass-invalid",
+      "input_values": [
+        1.0,
+        -1.0,
+        1000000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-speed-invalid",
+      "input_values": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "speed-above-light-invalid",
+      "input_values": [
+        1.0,
+        1.0,
+        299792459.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "radius-above-bound-invalid",
+      "input_values": [
+        10000001000.0,
+        0.0,
+        1000000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mass-above-bound-invalid",
+      "input_values": [
+        1.0,
+        2.000001e+30,
+        1000000.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "speed-below-bound-invalid",
+      "input_values": [
+        1.0,
+        1.0,
+        999999.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

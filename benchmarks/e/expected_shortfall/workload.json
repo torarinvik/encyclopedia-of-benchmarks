@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "python-expected-shortfall-i64-array-float64-v1",
+  "algorithm": "expected_shortfall",
+  "function_symbol": "expected_shortfall",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[confidence_micro,return_count,returns_micro...]",
+    "scale": 1000000,
+    "confidence_range": [
+      1,
+      999999
+    ],
+    "return_count_range": [
+      1,
+      64
+    ],
+    "sample_range": [
+      -1000000000,
+      1000000000
+    ],
+    "maximum_packed_values": 67,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "negative mean of returns at or below the linearly interpolated 1-confidence quantile",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example_confidence_95",
+      "input_values": [950000, 5, -10000000, -5000000, -2000000, 1000000, 4000000],
+      "input_length": 7,
+      "expected_result": 10.0
+    },
+    {
+      "id": "source_example_confidence_75",
+      "input_values": [750000, 5, -10000000, -5000000, -2000000, 1000000, 4000000],
+      "input_length": 7,
+      "expected_result": 7.5
+    },
+    {
+      "id": "single_negative_return",
+      "input_values": [950000, 1, -3000000],
+      "input_length": 3,
+      "expected_result": 3.0
+    },
+    {
+      "id": "single_positive_return",
+      "input_values": [500000, 1, 3000000],
+      "input_length": 3,
+      "expected_result": -3.0
+    },
+    {
+      "id": "threshold_tie_includes_all_equals",
+      "input_values": [500000, 5, -4000000, -2000000, -2000000, 0, 4000000],
+      "input_length": 7,
+      "expected_result": 2.6666666666666665
+    },
+    {
+      "id": "unsorted_input",
+      "input_values": [500000, 5, 3000000, -1000000, 2000000, -4000000, 5000000],
+      "input_length": 7,
+      "expected_result": 1.0
+    },
+    {
+      "id": "positive_tail_returns_negative_shortfall",
+      "input_values": [500000, 4, 1000000, 2000000, 3000000, 4000000],
+      "input_length": 6,
+      "expected_result": -1.5
+    },
+    {
+      "id": "all_equal_negative_returns",
+      "input_values": [950000, 3, -2000000, -2000000, -2000000],
+      "input_length": 5,
+      "expected_result": 2.0
+    },
+    {
+      "id": "all_zero_returns",
+      "input_values": [950000, 4, 0, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "minimum_confidence",
+      "input_values": [1, 5, -4000000, -2000000, -2000000, 0, 4000000],
+      "input_length": 7,
+      "expected_result": 2.0
+    },
+    {
+      "id": "maximum_confidence",
+      "input_values": [999999, 5, -4000000, -2000000, -2000000, 0, 4000000],
+      "input_length": 7,
+      "expected_result": 4.0
+    },
+    {
+      "id": "maximum_return_count",
+      "input_values": [950000, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 66,
+      "expected_result": 0.0
+    },
+    {
+      "id": "empty_returns_rejected",
+      "input_values": [950000, 0],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_confidence_rejected",
+      "input_values": [0, 1, 0],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one_confidence_rejected",
+      "input_values": [1000000, 1, 0],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "sample_bound_rejected",
+      "input_values": [950000, 1, 1000000001],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_count_rejected",
+      "input_values": [950000, -1],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one_over_return_count_rejected",
+      "input_values": [950000, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 67,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "incomplete_packing_rejected",
+      "input_values": [950000, 2, -1000000],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value_rejected",
+      "input_values": [950000, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

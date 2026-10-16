@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-37-truncatable-prime-sum-v1",
+  "algorithm": "problem37",
+  "function_symbol": "problem37",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The source solves the fixed eleven-prime problem. A zero placeholder is accepted only for the shared scalar runner ABI."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of the eleven primes that remain prime after every left and right truncation."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "canonical_eleven_truncatable_primes", "input_value": 0, "expected_result": 748317},
+    {"id": "nonzero_placeholder_invalid", "input_value": 1, "expected_result": -1}
+  ]
+}

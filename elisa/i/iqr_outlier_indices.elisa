@@ -1,0 +1,39 @@
+const MAX_LENGTH: usize = 62
+const INVALID_RESULT: i64 = -1
+
+def iqr_outlier_indices_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_LENGTH: return INVALID_RESULT
+    sorted: mutable i64[62] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -1000000 or value > 1000000: return INVALID_RESULT
+        position: mutable usize = index
+        while position > 0 and sorted[position - 1] > value:
+            sorted[position] <- sorted[position - 1]
+            position <- position - 1
+        sorted[position] <- value
+        index <- index + 1
+
+    q1_position: f64 = (length - 1).f64() * 0.25 + 1.0
+    q1_order: usize = q1_position.usize()
+    q1_fraction: f64 = q1_position - q1_order.f64()
+    q1_lower: usize = q1_order - 1
+    q1: f64 = sorted[q1_lower].f64() if q1_fraction == 0.0 or q1_lower + 1 >= length else (1.0 - q1_fraction) * sorted[q1_lower].f64() + q1_fraction * sorted[q1_lower + 1].f64()
+    q3_position: f64 = (length - 1).f64() * 0.75 + 1.0
+    q3_order: usize = q3_position.usize()
+    q3_fraction: f64 = q3_position - q3_order.f64()
+    q3_lower: usize = q3_order - 1
+    q3: f64 = sorted[q3_lower].f64() if q3_fraction == 0.0 or q3_lower + 1 >= length else (1.0 - q3_fraction) * sorted[q3_lower].f64() + q3_fraction * sorted[q3_lower + 1].f64()
+    iqr: f64 = q3 - q1
+    lower_bound: f64 = q1 - 1.5 * iqr
+    upper_bound: f64 = q3 + 1.5 * iqr
+    mask: mutable i64 = 0
+    index <- 0
+    while index < length:
+        value: f64 = values[index].f64()
+        if value < lower_bound or value > upper_bound: mask <- mask | (1 << index)
+        index <- index + 1
+    mask
+
+export fn iqr_outlier_indices(values: i64&, length: usize) -> i64 = iqr_outlier_indices_impl

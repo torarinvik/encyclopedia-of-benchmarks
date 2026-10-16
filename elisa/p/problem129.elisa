@@ -1,0 +1,24 @@
+# Search odd divisors for the first source repunit length exceeding limit.
+const MAX_LIMIT: i64 = 1000000
+
+def problem129_repunit_length(divisor: i64) -> i64:
+    if divisor % 5 == 0 or divisor % 2 == 0:
+        return 0
+    repunit: mutable i64 = 1
+    repunit_index: mutable i64 = 1
+    while repunit != 0:
+        repunit <- (10 * repunit + 1) % divisor
+        repunit_index <- repunit_index + 1
+    repunit_index
+
+def problem129_impl(limit: i64) -> i64:
+    if limit < 1 or limit > MAX_LIMIT:
+        return -1
+    divisor: mutable i64 = limit - 1
+    if divisor % 2 == 0:
+        divisor <- divisor + 1
+    while problem129_repunit_length(divisor) <= limit:
+        divisor <- divisor + 2
+    divisor
+
+export fn problem129(limit: i64) -> i64 = problem129_impl

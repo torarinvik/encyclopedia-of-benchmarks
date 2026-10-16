@@ -1,0 +1,40 @@
+# Evaluate the bounded integer binomial expansion exactly.
+def integer_power(base: i64, exponent: i64) -> i64:
+    result: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < exponent:
+        result <- result * base
+        index <- index + 1
+    result
+
+def binomial_coefficient(n: i64, k: i64) -> i64:
+    coefficients: mutable i64[32] = zeroed
+    coefficients[0] <- 1
+    row: mutable i64 = 1
+    while row <= n:
+        column: mutable i64 = row
+        if k < row:
+            column <- k
+        while column > 0:
+            coefficients[column.usize()] <- coefficients[column.usize()] + coefficients[(column - 1).usize()]
+            column <- column - 1
+        row <- row + 1
+    coefficients[k.usize()]
+
+def binomial_expansion_impl(values: i64&, length: usize) -> i64:
+    if length != 3:
+        return -9223372036854775808
+    a: i64 = values[0]
+    b: i64 = values[1]
+    exponent: i64 = values[2]
+    if a < -2 or a > 2 or b < -2 or b > 2 or exponent < 0 or exponent > 31:
+        return -9223372036854775808
+    result: mutable i64 = 0
+    index: mutable i64 = 0
+    while index <= exponent:
+        term: i64 = binomial_coefficient(exponent, index) * integer_power(a, exponent - index) * integer_power(b, index)
+        result <- result + term
+        index <- index + 1
+    result
+
+export fn binomial_expansion(values: i64&, length: usize) -> i64 = binomial_expansion_impl

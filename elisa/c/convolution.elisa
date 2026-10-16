@@ -1,0 +1,38 @@
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def convolution_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > 130: return -1
+    a_raw: i64 = values[0]
+    b_raw: i64 = values[1]
+    if a_raw < 1 or a_raw > 64 or b_raw < 1 or b_raw > 64: return -1
+    a_count: usize = a_raw.usize()
+    b_count: usize = b_raw.usize()
+    if length != a_count + b_count + 2: return -1
+    j: usize = 0
+    while j < a_count + b_count:
+        value: i64 = values[j + 2]
+        if value < -1000000 or value > 1000000: return -1
+        j <- j + 1
+    result_count: usize = a_count + b_count - 1
+    byte_count: usize = result_count * 8
+    if capacity < byte_count or output.is_null(): return -2
+    i: usize = 0
+    while i < result_count:
+        k_start: usize = if i >= b_count - 1: i - (b_count - 1) else: 0
+        k_end: usize = if i < a_count: i else: a_count - 1
+        sum: mutable i64 = 0
+        k: usize = k_start
+        while k <= k_end:
+            sum <- sum + values[k + 2] * values[a_count + (i - k) + 2]
+            k <- k + 1
+        store_i64_le(sum, output, i * 8)
+        i <- i + 1
+    byte_count.i64()
+
+export fn convolution(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = convolution_impl

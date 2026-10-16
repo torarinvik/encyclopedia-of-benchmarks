@@ -13,6 +13,7 @@ This benchmark applies the case-sensitive Burrows-Wheeler transform to one non-e
 
 ## Reviewed sources
 
+- [R `burrows.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/string_manipulation/burrows.r) appends `$` and sorts cyclic rotations; the alias normalizes to ordinal byte order because R's default character sort is locale-sensitive. Its returned original string and full rotation matrix are outside this contract.
 - [Python `burrows_wheeler.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_compression/burrows_wheeler.py)
 - [Rust compression `burrows_wheeler_transform.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/compression/burrows_wheeler_transform.rs)
 - [C# `BurrowsWheelerTransform.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/DataCompression/BurrowsWheelerTransform.cs)

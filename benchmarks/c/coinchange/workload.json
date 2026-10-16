@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "coinchange-source-amount-minus-one-combinations-v1",
+  "algorithm": "coinchange",
+  "function_symbol": "coinchange",
+  "input": {
+    "kind": "packed_amount_coin_types",
+    "encoding": "[amount, coin_count, coin_0, ..., coin_(coin_count-1)]",
+    "amount_range": [1, 30],
+    "coin_count_range": [0, 8],
+    "denomination_range": [1, 30],
+    "invalid_input_result": -1,
+    "meaning": "number of combinations summing to amount minus one"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of combinations using unlimited copies of each listed coin type",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"amount-one-no-coins","input_values":[1,0],"input_length":2,"expected_result":1},
+    {"id":"one-unit-target","input_values":[2,1,1],"input_length":3,"expected_result":1},
+    {"id":"source-offset-ignores-equal-coin","input_values":[2,1,2],"input_length":3,"expected_result":0},
+    {"id":"duplicate-types-are-distinct","input_values":[3,2,1,1],"input_length":4,"expected_result":3},
+    {"id":"two-denominations","input_values":[4,2,1,2],"input_length":4,"expected_result":2},
+    {"id":"coin-greater-than-target","input_values":[3,1,3],"input_length":3,"expected_result":0},
+    {"id":"no-coins-positive-target","input_values":[30,0],"input_length":2,"expected_result":0},
+    {"id":"maximum-bounded-count","input_values":[30,8,1,1,1,1,1,1,1,1],"input_length":10,"expected_result":8347680},
+    {"id":"invalid-zero-amount","input_values":[0,0],"input_length":2,"expected_result":-1},
+    {"id":"invalid-amount-too-large","input_values":[31,0],"input_length":2,"expected_result":-1},
+    {"id":"invalid-zero-coin","input_values":[3,1,0],"input_length":3,"expected_result":-1},
+    {"id":"invalid-negative-coin","input_values":[3,1,-1],"input_length":3,"expected_result":-1},
+    {"id":"invalid-truncated-coins","input_values":[3,1],"input_length":2,"expected_result":-1}
+  ]
+}

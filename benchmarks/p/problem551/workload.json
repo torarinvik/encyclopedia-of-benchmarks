@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-551-scalar-v1",
+  "algorithm": "problem551",
+  "function_symbol": "problem551",
+  "input": {
+    "kind": "one_based_sequence_index",
+    "minimum": 1,
+    "maximum": 1000000000000000,
+    "definition": "Return a(n) for a(0)=1 and a(k)=a(k-1)+the decimal digit sum of a(k-1)",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The requested term of the digit-sum sequence",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "first_term", "input_value": 1, "expected_result": 1},
+    {"id": "source_example_10", "input_value": 10, "expected_result": 62},
+    {"id": "small_prefix", "input_value": 100, "expected_result": 1205},
+    {"id": "source_example_one_million", "input_value": 1000000, "expected_result": 31054319},
+    {"id": "source_default_fifteen_digits", "input_value": 1000000000000000, "expected_result": 73597483551591773},
+    {"id": "zero_index_outside_contract", "input_value": 0, "expected_result": -1},
+    {"id": "negative_index_outside_contract", "input_value": -1, "expected_result": -1},
+    {"id": "index_above_bound", "input_value": 1000000000000001, "expected_result": -1}
+  ]
+}

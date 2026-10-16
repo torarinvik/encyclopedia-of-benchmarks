@@ -1,0 +1,17 @@
+def problem138_impl(count: i64) -> i64:
+    if count > 14: return -1
+    if count <= 0: return 0
+    m: mutable i64 = 2
+    l: mutable i64 = 1
+    total: mutable i64 = 0
+    i: mutable i64 = 0
+    while i < count:
+        next_m: i64 = 9 * m + 20 * l
+        next_l: i64 = 4 * m + 9 * l
+        m <- next_m
+        l <- next_l
+        total <- total + l
+        i <- i + 1
+    total
+
+export fn problem138(count: i64) -> i64 = problem138_impl

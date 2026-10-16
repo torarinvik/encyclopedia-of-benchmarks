@@ -1,0 +1,43 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+# Apply Java EMAFilter to one bounded sequence; alpha is quantized to 1/1024 steps.
+def ema_filter_put_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte_index: mutable usize = 0
+    while byte_index < 8:
+        output[offset + byte_index] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte_index <- byte_index + 1
+
+def ema_filter_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 7:
+        return -1
+    alpha_units: i64 = input[0]
+    count_value: i64 = input[1]
+    if alpha_units < 1 or alpha_units > 1024 or count_value < 0 or count_value > 4 or length != (2 + count_value).usize():
+        return -1
+    count: usize = count_value.usize()
+    index: mutable usize = 0
+    while index < count:
+        if input[index + 2] < -1000000 or input[index + 2] > 1000000:
+            return -1
+        index <- index + 1
+    required: usize = count * 8
+    if output_capacity < required or (required > 0 and output.is_null()):
+        return -2
+
+    alpha: f64 = alpha_units.f64() / 1024.0
+    ema_value: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        sample: f64 = input[index + 2].f64()
+        if index == 0:
+            ema_value <- sample
+        else:
+            ema_value <- alpha * sample + (1.0 - alpha) * ema_value
+        ema_filter_put_f64_le(output, index * 8, ema_value)
+        index <- index + 1
+    required.i64()
+
+export fn ema_filter(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = ema_filter_impl

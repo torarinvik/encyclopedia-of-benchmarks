@@ -1,0 +1,32 @@
+# Bounded port of TheAlgorithms/Python Project Euler 38 search.
+def is_9_pandigital(value: i64) -> bool:
+    if value < 100000000 or value > 999999999:
+        return false
+    mask: mutable u64 = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        digit: u64 = (remaining % 10).u64()
+        if digit == 0 or (mask & (1 << digit)) != 0:
+            return false
+        mask <- mask | (1 << digit)
+        remaining <- remaining / 10
+    mask == 0x3fe
+
+def problem38_impl(unused: i64) -> i64:
+    if unused != 0:
+        return -1
+    base: mutable i64 = 9999
+    while base > 4999:
+        candidate: i64 = 100002 * base
+        if is_9_pandigital(candidate):
+            return candidate
+        base <- base - 1
+    base <- 333
+    while base > 99:
+        candidate: i64 = 1002003 * base
+        if is_9_pandigital(candidate):
+            return candidate
+        base <- base - 1
+    -1
+
+export fn problem38(unused: i64) -> i64 = problem38_impl

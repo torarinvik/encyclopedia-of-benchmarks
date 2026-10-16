@@ -1,0 +1,20 @@
+# Convert each flattened image channel to its byte complement.
+def convert_to_negative_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > 4096: return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 4095: return -1
+    count: usize = count_value.usize()
+    if count != length - 1: return -1
+    index: mutable usize = 0
+    while index < count:
+        channel: i64 = values[index + 1]
+        if channel < 0 or channel > 255: return -1
+        index <- index + 1
+    if count > output_capacity or (count > 0 and output.is_null()): return -2
+    index <- 0
+    while index < count:
+        output[index] <- (255 - values[index + 1]).u8()
+        index <- index + 1
+    count.i64()
+
+export fn convert_to_negative(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = convert_to_negative_impl

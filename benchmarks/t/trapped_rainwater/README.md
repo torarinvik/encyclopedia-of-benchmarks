@@ -16,5 +16,7 @@ The pinned C++ and Rust implementations compute left and right maximum-height ar
 
 ## Upstream sources
 
+- [C LeetCode `42.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/42.c) computes suffix maximum heights and a running prefix maximum; the shared contract also defines empty input.
+
 - [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/trapped_rainwater.cpp)
 - [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/trapped_rainwater.rs)

@@ -1,0 +1,4975 @@
+{
+  "schema_version": 1,
+  "id": "rust-weight-units-v1",
+  "algorithm": "weight",
+  "function_symbol": "weight",
+  "input": {
+    "kind": "finite_binary64_weight_conversion",
+    "value_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "unit_codes": {
+      "0": "gigatonne",
+      "1": "megatonne",
+      "2": "metric-ton",
+      "3": "kilogram",
+      "4": "gram",
+      "5": "milligram",
+      "6": "microgram",
+      "7": "nanogram",
+      "8": "picogram",
+      "9": "long-ton",
+      "10": "short-ton",
+      "11": "hundredweight",
+      "12": "quarter",
+      "13": "stone",
+      "14": "pound",
+      "15": "ounce",
+      "16": "dram",
+      "17": "grain",
+      "18": "troy-pound",
+      "19": "troy-ounce",
+      "20": "pennyweight",
+      "21": "carat",
+      "22": "atomic-mass-unit"
+    },
+    "factor_to_kilograms": [
+      1000000000000.0,
+      1000000000.0,
+      1000.0,
+      1.0,
+      0.001,
+      1e-06,
+      1e-09,
+      1e-12,
+      1e-15,
+      1016.0469088,
+      907.18474,
+      50.80234544,
+      12.70058636,
+      6.35029318,
+      0.45359237,
+      0.028349523125,
+      0.0017718451953125,
+      6.479891e-05,
+      0.3732417216,
+      0.0311034768,
+      0.00155517384,
+      0.0002,
+      1.6605390666e-27
+    ],
+    "formula": "(value * factor_to_kilograms[from_code]) / factor_to_kilograms[to_code]",
+    "invalid_result": -1e+300,
+    "output_relative_tolerance": 1e-12
+  },
+  "output": {
+    "kind": "binary64",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "output_relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "pair-gigatonne-to-gigatonne",
+      "input_values": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-gigatonne-to-megatonne",
+      "input_values": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "pair-gigatonne-to-metric-ton",
+      "input_values": [
+        1.0,
+        0.0,
+        2.0
+      ],
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "pair-gigatonne-to-kilogram",
+      "input_values": [
+        1.0,
+        0.0,
+        3.0
+      ],
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "pair-gigatonne-to-gram",
+      "input_values": [
+        1.0,
+        0.0,
+        4.0
+      ],
+      "expected_result": 1000000000000000.0
+    },
+    {
+      "id": "pair-gigatonne-to-milligram",
+      "input_values": [
+        1.0,
+        0.0,
+        5.0
+      ],
+      "expected_result": 1e+18
+    },
+    {
+      "id": "pair-gigatonne-to-microgram",
+      "input_values": [
+        1.0,
+        0.0,
+        6.0
+      ],
+      "expected_result": 1e+21
+    },
+    {
+      "id": "pair-gigatonne-to-nanogram",
+      "input_values": [
+        1.0,
+        0.0,
+        7.0
+      ],
+      "expected_result": 1e+24
+    },
+    {
+      "id": "pair-gigatonne-to-picogram",
+      "input_values": [
+        1.0,
+        0.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e+26
+    },
+    {
+      "id": "pair-gigatonne-to-long-ton",
+      "input_values": [
+        1.0,
+        0.0,
+        9.0
+      ],
+      "expected_result": 984206527.6110606
+    },
+    {
+      "id": "pair-gigatonne-to-short-ton",
+      "input_values": [
+        1.0,
+        0.0,
+        10.0
+      ],
+      "expected_result": 1102311310.924388
+    },
+    {
+      "id": "pair-gigatonne-to-hundredweight",
+      "input_values": [
+        1.0,
+        0.0,
+        11.0
+      ],
+      "expected_result": 19684130552.22121
+    },
+    {
+      "id": "pair-gigatonne-to-quarter",
+      "input_values": [
+        1.0,
+        0.0,
+        12.0
+      ],
+      "expected_result": 78736522208.88484
+    },
+    {
+      "id": "pair-gigatonne-to-stone",
+      "input_values": [
+        1.0,
+        0.0,
+        13.0
+      ],
+      "expected_result": 157473044417.76968
+    },
+    {
+      "id": "pair-gigatonne-to-pound",
+      "input_values": [
+        1.0,
+        0.0,
+        14.0
+      ],
+      "expected_result": 2204622621848.776
+    },
+    {
+      "id": "pair-gigatonne-to-ounce",
+      "input_values": [
+        1.0,
+        0.0,
+        15.0
+      ],
+      "expected_result": 35273961949580.414
+    },
+    {
+      "id": "pair-gigatonne-to-dram",
+      "input_values": [
+        1.0,
+        0.0,
+        16.0
+      ],
+      "expected_result": 564383391193286.6
+    },
+    {
+      "id": "pair-gigatonne-to-grain",
+      "input_values": [
+        1.0,
+        0.0,
+        17.0
+      ],
+      "expected_result": 1.5432358352941432e+16
+    },
+    {
+      "id": "pair-gigatonne-to-troy-pound",
+      "input_values": [
+        1.0,
+        0.0,
+        18.0
+      ],
+      "expected_result": 2679228880718.998
+    },
+    {
+      "id": "pair-gigatonne-to-troy-ounce",
+      "input_values": [
+        1.0,
+        0.0,
+        19.0
+      ],
+      "expected_result": 32150746568627.98
+    },
+    {
+      "id": "pair-gigatonne-to-pennyweight",
+      "input_values": [
+        1.0,
+        0.0,
+        20.0
+      ],
+      "expected_result": 643014931372559.6
+    },
+    {
+      "id": "pair-gigatonne-to-carat",
+      "input_values": [
+        1.0,
+        0.0,
+        21.0
+      ],
+      "expected_result": 5000000000000000.0
+    },
+    {
+      "id": "pair-gigatonne-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        0.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+38
+    },
+    {
+      "id": "pair-megatonne-to-gigatonne",
+      "input_values": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-megatonne-to-megatonne",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-megatonne-to-metric-ton",
+      "input_values": [
+        1.0,
+        1.0,
+        2.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-megatonne-to-kilogram",
+      "input_values": [
+        1.0,
+        1.0,
+        3.0
+      ],
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "pair-megatonne-to-gram",
+      "input_values": [
+        1.0,
+        1.0,
+        4.0
+      ],
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "pair-megatonne-to-milligram",
+      "input_values": [
+        1.0,
+        1.0,
+        5.0
+      ],
+      "expected_result": 1000000000000000.0
+    },
+    {
+      "id": "pair-megatonne-to-microgram",
+      "input_values": [
+        1.0,
+        1.0,
+        6.0
+      ],
+      "expected_result": 1e+18
+    },
+    {
+      "id": "pair-megatonne-to-nanogram",
+      "input_values": [
+        1.0,
+        1.0,
+        7.0
+      ],
+      "expected_result": 1e+21
+    },
+    {
+      "id": "pair-megatonne-to-picogram",
+      "input_values": [
+        1.0,
+        1.0,
+        8.0
+      ],
+      "expected_result": 1e+24
+    },
+    {
+      "id": "pair-megatonne-to-long-ton",
+      "input_values": [
+        1.0,
+        1.0,
+        9.0
+      ],
+      "expected_result": 984206.5276110607
+    },
+    {
+      "id": "pair-megatonne-to-short-ton",
+      "input_values": [
+        1.0,
+        1.0,
+        10.0
+      ],
+      "expected_result": 1102311.3109243878
+    },
+    {
+      "id": "pair-megatonne-to-hundredweight",
+      "input_values": [
+        1.0,
+        1.0,
+        11.0
+      ],
+      "expected_result": 19684130.552221213
+    },
+    {
+      "id": "pair-megatonne-to-quarter",
+      "input_values": [
+        1.0,
+        1.0,
+        12.0
+      ],
+      "expected_result": 78736522.20888485
+    },
+    {
+      "id": "pair-megatonne-to-stone",
+      "input_values": [
+        1.0,
+        1.0,
+        13.0
+      ],
+      "expected_result": 157473044.4177697
+    },
+    {
+      "id": "pair-megatonne-to-pound",
+      "input_values": [
+        1.0,
+        1.0,
+        14.0
+      ],
+      "expected_result": 2204622621.848776
+    },
+    {
+      "id": "pair-megatonne-to-ounce",
+      "input_values": [
+        1.0,
+        1.0,
+        15.0
+      ],
+      "expected_result": 35273961949.580414
+    },
+    {
+      "id": "pair-megatonne-to-dram",
+      "input_values": [
+        1.0,
+        1.0,
+        16.0
+      ],
+      "expected_result": 564383391193.2866
+    },
+    {
+      "id": "pair-megatonne-to-grain",
+      "input_values": [
+        1.0,
+        1.0,
+        17.0
+      ],
+      "expected_result": 15432358352941.432
+    },
+    {
+      "id": "pair-megatonne-to-troy-pound",
+      "input_values": [
+        1.0,
+        1.0,
+        18.0
+      ],
+      "expected_result": 2679228880.7189984
+    },
+    {
+      "id": "pair-megatonne-to-troy-ounce",
+      "input_values": [
+        1.0,
+        1.0,
+        19.0
+      ],
+      "expected_result": 32150746568.62798
+    },
+    {
+      "id": "pair-megatonne-to-pennyweight",
+      "input_values": [
+        1.0,
+        1.0,
+        20.0
+      ],
+      "expected_result": 643014931372.5596
+    },
+    {
+      "id": "pair-megatonne-to-carat",
+      "input_values": [
+        1.0,
+        1.0,
+        21.0
+      ],
+      "expected_result": 5000000000000.0
+    },
+    {
+      "id": "pair-megatonne-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        1.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+35
+    },
+    {
+      "id": "pair-metric-ton-to-gigatonne",
+      "input_values": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "expected_result": 1e-09
+    },
+    {
+      "id": "pair-metric-ton-to-megatonne",
+      "input_values": [
+        1.0,
+        2.0,
+        1.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-metric-ton-to-metric-ton",
+      "input_values": [
+        1.0,
+        2.0,
+        2.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-metric-ton-to-kilogram",
+      "input_values": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "pair-metric-ton-to-gram",
+      "input_values": [
+        1.0,
+        2.0,
+        4.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-metric-ton-to-milligram",
+      "input_values": [
+        1.0,
+        2.0,
+        5.0
+      ],
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "pair-metric-ton-to-microgram",
+      "input_values": [
+        1.0,
+        2.0,
+        6.0
+      ],
+      "expected_result": 999999999999.9999
+    },
+    {
+      "id": "pair-metric-ton-to-nanogram",
+      "input_values": [
+        1.0,
+        2.0,
+        7.0
+      ],
+      "expected_result": 1000000000000000.0
+    },
+    {
+      "id": "pair-metric-ton-to-picogram",
+      "input_values": [
+        1.0,
+        2.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e+17
+    },
+    {
+      "id": "pair-metric-ton-to-long-ton",
+      "input_values": [
+        1.0,
+        2.0,
+        9.0
+      ],
+      "expected_result": 0.9842065276110606
+    },
+    {
+      "id": "pair-metric-ton-to-short-ton",
+      "input_values": [
+        1.0,
+        2.0,
+        10.0
+      ],
+      "expected_result": 1.1023113109243878
+    },
+    {
+      "id": "pair-metric-ton-to-hundredweight",
+      "input_values": [
+        1.0,
+        2.0,
+        11.0
+      ],
+      "expected_result": 19.684130552221212
+    },
+    {
+      "id": "pair-metric-ton-to-quarter",
+      "input_values": [
+        1.0,
+        2.0,
+        12.0
+      ],
+      "expected_result": 78.73652220888485
+    },
+    {
+      "id": "pair-metric-ton-to-stone",
+      "input_values": [
+        1.0,
+        2.0,
+        13.0
+      ],
+      "expected_result": 157.4730444177697
+    },
+    {
+      "id": "pair-metric-ton-to-pound",
+      "input_values": [
+        1.0,
+        2.0,
+        14.0
+      ],
+      "expected_result": 2204.622621848776
+    },
+    {
+      "id": "pair-metric-ton-to-ounce",
+      "input_values": [
+        1.0,
+        2.0,
+        15.0
+      ],
+      "expected_result": 35273.961949580415
+    },
+    {
+      "id": "pair-metric-ton-to-dram",
+      "input_values": [
+        1.0,
+        2.0,
+        16.0
+      ],
+      "expected_result": 564383.3911932866
+    },
+    {
+      "id": "pair-metric-ton-to-grain",
+      "input_values": [
+        1.0,
+        2.0,
+        17.0
+      ],
+      "expected_result": 15432358.352941431
+    },
+    {
+      "id": "pair-metric-ton-to-troy-pound",
+      "input_values": [
+        1.0,
+        2.0,
+        18.0
+      ],
+      "expected_result": 2679.2288807189984
+    },
+    {
+      "id": "pair-metric-ton-to-troy-ounce",
+      "input_values": [
+        1.0,
+        2.0,
+        19.0
+      ],
+      "expected_result": 32150.74656862798
+    },
+    {
+      "id": "pair-metric-ton-to-pennyweight",
+      "input_values": [
+        1.0,
+        2.0,
+        20.0
+      ],
+      "expected_result": 643014.9313725596
+    },
+    {
+      "id": "pair-metric-ton-to-carat",
+      "input_values": [
+        1.0,
+        2.0,
+        21.0
+      ],
+      "expected_result": 5000000.0
+    },
+    {
+      "id": "pair-metric-ton-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        2.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+29
+    },
+    {
+      "id": "pair-kilogram-to-gigatonne",
+      "input_values": [
+        1.0,
+        3.0,
+        0.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "pair-kilogram-to-megatonne",
+      "input_values": [
+        1.0,
+        3.0,
+        1.0
+      ],
+      "expected_result": 1e-09
+    },
+    {
+      "id": "pair-kilogram-to-metric-ton",
+      "input_values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-kilogram-to-kilogram",
+      "input_values": [
+        1.0,
+        3.0,
+        3.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-kilogram-to-gram",
+      "input_values": [
+        1.0,
+        3.0,
+        4.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "pair-kilogram-to-milligram",
+      "input_values": [
+        1.0,
+        3.0,
+        5.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-kilogram-to-microgram",
+      "input_values": [
+        1.0,
+        3.0,
+        6.0
+      ],
+      "expected_result": 999999999.9999999
+    },
+    {
+      "id": "pair-kilogram-to-nanogram",
+      "input_values": [
+        1.0,
+        3.0,
+        7.0
+      ],
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "pair-kilogram-to-picogram",
+      "input_values": [
+        1.0,
+        3.0,
+        8.0
+      ],
+      "expected_result": 999999999999999.9
+    },
+    {
+      "id": "pair-kilogram-to-long-ton",
+      "input_values": [
+        1.0,
+        3.0,
+        9.0
+      ],
+      "expected_result": 0.0009842065276110606
+    },
+    {
+      "id": "pair-kilogram-to-short-ton",
+      "input_values": [
+        1.0,
+        3.0,
+        10.0
+      ],
+      "expected_result": 0.001102311310924388
+    },
+    {
+      "id": "pair-kilogram-to-hundredweight",
+      "input_values": [
+        1.0,
+        3.0,
+        11.0
+      ],
+      "expected_result": 0.01968413055222121
+    },
+    {
+      "id": "pair-kilogram-to-quarter",
+      "input_values": [
+        1.0,
+        3.0,
+        12.0
+      ],
+      "expected_result": 0.07873652220888484
+    },
+    {
+      "id": "pair-kilogram-to-stone",
+      "input_values": [
+        1.0,
+        3.0,
+        13.0
+      ],
+      "expected_result": 0.1574730444177697
+    },
+    {
+      "id": "pair-kilogram-to-pound",
+      "input_values": [
+        1.0,
+        3.0,
+        14.0
+      ],
+      "expected_result": 2.2046226218487757
+    },
+    {
+      "id": "pair-kilogram-to-ounce",
+      "input_values": [
+        1.0,
+        3.0,
+        15.0
+      ],
+      "expected_result": 35.27396194958041
+    },
+    {
+      "id": "pair-kilogram-to-dram",
+      "input_values": [
+        1.0,
+        3.0,
+        16.0
+      ],
+      "expected_result": 564.3833911932866
+    },
+    {
+      "id": "pair-kilogram-to-grain",
+      "input_values": [
+        1.0,
+        3.0,
+        17.0
+      ],
+      "expected_result": 15432.358352941432
+    },
+    {
+      "id": "pair-kilogram-to-troy-pound",
+      "input_values": [
+        1.0,
+        3.0,
+        18.0
+      ],
+      "expected_result": 2.6792288807189983
+    },
+    {
+      "id": "pair-kilogram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        3.0,
+        19.0
+      ],
+      "expected_result": 32.15074656862798
+    },
+    {
+      "id": "pair-kilogram-to-pennyweight",
+      "input_values": [
+        1.0,
+        3.0,
+        20.0
+      ],
+      "expected_result": 643.0149313725595
+    },
+    {
+      "id": "pair-kilogram-to-carat",
+      "input_values": [
+        1.0,
+        3.0,
+        21.0
+      ],
+      "expected_result": 5000.0
+    },
+    {
+      "id": "pair-kilogram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        3.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+26
+    },
+    {
+      "id": "pair-gram-to-gigatonne",
+      "input_values": [
+        1.0,
+        4.0,
+        0.0
+      ],
+      "expected_result": 1e-15
+    },
+    {
+      "id": "pair-gram-to-megatonne",
+      "input_values": [
+        1.0,
+        4.0,
+        1.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "pair-gram-to-metric-ton",
+      "input_values": [
+        1.0,
+        4.0,
+        2.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-gram-to-kilogram",
+      "input_values": [
+        1.0,
+        4.0,
+        3.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-gram-to-gram",
+      "input_values": [
+        1.0,
+        4.0,
+        4.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-gram-to-milligram",
+      "input_values": [
+        1.0,
+        4.0,
+        5.0
+      ],
+      "expected_result": 1000.0000000000001
+    },
+    {
+      "id": "pair-gram-to-microgram",
+      "input_values": [
+        1.0,
+        4.0,
+        6.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-gram-to-nanogram",
+      "input_values": [
+        1.0,
+        4.0,
+        7.0
+      ],
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "pair-gram-to-picogram",
+      "input_values": [
+        1.0,
+        4.0,
+        8.0
+      ],
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "pair-gram-to-long-ton",
+      "input_values": [
+        1.0,
+        4.0,
+        9.0
+      ],
+      "expected_result": 9.842065276110607e-07
+    },
+    {
+      "id": "pair-gram-to-short-ton",
+      "input_values": [
+        1.0,
+        4.0,
+        10.0
+      ],
+      "expected_result": 1.102311310924388e-06
+    },
+    {
+      "id": "pair-gram-to-hundredweight",
+      "input_values": [
+        1.0,
+        4.0,
+        11.0
+      ],
+      "expected_result": 1.968413055222121e-05
+    },
+    {
+      "id": "pair-gram-to-quarter",
+      "input_values": [
+        1.0,
+        4.0,
+        12.0
+      ],
+      "expected_result": 7.873652220888484e-05
+    },
+    {
+      "id": "pair-gram-to-stone",
+      "input_values": [
+        1.0,
+        4.0,
+        13.0
+      ],
+      "expected_result": 0.0001574730444177697
+    },
+    {
+      "id": "pair-gram-to-pound",
+      "input_values": [
+        1.0,
+        4.0,
+        14.0
+      ],
+      "expected_result": 0.002204622621848776
+    },
+    {
+      "id": "pair-gram-to-ounce",
+      "input_values": [
+        1.0,
+        4.0,
+        15.0
+      ],
+      "expected_result": 0.035273961949580414
+    },
+    {
+      "id": "pair-gram-to-dram",
+      "input_values": [
+        1.0,
+        4.0,
+        16.0
+      ],
+      "expected_result": 0.5643833911932866
+    },
+    {
+      "id": "pair-gram-to-grain",
+      "input_values": [
+        1.0,
+        4.0,
+        17.0
+      ],
+      "expected_result": 15.432358352941431
+    },
+    {
+      "id": "pair-gram-to-troy-pound",
+      "input_values": [
+        1.0,
+        4.0,
+        18.0
+      ],
+      "expected_result": 0.0026792288807189982
+    },
+    {
+      "id": "pair-gram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        4.0,
+        19.0
+      ],
+      "expected_result": 0.03215074656862798
+    },
+    {
+      "id": "pair-gram-to-pennyweight",
+      "input_values": [
+        1.0,
+        4.0,
+        20.0
+      ],
+      "expected_result": 0.6430149313725596
+    },
+    {
+      "id": "pair-gram-to-carat",
+      "input_values": [
+        1.0,
+        4.0,
+        21.0
+      ],
+      "expected_result": 5.0
+    },
+    {
+      "id": "pair-gram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        4.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+23
+    },
+    {
+      "id": "pair-milligram-to-gigatonne",
+      "input_values": [
+        1.0,
+        5.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999999e-19
+    },
+    {
+      "id": "pair-milligram-to-megatonne",
+      "input_values": [
+        1.0,
+        5.0,
+        1.0
+      ],
+      "expected_result": 9.999999999999999e-16
+    },
+    {
+      "id": "pair-milligram-to-metric-ton",
+      "input_values": [
+        1.0,
+        5.0,
+        2.0
+      ],
+      "expected_result": 9.999999999999999e-10
+    },
+    {
+      "id": "pair-milligram-to-kilogram",
+      "input_values": [
+        1.0,
+        5.0,
+        3.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-milligram-to-gram",
+      "input_values": [
+        1.0,
+        5.0,
+        4.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-milligram-to-milligram",
+      "input_values": [
+        1.0,
+        5.0,
+        5.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-milligram-to-microgram",
+      "input_values": [
+        1.0,
+        5.0,
+        6.0
+      ],
+      "expected_result": 999.9999999999999
+    },
+    {
+      "id": "pair-milligram-to-nanogram",
+      "input_values": [
+        1.0,
+        5.0,
+        7.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-milligram-to-picogram",
+      "input_values": [
+        1.0,
+        5.0,
+        8.0
+      ],
+      "expected_result": 999999999.9999999
+    },
+    {
+      "id": "pair-milligram-to-long-ton",
+      "input_values": [
+        1.0,
+        5.0,
+        9.0
+      ],
+      "expected_result": 9.842065276110605e-10
+    },
+    {
+      "id": "pair-milligram-to-short-ton",
+      "input_values": [
+        1.0,
+        5.0,
+        10.0
+      ],
+      "expected_result": 1.102311310924388e-09
+    },
+    {
+      "id": "pair-milligram-to-hundredweight",
+      "input_values": [
+        1.0,
+        5.0,
+        11.0
+      ],
+      "expected_result": 1.968413055222121e-08
+    },
+    {
+      "id": "pair-milligram-to-quarter",
+      "input_values": [
+        1.0,
+        5.0,
+        12.0
+      ],
+      "expected_result": 7.873652220888484e-08
+    },
+    {
+      "id": "pair-milligram-to-stone",
+      "input_values": [
+        1.0,
+        5.0,
+        13.0
+      ],
+      "expected_result": 1.5747304441776967e-07
+    },
+    {
+      "id": "pair-milligram-to-pound",
+      "input_values": [
+        1.0,
+        5.0,
+        14.0
+      ],
+      "expected_result": 2.2046226218487755e-06
+    },
+    {
+      "id": "pair-milligram-to-ounce",
+      "input_values": [
+        1.0,
+        5.0,
+        15.0
+      ],
+      "expected_result": 3.527396194958041e-05
+    },
+    {
+      "id": "pair-milligram-to-dram",
+      "input_values": [
+        1.0,
+        5.0,
+        16.0
+      ],
+      "expected_result": 0.0005643833911932865
+    },
+    {
+      "id": "pair-milligram-to-grain",
+      "input_values": [
+        1.0,
+        5.0,
+        17.0
+      ],
+      "expected_result": 0.015432358352941431
+    },
+    {
+      "id": "pair-milligram-to-troy-pound",
+      "input_values": [
+        1.0,
+        5.0,
+        18.0
+      ],
+      "expected_result": 2.6792288807189983e-06
+    },
+    {
+      "id": "pair-milligram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        5.0,
+        19.0
+      ],
+      "expected_result": 3.215074656862798e-05
+    },
+    {
+      "id": "pair-milligram-to-pennyweight",
+      "input_values": [
+        1.0,
+        5.0,
+        20.0
+      ],
+      "expected_result": 0.0006430149313725595
+    },
+    {
+      "id": "pair-milligram-to-carat",
+      "input_values": [
+        1.0,
+        5.0,
+        21.0
+      ],
+      "expected_result": 0.004999999999999999
+    },
+    {
+      "id": "pair-milligram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        5.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081122e+20
+    },
+    {
+      "id": "pair-microgram-to-gigatonne",
+      "input_values": [
+        1.0,
+        6.0,
+        0.0
+      ],
+      "expected_result": 1.0000000000000001e-21
+    },
+    {
+      "id": "pair-microgram-to-megatonne",
+      "input_values": [
+        1.0,
+        6.0,
+        1.0
+      ],
+      "expected_result": 1e-18
+    },
+    {
+      "id": "pair-microgram-to-metric-ton",
+      "input_values": [
+        1.0,
+        6.0,
+        2.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "pair-microgram-to-kilogram",
+      "input_values": [
+        1.0,
+        6.0,
+        3.0
+      ],
+      "expected_result": 1e-09
+    },
+    {
+      "id": "pair-microgram-to-gram",
+      "input_values": [
+        1.0,
+        6.0,
+        4.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-microgram-to-milligram",
+      "input_values": [
+        1.0,
+        6.0,
+        5.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-microgram-to-microgram",
+      "input_values": [
+        1.0,
+        6.0,
+        6.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-microgram-to-nanogram",
+      "input_values": [
+        1.0,
+        6.0,
+        7.0
+      ],
+      "expected_result": 1000.0000000000001
+    },
+    {
+      "id": "pair-microgram-to-picogram",
+      "input_values": [
+        1.0,
+        6.0,
+        8.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "pair-microgram-to-long-ton",
+      "input_values": [
+        1.0,
+        6.0,
+        9.0
+      ],
+      "expected_result": 9.842065276110607e-13
+    },
+    {
+      "id": "pair-microgram-to-short-ton",
+      "input_values": [
+        1.0,
+        6.0,
+        10.0
+      ],
+      "expected_result": 1.1023113109243879e-12
+    },
+    {
+      "id": "pair-microgram-to-hundredweight",
+      "input_values": [
+        1.0,
+        6.0,
+        11.0
+      ],
+      "expected_result": 1.968413055222121e-11
+    },
+    {
+      "id": "pair-microgram-to-quarter",
+      "input_values": [
+        1.0,
+        6.0,
+        12.0
+      ],
+      "expected_result": 7.873652220888484e-11
+    },
+    {
+      "id": "pair-microgram-to-stone",
+      "input_values": [
+        1.0,
+        6.0,
+        13.0
+      ],
+      "expected_result": 1.574730444177697e-10
+    },
+    {
+      "id": "pair-microgram-to-pound",
+      "input_values": [
+        1.0,
+        6.0,
+        14.0
+      ],
+      "expected_result": 2.204622621848776e-09
+    },
+    {
+      "id": "pair-microgram-to-ounce",
+      "input_values": [
+        1.0,
+        6.0,
+        15.0
+      ],
+      "expected_result": 3.5273961949580413e-08
+    },
+    {
+      "id": "pair-microgram-to-dram",
+      "input_values": [
+        1.0,
+        6.0,
+        16.0
+      ],
+      "expected_result": 5.643833911932866e-07
+    },
+    {
+      "id": "pair-microgram-to-grain",
+      "input_values": [
+        1.0,
+        6.0,
+        17.0
+      ],
+      "expected_result": 1.5432358352941434e-05
+    },
+    {
+      "id": "pair-microgram-to-troy-pound",
+      "input_values": [
+        1.0,
+        6.0,
+        18.0
+      ],
+      "expected_result": 2.6792288807189982e-09
+    },
+    {
+      "id": "pair-microgram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        6.0,
+        19.0
+      ],
+      "expected_result": 3.215074656862798e-08
+    },
+    {
+      "id": "pair-microgram-to-pennyweight",
+      "input_values": [
+        1.0,
+        6.0,
+        20.0
+      ],
+      "expected_result": 6.430149313725596e-07
+    },
+    {
+      "id": "pair-microgram-to-carat",
+      "input_values": [
+        1.0,
+        6.0,
+        21.0
+      ],
+      "expected_result": 5e-06
+    },
+    {
+      "id": "pair-microgram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        6.0,
+        22.0
+      ],
+      "expected_result": 6.022140762081123e+17
+    },
+    {
+      "id": "pair-nanogram-to-gigatonne",
+      "input_values": [
+        1.0,
+        7.0,
+        0.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "pair-nanogram-to-megatonne",
+      "input_values": [
+        1.0,
+        7.0,
+        1.0
+      ],
+      "expected_result": 1e-21
+    },
+    {
+      "id": "pair-nanogram-to-metric-ton",
+      "input_values": [
+        1.0,
+        7.0,
+        2.0
+      ],
+      "expected_result": 1e-15
+    },
+    {
+      "id": "pair-nanogram-to-kilogram",
+      "input_values": [
+        1.0,
+        7.0,
+        3.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "pair-nanogram-to-gram",
+      "input_values": [
+        1.0,
+        7.0,
+        4.0
+      ],
+      "expected_result": 1e-09
+    },
+    {
+      "id": "pair-nanogram-to-milligram",
+      "input_values": [
+        1.0,
+        7.0,
+        5.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-nanogram-to-microgram",
+      "input_values": [
+        1.0,
+        7.0,
+        6.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-nanogram-to-nanogram",
+      "input_values": [
+        1.0,
+        7.0,
+        7.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-nanogram-to-picogram",
+      "input_values": [
+        1.0,
+        7.0,
+        8.0
+      ],
+      "expected_result": 999.9999999999999
+    },
+    {
+      "id": "pair-nanogram-to-long-ton",
+      "input_values": [
+        1.0,
+        7.0,
+        9.0
+      ],
+      "expected_result": 9.842065276110607e-16
+    },
+    {
+      "id": "pair-nanogram-to-short-ton",
+      "input_values": [
+        1.0,
+        7.0,
+        10.0
+      ],
+      "expected_result": 1.102311310924388e-15
+    },
+    {
+      "id": "pair-nanogram-to-hundredweight",
+      "input_values": [
+        1.0,
+        7.0,
+        11.0
+      ],
+      "expected_result": 1.9684130552221212e-14
+    },
+    {
+      "id": "pair-nanogram-to-quarter",
+      "input_values": [
+        1.0,
+        7.0,
+        12.0
+      ],
+      "expected_result": 7.873652220888485e-14
+    },
+    {
+      "id": "pair-nanogram-to-stone",
+      "input_values": [
+        1.0,
+        7.0,
+        13.0
+      ],
+      "expected_result": 1.574730444177697e-13
+    },
+    {
+      "id": "pair-nanogram-to-pound",
+      "input_values": [
+        1.0,
+        7.0,
+        14.0
+      ],
+      "expected_result": 2.2046226218487757e-12
+    },
+    {
+      "id": "pair-nanogram-to-ounce",
+      "input_values": [
+        1.0,
+        7.0,
+        15.0
+      ],
+      "expected_result": 3.527396194958041e-11
+    },
+    {
+      "id": "pair-nanogram-to-dram",
+      "input_values": [
+        1.0,
+        7.0,
+        16.0
+      ],
+      "expected_result": 5.643833911932866e-10
+    },
+    {
+      "id": "pair-nanogram-to-grain",
+      "input_values": [
+        1.0,
+        7.0,
+        17.0
+      ],
+      "expected_result": 1.543235835294143e-08
+    },
+    {
+      "id": "pair-nanogram-to-troy-pound",
+      "input_values": [
+        1.0,
+        7.0,
+        18.0
+      ],
+      "expected_result": 2.679228880718998e-12
+    },
+    {
+      "id": "pair-nanogram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        7.0,
+        19.0
+      ],
+      "expected_result": 3.215074656862798e-11
+    },
+    {
+      "id": "pair-nanogram-to-pennyweight",
+      "input_values": [
+        1.0,
+        7.0,
+        20.0
+      ],
+      "expected_result": 6.430149313725596e-10
+    },
+    {
+      "id": "pair-nanogram-to-carat",
+      "input_values": [
+        1.0,
+        7.0,
+        21.0
+      ],
+      "expected_result": 4.999999999999999e-09
+    },
+    {
+      "id": "pair-nanogram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        7.0,
+        22.0
+      ],
+      "expected_result": 602214076208112.2
+    },
+    {
+      "id": "pair-picogram-to-gigatonne",
+      "input_values": [
+        1.0,
+        8.0,
+        0.0
+      ],
+      "expected_result": 1e-27
+    },
+    {
+      "id": "pair-picogram-to-megatonne",
+      "input_values": [
+        1.0,
+        8.0,
+        1.0
+      ],
+      "expected_result": 1.0000000000000001e-24
+    },
+    {
+      "id": "pair-picogram-to-metric-ton",
+      "input_values": [
+        1.0,
+        8.0,
+        2.0
+      ],
+      "expected_result": 1e-18
+    },
+    {
+      "id": "pair-picogram-to-kilogram",
+      "input_values": [
+        1.0,
+        8.0,
+        3.0
+      ],
+      "expected_result": 1e-15
+    },
+    {
+      "id": "pair-picogram-to-gram",
+      "input_values": [
+        1.0,
+        8.0,
+        4.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "pair-picogram-to-milligram",
+      "input_values": [
+        1.0,
+        8.0,
+        5.0
+      ],
+      "expected_result": 1e-09
+    },
+    {
+      "id": "pair-picogram-to-microgram",
+      "input_values": [
+        1.0,
+        8.0,
+        6.0
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "pair-picogram-to-nanogram",
+      "input_values": [
+        1.0,
+        8.0,
+        7.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "pair-picogram-to-picogram",
+      "input_values": [
+        1.0,
+        8.0,
+        8.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-picogram-to-long-ton",
+      "input_values": [
+        1.0,
+        8.0,
+        9.0
+      ],
+      "expected_result": 9.842065276110608e-19
+    },
+    {
+      "id": "pair-picogram-to-short-ton",
+      "input_values": [
+        1.0,
+        8.0,
+        10.0
+      ],
+      "expected_result": 1.102311310924388e-18
+    },
+    {
+      "id": "pair-picogram-to-hundredweight",
+      "input_values": [
+        1.0,
+        8.0,
+        11.0
+      ],
+      "expected_result": 1.9684130552221214e-17
+    },
+    {
+      "id": "pair-picogram-to-quarter",
+      "input_values": [
+        1.0,
+        8.0,
+        12.0
+      ],
+      "expected_result": 7.873652220888486e-17
+    },
+    {
+      "id": "pair-picogram-to-stone",
+      "input_values": [
+        1.0,
+        8.0,
+        13.0
+      ],
+      "expected_result": 1.5747304441776971e-16
+    },
+    {
+      "id": "pair-picogram-to-pound",
+      "input_values": [
+        1.0,
+        8.0,
+        14.0
+      ],
+      "expected_result": 2.204622621848776e-15
+    },
+    {
+      "id": "pair-picogram-to-ounce",
+      "input_values": [
+        1.0,
+        8.0,
+        15.0
+      ],
+      "expected_result": 3.5273961949580413e-14
+    },
+    {
+      "id": "pair-picogram-to-dram",
+      "input_values": [
+        1.0,
+        8.0,
+        16.0
+      ],
+      "expected_result": 5.643833911932866e-13
+    },
+    {
+      "id": "pair-picogram-to-grain",
+      "input_values": [
+        1.0,
+        8.0,
+        17.0
+      ],
+      "expected_result": 1.5432358352941433e-11
+    },
+    {
+      "id": "pair-picogram-to-troy-pound",
+      "input_values": [
+        1.0,
+        8.0,
+        18.0
+      ],
+      "expected_result": 2.6792288807189984e-15
+    },
+    {
+      "id": "pair-picogram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        8.0,
+        19.0
+      ],
+      "expected_result": 3.215074656862798e-14
+    },
+    {
+      "id": "pair-picogram-to-pennyweight",
+      "input_values": [
+        1.0,
+        8.0,
+        20.0
+      ],
+      "expected_result": 6.430149313725597e-13
+    },
+    {
+      "id": "pair-picogram-to-carat",
+      "input_values": [
+        1.0,
+        8.0,
+        21.0
+      ],
+      "expected_result": 5.0000000000000005e-12
+    },
+    {
+      "id": "pair-picogram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        8.0,
+        22.0
+      ],
+      "expected_result": 602214076208.1123
+    },
+    {
+      "id": "pair-long-ton-to-gigatonne",
+      "input_values": [
+        1.0,
+        9.0,
+        0.0
+      ],
+      "expected_result": 1.0160469087999999e-09
+    },
+    {
+      "id": "pair-long-ton-to-megatonne",
+      "input_values": [
+        1.0,
+        9.0,
+        1.0
+      ],
+      "expected_result": 1.0160469088e-06
+    },
+    {
+      "id": "pair-long-ton-to-metric-ton",
+      "input_values": [
+        1.0,
+        9.0,
+        2.0
+      ],
+      "expected_result": 1.0160469088
+    },
+    {
+      "id": "pair-long-ton-to-kilogram",
+      "input_values": [
+        1.0,
+        9.0,
+        3.0
+      ],
+      "expected_result": 1016.0469088
+    },
+    {
+      "id": "pair-long-ton-to-gram",
+      "input_values": [
+        1.0,
+        9.0,
+        4.0
+      ],
+      "expected_result": 1016046.9088
+    },
+    {
+      "id": "pair-long-ton-to-milligram",
+      "input_values": [
+        1.0,
+        9.0,
+        5.0
+      ],
+      "expected_result": 1016046908.8000001
+    },
+    {
+      "id": "pair-long-ton-to-microgram",
+      "input_values": [
+        1.0,
+        9.0,
+        6.0
+      ],
+      "expected_result": 1016046908799.9999
+    },
+    {
+      "id": "pair-long-ton-to-nanogram",
+      "input_values": [
+        1.0,
+        9.0,
+        7.0
+      ],
+      "expected_result": 1016046908800000.0
+    },
+    {
+      "id": "pair-long-ton-to-picogram",
+      "input_values": [
+        1.0,
+        9.0,
+        8.0
+      ],
+      "expected_result": 1.0160469087999999e+18
+    },
+    {
+      "id": "pair-long-ton-to-long-ton",
+      "input_values": [
+        1.0,
+        9.0,
+        9.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-long-ton-to-short-ton",
+      "input_values": [
+        1.0,
+        9.0,
+        10.0
+      ],
+      "expected_result": 1.1199999999999999
+    },
+    {
+      "id": "pair-long-ton-to-hundredweight",
+      "input_values": [
+        1.0,
+        9.0,
+        11.0
+      ],
+      "expected_result": 20.0
+    },
+    {
+      "id": "pair-long-ton-to-quarter",
+      "input_values": [
+        1.0,
+        9.0,
+        12.0
+      ],
+      "expected_result": 80.0
+    },
+    {
+      "id": "pair-long-ton-to-stone",
+      "input_values": [
+        1.0,
+        9.0,
+        13.0
+      ],
+      "expected_result": 160.0
+    },
+    {
+      "id": "pair-long-ton-to-pound",
+      "input_values": [
+        1.0,
+        9.0,
+        14.0
+      ],
+      "expected_result": 2240.0
+    },
+    {
+      "id": "pair-long-ton-to-ounce",
+      "input_values": [
+        1.0,
+        9.0,
+        15.0
+      ],
+      "expected_result": 35840.0
+    },
+    {
+      "id": "pair-long-ton-to-dram",
+      "input_values": [
+        1.0,
+        9.0,
+        16.0
+      ],
+      "expected_result": 573440.0
+    },
+    {
+      "id": "pair-long-ton-to-grain",
+      "input_values": [
+        1.0,
+        9.0,
+        17.0
+      ],
+      "expected_result": 15680000.000000002
+    },
+    {
+      "id": "pair-long-ton-to-troy-pound",
+      "input_values": [
+        1.0,
+        9.0,
+        18.0
+      ],
+      "expected_result": 2722.222222222222
+    },
+    {
+      "id": "pair-long-ton-to-troy-ounce",
+      "input_values": [
+        1.0,
+        9.0,
+        19.0
+      ],
+      "expected_result": 32666.666666666664
+    },
+    {
+      "id": "pair-long-ton-to-pennyweight",
+      "input_values": [
+        1.0,
+        9.0,
+        20.0
+      ],
+      "expected_result": 653333.3333333333
+    },
+    {
+      "id": "pair-long-ton-to-carat",
+      "input_values": [
+        1.0,
+        9.0,
+        21.0
+      ],
+      "expected_result": 5080234.544
+    },
+    {
+      "id": "pair-long-ton-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        9.0,
+        22.0
+      ],
+      "expected_result": 6.118777505671001e+29
+    },
+    {
+      "id": "pair-short-ton-to-gigatonne",
+      "input_values": [
+        1.0,
+        10.0,
+        0.0
+      ],
+      "expected_result": 9.0718474e-10
+    },
+    {
+      "id": "pair-short-ton-to-megatonne",
+      "input_values": [
+        1.0,
+        10.0,
+        1.0
+      ],
+      "expected_result": 9.0718474e-07
+    },
+    {
+      "id": "pair-short-ton-to-metric-ton",
+      "input_values": [
+        1.0,
+        10.0,
+        2.0
+      ],
+      "expected_result": 0.90718474
+    },
+    {
+      "id": "pair-short-ton-to-kilogram",
+      "input_values": [
+        1.0,
+        10.0,
+        3.0
+      ],
+      "expected_result": 907.18474
+    },
+    {
+      "id": "pair-short-ton-to-gram",
+      "input_values": [
+        1.0,
+        10.0,
+        4.0
+      ],
+      "expected_result": 907184.74
+    },
+    {
+      "id": "pair-short-ton-to-milligram",
+      "input_values": [
+        1.0,
+        10.0,
+        5.0
+      ],
+      "expected_result": 907184740.0000001
+    },
+    {
+      "id": "pair-short-ton-to-microgram",
+      "input_values": [
+        1.0,
+        10.0,
+        6.0
+      ],
+      "expected_result": 907184740000.0
+    },
+    {
+      "id": "pair-short-ton-to-nanogram",
+      "input_values": [
+        1.0,
+        10.0,
+        7.0
+      ],
+      "expected_result": 907184740000000.0
+    },
+    {
+      "id": "pair-short-ton-to-picogram",
+      "input_values": [
+        1.0,
+        10.0,
+        8.0
+      ],
+      "expected_result": 9.0718474e+17
+    },
+    {
+      "id": "pair-short-ton-to-long-ton",
+      "input_values": [
+        1.0,
+        10.0,
+        9.0
+      ],
+      "expected_result": 0.8928571428571429
+    },
+    {
+      "id": "pair-short-ton-to-short-ton",
+      "input_values": [
+        1.0,
+        10.0,
+        10.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-short-ton-to-hundredweight",
+      "input_values": [
+        1.0,
+        10.0,
+        11.0
+      ],
+      "expected_result": 17.857142857142858
+    },
+    {
+      "id": "pair-short-ton-to-quarter",
+      "input_values": [
+        1.0,
+        10.0,
+        12.0
+      ],
+      "expected_result": 71.42857142857143
+    },
+    {
+      "id": "pair-short-ton-to-stone",
+      "input_values": [
+        1.0,
+        10.0,
+        13.0
+      ],
+      "expected_result": 142.85714285714286
+    },
+    {
+      "id": "pair-short-ton-to-pound",
+      "input_values": [
+        1.0,
+        10.0,
+        14.0
+      ],
+      "expected_result": 2000.0
+    },
+    {
+      "id": "pair-short-ton-to-ounce",
+      "input_values": [
+        1.0,
+        10.0,
+        15.0
+      ],
+      "expected_result": 32000.0
+    },
+    {
+      "id": "pair-short-ton-to-dram",
+      "input_values": [
+        1.0,
+        10.0,
+        16.0
+      ],
+      "expected_result": 512000.0
+    },
+    {
+      "id": "pair-short-ton-to-grain",
+      "input_values": [
+        1.0,
+        10.0,
+        17.0
+      ],
+      "expected_result": 14000000.000000002
+    },
+    {
+      "id": "pair-short-ton-to-troy-pound",
+      "input_values": [
+        1.0,
+        10.0,
+        18.0
+      ],
+      "expected_result": 2430.5555555555557
+    },
+    {
+      "id": "pair-short-ton-to-troy-ounce",
+      "input_values": [
+        1.0,
+        10.0,
+        19.0
+      ],
+      "expected_result": 29166.666666666668
+    },
+    {
+      "id": "pair-short-ton-to-pennyweight",
+      "input_values": [
+        1.0,
+        10.0,
+        20.0
+      ],
+      "expected_result": 583333.3333333334
+    },
+    {
+      "id": "pair-short-ton-to-carat",
+      "input_values": [
+        1.0,
+        10.0,
+        21.0
+      ],
+      "expected_result": 4535923.7
+    },
+    {
+      "id": "pair-short-ton-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        10.0,
+        22.0
+      ],
+      "expected_result": 5.463194201491965e+29
+    },
+    {
+      "id": "pair-hundredweight-to-gigatonne",
+      "input_values": [
+        1.0,
+        11.0,
+        0.0
+      ],
+      "expected_result": 5.0802345440000004e-11
+    },
+    {
+      "id": "pair-hundredweight-to-megatonne",
+      "input_values": [
+        1.0,
+        11.0,
+        1.0
+      ],
+      "expected_result": 5.080234544e-08
+    },
+    {
+      "id": "pair-hundredweight-to-metric-ton",
+      "input_values": [
+        1.0,
+        11.0,
+        2.0
+      ],
+      "expected_result": 0.05080234544
+    },
+    {
+      "id": "pair-hundredweight-to-kilogram",
+      "input_values": [
+        1.0,
+        11.0,
+        3.0
+      ],
+      "expected_result": 50.80234544
+    },
+    {
+      "id": "pair-hundredweight-to-gram",
+      "input_values": [
+        1.0,
+        11.0,
+        4.0
+      ],
+      "expected_result": 50802.345440000005
+    },
+    {
+      "id": "pair-hundredweight-to-milligram",
+      "input_values": [
+        1.0,
+        11.0,
+        5.0
+      ],
+      "expected_result": 50802345.440000005
+    },
+    {
+      "id": "pair-hundredweight-to-microgram",
+      "input_values": [
+        1.0,
+        11.0,
+        6.0
+      ],
+      "expected_result": 50802345440.0
+    },
+    {
+      "id": "pair-hundredweight-to-nanogram",
+      "input_values": [
+        1.0,
+        11.0,
+        7.0
+      ],
+      "expected_result": 50802345440000.01
+    },
+    {
+      "id": "pair-hundredweight-to-picogram",
+      "input_values": [
+        1.0,
+        11.0,
+        8.0
+      ],
+      "expected_result": 5.080234544e+16
+    },
+    {
+      "id": "pair-hundredweight-to-long-ton",
+      "input_values": [
+        1.0,
+        11.0,
+        9.0
+      ],
+      "expected_result": 0.05
+    },
+    {
+      "id": "pair-hundredweight-to-short-ton",
+      "input_values": [
+        1.0,
+        11.0,
+        10.0
+      ],
+      "expected_result": 0.056
+    },
+    {
+      "id": "pair-hundredweight-to-hundredweight",
+      "input_values": [
+        1.0,
+        11.0,
+        11.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-hundredweight-to-quarter",
+      "input_values": [
+        1.0,
+        11.0,
+        12.0
+      ],
+      "expected_result": 4.0
+    },
+    {
+      "id": "pair-hundredweight-to-stone",
+      "input_values": [
+        1.0,
+        11.0,
+        13.0
+      ],
+      "expected_result": 8.0
+    },
+    {
+      "id": "pair-hundredweight-to-pound",
+      "input_values": [
+        1.0,
+        11.0,
+        14.0
+      ],
+      "expected_result": 112.0
+    },
+    {
+      "id": "pair-hundredweight-to-ounce",
+      "input_values": [
+        1.0,
+        11.0,
+        15.0
+      ],
+      "expected_result": 1792.0
+    },
+    {
+      "id": "pair-hundredweight-to-dram",
+      "input_values": [
+        1.0,
+        11.0,
+        16.0
+      ],
+      "expected_result": 28672.0
+    },
+    {
+      "id": "pair-hundredweight-to-grain",
+      "input_values": [
+        1.0,
+        11.0,
+        17.0
+      ],
+      "expected_result": 784000.0000000001
+    },
+    {
+      "id": "pair-hundredweight-to-troy-pound",
+      "input_values": [
+        1.0,
+        11.0,
+        18.0
+      ],
+      "expected_result": 136.11111111111111
+    },
+    {
+      "id": "pair-hundredweight-to-troy-ounce",
+      "input_values": [
+        1.0,
+        11.0,
+        19.0
+      ],
+      "expected_result": 1633.3333333333333
+    },
+    {
+      "id": "pair-hundredweight-to-pennyweight",
+      "input_values": [
+        1.0,
+        11.0,
+        20.0
+      ],
+      "expected_result": 32666.666666666668
+    },
+    {
+      "id": "pair-hundredweight-to-carat",
+      "input_values": [
+        1.0,
+        11.0,
+        21.0
+      ],
+      "expected_result": 254011.7272
+    },
+    {
+      "id": "pair-hundredweight-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        11.0,
+        22.0
+      ],
+      "expected_result": 3.0593887528355005e+28
+    },
+    {
+      "id": "pair-quarter-to-gigatonne",
+      "input_values": [
+        1.0,
+        12.0,
+        0.0
+      ],
+      "expected_result": 1.2700586360000001e-11
+    },
+    {
+      "id": "pair-quarter-to-megatonne",
+      "input_values": [
+        1.0,
+        12.0,
+        1.0
+      ],
+      "expected_result": 1.270058636e-08
+    },
+    {
+      "id": "pair-quarter-to-metric-ton",
+      "input_values": [
+        1.0,
+        12.0,
+        2.0
+      ],
+      "expected_result": 0.01270058636
+    },
+    {
+      "id": "pair-quarter-to-kilogram",
+      "input_values": [
+        1.0,
+        12.0,
+        3.0
+      ],
+      "expected_result": 12.70058636
+    },
+    {
+      "id": "pair-quarter-to-gram",
+      "input_values": [
+        1.0,
+        12.0,
+        4.0
+      ],
+      "expected_result": 12700.586360000001
+    },
+    {
+      "id": "pair-quarter-to-milligram",
+      "input_values": [
+        1.0,
+        12.0,
+        5.0
+      ],
+      "expected_result": 12700586.360000001
+    },
+    {
+      "id": "pair-quarter-to-microgram",
+      "input_values": [
+        1.0,
+        12.0,
+        6.0
+      ],
+      "expected_result": 12700586360.0
+    },
+    {
+      "id": "pair-quarter-to-nanogram",
+      "input_values": [
+        1.0,
+        12.0,
+        7.0
+      ],
+      "expected_result": 12700586360000.002
+    },
+    {
+      "id": "pair-quarter-to-picogram",
+      "input_values": [
+        1.0,
+        12.0,
+        8.0
+      ],
+      "expected_result": 1.270058636e+16
+    },
+    {
+      "id": "pair-quarter-to-long-ton",
+      "input_values": [
+        1.0,
+        12.0,
+        9.0
+      ],
+      "expected_result": 0.0125
+    },
+    {
+      "id": "pair-quarter-to-short-ton",
+      "input_values": [
+        1.0,
+        12.0,
+        10.0
+      ],
+      "expected_result": 0.014
+    },
+    {
+      "id": "pair-quarter-to-hundredweight",
+      "input_values": [
+        1.0,
+        12.0,
+        11.0
+      ],
+      "expected_result": 0.25
+    },
+    {
+      "id": "pair-quarter-to-quarter",
+      "input_values": [
+        1.0,
+        12.0,
+        12.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-quarter-to-stone",
+      "input_values": [
+        1.0,
+        12.0,
+        13.0
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "pair-quarter-to-pound",
+      "input_values": [
+        1.0,
+        12.0,
+        14.0
+      ],
+      "expected_result": 28.0
+    },
+    {
+      "id": "pair-quarter-to-ounce",
+      "input_values": [
+        1.0,
+        12.0,
+        15.0
+      ],
+      "expected_result": 448.0
+    },
+    {
+      "id": "pair-quarter-to-dram",
+      "input_values": [
+        1.0,
+        12.0,
+        16.0
+      ],
+      "expected_result": 7168.0
+    },
+    {
+      "id": "pair-quarter-to-grain",
+      "input_values": [
+        1.0,
+        12.0,
+        17.0
+      ],
+      "expected_result": 196000.00000000003
+    },
+    {
+      "id": "pair-quarter-to-troy-pound",
+      "input_values": [
+        1.0,
+        12.0,
+        18.0
+      ],
+      "expected_result": 34.02777777777778
+    },
+    {
+      "id": "pair-quarter-to-troy-ounce",
+      "input_values": [
+        1.0,
+        12.0,
+        19.0
+      ],
+      "expected_result": 408.3333333333333
+    },
+    {
+      "id": "pair-quarter-to-pennyweight",
+      "input_values": [
+        1.0,
+        12.0,
+        20.0
+      ],
+      "expected_result": 8166.666666666667
+    },
+    {
+      "id": "pair-quarter-to-carat",
+      "input_values": [
+        1.0,
+        12.0,
+        21.0
+      ],
+      "expected_result": 63502.9318
+    },
+    {
+      "id": "pair-quarter-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        12.0,
+        22.0
+      ],
+      "expected_result": 7.648471882088751e+27
+    },
+    {
+      "id": "pair-stone-to-gigatonne",
+      "input_values": [
+        1.0,
+        13.0,
+        0.0
+      ],
+      "expected_result": 6.3502931800000005e-12
+    },
+    {
+      "id": "pair-stone-to-megatonne",
+      "input_values": [
+        1.0,
+        13.0,
+        1.0
+      ],
+      "expected_result": 6.35029318e-09
+    },
+    {
+      "id": "pair-stone-to-metric-ton",
+      "input_values": [
+        1.0,
+        13.0,
+        2.0
+      ],
+      "expected_result": 0.00635029318
+    },
+    {
+      "id": "pair-stone-to-kilogram",
+      "input_values": [
+        1.0,
+        13.0,
+        3.0
+      ],
+      "expected_result": 6.35029318
+    },
+    {
+      "id": "pair-stone-to-gram",
+      "input_values": [
+        1.0,
+        13.0,
+        4.0
+      ],
+      "expected_result": 6350.293180000001
+    },
+    {
+      "id": "pair-stone-to-milligram",
+      "input_values": [
+        1.0,
+        13.0,
+        5.0
+      ],
+      "expected_result": 6350293.180000001
+    },
+    {
+      "id": "pair-stone-to-microgram",
+      "input_values": [
+        1.0,
+        13.0,
+        6.0
+      ],
+      "expected_result": 6350293180.0
+    },
+    {
+      "id": "pair-stone-to-nanogram",
+      "input_values": [
+        1.0,
+        13.0,
+        7.0
+      ],
+      "expected_result": 6350293180000.001
+    },
+    {
+      "id": "pair-stone-to-picogram",
+      "input_values": [
+        1.0,
+        13.0,
+        8.0
+      ],
+      "expected_result": 6350293180000000.0
+    },
+    {
+      "id": "pair-stone-to-long-ton",
+      "input_values": [
+        1.0,
+        13.0,
+        9.0
+      ],
+      "expected_result": 0.00625
+    },
+    {
+      "id": "pair-stone-to-short-ton",
+      "input_values": [
+        1.0,
+        13.0,
+        10.0
+      ],
+      "expected_result": 0.007
+    },
+    {
+      "id": "pair-stone-to-hundredweight",
+      "input_values": [
+        1.0,
+        13.0,
+        11.0
+      ],
+      "expected_result": 0.125
+    },
+    {
+      "id": "pair-stone-to-quarter",
+      "input_values": [
+        1.0,
+        13.0,
+        12.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "pair-stone-to-stone",
+      "input_values": [
+        1.0,
+        13.0,
+        13.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-stone-to-pound",
+      "input_values": [
+        1.0,
+        13.0,
+        14.0
+      ],
+      "expected_result": 14.0
+    },
+    {
+      "id": "pair-stone-to-ounce",
+      "input_values": [
+        1.0,
+        13.0,
+        15.0
+      ],
+      "expected_result": 224.0
+    },
+    {
+      "id": "pair-stone-to-dram",
+      "input_values": [
+        1.0,
+        13.0,
+        16.0
+      ],
+      "expected_result": 3584.0
+    },
+    {
+      "id": "pair-stone-to-grain",
+      "input_values": [
+        1.0,
+        13.0,
+        17.0
+      ],
+      "expected_result": 98000.00000000001
+    },
+    {
+      "id": "pair-stone-to-troy-pound",
+      "input_values": [
+        1.0,
+        13.0,
+        18.0
+      ],
+      "expected_result": 17.01388888888889
+    },
+    {
+      "id": "pair-stone-to-troy-ounce",
+      "input_values": [
+        1.0,
+        13.0,
+        19.0
+      ],
+      "expected_result": 204.16666666666666
+    },
+    {
+      "id": "pair-stone-to-pennyweight",
+      "input_values": [
+        1.0,
+        13.0,
+        20.0
+      ],
+      "expected_result": 4083.3333333333335
+    },
+    {
+      "id": "pair-stone-to-carat",
+      "input_values": [
+        1.0,
+        13.0,
+        21.0
+      ],
+      "expected_result": 31751.4659
+    },
+    {
+      "id": "pair-stone-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        13.0,
+        22.0
+      ],
+      "expected_result": 3.8242359410443756e+27
+    },
+    {
+      "id": "pair-pound-to-gigatonne",
+      "input_values": [
+        1.0,
+        14.0,
+        0.0
+      ],
+      "expected_result": 4.5359237e-13
+    },
+    {
+      "id": "pair-pound-to-megatonne",
+      "input_values": [
+        1.0,
+        14.0,
+        1.0
+      ],
+      "expected_result": 4.5359237000000004e-10
+    },
+    {
+      "id": "pair-pound-to-metric-ton",
+      "input_values": [
+        1.0,
+        14.0,
+        2.0
+      ],
+      "expected_result": 0.00045359237000000004
+    },
+    {
+      "id": "pair-pound-to-kilogram",
+      "input_values": [
+        1.0,
+        14.0,
+        3.0
+      ],
+      "expected_result": 0.45359237
+    },
+    {
+      "id": "pair-pound-to-gram",
+      "input_values": [
+        1.0,
+        14.0,
+        4.0
+      ],
+      "expected_result": 453.59237
+    },
+    {
+      "id": "pair-pound-to-milligram",
+      "input_values": [
+        1.0,
+        14.0,
+        5.0
+      ],
+      "expected_result": 453592.37000000005
+    },
+    {
+      "id": "pair-pound-to-microgram",
+      "input_values": [
+        1.0,
+        14.0,
+        6.0
+      ],
+      "expected_result": 453592370.0
+    },
+    {
+      "id": "pair-pound-to-nanogram",
+      "input_values": [
+        1.0,
+        14.0,
+        7.0
+      ],
+      "expected_result": 453592370000.00006
+    },
+    {
+      "id": "pair-pound-to-picogram",
+      "input_values": [
+        1.0,
+        14.0,
+        8.0
+      ],
+      "expected_result": 453592370000000.0
+    },
+    {
+      "id": "pair-pound-to-long-ton",
+      "input_values": [
+        1.0,
+        14.0,
+        9.0
+      ],
+      "expected_result": 0.00044642857142857147
+    },
+    {
+      "id": "pair-pound-to-short-ton",
+      "input_values": [
+        1.0,
+        14.0,
+        10.0
+      ],
+      "expected_result": 0.0005
+    },
+    {
+      "id": "pair-pound-to-hundredweight",
+      "input_values": [
+        1.0,
+        14.0,
+        11.0
+      ],
+      "expected_result": 0.008928571428571428
+    },
+    {
+      "id": "pair-pound-to-quarter",
+      "input_values": [
+        1.0,
+        14.0,
+        12.0
+      ],
+      "expected_result": 0.03571428571428571
+    },
+    {
+      "id": "pair-pound-to-stone",
+      "input_values": [
+        1.0,
+        14.0,
+        13.0
+      ],
+      "expected_result": 0.07142857142857142
+    },
+    {
+      "id": "pair-pound-to-pound",
+      "input_values": [
+        1.0,
+        14.0,
+        14.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-pound-to-ounce",
+      "input_values": [
+        1.0,
+        14.0,
+        15.0
+      ],
+      "expected_result": 16.0
+    },
+    {
+      "id": "pair-pound-to-dram",
+      "input_values": [
+        1.0,
+        14.0,
+        16.0
+      ],
+      "expected_result": 256.0
+    },
+    {
+      "id": "pair-pound-to-grain",
+      "input_values": [
+        1.0,
+        14.0,
+        17.0
+      ],
+      "expected_result": 7000.000000000001
+    },
+    {
+      "id": "pair-pound-to-troy-pound",
+      "input_values": [
+        1.0,
+        14.0,
+        18.0
+      ],
+      "expected_result": 1.2152777777777777
+    },
+    {
+      "id": "pair-pound-to-troy-ounce",
+      "input_values": [
+        1.0,
+        14.0,
+        19.0
+      ],
+      "expected_result": 14.583333333333334
+    },
+    {
+      "id": "pair-pound-to-pennyweight",
+      "input_values": [
+        1.0,
+        14.0,
+        20.0
+      ],
+      "expected_result": 291.6666666666667
+    },
+    {
+      "id": "pair-pound-to-carat",
+      "input_values": [
+        1.0,
+        14.0,
+        21.0
+      ],
+      "expected_result": 2267.96185
+    },
+    {
+      "id": "pair-pound-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        14.0,
+        22.0
+      ],
+      "expected_result": 2.7315971007459826e+26
+    },
+    {
+      "id": "pair-ounce-to-gigatonne",
+      "input_values": [
+        1.0,
+        15.0,
+        0.0
+      ],
+      "expected_result": 2.8349523125e-14
+    },
+    {
+      "id": "pair-ounce-to-megatonne",
+      "input_values": [
+        1.0,
+        15.0,
+        1.0
+      ],
+      "expected_result": 2.8349523125000003e-11
+    },
+    {
+      "id": "pair-ounce-to-metric-ton",
+      "input_values": [
+        1.0,
+        15.0,
+        2.0
+      ],
+      "expected_result": 2.8349523125000003e-05
+    },
+    {
+      "id": "pair-ounce-to-kilogram",
+      "input_values": [
+        1.0,
+        15.0,
+        3.0
+      ],
+      "expected_result": 0.028349523125
+    },
+    {
+      "id": "pair-ounce-to-gram",
+      "input_values": [
+        1.0,
+        15.0,
+        4.0
+      ],
+      "expected_result": 28.349523125
+    },
+    {
+      "id": "pair-ounce-to-milligram",
+      "input_values": [
+        1.0,
+        15.0,
+        5.0
+      ],
+      "expected_result": 28349.523125000003
+    },
+    {
+      "id": "pair-ounce-to-microgram",
+      "input_values": [
+        1.0,
+        15.0,
+        6.0
+      ],
+      "expected_result": 28349523.125
+    },
+    {
+      "id": "pair-ounce-to-nanogram",
+      "input_values": [
+        1.0,
+        15.0,
+        7.0
+      ],
+      "expected_result": 28349523125.000004
+    },
+    {
+      "id": "pair-ounce-to-picogram",
+      "input_values": [
+        1.0,
+        15.0,
+        8.0
+      ],
+      "expected_result": 28349523125000.0
+    },
+    {
+      "id": "pair-ounce-to-long-ton",
+      "input_values": [
+        1.0,
+        15.0,
+        9.0
+      ],
+      "expected_result": 2.7901785714285717e-05
+    },
+    {
+      "id": "pair-ounce-to-short-ton",
+      "input_values": [
+        1.0,
+        15.0,
+        10.0
+      ],
+      "expected_result": 3.125e-05
+    },
+    {
+      "id": "pair-ounce-to-hundredweight",
+      "input_values": [
+        1.0,
+        15.0,
+        11.0
+      ],
+      "expected_result": 0.0005580357142857143
+    },
+    {
+      "id": "pair-ounce-to-quarter",
+      "input_values": [
+        1.0,
+        15.0,
+        12.0
+      ],
+      "expected_result": 0.002232142857142857
+    },
+    {
+      "id": "pair-ounce-to-stone",
+      "input_values": [
+        1.0,
+        15.0,
+        13.0
+      ],
+      "expected_result": 0.004464285714285714
+    },
+    {
+      "id": "pair-ounce-to-pound",
+      "input_values": [
+        1.0,
+        15.0,
+        14.0
+      ],
+      "expected_result": 0.0625
+    },
+    {
+      "id": "pair-ounce-to-ounce",
+      "input_values": [
+        1.0,
+        15.0,
+        15.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-ounce-to-dram",
+      "input_values": [
+        1.0,
+        15.0,
+        16.0
+      ],
+      "expected_result": 16.0
+    },
+    {
+      "id": "pair-ounce-to-grain",
+      "input_values": [
+        1.0,
+        15.0,
+        17.0
+      ],
+      "expected_result": 437.50000000000006
+    },
+    {
+      "id": "pair-ounce-to-troy-pound",
+      "input_values": [
+        1.0,
+        15.0,
+        18.0
+      ],
+      "expected_result": 0.0759548611111111
+    },
+    {
+      "id": "pair-ounce-to-troy-ounce",
+      "input_values": [
+        1.0,
+        15.0,
+        19.0
+      ],
+      "expected_result": 0.9114583333333334
+    },
+    {
+      "id": "pair-ounce-to-pennyweight",
+      "input_values": [
+        1.0,
+        15.0,
+        20.0
+      ],
+      "expected_result": 18.229166666666668
+    },
+    {
+      "id": "pair-ounce-to-carat",
+      "input_values": [
+        1.0,
+        15.0,
+        21.0
+      ],
+      "expected_result": 141.747615625
+    },
+    {
+      "id": "pair-ounce-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        15.0,
+        22.0
+      ],
+      "expected_result": 1.707248187966239e+25
+    },
+    {
+      "id": "pair-dram-to-gigatonne",
+      "input_values": [
+        1.0,
+        16.0,
+        0.0
+      ],
+      "expected_result": 1.7718451953125e-15
+    },
+    {
+      "id": "pair-dram-to-megatonne",
+      "input_values": [
+        1.0,
+        16.0,
+        1.0
+      ],
+      "expected_result": 1.7718451953125002e-12
+    },
+    {
+      "id": "pair-dram-to-metric-ton",
+      "input_values": [
+        1.0,
+        16.0,
+        2.0
+      ],
+      "expected_result": 1.7718451953125002e-06
+    },
+    {
+      "id": "pair-dram-to-kilogram",
+      "input_values": [
+        1.0,
+        16.0,
+        3.0
+      ],
+      "expected_result": 0.0017718451953125
+    },
+    {
+      "id": "pair-dram-to-gram",
+      "input_values": [
+        1.0,
+        16.0,
+        4.0
+      ],
+      "expected_result": 1.7718451953125
+    },
+    {
+      "id": "pair-dram-to-milligram",
+      "input_values": [
+        1.0,
+        16.0,
+        5.0
+      ],
+      "expected_result": 1771.8451953125002
+    },
+    {
+      "id": "pair-dram-to-microgram",
+      "input_values": [
+        1.0,
+        16.0,
+        6.0
+      ],
+      "expected_result": 1771845.1953125
+    },
+    {
+      "id": "pair-dram-to-nanogram",
+      "input_values": [
+        1.0,
+        16.0,
+        7.0
+      ],
+      "expected_result": 1771845195.3125002
+    },
+    {
+      "id": "pair-dram-to-picogram",
+      "input_values": [
+        1.0,
+        16.0,
+        8.0
+      ],
+      "expected_result": 1771845195312.5
+    },
+    {
+      "id": "pair-dram-to-long-ton",
+      "input_values": [
+        1.0,
+        16.0,
+        9.0
+      ],
+      "expected_result": 1.7438616071428573e-06
+    },
+    {
+      "id": "pair-dram-to-short-ton",
+      "input_values": [
+        1.0,
+        16.0,
+        10.0
+      ],
+      "expected_result": 1.953125e-06
+    },
+    {
+      "id": "pair-dram-to-hundredweight",
+      "input_values": [
+        1.0,
+        16.0,
+        11.0
+      ],
+      "expected_result": 3.487723214285714e-05
+    },
+    {
+      "id": "pair-dram-to-quarter",
+      "input_values": [
+        1.0,
+        16.0,
+        12.0
+      ],
+      "expected_result": 0.00013950892857142856
+    },
+    {
+      "id": "pair-dram-to-stone",
+      "input_values": [
+        1.0,
+        16.0,
+        13.0
+      ],
+      "expected_result": 0.00027901785714285713
+    },
+    {
+      "id": "pair-dram-to-pound",
+      "input_values": [
+        1.0,
+        16.0,
+        14.0
+      ],
+      "expected_result": 0.00390625
+    },
+    {
+      "id": "pair-dram-to-ounce",
+      "input_values": [
+        1.0,
+        16.0,
+        15.0
+      ],
+      "expected_result": 0.0625
+    },
+    {
+      "id": "pair-dram-to-dram",
+      "input_values": [
+        1.0,
+        16.0,
+        16.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-dram-to-grain",
+      "input_values": [
+        1.0,
+        16.0,
+        17.0
+      ],
+      "expected_result": 27.343750000000004
+    },
+    {
+      "id": "pair-dram-to-troy-pound",
+      "input_values": [
+        1.0,
+        16.0,
+        18.0
+      ],
+      "expected_result": 0.004747178819444444
+    },
+    {
+      "id": "pair-dram-to-troy-ounce",
+      "input_values": [
+        1.0,
+        16.0,
+        19.0
+      ],
+      "expected_result": 0.056966145833333336
+    },
+    {
+      "id": "pair-dram-to-pennyweight",
+      "input_values": [
+        1.0,
+        16.0,
+        20.0
+      ],
+      "expected_result": 1.1393229166666667
+    },
+    {
+      "id": "pair-dram-to-carat",
+      "input_values": [
+        1.0,
+        16.0,
+        21.0
+      ],
+      "expected_result": 8.8592259765625
+    },
+    {
+      "id": "pair-dram-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        16.0,
+        22.0
+      ],
+      "expected_result": 1.0670301174788994e+24
+    },
+    {
+      "id": "pair-grain-to-gigatonne",
+      "input_values": [
+        1.0,
+        17.0,
+        0.0
+      ],
+      "expected_result": 6.479891e-17
+    },
+    {
+      "id": "pair-grain-to-megatonne",
+      "input_values": [
+        1.0,
+        17.0,
+        1.0
+      ],
+      "expected_result": 6.479890999999999e-14
+    },
+    {
+      "id": "pair-grain-to-metric-ton",
+      "input_values": [
+        1.0,
+        17.0,
+        2.0
+      ],
+      "expected_result": 6.479890999999999e-08
+    },
+    {
+      "id": "pair-grain-to-kilogram",
+      "input_values": [
+        1.0,
+        17.0,
+        3.0
+      ],
+      "expected_result": 6.479891e-05
+    },
+    {
+      "id": "pair-grain-to-gram",
+      "input_values": [
+        1.0,
+        17.0,
+        4.0
+      ],
+      "expected_result": 0.06479890999999999
+    },
+    {
+      "id": "pair-grain-to-milligram",
+      "input_values": [
+        1.0,
+        17.0,
+        5.0
+      ],
+      "expected_result": 64.79890999999999
+    },
+    {
+      "id": "pair-grain-to-microgram",
+      "input_values": [
+        1.0,
+        17.0,
+        6.0
+      ],
+      "expected_result": 64798.90999999999
+    },
+    {
+      "id": "pair-grain-to-nanogram",
+      "input_values": [
+        1.0,
+        17.0,
+        7.0
+      ],
+      "expected_result": 64798909.99999999
+    },
+    {
+      "id": "pair-grain-to-picogram",
+      "input_values": [
+        1.0,
+        17.0,
+        8.0
+      ],
+      "expected_result": 64798909999.99999
+    },
+    {
+      "id": "pair-grain-to-long-ton",
+      "input_values": [
+        1.0,
+        17.0,
+        9.0
+      ],
+      "expected_result": 6.377551020408163e-08
+    },
+    {
+      "id": "pair-grain-to-short-ton",
+      "input_values": [
+        1.0,
+        17.0,
+        10.0
+      ],
+      "expected_result": 7.142857142857142e-08
+    },
+    {
+      "id": "pair-grain-to-hundredweight",
+      "input_values": [
+        1.0,
+        17.0,
+        11.0
+      ],
+      "expected_result": 1.2755102040816324e-06
+    },
+    {
+      "id": "pair-grain-to-quarter",
+      "input_values": [
+        1.0,
+        17.0,
+        12.0
+      ],
+      "expected_result": 5.10204081632653e-06
+    },
+    {
+      "id": "pair-grain-to-stone",
+      "input_values": [
+        1.0,
+        17.0,
+        13.0
+      ],
+      "expected_result": 1.020408163265306e-05
+    },
+    {
+      "id": "pair-grain-to-pound",
+      "input_values": [
+        1.0,
+        17.0,
+        14.0
+      ],
+      "expected_result": 0.00014285714285714284
+    },
+    {
+      "id": "pair-grain-to-ounce",
+      "input_values": [
+        1.0,
+        17.0,
+        15.0
+      ],
+      "expected_result": 0.0022857142857142855
+    },
+    {
+      "id": "pair-grain-to-dram",
+      "input_values": [
+        1.0,
+        17.0,
+        16.0
+      ],
+      "expected_result": 0.03657142857142857
+    },
+    {
+      "id": "pair-grain-to-grain",
+      "input_values": [
+        1.0,
+        17.0,
+        17.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-grain-to-troy-pound",
+      "input_values": [
+        1.0,
+        17.0,
+        18.0
+      ],
+      "expected_result": 0.0001736111111111111
+    },
+    {
+      "id": "pair-grain-to-troy-ounce",
+      "input_values": [
+        1.0,
+        17.0,
+        19.0
+      ],
+      "expected_result": 0.002083333333333333
+    },
+    {
+      "id": "pair-grain-to-pennyweight",
+      "input_values": [
+        1.0,
+        17.0,
+        20.0
+      ],
+      "expected_result": 0.04166666666666666
+    },
+    {
+      "id": "pair-grain-to-carat",
+      "input_values": [
+        1.0,
+        17.0,
+        21.0
+      ],
+      "expected_result": 0.32399454999999994
+    },
+    {
+      "id": "pair-grain-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        17.0,
+        22.0
+      ],
+      "expected_result": 3.902281572494261e+22
+    },
+    {
+      "id": "pair-troy-pound-to-gigatonne",
+      "input_values": [
+        1.0,
+        18.0,
+        0.0
+      ],
+      "expected_result": 3.7324172160000003e-13
+    },
+    {
+      "id": "pair-troy-pound-to-megatonne",
+      "input_values": [
+        1.0,
+        18.0,
+        1.0
+      ],
+      "expected_result": 3.732417216e-10
+    },
+    {
+      "id": "pair-troy-pound-to-metric-ton",
+      "input_values": [
+        1.0,
+        18.0,
+        2.0
+      ],
+      "expected_result": 0.00037324172160000004
+    },
+    {
+      "id": "pair-troy-pound-to-kilogram",
+      "input_values": [
+        1.0,
+        18.0,
+        3.0
+      ],
+      "expected_result": 0.3732417216
+    },
+    {
+      "id": "pair-troy-pound-to-gram",
+      "input_values": [
+        1.0,
+        18.0,
+        4.0
+      ],
+      "expected_result": 373.2417216
+    },
+    {
+      "id": "pair-troy-pound-to-milligram",
+      "input_values": [
+        1.0,
+        18.0,
+        5.0
+      ],
+      "expected_result": 373241.72160000005
+    },
+    {
+      "id": "pair-troy-pound-to-microgram",
+      "input_values": [
+        1.0,
+        18.0,
+        6.0
+      ],
+      "expected_result": 373241721.6
+    },
+    {
+      "id": "pair-troy-pound-to-nanogram",
+      "input_values": [
+        1.0,
+        18.0,
+        7.0
+      ],
+      "expected_result": 373241721600.0
+    },
+    {
+      "id": "pair-troy-pound-to-picogram",
+      "input_values": [
+        1.0,
+        18.0,
+        8.0
+      ],
+      "expected_result": 373241721600000.0
+    },
+    {
+      "id": "pair-troy-pound-to-long-ton",
+      "input_values": [
+        1.0,
+        18.0,
+        9.0
+      ],
+      "expected_result": 0.00036734693877551024
+    },
+    {
+      "id": "pair-troy-pound-to-short-ton",
+      "input_values": [
+        1.0,
+        18.0,
+        10.0
+      ],
+      "expected_result": 0.00041142857142857143
+    },
+    {
+      "id": "pair-troy-pound-to-hundredweight",
+      "input_values": [
+        1.0,
+        18.0,
+        11.0
+      ],
+      "expected_result": 0.007346938775510204
+    },
+    {
+      "id": "pair-troy-pound-to-quarter",
+      "input_values": [
+        1.0,
+        18.0,
+        12.0
+      ],
+      "expected_result": 0.029387755102040815
+    },
+    {
+      "id": "pair-troy-pound-to-stone",
+      "input_values": [
+        1.0,
+        18.0,
+        13.0
+      ],
+      "expected_result": 0.05877551020408163
+    },
+    {
+      "id": "pair-troy-pound-to-pound",
+      "input_values": [
+        1.0,
+        18.0,
+        14.0
+      ],
+      "expected_result": 0.8228571428571428
+    },
+    {
+      "id": "pair-troy-pound-to-ounce",
+      "input_values": [
+        1.0,
+        18.0,
+        15.0
+      ],
+      "expected_result": 13.165714285714285
+    },
+    {
+      "id": "pair-troy-pound-to-dram",
+      "input_values": [
+        1.0,
+        18.0,
+        16.0
+      ],
+      "expected_result": 210.65142857142857
+    },
+    {
+      "id": "pair-troy-pound-to-grain",
+      "input_values": [
+        1.0,
+        18.0,
+        17.0
+      ],
+      "expected_result": 5760.000000000001
+    },
+    {
+      "id": "pair-troy-pound-to-troy-pound",
+      "input_values": [
+        1.0,
+        18.0,
+        18.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-troy-pound-to-troy-ounce",
+      "input_values": [
+        1.0,
+        18.0,
+        19.0
+      ],
+      "expected_result": 12.0
+    },
+    {
+      "id": "pair-troy-pound-to-pennyweight",
+      "input_values": [
+        1.0,
+        18.0,
+        20.0
+      ],
+      "expected_result": 240.0
+    },
+    {
+      "id": "pair-troy-pound-to-carat",
+      "input_values": [
+        1.0,
+        18.0,
+        21.0
+      ],
+      "expected_result": 1866.208608
+    },
+    {
+      "id": "pair-troy-pound-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        18.0,
+        22.0
+      ],
+      "expected_result": 2.2477141857566944e+26
+    },
+    {
+      "id": "pair-troy-ounce-to-gigatonne",
+      "input_values": [
+        1.0,
+        19.0,
+        0.0
+      ],
+      "expected_result": 3.11034768e-14
+    },
+    {
+      "id": "pair-troy-ounce-to-megatonne",
+      "input_values": [
+        1.0,
+        19.0,
+        1.0
+      ],
+      "expected_result": 3.1103476800000005e-11
+    },
+    {
+      "id": "pair-troy-ounce-to-metric-ton",
+      "input_values": [
+        1.0,
+        19.0,
+        2.0
+      ],
+      "expected_result": 3.11034768e-05
+    },
+    {
+      "id": "pair-troy-ounce-to-kilogram",
+      "input_values": [
+        1.0,
+        19.0,
+        3.0
+      ],
+      "expected_result": 0.0311034768
+    },
+    {
+      "id": "pair-troy-ounce-to-gram",
+      "input_values": [
+        1.0,
+        19.0,
+        4.0
+      ],
+      "expected_result": 31.103476800000003
+    },
+    {
+      "id": "pair-troy-ounce-to-milligram",
+      "input_values": [
+        1.0,
+        19.0,
+        5.0
+      ],
+      "expected_result": 31103.476800000004
+    },
+    {
+      "id": "pair-troy-ounce-to-microgram",
+      "input_values": [
+        1.0,
+        19.0,
+        6.0
+      ],
+      "expected_result": 31103476.8
+    },
+    {
+      "id": "pair-troy-ounce-to-nanogram",
+      "input_values": [
+        1.0,
+        19.0,
+        7.0
+      ],
+      "expected_result": 31103476800.000004
+    },
+    {
+      "id": "pair-troy-ounce-to-picogram",
+      "input_values": [
+        1.0,
+        19.0,
+        8.0
+      ],
+      "expected_result": 31103476800000.0
+    },
+    {
+      "id": "pair-troy-ounce-to-long-ton",
+      "input_values": [
+        1.0,
+        19.0,
+        9.0
+      ],
+      "expected_result": 3.061224489795919e-05
+    },
+    {
+      "id": "pair-troy-ounce-to-short-ton",
+      "input_values": [
+        1.0,
+        19.0,
+        10.0
+      ],
+      "expected_result": 3.4285714285714284e-05
+    },
+    {
+      "id": "pair-troy-ounce-to-hundredweight",
+      "input_values": [
+        1.0,
+        19.0,
+        11.0
+      ],
+      "expected_result": 0.0006122448979591836
+    },
+    {
+      "id": "pair-troy-ounce-to-quarter",
+      "input_values": [
+        1.0,
+        19.0,
+        12.0
+      ],
+      "expected_result": 0.0024489795918367346
+    },
+    {
+      "id": "pair-troy-ounce-to-stone",
+      "input_values": [
+        1.0,
+        19.0,
+        13.0
+      ],
+      "expected_result": 0.004897959183673469
+    },
+    {
+      "id": "pair-troy-ounce-to-pound",
+      "input_values": [
+        1.0,
+        19.0,
+        14.0
+      ],
+      "expected_result": 0.06857142857142857
+    },
+    {
+      "id": "pair-troy-ounce-to-ounce",
+      "input_values": [
+        1.0,
+        19.0,
+        15.0
+      ],
+      "expected_result": 1.0971428571428572
+    },
+    {
+      "id": "pair-troy-ounce-to-dram",
+      "input_values": [
+        1.0,
+        19.0,
+        16.0
+      ],
+      "expected_result": 17.554285714285715
+    },
+    {
+      "id": "pair-troy-ounce-to-grain",
+      "input_values": [
+        1.0,
+        19.0,
+        17.0
+      ],
+      "expected_result": 480.00000000000006
+    },
+    {
+      "id": "pair-troy-ounce-to-troy-pound",
+      "input_values": [
+        1.0,
+        19.0,
+        18.0
+      ],
+      "expected_result": 0.08333333333333333
+    },
+    {
+      "id": "pair-troy-ounce-to-troy-ounce",
+      "input_values": [
+        1.0,
+        19.0,
+        19.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-troy-ounce-to-pennyweight",
+      "input_values": [
+        1.0,
+        19.0,
+        20.0
+      ],
+      "expected_result": 20.0
+    },
+    {
+      "id": "pair-troy-ounce-to-carat",
+      "input_values": [
+        1.0,
+        19.0,
+        21.0
+      ],
+      "expected_result": 155.517384
+    },
+    {
+      "id": "pair-troy-ounce-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        19.0,
+        22.0
+      ],
+      "expected_result": 1.8730951547972453e+25
+    },
+    {
+      "id": "pair-pennyweight-to-gigatonne",
+      "input_values": [
+        1.0,
+        20.0,
+        0.0
+      ],
+      "expected_result": 1.55517384e-15
+    },
+    {
+      "id": "pair-pennyweight-to-megatonne",
+      "input_values": [
+        1.0,
+        20.0,
+        1.0
+      ],
+      "expected_result": 1.55517384e-12
+    },
+    {
+      "id": "pair-pennyweight-to-metric-ton",
+      "input_values": [
+        1.0,
+        20.0,
+        2.0
+      ],
+      "expected_result": 1.5551738400000001e-06
+    },
+    {
+      "id": "pair-pennyweight-to-kilogram",
+      "input_values": [
+        1.0,
+        20.0,
+        3.0
+      ],
+      "expected_result": 0.00155517384
+    },
+    {
+      "id": "pair-pennyweight-to-gram",
+      "input_values": [
+        1.0,
+        20.0,
+        4.0
+      ],
+      "expected_result": 1.5551738400000001
+    },
+    {
+      "id": "pair-pennyweight-to-milligram",
+      "input_values": [
+        1.0,
+        20.0,
+        5.0
+      ],
+      "expected_result": 1555.1738400000002
+    },
+    {
+      "id": "pair-pennyweight-to-microgram",
+      "input_values": [
+        1.0,
+        20.0,
+        6.0
+      ],
+      "expected_result": 1555173.84
+    },
+    {
+      "id": "pair-pennyweight-to-nanogram",
+      "input_values": [
+        1.0,
+        20.0,
+        7.0
+      ],
+      "expected_result": 1555173840.0
+    },
+    {
+      "id": "pair-pennyweight-to-picogram",
+      "input_values": [
+        1.0,
+        20.0,
+        8.0
+      ],
+      "expected_result": 1555173840000.0
+    },
+    {
+      "id": "pair-pennyweight-to-long-ton",
+      "input_values": [
+        1.0,
+        20.0,
+        9.0
+      ],
+      "expected_result": 1.5306122448979593e-06
+    },
+    {
+      "id": "pair-pennyweight-to-short-ton",
+      "input_values": [
+        1.0,
+        20.0,
+        10.0
+      ],
+      "expected_result": 1.7142857142857143e-06
+    },
+    {
+      "id": "pair-pennyweight-to-hundredweight",
+      "input_values": [
+        1.0,
+        20.0,
+        11.0
+      ],
+      "expected_result": 3.061224489795918e-05
+    },
+    {
+      "id": "pair-pennyweight-to-quarter",
+      "input_values": [
+        1.0,
+        20.0,
+        12.0
+      ],
+      "expected_result": 0.00012244897959183673
+    },
+    {
+      "id": "pair-pennyweight-to-stone",
+      "input_values": [
+        1.0,
+        20.0,
+        13.0
+      ],
+      "expected_result": 0.00024489795918367346
+    },
+    {
+      "id": "pair-pennyweight-to-pound",
+      "input_values": [
+        1.0,
+        20.0,
+        14.0
+      ],
+      "expected_result": 0.0034285714285714284
+    },
+    {
+      "id": "pair-pennyweight-to-ounce",
+      "input_values": [
+        1.0,
+        20.0,
+        15.0
+      ],
+      "expected_result": 0.054857142857142854
+    },
+    {
+      "id": "pair-pennyweight-to-dram",
+      "input_values": [
+        1.0,
+        20.0,
+        16.0
+      ],
+      "expected_result": 0.8777142857142857
+    },
+    {
+      "id": "pair-pennyweight-to-grain",
+      "input_values": [
+        1.0,
+        20.0,
+        17.0
+      ],
+      "expected_result": 24.000000000000004
+    },
+    {
+      "id": "pair-pennyweight-to-troy-pound",
+      "input_values": [
+        1.0,
+        20.0,
+        18.0
+      ],
+      "expected_result": 0.004166666666666667
+    },
+    {
+      "id": "pair-pennyweight-to-troy-ounce",
+      "input_values": [
+        1.0,
+        20.0,
+        19.0
+      ],
+      "expected_result": 0.05
+    },
+    {
+      "id": "pair-pennyweight-to-pennyweight",
+      "input_values": [
+        1.0,
+        20.0,
+        20.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-pennyweight-to-carat",
+      "input_values": [
+        1.0,
+        20.0,
+        21.0
+      ],
+      "expected_result": 7.7758692
+    },
+    {
+      "id": "pair-pennyweight-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        20.0,
+        22.0
+      ],
+      "expected_result": 9.365475773986226e+23
+    },
+    {
+      "id": "pair-carat-to-gigatonne",
+      "input_values": [
+        1.0,
+        21.0,
+        0.0
+      ],
+      "expected_result": 2.0000000000000002e-16
+    },
+    {
+      "id": "pair-carat-to-megatonne",
+      "input_values": [
+        1.0,
+        21.0,
+        1.0
+      ],
+      "expected_result": 2e-13
+    },
+    {
+      "id": "pair-carat-to-metric-ton",
+      "input_values": [
+        1.0,
+        21.0,
+        2.0
+      ],
+      "expected_result": 2.0000000000000002e-07
+    },
+    {
+      "id": "pair-carat-to-kilogram",
+      "input_values": [
+        1.0,
+        21.0,
+        3.0
+      ],
+      "expected_result": 0.0002
+    },
+    {
+      "id": "pair-carat-to-gram",
+      "input_values": [
+        1.0,
+        21.0,
+        4.0
+      ],
+      "expected_result": 0.2
+    },
+    {
+      "id": "pair-carat-to-milligram",
+      "input_values": [
+        1.0,
+        21.0,
+        5.0
+      ],
+      "expected_result": 200.00000000000003
+    },
+    {
+      "id": "pair-carat-to-microgram",
+      "input_values": [
+        1.0,
+        21.0,
+        6.0
+      ],
+      "expected_result": 200000.0
+    },
+    {
+      "id": "pair-carat-to-nanogram",
+      "input_values": [
+        1.0,
+        21.0,
+        7.0
+      ],
+      "expected_result": 200000000.0
+    },
+    {
+      "id": "pair-carat-to-picogram",
+      "input_values": [
+        1.0,
+        21.0,
+        8.0
+      ],
+      "expected_result": 200000000000.0
+    },
+    {
+      "id": "pair-carat-to-long-ton",
+      "input_values": [
+        1.0,
+        21.0,
+        9.0
+      ],
+      "expected_result": 1.9684130552221215e-07
+    },
+    {
+      "id": "pair-carat-to-short-ton",
+      "input_values": [
+        1.0,
+        21.0,
+        10.0
+      ],
+      "expected_result": 2.2046226218487757e-07
+    },
+    {
+      "id": "pair-carat-to-hundredweight",
+      "input_values": [
+        1.0,
+        21.0,
+        11.0
+      ],
+      "expected_result": 3.936826110444243e-06
+    },
+    {
+      "id": "pair-carat-to-quarter",
+      "input_values": [
+        1.0,
+        21.0,
+        12.0
+      ],
+      "expected_result": 1.574730444177697e-05
+    },
+    {
+      "id": "pair-carat-to-stone",
+      "input_values": [
+        1.0,
+        21.0,
+        13.0
+      ],
+      "expected_result": 3.149460888355394e-05
+    },
+    {
+      "id": "pair-carat-to-pound",
+      "input_values": [
+        1.0,
+        21.0,
+        14.0
+      ],
+      "expected_result": 0.00044092452436975517
+    },
+    {
+      "id": "pair-carat-to-ounce",
+      "input_values": [
+        1.0,
+        21.0,
+        15.0
+      ],
+      "expected_result": 0.007054792389916083
+    },
+    {
+      "id": "pair-carat-to-dram",
+      "input_values": [
+        1.0,
+        21.0,
+        16.0
+      ],
+      "expected_result": 0.11287667823865732
+    },
+    {
+      "id": "pair-carat-to-grain",
+      "input_values": [
+        1.0,
+        21.0,
+        17.0
+      ],
+      "expected_result": 3.0864716705882866
+    },
+    {
+      "id": "pair-carat-to-troy-pound",
+      "input_values": [
+        1.0,
+        21.0,
+        18.0
+      ],
+      "expected_result": 0.0005358457761437997
+    },
+    {
+      "id": "pair-carat-to-troy-ounce",
+      "input_values": [
+        1.0,
+        21.0,
+        19.0
+      ],
+      "expected_result": 0.006430149313725596
+    },
+    {
+      "id": "pair-carat-to-pennyweight",
+      "input_values": [
+        1.0,
+        21.0,
+        20.0
+      ],
+      "expected_result": 0.12860298627451192
+    },
+    {
+      "id": "pair-carat-to-carat",
+      "input_values": [
+        1.0,
+        21.0,
+        21.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "pair-carat-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        21.0,
+        22.0
+      ],
+      "expected_result": 1.2044281524162245e+23
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-gigatonne",
+      "input_values": [
+        1.0,
+        22.0,
+        0.0
+      ],
+      "expected_result": 1.6605390666e-39
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-megatonne",
+      "input_values": [
+        1.0,
+        22.0,
+        1.0
+      ],
+      "expected_result": 1.6605390666e-36
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-metric-ton",
+      "input_values": [
+        1.0,
+        22.0,
+        2.0
+      ],
+      "expected_result": 1.6605390666e-30
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-kilogram",
+      "input_values": [
+        1.0,
+        22.0,
+        3.0
+      ],
+      "expected_result": 1.6605390666e-27
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-gram",
+      "input_values": [
+        1.0,
+        22.0,
+        4.0
+      ],
+      "expected_result": 1.6605390666e-24
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-milligram",
+      "input_values": [
+        1.0,
+        22.0,
+        5.0
+      ],
+      "expected_result": 1.6605390666e-21
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-microgram",
+      "input_values": [
+        1.0,
+        22.0,
+        6.0
+      ],
+      "expected_result": 1.6605390665999998e-18
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-nanogram",
+      "input_values": [
+        1.0,
+        22.0,
+        7.0
+      ],
+      "expected_result": 1.6605390666e-15
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-picogram",
+      "input_values": [
+        1.0,
+        22.0,
+        8.0
+      ],
+      "expected_result": 1.6605390665999998e-12
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-long-ton",
+      "input_values": [
+        1.0,
+        22.0,
+        9.0
+      ],
+      "expected_result": 1.634313388700898e-30
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-short-ton",
+      "input_values": [
+        1.0,
+        22.0,
+        10.0
+      ],
+      "expected_result": 1.8304309953450054e-30
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-hundredweight",
+      "input_values": [
+        1.0,
+        22.0,
+        11.0
+      ],
+      "expected_result": 3.2686267774017954e-29
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-quarter",
+      "input_values": [
+        1.0,
+        22.0,
+        12.0
+      ],
+      "expected_result": 1.3074507109607182e-28
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-stone",
+      "input_values": [
+        1.0,
+        22.0,
+        13.0
+      ],
+      "expected_result": 2.6149014219214363e-28
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-pound",
+      "input_values": [
+        1.0,
+        22.0,
+        14.0
+      ],
+      "expected_result": 3.660861990690011e-27
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-ounce",
+      "input_values": [
+        1.0,
+        22.0,
+        15.0
+      ],
+      "expected_result": 5.857379185104017e-26
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-dram",
+      "input_values": [
+        1.0,
+        22.0,
+        16.0
+      ],
+      "expected_result": 9.371806696166428e-25
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-grain",
+      "input_values": [
+        1.0,
+        22.0,
+        17.0
+      ],
+      "expected_result": 2.5626033934830078e-23
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-troy-pound",
+      "input_values": [
+        1.0,
+        22.0,
+        18.0
+      ],
+      "expected_result": 4.448964224796888e-27
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-troy-ounce",
+      "input_values": [
+        1.0,
+        22.0,
+        19.0
+      ],
+      "expected_result": 5.338757069756266e-26
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-pennyweight",
+      "input_values": [
+        1.0,
+        22.0,
+        20.0
+      ],
+      "expected_result": 1.0677514139512532e-24
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-carat",
+      "input_values": [
+        1.0,
+        22.0,
+        21.0
+      ],
+      "expected_result": 8.302695332999999e-24
+    },
+    {
+      "id": "pair-atomic-mass-unit-to-atomic-mass-unit",
+      "input_values": [
+        1.0,
+        22.0,
+        22.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "zero-kilogram-to-pound",
+      "input_values": [
+        0.0,
+        3.0,
+        14.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-pound-to-kilogram",
+      "input_values": [
+        -10.0,
+        14.0,
+        3.0
+      ],
+      "expected_result": -4.535923700000001
+    },
+    {
+      "id": "source-example-kilogram-to-gram",
+      "input_values": [
+        4.0,
+        3.0,
+        4.0
+      ],
+      "expected_result": 4000.0
+    },
+    {
+      "id": "source-example-pound-to-kilogram",
+      "input_values": [
+        100.0,
+        14.0,
+        3.0
+      ],
+      "expected_result": 45.359237
+    },
+    {
+      "id": "negative-minimum",
+      "input_values": [
+        -1000000.0,
+        0.0,
+        8.0
+      ],
+      "expected_result": -1e+33
+    },
+    {
+      "id": "positive-maximum",
+      "input_values": [
+        1000000.0,
+        0.0,
+        8.0
+      ],
+      "expected_result": 1e+33
+    },
+    {
+      "id": "small-positive",
+      "input_values": [
+        1e-06,
+        8.0,
+        0.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "invalid-value-below-range",
+      "input_values": [
+        -1000001.0,
+        3.0,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-value-above-range",
+      "input_values": [
+        1000001.0,
+        3.0,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-source-negative",
+      "input_values": [
+        1.0,
+        -1.0,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-source-large",
+      "input_values": [
+        1.0,
+        23.0,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-source-fractional",
+      "input_values": [
+        1.0,
+        2.5,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-destination-negative",
+      "input_values": [
+        1.0,
+        3.0,
+        -1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-destination-large",
+      "input_values": [
+        1.0,
+        3.0,
+        23.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-destination-fractional",
+      "input_values": [
+        1.0,
+        3.0,
+        4.25
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -11,6 +11,10 @@ The `i64_array_scalar` input is exactly `[N, k]`. `N` is in `[0, 2^31 - 1]` and 
 [`workload.json`](workload.json) covers setting clear bits, preserving already-set bits, the highest allowed position, maximum input, and malformed or out-of-domain inputs.
 The shared scalar runner now checks the source-safe bit-set operation for this contract.
 
+```sh
+python3 benchmarks/verify_i64_array_scalar.py --algorithms set_kth_bit --elisa-compiler ../Elisa-compiler/bin/elisac-stage1
+```
+
 ## Implementations
 
 | Language | Source |

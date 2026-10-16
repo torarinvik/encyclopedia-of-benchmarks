@@ -1,0 +1,146 @@
+module correlation_matrix_analysis;
+
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def corr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+        b <- b + 1
+
+def corr_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+        b <- b + 1
+
+def correlation_matrix_analysis_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 22: return -1
+    if input[0] != 4 or input[1] < 2 or input[1] > 5: return -1
+    p: usize = input[1].usize()
+    if length != 2 + 4 * p: return -1
+    i: mutable usize = 0
+    while i < 4 * p:
+        if input[2 + i] < -1000 or input[2 + i] > 1000: return -1
+        i <- i + 1
+    col: mutable usize = 0
+    while col < p:
+        varying: mutable bool = false
+        row: mutable usize = 1
+        while row < 4:
+            if input[2 + row * p + col] != input[2 + col]: varying <- true
+            row <- row + 1
+        if !varying: return -1
+        col <- col + 1
+    output_bytes: usize = 32 * p * p + 48
+    if output.is_null() or capacity < output_bytes: return -2
+    means: mutable f64[5] = zeroed
+    col <- 0
+    while col < p:
+        row <- 0
+        while row < 4:
+            means[col] <- means[col] + input[2 + row * p + col].f64()
+            row <- row + 1
+        means[col] <- means[col] / 4.0
+        col <- col + 1
+    corr: mutable f64[25] = zeroed
+    raw: mutable f64[25] = zeroed
+    bonf: mutable f64[25] = zeroed
+    fdr: mutable f64[25] = zeroed
+    i <- 0
+    while i < p * p:
+        raw[i] <- 1.0; bonf[i] <- 1.0; fdr[i] <- 1.0
+        i <- i + 1
+    i <- 0
+    while i < p:
+        corr[i * p + i] <- 1.0
+        i <- i + 1
+    pair_i: mutable usize[10] = zeroed
+    pair_j: mutable usize[10] = zeroed
+    pair_p: mutable f64[10] = zeroed
+    pair_count: mutable usize = 0
+    j: mutable usize = 1
+    while j < p:
+        i <- 0
+        while i < j:
+            cross: mutable f64 = 0.0
+            sum_i: mutable f64 = 0.0
+            sum_j: mutable f64 = 0.0
+            row <- 0
+            while row < 4:
+                dx: f64 = input[2 + row * p + i].f64() - means[i]
+                dy: f64 = input[2 + row * p + j].f64() - means[j]
+                cross <- cross + dx * dy
+                sum_i <- sum_i + dx * dx
+                sum_j <- sum_j + dy * dy
+                row <- row + 1
+            r: f64 = cross / sqrt(sum_i * sum_j)
+            abs_r: f64 = if r < 0.0: -r else: r
+            pv: f64 = 1.0 - abs_r
+            corr[i * p + j] <- r; corr[j * p + i] <- r
+            raw[i * p + j] <- pv; raw[j * p + i] <- pv
+            pair_i[pair_count] <- i; pair_j[pair_count] <- j; pair_p[pair_count] <- pv
+            pair_count <- pair_count + 1
+            i <- i + 1
+        j <- j + 1
+    order: mutable usize[10] = zeroed
+    i <- 0
+    while i < pair_count:
+        adj: f64 = pair_p[i] * pair_count.f64()
+        if adj > 1.0: adj <- 1.0
+        bonf[pair_i[i] * p + pair_j[i]] <- adj; bonf[pair_j[i] * p + pair_i[i]] <- adj
+        order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < pair_count:
+        value: usize = order[i]
+        at: mutable usize = i
+        while at > 0 and pair_p[order[at - 1]] > pair_p[value]:
+            order[at] <- order[at - 1]
+            at <- at - 1
+        order[at] <- value
+        i <- i + 1
+    running: mutable f64 = 1.0
+    pos: mutable usize = pair_count
+    while pos > 0:
+        pos <- pos - 1
+        adj: f64 = pair_p[order[pos]] * pair_count.f64() / (pos + 1).f64()
+        if adj > 1.0: adj <- 1.0
+        if adj < running: running <- adj
+        k: usize = order[pos]
+        fdr[pair_i[k] * p + pair_j[k]] <- running
+        fdr[pair_j[k] * p + pair_i[k]] <- running
+    sig_raw: mutable i64 = 0
+    sig_bonf: mutable i64 = 0
+    sig_fdr: mutable i64 = 0
+    i <- 0
+    while i < pair_count:
+        index: usize = pair_i[i] * p + pair_j[i]
+        if pair_p[i] < 0.05: sig_raw <- sig_raw + 1
+        if bonf[index] < 0.05: sig_bonf <- sig_bonf + 1
+        if fdr[index] < 0.05: sig_fdr <- sig_fdr + 1
+        i <- i + 1
+    offset: mutable usize = 0
+    i <- 0
+    while i < p * p: corr_put_f64(output, offset, corr[i]); offset <- offset + 8; i <- i + 1
+    i <- 0
+    while i < p * p: corr_put_f64(output, offset, raw[i]); offset <- offset + 8; i <- i + 1
+    i <- 0
+    while i < p * p: corr_put_f64(output, offset, bonf[i]); offset <- offset + 8; i <- i + 1
+    i <- 0
+    while i < p * p: corr_put_f64(output, offset, fdr[i]); offset <- offset + 8; i <- i + 1
+    corr_put_i64(output, offset, 4); offset <- offset + 8
+    corr_put_i64(output, offset, p.i64()); offset <- offset + 8
+    corr_put_i64(output, offset, 0); offset <- offset + 8
+    corr_put_i64(output, offset, sig_raw); offset <- offset + 8
+    corr_put_i64(output, offset, sig_bonf); offset <- offset + 8
+    corr_put_i64(output, offset, sig_fdr); offset <- offset + 8
+    offset.i64()
+
+export fn correlation_matrix_analysis(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = correlation_matrix_analysis_impl

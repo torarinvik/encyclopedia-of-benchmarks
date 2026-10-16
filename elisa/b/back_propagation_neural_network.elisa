@@ -1,0 +1,78 @@
+# One fixed-weight scalar sample through the pinned two-layer DenseLayer update.
+extern exp(value: f64) -> f64
+const SCALE: f64 = 1000000.0
+
+def back_propagation_neural_network_quantize(value: f64) -> i64:
+    scaled: f64 = value * SCALE
+    if scaled >= 0.0:
+        (scaled + 0.5).i64()
+    else:
+        (scaled - 0.5).i64()
+
+def back_propagation_neural_network_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits >> (byte * 8)).u8()
+
+def back_propagation_neural_network_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 7:
+        return -1
+    x_q: i64 = input[0]
+    target_q: i64 = input[1]
+    hidden_weight_q: i64 = input[2]
+    hidden_bias_q: i64 = input[3]
+    output_weight_q: i64 = input[4]
+    output_bias_q: i64 = input[5]
+    rate_q: i64 = input[6]
+    if x_q < -1000000 or x_q > 1000000 or target_q < -1000000 or target_q > 1000000 or
+        hidden_weight_q < -2000000 or hidden_weight_q > 2000000 or
+        hidden_bias_q < -2000000 or hidden_bias_q > 2000000 or
+        output_weight_q < -2000000 or output_weight_q > 2000000 or
+        output_bias_q < -2000000 or output_bias_q > 2000000 or rate_q < 1 or rate_q > 300000:
+        return -1
+
+    x: f64 = x_q.f64() / SCALE
+    target: f64 = target_q.f64() / SCALE
+    hidden_weight: f64 = hidden_weight_q.f64() / SCALE
+    hidden_bias: f64 = hidden_bias_q.f64() / SCALE
+    output_weight: f64 = output_weight_q.f64() / SCALE
+    output_bias: f64 = output_bias_q.f64() / SCALE
+    learning_rate: f64 = rate_q.f64() / SCALE
+
+    hidden_net: f64 = hidden_weight * x - hidden_bias
+    hidden: f64 = 1.0 / (1.0 + exp(-hidden_net))
+    output_net: f64 = output_weight * hidden - output_bias
+    prediction: f64 = 1.0 / (1.0 + exp(-output_net))
+    difference: f64 = target - prediction
+    loss: f64 = difference * difference
+    loss_gradient: f64 = 2.0 * (prediction - target)
+    output_delta: f64 = loss_gradient * prediction * (1.0 - prediction)
+    output_weight_gradient: f64 = output_delta * hidden
+    output_bias_gradient: f64 = -output_delta
+    hidden_gradient: f64 = output_delta * output_weight
+    hidden_delta: f64 = hidden_gradient * hidden * (1.0 - hidden)
+    hidden_weight_gradient: f64 = hidden_delta * x
+    hidden_bias_gradient: f64 = -hidden_delta
+    updated_hidden_weight: f64 = hidden_weight - learning_rate * hidden_weight_gradient
+    updated_hidden_bias: f64 = hidden_bias - learning_rate * hidden_bias_gradient
+    updated_output_weight: f64 = output_weight - learning_rate * output_weight_gradient
+    updated_output_bias: f64 = output_bias - learning_rate * output_bias_gradient
+
+    if output == null or capacity < 56:
+        return -2
+    result: i64[7] = [
+        back_propagation_neural_network_quantize(loss),
+        back_propagation_neural_network_quantize(hidden),
+        back_propagation_neural_network_quantize(prediction),
+        back_propagation_neural_network_quantize(updated_hidden_weight),
+        back_propagation_neural_network_quantize(updated_hidden_bias),
+        back_propagation_neural_network_quantize(updated_output_weight),
+        back_propagation_neural_network_quantize(updated_output_bias)
+    ]
+    for index in 0..<7:
+        back_propagation_neural_network_put_i64(output, index * 8, result[index])
+    56
+
+export fn back_propagation_neural_network(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = back_propagation_neural_network_impl

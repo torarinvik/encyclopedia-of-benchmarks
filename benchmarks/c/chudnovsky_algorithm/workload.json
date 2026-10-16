@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "chudnovsky-pi-bounded-precision-v1",
+  "algorithm": "chudnovsky_algorithm",
+  "function_symbol": "chudnovsky_algorithm",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[precision]",
+    "length": 1,
+    "precision_range": [
+      1,
+      12
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ascii_bytes",
+    "meaning": "pinned Decimal pi string after the source removes its final character",
+    "encoding": "ASCII",
+    "return_value": "output byte length",
+    "max_length": 12,
+    "max_output_bytes": 12,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 12,
+    "meaning": "maximum output string capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "precision_01",
+      "input_length": 1,
+      "input_values": [
+        1
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "precision_02",
+      "input_length": 1,
+      "input_values": [
+        2
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 2,
+      "expected_output_hex": "332e"
+    },
+    {
+      "id": "precision_03",
+      "input_length": 1,
+      "input_values": [
+        3
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 3,
+      "expected_output_hex": "332e31"
+    },
+    {
+      "id": "precision_04",
+      "input_length": 1,
+      "input_values": [
+        4
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 4,
+      "expected_output_hex": "332e3134"
+    },
+    {
+      "id": "precision_05",
+      "input_length": 1,
+      "input_values": [
+        5
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 5,
+      "expected_output_hex": "332e313431"
+    },
+    {
+      "id": "precision_06",
+      "input_length": 1,
+      "input_values": [
+        6
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 6,
+      "expected_output_hex": "332e31343135"
+    },
+    {
+      "id": "precision_07",
+      "input_length": 1,
+      "input_values": [
+        7
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 7,
+      "expected_output_hex": "332e3134313539"
+    },
+    {
+      "id": "precision_08",
+      "input_length": 1,
+      "input_values": [
+        8
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 8,
+      "expected_output_hex": "332e313431353932"
+    },
+    {
+      "id": "precision_09",
+      "input_length": 1,
+      "input_values": [
+        9
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 9,
+      "expected_output_hex": "332e31343135393236"
+    },
+    {
+      "id": "precision_10",
+      "input_length": 1,
+      "input_values": [
+        10
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 10,
+      "expected_output_hex": "332e3134313539323635"
+    },
+    {
+      "id": "precision_11",
+      "input_length": 1,
+      "input_values": [
+        11
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 11,
+      "expected_output_hex": "332e313431353932363533"
+    },
+    {
+      "id": "precision_12",
+      "input_length": 1,
+      "input_values": [
+        12
+      ],
+      "workspace_bytes": 12,
+      "expected_result": 12,
+      "expected_output_hex": "332e31343135393236353335"
+    },
+    {
+      "id": "precision_zero_invalid",
+      "input_length": 1,
+      "input_values": [
+        0
+      ],
+      "workspace_bytes": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "precision_above_contract",
+      "input_length": 1,
+      "input_values": [
+        13
+      ],
+      "workspace_bytes": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_empty_input",
+      "input_length": 0,
+      "input_values": [],
+      "workspace_bytes": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_extra_value",
+      "input_length": 2,
+      "input_values": [
+        5,
+        0
+      ],
+      "workspace_bytes": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity",
+      "input_length": 1,
+      "input_values": [
+        12
+      ],
+      "workspace_bytes": 11,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

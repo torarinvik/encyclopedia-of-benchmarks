@@ -12,6 +12,7 @@ This benchmark applies the Atbash substitution to a 7-bit ASCII byte sequence. U
 ## Workload and verification
 
 [`workload.json`](workload.json) covers empty input, both alphabets, mixed case, punctuation, digits, control bytes, and maximum length. [`benchmarks/verify_atbash_cipher.py`](../../verify_atbash_cipher.py) checks every one-byte and two-byte ASCII sequence, seeded longer inputs, invalid values, and insufficient output capacity in all nine target languages.
+The generic byte-output verifier also checks this benchmark with an independent oracle: `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm atbash_cipher`.
 
 ## Reviewed TheAlgorithms sources
 

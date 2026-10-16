@@ -18,6 +18,14 @@ This follows the `quadratic` method in pinned [TheAlgorithms Java `Means.java`](
 
 [`workload.json`](workload.json) covers the source example, signed values, zero, singleton behavior, maximum bounds and length, and invalid input.
 
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_quadratic_mean.py
+```
+
 ## Implementations
 
 | Language | Source |

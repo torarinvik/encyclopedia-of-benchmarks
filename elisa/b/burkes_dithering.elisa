@@ -1,0 +1,52 @@
+def burkes_dithering_trunc_div32(value: i32) -> i32:
+    if value < 0:
+        return -((-value) / 32)
+    value / 32
+
+def burkes_dithering_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 150:
+        return -1
+    if input[0] < 1 or input[0] > 7 or input[1] < 1 or input[1] > 254:
+        return -1
+    side: usize = input[0].usize()
+    threshold: i32 = input[1].i32()
+    if length != 2 + 3 * side * side:
+        return -1
+    index: mutable usize = 2
+    while index < length |index, input|:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+
+    stride: usize = side + 4
+    errors: mutable i32[88] = zeroed
+    white_pixels: mutable u64 = 0.u64()
+    y: mutable usize = 0
+    while y < side |y, side, stride, errors, input, threshold, white_pixels|:
+        x: mutable usize = 0
+        while x < side |x, y, side, stride, errors, input, threshold, white_pixels|:
+            offset: usize = 2 + 3 * (y * side + x)
+            blue: i32 = input[offset].i32()
+            green: i32 = input[offset + 1].i32()
+            red: i32 = input[offset + 2].i32()
+            gray: i32 = (114 * blue + 587 * green + 299 * red) / 1000
+            adjusted: i32 = gray + errors[y * stride + x]
+            white: bool = adjusted >= threshold
+            current_error: mutable i32 = adjusted
+            if white:
+                white_pixels <- white_pixels | (1.u64() << (y * side + x))
+                current_error <- adjusted - 255
+            errors[y * stride + x + 1] <- errors[y * stride + x + 1] + burkes_dithering_trunc_div32(8 * current_error)
+            errors[y * stride + x + 2] <- errors[y * stride + x + 2] + burkes_dithering_trunc_div32(4 * current_error)
+            errors[(y + 1) * stride + x] <- errors[(y + 1) * stride + x] + burkes_dithering_trunc_div32(8 * current_error)
+            errors[(y + 1) * stride + x + 1] <- errors[(y + 1) * stride + x + 1] + burkes_dithering_trunc_div32(4 * current_error)
+            errors[(y + 1) * stride + x + 2] <- errors[(y + 1) * stride + x + 2] + burkes_dithering_trunc_div32(2 * current_error)
+            if x >= 1:
+                errors[(y + 1) * stride + x - 1] <- errors[(y + 1) * stride + x - 1] + burkes_dithering_trunc_div32(4 * current_error)
+            if x >= 2:
+                errors[(y + 1) * stride + x - 2] <- errors[(y + 1) * stride + x - 2] + burkes_dithering_trunc_div32(2 * current_error)
+            x <- x + 1
+        y <- y + 1
+    white_pixels.i64()
+
+export fn burkes_dithering(input: i64&, length: usize) -> i64 = burkes_dithering_impl

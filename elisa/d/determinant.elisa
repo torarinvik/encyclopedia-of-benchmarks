@@ -1,0 +1,47 @@
+const MAX_DIMENSION: usize = 6
+const MAX_INPUT_LENGTH: usize = 1 + MAX_DIMENSION * MAX_DIMENSION
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def determinant_recursive(matrix: i64&, dimension: usize) -> i64:
+    if dimension == 1:
+        return matrix[0]
+    minor: mutable i64[25] = zeroed
+    result: mutable i64 = 0
+    column: mutable usize = 0
+    while column < dimension:
+        minor_index: mutable usize = 0
+        row: mutable usize = 1
+        while row < dimension:
+            source_column: mutable usize = 0
+            while source_column < dimension:
+                if source_column != column:
+                    minor[minor_index] <- matrix[row * dimension + source_column]
+                    minor_index <- minor_index + 1
+                source_column <- source_column + 1
+            row <- row + 1
+        term: i64 = matrix[column] * determinant_recursive(&minor[0], dimension - 1)
+        if column % 2 == 0:
+            result <- result + term
+        else:
+            result <- result - term
+        column <- column + 1
+    result
+
+def determinant_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    dimension_value: i64 = input[0]
+    if dimension_value < 1 or dimension_value > 6:
+        return INVALID_RESULT
+    dimension: usize = dimension_value.usize()
+    if length != 1 + dimension * dimension:
+        return INVALID_RESULT
+    index: mutable usize = 0
+    while index < dimension * dimension:
+        value: i64 = input[1 + index]
+        if value < -9 or value > 9:
+            return INVALID_RESULT
+        index <- index + 1
+    determinant_recursive(&input[1], dimension)
+
+export fn determinant(input: i64&, length: usize) -> i64 = determinant_impl

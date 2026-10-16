@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "id": "javascript-circle-perimeter-area-f64-pair-v1",
+  "algorithm": "circle",
+  "function_symbol": "circle",
+  "description": "Select one of the pinned Circle class's scalar methods for a bounded radius.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": ["radius", "operation"],
+    "radius_range": [-1000000.0, 1000000.0],
+    "operation_selectors": {
+      "0": "perimeter",
+      "1": "area"
+    },
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "operation_0": "radius * 2 * PI",
+    "operation_1": "radius squared * PI",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-9,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"perimeter_zero","input_values":[0.0,0.0],"expected_result":0.0},
+    {"id":"perimeter_unit_radius","input_values":[1.0,0.0],"expected_result":6.283185307179586},
+    {"id":"perimeter_fractional_radius","input_values":[0.5,0.0],"expected_result":3.141592653589793},
+    {"id":"perimeter_negative_radius","input_values":[-2.0,0.0],"expected_result":-12.566370614359172},
+    {"id":"perimeter_negative_zero","input_values":[-0.0,0.0],"expected_result":-0.0},
+    {"id":"perimeter_lower_radius_bound","input_values":[-1000000.0,0.0],"expected_result":-6283185.307179586},
+    {"id":"perimeter_upper_radius_bound","input_values":[1000000.0,0.0],"expected_result":6283185.307179586},
+    {"id":"area_zero","input_values":[0.0,1.0],"expected_result":0.0},
+    {"id":"area_unit_radius","input_values":[1.0,1.0],"expected_result":3.141592653589793},
+    {"id":"area_fractional_radius","input_values":[-0.5,1.0],"expected_result":0.7853981633974483},
+    {"id":"area_negative_radius","input_values":[-2.0,1.0],"expected_result":12.566370614359172},
+    {"id":"area_negative_zero","input_values":[-0.0,1.0],"expected_result":0.0},
+    {"id":"area_lower_radius_bound","input_values":[-1000000.0,1.0],"expected_result":3141592653589.793},
+    {"id":"area_upper_radius_bound","input_values":[1000000.0,1.0],"expected_result":3141592653589.793},
+    {"id":"invalid_radius_above_bound","input_values":[1000001.0,0.0],"expected_result":-1e300},
+    {"id":"invalid_radius_below_bound","input_values":[-1000001.0,1.0],"expected_result":-1e300},
+    {"id":"invalid_operation_negative","input_values":[1.0,-1.0],"expected_result":-1e300},
+    {"id":"invalid_operation_above_range","input_values":[1.0,2.0],"expected_result":-1e300},
+    {"id":"invalid_fractional_operation","input_values":[1.0,0.5],"expected_result":-1e300}
+  ]
+}

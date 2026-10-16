@@ -1,0 +1,14 @@
+def good_pairs_impl(packed: i64&, length: usize) -> i64:
+    if length == 0 or length > 257: return -1
+    n: i64 = packed[0]
+    if n < 0 or n > 256 or length != n.usize() + 1: return -1
+    for index in 0 ..< n:
+        value: i64 = packed[index + 1]
+        if value < -1000000 or value > 1000000: return -1
+    count: mutable i64 = 0
+    for i in 0 ..< n:
+        for j in (i + 1) ..< n:
+            if packed[i + 1] == packed[j + 1]: count <- count + 1
+    count
+
+export fn good_pairs(packed: i64&, length: usize) -> i64 = good_pairs_impl

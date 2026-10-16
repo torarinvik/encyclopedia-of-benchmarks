@@ -38,6 +38,8 @@ All local code was written independently under the shared contract.
 
 ## TheAlgorithms references
 
+- [C LeetCode `509.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/509.c) computes zero-based Fibonacci values with `F(0)=0` and `F(1)=1`.
+
 - [C `fibonacci.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/math/fibonacci.c)
 - [C++ `fibonacci.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/fibonacci.cpp)
 - [Rust `fibonacci.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/fibonacci.rs)

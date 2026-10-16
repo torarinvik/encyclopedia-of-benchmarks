@@ -16,7 +16,7 @@ is_binary_digit :: proc(value: i64) -> bool {
 @(export)
 binary_to_excess3 :: proc "c" (values: [^]i64, length: c.size_t,
 		output: [^]u8, output_capacity: c.size_t) -> i64 {
-	if length == 0 || length > MAX_TEXT_LENGTH do return -1
+	if values == nil || length == 0 || length > MAX_TEXT_LENGTH do return -1
 	start := c.size_t(0)
 	end := length
 	for start < end && is_ascii_space(values[start]) { start += 1 }

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-587-concave-triangle-v1",
+  "algorithm": "problem587",
+  "function_symbol": "problem587",
+  "input": {
+    "kind": "bounded_binary64_area_fraction",
+    "argument_order": ["fraction"],
+    "bounds": {"fraction": [0.001, 0.1]},
+    "comparison": "concave_triangle_area / l_section_area < fraction",
+    "maximum_circle_count": 100000,
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "least positive n whose concave-triangle-to-L-section area ratio is strictly below fraction; exact integer represented as binary64",
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-9,
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "source_example_one_tenth", "input_values": [0.1], "expected_result": 15.0},
+    {"id": "canonical_one_thousandth", "input_values": [0.001], "expected_result": 2240.0},
+    {"id": "below_supported_fraction", "input_values": [0.0009], "expected_result": -1e300},
+    {"id": "above_supported_fraction", "input_values": [0.1001], "expected_result": -1e300},
+    {"id": "zero_fraction", "input_values": [0.0], "expected_result": -1e300}
+  ]
+}

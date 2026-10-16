@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "uint53-xor-v1",
+  "algorithm": "uint53_xor",
+  "function_symbol": "uint53_xor",
+  "input": {
+    "kind": "pair_of_signed_64_bit_integers",
+    "valid_range": "0 <= left,right <= 9007199254740991",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_maximum",
+      "input_values": [
+        0,
+        9007199254740991
+      ],
+      "expected_result": 9007199254740991
+    },
+    {
+      "id": "maximum_zero",
+      "input_values": [
+        9007199254740991,
+        0
+      ],
+      "expected_result": 9007199254740991
+    },
+    {
+      "id": "same_small",
+      "input_values": [
+        74565,
+        74565
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "same_maximum",
+      "input_values": [
+        9007199254740991,
+        9007199254740991
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "single_low_bit",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_high_bit",
+      "input_values": [
+        0,
+        4503599627370496
+      ],
+      "expected_result": 4503599627370496
+    },
+    {
+      "id": "adjacent_power_bits",
+      "input_values": [
+        4503599627370496,
+        2251799813685248
+      ],
+      "expected_result": 6755399441055744
+    },
+    {
+      "id": "alternating_patterns",
+      "input_values": [
+        6004799503160661,
+        3002399751580330
+      ],
+      "expected_result": 9007199254740991
+    },
+    {
+      "id": "upstream_example",
+      "input_values": [
+        11,
+        2
+      ],
+      "expected_result": 9
+    },
+    {
+      "id": "single_nonzero_right",
+      "input_values": [
+        0,
+        4886718345
+      ],
+      "expected_result": 4886718345
+    },
+    {
+      "id": "carryless_overlap",
+      "input_values": [
+        1250999896491,
+        3440428672323
+      ],
+      "expected_result": 2208902999272
+    },
+    {
+      "id": "negative_left",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_right",
+      "input_values": [
+        0,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "above_uint53_left",
+      "input_values": [
+        9007199254740992,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "above_uint53_right",
+      "input_values": [
+        0,
+        9007199254740992
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i64_left",
+      "input_values": [
+        -9223372036854775808,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_i64_right",
+      "input_values": [
+        0,
+        9223372036854775807
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "seeded_random_00",
+      "input_values": [
+        3805452325510224,
+        7931065986242710
+      ],
+      "expected_result": 4970114023589062
+    },
+    {
+      "id": "seeded_random_01",
+      "input_values": [
+        188675684139564,
+        538232589733507
+      ],
+      "expected_result": 354164906445999
+    },
+    {
+      "id": "seeded_random_02",
+      "input_values": [
+        3496556970614241,
+        7072359416784434
+      ],
+      "expected_result": 5994934191094739
+    },
+    {
+      "id": "seeded_random_03",
+      "input_values": [
+        4193880218293249,
+        1106006391292020
+      ],
+      "expected_result": 3671990790968437
+    },
+    {
+      "id": "seeded_random_04",
+      "input_values": [
+        1203700109148348,
+        4285896025015601
+      ],
+      "expected_result": 3236127589893517
+    },
+    {
+      "id": "seeded_random_05",
+      "input_values": [
+        3173316790482940,
+        422615537849057
+      ],
+      "expected_result": 3032731119052061
+    },
+    {
+      "id": "seeded_random_06",
+      "input_values": [
+        28062463588055,
+        7919002879996634
+      ],
+      "expected_result": 7947060742407181
+    },
+    {
+      "id": "seeded_random_07",
+      "input_values": [
+        3002252685623052,
+        230123858747884
+      ],
+      "expected_result": 2950829598367456
+    },
+    {
+      "id": "seeded_random_08",
+      "input_values": [
+        8030556591854978,
+        1035694840535719
+      ],
+      "expected_result": 8772225185435429
+    },
+    {
+      "id": "seeded_random_09",
+      "input_values": [
+        8527521003051695,
+        8442260810366247
+      ],
+      "expected_result": 1044042938869640
+    },
+    {
+      "id": "seeded_random_10",
+      "input_values": [
+        3326342912835182,
+        4902888057528137
+      ],
+      "expected_result": 7523322861625639
+    },
+    {
+      "id": "seeded_random_11",
+      "input_values": [
+        4462544010284474,
+        2406918483618674
+      ],
+      "expected_result": 2066792482547400
+    },
+    {
+      "id": "seeded_random_12",
+      "input_values": [
+        1760778249829144,
+        581118975761998
+      ],
+      "expected_result": 1215980068185430
+    },
+    {
+      "id": "seeded_random_13",
+      "input_values": [
+        6943519149850013,
+        7442320360308397
+      ],
+      "expected_result": 804671602787120
+    },
+    {
+      "id": "seeded_random_14",
+      "input_values": [
+        8392788955715604,
+        201003287566257
+      ],
+      "expected_result": 8277114103828389
+    },
+    {
+      "id": "seeded_random_15",
+      "input_values": [
+        3714581043343799,
+        2427010005019263
+      ],
+      "expected_result": 1597856794598344
+    }
+  ]
+}

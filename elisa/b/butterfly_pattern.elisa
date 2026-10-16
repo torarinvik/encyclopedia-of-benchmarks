@@ -1,0 +1,41 @@
+def butterfly_pattern_write_run(output: mutable u8&, position_input: usize, byte: u8, count: usize) -> usize:
+    position: mutable usize = position_input
+    index: mutable usize = 0
+    while index < count |index, position, output, byte|:
+        output[position] <- byte
+        position <- position + 1
+        index <- index + 1
+    position
+
+def butterfly_pattern_impl(n: i64, output: mutable u8&, capacity: usize) -> i64:
+    if n < 1 or n > 45: return -1
+    side: usize = n.usize()
+    width: usize = 2 * side - 1
+    required: usize = width * width + 2 * side - 2
+    if capacity < required: return -2
+
+    position: mutable usize = 0
+    count: mutable usize = 1
+    while count < side |count, side, position, output|:
+        if position != 0:
+            output[position] <- 10u8
+            position <- position + 1
+        position <- butterfly_pattern_write_run(output, position, 42u8, count)
+        position <- butterfly_pattern_write_run(output, position, 32u8, 2 * (side - count) - 1)
+        position <- butterfly_pattern_write_run(output, position, 42u8, count)
+        count <- count + 1
+    if position != 0:
+        output[position] <- 10u8
+        position <- position + 1
+    position <- butterfly_pattern_write_run(output, position, 42u8, width)
+    count <- side - 1
+    while count > 0 |count, side, position, output|:
+        output[position] <- 10u8
+        position <- position + 1
+        position <- butterfly_pattern_write_run(output, position, 42u8, count)
+        position <- butterfly_pattern_write_run(output, position, 32u8, 2 * (side - count) - 1)
+        position <- butterfly_pattern_write_run(output, position, 42u8, count)
+        count <- count - 1
+    position.i64()
+
+export fn butterfly_pattern(n: i64, output: mutable u8&, capacity: usize) -> i64 = butterfly_pattern_impl

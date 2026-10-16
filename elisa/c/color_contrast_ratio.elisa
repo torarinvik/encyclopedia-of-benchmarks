@@ -1,0 +1,26 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+def color_contrast_ratio_component(channel: i64) -> f64:
+    srgb: f64 = channel.f64() / 255.0
+    if srgb <= 0.03928:
+        return srgb / 12.92
+    pow((srgb + 0.055) / 1.055, 2.4)
+
+def color_contrast_ratio_luminance(red: i64, green: i64, blue: i64) -> f64:
+    0.2126 * color_contrast_ratio_component(red) + 0.7152 * color_contrast_ratio_component(green) + 0.0722 * color_contrast_ratio_component(blue)
+
+def color_contrast_ratio_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 6:
+        return -1.0e300
+    i: usize = 0
+    while i < 6:
+        if values[i] < 0 or values[i] > 255:
+            return -1.0e300
+        i = i + 1
+    first: f64 = color_contrast_ratio_luminance(values[0], values[1], values[2])
+    second: f64 = color_contrast_ratio_luminance(values[3], values[4], values[5])
+    if first > second:
+        return (first + 0.05) / (second + 0.05)
+    (second + 0.05) / (first + 0.05)
+
+export fn color_contrast_ratio(values: i64&, length: usize) f64 = color_contrast_ratio_impl

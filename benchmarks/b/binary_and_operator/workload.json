@@ -111,6 +111,16 @@
       ],
       "expected_result": -1,
       "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        25,
+        32
+      ],
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
     }
   ],
   "measurement": {

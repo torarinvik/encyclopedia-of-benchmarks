@@ -1,0 +1,53 @@
+def common_characters_frequency_quotient_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length == 0 or length > 1041 or input == null:
+        return -1
+    string_count: i64 = input[0]
+    if string_count < 0 or string_count > 16:
+        return -1
+    counts: mutable i64[26] = zeroed
+    offset: mutable usize = 1
+    total: mutable usize = 0
+    string_index: mutable i64 = 0
+    while string_index < string_count:
+        if offset >= length:
+            return -1
+        string_length: i64 = input[offset]
+        offset <- offset + 1
+        if string_length < 0 or string_length > 64 or string_length.usize() > length - offset:
+            return -1
+        index: mutable i64 = 0
+        while index < string_length:
+            value: i64 = input[offset]
+            offset <- offset + 1
+            if value < 97 or value > 122:
+                return -1
+            counts[(value - 97).usize()] <- counts[(value - 97).usize()] + 1
+            index <- index + 1
+        total <- total + string_length.usize()
+        if total > 512:
+            return -1
+        string_index <- string_index + 1
+    if offset != length:
+        return -1
+    used: mutable usize = 0
+    if string_count > 0:
+        letter: mutable usize = 0
+        while letter < 26:
+            used <- used + (counts[letter] / string_count).usize()
+            letter <- letter + 1
+    if used > capacity or (used > 0 and output == null):
+        return -2
+    output_offset: mutable usize = 0
+    if string_count > 0:
+        letter <- 0
+        while letter < 26:
+            copy: mutable i64 = 0
+            copies: i64 = counts[letter] / string_count
+            while copy < copies:
+                output[output_offset] <- (97 + letter.i64()).u8()
+                output_offset <- output_offset + 1
+                copy <- copy + 1
+            letter <- letter + 1
+    used.i64()
+
+export fn common_characters_frequency_quotient(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = common_characters_frequency_quotient_impl

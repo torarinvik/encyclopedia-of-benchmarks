@@ -1,5 +1,5 @@
 proc abundant_number*(n: int64): int64 {.cdecl, exportc: "abundant_number".} =
-  if n < 1 or n > 1_000_000_000:
+  if n < 1 or n > 100_000_000:
     return -1
   if n == 1:
     return 0

@@ -1,0 +1,78 @@
+const MAX_FIBONACCI_INDEX: usize = 1000002
+const MAX_LIMBS: usize = 24000
+const LIMB_BASE: u64 = 1000000000.u64()
+
+def is_pandigital_1_to_9(value: u32) -> bool:
+    mask: mutable u16 = 0.u16()
+    remaining: mutable u32 = value
+    for _ in 0..<9:
+        digit: u32 = remaining % 10
+        bit: u16 = 1.u16() << digit.usize()
+        if digit == 0 or (mask & bit) != 0.u16():
+            return false
+        mask <- mask | bit
+        remaining <- remaining / 10
+    remaining == 0 and mask == 0x3fe.u16()
+
+def power_of_ten(exponent: u32) -> u32:
+    value: mutable u32 = 1
+    remaining: mutable u32 = exponent
+    while remaining > 0:
+        value <- value * 10
+        remaining <- remaining - 1
+    value
+
+def leading_nine_digits(limbs: u32&, length: usize) -> u32:
+    top: u32 = limbs[length - 1]
+    width: mutable u32 = 0
+    temp: mutable u32 = top
+    while temp > 0:
+        width <- width + 1
+        temp <- temp / 10
+    if width >= 9 or length == 1:
+        return top
+    fill: u32 = 9 - width
+    next_prefix: u32 = limbs[length - 2] / power_of_ten(width)
+    top * power_of_ten(fill) + next_prefix
+
+def problem104_impl(placeholder: i64) -> i64:
+    if placeholder != 0:
+        return -1
+    first_buffer: mutable u32[MAX_LIMBS] = zeroed
+    second_buffer: mutable u32[MAX_LIMBS] = zeroed
+    first_buffer[0] <- 1
+    second_buffer[0] <- 1
+    previous: mutable u32& = first_buffer
+    current: mutable u32& = second_buffer
+    previous_length: mutable usize = 1
+    current_length: mutable usize = 1
+    index: mutable usize = 3
+
+    while index <= MAX_FIBONACCI_INDEX:
+        sum_length: usize = if previous_length > current_length: previous_length else: current_length
+        carry: mutable u64 = 0.u64()
+        limb: mutable usize = 0
+        while limb < sum_length:
+            left: u64 = if limb < previous_length: previous[limb].u64() else: 0.u64()
+            right: u64 = if limb < current_length: current[limb].u64() else: 0.u64()
+            sum: u64 = left + right + carry
+            previous[limb] <- (sum % LIMB_BASE).u32()
+            carry <- sum / LIMB_BASE
+            limb <- limb + 1
+        next_length: mutable usize = sum_length
+        if carry != 0.u64():
+            if next_length == MAX_LIMBS:
+                return -1
+            previous[next_length] <- carry.u32()
+            next_length <- next_length + 1
+        temporary: mutable u32& = previous
+        previous <- current
+        current <- temporary
+        previous_length <- current_length
+        current_length <- next_length
+        if is_pandigital_1_to_9(current[0]) and is_pandigital_1_to_9(leading_nine_digits(current, current_length)):
+            return index.i64()
+        index <- index + 1
+    -1
+
+export fn problem104(placeholder: i64) -> i64 = problem104_impl

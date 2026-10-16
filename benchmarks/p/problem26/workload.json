@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-26-scalar-v1",
+  "algorithm": "problem26",
+  "function_symbol": "problem26",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "digit_range": [0, 1000],
+    "meaning": "inclusive upper denominator bound with numerator fixed at 1",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_range", "input_value": 0, "expected_result": 1},
+    {"id": "limit_one", "input_value": 1, "expected_result": 1},
+    {"id": "limit_two", "input_value": 2, "expected_result": 1},
+    {"id": "limit_three", "input_value": 3, "expected_result": 1},
+    {"id": "first_terminating_prefix_wins", "input_value": 4, "expected_result": 4},
+    {"id": "example_below_ten", "input_value": 10, "expected_result": 7},
+    {"id": "example_below_one_hundred", "input_value": 100, "expected_result": 97},
+    {"id": "canonical_limit", "input_value": 1000, "expected_result": 983},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_limit", "input_value": 1001, "expected_result": -1}
+  ]
+}

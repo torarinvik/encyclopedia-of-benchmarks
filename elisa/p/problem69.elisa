@@ -1,0 +1,29 @@
+const MAX_LIMIT: usize = 1000000
+
+def problem69_impl(inclusive_limit: i64) -> i64:
+    if inclusive_limit < 1 or inclusive_limit > MAX_LIMIT.i64():
+        return -1
+    bound: usize = inclusive_limit.usize()
+    phi: mutable u32[MAX_LIMIT + 1] = zeroed
+    value: mutable usize = 0
+    while value <= bound:
+        phi[value] <- value.u32()
+        value <- value + 1
+    number: mutable usize = 2
+    while number <= bound:
+        if phi[number] == number.u32():
+            phi[number] <- phi[number] - 1
+            multiple: mutable usize = number * 2
+            while multiple <= bound:
+                phi[multiple] <- (phi[multiple] / number.u32()) * (number - 1).u32()
+                multiple <- multiple + number
+        number <- number + 1
+    answer: mutable usize = 1
+    number <- 1
+    while number <= bound:
+        if number.u64() * phi[answer].u64() > answer.u64() * phi[number].u64():
+            answer <- number
+        number <- number + 1
+    answer.i64()
+
+export fn problem69(inclusive_limit: i64) -> i64 = problem69_impl

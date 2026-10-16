@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-21-scalar-v1",
+  "algorithm": "problem21",
+  "function_symbol": "problem21",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 10000],
+    "meaning": "exclusive upper limit for amicable numbers",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of amicable numbers strictly below the limit"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "minimum_limit", "input_value": 1, "expected_result": 0},
+    {"id": "no_amicable_values", "input_value": 100, "expected_result": 0},
+    {"id": "only_220_below_limit", "input_value": 221, "expected_result": 220},
+    {"id": "first_pair_included", "input_value": 285, "expected_result": 504},
+    {"id": "second_pair_member_can_be_at_limit", "input_value": 1210, "expected_result": 1688},
+    {"id": "second_pair_fully_below_limit", "input_value": 1211, "expected_result": 2898},
+    {"id": "through_one_thousand", "input_value": 1000, "expected_result": 504},
+    {"id": "through_five_thousand", "input_value": 5000, "expected_result": 8442},
+    {"id": "canonical_limit", "input_value": 10000, "expected_result": 31626},
+    {"id": "zero_limit", "input_value": 0, "expected_result": -1},
+    {"id": "above_maximum_limit", "input_value": 10001, "expected_result": -1}
+  ]
+}

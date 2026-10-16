@@ -23,3 +23,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/p/pell_number/c/b
 ```
 
 The nine implementations are in `c/p/pell_number.c`, `c3/p/pell_number.c3`, `cpp/p/pell_number.cpp`, `elisa/p/pell_number.elisa`, `nim/p/pell_number.nim`, `odin/p/pell_number.odin`, `rust/p/pell_number.rs`, `v/p/pell_number.v`, and `zig/p/pell_number.zig`.
+
+Verify the nine ports against the independent indexed-recurrence oracle with `python3 benchmarks/verify_scalar.py --algorithms pell_number`.

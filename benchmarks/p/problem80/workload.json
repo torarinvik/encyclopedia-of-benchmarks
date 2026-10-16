@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-80-decimal-digit-sum-v1",
+  "algorithm": "problem80",
+  "function_symbol": "problem80",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned source is a fixed computation with no arguments; zero selects its canonical calculation",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of the first 100 significant decimal digits of irrational square roots for integers 2 through 99"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "pinned_source_calculation",
+      "input_value": 0,
+      "expected_result": 40886
+    },
+    {
+      "id": "positive_nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_nonzero_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

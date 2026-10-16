@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "excess-3-code-v1",
+  "algorithm": "excess_3_code",
+  "function_symbol": "excess_3_code",
+  "input": {
+    "kind": "signed_i64_scalar",
+    "encoding": "excess_3_code",
+    "meaning": "decimal integer; negative values follow the source max(0, number) behavior"
+  },
+  "output": {
+    "kind": "ASCII_bytes",
+    "meaning": "0b prefix followed by four Excess-3 bits for each decimal digit"
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "negative_maps_to_zero",
+      "input_value": -1,
+      "expected_result": 6,
+      "expected_output": "0b0011"
+    },
+    {
+      "id": "minimum_signed_value",
+      "input_value": -9223372036854775808,
+      "expected_result": 6,
+      "expected_output": "0b0011"
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 6,
+      "expected_output": "0b0011"
+    },
+    {
+      "id": "one_digit",
+      "input_value": 7,
+      "expected_result": 6,
+      "expected_output": "0b1010"
+    },
+    {
+      "id": "source_digit_example",
+      "input_value": 3,
+      "expected_result": 6,
+      "expected_output": "0b0110"
+    },
+    {
+      "id": "source_two_digit_example",
+      "input_value": 20,
+      "expected_result": 10,
+      "expected_output": "0b01010011"
+    },
+    {
+      "id": "source_three_digit_example",
+      "input_value": 120,
+      "expected_result": 14,
+      "expected_output": "0b010001010011"
+    },
+    {
+      "id": "repeated_digits",
+      "input_value": 999999,
+      "expected_result": 26,
+      "expected_output": "0b110011001100110011001100"
+    },
+    {
+      "id": "mixed_digits",
+      "input_value": 507204,
+      "expected_result": 26,
+      "expected_output": "0b100000111010010100110111"
+    },
+    {
+      "id": "maximum_signed_value",
+      "input_value": 9223372036854775807,
+      "expected_result": 78,
+      "expected_output": "0b1100010101010110011010100101001101101001101110000111101010101000101100111010"
+    }
+  ]
+}

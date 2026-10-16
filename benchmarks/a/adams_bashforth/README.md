@@ -40,4 +40,8 @@ The pinned fifth-order update uses coefficient `-2616` for the third newest deri
 
 - [TheAlgorithms/Python `adams_bashforth.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/numerical_analysis/adams_bashforth.py)
 
-Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`.
+Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`. The independent cross-language verifier is:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm adams_bashforth --languages rust
+```

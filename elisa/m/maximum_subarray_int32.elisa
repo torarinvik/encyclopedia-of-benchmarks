@@ -1,0 +1,25 @@
+const MAX_LENGTH: usize = 1024
+const MAX_ABS_VALUE: i64 = 1000000
+
+def maximum_subarray_int32_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length == 0 or length > MAX_LENGTH:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -MAX_ABS_VALUE or values[index] > MAX_ABS_VALUE:
+            return -1
+        index <- index + 1
+    current: mutable i64 = values[0]
+    best: mutable i64 = current
+    index <- 1
+    while index < length:
+        if current > 0:
+            current <- current + values[index]
+        else:
+            current <- values[index]
+        if current > best:
+            best <- current
+        index <- index + 1
+    best
+
+export fn maximum_subarray_int32(values: i64&, length: usize) -> i64 = maximum_subarray_int32_impl

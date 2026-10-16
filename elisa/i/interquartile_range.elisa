@@ -1,0 +1,30 @@
+# Interquartile range using the source lower/upper-half median rule.
+def median_i64(values: i64&, count: usize) -> f64:
+    if count % 2 != 0:
+        return values[count / 2].f64()
+    (values[count / 2 - 1].f64() + values[count / 2].f64()) / 2.0
+
+def interquartile_range_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 2 or length > 64:
+        return -1.0e300
+    sorted: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1.0e300
+        sorted[index] <- values[index]
+        index <- index + 1
+    index <- 1
+    while index < length:
+        key: i64 = sorted[index]
+        cursor: mutable usize = index
+        while cursor > 0 and sorted[cursor - 1] > key:
+            sorted[cursor] <- sorted[cursor - 1]
+            cursor <- cursor - 1
+        sorted[cursor] <- key
+        index <- index + 1
+    half: usize = length / 2
+    upper_start: usize = half + length % 2
+    median_i64(sorted[upper_start]&, half) - median_i64(sorted[0]&, half)
+
+export fn interquartile_range(values: i64&, length: usize) -> f64 = interquartile_range_impl

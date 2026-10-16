@@ -1,0 +1,44 @@
+const MAX_LENGTH: usize = 100001
+
+def reverse8(value_in: i64) -> i64:
+    value: mutable i64 = value_in
+    result: mutable i64 = 0
+    for i in 0..<8:
+        result <- (result << 1) | (value & 1)
+        value <- value >> 1
+    result
+
+def crc8_model_impl(input: i64&, length: usize) -> i64:
+    if length < 6:
+        return -1
+    poly: i64 = input[0]
+    initial: i64 = input[1]
+    ref_in: i64 = input[2]
+    ref_out: i64 = input[3]
+    xor_out: i64 = input[4]
+    count: i64 = input[5]
+    if poly < 0 or poly > 255 or initial < 0 or initial > 255 or xor_out < 0 or xor_out > 255:
+        return -1
+    if (ref_in != 0 and ref_in != 1) or (ref_out != 0 and ref_out != 1) or count < 0 or count > 100001:
+        return -1
+    byte_count: usize = count.usize()
+    if length != 6 + byte_count:
+        return -1
+    crc: mutable i64 = initial
+    for i in 0..<byte_count:
+        byte: i64 = input[6 + i]
+        if byte < 0 or byte > 255:
+            return -1
+        if ref_in == 1:
+            byte <- reverse8(byte)
+        crc <- crc ^ byte
+        for bit in 0..<8:
+            top: i64 = crc & 128
+            crc <- (crc << 1) & 255
+            if top != 0:
+                crc <- crc ^ poly
+    if ref_out == 1:
+        crc <- reverse8(crc)
+    crc ^ xor_out
+
+export fn crc8_model(input: i64&, length: usize) -> i64 = crc8_model_impl

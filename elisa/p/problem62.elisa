@@ -1,0 +1,55 @@
+# Group cubes by their sorted decimal digits and return the first cube in the target group.
+const TABLE_SIZE: usize = 16384
+const MAX_BASE: usize = 8384
+const SIGNATURE_LENGTH_FACTOR: i64 = 4503599627370496
+
+def digit_signature(cube: i64) -> i64:
+    counts: mutable usize[10] = zeroed
+    length: mutable usize = 0
+    remaining: mutable i64 = cube
+    while remaining > 0:
+        counts[(remaining % 10).usize()] <- counts[(remaining % 10).usize()] + 1
+        length <- length + 1
+        remaining <- remaining / 10
+    if length == 0:
+        counts[0] <- 1
+        length <- 1
+    sorted_digits: mutable i64 = 0
+    for digit in 0..<10:
+        occurrence: mutable usize = 0
+        while occurrence < counts[digit]:
+            sorted_digits <- sorted_digits * 16 + digit.i64()
+            occurrence <- occurrence + 1
+    length.i64() * SIGNATURE_LENGTH_FACTOR + sorted_digits
+
+def signature_slot(key: i64) -> usize:
+    size: i64 = TABLE_SIZE.i64()
+    hash: mutable i64 = (key % size + (key / size % size) * 31 +
+                         (key / (size * size) % size) * 17 +
+                         (key / (size * size * size) % size) * 7) % size
+    hash.usize()
+
+def problem62_impl(target_count: i64) -> i64:
+    if target_count < 1 or target_count > 5:
+        return -1
+    keys: mutable i64[TABLE_SIZE] = zeroed
+    first_cubes: mutable i64[TABLE_SIZE] = zeroed
+    counts: mutable i64[TABLE_SIZE] = zeroed
+    base: mutable usize = 0
+    while base <= MAX_BASE:
+        base_i64: i64 = base.i64()
+        cube: i64 = base_i64 * base_i64 * base_i64
+        key: i64 = digit_signature(cube)
+        slot: mutable usize = signature_slot(key)
+        while keys[slot] != 0 and keys[slot] != key:
+            slot <- (slot + 1) % TABLE_SIZE
+        if keys[slot] == 0:
+            keys[slot] <- key
+            first_cubes[slot] <- cube
+        counts[slot] <- counts[slot] + 1
+        if counts[slot] == target_count:
+            return first_cubes[slot]
+        base <- base + 1
+    -1
+
+export fn problem62(target_count: i64) -> i64 = problem62_impl

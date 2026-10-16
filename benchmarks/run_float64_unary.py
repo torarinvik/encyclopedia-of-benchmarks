@@ -15,6 +15,64 @@ import struct
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from gauss_legendre_oracle import INVALID_RESULT as GAUSS_LEGENDRE_INVALID_RESULT
+from gauss_legendre_oracle import expected_result as gauss_legendre_expected
+from fast_inverse_sqrt_cpp_oracle import INVALID_RESULT as FAST_INVERSE_SQRT_CPP_INVALID_RESULT
+from fast_inverse_sqrt_cpp_oracle import expected_result as fast_inverse_sqrt_cpp_expected
+
+
+def problem207_source_result(max_proportion: float) -> float:
+    if not math.isfinite(max_proportion) or not 1e-5 <= max_proportion <= 1.0:
+        return -1e300
+    partitions = 0
+    perfect_partitions = 0
+    while partitions < 5_000_000:
+        partitions += 1
+        candidate = partitions * (partitions + 1)
+        if (partitions + 1) & partitions == 0:
+            perfect_partitions += 1
+        if perfect_partitions / partitions < max_proportion:
+            return float(candidate)
+    return -1e300
+
+
+def problem587_circle_bottom_arc_integral(point: float) -> float:
+    return ((1 - 2 * point) * math.sqrt(point - point**2)
+            + 2 * point + math.asin(math.sqrt(1 - point))) / 4
+
+
+def problem587_concave_triangle_area(circles_number: int) -> float:
+    intersection_y = (circles_number + 1 - math.sqrt(2 * circles_number)) / (
+        2 * (circles_number**2 + 1))
+    intersection_x = circles_number * intersection_y
+    triangle_area = intersection_x * intersection_y / 2
+    concave_region_area = (problem587_circle_bottom_arc_integral(1 / 2)
+                           - problem587_circle_bottom_arc_integral(intersection_x))
+    return triangle_area + concave_region_area
+
+
+def problem587_source_result(fraction: float) -> float:
+    if not math.isfinite(fraction) or not 0.001 <= fraction <= 0.1:
+        return -1e300
+    l_section_area = (1 - math.pi / 4) / 4
+    for circles_number in range(1, 100_001):
+        if problem587_concave_triangle_area(circles_number) / l_section_area < fraction:
+            return float(circles_number)
+    return -1e300
+
+
+def gamma_source_result(value: float) -> float:
+    if (not math.isfinite(value) or not 0.5 <= value <= 20.0
+            or not (value * 2.0).is_integer()):
+        return -1e300
+    if value.is_integer():
+        result, current = 1.0, 1.0
+    else:
+        result, current = math.sqrt(math.pi), 0.5
+    while current < value:
+        current += 1.0
+        result *= current - 1.0
+    return result
 
 
 def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
@@ -128,6 +186,34 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 estimate = f32(estimate * correction)
             if expected_value != estimate:
                 raise ValueError("fast_inverse_sqrt_go expected result must match two binary32 Newton corrections")
+    elif algorithm == "fast_inverse_sqrt_cpp":
+        source_result = fast_inverse_sqrt_cpp_expected(value)
+        if source_result == FAST_INVERSE_SQRT_CPP_INVALID_RESULT:
+            if expected_value != FAST_INVERSE_SQRT_CPP_INVALID_RESULT:
+                raise ValueError("invalid fast_inverse_sqrt_cpp inputs must use the -1.0 result sentinel")
+        elif abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+            raise ValueError("fast_inverse_sqrt_cpp expected result must match two binary64 Newton corrections")
+    elif algorithm == "sqrt":
+        valid = 1e-6 <= value <= 1e6
+        if not valid:
+            if expected_value != -1.0:
+                raise ValueError("invalid sqrt inputs must use the -1.0 result sentinel")
+        else:
+            def f32(number: float) -> float:
+                return struct.unpack("<f", struct.pack("<f", number))[0]
+
+            source_input = f32(value)
+            x2 = f32(source_input * f32(0.5))
+            bits = struct.unpack("<I", struct.pack("<f", source_input))[0]
+            seed_bits = 0x5F3759DF - (bits >> 1)
+            estimate = struct.unpack("<f", struct.pack("<I", seed_bits))[0]
+            for _ in range(2):
+                product = f32(f32(x2 * estimate) * estimate)
+                correction = f32(f32(1.5) - product)
+                estimate = f32(estimate * correction)
+            source_result = f32(1.0 / estimate)
+            if expected_value != source_result:
+                raise ValueError("sqrt expected result must match the binary32 reciprocal of two Newton corrections")
     elif algorithm == "decimal_isolate":
         valid = 0.0 < value <= 999_999.0
         scaled_value = value * 10_000.0 if valid else 0.0
@@ -142,6 +228,75 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             source_result = (scaled % 10_000) / 10_000.0
             if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
                 raise ValueError("decimal_isolate expected result must match the exact binary decimal fraction")
+    elif algorithm == "orbital_capture_area":
+        valid = 0.0 <= value <= 1.0e10
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid orbital_capture_area inputs must use the -1e300 result sentinel")
+        else:
+            source_result = float(round(math.pi * value * value, 0))
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("orbital_capture_area expected result must match the pinned circular-area formula")
+    elif algorithm == "problem58":
+        valid = 0.1 <= value <= 0.6
+        if not valid:
+            if expected_value != -1.0:
+                raise ValueError("invalid problem58 thresholds must use the -1.0 result sentinel")
+        else:
+            def is_prime(candidate: int) -> bool:
+                if candidate < 2:
+                    return False
+                if candidate < 4:
+                    return True
+                if candidate % 2 == 0 or candidate % 3 == 0:
+                    return False
+                divisor = 5
+                while divisor <= candidate // divisor:
+                    if candidate % divisor == 0 or candidate % (divisor + 2) == 0:
+                        return False
+                    divisor += 6
+                return True
+
+            side, prime_count = 3, 3
+            while prime_count / (2 * side - 1) >= value:
+                square, step = side * side, side + 1
+                prime_count += sum(is_prime(square + index * step) for index in (1, 2, 3))
+                side += 2
+            source_result = float(side)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("problem58 expected result must match the first side below the diagonal-prime ratio")
+    elif algorithm == "problem207":
+        valid = 1e-5 <= value <= 1.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid problem207 thresholds must use the -1e300 result sentinel")
+        else:
+            source_result = problem207_source_result(value)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("problem207 expected result must match the strict partition-ratio scan")
+    elif algorithm == "problem587":
+        valid = 0.001 <= value <= 0.1
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid problem587 fractions must use the -1e300 result sentinel")
+        else:
+            source_result = problem587_source_result(value)
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("problem587 expected result must match the concave-triangle area scan")
+    elif algorithm == "gamma":
+        source_result = gamma_source_result(value)
+        if source_result == -1e300:
+            if expected_value != -1e300:
+                raise ValueError("invalid gamma inputs must use the -1e300 result sentinel")
+        elif abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+            raise ValueError("gamma expected result must match the bounded half-integer recurrence")
+    elif algorithm == "gauss_legendre":
+        source_result = gauss_legendre_expected([value])
+        if source_result == GAUSS_LEGENDRE_INVALID_RESULT:
+            if expected_value != GAUSS_LEGENDRE_INVALID_RESULT:
+                raise ValueError("invalid gauss_legendre inputs must use the -1e300 result sentinel")
+        elif abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+            raise ValueError("gauss_legendre expected result must match the bounded Gauss-Legendre recurrence")
     return value, expected_value
 
 

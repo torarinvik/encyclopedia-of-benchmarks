@@ -27,4 +27,5 @@ The existing `infix_to_postfix` benchmark returns postfix notation. This package
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm infix_to_prefix --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --algorithm infix_to_prefix
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm infix_to_prefix --languages rust
 ```

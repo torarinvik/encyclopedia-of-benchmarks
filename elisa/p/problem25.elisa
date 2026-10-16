@@ -1,0 +1,30 @@
+def problem25_impl(requested_digits: i64) -> i64:
+    if requested_digits < 2 or requested_digits > 1000:
+        return -1
+    previous: mutable i64[1000] = zeroed
+    current: mutable i64[1000] = zeroed
+    next: mutable i64[1000] = zeroed
+    previous[0] <- 1
+    current[0] <- 1
+    active_digits: mutable i64 = 1
+    index: mutable i64 = 2
+    while active_digits < requested_digits:
+        carry: mutable i64 = 0
+        position: mutable i64 = 0
+        while position < active_digits:
+            total: i64 = previous[position.usize()] + current[position.usize()] + carry
+            next[position.usize()] <- total % 10
+            carry <- total / 10
+            position <- position + 1
+        if carry != 0:
+            next[active_digits.usize()] <- carry
+            active_digits <- active_digits + 1
+        position <- 0
+        while position < active_digits:
+            previous[position.usize()] <- current[position.usize()]
+            current[position.usize()] <- next[position.usize()]
+            position <- position + 1
+        index <- index + 1
+    index
+
+export fn problem25(requested_digits: i64) -> i64 = problem25_impl

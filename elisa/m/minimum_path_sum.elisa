@@ -1,0 +1,35 @@
+# Compute the cheapest top-left to bottom-right path using only right and down moves.
+def minimum_path_sum_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 66 or values == null:
+        return -9223372036854775807 - 1
+    row_value: i64 = values[0]
+    column_value: i64 = values[1]
+    if row_value < 1 or row_value > 8 or column_value < 1 or column_value > 8:
+        return -9223372036854775807 - 1
+    rows: usize = row_value.usize()
+    columns: usize = column_value.usize()
+    if length != 2 + rows * columns:
+        return -9223372036854775807 - 1
+    costs: mutable i64[8] = zeroed
+    row: mutable usize = 0
+    while row < rows:
+        column: mutable usize = 0
+        while column < columns:
+            cell: i64 = values[2 + row * columns + column]
+            if cell < 0 or cell > 1000:
+                return -9223372036854775807 - 1
+            if row == 0 and column == 0:
+                costs[column] <- cell
+            else if row == 0:
+                costs[column] <- costs[column - 1] + cell
+            else if column == 0:
+                costs[column] <- costs[column] + cell
+            else if costs[column - 1] < costs[column]:
+                costs[column] <- costs[column - 1] + cell
+            else:
+                costs[column] <- costs[column] + cell
+            column <- column + 1
+        row <- row + 1
+    costs[columns - 1]
+
+export fn minimum_path_sum(values: i64&, length: usize) -> i64 = minimum_path_sum_impl

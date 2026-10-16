@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-sum-of-divisors-v1",
+  "algorithm": "sum_of_divisors",
+  "function_symbol": "sum_of_divisors",
+  "input": {
+    "kind": "signed_i64",
+    "minimum": 1,
+    "maximum": 1000000,
+    "out_of_range_result": -1,
+    "meaning": "sum of all positive divisors of n, including n"
+  },
+  "cases": [
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "prime_two", "input_value": 2, "expected_result": 3},
+    {"id": "prime_thirteen_residual_factor", "input_value": 13, "expected_result": 14},
+    {"id": "prime_bound", "input_value": 999983, "expected_result": 999984},
+    {"id": "prime_power_two", "input_value": 64, "expected_result": 127},
+    {"id": "prime_power_three", "input_value": 81, "expected_result": 121},
+    {"id": "perfect_square", "input_value": 36, "expected_result": 91},
+    {"id": "mixed_factors", "input_value": 12, "expected_result": 28},
+    {"id": "mixed_factors_large", "input_value": 756, "expected_result": 2240},
+    {"id": "source_example", "input_value": 100, "expected_result": 217},
+    {"id": "abundant_number", "input_value": 945, "expected_result": 1920},
+    {"id": "upper_bound", "input_value": 1000000, "expected_result": 2480437},
+    {"id": "zero", "input_value": 0, "expected_result": -1},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "above_bound", "input_value": 1000001, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

@@ -1,0 +1,108 @@
+# Interpret a bounded Brainfuck byte program with portable limits.
+def brainfuck_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    max_program: usize = 2048
+    max_input: usize = 1024
+    max_output: usize = 8192
+    max_steps: usize = 100000
+    tape_cells: usize = 257
+    if length < 2 or length > max_program + max_input + 2:
+        return -2
+    program_length_value: i64 = values[0]
+    if program_length_value < 0 or program_length_value > 2048:
+        return -2
+    program_length: usize = program_length_value.usize()
+    input_length_index: usize = program_length + 1
+    if input_length_index >= length:
+        return -2
+    input_length_value: i64 = values[input_length_index]
+    if input_length_value < 0 or input_length_value > 1024:
+        return -2
+    input_length: usize = input_length_value.usize()
+    if length != program_length + input_length + 2:
+        return -2
+
+    matching: mutable i64[2048] = zeroed
+    openings: mutable usize[2048] = zeroed
+    index: mutable usize = 0
+    while index < program_length:
+        matching[index] <- -1
+        byte: i64 = values[index + 1]
+        if byte < 32 or byte > 126:
+            return -2
+        index <- index + 1
+
+    depth: mutable usize = 0
+    index <- 0
+    while index < program_length:
+        byte: i64 = values[index + 1]
+        if byte == 91:
+            openings[depth] <- index
+            depth <- depth + 1
+        elif byte == 93:
+            if depth == 0:
+                return -2
+            depth <- depth - 1
+            opening: usize = openings[depth]
+            matching[opening] <- index.i64()
+            matching[index] <- opening.i64()
+        index <- index + 1
+    if depth != 0:
+        return -2
+
+    index <- 0
+    while index < input_length:
+        byte: i64 = values[input_length_index + 1 + index]
+        if byte < 0 or byte > 255:
+            return -2
+        index <- index + 1
+
+    tape: mutable u8[257] = zeroed
+    scratch: mutable u8[8192] = zeroed
+    data_pointer: mutable usize = tape_cells / 2
+    input_index: mutable usize = 0
+    instruction: mutable usize = 0
+    steps: mutable usize = 0
+    output_length: mutable usize = 0
+    while instruction < program_length:
+        steps <- steps + 1
+        if steps > max_steps:
+            return -2
+        command: i64 = values[instruction + 1]
+        if command == 46:
+            if output_length == max_output:
+                return -2
+            scratch[output_length] <- tape[data_pointer]
+            output_length <- output_length + 1
+        elif command == 44:
+            if input_index < input_length:
+                tape[data_pointer] <- values[input_length_index + 1 + input_index].u8()
+                input_index <- input_index + 1
+            else:
+                tape[data_pointer] <- 0
+        elif command == 62:
+            data_pointer <- data_pointer + 1
+            if data_pointer >= tape_cells:
+                return -2
+        elif command == 60:
+            if data_pointer == 0:
+                return -2
+            data_pointer <- data_pointer - 1
+        elif command == 43:
+            tape[data_pointer] <- (tape[data_pointer] + 1).u8()
+        elif command == 45:
+            tape[data_pointer] <- (tape[data_pointer] - 1).u8()
+        elif command == 91 and tape[data_pointer] == 0:
+            instruction <- matching[instruction].usize()
+        elif command == 93 and tape[data_pointer] != 0:
+            instruction <- matching[instruction].usize()
+        instruction <- instruction + 1
+
+    if output_length > output_capacity:
+        return -2
+    index <- 0
+    while index < output_length:
+        output[index] <- scratch[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn brainfuck(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = brainfuck_impl

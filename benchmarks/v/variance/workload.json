@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "sample-variance-i64-array-float64-v1",
+  "algorithm": "variance",
+  "function_symbol": "variance",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 2,
+    "maximum_length": 64,
+    "minimum_value": -1000000,
+    "maximum_value": 1000000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sum((value - sum(values)/n)^2) / (n - 1), with source-order two-pass accumulation",
+    "denominator": "n - 1",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"constant_values","input_values":[5,5,5,5],"input_length":4,"expected_result":0.0},
+    {"id":"two_values_integer_mean","input_values":[0,2],"input_length":2,"expected_result":2.0},
+    {"id":"fractional_mean","input_values":[1,2,5],"input_length":3,"expected_result":4.333333333333333},
+    {"id":"negative_values","input_values":[-4,-2,0,2],"input_length":4,"expected_result":6.666666666666667},
+    {"id":"maximum_magnitude_balanced","input_values":[-1000000,1000000,-1000000,1000000],"input_length":4,"expected_result":1333333333333.3333},
+    {"id":"empty_array","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"singleton","input_values":[7],"input_length":1,"expected_result":-1e300},
+    {"id":"below_value_bound","input_values":[-1000001,0],"input_length":2,"expected_result":-1e300},
+    {"id":"above_value_bound","input_values":[0,1000001],"input_length":2,"expected_result":-1e300},
+    {"id":"too_many_values","input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":65,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

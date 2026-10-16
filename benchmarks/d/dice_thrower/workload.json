@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "java-dice-thrower-newline-enumeration-v1",
+  "algorithm": "dice_thrower",
+  "function_symbol": "dice_thrower",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[target]",
+    "minimum_length": 1,
+    "maximum_length": 1,
+    "target_range": [
+      0,
+      8
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "each source string followed by LF",
+    "maximum_bytes": 696,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "target_zero_encoding": "one LF for the single empty source string"
+  },
+  "workspace": {
+    "bytes": 696
+  },
+  "cases": [
+    {
+      "id": "target_zero_single_empty_string",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "workspace_bytes": 696,
+      "expected_result": 1,
+      "expected_output_hex": "0a"
+    },
+    {
+      "id": "target_one",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "workspace_bytes": 696,
+      "expected_result": 2,
+      "expected_output_hex": "310a"
+    },
+    {
+      "id": "target_four_recursive_order",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "workspace_bytes": 696,
+      "expected_result": 28,
+      "expected_output_hex": "313131310a3131320a3132310a31330a3231310a32320a33310a340a"
+    },
+    {
+      "id": "target_eight_max_workspace",
+      "input_values": [
+        8
+      ],
+      "input_length": 1,
+      "workspace_bytes": 696,
+      "expected_result": 696,
+      "expected_output_hex": "31313131313131310a313131313131320a313131313132310a3131313131330a313131313231310a3131313132320a3131313133310a31313131340a313131323131310a3131313231320a3131313232310a31313132330a3131313331310a31313133320a31313134310a313131350a313132313131310a3131323131320a3131323132310a31313231330a3131323231310a31313232320a31313233310a313132340a3131333131310a31313331320a31313332310a313133330a31313431310a313134320a313135310a3131360a313231313131310a3132313131320a3132313132310a31323131330a3132313231310a31323132320a31323133310a313231340a3132323131310a31323231320a31323232310a313232330a31323331310a313233320a313234310a3132350a3133313131310a31333131320a31333132310a313331330a31333231310a313332320a313333310a3133340a31343131310a313431320a313432310a3134330a313531310a3135320a3136310a323131313131310a3231313131320a3231313132310a32313131330a3231313231310a32313132320a32313133310a323131340a3231323131310a32313231320a32313232310a323132330a32313331310a323133320a323134310a3231350a3232313131310a32323131320a32323132310a323231330a32323231310a323232320a323233310a3232340a32333131310a323331320a323332310a3233330a323431310a3234320a3235310a32360a3331313131310a33313131320a33313132310a333131330a33313231310a333132320a333133310a3331340a33323131310a333231320a333232310a3332330a333331310a3333320a3334310a33350a34313131310a343131320a343132310a3431330a343231310a3432320a3433310a34340a353131310a3531320a3532310a35330a3631310a36320a"
+    },
+    {
+      "id": "target_zero_empty_output_does_not_fit",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "workspace_bytes": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target_one_output_does_not_fit",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "workspace_bytes": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_target",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target_above_bound",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_target",
+      "input_values": [],
+      "input_length": 0,
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        4,
+        4
+      ],
+      "input_length": 2,
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

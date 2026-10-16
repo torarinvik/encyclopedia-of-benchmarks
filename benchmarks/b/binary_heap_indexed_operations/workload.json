@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "binary-heap-indexed-operations-v1",
+  "algorithm": "binary_heap_indexed_operations",
+  "function_symbol": "binary_heap_indexed_operations",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[capacity, operation_count, (operation, arg1, arg2)...]",
+    "capacity_range": [1, 256],
+    "operation_count_range": [0, 512],
+    "operation_record_width": 3,
+    "key_range": [-2147483648, 2147483647],
+    "operation_codes": {
+      "0": "insert_key(key, 0)",
+      "1": "get_min(0, 0)",
+      "2": "extract_min(0, 0)",
+      "3": "decrease_key(zero_based_current_index, new_key)",
+      "4": "delete_key(zero_based_current_index, 0)"
+    },
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_little_endian_vector",
+    "description": "values returned by getMin and extractMin in operation order; empty extractMin emits INT32_MAX",
+    "return_value": "output byte length",
+    "maximum_output_bytes": 4096,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "insert-decrease-delete-peek-extract",
+      "input_values": [4, 12, 0, 3, 0, 0, 2, 0, 0, 5, 0, 1, 0, 0, 3, 2, 1, 1, 0, 0, 2, 0, 0, 4, 1, 0, 1, 0, 0, 1, 0, 0, 2, 0, 0, 2, 0, 0],
+      "input_length": 38,
+      "expected_result": 56,
+      "expected_output_hex": "020000000000000001000000000000000100000000000000020000000000000002000000000000000200000000000000ffffff7f00000000"
+    },
+    {
+      "id": "capacity-overflow-and-empty-extract",
+      "input_values": [1, 5, 0, 8, 0, 0, 7, 0, 1, 0, 0, 4, 0, 0, 2, 0, 0],
+      "input_length": 17,
+      "expected_result": 16,
+      "expected_output_hex": "0800000000000000ffffff7f00000000"
+    },
+    {
+      "id": "invalid-length",
+      "input_values": [3, 1, 0, 7],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-operation-code",
+      "input_values": [3, 1, 9, 0, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-index",
+      "input_values": [3, 1, 3, 0, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 2, 0, 4, 0, 1, 0, 0],
+      "input_length": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    }
+  ]
+}

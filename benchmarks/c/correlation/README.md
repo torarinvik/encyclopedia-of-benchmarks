@@ -31,9 +31,9 @@ python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_flo
 
 | Language | Source |
 | --- | --- |
-| C | [`c/c/correlation.c`](../../../c/correlation.c) |
-| C3 | [`c3/c/correlation.c3`](../../../c3/correlation.c3) |
-| C++ | [`cpp/c/correlation.cpp`](../../../cpp/correlation.cpp) |
+| C | [`c/c/correlation.c`](../../../c/c/correlation.c) |
+| C3 | [`c3/c/correlation.c3`](../../../c3/c/correlation.c3) |
+| C++ | [`cpp/c/correlation.cpp`](../../../cpp/c/correlation.cpp) |
 | Elisa | [`elisa/c/correlation.elisa`](../../../elisa/c/correlation.elisa) |
 | Nim | [`nim/c/correlation.nim`](../../../nim/c/correlation.nim) |
 | Odin | [`odin/c/correlation.odin`](../../../odin/c/correlation.odin) |

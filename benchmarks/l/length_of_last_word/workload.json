@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "java-length-of-last-word-ascii-byte-v1",
+  "algorithm": "length_of_last_word",
+  "function_symbol": "length_of_last_word",
+  "input": {
+    "kind": "length_prefixed_byte_string",
+    "encoding": "[byte_length, byte_0, ..., byte_(n-1)]",
+    "byte_length_range": [
+      0,
+      128
+    ],
+    "byte_range": [
+      0,
+      255
+    ],
+    "word_separator_byte": 32,
+    "exact_packed_length": "byte_length + 1",
+    "invalid_result": -1,
+    "maximum_packed_values": 129
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "number of consecutive non-space bytes in the final word after ignoring trailing ASCII spaces; zero if no word",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_string",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 1
+    },
+    {
+      "id": "spaces_only",
+      "input_values": [
+        4,
+        32,
+        32,
+        32,
+        32
+      ],
+      "expected_result": 0,
+      "input_length": 5
+    },
+    {
+      "id": "one_word",
+      "input_values": [
+        4,
+        119,
+        111,
+        114,
+        100
+      ],
+      "expected_result": 4,
+      "input_length": 5
+    },
+    {
+      "id": "one_word_with_trailing_spaces",
+      "input_values": [
+        7,
+        104,
+        101,
+        108,
+        108,
+        111,
+        32,
+        32
+      ],
+      "expected_result": 5,
+      "input_length": 8
+    },
+    {
+      "id": "last_word_after_multiple_spaces",
+      "input_values": [
+        12,
+        97,
+        108,
+        112,
+        104,
+        97,
+        32,
+        32,
+        98,
+        101,
+        116,
+        97,
+        32
+      ],
+      "expected_result": 4,
+      "input_length": 13
+    },
+    {
+      "id": "leading_spaces_then_word",
+      "input_values": [
+        4,
+        32,
+        32,
+        103,
+        111
+      ],
+      "expected_result": 2,
+      "input_length": 5
+    },
+    {
+      "id": "tab_is_word_byte",
+      "input_values": [
+        3,
+        65,
+        9,
+        66
+      ],
+      "expected_result": 1,
+      "input_length": 4
+    },
+    {
+      "id": "embedded_nul_and_high_byte",
+      "input_values": [
+        6,
+        65,
+        0,
+        66,
+        32,
+        255,
+        128
+      ],
+      "expected_result": 2,
+      "input_length": 7
+    },
+    {
+      "id": "single_ascii_byte",
+      "input_values": [
+        1,
+        90
+      ],
+      "expected_result": 1,
+      "input_length": 2
+    },
+    {
+      "id": "missing_length",
+      "input_values": [],
+      "expected_result": -1,
+      "input_length": 0
+    },
+    {
+      "id": "negative_length",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "over_bound_length",
+      "input_values": [
+        129
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "short_payload",
+      "input_values": [
+        2,
+        65
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "extra_payload",
+      "input_values": [
+        1,
+        65,
+        66
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "negative_byte",
+      "input_values": [
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "byte_above_255",
+      "input_values": [
+        1,
+        256
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "maximum_length_single_word",
+      "input_values": [
+        128,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88
+      ],
+      "expected_result": 128,
+      "input_length": 129
+    }
+  ]
+}

@@ -3,6 +3,10 @@
   "id": "create-binary-tree-from-inorder-preorder-v1",
   "algorithm": "create_binary_tree_from_inorder_preorder",
   "function_symbol": "create_binary_tree_from_inorder_preorder",
+  "workspace": {
+    "bytes": 379,
+    "meaning": "Maximum indexed preorder encoding for a 63-node tree."
+  },
   "input": {
     "kind": "packed_preorder_inorder_i32_values",
     "layout": "[n, preorder values..., inorder values...]",
@@ -152,6 +156,18 @@
       ],
       "input_length": 4,
       "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        1,
+        5,
+        5
+      ],
+      "input_length": 3,
+      "workspace_bytes": 6,
+      "expected_result": -2,
       "expected_output_hex": ""
     }
   ]

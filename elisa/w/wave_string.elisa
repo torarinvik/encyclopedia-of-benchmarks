@@ -1,0 +1,50 @@
+const MAX_TEXT_LENGTH: usize = 512
+
+def is_ascii_letter(value: i64) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def wave_string_impl(values: i64&, length: usize, output: mutable u8&,
+                     output_capacity: usize) -> i64:
+    if length < 1 or values[0] < 0 or values[0] > MAX_TEXT_LENGTH.i64() or
+        length != 1 + values[0].usize():
+        return -1
+    text_length: usize = values[0].usize()
+    valid_text: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            byte: i64 = values[index + 1]
+            if byte < 32 or byte > 126:
+                break false
+            index <- index + 1
+            valid
+    if not valid_text:
+        return -1
+
+    letter_count: usize =
+        for index in 0..<text_length |count: mutable usize = 0| -> count:
+            if is_ascii_letter(values[index + 1]):
+                count <- count + 1
+            count
+    output_length: usize = letter_count * (text_length + 2)
+    if output_length > output_capacity:
+        return -2
+
+    written: usize =
+        for position in 0..<text_length |written: mutable usize = 0, output| -> written:
+            if is_ascii_letter(values[position + 1]):
+                output[written] <- text_length.u8()
+                output[written + 1] <- (text_length / 256).u8()
+                written <- written + 2
+                next_written: usize =
+                    for index in 0..<text_length |next_written: mutable usize = written, output| -> next_written:
+                        byte: mutable i64 = values[index + 1]
+                        if index == position and byte >= 97 and byte <= 122:
+                            byte <- byte - 32
+                        output[next_written] <- byte.u8()
+                        next_written <- next_written + 1
+                        next_written
+                written <- next_written
+            written
+    letter_count.i64()
+
+export fn wave_string(values: i64&, length: usize, output: mutable u8&,
+                      output_capacity: usize) -> i64 = wave_string_impl

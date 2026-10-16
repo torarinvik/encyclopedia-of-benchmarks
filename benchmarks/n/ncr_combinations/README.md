@@ -10,7 +10,7 @@ The ABI is `float64_pair(total, choose)`. Both inputs must be finite; `total` is
 
 Fractional totals and values where `choose` exceeds `total` are valid within these bounds. The result can be negative for some such inputs, which is why the invalid sentinel is far outside the result range. The calculation follows the pinned source order: multiply each falling factor into a binary64 numerator, compute `choose!`, then divide once. Runtime is O(choose) and additional space is O(1).
 
-This package is distinct from [`combinations`](../c/combinations/README.md), which counts integer subsets and returns an integer for `0 <= k <= n`.
+This package is distinct from [`combinations`](../../b/binomial_calculate/README.md), which counts integer subsets and returns an integer for `0 <= k <= n`.
 
 ## Workload
 

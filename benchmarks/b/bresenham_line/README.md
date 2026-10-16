@@ -19,6 +19,8 @@ Build with the `i64_array_bytes_output` ABI family:
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm bresenham_line --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm bresenham_line
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm bresenham_line --languages rust
 ```
 
 ## Upstream reference

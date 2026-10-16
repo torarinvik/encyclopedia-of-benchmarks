@@ -16,6 +16,7 @@ This benchmark converts an unsigned binary digit sequence to its base-10 integer
 
 ## Reviewed TheAlgorithms sources
 
+- Go [`binarytodecimal.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/conversion/binarytodecimal.go) validates the binary digits and folds them into an unsigned value; this benchmark uses the shared maximum width of 32 bits.
 - [C `binary_to_decimal.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/binary_to_decimal.c) — numeric binary digits with invalid-digit rejection.
 - [Rust `binary_to_decimal.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/binary_to_decimal.rs) — validated binary string with checked accumulation.
 - [Dart `binary_to_decimal.dart`](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/conversions/binary_to_decimal.dart) and [Python `binary_to_decimal.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/binary_to_decimal.py) also accept a leading minus sign. The benchmark selects the unsigned conversion shared by the other reviewed inputs.

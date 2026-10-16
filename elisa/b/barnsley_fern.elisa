@@ -1,0 +1,76 @@
+# Trace-driven Q12 port of the source's rounded affine transformations.
+def barnsley_fern_round_div_even(numerator: i64, denominator: i64) -> i64:
+    negative: bool = numerator < 0
+    magnitude: mutable u64 = numerator.u64()
+    if negative:
+        magnitude <- (-numerator).u64()
+    divisor: u64 = denominator.u64()
+    quotient: mutable u64 = magnitude / divisor
+    remainder: u64 = magnitude % divisor
+    if remainder * 2 > divisor or (remainder * 2 == divisor and quotient % 2 == 1):
+        quotient <- quotient + 1
+    rounded: i64 = quotient.i64()
+    if negative:
+        return -rounded
+    rounded
+
+def barnsley_fern_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits >> (byte * 8)).u8()
+
+def barnsley_fern_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1:
+        return -1
+    iteration_value: i64 = input[0]
+    if iteration_value < 1 or iteration_value > 4096 or length != iteration_value.usize():
+        return -1
+    iterations: usize = iteration_value.usize()
+    for step in 1..<iterations:
+        sample: i64 = input[step]
+        if sample < 0 or sample >= 10000:
+            return -1
+    output_length: usize = iterations * 16
+    if output == null or capacity < output_length:
+        return -2
+
+    x: mutable i64 = 0
+    y: mutable i64 = 0
+    barnsley_fern_put_i64(output, 0, 0)
+    barnsley_fern_put_i64(output, 8, 0)
+    for step in 1..<iterations:
+        sample: i64 = input[step]
+        a: mutable i64 = 0
+        b: mutable i64 = 0
+        c: mutable i64 = 0
+        d: mutable i64 = 0
+        f: mutable i64 = 0
+        if sample < 100:
+            d <- 16
+        elif sample < 8600:
+            a <- 85
+            b <- 4
+            c <- -4
+            d <- 85
+            f <- 160
+        elif sample < 9300:
+            a <- 20
+            b <- -26
+            c <- 23
+            d <- 22
+            f <- 160
+        else:
+            a <- -15
+            b <- 28
+            c <- 26
+            d <- 24
+            f <- 44
+        next_x: i64 = barnsley_fern_round_div_even(a * x + b * y, 100)
+        next_y: i64 = barnsley_fern_round_div_even(c * x + d * y, 100) + f * 10000000000
+        x <- next_x
+        y <- next_y
+        barnsley_fern_put_i64(output, step * 16, barnsley_fern_round_div_even(x, 1000000))
+        barnsley_fern_put_i64(output, step * 16 + 8, barnsley_fern_round_div_even(y, 1000000))
+    output_length.i64()
+
+export fn barnsley_fern(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = barnsley_fern_impl

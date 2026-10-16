@@ -1,0 +1,68 @@
+def problem79_impl(placeholder: i64) -> i64:
+    if placeholder != 0: return -1
+    logins: i64[50] = [319,680,180,690,129,620,762,689,762,318,368,710,720,710,629,168,160,689,716,731,736,729,316,729,729,710,769,290,719,680,318,389,162,289,162,718,729,319,790,680,890,362,319,760,316,729,380,319,728,716]
+    present: mutable bool[10] = zeroed
+    i: mutable i64 = 0
+    while i < 50:
+        login: i64 = logins[i.usize()]
+        present[(login / 100).usize()] <- true
+        present[((login / 10) % 10).usize()] <- true
+        present[(login % 10).usize()] <- true
+        i <- i + 1
+    digits: mutable i64[10] = zeroed
+    length: mutable i64 = 0
+    digit: mutable i64 = 0
+    while digit < 10:
+        if present[digit.usize()]:
+            digits[length.usize()] <- digit
+            length <- length + 1
+        digit <- digit + 1
+    done: mutable bool = false
+    while not done:
+        positions: mutable i64[10] = zeroed
+        digit <- 0
+        while digit < 10:
+            positions[digit.usize()] <- -1
+            digit <- digit + 1
+        i <- 0
+        while i < length:
+            positions[digits[i.usize()].usize()] <- i
+            i <- i + 1
+        satisfied: mutable bool = true
+        i <- 0
+        while i < 50 and satisfied:
+            login <- logins[i.usize()]
+            first: i64 = login / 100
+            second: i64 = (login / 10) % 10
+            third: i64 = login % 10
+            if not (positions[first.usize()] < positions[second.usize()] and positions[second.usize()] < positions[third.usize()]):
+                satisfied <- false
+            i <- i + 1
+        if satisfied:
+            passcode: mutable i64 = 0
+            i <- 0
+            while i < length:
+                passcode <- passcode * 10 + digits[i.usize()]
+                i <- i + 1
+            return passcode
+        pivot: mutable i64 = length - 2
+        while pivot >= 0 and digits[pivot.usize()] >= digits[(pivot + 1).usize()]: pivot <- pivot - 1
+        if pivot < 0:
+            done <- true
+        else:
+            successor: mutable i64 = length - 1
+            while digits[successor.usize()] <= digits[pivot.usize()]: successor <- successor - 1
+            temporary: mutable i64 = digits[pivot.usize()]
+            digits[pivot.usize()] <- digits[successor.usize()]
+            digits[successor.usize()] <- temporary
+            left: mutable i64 = pivot + 1
+            right: mutable i64 = length - 1
+            while left < right:
+                temporary <- digits[left.usize()]
+                digits[left.usize()] <- digits[right.usize()]
+                digits[right.usize()] <- temporary
+                left <- left + 1
+                right <- right - 1
+    -1
+
+export fn problem79(placeholder: i64) -> i64 = problem79_impl

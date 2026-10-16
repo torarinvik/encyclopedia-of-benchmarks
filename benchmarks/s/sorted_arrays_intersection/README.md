@@ -14,6 +14,8 @@ The algorithm uses constant auxiliary state and advances a cursor in the source 
 
 [`workload.json`](workload.json) includes the pinned examples, empty arrays, negative and signed-boundary values, cursor advancement ties, and malformed packed inputs.
 
+Verify all available implementations with `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm sorted_arrays_intersection`.
+
 | Language | Source |
 | --- | --- |
 | C | [`c/s/sorted_arrays_intersection.c`](../../../c/s/sorted_arrays_intersection.c) |

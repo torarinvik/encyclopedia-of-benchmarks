@@ -1,0 +1,30 @@
+const MAX_LIMIT: i64 = 1000000
+
+def problem36_is_decimal_palindrome(value: i64) -> bool:
+    remaining: mutable i64 = value
+    reversed: mutable i64 = 0
+    while remaining > 0:
+        reversed <- reversed * 10 + remaining % 10
+        remaining <- remaining / 10
+    reversed == value
+
+def problem36_is_binary_palindrome(value: i64) -> bool:
+    remaining: mutable i64 = value
+    reversed: mutable i64 = 0
+    while remaining > 0:
+        reversed <- reversed * 2 + remaining % 2
+        remaining <- remaining / 2
+    reversed == value
+
+def problem36_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    total: mutable i64 = 0
+    value: mutable i64 = 1
+    while value < limit:
+        if problem36_is_decimal_palindrome(value) and problem36_is_binary_palindrome(value):
+            total <- total + value
+        value <- value + 1
+    total
+
+export fn problem36(limit: i64) -> i64 = problem36_impl

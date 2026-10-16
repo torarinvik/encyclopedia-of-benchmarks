@@ -1,0 +1,27 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def damped_oscillator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 5: return -1
+    if input[0] < 1 or input[0] > 1024 or input[1] < 0 or input[1] > 1024 or input[2] < -1024 or input[2] > 1024 or input[3] < -1024 or input[3] > 1024 or input[4] < 1 or input[4] > 1024: return -1
+    if output.is_null() or capacity < 16: return -2
+    omega0: f64 = input[0].f64() / 1024.0
+    gamma: f64 = input[1].f64() / 1024.0
+    x: f64 = input[2].f64() / 1024.0
+    v: f64 = input[3].f64() / 1024.0
+    dt: f64 = input[4].f64() / 1024.0
+    acceleration: f64 = -2.0 * gamma * v - omega0 * omega0 * x
+    x_next: f64 = x + dt * v
+    v_next: f64 = v + dt * acceleration
+    put_f64_le(x_next, output, 0)
+    put_f64_le(v_next, output, 8)
+    16
+
+export fn damped_oscillator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = damped_oscillator_impl

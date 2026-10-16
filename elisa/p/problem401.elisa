@@ -1,0 +1,51 @@
+const MAX_LIMIT: i64 = 1000
+const MOD_LIMIT: i64 = 1000000000
+const DIVISOR_CAPACITY: usize = 128
+
+def problem401_contains(value: i64, divisors: i64&, length: i64) -> bool:
+    index: mutable i64 = 0
+    while index < length:
+        if divisors[index.usize()] == value:
+            return true
+        index <- index + 1
+    false
+
+def problem401_get_divisors(number: i64, divisors: mutable i64&) -> i64:
+    if number == 1:
+        divisors[0] <- 1
+        return 1
+    count: mutable i64 = 0
+    divisor: mutable i64 = 1
+    while divisor * divisor <= number + 1:
+        if number % divisor == 0:
+            quotient: i64 = number / divisor
+            if not problem401_contains(divisor, divisors, count):
+                divisors[count.usize()] <- divisor
+                count <- count + 1
+            if not problem401_contains(quotient, divisors, count):
+                divisors[count.usize()] <- quotient
+                count <- count + 1
+        divisor <- divisor + 1
+    count
+
+def problem401_sigma2(number: i64) -> i64:
+    divisors: mutable i64[DIVISOR_CAPACITY] = zeroed
+    count: i64 = problem401_get_divisors(number, divisors)
+    sum: mutable i64 = 0
+    index: mutable usize = 1
+    while index < count.usize():
+        sum <- sum + (divisors[index] * divisors[index]) % MOD_LIMIT
+        index <- index + 1
+    sum % MOD_LIMIT
+
+def problem401_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    sum: mutable i64 = 0
+    number: mutable i64 = 0
+    while number <= limit:
+        sum <- sum + problem401_sigma2(number)
+        number <- number + 1
+    sum % MOD_LIMIT
+
+export fn problem401(limit: i64) -> i64 = problem401_impl

@@ -36,5 +36,6 @@ The inspected C and C++ sources use the same odd-even adjacent-pair phases, alth
 
 ## TheAlgorithms references
 
+- Kotlin [`BrickSort.kt`](https://github.com/TheAlgorithms/Kotlin/blob/b913c1d85c972fd1e679c5d832d6458b21be8fb0/src/main/kotlin/sort/BrickSort.kt) alternates odd and even adjacent compare-and-swap phases, matching odd-even transposition sort.
 - [C `odd_even_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/odd_even_sort.c)
 - [C++ `odd_even_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/odd_even_sort.cpp)

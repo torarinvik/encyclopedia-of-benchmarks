@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-129-scalar-v1",
+  "algorithm": "problem129",
+  "function_symbol": "problem129",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 1,
+    "maximum": 1000000,
+    "meaning": "maximum repunit length threshold",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Least candidate n for which the source helper's repunit length is greater than the limit",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "limit_one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "limit_two",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "limit_three",
+      "input_value": 3,
+      "expected_result": 7
+    },
+    {
+      "id": "first_candidate_divisible_by_five",
+      "input_value": 6,
+      "expected_result": 9
+    },
+    {
+      "id": "source_example_ten",
+      "input_value": 10,
+      "expected_result": 17
+    },
+    {
+      "id": "source_example_one_hundred",
+      "input_value": 100,
+      "expected_result": 109
+    },
+    {
+      "id": "source_example_one_thousand",
+      "input_value": 1000,
+      "expected_result": 1017
+    },
+    {
+      "id": "source_default_one_million",
+      "input_value": 1000000,
+      "expected_result": 1000023
+    },
+    {
+      "id": "zero_limit",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "limit_above_benchmark_domain",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ]
+}

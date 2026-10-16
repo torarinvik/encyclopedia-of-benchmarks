@@ -1,0 +1,10 @@
+# Bounded direct standard score formula, in source operation order.
+def standard_score_impl(value: f64, mean: f64, std_dev: f64) -> f64:
+    valid_std_dev: bool = ((std_dev >= -1000000.0 and std_dev <= -0.000001) or
+                           (std_dev >= 0.000001 and std_dev <= 1000000.0))
+    if (not (value >= -1000000.0 and value <= 1000000.0) or
+        not (mean >= -1000000.0 and mean <= 1000000.0) or not valid_std_dev):
+        return -1e300
+    (value - mean) / std_dev
+
+export fn standard_score(value: f64, mean: f64, std_dev: f64) -> f64 = standard_score_impl

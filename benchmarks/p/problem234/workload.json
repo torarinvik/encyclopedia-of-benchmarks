@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-234-semdivisible-i64-scalar-v1",
+  "algorithm": "problem234",
+  "function_symbol": "problem234",
+  "input": {
+    "kind": "semidivisible_number_limit",
+    "minimum": 0,
+    "maximum": 999966663333,
+    "definition": "Inclusive upper limit for semidivisible integers.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of all semidivisible integers not exceeding the limit.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero-limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "below-first-square",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "first-semdivisible",
+      "input_value": 8,
+      "expected_result": 8
+    },
+    {
+      "id": "documented-limit-15",
+      "input_value": 15,
+      "expected_result": 30
+    },
+    {
+      "id": "documented-limit-1000",
+      "input_value": 1000,
+      "expected_result": 34825
+    },
+    {
+      "id": "documented-limit-10000",
+      "input_value": 10000,
+      "expected_result": 1134942
+    },
+    {
+      "id": "documented-limit-100000",
+      "input_value": 100000,
+      "expected_result": 36393008
+    },
+    {
+      "id": "canonical-limit",
+      "input_value": 999966663333,
+      "expected_result": 1259187438574927161
+    },
+    {
+      "id": "negative-limit",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-limit",
+      "input_value": 999966663334,
+      "expected_result": -1
+    }
+  ]
+}

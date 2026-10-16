@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "r-correlation-matrix-analysis-pearson-fixed-four-v1",
+  "algorithm": "correlation_matrix_analysis",
+  "function_symbol": "correlation_matrix_analysis",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[observation_count=4, variable_count=p, row_major_values...]",
+    "observation_count": 4,
+    "variable_count_range": [
+      2,
+      5
+    ],
+    "value_range": [
+      -1000,
+      1000
+    ],
+    "reject_constant_columns": true,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "four_little_endian_binary64_matrices_followed_by_six_little_endian_i64_summary_values",
+    "matrix_order": [
+      "correlation",
+      "raw_p_values",
+      "bonferroni_adjusted_p_values",
+      "fdr_adjusted_p_values"
+    ],
+    "matrix_shape": "p by p row-major",
+    "summary_order": [
+      "sample_size",
+      "variables",
+      "missing_rows",
+      "significant_uncorrected",
+      "significant_bonferroni",
+      "significant_fdr"
+    ],
+    "byte_count": "32*p*p + 48",
+    "maximum_output_bytes": 848
+  },
+  "workspace": {
+    "bytes": 848,
+    "meaning": "Output buffer capacity for the largest supported five-variable result, including four 5-by-5 binary64 matrices and six i64 summary values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "perfect_positive_two_variables",
+      "input_values": [
+        4,
+        2,
+        -3,
+        -3,
+        -1,
+        -1,
+        1,
+        1,
+        3,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": 176,
+      "expected_output_hex": "000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f040000000000000002000000000000000000000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "three_pair_family_adjustments",
+      "input_values": [
+        4,
+        3,
+        -3,
+        -3,
+        -1,
+        -1,
+        1,
+        -3,
+        1,
+        -1,
+        3,
+        3,
+        3,
+        1
+      ],
+      "input_length": 14,
+      "expected_result": 336,
+      "expected_output_hex": "000000000000f03f9a9999999999e93f333333333333e33f9a9999999999e93f000000000000f03f0000000000000000333333333333e33f0000000000000000000000000000f03f000000000000f03f989999999999c93f9a9999999999d93f989999999999c93f000000000000f03f000000000000f03f9a9999999999d93f000000000000f03f000000000000f03f000000000000f03f323333333333e33f000000000000f03f323333333333e33f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f323333333333e33f343333333333e33f323333333333e33f000000000000f03f000000000000f03f343333333333e33f000000000000f03f000000000000f03f040000000000000003000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "perfect_negative_two_variables",
+      "input_values": [
+        4,
+        2,
+        -3,
+        3,
+        -1,
+        1,
+        1,
+        -1,
+        3,
+        -3
+      ],
+      "input_length": 10,
+      "expected_result": 176,
+      "expected_output_hex": "000000000000f03f000000000000f0bf000000000000f0bf000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f040000000000000002000000000000000000000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "zero_correlation_pair",
+      "input_values": [
+        4,
+        2,
+        -3,
+        1,
+        -1,
+        -1,
+        1,
+        -1,
+        3,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 176,
+      "expected_output_hex": "000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f040000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_five_variable_output",
+      "input_values": [
+        4,
+        5,
+        -3,
+        -3,
+        -1,
+        1,
+        -3,
+        -1,
+        1,
+        -3,
+        -1,
+        -1,
+        1,
+        -1,
+        3,
+        -1,
+        1,
+        3,
+        3,
+        1,
+        1,
+        3
+      ],
+      "input_length": 22,
+      "expected_result": 848,
+      "expected_output_hex": "000000000000f03f9a9999999999e93f333333333333e33f0000000000000000000000000000f03f9a9999999999e93f000000000000f03f000000000000000000000000000000009a9999999999e93f333333333333e33f0000000000000000000000000000f03f0000000000000000333333333333e33f000000000000000000000000000000000000000000000000000000000000f03f0000000000000000000000000000f03f9a9999999999e93f333333333333e33f0000000000000000000000000000f03f000000000000f03f989999999999c93f9a9999999999d93f000000000000f03f0000000000000000989999999999c93f000000000000f03f000000000000f03f000000000000f03f989999999999c93f9a9999999999d93f000000000000f03f000000000000f03f000000000000f03f9a9999999999d93f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f0000000000000000989999999999c93f9a9999999999d93f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f0000000000000000000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f0000000000000000000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f545555555555e53f9a9999999999e93f000000000000f03f0000000000000000545555555555e53f000000000000f03f000000000000f03f000000000000f03f545555555555e53f9a9999999999e93f000000000000f03f000000000000f03f000000000000f03f9a9999999999e93f000000000000f03f000000000000f03f000000000000f03f000000000000f03f000000000000f03f0000000000000000545555555555e53f9a9999999999e93f000000000000f03f000000000000f03f040000000000000005000000000000000000000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "constant_column_invalid",
+      "input_values": [
+        4,
+        2,
+        1,
+        0,
+        1,
+        1,
+        1,
+        2,
+        1,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "variable_count_below_bound",
+      "input_values": [
+        4,
+        1,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_outside_integer_bound",
+      "input_values": [
+        4,
+        2,
+        -1001,
+        1,
+        -1,
+        0,
+        1,
+        -1,
+        3,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        4,
+        2,
+        -3,
+        -3,
+        -1,
+        -1,
+        1,
+        1,
+        3,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 175,
+      "capacity_error_result": -2
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+const MAX_ARRAY_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 34
+
+def write_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def get_products_of_all_other_elements_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > 32: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    result: mutable i64[MAX_ARRAY_LENGTH] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        if input[i + 1] < -2 or input[i + 1] > 2: return -1
+        i <- i + 1
+    if n < 2: return 0
+    output_bytes: usize = n * 8
+    if output == null or capacity < output_bytes: return -2
+
+    result[0] <- 1
+    i <- 0
+    while i + 1 < n:
+        result[i + 1] <- input[i + 1] * result[i]
+        i <- i + 1
+    suffix: mutable i64 = 1
+    i <- n - 1
+    while i > 0:
+        value: i64 = input[i + 1]
+        result[i - 1] <- result[i - 1] * suffix * value
+        suffix <- suffix * value
+        i <- i - 1
+    i <- 0
+    while i < n:
+        write_i64_le(result[i], output, i * 8)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn get_products_of_all_other_elements(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = get_products_of_all_other_elements_impl

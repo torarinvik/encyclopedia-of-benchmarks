@@ -11,11 +11,19 @@ Compute the arithmetic mean of a nonempty integer sequence.
 
 ## Source semantics
 
-This follows [TheAlgorithms Python `arithmetic.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/arithmetic.py). That file also contains the separately benchmarked routine `is_arithmetic_series`. These ports implement the bounded integer-list subset.
+This follows [TheAlgorithms Python `arithmetic.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/arithmetic.py) and the `arithmeticMean` function in the pinned [Haskell `Center.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Statistics/Center.hs); both sum the values and divide by their count. The Python file also contains the separately benchmarked routine `is_arithmetic_series`. These ports implement the bounded integer-list subset.
 
 ## Workload
 
 [`workload.json`](workload.json) covers source-like values, singleton behavior, signed values, and invalid lengths or elements.
+
+## Verification
+
+Run the independent array oracle against the supported language ports with:
+
+```sh
+python3 benchmarks/verify_arithmetic_mean.py
+```
 
 ## Implementations
 

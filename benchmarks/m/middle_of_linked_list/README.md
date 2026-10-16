@@ -15,3 +15,4 @@ The function returns the zero-based index of the middle node reachable from node
 ## Upstream reference
 
 - [TheAlgorithms/C LeetCode 876 at the pinned catalog revision](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/876.c)
+- [TheAlgorithms/Python `middle_element_of_linked_list.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/linked_list/middle_element_of_linked_list.py), whose `middle_element` method uses the same slow/fast traversal and returns the selected node's data.

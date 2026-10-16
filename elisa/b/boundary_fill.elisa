@@ -1,0 +1,66 @@
+const MAX_CELLS: usize = 1024
+const MAX_INPUT_LENGTH: usize = 1030
+
+def boundary_fill_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or length > MAX_INPUT_LENGTH:
+        return -1
+    width_value: i64 = input[0]
+    height_value: i64 = input[1]
+    start_x_value: i64 = input[2]
+    start_y_value: i64 = input[3]
+    new_color: i64 = input[4]
+    boundary_color: i64 = input[5]
+    if width_value < 1 or width_value > 32 or height_value < 1 or height_value > 32:
+        return -1
+    if new_color < -2147483648 or new_color > 2147483647 or boundary_color < -2147483648 or boundary_color > 2147483647:
+        return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    if length != 6 + width * height or start_x_value < 0 or start_x_value >= width_value or start_y_value < 0 or start_y_value >= height_value:
+        return -1
+    cells: usize = width * height
+    image: mutable i64[MAX_CELLS] = zeroed
+    for index in 0..<cells:
+        image[index] <- input[6 + index]
+        if image[index] < -2147483648 or image[index] > 2147483647:
+            return -1
+    start: usize = start_x_value.usize() * height + start_y_value.usize()
+    if image[start] != new_color and image[start] != boundary_color:
+        work_stack: mutable usize[MAX_CELLS] = zeroed
+        top: mutable usize = 0
+        image[start] <- new_color
+        work_stack[top] <- start
+        top <- top + 1
+        while top > 0:
+            top <- top - 1
+            index: usize = work_stack[top]
+            x: i64 = (index / height).i64()
+            y: i64 = (index % height).i64()
+            dx: mutable i64 = -1
+            while dx <= 1:
+                dy: mutable i64 = -1
+                while dy <= 1:
+                    if dx != 0 or dy != 0:
+                        next_x: i64 = x + dx
+                        next_y: i64 = y + dy
+                        if next_x >= 0 and next_x < width_value and next_y >= 0 and next_y < height_value:
+                            next: usize = next_x.usize() * height + next_y.usize()
+                            if image[next] != new_color and image[next] != boundary_color:
+                                image[next] <- new_color
+                                work_stack[top] <- next
+                                top <- top + 1
+                    dy <- dy + 1
+                dx <- dx + 1
+    required: usize = cells * 8
+    if output == null or capacity < required:
+        return -2
+    for index in 0..<cells:
+        bits: mutable u64 = image[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+    required.i64()
+
+export fn boundary_fill(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = boundary_fill_impl

@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "id": "javascript-undirected-unweighted-graph-i64-vector-v1",
+  "algorithm": "graph_js_undirected_unweighted",
+  "function_symbol": "graph_js_undirected_unweighted",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[vertex_count, vertex_id..., edge_count, endpoint_a, endpoint_b..., start_id]",
+    "vertex_count_range": [
+      1,
+      26
+    ],
+    "vertex_id_range": [
+      97,
+      122
+    ],
+    "vertex_id_domain": "distinct lowercase ASCII letters a-z, encoded by byte value",
+    "edge_count_range": [
+      0,
+      256
+    ],
+    "edge_endpoints": "lowercase ASCII letters; edge pairs with undeclared endpoints are ignored as in Graph.addEdge",
+    "traversal_start": "must be a declared vertex",
+    "maximum_input_length": 541,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_little_endian_vector",
+    "layout": "[vertex_count,(vertex_id,neighbor_count,neighbors...)*,bfs_count,(vertex_id,level)*,dfs_count,vertex_id...]",
+    "return_value": "output byte length",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_bytes": 5160
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        5,
+        97,
+        98,
+        99,
+        100,
+        101,
+        4,
+        97,
+        98,
+        97,
+        99,
+        98,
+        100,
+        98,
+        101,
+        97
+      ],
+      "input_length": 16,
+      "expected_result": 288,
+      "expected_output_hex": "050000000000000061000000000000000200000000000000620000000000000063000000000000006200000000000000030000000000000061000000000000006400000000000000650000000000000063000000000000000100000000000000610000000000000064000000000000000100000000000000620000000000000065000000000000000100000000000000620000000000000005000000000000006100000000000000000000000000000062000000000000000100000000000000630000000000000001000000000000006400000000000000020000000000000065000000000000000200000000000000050000000000000061000000000000006200000000000000640000000000000065000000000000006300000000000000"
+    },
+    {
+      "id": "vertex_order_duplicate_edges_and_self_loop",
+      "input_values": [
+        3,
+        99,
+        97,
+        98,
+        4,
+        99,
+        97,
+        99,
+        97,
+        97,
+        98,
+        97,
+        97,
+        99
+      ],
+      "input_length": 14,
+      "expected_result": 208,
+      "expected_output_hex": "03000000000000006300000000000000020000000000000061000000000000006100000000000000610000000000000005000000000000006300000000000000630000000000000062000000000000006100000000000000610000000000000062000000000000000100000000000000610000000000000003000000000000006300000000000000000000000000000061000000000000000100000000000000620000000000000002000000000000000300000000000000630000000000000061000000000000006200000000000000"
+    },
+    {
+      "id": "disconnected_vertices_keep_insertion_order",
+      "input_values": [
+        3,
+        122,
+        97,
+        109,
+        1,
+        97,
+        109,
+        122
+      ],
+      "input_length": 8,
+      "expected_result": 112,
+      "expected_output_hex": "03000000000000007a000000000000000000000000000000610000000000000001000000000000006d000000000000006d000000000000000100000000000000610000000000000001000000000000007a00000000000000000000000000000001000000000000007a00000000000000"
+    },
+    {
+      "id": "missing_endpoint_edge_is_ignored",
+      "input_values": [
+        2,
+        97,
+        98,
+        2,
+        97,
+        122,
+        98,
+        98,
+        98
+      ],
+      "input_length": 9,
+      "expected_result": 96,
+      "expected_output_hex": "020000000000000061000000000000000000000000000000620000000000000002000000000000006200000000000000620000000000000001000000000000006200000000000000000000000000000001000000000000006200000000000000"
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        5,
+        97,
+        98,
+        99,
+        100,
+        101,
+        4,
+        97,
+        98,
+        97,
+        99,
+        98,
+        100,
+        98,
+        101,
+        97
+      ],
+      "input_length": 16,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 287
+    },
+    {
+      "id": "duplicate_vertex_rejected",
+      "input_values": [
+        2,
+        97,
+        97,
+        0,
+        97
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_start_rejected",
+      "input_values": [
+        2,
+        97,
+        98,
+        0,
+        122
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "edge_count_length_mismatch",
+      "input_values": [
+        2,
+        97,
+        98,
+        1,
+        97,
+        98
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_vertex_byte",
+      "input_values": [
+        1,
+        65,
+        0,
+        97
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_edge_endpoint_byte",
+      "input_values": [
+        1,
+        97,
+        1,
+        65,
+        97,
+        97
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

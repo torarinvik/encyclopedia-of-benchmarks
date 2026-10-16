@@ -1,0 +1,40 @@
+const MAX_DIMENSION: usize = 32
+
+def matrix_copy_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def matrix_copy_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 2 + MAX_DIMENSION * MAX_DIMENSION: return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 0 or rows_value > MAX_DIMENSION.i64() or columns_value < 0 or columns_value > MAX_DIMENSION.i64(): return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    element_count: usize = rows * columns
+    if length != 2 + element_count: return -1
+    index: mutable usize = 0
+    while index < element_count:
+        value: i64 = input[2 + index]
+        if value < -2147483648 or value > 2147483647: return -1
+        index <- index + 1
+    result_rows: mutable usize = 0
+    result_columns: mutable usize = 0
+    if rows > 0 and columns > 0:
+        result_rows <- rows
+        result_columns <- columns
+    result_count: usize = result_rows * result_columns
+    output_bytes: usize = (2 + result_count) * 8
+    if output_capacity < output_bytes: return -2
+    matrix_copy_store_i64(output, 0, result_rows.i64())
+    matrix_copy_store_i64(output, 8, result_columns.i64())
+    index <- 0
+    while index < result_count:
+        matrix_copy_store_i64(output, 16 + index * 8, input[2 + index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn matrix_copy(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = matrix_copy_impl

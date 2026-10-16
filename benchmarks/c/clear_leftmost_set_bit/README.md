@@ -22,4 +22,7 @@ python3 benchmarks/build_abi.py --family scalar --algorithm clear_leftmost_set_b
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/clear_leftmost_set_bit/c/build.json
 ```
 
+Verify the nine ports against the independent bit-mask oracle with
+`python3 benchmarks/verify_scalar.py --algorithms clear_leftmost_set_bit`.
+
 The nine implementations are in `c/c/clear_leftmost_set_bit.c`, `c3/c/clear_leftmost_set_bit.c3`, `cpp/c/clear_leftmost_set_bit.cpp`, `elisa/c/clear_leftmost_set_bit.elisa`, `nim/c/clear_leftmost_set_bit.nim`, `odin/c/clear_leftmost_set_bit.odin`, `rust/c/clear_leftmost_set_bit.rs`, `v/c/clear_leftmost_set_bit.v`, and `zig/c/clear_leftmost_set_bit.zig`.

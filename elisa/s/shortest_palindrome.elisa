@@ -1,0 +1,50 @@
+# Add the minimum prefix needed to make a printable ASCII string a palindrome.
+def shortest_palindrome_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 64:
+        return -1
+    if length > 0 and input.is_null():
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 32 or input[index] > 126:
+            return -1
+        index <- index + 1
+    if length == 0:
+        return 0
+
+    suffix: mutable usize[64] = zeroed
+    index <- 1
+    while index < length:
+        matched: mutable usize = suffix[index - 1]
+        while matched > 0 and input[matched] != input[index]:
+            matched <- suffix[matched - 1]
+        if input[matched] == input[index]:
+            matched <- matched + 1
+        suffix[index] <- matched
+        index <- index + 1
+
+    prefix_match: mutable usize = 0
+    index <- 0
+    while index < length:
+        reversed_value: i64 = input[length - 1 - index]
+        while prefix_match > 0 and reversed_value != input[prefix_match]:
+            prefix_match <- suffix[prefix_match - 1]
+        if reversed_value == input[prefix_match]:
+            prefix_match <- prefix_match + 1
+        index <- index + 1
+
+    output_length: usize = 2 * length - prefix_match
+    if output.is_null() or output_capacity < output_length:
+        return -2
+    index <- 0
+    while index < length:
+        output[index] <- input[length - 1 - index].u8()
+        index <- index + 1
+    index <- prefix_match
+    while index < length:
+        output[length + index - prefix_match] <- input[index].u8()
+        index <- index + 1
+    output_length.i64()
+
+export fn shortest_palindrome(input: i64&, length: usize,
+                              output: mutable u8&, output_capacity: usize) -> i64 = shortest_palindrome_impl

@@ -1,0 +1,34 @@
+const MAX_SAMPLES: usize = 32
+const SCALE: i64 = 1000000
+const MAX_SIGNAL_MICRO: i64 = 1000000
+const INVALID_RESULT: f64 = -1.0e300
+
+def complementary_filter_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 2:
+        return INVALID_RESULT
+    coefficient_ppm: i64 = values[0]
+    sample_count_value: i64 = values[1]
+    if coefficient_ppm < 1 or coefficient_ppm >= SCALE or sample_count_value < 1 or sample_count_value > MAX_SAMPLES.i64():
+        return INVALID_RESULT
+    sample_count: usize = sample_count_value.usize()
+    if length != 2 + 3 * sample_count:
+        return INVALID_RESULT
+    for sample in 0..<sample_count:
+        rate: i64 = values[2 + 3 * sample]
+        reference: i64 = values[3 + 3 * sample]
+        elapsed: i64 = values[4 + 3 * sample]
+        if rate < -MAX_SIGNAL_MICRO or rate > MAX_SIGNAL_MICRO or reference < -MAX_SIGNAL_MICRO or reference > MAX_SIGNAL_MICRO or elapsed < 1 or elapsed > SCALE:
+            return INVALID_RESULT
+    coefficient: f64 = coefficient_ppm.f64() / SCALE.f64()
+    value: mutable f64 = 0.0
+    for sample in 0..<sample_count:
+        rate: f64 = values[2 + 3 * sample].f64() / SCALE.f64()
+        reference: f64 = values[3 + 3 * sample].f64() / SCALE.f64()
+        elapsed: f64 = values[4 + 3 * sample].f64() / SCALE.f64()
+        if sample == 0:
+            value <- reference
+        else:
+            value <- coefficient * (value + rate * elapsed) + (1.0 - coefficient) * reference
+    value
+
+export fn complementary_filter(values: i64&, length: usize) f64 = complementary_filter_impl

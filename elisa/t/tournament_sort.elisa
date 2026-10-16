@@ -1,0 +1,63 @@
+const MAX_VALUES: usize = 512
+
+def tournament_choose(values: i64&, tree: i64&, left: usize, right: usize) -> i64:
+    l: i64 = tree[left]
+    r: i64 = tree[right]
+    if l < 0:
+        return r
+    if r < 0:
+        return l
+    if values[l.usize()] <= values[r.usize()]:
+        l
+    else:
+        r
+
+def tournament_sort_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 512:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n:
+        return -1
+    values: mutable i64[MAX_VALUES] = zeroed
+    for i in 0..<n:
+        value: i64 = input[i + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        values[i] <- value
+    leaves: mutable usize = 1
+    while leaves < n:
+        leaves <- leaves * 2
+    tree: mutable i64[2 * MAX_VALUES + 1] = zeroed
+    for i in 0..<(2 * leaves):
+        tree[i] <- -1
+    for i in 0..<n:
+        tree[leaves + i] <- i.i64()
+    if leaves > 1:
+        node: mutable usize = leaves - 1
+        while node > 0:
+            tree[node] <- tournament_choose(values, tree, node * 2, node * 2 + 1)
+            node <- node - 1
+    bytes: usize = (1 + n) * 8
+    if output.is_null() or capacity < bytes:
+        return -2
+    put_i64(output, 0, n.i64())
+    for out in 0..<n:
+        winner: usize = tree[1].usize()
+        put_i64(output, (1 + out) * 8, values[winner])
+        node: mutable usize = leaves + winner
+        tree[node] <- -1
+        while node > 1:
+            node <- node / 2
+            tree[node] <- tournament_choose(values, tree, node * 2, node * 2 + 1)
+    bytes.i64()
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for b in 0..<8:
+        output[offset + b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+export fn tournament_sort(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = tournament_sort_impl

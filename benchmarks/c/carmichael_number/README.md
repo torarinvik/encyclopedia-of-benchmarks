@@ -24,3 +24,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/carmichael_numb
 ```
 
 The nine implementations are in `c/c/carmichael_number.c`, `c3/c/carmichael_number.c3`, `cpp/c/carmichael_number.cpp`, `elisa/c/carmichael_number.elisa`, `nim/c/carmichael_number.nim`, `odin/c/carmichael_number.odin`, `rust/c/carmichael_number.rs`, `v/c/carmichael_number.v`, and `zig/c/carmichael_number.zig`.
+
+Verify the nine ports against Korselt's independent factorization criterion with `python3 benchmarks/verify_scalar.py --algorithms carmichael_number`.

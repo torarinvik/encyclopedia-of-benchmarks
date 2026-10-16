@@ -1,0 +1,73 @@
+# Bounded Flash Sort followed by the source's insertion-sort finishing pass.
+const MAX_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 65
+const MAX_VALUE: i64 = 1000000
+
+def flash_sort_valid_length(length: usize) -> bool:
+    length <= 1 or (length >= 3 and length <= MAX_LENGTH)
+
+def flash_sort_class(value: i64, minimum: i64, range: i64, classes: usize) -> usize:
+    (((classes - 1).i64() * (value - minimum)) / range).usize()
+
+def flash_sort_values(values: mutable i64&, length: usize) -> bool:
+    if length <= 1:
+        return true
+    minimum: mutable i64 = values[0]
+    maximum: mutable i64 = values[0]
+    for index in 1..<length:
+        if values[index] < minimum: minimum <- values[index]
+        if values[index] > maximum: maximum <- values[index]
+    if minimum == maximum:
+        return true
+    range: i64 = maximum - minimum
+    classes: mutable usize = (9 * length) / 20
+    if classes < 1: classes <- 1
+    class_ends: mutable usize[64] = zeroed
+    for index in 0..<length:
+        slot: usize = flash_sort_class(values[index], minimum, range, classes)
+        class_ends[slot] <- class_ends[slot] + 1
+    for index in 1..<classes:
+        class_ends[index] <- class_ends[index] + class_ends[index - 1]
+
+    moves: mutable usize = 0
+    j: mutable usize = 0
+    k: mutable usize = classes - 1
+    while moves < length - 1:
+        while j > class_ends[k] - 1:
+            j <- j + 1
+            if j >= length: return false
+            k <- flash_sort_class(values[j], minimum, range, classes)
+        flash: mutable i64 = values[j]
+        while j != class_ends[k]:
+            k <- flash_sort_class(flash, minimum, range, classes)
+            class_ends[k] <- class_ends[k] - 1
+            target: usize = class_ends[k]
+            hold: i64 = values[target]
+            values[target] <- flash
+            flash <- hold
+            moves <- moves + 1
+    for index in 1..<length:
+        key: i64 = values[index]
+        cursor: mutable usize = index
+        while cursor > 0 and values[cursor - 1] > key:
+            values[cursor] <- values[cursor - 1]
+            cursor <- cursor - 1
+        values[cursor] <- key
+    true
+
+def flash_sort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or not flash_sort_valid_length(length) or (length != 0 and input.is_null()): return -1
+    values: mutable i64[64] = zeroed
+    for index in 0..<length:
+        if input[index] < -MAX_VALUE or input[index] > MAX_VALUE: return -1
+        values[index] <- input[index]
+    output_bytes: usize = length * 4
+    if output_capacity < output_bytes or (output_bytes != 0 and output.is_null()): return -2
+    if not flash_sort_values(&values[0], length): return -1
+    for index in 0..<length:
+        bits: u32 = values[index].u32()
+        for byte in 0..<4:
+            output[index * 4 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+    output_bytes.i64()
+
+export fn flash_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = flash_sort_impl

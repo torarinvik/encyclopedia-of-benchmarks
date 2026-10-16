@@ -24,3 +24,9 @@ The pinned Julia source documents a 1,000-base input bound and uses a dictionary
 - [Python `dna.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/dna.py)
 
 Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`.
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm reverse_complement --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm reverse_complement
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm reverse_complement --languages rust
+```

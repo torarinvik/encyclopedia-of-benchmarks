@@ -4,12 +4,12 @@ export fn reverse_words(input: ?[*]const i64, length: usize, output: ?[*]u8, out
     if (values[0] < 0 or values[0] > 256) return -1;
     const n: usize = @intCast(values[0]);
     if (length != n + 1) return -1;
-    if (output == null or output_capacity < n + 1) return -2;
     for (0..n) |i| {
         const b = values[i + 1];
         if (!(b == 32 or (b >= 33 and b <= 126))) return -1;
         if (b == 32 and (i == 0 or i + 1 == n or values[i] == 32)) return -1;
     }
+    if (output == null or output_capacity < n + 1) return -2;
     const result = output.?[0..output_capacity];
     var written: usize = 0;
     var ending = n;

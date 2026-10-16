@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "binomial-expansion-i64-array-scalar-v1",
+  "algorithm": "binomial_expansion",
+  "function_symbol": "binomial_expansion",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": "[a, b, n]",
+    "array_length": 3,
+    "a_range": [
+      -2,
+      2
+    ],
+    "b_range": [
+      -2,
+      2
+    ],
+    "exponent_range": [
+      0,
+      31
+    ],
+    "input_modified": false,
+    "maximum_input_length": 3,
+    "invalid_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "exact value of the integer binomial sum for (a + b)^n",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned_integer_example",
+      "input_values": [
+        2,
+        3,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 25
+    },
+    {
+      "id": "equal_and_opposite_bases_odd_exponent",
+      "input_values": [
+        -2,
+        2,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "power_of_two_base_sum",
+      "input_values": [
+        1,
+        1,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 1024
+    },
+    {
+      "id": "maximum_positive_result",
+      "input_values": [
+        2,
+        2,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 4611686018427387904
+    },
+    {
+      "id": "maximum_magnitude_negative_result",
+      "input_values": [
+        -2,
+        -2,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": -4611686018427387904
+    },
+    {
+      "id": "maximum_exponent_cancellation",
+      "input_values": [
+        2,
+        -2,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "valid_negative_one_result",
+      "input_values": [
+        -1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_bases_zero_exponent",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "single_nonzero_base",
+      "input_values": [
+        0,
+        2,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 1024
+    },
+    {
+      "id": "negative_unit_sum_odd_exponent",
+      "input_values": [
+        -2,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "unit_sum_from_mixed_bases",
+      "input_values": [
+        2,
+        -1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "one_base_zero_other_at_max_exponent",
+      "input_values": [
+        1,
+        0,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_exponent_with_negative_bases",
+      "input_values": [
+        -1,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "small_positive_sum",
+      "input_values": [
+        2,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 243
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "too_few_values",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "too_many_values",
+      "input_values": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "a_below_domain",
+      "input_values": [
+        -3,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "a_above_domain",
+      "input_values": [
+        3,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "b_out_of_domain",
+      "input_values": [
+        0,
+        -3,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "negative_exponent_excluded",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "exponent_above_domain",
+      "input_values": [
+        1,
+        1,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

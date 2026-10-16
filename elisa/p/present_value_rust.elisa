@@ -1,0 +1,30 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern round(value: f64) -> f64
+
+const MAX_CASH_FLOWS: i64 = 8
+const MAX_RATE_PPM: i64 = 1000000
+const MAX_CASH_FLOW_MILLI: i64 = 1000000
+const MAX_INPUT_LENGTH: usize = 11
+const INVALID_RESULT: f64 = -1.0e300
+
+def present_value_rust_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    count: i64 = values[0]
+    rate_ppm: i64 = values[1]
+    if count < 1 or count > MAX_CASH_FLOWS or length != (count + 2).usize() or (rate_ppm != 0 and rate_ppm != MAX_RATE_PPM):
+        return INVALID_RESULT
+
+    discount_rate: f64 = rate_ppm.f64() / 1000000.0
+    present_value: mutable f64 = 0.0
+    index: mutable i64 = 0
+    while index < count:
+        cash_flow_milli: i64 = values[(index + 2).usize()]
+        if cash_flow_milli < -MAX_CASH_FLOW_MILLI or cash_flow_milli > MAX_CASH_FLOW_MILLI or cash_flow_milli % 125 != 0:
+            return INVALID_RESULT
+        cash_flow: f64 = cash_flow_milli.f64() / 1000.0
+        present_value <- present_value + cash_flow / pow(1.0 + discount_rate, index.f64())
+        index <- index + 1
+    round(present_value * 100.0) / 100.0
+
+export fn present_value_rust(values: i64&, length: usize) -> f64 = present_value_rust_impl

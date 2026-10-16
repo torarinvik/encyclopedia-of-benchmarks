@@ -1,0 +1,61 @@
+const MAX_SLOTS: usize = 31
+const MAX_VALUE: i64 = 1000000
+const EMPTY_MIN: i64 = 1000001
+
+def maximum_sum_bst_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 32: return -1
+    if input[0] < 0 or input[0] > 31 or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    for i in 0..<count:
+        if input[i + 1] < -1 or input[i + 1] > MAX_VALUE: return -1
+        if input[i + 1] != -1 and i > 0 and input[(i - 1) / 2 + 1] == -1: return -1
+    if count == 0: return 0
+    valid: mutable bool[MAX_SLOTS] = zeroed
+    subtree_min: mutable i64[MAX_SLOTS] = zeroed
+    subtree_max: mutable i64[MAX_SLOTS] = zeroed
+    subtree_sum: mutable i64[MAX_SLOTS] = zeroed
+    best: mutable i64[MAX_SLOTS] = zeroed
+    remaining: mutable usize = count
+    while remaining > 0:
+        remaining <- remaining - 1
+        i: usize = remaining
+        if input[i + 1] == -1:
+            valid[i] <- true
+            subtree_min[i] <- EMPTY_MIN
+            subtree_max[i] <- -1
+            continue
+        left: usize = 2 * i + 1
+        right: usize = left + 1
+        left_valid: bool = left >= count or valid[left]
+        right_valid: bool = right >= count or valid[right]
+        left_max: i64 = -1
+        right_min: i64 = EMPTY_MIN
+        left_min: i64 = EMPTY_MIN
+        right_max: i64 = -1
+        left_sum: i64 = 0
+        right_sum: i64 = 0
+        left_best: i64 = 0
+        right_best: i64 = 0
+        if left < count:
+            left_max <- subtree_max[left]
+            left_min <- subtree_min[left]
+            left_sum <- subtree_sum[left]
+            left_best <- best[left]
+        if right < count:
+            right_min <- subtree_min[right]
+            right_max <- subtree_max[right]
+            right_sum <- subtree_sum[right]
+            right_best <- best[right]
+        value: i64 = input[i + 1]
+        if left_valid and right_valid and left_max < value and value < right_min:
+            valid[i] <- true
+            if left_min < value: subtree_min[i] <- left_min else: subtree_min[i] <- value
+            if right_max > value: subtree_max[i] <- right_max else: subtree_max[i] <- value
+            subtree_sum[i] <- left_sum + right_sum + value
+            if subtree_sum[i] > left_best: best[i] <- subtree_sum[i] else: best[i] <- left_best
+            if right_best > best[i]: best[i] <- right_best
+        else:
+            best[i] <- if left_best > right_best then left_best else right_best
+    best[0]
+
+export fn maximum_sum_bst(input: i64&, length: usize) -> i64 = maximum_sum_bst_impl

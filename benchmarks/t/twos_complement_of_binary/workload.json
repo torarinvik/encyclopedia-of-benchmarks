@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "matlab-twos-complement-of-binary-decimal-digits-v1",
+  "algorithm": "twos_complement_of_binary",
+  "function_symbol": "twos_complement_of_binary",
+  "input": {
+    "kind": "signed_64_integer",
+    "minimum": 0,
+    "maximum": 1111111111111111,
+    "encoding": "nonnegative decimal numeral whose digits are binary bits 0 or 1",
+    "invalid_result": -1,
+    "exactness_note": "The 16-digit bound keeps MATLAB binary64 inputs and digit accumulators below 2^53."
+  },
+  "output": {
+    "kind": "signed_64_integer",
+    "meaning": "numeric decimal encoding of the fixed-width two's-complement bit pattern; leading zero bits are omitted by numeric representation",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"zero","input_value":0,"expected_result":0},
+    {"id":"one-bit-one","input_value":1,"expected_result":1},
+    {"id":"two-bits-ten","input_value":10,"expected_result":10},
+    {"id":"two-bits-all-ones","input_value":11,"expected_result":1},
+    {"id":"three-bits-101","input_value":101,"expected_result":11},
+    {"id":"three-bits-110","input_value":110,"expected_result":10},
+    {"id":"three-bits-all-ones","input_value":111,"expected_result":1},
+    {"id":"four-bits-1010","input_value":1010,"expected_result":110},
+    {"id":"four-bits-1011","input_value":1011,"expected_result":101},
+    {"id":"four-bits-1100","input_value":1100,"expected_result":100},
+    {"id":"five-bits-10101","input_value":10101,"expected_result":1011},
+    {"id":"trailing-zeros-preserved","input_value":11000,"expected_result":1000},
+    {"id":"sixteen-bit-all-ones","input_value":1111111111111111,"expected_result":1},
+    {"id":"sixteen-bit-power-of-two","input_value":1000000000000000,"expected_result":1000000000000000},
+    {"id":"negative-input","input_value":-1,"expected_result":-1},
+    {"id":"digit-two-invalid","input_value":102,"expected_result":-1},
+    {"id":"digit-nine-invalid","input_value":1009,"expected_result":-1},
+    {"id":"seventeen-digit-out-of-domain","input_value":10000000000000000,"expected_result":-1}
+  ]
+}

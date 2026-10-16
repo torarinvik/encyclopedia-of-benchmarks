@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "damped-oscillator-java-euler-step-i64-bytes-output-v1",
+  "algorithm": "damped_oscillator",
+  "function_symbol": "damped_oscillator",
+  "description": "Take one explicit Euler state step for a bounded damped harmonic oscillator.",
+  "input": {
+    "kind": "five_signed_64_bit_integer_values",
+    "layout": "[omega0_q, gamma_q, x_q, v_q, dt_q]",
+    "scale": "Each input value represents its physical quantity multiplied by 1024.",
+    "ranges": {
+      "omega0_q": [
+        1,
+        1024
+      ],
+      "gamma_q": [
+        0,
+        1024
+      ],
+      "x_q": [
+        -1024,
+        1024
+      ],
+      "v_q": [
+        -1024,
+        1024
+      ],
+      "dt_q": [
+        1,
+        1024
+      ]
+    },
+    "exact_length": 5,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_ieee754_binary64_vector",
+    "length": 2,
+    "order": [
+      "x_next",
+      "v_next"
+    ],
+    "formula_order": "acceleration=-2*gamma*v-omega0*omega0*x; x_next=x+dt*v; v_next=v+dt*acceleration",
+    "successful_result": 16
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Two little-endian binary64 state values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/physics/DampedOscillator.java",
+    "method": "DampedOscillator.stepEuler"
+  },
+  "cases": [
+    {
+      "id": "undamped_step",
+      "input_values": [
+        1024,
+        0,
+        1024,
+        0,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "000000000000f03f000000000000d0bf"
+    },
+    {
+      "id": "damped_positive_velocity",
+      "input_values": [
+        1024,
+        256,
+        512,
+        1024,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "000000000000e83f000000000000e83f"
+    },
+    {
+      "id": "damped_negative_velocity",
+      "input_values": [
+        1024,
+        256,
+        512,
+        -1024,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "000000000000d03f000000000000f0bf"
+    },
+    {
+      "id": "higher_damping",
+      "input_values": [
+        512,
+        1024,
+        -512,
+        256,
+        512
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "000000000000d8bf000000000000b03f"
+    },
+    {
+      "id": "rest_state",
+      "input_values": [
+        1024,
+        512,
+        0,
+        0,
+        512
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_bounded_state",
+      "input_values": [
+        1024,
+        1024,
+        1024,
+        -1024,
+        1024
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "invalid_nonpositive_frequency",
+      "input_values": [
+        0,
+        0,
+        1024,
+        0,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative_damping",
+      "input_values": [
+        1024,
+        -1,
+        1024,
+        0,
+        256
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_nonpositive_time_step",
+      "input_values": [
+        1024,
+        0,
+        1024,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_length",
+      "input_values": [
+        1024,
+        0,
+        1024,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        1024,
+        0,
+        1024,
+        0,
+        256
+      ],
+      "input_length": 5,
+      "workspace_bytes": 15,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

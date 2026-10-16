@@ -1,0 +1,28 @@
+# Return a zero-based station index that completes the circuit, or -1.
+const MAX_N: i64 = 128
+const MAX_AMOUNT: i64 = 1000000
+
+def gas_station_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_N: return -2
+    n: usize = input[0].usize()
+    if length != 2 * n + 1: return -2
+    i: mutable usize = 0
+    while i < 2 * n:
+        if input[i+1] < 0 or input[i+1] > MAX_AMOUNT: return -2
+        i <- i + 1
+    total: mutable i64 = 0
+    current: mutable i64 = 0
+    start: mutable usize = 0
+    i <- 0
+    while i < n:
+        net: i64 = input[1+i] - input[1+n+i]
+        total <- total + net
+        current <- current + net
+        if current < 0:
+            start <- i + 1
+            current <- 0
+        i <- i + 1
+    if total < 0: return -1
+    start.i64()
+
+export fn gas_station(input: i64&, length: usize) -> i64 = gas_station_impl

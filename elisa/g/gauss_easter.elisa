@@ -1,0 +1,31 @@
+def gauss_easter_impl(year: i64) -> i64:
+    if year < 1 or year > 9999:
+        return -1
+    a: i64 = year % 19
+    b: i64 = year % 4
+    c: i64 = year % 7
+    century: i64 = year / 100
+    lunar_correction: i64 = (13 + 8 * century) / 25
+    moon_q: i64 = (60 - 4 * lunar_correction + 3 * century) % 120
+    start_q: i64 = (16 + 3 * century) % 28
+    add_q: i64 = (76 * a + moon_q) % 120
+    sunday_q: i64 = (8 * b + 16 * c + start_q + 6 * add_q) % 28
+    month: mutable i64 = 0
+    day: mutable i64 = 0
+    if add_q == 116 and sunday_q == 24:
+        month <- 4
+        day <- 19
+    else if add_q == 112 and sunday_q == 24:
+        month <- 4
+        day <- 18
+    else:
+        march_day: i64 = 22 + (add_q + sunday_q) / 4
+        if march_day <= 31:
+            month <- 3
+            day <- march_day
+        else:
+            month <- 4
+            day <- march_day - 31
+    year * 10000 + month * 100 + day
+
+export fn gauss_easter(year: i64) -> i64 = gauss_easter_impl

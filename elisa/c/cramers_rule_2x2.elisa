@@ -1,0 +1,34 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def cramers_rule_2x2_write(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def cramers_rule_2x2_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if v == null or length != 6: return -1
+    valid: bool =
+        while index < 6 |index: mutable usize = 0, ok: mutable bool = true| -> ok:
+            if v[index] < -1000000 or v[index] > 1000000: break false
+            index <- index + 1
+            ok
+    if not valid: return -1
+    a1: i64 = v[0]
+    b1: i64 = v[1]
+    c1: i64 = v[2]
+    a2: i64 = v[3]
+    b2: i64 = v[4]
+    c2: i64 = v[5]
+    d: i64 = a1 * b2 - a2 * b1
+    dx: i64 = c1 * b2 - c2 * b1
+    dy: i64 = a1 * c2 - a2 * c1
+    if d == 0: return -1
+    if output == null or capacity < 16: return -2
+    cramers_rule_2x2_write(output, 0, dx.f64() / d.f64())
+    cramers_rule_2x2_write(output, 8, dy.f64() / d.f64())
+    2
+
+export fn cramers_rule_2x2(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = cramers_rule_2x2_impl

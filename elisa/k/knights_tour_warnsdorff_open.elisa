@@ -1,0 +1,85 @@
+const DX: i64[8] = [1, 2, 2, 1, -1, -2, -2, -1]
+const DY: i64[8] = [-2, -1, 1, 2, 2, 1, -1, -2]
+
+def count_neighbors(board: i64&, row: i64, column: i64) -> usize:
+    count: mutable usize = 0
+    for move in 0..<8:
+        next_row: i64 = row + DY[move]
+        next_column: i64 = column + DX[move]
+        if next_row >= 0 and next_row < 8 and next_column >= 0 and next_column < 8 and board[(next_row * 8 + next_column).usize()] == 0:
+            count <- count + 1
+    count
+
+def neighbors(board: i64&, row: i64, column: i64, moves: mutable i64&) -> usize:
+    count: mutable usize = 0
+    for move in 0..<8:
+        next_row: i64 = row + DY[move]
+        next_column: i64 = column + DX[move]
+        if next_row >= 0 and next_row < 8 and next_column >= 0 and next_column < 8 and board[(next_row * 8 + next_column).usize()] == 0:
+            moves[count * 3] <- next_row
+            moves[count * 3 + 1] <- next_column
+            moves[count * 3 + 2] <- count_neighbors(board, next_row, next_column).i64()
+            count <- count + 1
+    index: mutable usize = 1
+    while index < count:
+        row: i64 = moves[index * 3]
+        column: i64 = moves[index * 3 + 1]
+        degree: i64 = moves[index * 3 + 2]
+        cursor: mutable usize = index
+        while cursor > 0 and moves[(cursor - 1) * 3 + 2] > degree:
+            moves[cursor * 3] <- moves[(cursor - 1) * 3]
+            moves[cursor * 3 + 1] <- moves[(cursor - 1) * 3 + 1]
+            moves[cursor * 3 + 2] <- moves[(cursor - 1) * 3 + 2]
+            cursor <- cursor - 1
+        moves[cursor * 3] <- row
+        moves[cursor * 3 + 1] <- column
+        moves[cursor * 3 + 2] <- degree
+        index <- index + 1
+    count
+
+def orphan(board: i64&, count: usize, row: i64, column: i64) -> bool:
+    if count < 63:
+        moves: mutable i64[24] = zeroed
+        total: usize = neighbors(board, row, column, moves)
+        for index in 0..<total:
+            if count_neighbors(board, moves[index * 3], moves[index * 3 + 1]) == 0:
+                return true
+    false
+
+def solve(board: mutable i64&, row: i64, column: i64, count: usize) -> bool:
+    if count > 64:
+        return true
+    moves: mutable i64[24] = zeroed
+    total: usize = neighbors(board, row, column, moves)
+    if total == 0 and count != 64:
+        return false
+    for index in 0..<total:
+        next_row: i64 = moves[index * 3]
+        next_column: i64 = moves[index * 3 + 1]
+        board[(next_row * 8 + next_column).usize()] <- count.i64()
+        if not orphan(board, count, next_row, next_column) and solve(board, next_row, next_column, count + 1):
+            return true
+        board[(next_row * 8 + next_column).usize()] <- 0
+    false
+
+def knights_tour_warnsdorff_open_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 0:
+        return -1
+    if output.is_null() or capacity < 512:
+        return -2
+    board: mutable i64[64] = zeroed
+    board[0] <- 1
+    if not solve(board, 0, 0, 2):
+        return -1
+    path: mutable i64[64] = zeroed
+    for row in 0..<8:
+        for column in 0..<8:
+            path[(board[row * 8 + column] - 1).usize()] <- (row * 8 + column).i64()
+    for index in 0..<64:
+        bits: mutable u64 = path[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    512
+
+export fn knights_tour_warnsdorff_open(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = knights_tour_warnsdorff_open_impl

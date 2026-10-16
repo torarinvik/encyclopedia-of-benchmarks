@@ -1,0 +1,45 @@
+extern floor(value: f64) -> f64
+extern fmod(value: f64, divisor: f64) -> f64
+extern fma(first: f64, second: f64, third: f64) -> f64
+
+def seconds_factor(code: f64) -> f64:
+    if code == 0.0: return 1.0
+    if code == 1.0: return 60.0
+    if code == 2.0: return 3600.0
+    if code == 3.0: return 86400.0
+    if code == 4.0: return 604800.0
+    if code == 5.0: return 2629800.0
+    if code == 6.0: return 31557600.0
+    return 0.0
+
+def inverse_factor(code: f64) -> f64:
+    if code == 0.0: return 1.0
+    if code == 1.0: return 0.016666666666666666
+    if code == 2.0: return 0.0002777777777777778
+    if code == 3.0: return 0.000011574074074074073
+    if code == 4.0: return 0.0000016534391534391535
+    if code == 5.0: return 0.0000003802570537683474
+    if code == 6.0: return 0.00000003168808781402895
+    return 0.0
+
+def round_three_ties_even(value: f64) -> f64:
+    scaled: f64 = value * 1000.0
+    lower: f64 = floor(scaled)
+    fraction: f64 = scaled - lower
+    residual: f64 = fma(value, 1000.0, -scaled)
+    rounded: f64 = lower
+    if fraction > 0.5 or (fraction == 0.5 and (residual > 0.0 or (residual == 0.0 and fmod(lower, 2.0) != 0.0))):
+        rounded = lower + 1.0
+    rounded / 1000.0
+
+def time_conversions_impl(time_value: f64, from_code: f64, to_code: f64) -> f64:
+    if time_value != time_value or time_value < 0.0 or time_value > 10000.0:
+        return -1e300
+    source: f64 = seconds_factor(from_code)
+    inverse: f64 = inverse_factor(to_code)
+    if source == 0.0 or inverse == 0.0:
+        return -1e300
+    scaled: f64 = time_value * source
+    round_three_ties_even(scaled * inverse)
+
+export fn time_conversions(time_value: f64, from_code: f64, to_code: f64) -> f64 = time_conversions_impl

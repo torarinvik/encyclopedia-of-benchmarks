@@ -1,0 +1,78 @@
+const MAX_TEXT_LENGTH: usize = 256
+const MAX_KEY_LENGTH: usize = 32
+
+def columnar_transposition_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3:
+        return -1
+    operation: i64 = input[0]
+    text_value: i64 = input[1]
+    raw_key_value: i64 = input[2]
+    if (operation != 0 and operation != 1) or text_value < 0 or text_value > 256 or raw_key_value < 1 or raw_key_value > 32:
+        return -1
+    text_length: usize = text_value.usize()
+    raw_key_length: usize = raw_key_value.usize()
+    if length != 3 + text_length + raw_key_length:
+        return -1
+    key: mutable i64[32] = zeroed
+    order: mutable i64[32] = zeroed
+    key_length: mutable usize = 0
+    for index in 0..<text_length:
+        if input[3 + index] < 0 or input[3 + index] > 127:
+            return -1
+    for index in 0..<raw_key_length:
+        value: i64 = input[3 + text_length + index]
+        if value < 0 or value > 127:
+            return -1
+        if value >= 65 and value <= 90:
+            key[key_length] <- value
+            key_length <- key_length + 1
+        elif value >= 97 and value <= 122:
+            key[key_length] <- value - 32
+            key_length <- key_length + 1
+    if key_length == 0:
+        return -1
+    for index in 0..<key_length:
+        order[index] <- index.i64()
+        position: mutable usize = index
+        while position > 0 and key[order[position - 1].usize()] > key[index]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- index.i64()
+    if text_length == 0:
+        return 0
+    if capacity < text_length:
+        return -2
+    rows: usize = (text_length + key_length - 1) / key_length
+    if operation == 0:
+        written: mutable usize = 0
+        for rank in 0..<key_length:
+            column: usize = order[rank].usize()
+            for row in 0..<rows:
+                index: usize = row * key_length + column
+                if index < text_length:
+                    output[written] <- input[3 + index].u8()
+                    written <- written + 1
+        return written.i64()
+    column_data: mutable i64[8192] = zeroed
+    column_lengths: mutable usize[32] = zeroed
+    offset: mutable usize = 0
+    short_columns: usize = text_length % key_length
+    for column in 0..<key_length:
+        if short_columns == 0 or column < short_columns:
+            column_lengths[column] <- rows
+        else:
+            column_lengths[column] <- rows - 1
+    for rank in 0..<key_length:
+        column: usize = order[rank].usize()
+        for row in 0..<column_lengths[column]:
+            column_data[column * MAX_TEXT_LENGTH + row] <- input[3 + offset]
+            offset <- offset + 1
+    written: mutable usize = 0
+    for row in 0..<rows:
+        for column in 0..<key_length:
+            if row < column_lengths[column]:
+                output[written] <- column_data[column * MAX_TEXT_LENGTH + row].u8()
+                written <- written + 1
+    written.i64()
+
+export fn columnar_transposition(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = columnar_transposition_impl

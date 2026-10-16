@@ -1,0 +1,22 @@
+# Selected volume or total surface area of a circular cone.
+extern sqrt(value: f64) -> f64
+
+def cone_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    operation: i64 = values[0]
+    radius: i64 = values[1]
+    height: i64 = values[2]
+    if (operation != 0 and operation != 1) or radius < 0 or radius > 1000 or height < 0 or height > 1000:
+        return -1.0e300
+    pi: f64 = 3.14159265358979323846
+    radius_value: f64 = radius.f64()
+    radius_squared: f64 = radius_value * radius_value
+    base_area: f64 = radius_squared * pi
+    if operation == 0:
+        return (base_area * height.f64() * 1.0) / 3.0
+    height_value: f64 = height.f64()
+    base_area + pi * radius_value * sqrt(radius_squared + height_value * height_value)
+
+export fn cone(values: i64&, length: usize) -> f64:
+    cone_impl(values, length)

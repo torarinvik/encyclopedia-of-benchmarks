@@ -1,0 +1,30 @@
+const SCALE: i64 = 1000000
+const MAX_TIME_MICRO: i64 = 1000000000
+const MAX_INPUT_LENGTH: usize = 4
+const INVALID_RESULT: f64 = -1.0e300
+
+def seconds_per_unit(unit: i64) -> f64:
+    if unit == 0: return 1.0
+    if unit == 1: return 60.0
+    if unit == 2: return 3600.0
+    if unit == 3: return 86400.0
+    if unit == 4: return 604800.0
+    if unit == 5: return 2629800.0
+    if unit == 6: return 31557600.0
+    0.0
+
+def time_converter_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    time_micro: i64 = values[0]
+    from_unit: i64 = values[1]
+    to_unit: i64 = values[2]
+    if time_micro < 0 or time_micro > MAX_TIME_MICRO or from_unit < 0 or from_unit > 6 or to_unit < 0 or to_unit > 6:
+        return INVALID_RESULT
+    time_value: f64 = time_micro.f64() / 1000000.0
+    seconds_value: f64 = time_value * seconds_per_unit(from_unit)
+    converted: f64 = seconds_value / seconds_per_unit(to_unit)
+    rounded: i64 = (converted * 1000.0 + 0.5).i64()
+    rounded.f64() / 1000.0
+
+export fn time_converter(values: i64&, length: usize) -> f64 = time_converter_impl

@@ -40,6 +40,8 @@ The verification report is written to `build/binary_scalar/verification.json`. V
 
 ## Implementations
 
+The C LeetCode [`461.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/461.c) counts differing bits for nonnegative signed 32-bit inputs, which matches this contract after zero extension.
+
 | Language | Source | Origin |
 | --- | --- | --- |
 | C | [`c/h/hamming_distance.c`](../../../c/h/hamming_distance.c) | Portable implementation of the unsigned integer contract |

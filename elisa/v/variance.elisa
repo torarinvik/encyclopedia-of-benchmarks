@@ -1,0 +1,21 @@
+def variance_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 2 or length > 64:
+        return -1.0e300
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < -1000000 or value > 1000000:
+            return -1.0e300
+        total <- total + value.f64()
+        index <- index + 1
+    average: f64 = total / length.f64()
+    squared_deviations: mutable f64 = 0.0
+    index <- 0
+    while index < length:
+        difference: f64 = values[index].f64() - average
+        squared_deviations <- squared_deviations + difference * difference
+        index <- index + 1
+    squared_deviations / (length - 1).f64()
+
+export fn variance(values: i64&, length: usize) -> f64 = variance_impl

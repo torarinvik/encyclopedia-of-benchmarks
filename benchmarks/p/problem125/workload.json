@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-125-palindromic-sums-v1",
+  "algorithm": "problem125",
+  "function_symbol": "problem125",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 100000000],
+    "meaning": "exclusive upper bound for distinct palindromic sums of at least two consecutive positive-integer squares",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of distinct qualifying palindromic values strictly below the limit"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_limit", "input_value": 0, "expected_result": 0},
+    {"id": "strict_bound_at_five", "input_value": 5, "expected_result": 0},
+    {"id": "first_palindrome_below_six", "input_value": 6, "expected_result": 5},
+    {"id": "source_example_one_thousand", "input_value": 1000, "expected_result": 4164},
+    {"id": "canonical_one_hundred_million", "input_value": 100000000, "expected_result": 2906969179},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_limit", "input_value": 100000001, "expected_result": -1}
+  ]
+}

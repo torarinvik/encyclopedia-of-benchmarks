@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "id": "java-javascript-python-flash-sort-bounded-i64-bytes-v1",
+  "algorithm": "flash_sort",
+  "function_symbol": "flash_sort",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": "one integer per array element",
+    "valid_length_ranges": [
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        64
+      ]
+    ],
+    "maximum_valid_array_length": 64,
+    "maximum_validation_array_length": 65,
+    "element_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little_endian_i32",
+    "layout": "the input integers sorted in ascending order, one signed i32 per element",
+    "length": "4 * input_length",
+    "maximum_bytes": 256
+  },
+  "workspace": {
+    "bytes": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_array",
+      "input_length": 0,
+      "input_values": [],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "singleton",
+      "input_length": 1,
+      "input_values": [
+        7
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "07000000"
+    },
+    {
+      "id": "python_source_integer_example",
+      "input_length": 6,
+      "input_values": [
+        4,
+        2,
+        7,
+        1,
+        9,
+        3
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "010000000200000003000000040000000700000009000000"
+    },
+    {
+      "id": "negative_and_positive",
+      "input_length": 5,
+      "input_values": [
+        -1,
+        -5,
+        0,
+        3,
+        2
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "fbffffffffffffff000000000200000003000000"
+    },
+    {
+      "id": "duplicate_values",
+      "input_length": 5,
+      "input_values": [
+        6,
+        6,
+        4,
+        4,
+        6
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "0400000004000000060000000600000006000000"
+    },
+    {
+      "id": "all_equal",
+      "input_length": 4,
+      "input_values": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "03000000030000000300000003000000"
+    },
+    {
+      "id": "already_sorted",
+      "input_length": 5,
+      "input_values": [
+        -4,
+        -1,
+        0,
+        8,
+        9
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "fcffffffffffffff000000000800000009000000"
+    },
+    {
+      "id": "reverse_order",
+      "input_length": 5,
+      "input_values": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "0100000002000000030000000400000005000000"
+    },
+    {
+      "id": "minimum_and_maximum_bounds",
+      "input_length": 3,
+      "input_values": [
+        1000000,
+        -1000000,
+        0
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "c0bdf0ff0000000040420f00"
+    },
+    {
+      "id": "maximum_valid_length_equal_values",
+      "input_length": 64,
+      "input_values": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "expected_result": 256,
+      "expected_output_hex": "09000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000090000000900000009000000"
+    },
+    {
+      "id": "two_element_array_excluded_by_common_source_domain",
+      "input_length": 2,
+      "input_values": [
+        2,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "element_above_bound",
+      "input_length": 3,
+      "input_values": [
+        0,
+        1000001,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "element_below_bound",
+      "input_length": 3,
+      "input_values": [
+        -1000001,
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "over_bound_input_length",
+      "input_length": 65,
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_length": 3,
+      "input_values": [
+        4,
+        2,
+        7
+      ],
+      "workspace_bytes": 11,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

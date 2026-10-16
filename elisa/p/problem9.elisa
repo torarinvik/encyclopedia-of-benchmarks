@@ -1,0 +1,16 @@
+# Find the product of the positive Pythagorean triple summing to total.
+def problem9_impl(total: i64) -> i64:
+    if total < 3 or total > 1000:
+        return -1
+    a: mutable i64 = 1
+    while a <= total / 3:
+        b: mutable i64 = a + 1
+        while 2 * b < total - a:
+            c: i64 = total - a - b
+            if a * a + b * b == c * c:
+                return a * b * c
+            b <- b + 1
+        a <- a + 1
+    -1
+
+export fn problem9(total: i64) -> i64 = problem9_impl

@@ -1,0 +1,69 @@
+# Emit the pinned default logarithmic-series expressions as ASCII lines.
+def logarithmic_series_decimal_width(value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    width: mutable usize = 1
+    while value >= 10:
+        value <- value / 10
+        width <- width + 1
+    width
+
+def logarithmic_series_append_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    while true:
+        digits[count] <- (value % 10).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0: break
+    position: mutable usize = position_input
+    while count > 0:
+        count <- count - 1
+        output[position] <- 48u8 + digits[count]
+        position <- position + 1
+    position
+
+def logarithmic_series_has_negative_sign(delta: i64, term: i64) -> bool =
+    (delta < 0 and term % 2 == 1) or (delta >= 0 and term % 2 == 0)
+
+def logarithmic_series_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2: return -1
+    x_value: i64 = values[0]
+    n_terms: i64 = values[1]
+    if x_value < -10 or x_value > 10 or n_terms < -64 or n_terms > 256: return -1
+    if n_terms <= 0: return 0
+    delta: i64 = x_value - 1
+    base: i64 = if delta < 0: -delta else: delta
+    needed: mutable usize = 0
+    term: mutable i64 = 1
+    while term <= n_terms:
+        if logarithmic_series_has_negative_sign(delta, term):
+            needed <- needed + 2
+        else:
+            needed <- needed + 1
+        needed <- needed + logarithmic_series_decimal_width(base) + 2 * logarithmic_series_decimal_width(term) + 4
+        term <- term + 1
+    if output_capacity < needed: return -2
+    position: mutable usize = 0
+    term <- 1
+    while term <= n_terms:
+        if logarithmic_series_has_negative_sign(delta, term):
+            output[position] <- 45u8
+            position <- position + 1
+        output[position] <- 40u8
+        position <- position + 1
+        position <- logarithmic_series_append_decimal(output, position, base)
+        output[position] <- 94u8
+        position <- position + 1
+        position <- logarithmic_series_append_decimal(output, position, term)
+        output[position] <- 41u8
+        position <- position + 1
+        output[position] <- 47u8
+        position <- position + 1
+        position <- logarithmic_series_append_decimal(output, position, term)
+        output[position] <- 10u8
+        position <- position + 1
+        term <- term + 1
+    position.i64()
+
+export fn logarithmic_series(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = logarithmic_series_impl

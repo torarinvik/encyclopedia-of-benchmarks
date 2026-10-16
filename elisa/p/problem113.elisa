@@ -1,0 +1,25 @@
+# Count non-bouncy positive integers with at most the requested digits.
+const MAX_DIGITS: i64 = 100
+
+def problem113_choose(n: i64, r: i64) -> i64:
+    result: mutable i64 = 1
+    i: mutable i64 = 1
+    while i <= r:
+        result <- result * (n + 1 - i) / i
+        i <- i + 1
+    result
+
+def problem113_exact(digits: i64) -> i64:
+    problem113_choose(8 + digits, digits) + problem113_choose(9 + digits, digits) - 10
+
+def problem113_impl(num_digits: i64) -> i64:
+    if num_digits > MAX_DIGITS:
+        return -1
+    total: mutable i64 = 0
+    digits: mutable i64 = 1
+    while digits <= num_digits:
+        total <- total + problem113_exact(digits)
+        digits <- digits + 1
+    total
+
+export fn problem113(num_digits: i64) -> i64 = problem113_impl

@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "gas-station-python-greedy-v1",
+  "algorithm": "gas_station",
+  "function_symbol": "gas_station",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, gas[0..n], cost[0..n]]",
+    "n_range": [
+      0,
+      128
+    ],
+    "gas_and_cost_range": [
+      0,
+      1000000
+    ],
+    "exact_shape": "2*n + 1 values",
+    "operation": "scan net gas in station order; whenever running net is negative, choose the next station and reset; return -1 if total net is negative, else the candidate start",
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "valid_result": "zero-based start index or -1 if no feasible route"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "data_structures/arrays/gas_station.py",
+      "function": "can_complete_circuit"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "greedy_methods/gas_station.py",
+      "function": "can_complete_journey"
+    }
+  ],
+  "cases": [
+    {
+      "id": "python_example",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        3,
+        4,
+        5,
+        1,
+        2
+      ],
+      "input_length": 11,
+      "expected_result": 3
+    },
+    {
+      "id": "python_no_solution",
+      "input_values": [
+        3,
+        2,
+        3,
+        4,
+        3,
+        4,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "start_moves_after_negative_prefix",
+      "input_values": [
+        3,
+        0,
+        3,
+        3,
+        2,
+        1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_total_feasible",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "all_zero_inputs",
+      "input_values": [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "empty_route",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_packed_shape",
+      "input_values": [
+        2,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid_negative_amount",
+      "input_values": [
+        1,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid_count",
+      "input_values": [
+        129
+      ],
+      "input_length": 1,
+      "expected_result": -2
+    }
+  ]
+}

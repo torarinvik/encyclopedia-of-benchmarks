@@ -18,3 +18,4 @@ Mirror a binary tree by recursively exchanging every node's left and right child
 - [TheAlgorithms/C LeetCode 226](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/226.c)
 - [TheAlgorithms/PHP `InvertBinaryTree.php`](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/DataStructures/InvertBinaryTree/InvertBinaryTree.php)
 - [TheAlgorithms/Python `mirror_binary_tree.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/mirror_binary_tree.py)
+- [TheAlgorithms/Python `binary_tree_mirror.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_mirror.py) recursively swaps each node's left and right children; its root-key edge cases are restricted by the shared contract.

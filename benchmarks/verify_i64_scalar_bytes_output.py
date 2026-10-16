@@ -17,7 +17,7 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
-              "pascal_triangle_row")
+              "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -49,7 +49,11 @@ def corpus(workload: dict) -> tuple[str, int]:
         add(rng.randrange(0, I64_MAX + 1))
     for value in (I64_MIN, I64_MIN + 1, -1024, -2, -1, 0, 1, 2, I64_MAX - 1, I64_MAX):
         add(value)
-    capacity_cases = (0, 1, 7, 33, I64_MAX) if encoding == "pascal_triangle_row" else (0, 1, 7, I64_MAX)
+    capacity_cases = ((0, 1, 7, 33, I64_MAX) if encoding == "pascal_triangle_row"
+                      else (0, 1, 7, 90, I64_MAX) if encoding == "floyd_triangle"
+                      else (0, 1, 7, 512, I64_MAX) if encoding == "harmonic_series"
+                      else (0, 1, 45, 46, I64_MAX) if encoding == "butterfly_pattern"
+                      else (0, 1, 7, I64_MAX))
     for value in capacity_cases:
         result, _ = expected_output(value, encoding)
         add(value, max(0, result - 1))

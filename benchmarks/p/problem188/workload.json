@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-188-modular-tetration-v1",
+  "algorithm": "problem188",
+  "function_symbol": "problem188",
+  "input": {
+    "kind": "base_height_decimal_digits",
+    "minimum": [1, 1, 1],
+    "maximum": [1000000000, 10000, 8],
+    "definition": "Three signed 64-bit values: base, tetration height, and number of trailing decimal digits. Base must not be divisible by 10.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Result of the pinned modular tetration recurrence modulo 10**digits, with height-one source behavior returning the base directly.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_triple_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "source-example-three-two", "input_values": [3, 2, 8], "expected_result": 27},
+    {"id": "source-example-three-three", "input_values": [3, 3, 8], "expected_result": 97484987},
+    {"id": "source-example-custom-digits", "input_values": [123, 456, 4], "expected_result": 2547},
+    {"id": "canonical-default", "input_values": [1777, 1855, 8], "expected_result": 95962097},
+    {"id": "height-one-unmodded-source-result", "input_values": [123, 1, 2], "expected_result": 123},
+    {"id": "single-digit-modulus", "input_values": [2, 3, 1], "expected_result": 6},
+    {"id": "height-one-base-bound", "input_values": [999999999, 1, 8], "expected_result": 999999999},
+    {"id": "zero-base", "input_values": [0, 2, 8], "expected_result": -1},
+    {"id": "zero-exponent-risk-base", "input_values": [10, 3, 8], "expected_result": -1},
+    {"id": "zero-height", "input_values": [3, 0, 8], "expected_result": -1},
+    {"id": "height-above-bound", "input_values": [3, 10001, 8], "expected_result": -1},
+    {"id": "zero-digits", "input_values": [3, 3, 0], "expected_result": -1},
+    {"id": "digits-above-bound", "input_values": [3, 3, 9], "expected_result": -1},
+    {"id": "signed-minimum-base", "input_values": [-9223372036854775808, 2, 8], "expected_result": -1},
+    {"id": "signed-maximum-height", "input_values": [3, 9223372036854775807, 8], "expected_result": -1}
+  ]
+}

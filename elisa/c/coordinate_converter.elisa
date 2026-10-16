@@ -1,0 +1,28 @@
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+const COORDINATE_LIMIT: f64 = 1000000.0
+const ANGLE_LIMIT_DEGREES: f64 = 36000.0
+const DEGREES_PER_RADIAN: f64 = 57.2957795130823208768
+const RADIANS_PER_DEGREE: f64 = 0.0174532925199432957692
+
+def coordinate_converter_impl(first: f64, second: f64, component: f64) -> f64:
+    if component == 0.0 or component == 1.0:
+        if first != first or second != second or first < -COORDINATE_LIMIT or first > COORDINATE_LIMIT or second < -COORDINATE_LIMIT or second > COORDINATE_LIMIT:
+            return INVALID_RESULT
+        if component == 0.0:
+            return sqrt(first * first + second * second)
+        return atan2(second, first) * DEGREES_PER_RADIAN
+    if component == 2.0 or component == 3.0:
+        if first != first or second != second or first < 0.0 or first > COORDINATE_LIMIT or second < -ANGLE_LIMIT_DEGREES or second > ANGLE_LIMIT_DEGREES:
+            return INVALID_RESULT
+        radians: f64 = second * RADIANS_PER_DEGREE
+        if component == 2.0:
+            return first * cos(radians)
+        return first * sin(radians)
+    INVALID_RESULT
+
+export fn coordinate_converter(first: f64, second: f64, component: f64) -> f64 = coordinate_converter_impl

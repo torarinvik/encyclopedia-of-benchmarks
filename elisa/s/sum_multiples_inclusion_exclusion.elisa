@@ -1,0 +1,10 @@
+def sum_multiples_inclusion_exclusion_impl(limit: i64) -> i64:
+    if limit < 1 or limit > 100000:
+        return -1
+    last: i64 = limit - 1
+    threes: i64 = last / 3
+    fives: i64 = last / 5
+    fifteens: i64 = last / 15
+    3 * threes * (threes + 1) / 2 + 5 * fives * (fives + 1) / 2 - 15 * fifteens * (fifteens + 1) / 2
+
+export fn sum_multiples_inclusion_exclusion(limit: i64) -> i64 = sum_multiples_inclusion_exclusion_impl

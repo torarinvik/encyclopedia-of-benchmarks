@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "rust-lipogram-ascii-missing-set-v1",
+  "algorithm": "lipogram",
+  "function_symbol": "lipogram",
+  "input": {
+    "kind": "length_prefixed_integer_array",
+    "encoding": "[byte_length, ASCII_text_bytes..., missing_mask]",
+    "text_length_range": [0, 1024],
+    "text_byte_domain": "ASCII letters and whitespace bytes 9,10,11,12,13,32",
+    "missing_mask_range": [0, 67108863],
+    "mask_bit_meaning": "bit i represents missing lowercase ASCII letter 'a'+i for i=0..25",
+    "exact_packed_length": "byte_length + 2",
+    "invalid_result": -1,
+    "output_encoding": "1 when exact missing-letter sets match, otherwise 0"
+  },
+  "output": {"kind":"signed_64_bit_scalar","valid_results":[0,1]},
+  "cases": [
+    {"id":"empty_text_all_letters_missing","input_values":[0,67108863],"expected_result":1},
+    {"id":"pangram_has_no_missing_letters","input_values":[43,84,104,101,32,113,117,105,99,107,32,98,114,111,119,110,32,102,111,120,32,106,117,109,112,115,32,111,118,101,114,32,116,104,101,32,108,97,122,121,32,100,111,103,0],"expected_result":1},
+    {"id":"one_missing_s","input_values":[44,84,104,101,32,113,117,105,99,107,32,98,114,111,119,110,32,102,111,120,32,106,117,109,112,101,100,32,111,118,101,114,32,116,104,101,32,108,97,122,121,32,100,111,103,262144],"expected_result":1},
+    {"id":"multiple_missing_letters","input_values":[38,84,104,101,32,98,114,111,119,110,32,102,111,120,32,106,117,109,112,101,100,32,111,118,101,114,32,116,104,101,32,108,97,122,121,32,100,111,103,328964],"expected_result":1},
+    {"id":"wrong_expected_missing_set","input_values":[44,84,104,101,32,113,117,105,99,107,32,98,114,111,119,110,32,102,111,120,32,106,117,109,112,101,100,32,111,118,101,114,32,116,104,101,32,108,97,122,121,32,100,111,103,1],"expected_result":0},
+    {"id":"ascii_whitespace_and_case_fold","input_values":[7,65,98,99,32,88,121,90,8388600],"expected_result":1},
+    {"id":"punctuation_rejected","input_values":[4,97,98,99,33,67108856],"expected_result":-1},
+    {"id":"non_ascii_byte_rejected","input_values":[1,128,0],"expected_result":-1},
+    {"id":"mask_out_of_range","input_values":[0,67108864],"expected_result":-1},
+    {"id":"packed_length_mismatch","input_values":[2,97,67108863],"expected_result":-1}
+  ],
+  "measurement": {"comparison_model":"i64_array_scalar_call","sample_count":9,"warmup_rounds":1,"repetitions_per_sample":1}
+}

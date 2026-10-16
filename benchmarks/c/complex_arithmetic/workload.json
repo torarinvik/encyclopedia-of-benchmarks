@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "complex-arithmetic-exact-integer-subset-v1",
+  "algorithm": "complex_arithmetic",
+  "function_symbol": "complex_arithmetic",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[operation, real_a, imaginary_a, real_b, imaginary_b]",
+    "length": 5,
+    "operation_codes": {
+      "0": "add",
+      "1": "subtract",
+      "2": "multiply",
+      "3": "divide",
+      "4": "conjugate a",
+      "5": "equality"
+    },
+    "component_range": [
+      -100000,
+      100000
+    ],
+    "division_domain": "The divisor is nonzero and both exact quotient components are integers.",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "two_little_endian_signed_64_bit_integers",
+    "encoding": "[real, imaginary]; equality stores 0 or 1 in real and 0 in imaginary.",
+    "successful_result": 2,
+    "maximum_bytes": 16
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Two signed 64-bit output components"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "add_mixed_signs",
+      "input_values": [
+        0,
+        4,
+        -3,
+        -2,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "02000000000000000400000000000000"
+    },
+    {
+      "id": "subtract",
+      "input_values": [
+        1,
+        4,
+        -3,
+        -2,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "0600000000000000f6ffffffffffffff"
+    },
+    {
+      "id": "multiply",
+      "input_values": [
+        2,
+        2,
+        3,
+        4,
+        -5
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "17000000000000000200000000000000"
+    },
+    {
+      "id": "divide_exact",
+      "input_values": [
+        3,
+        1,
+        1,
+        1,
+        -1
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "conjugate_negative_real",
+      "input_values": [
+        4,
+        -7,
+        8,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "f9fffffffffffffff8ffffffffffffff"
+    },
+    {
+      "id": "equality_true",
+      "input_values": [
+        5,
+        17,
+        -9,
+        17,
+        -9
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "equality_false",
+      "input_values": [
+        5,
+        17,
+        -9,
+        17,
+        9
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_component_product",
+      "input_values": [
+        2,
+        100000,
+        100000,
+        100000,
+        -100000
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "00c817a8040000000000000000000000"
+    },
+    {
+      "id": "minimum_component_product",
+      "input_values": [
+        2,
+        -100000,
+        100000,
+        -100000,
+        -100000
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output_hex": "00c817a8040000000000000000000000"
+    },
+    {
+      "id": "division_nonintegral",
+      "input_values": [
+        3,
+        1,
+        1,
+        2,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "division_by_zero",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        6,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_component",
+      "input_values": [
+        0,
+        100001,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_short_input",
+      "input_values": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        0,
+        4,
+        -3,
+        -2,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 15,
+      "capacity_error_result": -2
+    }
+  ],
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Lua",
+      "commit": "cedc141018ad48884318fe08a6db278664b17128",
+      "path": "src/math/complex.lua",
+      "license": "MIT"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "math/complex_numbers.cpp",
+      "license": "MIT"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "math/complex_numbers.cpp",
+      "license": "MIT"
+    }
+  ]
+}

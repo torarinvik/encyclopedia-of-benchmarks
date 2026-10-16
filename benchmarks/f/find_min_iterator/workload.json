@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "id": "javascript-find-min-iterator-default-selector-v1",
+  "algorithm": "find_min_iterator",
+  "function_symbol": "find_min_iterator",
+  "input": {
+    "kind": "count-prefixed-integer-array",
+    "encoding": "[count, value_0, ..., value_(count-1)]",
+    "count_range": [
+      0,
+      128
+    ],
+    "value_range": [
+      0,
+      2147483647
+    ],
+    "exact_packed_length": "count + 1",
+    "empty_result_mapping": -1,
+    "invalid_result": -1,
+    "maximum_packed_values": 129
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "minimum array value for nonempty input; -1 maps the source empty iterable undefined result and malformed inputs"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "singleton_zero",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 2
+    },
+    {
+      "id": "singleton_maximum_i32",
+      "input_values": [
+        1,
+        2147483647
+      ],
+      "expected_result": 2147483647,
+      "input_length": 2
+    },
+    {
+      "id": "ascending_values",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_result": 1,
+      "input_length": 6
+    },
+    {
+      "id": "descending_values",
+      "input_values": [
+        5,
+        9,
+        7,
+        5,
+        3,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 6
+    },
+    {
+      "id": "minimum_in_middle",
+      "input_values": [
+        5,
+        8,
+        4,
+        0,
+        7,
+        3
+      ],
+      "expected_result": 0,
+      "input_length": 6
+    },
+    {
+      "id": "repeated_minimum",
+      "input_values": [
+        5,
+        3,
+        1,
+        1,
+        7,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 6
+    },
+    {
+      "id": "repeated_values",
+      "input_values": [
+        3,
+        42,
+        42,
+        42
+      ],
+      "expected_result": 42,
+      "input_length": 4
+    },
+    {
+      "id": "full_i32_span",
+      "input_values": [
+        4,
+        0,
+        2147483647,
+        1,
+        2147483646
+      ],
+      "expected_result": 0,
+      "input_length": 5
+    },
+    {
+      "id": "maximum_count",
+      "input_values": [
+        128,
+        128,
+        127,
+        126,
+        125,
+        124,
+        123,
+        122,
+        121,
+        120,
+        119,
+        118,
+        117,
+        116,
+        115,
+        114,
+        113,
+        112,
+        111,
+        110,
+        109,
+        108,
+        107,
+        106,
+        105,
+        104,
+        103,
+        102,
+        101,
+        100,
+        99,
+        98,
+        97,
+        96,
+        95,
+        94,
+        93,
+        92,
+        91,
+        90,
+        89,
+        88,
+        87,
+        86,
+        85,
+        84,
+        83,
+        82,
+        81,
+        80,
+        79,
+        78,
+        77,
+        76,
+        75,
+        74,
+        73,
+        72,
+        71,
+        70,
+        69,
+        68,
+        67,
+        66,
+        65,
+        64,
+        63,
+        62,
+        61,
+        60,
+        59,
+        58,
+        57,
+        56,
+        55,
+        54,
+        53,
+        52,
+        51,
+        50,
+        49,
+        48,
+        47,
+        46,
+        45,
+        44,
+        43,
+        42,
+        41,
+        40,
+        39,
+        38,
+        37,
+        36,
+        35,
+        34,
+        33,
+        32,
+        31,
+        30,
+        29,
+        28,
+        27,
+        26,
+        25,
+        24,
+        23,
+        22,
+        21,
+        20,
+        19,
+        18,
+        17,
+        16,
+        15,
+        14,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 129
+    },
+    {
+      "id": "empty_iterable_undefined_sentinel",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "missing_count",
+      "input_values": [],
+      "expected_result": -1,
+      "input_length": 0
+    },
+    {
+      "id": "negative_count",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "count_over_bound",
+      "input_values": [
+        129
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "short_packed_values",
+      "input_values": [
+        2,
+        8
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        1,
+        8,
+        7
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "negative_element_outside_contract",
+      "input_values": [
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "element_over_i32_max",
+      "input_values": [
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    }
+  ]
+}

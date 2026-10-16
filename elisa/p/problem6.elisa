@@ -1,0 +1,14 @@
+# Compute square(sum(1..limit)) minus sum(square(1..limit)).
+def problem6_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 100:
+        return -1
+    sum: mutable i64 = 0
+    sum_of_squares: mutable i64 = 0
+    value: mutable i64 = 1
+    while value <= limit:
+        sum <- sum + value
+        sum_of_squares <- sum_of_squares + value * value
+        value <- value + 1
+    sum * sum - sum_of_squares
+
+export fn problem6(limit: i64) -> i64 = problem6_impl

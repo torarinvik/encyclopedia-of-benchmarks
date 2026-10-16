@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-9-scalar-v1",
+  "algorithm": "problem9",
+  "function_symbol": "problem9",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "total_range": [3, 1000],
+    "meaning": "sum of positive sides in a Pythagorean triple with a < b < c",
+    "no_solution_result": -1,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "no_solution_result": -1,
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"classic_3_4_5","input_value":12,"expected_result":60},
+    {"id":"classic_5_12_13","input_value":30,"expected_result":780},
+    {"id":"total_one_hundred_twenty","input_value":120,"expected_result":49920},
+    {"id":"canonical_instance","input_value":1000,"expected_result":31875000},
+    {"id":"no_integer_triple","input_value":11,"expected_result":-1},
+    {"id":"below_minimum","input_value":2,"expected_result":-1},
+    {"id":"negative_total","input_value":-1,"expected_result":-1},
+    {"id":"above_maximum","input_value":1001,"expected_result":-1}
+  ]
+}

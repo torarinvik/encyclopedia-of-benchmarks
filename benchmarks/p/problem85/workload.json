@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-85-scalar-v1",
+  "algorithm": "problem85",
+  "function_symbol": "problem85",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 2000000000,
+    "meaning": "target number of rectangles",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Area of the grid selected by the source's strict closest-rectangle-count search",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_target",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one_rectangle_target",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "strict_tie_keeps_first_area",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "documented_target_twenty",
+      "input_value": 20,
+      "expected_result": 6
+    },
+    {
+      "id": "documented_target_two_thousand",
+      "input_value": 2000,
+      "expected_result": 72
+    },
+    {
+      "id": "source_default_two_million",
+      "input_value": 2000000,
+      "expected_result": 2772
+    },
+    {
+      "id": "documented_large_target",
+      "input_value": 2000000000,
+      "expected_result": 86595
+    },
+    {
+      "id": "negative_target",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "target_above_bound",
+      "input_value": 2000000001,
+      "expected_result": -1
+    }
+  ]
+}

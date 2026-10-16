@@ -1,0 +1,113 @@
+# Seeded logistic-map and Xorshift state machine with bounded byte output.
+extern floor(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def chaos_fraction_one(value: f64) -> f64:
+    value - floor(value)
+
+def chaos_round_ten(value: f64) -> f64:
+    if value <= 0.0: return 0.0
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    exponent: u64 = (bits >> 52) & 2047
+    if exponent == 0: return 0.0
+    mantissa: u64 = (1.u64() << 52) | (bits & ((1.u64() << 52) - 1))
+    low_product: u64 = (mantissa & 4294967295) * 9765625
+    high_product: u64 = (mantissa >> 32) * 9765625
+    shifted_high: u64 = high_product << 32
+    low: u64 = shifted_high + low_product
+    carry: mutable u64 = 0
+    if low < shifted_high: carry <- 1
+    high: u64 = (high_product >> 32) + carry
+    shift: i64 = 1065 - exponent.i64()
+    if shift > 77: return 0.0
+    rounded: mutable u64 = 0
+    relation: mutable i64 = 0
+    if shift < 64:
+        rounded <- (high << (64 - shift).usize()) | (low >> shift.usize())
+        remainder: u64 = low & ((1.u64() << shift.usize()) - 1)
+        half: u64 = 1.u64() << (shift - 1).usize()
+        if remainder > half: relation <- 1
+        if remainder < half: relation <- -1
+    elif shift == 64:
+        rounded <- high
+        half: u64 = 1.u64() << 63
+        if low > half: relation <- 1
+        if low < half: relation <- -1
+    else:
+        upper_bits: usize = (shift - 64).usize()
+        rounded <- high >> upper_bits
+        remainder_high: u64 = high & ((1.u64() << upper_bits) - 1)
+        half_high: u64 = 1.u64() << (upper_bits - 1)
+        if remainder_high > half_high or (remainder_high == half_high and low != 0): relation <- 1
+        if remainder_high < half_high: relation <- -1
+    if relation > 0 or (relation == 0 and (rounded & 1) != 0): rounded <- rounded + 1
+    rounded.f64() / 10000000000.0
+
+def chaos_machine_pull(buffer: mutable f64&, params: mutable f64&, machine_time: i64) -> i64:
+    key: usize = (machine_time % 5).usize()
+    step: mutable usize = 0
+    while step < 3:
+        rate: f64 = params[key]
+        value: f64 = buffer[key]
+        buffer[key] <- chaos_round_ten(rate * value * (1.0 - value))
+        params[key] <- chaos_fraction_one(machine_time.f64() * 0.01 + rate * 1.01) + 3.0
+        step <- step + 1
+    x: mutable i64 = (buffer[(key + 2) % 5] * 10000000000.0).i64()
+    y: mutable i64 = (buffer[(key + 3) % 5] * 10000000000.0).i64()
+    x <- x ^ (y >> 13)
+    y <- y ^ (x << 17)
+    x <- x ^ (y >> 5)
+    x & 0xFFFFFFFF
+
+def chaos_machine_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 66: return -1
+    seed_count_value: i64 = values[0]
+    if seed_count_value < 0 or seed_count_value > 64: return -1
+    seed_count: usize = seed_count_value.usize()
+    if length != seed_count + 2: return -1
+    pull_input: i64 = values[length - 1]
+    if pull_input < 0 or pull_input > 64: return -1
+    index: mutable usize = 0
+    while index < seed_count:
+        seed: i64 = values[index + 1]
+        if seed < 0 or seed > 1000000: return -1
+        index <- index + 1
+    pull_count: usize = pull_input.usize()
+    required: usize = 4 * pull_count
+    if required > output_capacity: return -2
+    buffer: mutable f64[5] = zeroed
+    buffer[0] <- 0.33
+    buffer[1] <- 0.44
+    buffer[2] <- 0.55
+    buffer[3] <- 0.44
+    buffer[4] <- 0.33
+    params: mutable f64[5] = zeroed
+    machine_time: mutable i64 = 0
+    seed_index: mutable usize = 0
+    while seed_index < seed_count:
+        seed: f64 = values[seed_index + 1].f64()
+        key: mutable usize = 0
+        while key < 5:
+            if buffer[key] == 0.0: return -1
+            evolution: f64 = seed / buffer[key]
+            value: f64 = chaos_fraction_one(buffer[(key + 1) % 5] + evolution)
+            rate: f64 = chaos_fraction_one(params[key] + evolution) + 3.0
+            buffer[key] <- chaos_round_ten(rate * value * (1.0 - value))
+            params[key] <- rate
+            key <- key + 1
+        machine_time <- machine_time + 1
+        seed_index <- seed_index + 1
+    pull_index: mutable usize = 0
+    while pull_index < pull_count:
+        result: i64 = chaos_machine_pull(buffer[0], params[0], machine_time)
+        # The pointer-like array references above are passed by base; account for the key update in place below.
+        output[4 * pull_index] <- (result & 255).u8()
+        output[4 * pull_index + 1] <- ((result >> 8) & 255).u8()
+        output[4 * pull_index + 2] <- ((result >> 16) & 255).u8()
+        output[4 * pull_index + 3] <- ((result >> 24) & 255).u8()
+        machine_time <- machine_time + 1
+        pull_index <- pull_index + 1
+    required.i64()
+
+export fn chaos_machine(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = chaos_machine_impl

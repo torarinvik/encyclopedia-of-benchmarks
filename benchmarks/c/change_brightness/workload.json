@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "change_brightness-rgb-channel-transform-v1",
+  "algorithm": "change_brightness",
+  "function_symbol": "change_brightness",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[level, channel_byte...]",
+    "array_length": "1 through 4096",
+    "level_range": [
+      -255,
+      255
+    ],
+    "channel_range": [
+      0,
+      255
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_vector",
+    "encoding": "One transformed byte per input channel, in input order.",
+    "successful_result": "Number of output bytes.",
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_bytes": 4095,
+    "transform": "clip(channel + level, 0, 255); the source accepts floating-point levels, while this shared contract uses whole-number levels."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "workspace": {
+    "bytes": 4095
+  },
+  "cases": [
+    {
+      "id": "empty_channels",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "no_change_all_byte_regions",
+      "input_values": [
+        0,
+        0,
+        1,
+        63,
+        127,
+        128,
+        129,
+        192,
+        254,
+        255
+      ],
+      "input_length": 10,
+      "expected_result": 9,
+      "expected_output_hex": "00013f7f8081c0feff",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "darken_and_clip",
+      "input_values": [
+        -80,
+        0,
+        1,
+        79,
+        80,
+        128,
+        255
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "0000000030af",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "brighten_and_clip",
+      "input_values": [
+        70,
+        0,
+        1,
+        100,
+        185,
+        254,
+        255
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "4647aaffffff",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "minimum_level",
+      "input_values": [
+        -255,
+        0,
+        127,
+        255
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output_hex": "000000",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "maximum_level",
+      "input_values": [
+        255,
+        0,
+        127,
+        255
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output_hex": "ffffff",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        1,
+        10,
+        20,
+        30
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 2
+    },
+    {
+      "id": "invalid_level_low",
+      "input_values": [
+        -256,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "invalid_level_high",
+      "input_values": [
+        256,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "invalid_channel_low",
+      "input_values": [
+        0,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "invalid_channel_high",
+      "input_values": [
+        0,
+        256
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    },
+    {
+      "id": "missing_level",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 4095
+    }
+  ]
+}

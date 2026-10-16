@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-46-placeholder-scalar-v1",
+  "algorithm": "problem46",
+  "function_symbol": "problem46",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "valid_value": 0,
+    "meaning": "zero placeholder for the pinned no-argument search",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "first odd composite through 99,999 not expressible as a prime plus twice a square"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "source_no_argument_search", "input_value": 0, "expected_result": 5777},
+    {"id": "positive_placeholder", "input_value": 1, "expected_result": -1},
+    {"id": "negative_placeholder", "input_value": -1, "expected_result": -1},
+    {"id": "nonzero_placeholder", "input_value": 46, "expected_result": -1}
+  ]
+}

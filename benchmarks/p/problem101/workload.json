@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-101-optimum-polynomial-fit-v1",
+  "algorithm": "problem101",
+  "function_symbol": "problem101",
+  "input": {
+    "kind": "fixed_generator_interpolation_order",
+    "minimum": 0,
+    "maximum": 10,
+    "above_maximum_result": -1,
+    "nonpositive_order_result": 0,
+    "generator": "1 - n + n^2 - n^3 + ... + n^10"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of the first incorrect terms of the optimum interpolating polynomials of orders 1 through order."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_order",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "first_fit",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "first_two_fits",
+      "input_value": 2,
+      "expected_result": 1366
+    },
+    {
+      "id": "canonical_order_ten",
+      "input_value": 10,
+      "expected_result": 37076114526
+    },
+    {
+      "id": "negative_empty_order",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "degree_exceeded",
+      "input_value": 11,
+      "expected_result": -1
+    }
+  ]
+}

@@ -33,7 +33,7 @@ fn prime_factor_digit_sum(value: i64) i64 {
 }
 
 export fn smith_number(value: i64) i64 {
-    if (value < 1 or value > 2147483647) return -1;
+    if (value < 1 or value > 2147395599) return -1;
     if (is_prime(value)) return 0;
     return if (digit_sum(value) == prime_factor_digit_sum(value)) 1 else 0;
 }

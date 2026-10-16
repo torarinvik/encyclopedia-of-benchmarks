@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "id": "java-audio-ema-filter-q1024-small-sequence-v1",
+  "algorithm": "ema_filter",
+  "function_symbol": "ema_filter",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": [
+      "alpha_units",
+      "sample_count",
+      "integer_sample_0",
+      "..."
+    ],
+    "alpha_units_range": [
+      1,
+      1024
+    ],
+    "alpha_definition": "alpha_units / 1024.0",
+    "sample_count_range": [
+      0,
+      4
+    ],
+    "sample_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_valid_array_length": 6,
+    "maximum_validation_array_length": 7
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little_endian_ieee754_binary64",
+    "layout": "one filtered sample per input sample, in order",
+    "length": "8 * sample_count bytes"
+  },
+  "workspace": {
+    "bytes": 32
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_signal",
+      "input_length": 2,
+      "input_values": [
+        512,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "first_sample_resets_filter",
+      "input_length": 6,
+      "input_values": [
+        512,
+        4,
+        0,
+        8,
+        0,
+        8
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000104000000000000000400000000000001440"
+    },
+    {
+      "id": "alpha_one_eighth",
+      "input_length": 6,
+      "input_values": [
+        128,
+        4,
+        0,
+        80,
+        0,
+        80
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000244000000000008021400000000000a83140"
+    },
+    {
+      "id": "alpha_one_quarter",
+      "input_length": 5,
+      "input_values": [
+        256,
+        3,
+        8,
+        -8,
+        8
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "000000000000204000000000000010400000000000001440"
+    },
+    {
+      "id": "alpha_three_eighths",
+      "input_length": 6,
+      "input_values": [
+        384,
+        4,
+        16,
+        -16,
+        0,
+        16
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000003040000000000000104000000000000004400000000000401e40"
+    },
+    {
+      "id": "alpha_five_eighths",
+      "input_length": 6,
+      "input_values": [
+        640,
+        4,
+        16,
+        0,
+        16,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000003040000000000000184000000000008028400000000000601240"
+    },
+    {
+      "id": "alpha_seven_eighths",
+      "input_length": 5,
+      "input_values": [
+        896,
+        3,
+        -32,
+        32,
+        -32
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "00000000000040c0000000000000384000000000000039c0"
+    },
+    {
+      "id": "alpha_one_returns_samples",
+      "input_length": 6,
+      "input_values": [
+        1024,
+        4,
+        5,
+        -3,
+        8,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "000000000000144000000000000008c000000000000020400000000000000000"
+    },
+    {
+      "id": "single_sample",
+      "input_length": 3,
+      "input_values": [
+        1,
+        1,
+        -123
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0000000000c05ec0"
+    },
+    {
+      "id": "full_sample_bounds",
+      "input_length": 6,
+      "input_values": [
+        341,
+        4,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000080842e41000000808162144100001090f9f5204100c06a4d0967e240"
+    },
+    {
+      "id": "capacity_short_by_one_byte",
+      "input_length": 6,
+      "input_values": [
+        768,
+        4,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 31,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "alpha_zero",
+      "input_length": 3,
+      "input_values": [
+        0,
+        1,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "alpha_above_one",
+      "input_length": 3,
+      "input_values": [
+        1025,
+        1,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_alpha_units",
+      "input_length": 2,
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_sample_count",
+      "input_length": 2,
+      "input_values": [
+        512,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_count_above_bound",
+      "input_length": 7,
+      "input_values": [
+        512,
+        5,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_length_mismatch_short",
+      "input_length": 4,
+      "input_values": [
+        512,
+        3,
+        10,
+        20
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_length_mismatch_long",
+      "input_length": 4,
+      "input_values": [
+        512,
+        1,
+        10,
+        20
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_above_bound",
+      "input_length": 3,
+      "input_values": [
+        512,
+        1,
+        1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_below_bound",
+      "input_length": 3,
+      "input_values": [
+        512,
+        1,
+        -1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_alpha",
+      "input_length": 1,
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

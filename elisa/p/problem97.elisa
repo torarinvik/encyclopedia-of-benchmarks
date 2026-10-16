@@ -1,0 +1,34 @@
+# Return the unpadded decimal suffix of the non-Mersenne prime expression.
+const MAX_DIGITS: i64 = 18
+const POWER_EXPONENT: i64 = 7830457
+
+def problem97_multiply_mod(left: i64, right: i64, modulus: i64) -> i64:
+    result: mutable i64 = 0
+    remaining: mutable i64 = right
+    doubled: mutable i64 = left
+    while remaining > 0:
+        if remaining % 2 != 0:
+            result <- (result + doubled) % modulus
+        doubled <- (doubled + doubled) % modulus
+        remaining <- remaining / 2
+    result
+
+def problem97_impl(digits: i64) -> i64:
+    if digits < 0 or digits > MAX_DIGITS:
+        return -1
+    modulus: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < digits:
+        modulus <- modulus * 10
+        index <- index + 1
+    power: mutable i64 = 1 % modulus
+    base: mutable i64 = 2 % modulus
+    exponent: mutable i64 = POWER_EXPONENT
+    while exponent > 0:
+        if exponent % 2 != 0:
+            power <- problem97_multiply_mod(power, base, modulus)
+        base <- problem97_multiply_mod(base, base, modulus)
+        exponent <- exponent / 2
+    (problem97_multiply_mod(28433, power, modulus) + 1) % modulus
+
+export fn problem97(digits: i64) -> i64 = problem97_impl

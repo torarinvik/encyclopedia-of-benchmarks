@@ -1,0 +1,27 @@
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+const UINT32_MODULUS: i64 = 4294967296
+
+def parse_integer_impl(bytes: i64&, length: usize) -> i64:
+    if length == 0 or length > 64:
+        return INVALID_RESULT
+    check_index: mutable usize = 0
+    while check_index < length:
+        if bytes[check_index] < 0 or bytes[check_index] > 127:
+            return INVALID_RESULT
+        check_index <- check_index + 1
+    negative: bool = bytes[0] == 45
+    index: mutable usize = if bytes[0] == 45 or bytes[0] == 43: 1 else: 0
+    number: mutable i64 = 0
+    while index < length:
+        byte: i64 = bytes[index]
+        if byte < 48 or byte > 57:
+            return INVALID_RESULT
+        number <- (number * 10 + byte - 48) % UINT32_MODULUS
+        index <- index + 1
+    if negative and number != 0:
+        number <- UINT32_MODULUS - number
+    if number >= 2147483648:
+        return number - UINT32_MODULUS
+    number
+
+export fn parse_integer(bytes: i64&, length: usize) -> i64 = parse_integer_impl

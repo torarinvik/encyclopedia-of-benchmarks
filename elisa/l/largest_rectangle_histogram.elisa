@@ -1,0 +1,41 @@
+# Largest rectangle area in a bounded histogram.
+const MAX_INPUT_LENGTH: usize = 64
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def largest_rectangle_histogram_impl(heights: i64&, length: usize) -> i64:
+    if length == 0:
+        return 0
+    if heights.is_null() or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    index: mutable usize = 0
+    while index < length:
+        if heights[index] < 0 or heights[index] > 1000000:
+            return INVALID_RESULT
+        index <- index + 1
+
+    stack: mutable usize[64] = zeroed
+    top: mutable usize = 0
+    best: mutable i64 = 0
+    index <- 0
+    while index < length:
+        while top > 0 and heights[stack[top - 1]] > heights[index]:
+            top <- top - 1
+            bar: usize = stack[top]
+            left: usize = if top == 0 then 0 else stack[top - 1] + 1
+            area: i64 = heights[bar] * (index - left).i64()
+            if area > best:
+                best <- area
+        stack[top] <- index
+        top <- top + 1
+        index <- index + 1
+
+    while top > 0:
+        top <- top - 1
+        bar: usize = stack[top]
+        left: usize = if top == 0 then 0 else stack[top - 1] + 1
+        area: i64 = heights[bar] * (length - left).i64()
+        if area > best:
+            best <- area
+    best
+
+export fn largest_rectangle_histogram(heights: i64&, length: usize) -> i64 = largest_rectangle_histogram_impl

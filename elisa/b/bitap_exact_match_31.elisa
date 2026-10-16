@@ -1,0 +1,33 @@
+const MAX_TEXT_LENGTH: usize = 4096
+const MAX_PATTERN_LENGTH: usize = 31
+
+def bitap_exact_match_31_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or values[0] < 0 or values[0] > 4096 or values[1] < 0 or values[1] > 31:
+        return -2
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    if length != 2 + text_length + pattern_length:
+        return -2
+    for i in 2..<length:
+        if values[i] < 97 or values[i] > 122:
+            return -2
+    if pattern_length == 0:
+        return 0
+    if pattern_length > text_length:
+        return -1
+    masks: mutable u32[26] = zeroed
+    for c in 0..<26:
+        masks[c] <- (-1).u32()
+    for i in 0..<pattern_length:
+        letter: usize = (values[2 + text_length + i] - 97).usize()
+        masks[letter] <- masks[letter] & ~((1).u32() << i)
+    state: mutable u32 = (-2).u32()
+    for i in 0..<text_length:
+        letter: usize = (values[2 + i] - 97).usize()
+        state <- state | masks[letter]
+        state <- state << 1
+        if (state & ((1).u32() << pattern_length)) == 0:
+            return i.i64() - pattern_length.i64() + 1
+    -1
+
+export fn bitap_exact_match_31(values: i64&, length: usize) -> i64 = bitap_exact_match_31_impl

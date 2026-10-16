@@ -17,6 +17,7 @@ The pinned Python source returns matched pattern keys mapped to start positions,
 - [TheAlgorithms Java `AhoCorasick.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/AhoCorasick.java)
 - [TheAlgorithms Python `aho_corasick.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/aho_corasick.py)
 - [TheAlgorithms Rust `aho_corasick.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/aho_corasick.rs)
+- [TheAlgorithms Go `ahocorasick.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/strings/ahocorasick/ahocorasick.go) and [`advancedahocorasick.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/strings/ahocorasick/advancedahocorasick.go) return start positions that normalize to the same per-pattern counts under this contract.
 
 `workload.json` covers suffix matches, overlapping occurrences, no matches, empty text, the maximum text length, and invalid shapes or patterns. The shared byte-output runner includes a source oracle for the packed input and per-pattern count output. Build and record with:
 

@@ -1,0 +1,783 @@
+{
+  "schema_version": 1,
+  "id": "java-greedy-egyptian-fraction-bounded-proper-v1",
+  "algorithm": "egyptian_fraction",
+  "function_symbol": "egyptian_fraction",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": [
+      "numerator",
+      "denominator"
+    ],
+    "numerator_range": [
+      0,
+      10
+    ],
+    "denominator_range": [
+      1,
+      10
+    ],
+    "numerator_at_most_denominator": true,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "maximum_valid_array_length": 2,
+    "maximum_validation_array_length": 3
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little_endian_i32",
+    "layout": "one positive unit-fraction denominator x per source-ordered term 1/x",
+    "length": "4 * number of terms",
+    "maximum_bytes": 12
+  },
+  "workspace": {
+    "bytes": 12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "fraction_0_1",
+      "input_length": 2,
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_1",
+      "input_length": 2,
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_2",
+      "input_length": 2,
+      "input_values": [
+        0,
+        2
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_2",
+      "input_length": 2,
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "fraction_2_2",
+      "input_length": 2,
+      "input_values": [
+        2,
+        2
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_3",
+      "input_length": 2,
+      "input_values": [
+        0,
+        3
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_3",
+      "input_length": 2,
+      "input_values": [
+        1,
+        3
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "03000000"
+    },
+    {
+      "id": "fraction_2_3",
+      "input_length": 2,
+      "input_values": [
+        2,
+        3
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000006000000"
+    },
+    {
+      "id": "fraction_3_3",
+      "input_length": 2,
+      "input_values": [
+        3,
+        3
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_4",
+      "input_length": 2,
+      "input_values": [
+        0,
+        4
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_4",
+      "input_length": 2,
+      "input_values": [
+        1,
+        4
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "04000000"
+    },
+    {
+      "id": "fraction_2_4",
+      "input_length": 2,
+      "input_values": [
+        2,
+        4
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "fraction_3_4",
+      "input_length": 2,
+      "input_values": [
+        3,
+        4
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000004000000"
+    },
+    {
+      "id": "fraction_4_4",
+      "input_length": 2,
+      "input_values": [
+        4,
+        4
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_5",
+      "input_length": 2,
+      "input_values": [
+        0,
+        5
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_5",
+      "input_length": 2,
+      "input_values": [
+        1,
+        5
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "05000000"
+    },
+    {
+      "id": "fraction_2_5",
+      "input_length": 2,
+      "input_values": [
+        2,
+        5
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "030000000f000000"
+    },
+    {
+      "id": "fraction_3_5",
+      "input_length": 2,
+      "input_values": [
+        3,
+        5
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "020000000a000000"
+    },
+    {
+      "id": "fraction_4_5",
+      "input_length": 2,
+      "input_values": [
+        4,
+        5
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000400000014000000"
+    },
+    {
+      "id": "fraction_5_5",
+      "input_length": 2,
+      "input_values": [
+        5,
+        5
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_6",
+      "input_length": 2,
+      "input_values": [
+        0,
+        6
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_6",
+      "input_length": 2,
+      "input_values": [
+        1,
+        6
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "06000000"
+    },
+    {
+      "id": "fraction_2_6",
+      "input_length": 2,
+      "input_values": [
+        2,
+        6
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "03000000"
+    },
+    {
+      "id": "fraction_3_6",
+      "input_length": 2,
+      "input_values": [
+        3,
+        6
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "fraction_4_6",
+      "input_length": 2,
+      "input_values": [
+        4,
+        6
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000006000000"
+    },
+    {
+      "id": "fraction_5_6",
+      "input_length": 2,
+      "input_values": [
+        5,
+        6
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000003000000"
+    },
+    {
+      "id": "fraction_6_6",
+      "input_length": 2,
+      "input_values": [
+        6,
+        6
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_7",
+      "input_length": 2,
+      "input_values": [
+        0,
+        7
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_7",
+      "input_length": 2,
+      "input_values": [
+        1,
+        7
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "07000000"
+    },
+    {
+      "id": "fraction_2_7",
+      "input_length": 2,
+      "input_values": [
+        2,
+        7
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "040000001c000000"
+    },
+    {
+      "id": "fraction_3_7",
+      "input_length": 2,
+      "input_values": [
+        3,
+        7
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "030000000b000000e7000000"
+    },
+    {
+      "id": "fraction_4_7",
+      "input_length": 2,
+      "input_values": [
+        4,
+        7
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "020000000e000000"
+    },
+    {
+      "id": "fraction_5_7",
+      "input_length": 2,
+      "input_values": [
+        5,
+        7
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000500000046000000"
+    },
+    {
+      "id": "fraction_6_7",
+      "input_length": 2,
+      "input_values": [
+        6,
+        7
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "02000000030000002a000000"
+    },
+    {
+      "id": "fraction_7_7",
+      "input_length": 2,
+      "input_values": [
+        7,
+        7
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_8",
+      "input_length": 2,
+      "input_values": [
+        0,
+        8
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_8",
+      "input_length": 2,
+      "input_values": [
+        1,
+        8
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "08000000"
+    },
+    {
+      "id": "fraction_2_8",
+      "input_length": 2,
+      "input_values": [
+        2,
+        8
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "04000000"
+    },
+    {
+      "id": "fraction_3_8",
+      "input_length": 2,
+      "input_values": [
+        3,
+        8
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0300000018000000"
+    },
+    {
+      "id": "fraction_4_8",
+      "input_length": 2,
+      "input_values": [
+        4,
+        8
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "fraction_5_8",
+      "input_length": 2,
+      "input_values": [
+        5,
+        8
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000008000000"
+    },
+    {
+      "id": "fraction_6_8",
+      "input_length": 2,
+      "input_values": [
+        6,
+        8
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000004000000"
+    },
+    {
+      "id": "fraction_7_8",
+      "input_length": 2,
+      "input_values": [
+        7,
+        8
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000300000018000000"
+    },
+    {
+      "id": "fraction_8_8",
+      "input_length": 2,
+      "input_values": [
+        8,
+        8
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_9",
+      "input_length": 2,
+      "input_values": [
+        0,
+        9
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_9",
+      "input_length": 2,
+      "input_values": [
+        1,
+        9
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "09000000"
+    },
+    {
+      "id": "fraction_2_9",
+      "input_length": 2,
+      "input_values": [
+        2,
+        9
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "050000002d000000"
+    },
+    {
+      "id": "fraction_3_9",
+      "input_length": 2,
+      "input_values": [
+        3,
+        9
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "03000000"
+    },
+    {
+      "id": "fraction_4_9",
+      "input_length": 2,
+      "input_values": [
+        4,
+        9
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0300000009000000"
+    },
+    {
+      "id": "fraction_5_9",
+      "input_length": 2,
+      "input_values": [
+        5,
+        9
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000012000000"
+    },
+    {
+      "id": "fraction_6_9",
+      "input_length": 2,
+      "input_values": [
+        6,
+        9
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000006000000"
+    },
+    {
+      "id": "fraction_7_9",
+      "input_length": 2,
+      "input_values": [
+        7,
+        9
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000400000024000000"
+    },
+    {
+      "id": "fraction_8_9",
+      "input_length": 2,
+      "input_values": [
+        8,
+        9
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000300000012000000"
+    },
+    {
+      "id": "fraction_9_9",
+      "input_length": 2,
+      "input_values": [
+        9,
+        9
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "fraction_0_10",
+      "input_length": 2,
+      "input_values": [
+        0,
+        10
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fraction_1_10",
+      "input_length": 2,
+      "input_values": [
+        1,
+        10
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0a000000"
+    },
+    {
+      "id": "fraction_2_10",
+      "input_length": 2,
+      "input_values": [
+        2,
+        10
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "05000000"
+    },
+    {
+      "id": "fraction_3_10",
+      "input_length": 2,
+      "input_values": [
+        3,
+        10
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0400000014000000"
+    },
+    {
+      "id": "fraction_4_10",
+      "input_length": 2,
+      "input_values": [
+        4,
+        10
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "030000000f000000"
+    },
+    {
+      "id": "fraction_5_10",
+      "input_length": 2,
+      "input_values": [
+        5,
+        10
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "fraction_6_10",
+      "input_length": 2,
+      "input_values": [
+        6,
+        10
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "020000000a000000"
+    },
+    {
+      "id": "fraction_7_10",
+      "input_length": 2,
+      "input_values": [
+        7,
+        10
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000005000000"
+    },
+    {
+      "id": "fraction_8_10",
+      "input_length": 2,
+      "input_values": [
+        8,
+        10
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000400000014000000"
+    },
+    {
+      "id": "fraction_9_10",
+      "input_length": 2,
+      "input_values": [
+        9,
+        10
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "02000000030000000f000000"
+    },
+    {
+      "id": "fraction_10_10",
+      "input_length": 2,
+      "input_values": [
+        10,
+        10
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_length": 2,
+      "input_values": [
+        1,
+        2
+      ],
+      "workspace_bytes": 3,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_length_empty",
+      "input_length": 0,
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_length_one_value",
+      "input_length": 1,
+      "input_values": [
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_length": 3,
+      "input_values": [
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_numerator",
+      "input_length": 2,
+      "input_values": [
+        -1,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "numerator_above_denominator",
+      "input_length": 2,
+      "input_values": [
+        3,
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_denominator",
+      "input_length": 2,
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_denominator",
+      "input_length": 2,
+      "input_values": [
+        0,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "denominator_above_bound",
+      "input_length": 2,
+      "input_values": [
+        1,
+        11
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

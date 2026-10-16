@@ -1,0 +1,32 @@
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value < 4:
+        return true
+    if value % 2 == 0 or value % 3 == 0:
+        return false
+    divisor: mutable i64 = 5
+    while divisor <= value / divisor:
+        if value % divisor == 0 or value % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
+
+def problem58_impl(ratio: f64) -> f64:
+    if not (ratio >= 0.1 and ratio <= 0.6):
+        return -1.0
+    side: mutable i64 = 3
+    prime_count: mutable i64 = 3
+    while prime_count.f64() / (2 * side - 1).f64() >= ratio:
+        square: i64 = side * side
+        step: i64 = side + 1
+        if is_prime(square + step):
+            prime_count <- prime_count + 1
+        if is_prime(square + 2 * step):
+            prime_count <- prime_count + 1
+        if is_prime(square + 3 * step):
+            prime_count <- prime_count + 1
+        side <- side + 2
+    side.f64()
+
+export fn problem58(ratio: f64) -> f64 = problem58_impl

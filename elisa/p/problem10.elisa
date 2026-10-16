@@ -1,0 +1,23 @@
+# Sum primes strictly below the limit using an odd-only sieve.
+def problem10_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 2000000:
+        return -1
+    composite: mutable bool[1000000] = zeroed
+    odd_count: i64 = limit / 2
+    sum: mutable i64 = if limit > 2: 2 else: 0
+    prime: mutable i64 = 3
+    while prime * prime < limit:
+        if not composite[(prime / 2).usize()]:
+            index: mutable i64 = prime * prime / 2
+            while index < odd_count:
+                composite[index.usize()] <- true
+                index <- index + prime
+        prime <- prime + 2
+    index: mutable i64 = 1
+    while index < odd_count:
+        if not composite[index.usize()]:
+            sum <- sum + 2 * index + 1
+        index <- index + 1
+    sum
+
+export fn problem10(limit: i64) -> i64 = problem10_impl

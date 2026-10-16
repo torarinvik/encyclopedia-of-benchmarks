@@ -1,6 +1,6 @@
 # Brute-force 0/1 knapsack
 
-Solve 0/1 knapsack with the pinned Java source's direct recursive include/exclude recurrence. Each item is considered at most once. This is distinct from the existing [`knapsack_zero_one_tabulation`](../knapsack_zero_one_tabulation/README.md) benchmark, which uses bottom-up dynamic programming.
+Solve 0/1 knapsack with the pinned Java source's direct recursive include/exclude recurrence. Each item is considered at most once. This is distinct from the existing [`knapsack_zero_one_tabulation`](../../k/knapsack_zero_one_tabulation/README.md) benchmark, which uses bottom-up dynamic programming.
 
 ## Contract
 

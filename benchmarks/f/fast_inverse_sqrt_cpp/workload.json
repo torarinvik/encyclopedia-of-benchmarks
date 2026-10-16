@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "fast-inverse-sqrt-cpp-binary64-two-corrections-v1",
+  "algorithm": "fast_inverse_sqrt_cpp",
+  "function_symbol": "fast_inverse_sqrt_cpp",
+  "input": {
+    "kind": "finite_positive_binary64",
+    "minimum": 1e-06,
+    "maximum": 1000000.0,
+    "seed_format": "IEEE-754 binary64",
+    "magic_constant": "0x5fe6eb50c7b537a9",
+    "newton_iterations": 2,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "two binary64 Newton corrections after the double-precision fast inverse-square-root bit seed",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "absolute_tolerance": 1e-15,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "minimum_input",
+      "input_values": [
+        1e-06
+      ],
+      "expected_result": 999.9990668181515
+    },
+    {
+      "id": "near_minimum",
+      "input_values": [
+        1.0001e-06
+      ],
+      "expected_result": 999.949074162635
+    },
+    {
+      "id": "small_fraction",
+      "input_values": [
+        1e-05
+      ],
+      "expected_result": 316.2263322136853
+    },
+    {
+      "id": "one_thousandth",
+      "input_values": [
+        0.001
+      ],
+      "expected_result": 31.622709262018994
+    },
+    {
+      "id": "one_eighth",
+      "input_values": [
+        0.125
+      ],
+      "expected_result": 2.828426858541228
+    },
+    {
+      "id": "one_half",
+      "input_values": [
+        0.5
+      ],
+      "expected_result": 1.414213429270614
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 0.9999957088497448
+    },
+    {
+      "id": "just_above_one",
+      "input_values": [
+        1.0000000001
+      ],
+      "expected_result": 0.9999957087997569
+    },
+    {
+      "id": "two",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 0.707106714635307
+    },
+    {
+      "id": "five",
+      "input_values": [
+        5.0
+      ],
+      "expected_result": 0.4472135777531518
+    },
+    {
+      "id": "twelve",
+      "input_values": [
+        12.0
+      ],
+      "expected_result": 0.2886748045043282
+    },
+    {
+      "id": "thirty_six",
+      "input_values": [
+        36.0
+      ],
+      "expected_result": 0.1666663409525502
+    },
+    {
+      "id": "one_hundred",
+      "input_values": [
+        100.0
+      ],
+      "expected_result": 0.09999963870023636
+    },
+    {
+      "id": "fractional",
+      "input_values": [
+        123.456
+      ],
+      "expected_result": 0.09000024436722515
+    },
+    {
+      "id": "near_maximum",
+      "input_values": [
+        999999.0
+      ],
+      "expected_result": 0.0009999961957217523
+    },
+    {
+      "id": "maximum_input",
+      "input_values": [
+        1000000.0
+      ],
+      "expected_result": 0.000999995695732359
+    },
+    {
+      "id": "zero_invalid",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "below_minimum_invalid",
+      "input_values": [
+        9.99e-07
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_maximum_invalid",
+      "input_values": [
+        1000001.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

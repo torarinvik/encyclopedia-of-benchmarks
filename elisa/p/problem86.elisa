@@ -1,0 +1,25 @@
+def is_square(value: i64) -> bool:
+    root: mutable i64 = value
+    next: mutable i64 = (root + 1) / 2
+    while next < root:
+        root <- next
+        next <- (root + value / root) / 2
+    root * root == value
+
+def problem86_impl(limit: i64) -> i64:
+    if limit > 1000000: return -1
+    if limit < 0: return 0
+    cuboid_count: mutable i64 = 0
+    max_side: mutable i64 = 0
+    while cuboid_count <= limit:
+        max_side <- max_side + 1
+        sum_sides: mutable i64 = 2
+        while sum_sides <= 2 * max_side:
+            if is_square(sum_sides * sum_sides + max_side * max_side):
+                high: i64 = if max_side < sum_sides / 2: max_side else: sum_sides / 2
+                low: i64 = if sum_sides - max_side > 1: sum_sides - max_side else: 1
+                cuboid_count <- cuboid_count + high - low + 1
+            sum_sides <- sum_sides + 1
+    max_side
+
+export fn problem86(limit: i64) -> i64 = problem86_impl

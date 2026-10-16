@@ -6,6 +6,8 @@ Use the unary `float64_unary` ABI: `double fast_inverse_sqrt_go(double x)`. Inpu
 
 The input is rounded to binary32 before the algorithm runs. The seed uses the magic constant `0x5f3759df` and `0x5f3759df - (bits >> 1)`. It then performs the Go source's two Newton corrections entirely in binary32, rounding the intermediate products and correction at each step. The final binary32 value is widened to binary64 for the ABI result. This follows the approximation, not exact `1 / sqrt(x)`.
 
+The benchmark pins an explicit binary32 rounding after each intermediate operation for deterministic results. Go permits floating-point fusion across expressions, so bit-for-bit intermediate parity is not guaranteed for every Go compiler and target.
+
 The bounded domain keeps the binary32 input positive, finite, and normal. It also distinguishes this Go version from [`fast_inverse_square_root`](../fast_inverse_square_root/README.md), whose pinned PHP source uses one correction with binary64 arithmetic.
 
 ## Workload and build

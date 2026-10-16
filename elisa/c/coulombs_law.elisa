@@ -1,0 +1,26 @@
+const INVALID_RESULT: f64 = -1.0e300
+const COULOMBS_CONSTANT: f64 = 8.9875517923e9
+const MAX_CHARGE_MICROCOULOMBS: i64 = 1000000
+const MAX_DISTANCE_MILLIMETERS: i64 = 1000000
+
+def coulombs_law_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return INVALID_RESULT
+    charge1_value: i64 = values[0]
+    charge2_value: i64 = values[1]
+    distance_value: i64 = values[2]
+    if charge1_value == 0 or charge2_value == 0 or
+       charge1_value < -MAX_CHARGE_MICROCOULOMBS or charge1_value > MAX_CHARGE_MICROCOULOMBS or
+       charge2_value < -MAX_CHARGE_MICROCOULOMBS or charge2_value > MAX_CHARGE_MICROCOULOMBS or
+       distance_value < 1 or distance_value > MAX_DISTANCE_MILLIMETERS:
+        return INVALID_RESULT
+
+    charge1: f64 = charge1_value.f64() / 1000000.0
+    charge2: f64 = charge2_value.f64() / 1000000.0
+    distance: f64 = distance_value.f64() / 1000.0
+    charge_product: mutable f64 = charge1 * charge2
+    if charge_product < 0.0:
+        charge_product <- -charge_product
+    COULOMBS_CONSTANT * charge_product / (distance * distance)
+
+export fn coulombs_law(values: i64&, length: usize) -> f64 = coulombs_law_impl

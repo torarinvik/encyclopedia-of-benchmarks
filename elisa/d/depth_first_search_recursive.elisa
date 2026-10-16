@@ -1,0 +1,63 @@
+# Recursive reachability search in a bounded undirected graph.
+const MAX_VERTICES: usize = 64
+const MAX_EDGES: usize = 256
+
+def depth_first_search_recursive_visit(adjacency: usize&, degree: usize&, current: usize,
+                                       target: i64, visited: mutable bool&) -> bool:
+    if current.i64() == target:
+        return true
+    visited[current] <- true
+    position: mutable usize = 0
+    while position < degree[current]:
+        neighbor: usize = adjacency[current * MAX_VERTICES + position]
+        if not visited[neighbor] and depth_first_search_recursive_visit(
+                adjacency, degree, neighbor, target, visited):
+            return true
+        position <- position + 1
+    false
+
+def depth_first_search_recursive_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 518:
+        return -1
+    vertex_count: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target: i64 = input[3]
+    if vertex_count < 1 or vertex_count > 64 or edge_count_value < 0 or edge_count_value > 256:
+        return -1
+    if source_value < 0 or source_value >= vertex_count:
+        return -1
+    edge_count: usize = edge_count_value.usize()
+    if length != 4 + 2 * edge_count:
+        return -1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left: i64 = input[4 + 2 * edge]
+        right: i64 = input[5 + 2 * edge]
+        if left < 0 or left >= vertex_count or right < 0 or right >= vertex_count:
+            return -1
+        edge <- edge + 1
+    adjacency: mutable usize[4096] = zeroed
+    degree: mutable usize[64] = zeroed
+    seen: mutable u64[64] = zeroed
+    edge <- 0
+    while edge < edge_count:
+        left: usize = input[4 + 2 * edge].usize()
+        right: usize = input[5 + 2 * edge].usize()
+        right_bit: u64 = 1.u64() << right.u32()
+        if (seen[left] & right_bit) == 0:
+            seen[left] <- seen[left] | right_bit
+            adjacency[left * MAX_VERTICES + degree[left]] <- right
+            degree[left] <- degree[left] + 1
+        left_bit: u64 = 1.u64() << left.u32()
+        if (seen[right] & left_bit) == 0:
+            seen[right] <- seen[right] | left_bit
+            adjacency[right * MAX_VERTICES + degree[right]] <- left
+            degree[right] <- degree[right] + 1
+        edge <- edge + 1
+    visited: mutable bool[64] = zeroed
+    if depth_first_search_recursive_visit(adjacency, degree, source_value.usize(), target, visited):
+        return 1
+    0
+
+export fn depth_first_search_recursive(input: i64&, length: usize) -> i64 = depth_first_search_recursive_impl

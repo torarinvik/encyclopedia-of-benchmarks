@@ -1,0 +1,48 @@
+# Generate the next look-and-say string from bounded ASCII input.
+def conway_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 129: return -1
+    n: i64 = input[0]
+    if n < 1 or n > 128 or length != (n + 1).usize(): return -1
+    index: mutable usize = 0
+    while index < n.usize():
+        ch: i64 = input[index + 1]
+        if ch < 0 or ch > 127: return -1
+        index <- index + 1
+    needed: mutable usize = 0
+    index <- 0
+    while index < n.usize():
+        end: mutable usize = index + 1
+        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13): end <- end + 1
+        run: mutable usize = end - index
+        needed <- needed + 1
+        while run >= 10:
+            run <- run / 10
+            needed <- needed + 1
+        index <- end
+    if capacity < needed: return -2
+    pos: mutable usize = 0
+    index <- 0
+    while index < n.usize():
+        end: mutable usize = index + 1
+        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13): end <- end + 1
+        run: mutable usize = end - index
+        start: usize = pos
+        while true:
+            output[pos] <- (48 + run % 10).u8()
+            pos <- pos + 1
+            run <- run / 10
+            if run == 0: break
+        left: mutable usize = start
+        right: mutable usize = pos - 1
+        while left < right:
+            temporary: u8 = output[left]
+            output[left] <- output[right]
+            output[right] <- temporary
+            left <- left + 1
+            right <- right - 1
+        output[pos] <- input[index + 1].u8()
+        pos <- pos + 1
+        index <- end
+    pos.i64()
+
+export fn conway(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = conway_impl

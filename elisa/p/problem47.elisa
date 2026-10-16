@@ -1,0 +1,30 @@
+# First run of n consecutive integers with n distinct prime factors each.
+def distinct_prime_factor_count(value_input: i64) -> i64:
+    value: mutable i64 = value_input
+    count: mutable i64 = 0
+    divisor: mutable i64 = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0:
+            count <- count + 1
+            while value % divisor == 0:
+                value <- value / divisor
+        divisor <- divisor + 1
+    if value > 1:
+        count <- count + 1
+    count
+
+def problem47_impl(n: i64) -> i64:
+    if n < 1 or n > 4:
+        return -1
+    value: mutable i64 = 2
+    run_length: mutable i64 = 0
+    while true:
+        if distinct_prime_factor_count(value) == n:
+            run_length <- run_length + 1
+        else:
+            run_length <- 0
+        if run_length == n:
+            return value - n + 1
+        value <- value + 1
+
+export fn problem47(n: i64) -> i64 = problem47_impl

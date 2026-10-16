@@ -1,0 +1,36 @@
+const MAX_DIGITS: i64 = 9
+
+def problem41_is_prime(number: i64) -> bool:
+    if number < 2:
+        return false
+    if number < 4:
+        return true
+    if number % 2 == 0 or number % 3 == 0:
+        return false
+    divisor: mutable i64 = 5
+    while divisor <= number / divisor:
+        if number % divisor == 0 or number % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
+
+def problem41_search(digits: i64, depth: i64, used: usize, value: i64) -> i64:
+    if depth == digits:
+        return if problem41_is_prime(value) then value else 0
+    best: mutable i64 = 0
+    digit: mutable i64 = 1
+    while digit <= digits:
+        bit: usize = 1 << digit.usize()
+        if (used & bit) == 0:
+            candidate: i64 = problem41_search(digits, depth + 1, used | bit, value * 10 + digit)
+            if candidate > best:
+                best <- candidate
+        digit <- digit + 1
+    best
+
+def problem41_impl(digits: i64) -> i64:
+    if digits < 1 or digits > MAX_DIGITS:
+        return -1
+    problem41_search(digits, 0, 0, 0)
+
+export fn problem41(digits: i64) -> i64 = problem41_impl

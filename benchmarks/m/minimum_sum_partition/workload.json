@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "minimum-sum-partition-bounded-nonnegative-i32-v1",
+  "algorithm": "minimum_sum_partition",
+  "function_symbol": "minimum_sum_partition",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "item values",
+    "item_count_range": [
+      0,
+      64
+    ],
+    "item_value_range": [
+      0,
+      4096
+    ],
+    "maximum_total_sum": 4096,
+    "empty_input_result": 0,
+    "invalid_input_result": -1,
+    "maximum_parseable_length": 65
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "minimum absolute difference between two subset sums",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "single_zero",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_positive",
+      "input_values": [7],
+      "input_length": 1,
+      "expected_result": 7
+    },
+    {
+      "id": "source_example_balanced",
+      "input_values": [1, 6, 11, 4],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_difference_23",
+      "input_values": [36, 7, 46, 40],
+      "input_length": 4,
+      "expected_result": 23
+    },
+    {
+      "id": "odd_total",
+      "input_values": [1, 2, 4],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "duplicates_are_distinct_items",
+      "input_values": [1, 1, 2, 2],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "unbalanced_at_total_bound",
+      "input_values": [4095, 1],
+      "input_length": 2,
+      "expected_result": 4094
+    },
+    {
+      "id": "single_item_at_total_bound",
+      "input_values": [4096],
+      "input_length": 1,
+      "expected_result": 4096
+    },
+    {
+      "id": "two_equal_half_totals",
+      "input_values": [2048, 2048],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_length_at_total_bound",
+      "input_values": [64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+        64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64],
+      "input_length": 64,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_length_all_zeros",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 64,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_value",
+      "input_values": [-1],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "item_over_total_bound",
+      "input_values": [4097],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "total_over_bound",
+      "input_values": [2048, 2049],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "i64_minimum_value",
+      "input_values": [-9223372036854775808],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "i64_maximum_value",
+      "input_values": [9223372036854775807],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "65_items_over_limit",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 65,
+      "expected_result": -1
+    }
+  ]
+}

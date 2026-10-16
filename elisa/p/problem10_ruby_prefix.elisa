@@ -1,0 +1,23 @@
+# Ruby Project Euler 10's strict cumulative-prime prefix.
+def is_prime_value(number: i64) -> bool:
+    if number > 1 and number < 4: return true
+    if number < 2 or number % 2 == 0 or number % 3 == 0: return false
+    divisor: mutable i64 = 5
+    while divisor * divisor <= number:
+        if number % divisor == 0 or number % (divisor + 2) == 0: return false
+        divisor <- divisor + 6
+    true
+
+def problem10_ruby_prefix_impl(max_total: i64) -> i64:
+    if max_total < 0 or max_total > 2000000: return -1
+    sum: mutable i64 = 1
+    value: mutable i64 = 1
+    number: mutable i64 = 2
+    while number < max_total and value < max_total:
+        if is_prime_value(number):
+            value <- value + number
+            if value < max_total: sum <- value
+        number <- number + 1
+    sum
+
+export fn problem10_ruby_prefix(max_total: i64) -> i64 = problem10_ruby_prefix_impl

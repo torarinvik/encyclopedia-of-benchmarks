@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "java-integer-to-english-i64-array-bytes-output-v1",
+  "algorithm": "integer_to_english",
+  "function_symbol": "integer_to_english",
+  "description": "Render bounded Java int values using the pinned English-word conversion.",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[value]",
+    "exact_length": 1,
+    "parseable_malformed_length": 2,
+    "accepted_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_input_result": -1,
+    "negative_value_source_output": "empty string"
+  },
+  "output": {
+    "kind": "ASCII byte string",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "maximum_bytes": 128
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "maximum output capacity"
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/conversions/IntegerToEnglish.java"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output_hex": "5a65726f"
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 3,
+      "expected_output_hex": "4f6e65"
+    },
+    {
+      "id": "twenty",
+      "input_values": [
+        20
+      ],
+      "input_length": 1,
+      "expected_result": 6,
+      "expected_output_hex": "5477656e7479"
+    },
+    {
+      "id": "twenty_one",
+      "input_values": [
+        21
+      ],
+      "input_length": 1,
+      "expected_result": 10,
+      "expected_output_hex": "5477656e7479204f6e65"
+    },
+    {
+      "id": "one_hundred",
+      "input_values": [
+        100
+      ],
+      "input_length": 1,
+      "expected_result": 11,
+      "expected_output_hex": "4f6e652048756e64726564"
+    },
+    {
+      "id": "one_hundred_one",
+      "input_values": [
+        101
+      ],
+      "input_length": 1,
+      "expected_result": 15,
+      "expected_output_hex": "4f6e652048756e64726564204f6e65"
+    },
+    {
+      "id": "one_thousand",
+      "input_values": [
+        1000
+      ],
+      "input_length": 1,
+      "expected_result": 12,
+      "expected_output_hex": "4f6e652054686f7573616e64"
+    },
+    {
+      "id": "one_thousand_one",
+      "input_values": [
+        1001
+      ],
+      "input_length": 1,
+      "expected_result": 16,
+      "expected_output_hex": "4f6e652054686f7573616e64204f6e65"
+    },
+    {
+      "id": "source_example_12345",
+      "input_values": [
+        12345
+      ],
+      "input_length": 1,
+      "expected_result": 40,
+      "expected_output_hex": "5477656c76652054686f7573616e642054687265652048756e6472656420466f7274792046697665"
+    },
+    {
+      "id": "one_million_one",
+      "input_values": [
+        1000001
+      ],
+      "input_length": 1,
+      "expected_result": 15,
+      "expected_output_hex": "4f6e65204d696c6c696f6e204f6e65"
+    },
+    {
+      "id": "mixed_three_groups",
+      "input_values": [
+        123456789
+      ],
+      "input_length": 1,
+      "expected_result": 90,
+      "expected_output_hex": "4f6e652048756e64726564205477656e7479205468726565204d696c6c696f6e20466f75722048756e64726564204669667479205369782054686f7573616e6420536576656e2048756e6472656420456967687479204e696e65"
+    },
+    {
+      "id": "maximum_signed_int",
+      "input_values": [
+        2147483647
+      ],
+      "input_length": 1,
+      "expected_result": 102,
+      "expected_output_hex": "54776f2042696c6c696f6e204f6e652048756e6472656420466f72747920536576656e204d696c6c696f6e20466f75722048756e64726564204569676874792054687265652054686f7573616e64205369782048756e6472656420466f72747920536576656e"
+    },
+    {
+      "id": "negative_source_behavior",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "minimum_signed_int_source_behavior",
+      "input_values": [
+        -2147483648
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "below_java_int_range",
+      "input_values": [
+        -2147483649
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_java_int_range",
+      "input_values": [
+        2147483648
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_malformed",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_value_malformed",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        123
+      ],
+      "input_length": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 3
+    }
+  ]
+}

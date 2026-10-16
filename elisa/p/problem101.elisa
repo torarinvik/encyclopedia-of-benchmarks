@@ -1,0 +1,55 @@
+def question_function(n: i64) -> i64:
+    term: mutable i64 = 1
+    total: mutable i64 = 0
+    exponent: mutable i64 = 0
+    while exponent <= 10:
+        if exponent % 2 == 0: total <- total + term
+        else: total <- total - term
+        term <- term * n
+        exponent <- exponent + 1
+    total
+
+def problem101_impl(order: i64) -> i64:
+    if order > 10: return -1
+    if order <= 0: return 0
+    data: mutable i64[10] = zeroed
+    i: mutable i64 = 0
+    while i < order:
+        data[i.usize()] <- question_function(i + 1)
+        i <- i + 1
+    total_fit: mutable i64 = 0
+    k: mutable i64 = 1
+    while k <= order:
+        row: mutable i64[10] = zeroed
+        differences: mutable i64[10] = zeroed
+        i <- 0
+        while i < k:
+            row[i.usize()] <- data[i.usize()]
+            i <- i + 1
+        differences[0] <- row[0]
+        level: mutable i64 = 1
+        while level < k:
+            i <- 0
+            while i < k - level:
+                row[i.usize()] <- row[(i + 1).usize()] - row[i.usize()]
+                i <- i + 1
+            differences[level.usize()] <- row[0]
+            level <- level + 1
+        x: mutable i64 = 1
+        done: mutable bool = false
+        prediction: mutable i64 = 0
+        while not done:
+            prediction <- 0
+            choose: mutable i64 = 1
+            j: mutable i64 = 0
+            while j < k:
+                prediction <- prediction + differences[j.usize()] * choose
+                if j + 1 < k: choose <- choose * (x - 1 - j) / (j + 1)
+                j <- j + 1
+            if prediction == question_function(x): x <- x + 1
+            else: done <- true
+        total_fit <- total_fit + prediction
+        k <- k + 1
+    total_fit
+
+export fn problem101(order: i64) -> i64 = problem101_impl

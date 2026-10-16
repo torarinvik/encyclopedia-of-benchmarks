@@ -1,0 +1,10 @@
+#include <cstddef>
+#include <cstdint>
+namespace { constexpr int max_v=10,max_e=45;void dfs(int u,int (&neighbors)[max_v][max_e],int (&degree)[max_v],std::uint8_t (&seen)[max_v][max_v],int (&path)[max_e+1],int& count){path[count++]=u;for(int i=0;i<degree[u];++i){int v=neighbors[u][i];if(!seen[u][v]){seen[u][v]=seen[v][u]=1;dfs(v,neighbors,degree,seen,path,count);}}}void put(std::uint8_t*out,std::size_t o,std::int64_t v){auto b=static_cast<std::uint64_t>(v);for(std::size_t i=0;i<8;++i)out[o+i]=static_cast<std::uint8_t>(b>>(8*i));} }
+extern "C" std::int64_t eulerian_trail_undirected_simple(const std::int64_t*input,std::size_t length,std::uint8_t*output,std::size_t capacity){
+ if(!input||length<2||input[0]<2||input[0]>max_v||input[1]<0||input[1]>max_e)return -1;int n=static_cast<int>(input[0]),m=static_cast<int>(input[1]);if(length!=2+2*static_cast<std::size_t>(m))return -1;int neighbors[max_v][max_e],degree[max_v]{};std::uint8_t adjacent[max_v][max_v]{};
+ for(int i=0;i<m;++i){auto au=input[2+2*i],av=input[3+2*i];if(au<0||au>=n||av<0||av>=n||au==av)return -1;int u=static_cast<int>(au),v=static_cast<int>(av);if(adjacent[u][v])return -1;adjacent[u][v]=adjacent[v][u]=1;neighbors[u][degree[u]++]=v;neighbors[v][degree[v]++]=u;}
+ int odd=0,start=1;for(int v=0;v<n;++v)if(degree[v]&1){odd++;start=v;}if(odd!=0&&odd!=2)return -1;int status=odd==0?1:2;if(status==1)start=1;
+ if(m>0){if(status==1&&degree[1]==0)return -1;std::uint8_t reached[max_v]{};int stack[max_v],top=0;stack[top++]=start;reached[start]=1;while(top){int u=stack[--top];for(int i=0;i<degree[u];++i){int v=neighbors[u][i];if(!reached[v]){reached[v]=1;stack[top++]=v;}}}for(int v=0;v<n;++v)if(degree[v]>0&&!reached[v])return -1;}
+ std::uint8_t seen[max_v][max_v]{};int path[max_e+1],count=0;dfs(start,neighbors,degree,seen,path,count);if(count!=m+1)return -1;auto bytes=(2+static_cast<std::size_t>(count))*8;if(!output||capacity<bytes)return -2;put(output,0,status);put(output,8,count);for(int i=0;i<count;++i)put(output,(2+static_cast<std::size_t>(i))*8,path[i]);return static_cast<std::int64_t>(bytes);
+}

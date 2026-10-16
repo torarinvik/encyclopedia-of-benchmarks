@@ -1,0 +1,27 @@
+def trapezoidal_integration_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return -1.0e300
+    start_micro: i64 = values[0]
+    end_micro: i64 = values[1]
+    steps: i64 = values[2]
+    function_id: i64 = values[3]
+    if start_micro < -1000000 or start_micro > 1000000 or end_micro < -1000000 or end_micro > 1000000 or
+            steps < 1 or steps > 10000 or function_id < 0 or function_id > 1:
+        return -1.0e300
+
+    start: f64 = start_micro.f64() / 1000000.0
+    end: f64 = end_micro.f64() / 1000000.0
+    delta: f64 = (end - start) / steps.f64()
+    total: mutable f64 = 0.0
+    index: mutable i64 = 0
+    while index < steps:
+        left: f64 = start + delta * index.f64()
+        right: f64 = left + delta
+        left_value: f64 = if function_id == 0: left * left else: left * left * left
+        right_value: f64 = if function_id == 0: right * right else: right * right * right
+        midpoint: f64 = (left_value + right_value) * 0.5
+        total <- total + midpoint * delta
+        index <- index + 1
+    total
+
+export fn trapezoidal_integration(values: i64&, length: usize) -> f64 = trapezoidal_integration_impl

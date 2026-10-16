@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-109-darts-checkouts-v1",
+  "algorithm": "problem109",
+  "function_symbol": "problem109",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Exclusive upper bound for checkout totals, matching `total < limit`",
+    "minimum": -9223372036854775808,
+    "maximum": 9223372036854775807
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of distinct checkout combinations; the final throw is a double and the first two throws form an unordered multiset"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "six",
+      "input_value": 6,
+      "expected_result": 11
+    },
+    {
+      "id": "seven_includes_score_six",
+      "input_value": 7,
+      "expected_result": 22
+    },
+    {
+      "id": "documented_fifty",
+      "input_value": 50,
+      "expected_result": 12577
+    },
+    {
+      "id": "canonical_one_hundred",
+      "input_value": 100,
+      "expected_result": 38182
+    },
+    {
+      "id": "limit_170",
+      "input_value": 170,
+      "expected_result": 42335
+    },
+    {
+      "id": "all_checkouts",
+      "input_value": 171,
+      "expected_result": 42336
+    },
+    {
+      "id": "above_maximum",
+      "input_value": 1000000,
+      "expected_result": 42336
+    },
+    {
+      "id": "minimum_i64",
+      "input_value": -9223372036854775808,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_i64",
+      "input_value": 9223372036854775807,
+      "expected_result": 42336
+    }
+  ]
+}

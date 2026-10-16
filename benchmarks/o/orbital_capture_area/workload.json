@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "orbital-capture-area-python-v1",
+  "algorithm": "orbital_capture_area",
+  "function_symbol": "orbital_capture_area",
+  "input": {
+    "kind": "bounded_binary64_capture_radius",
+    "argument_order": [
+      "capture_radius_m"
+    ],
+    "bounds": {
+      "capture_radius_m": [
+        0,
+        10000000000.0
+      ]
+    },
+    "formula": "round(pi * capture_radius^2, 0)",
+    "rounding": "Nearest integer, ties to even; matches Python round(value, 0).",
+    "invalid_result": -1e+300,
+    "verification_relative_tolerance": 1e-14,
+    "verification_absolute_tolerance": 1e-09
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "round(pi * capture_radius^2, 0)",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-14,
+    "absolute_tolerance": 1e-06,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "half",
+      "input_values": [
+        0.5
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 3.0
+    },
+    {
+      "id": "one-and-half",
+      "input_values": [
+        1.5
+      ],
+      "expected_result": 7.0
+    },
+    {
+      "id": "two",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 13.0
+    },
+    {
+      "id": "hundred",
+      "input_values": [
+        100.0
+      ],
+      "expected_result": 31416.0
+    },
+    {
+      "id": "source-solar-example",
+      "input_values": [
+        17209590691.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "maximum-radius",
+      "input_values": [
+        10000000000.0
+      ],
+      "expected_result": 3.1415926535897933e+20
+    },
+    {
+      "id": "negative-radius-invalid",
+      "input_values": [
+        -1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "above-bound-invalid",
+      "input_values": [
+        10000001000.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

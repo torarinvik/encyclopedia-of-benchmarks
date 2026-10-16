@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-123-scalar-v1",
+  "algorithm": "problem123",
+  "function_symbol": "problem123",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 10000000000,
+    "meaning": "remainder threshold that must be strictly exceeded",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "First odd prime index n for which 2 times the nth prime times n strictly exceeds the threshold",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "negative_threshold",
+      "input_value": -1,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_threshold",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "threshold_below_first_remainder",
+      "input_value": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "threshold_equal_to_first_remainder",
+      "input_value": 4,
+      "expected_result": 3
+    },
+    {
+      "id": "threshold_equal_to_third_index_remainder",
+      "input_value": 30,
+      "expected_result": 5
+    },
+    {
+      "id": "source_example_one_hundred_million",
+      "input_value": 100000000,
+      "expected_result": 2371
+    },
+    {
+      "id": "source_example_one_billion",
+      "input_value": 1000000000,
+      "expected_result": 7037
+    },
+    {
+      "id": "source_default_ten_billion",
+      "input_value": 10000000000,
+      "expected_result": 21035
+    },
+    {
+      "id": "threshold_above_benchmark_domain",
+      "input_value": 10000000001,
+      "expected_result": -1
+    }
+  ]
+}

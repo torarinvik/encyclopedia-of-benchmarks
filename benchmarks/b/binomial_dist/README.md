@@ -39,5 +39,6 @@ python3 benchmarks/run_float64_triple.py --build-manifest build/float64_triple/b
 
 ## Pinned sources
 
+- Python [`binomial_distribution.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/binomial_distribution.py) computes the exact-success probability and maps on `1 <= x <= n <= 16` with `p` in `{0.25, 0.5, 0.75}`, where the dyadic probability inputs align with this contract.
 - [C-Plus-Plus `binomial_dist.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/probability/binomial_dist.cpp)
 - [C-Plus-Plus-1 `binomial_dist.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/probability/binomial_dist.cpp)

@@ -1,0 +1,5 @@
+const MAX_N:usize=8;const MAX_OUTPUT_WORDS:usize=737;
+fn safe(rows:&[usize;MAX_N],col:usize,row:usize)->bool{for c in 0..col{let prior=rows[c];if prior==row||prior+c==row+col||prior+col==row+c{return false;}}true}
+fn enumerate(n:usize,col:usize,rows:&mut[usize;MAX_N],out:&mut[i64;MAX_OUTPUT_WORDS],used:&mut usize){if col==n{for c in 0..n{out[*used]=rows[c] as i64;*used+=1;}out[0]+=1;return;}for row in 0..n{if safe(rows,col,row){rows[col]=row;enumerate(n,col+1,rows,out,used);}}}
+unsafe fn put(out:*mut u8,index:usize,value:i64){let bits=value as u64;for b in 0..8{*out.add(index*8+b)=(bits>>(8*b))as u8;}}
+#[no_mangle]pub unsafe extern "C" fn n_queens_backtracking_csharp(n:i64,out:*mut u8,capacity:usize)->i64{if n<0||n>MAX_N as i64{return -1;}let mut values=[0i64;MAX_OUTPUT_WORDS];let mut used=1usize;if n>0{let mut rows=[0usize;MAX_N];enumerate(n as usize,0,&mut rows,&mut values,&mut used);}let required=used*8;if out.is_null()||capacity<required{return -2;}for i in 0..used{put(out,i,values[i]);}required as i64}

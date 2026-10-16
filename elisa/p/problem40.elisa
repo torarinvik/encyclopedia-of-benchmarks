@@ -1,0 +1,33 @@
+# Product of selected Champernowne digits via decimal digit blocks.
+def digit_at_position(position_input: i64) -> i64:
+    position: mutable i64 = position_input
+    digits: mutable i64 = 1
+    block_count: mutable i64 = 9
+    first_number: mutable i64 = 1
+    while position > digits * block_count:
+        position <- position - digits * block_count
+        digits <- digits + 1
+        block_count <- block_count * 10
+        first_number <- first_number * 10
+    number: i64 = first_number + (position - 1) / digits
+    offset: i64 = (position - 1) % digits
+    divisor: mutable i64 = 1
+    power: mutable i64 = 0
+    while power < digits - offset - 1:
+        divisor <- divisor * 10
+        power <- power + 1
+    (number / divisor) % 10
+
+def problem40_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    product: mutable i64 = digit_at_position(1)
+    product <- product * digit_at_position(10)
+    product <- product * digit_at_position(100)
+    product <- product * digit_at_position(1000)
+    product <- product * digit_at_position(10000)
+    product <- product * digit_at_position(100000)
+    product <- product * digit_at_position(1000000)
+    product
+
+export fn problem40(ignored: i64) -> i64 = problem40_impl

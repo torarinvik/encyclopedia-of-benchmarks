@@ -1,0 +1,87 @@
+const MAX_LIMIT: i64 = 10000000
+const MAX_DIGITS: usize = 7
+const MAX_SUM: usize = MAX_DIGITS * 81 + 1
+
+def digit_square_sum(value: u32) -> u32:
+    total: mutable u32 = 0
+    number: mutable u32 = value
+    while number != 0:
+        digit: u32 = number % 10
+        total <- total + digit * digit
+        number <- number / 10
+    total
+
+def reaches_89(value: u32) -> bool:
+    number: mutable u32 = value
+    while number != 1 and number != 89:
+        number <- digit_square_sum(number)
+    number == 89
+
+def problem92_impl(number: i64) -> i64:
+    if number < 0 or number > MAX_LIMIT:
+        return -1
+    digits: mutable u32[MAX_DIGITS] = zeroed
+    reversed: mutable u32[MAX_DIGITS] = zeroed
+    digit_count: mutable usize = 0
+    if number > 1:
+        remaining: mutable u32 = (number - 1).u32()
+        while remaining != 0:
+            reversed[digit_count] <- remaining % 10
+            digit_count <- digit_count + 1
+            remaining <- remaining / 10
+        index: mutable usize = 0
+        while index < digit_count:
+            digits[index] <- reversed[digit_count - index - 1]
+            index <- index + 1
+    else:
+        digits[0] <- 0
+        digit_count <- 1
+    sum_limit: usize = digit_count * 81 + 1
+    tight: mutable i64[MAX_SUM] = zeroed
+    free_counts: mutable i64[MAX_SUM] = zeroed
+    next_tight: mutable i64[MAX_SUM] = zeroed
+    next_free: mutable i64[MAX_SUM] = zeroed
+    tight[0] <- 1
+    position: mutable usize = 0
+    while position < digit_count:
+        sum: mutable usize = 0
+        while sum < MAX_SUM:
+            next_tight[sum] <- 0
+            next_free[sum] <- 0
+            sum <- sum + 1
+        bound_digit: u32 = digits[position]
+        sum <- 0
+        while sum < sum_limit:
+            if tight[sum] != 0:
+                digit: mutable u32 = 0
+                while digit <= bound_digit:
+                    next_sum: usize = sum + (digit * digit).usize()
+                    if next_sum < sum_limit:
+                        if digit == bound_digit:
+                            next_tight[next_sum] <- next_tight[next_sum] + tight[sum]
+                        else:
+                            next_free[next_sum] <- next_free[next_sum] + tight[sum]
+                    digit <- digit + 1
+            if free_counts[sum] != 0:
+                free_digit: mutable u32 = 0
+                while free_digit <= 9:
+                    free_next_sum: usize = sum + (free_digit * free_digit).usize()
+                    if free_next_sum < sum_limit:
+                        next_free[free_next_sum] <- next_free[free_next_sum] + free_counts[sum]
+                    free_digit <- free_digit + 1
+            sum <- sum + 1
+        sum <- 0
+        while sum < MAX_SUM:
+            tight[sum] <- next_tight[sum]
+            free_counts[sum] <- next_free[sum]
+            sum <- sum + 1
+        position <- position + 1
+    result: mutable i64 = 0
+    sum: mutable usize = 1
+    while sum < sum_limit:
+        if reaches_89(sum.u32()):
+            result <- result + tight[sum] + free_counts[sum]
+        sum <- sum + 1
+    result
+
+export fn problem92(number: i64) -> i64 = problem92_impl

@@ -1,0 +1,76 @@
+const MAX_VERTICES: usize = 32
+const MAX_EDGES: usize = 256
+const MAX_INPUT_LENGTH: usize = 4 + 2 * MAX_EDGES
+const MAX_OUTPUT_VALUES: usize = 1 + MAX_VERTICES
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def breadth_first_search_shortest_path_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    vertex_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    start_value: i64 = input[2]
+    goal_value: i64 = input[3]
+    if vertex_value < 1 or vertex_value > MAX_VERTICES.i64() or edge_value < 0 or edge_value > MAX_EDGES.i64(): return -1
+    vertices: usize = vertex_value.usize()
+    edges: usize = edge_value.usize()
+    if length != 4 + 2 * edges or start_value < 0 or start_value >= vertices.i64() or goal_value < 0 or goal_value >= vertices.i64(): return -1
+    adjacency: mutable usize[MAX_VERTICES * MAX_EDGES] = zeroed
+    degree: mutable usize[MAX_VERTICES] = zeroed
+    for edge in 0..<edges:
+        from_value: i64 = input[4 + 2 * edge]
+        to_value: i64 = input[5 + 2 * edge]
+        if from_value < 0 or from_value >= vertices.i64() or to_value < 0 or to_value >= vertices.i64(): return -1
+        source: usize = from_value.usize()
+        adjacency[source * MAX_EDGES + degree[source]] <- to_value.usize()
+        degree[source] <- degree[source] + 1
+    start: usize = start_value.usize()
+    goal: usize = goal_value.usize()
+    parent: mutable i64[MAX_VERTICES] = zeroed
+    visited: mutable bool[MAX_VERTICES] = zeroed
+    queue: mutable usize[MAX_VERTICES] = zeroed
+    for vertex in 0..<vertices: parent[vertex] <- -1
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    visited[start] <- true
+    queue[tail] <- start
+    tail <- tail + 1
+    while head < tail and not visited[goal]:
+        node: usize = queue[head]
+        head <- head + 1
+        for index in 0..<degree[node]:
+            neighbor: usize = adjacency[node * MAX_EDGES + index]
+            if visited[neighbor]: continue
+            visited[neighbor] <- true
+            parent[neighbor] <- node.i64()
+            queue[tail] <- neighbor
+            tail <- tail + 1
+            if neighbor == goal: break
+    encoded: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    path_count: mutable usize = 0
+    if visited[goal]:
+        reverse_path: mutable usize[MAX_VERTICES] = zeroed
+        current: mutable i64 = goal.i64()
+        while current >= 0:
+            reverse_path[path_count] <- current.usize()
+            path_count <- path_count + 1
+            if current == start.i64(): break
+            current <- parent[current.usize()]
+        index: mutable usize = 0
+        while index < path_count:
+            encoded[1 + index] <- reverse_path[path_count - 1 - index].i64()
+            index <- index + 1
+    encoded[0] <- path_count.i64()
+    required: usize = (path_count + 1) * 8
+    if output.is_null() or capacity < required: return -2
+    index: mutable usize = 0
+    while index <= path_count:
+        put_i64(output, index * 8, encoded[index])
+        index <- index + 1
+    required.i64()
+
+export fn breadth_first_search_shortest_path(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = breadth_first_search_shortest_path_impl

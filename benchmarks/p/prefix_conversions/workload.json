@@ -1,0 +1,4528 @@
+{
+  "schema_version": 1,
+  "id": "prefix-conversions-python-binary64-v1",
+  "algorithm": "prefix_conversions",
+  "function_symbol": "prefix_conversions",
+  "input": {
+    "kind": "finite_binary64_si_or_binary_prefix_conversion",
+    "known_amount_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "si_prefix_codes": [
+      {
+        "code": 0,
+        "name": "yotta",
+        "exponent": 24
+      },
+      {
+        "code": 1,
+        "name": "zetta",
+        "exponent": 21
+      },
+      {
+        "code": 2,
+        "name": "exa",
+        "exponent": 18
+      },
+      {
+        "code": 3,
+        "name": "peta",
+        "exponent": 15
+      },
+      {
+        "code": 4,
+        "name": "tera",
+        "exponent": 12
+      },
+      {
+        "code": 5,
+        "name": "giga",
+        "exponent": 9
+      },
+      {
+        "code": 6,
+        "name": "mega",
+        "exponent": 6
+      },
+      {
+        "code": 7,
+        "name": "kilo",
+        "exponent": 3
+      },
+      {
+        "code": 8,
+        "name": "hecto",
+        "exponent": 2
+      },
+      {
+        "code": 9,
+        "name": "deca",
+        "exponent": 1
+      },
+      {
+        "code": 10,
+        "name": "deci",
+        "exponent": -1
+      },
+      {
+        "code": 11,
+        "name": "centi",
+        "exponent": -2
+      },
+      {
+        "code": 12,
+        "name": "milli",
+        "exponent": -3
+      },
+      {
+        "code": 13,
+        "name": "micro",
+        "exponent": -6
+      },
+      {
+        "code": 14,
+        "name": "nano",
+        "exponent": -9
+      },
+      {
+        "code": 15,
+        "name": "pico",
+        "exponent": -12
+      },
+      {
+        "code": 16,
+        "name": "femto",
+        "exponent": -15
+      },
+      {
+        "code": 17,
+        "name": "atto",
+        "exponent": -18
+      },
+      {
+        "code": 18,
+        "name": "zepto",
+        "exponent": -21
+      },
+      {
+        "code": 19,
+        "name": "yocto",
+        "exponent": -24
+      }
+    ],
+    "binary_prefix_codes": [
+      {
+        "code": 20,
+        "name": "yotta",
+        "exponent": 8
+      },
+      {
+        "code": 21,
+        "name": "zetta",
+        "exponent": 7
+      },
+      {
+        "code": 22,
+        "name": "exa",
+        "exponent": 6
+      },
+      {
+        "code": 23,
+        "name": "peta",
+        "exponent": 5
+      },
+      {
+        "code": 24,
+        "name": "tera",
+        "exponent": 4
+      },
+      {
+        "code": 25,
+        "name": "giga",
+        "exponent": 3
+      },
+      {
+        "code": 26,
+        "name": "mega",
+        "exponent": 2
+      },
+      {
+        "code": 27,
+        "name": "kilo",
+        "exponent": 1
+      }
+    ],
+    "pair_grid_amount": 1e-60,
+    "si_formula": "known_amount * 10 ** (known_exponent - unknown_exponent)",
+    "binary_formula": "known_amount * 2 ** ((known_exponent - unknown_exponent) * 10)",
+    "mixed_families_valid": false,
+    "invalid_result": -1e+300,
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "si-yotta-to-yotta",
+      "input_values": [
+        1e-60,
+        0.0,
+        0.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-yotta-to-zetta",
+      "input_values": [
+        1e-60,
+        0.0,
+        1.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-yotta-to-exa",
+      "input_values": [
+        1e-60,
+        0.0,
+        2.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-yotta-to-peta",
+      "input_values": [
+        1e-60,
+        0.0,
+        3.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-yotta-to-tera",
+      "input_values": [
+        1e-60,
+        0.0,
+        4.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-yotta-to-giga",
+      "input_values": [
+        1e-60,
+        0.0,
+        5.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-yotta-to-mega",
+      "input_values": [
+        1e-60,
+        0.0,
+        6.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-yotta-to-kilo",
+      "input_values": [
+        1e-60,
+        0.0,
+        7.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-yotta-to-hecto",
+      "input_values": [
+        1e-60,
+        0.0,
+        8.0
+      ],
+      "expected_result": 1e-38
+    },
+    {
+      "id": "si-yotta-to-deca",
+      "input_values": [
+        1e-60,
+        0.0,
+        9.0
+      ],
+      "expected_result": 9.999999999999999e-38
+    },
+    {
+      "id": "si-yotta-to-deci",
+      "input_values": [
+        1e-60,
+        0.0,
+        10.0
+      ],
+      "expected_result": 1e-35
+    },
+    {
+      "id": "si-yotta-to-centi",
+      "input_values": [
+        1e-60,
+        0.0,
+        11.0
+      ],
+      "expected_result": 1e-34
+    },
+    {
+      "id": "si-yotta-to-milli",
+      "input_values": [
+        1e-60,
+        0.0,
+        12.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-yotta-to-micro",
+      "input_values": [
+        1e-60,
+        0.0,
+        13.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-yotta-to-nano",
+      "input_values": [
+        1e-60,
+        0.0,
+        14.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-yotta-to-pico",
+      "input_values": [
+        1e-60,
+        0.0,
+        15.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "si-yotta-to-femto",
+      "input_values": [
+        1e-60,
+        0.0,
+        16.0
+      ],
+      "expected_result": 1e-21
+    },
+    {
+      "id": "si-yotta-to-atto",
+      "input_values": [
+        1e-60,
+        0.0,
+        17.0
+      ],
+      "expected_result": 1e-18
+    },
+    {
+      "id": "si-yotta-to-zepto",
+      "input_values": [
+        1e-60,
+        0.0,
+        18.0
+      ],
+      "expected_result": 9.999999999999999e-16
+    },
+    {
+      "id": "si-yotta-to-yocto",
+      "input_values": [
+        1e-60,
+        0.0,
+        19.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "si-zetta-to-yotta",
+      "input_values": [
+        1e-60,
+        1.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-zetta-to-zetta",
+      "input_values": [
+        1e-60,
+        1.0,
+        1.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-zetta-to-exa",
+      "input_values": [
+        1e-60,
+        1.0,
+        2.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-zetta-to-peta",
+      "input_values": [
+        1e-60,
+        1.0,
+        3.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-zetta-to-tera",
+      "input_values": [
+        1e-60,
+        1.0,
+        4.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-zetta-to-giga",
+      "input_values": [
+        1e-60,
+        1.0,
+        5.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-zetta-to-mega",
+      "input_values": [
+        1e-60,
+        1.0,
+        6.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-zetta-to-kilo",
+      "input_values": [
+        1e-60,
+        1.0,
+        7.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-zetta-to-hecto",
+      "input_values": [
+        1e-60,
+        1.0,
+        8.0
+      ],
+      "expected_result": 1e-41
+    },
+    {
+      "id": "si-zetta-to-deca",
+      "input_values": [
+        1e-60,
+        1.0,
+        9.0
+      ],
+      "expected_result": 1e-40
+    },
+    {
+      "id": "si-zetta-to-deci",
+      "input_values": [
+        1e-60,
+        1.0,
+        10.0
+      ],
+      "expected_result": 1e-38
+    },
+    {
+      "id": "si-zetta-to-centi",
+      "input_values": [
+        1e-60,
+        1.0,
+        11.0
+      ],
+      "expected_result": 9.999999999999999e-38
+    },
+    {
+      "id": "si-zetta-to-milli",
+      "input_values": [
+        1e-60,
+        1.0,
+        12.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-zetta-to-micro",
+      "input_values": [
+        1e-60,
+        1.0,
+        13.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-zetta-to-nano",
+      "input_values": [
+        1e-60,
+        1.0,
+        14.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-zetta-to-pico",
+      "input_values": [
+        1e-60,
+        1.0,
+        15.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-zetta-to-femto",
+      "input_values": [
+        1e-60,
+        1.0,
+        16.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "si-zetta-to-atto",
+      "input_values": [
+        1e-60,
+        1.0,
+        17.0
+      ],
+      "expected_result": 1e-21
+    },
+    {
+      "id": "si-zetta-to-zepto",
+      "input_values": [
+        1e-60,
+        1.0,
+        18.0
+      ],
+      "expected_result": 1e-18
+    },
+    {
+      "id": "si-zetta-to-yocto",
+      "input_values": [
+        1e-60,
+        1.0,
+        19.0
+      ],
+      "expected_result": 9.999999999999999e-16
+    },
+    {
+      "id": "si-exa-to-yotta",
+      "input_values": [
+        1e-60,
+        2.0,
+        0.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-exa-to-zetta",
+      "input_values": [
+        1e-60,
+        2.0,
+        1.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-exa-to-exa",
+      "input_values": [
+        1e-60,
+        2.0,
+        2.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-exa-to-peta",
+      "input_values": [
+        1e-60,
+        2.0,
+        3.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-exa-to-tera",
+      "input_values": [
+        1e-60,
+        2.0,
+        4.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-exa-to-giga",
+      "input_values": [
+        1e-60,
+        2.0,
+        5.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-exa-to-mega",
+      "input_values": [
+        1e-60,
+        2.0,
+        6.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-exa-to-kilo",
+      "input_values": [
+        1e-60,
+        2.0,
+        7.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-exa-to-hecto",
+      "input_values": [
+        1e-60,
+        2.0,
+        8.0
+      ],
+      "expected_result": 1e-44
+    },
+    {
+      "id": "si-exa-to-deca",
+      "input_values": [
+        1e-60,
+        2.0,
+        9.0
+      ],
+      "expected_result": 9.999999999999999e-44
+    },
+    {
+      "id": "si-exa-to-deci",
+      "input_values": [
+        1e-60,
+        2.0,
+        10.0
+      ],
+      "expected_result": 1e-41
+    },
+    {
+      "id": "si-exa-to-centi",
+      "input_values": [
+        1e-60,
+        2.0,
+        11.0
+      ],
+      "expected_result": 1e-40
+    },
+    {
+      "id": "si-exa-to-milli",
+      "input_values": [
+        1e-60,
+        2.0,
+        12.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-exa-to-micro",
+      "input_values": [
+        1e-60,
+        2.0,
+        13.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-exa-to-nano",
+      "input_values": [
+        1e-60,
+        2.0,
+        14.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-exa-to-pico",
+      "input_values": [
+        1e-60,
+        2.0,
+        15.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-exa-to-femto",
+      "input_values": [
+        1e-60,
+        2.0,
+        16.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-exa-to-atto",
+      "input_values": [
+        1e-60,
+        2.0,
+        17.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "si-exa-to-zepto",
+      "input_values": [
+        1e-60,
+        2.0,
+        18.0
+      ],
+      "expected_result": 1e-21
+    },
+    {
+      "id": "si-exa-to-yocto",
+      "input_values": [
+        1e-60,
+        2.0,
+        19.0
+      ],
+      "expected_result": 1e-18
+    },
+    {
+      "id": "si-peta-to-yotta",
+      "input_values": [
+        1e-60,
+        3.0,
+        0.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-peta-to-zetta",
+      "input_values": [
+        1e-60,
+        3.0,
+        1.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-peta-to-exa",
+      "input_values": [
+        1e-60,
+        3.0,
+        2.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-peta-to-peta",
+      "input_values": [
+        1e-60,
+        3.0,
+        3.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-peta-to-tera",
+      "input_values": [
+        1e-60,
+        3.0,
+        4.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-peta-to-giga",
+      "input_values": [
+        1e-60,
+        3.0,
+        5.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-peta-to-mega",
+      "input_values": [
+        1e-60,
+        3.0,
+        6.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-peta-to-kilo",
+      "input_values": [
+        1e-60,
+        3.0,
+        7.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-peta-to-hecto",
+      "input_values": [
+        1e-60,
+        3.0,
+        8.0
+      ],
+      "expected_result": 1e-47
+    },
+    {
+      "id": "si-peta-to-deca",
+      "input_values": [
+        1e-60,
+        3.0,
+        9.0
+      ],
+      "expected_result": 1e-46
+    },
+    {
+      "id": "si-peta-to-deci",
+      "input_values": [
+        1e-60,
+        3.0,
+        10.0
+      ],
+      "expected_result": 1e-44
+    },
+    {
+      "id": "si-peta-to-centi",
+      "input_values": [
+        1e-60,
+        3.0,
+        11.0
+      ],
+      "expected_result": 9.999999999999999e-44
+    },
+    {
+      "id": "si-peta-to-milli",
+      "input_values": [
+        1e-60,
+        3.0,
+        12.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-peta-to-micro",
+      "input_values": [
+        1e-60,
+        3.0,
+        13.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-peta-to-nano",
+      "input_values": [
+        1e-60,
+        3.0,
+        14.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-peta-to-pico",
+      "input_values": [
+        1e-60,
+        3.0,
+        15.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-peta-to-femto",
+      "input_values": [
+        1e-60,
+        3.0,
+        16.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-peta-to-atto",
+      "input_values": [
+        1e-60,
+        3.0,
+        17.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-peta-to-zepto",
+      "input_values": [
+        1e-60,
+        3.0,
+        18.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "si-peta-to-yocto",
+      "input_values": [
+        1e-60,
+        3.0,
+        19.0
+      ],
+      "expected_result": 1e-21
+    },
+    {
+      "id": "si-tera-to-yotta",
+      "input_values": [
+        1e-60,
+        4.0,
+        0.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-tera-to-zetta",
+      "input_values": [
+        1e-60,
+        4.0,
+        1.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-tera-to-exa",
+      "input_values": [
+        1e-60,
+        4.0,
+        2.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-tera-to-peta",
+      "input_values": [
+        1e-60,
+        4.0,
+        3.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-tera-to-tera",
+      "input_values": [
+        1e-60,
+        4.0,
+        4.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-tera-to-giga",
+      "input_values": [
+        1e-60,
+        4.0,
+        5.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-tera-to-mega",
+      "input_values": [
+        1e-60,
+        4.0,
+        6.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-tera-to-kilo",
+      "input_values": [
+        1e-60,
+        4.0,
+        7.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-tera-to-hecto",
+      "input_values": [
+        1e-60,
+        4.0,
+        8.0
+      ],
+      "expected_result": 1e-50
+    },
+    {
+      "id": "si-tera-to-deca",
+      "input_values": [
+        1e-60,
+        4.0,
+        9.0
+      ],
+      "expected_result": 1e-49
+    },
+    {
+      "id": "si-tera-to-deci",
+      "input_values": [
+        1e-60,
+        4.0,
+        10.0
+      ],
+      "expected_result": 1e-47
+    },
+    {
+      "id": "si-tera-to-centi",
+      "input_values": [
+        1e-60,
+        4.0,
+        11.0
+      ],
+      "expected_result": 1e-46
+    },
+    {
+      "id": "si-tera-to-milli",
+      "input_values": [
+        1e-60,
+        4.0,
+        12.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-tera-to-micro",
+      "input_values": [
+        1e-60,
+        4.0,
+        13.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-tera-to-nano",
+      "input_values": [
+        1e-60,
+        4.0,
+        14.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-tera-to-pico",
+      "input_values": [
+        1e-60,
+        4.0,
+        15.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-tera-to-femto",
+      "input_values": [
+        1e-60,
+        4.0,
+        16.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-tera-to-atto",
+      "input_values": [
+        1e-60,
+        4.0,
+        17.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-tera-to-zepto",
+      "input_values": [
+        1e-60,
+        4.0,
+        18.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-tera-to-yocto",
+      "input_values": [
+        1e-60,
+        4.0,
+        19.0
+      ],
+      "expected_result": 1e-24
+    },
+    {
+      "id": "si-giga-to-yotta",
+      "input_values": [
+        1e-60,
+        5.0,
+        0.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-giga-to-zetta",
+      "input_values": [
+        1e-60,
+        5.0,
+        1.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-giga-to-exa",
+      "input_values": [
+        1e-60,
+        5.0,
+        2.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-giga-to-peta",
+      "input_values": [
+        1e-60,
+        5.0,
+        3.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-giga-to-tera",
+      "input_values": [
+        1e-60,
+        5.0,
+        4.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-giga-to-giga",
+      "input_values": [
+        1e-60,
+        5.0,
+        5.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-giga-to-mega",
+      "input_values": [
+        1e-60,
+        5.0,
+        6.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-giga-to-kilo",
+      "input_values": [
+        1e-60,
+        5.0,
+        7.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-giga-to-hecto",
+      "input_values": [
+        1e-60,
+        5.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e-54
+    },
+    {
+      "id": "si-giga-to-deca",
+      "input_values": [
+        1e-60,
+        5.0,
+        9.0
+      ],
+      "expected_result": 1e-52
+    },
+    {
+      "id": "si-giga-to-deci",
+      "input_values": [
+        1e-60,
+        5.0,
+        10.0
+      ],
+      "expected_result": 1e-50
+    },
+    {
+      "id": "si-giga-to-centi",
+      "input_values": [
+        1e-60,
+        5.0,
+        11.0
+      ],
+      "expected_result": 1e-49
+    },
+    {
+      "id": "si-giga-to-milli",
+      "input_values": [
+        1e-60,
+        5.0,
+        12.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-giga-to-micro",
+      "input_values": [
+        1e-60,
+        5.0,
+        13.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-giga-to-nano",
+      "input_values": [
+        1e-60,
+        5.0,
+        14.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-giga-to-pico",
+      "input_values": [
+        1e-60,
+        5.0,
+        15.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-giga-to-femto",
+      "input_values": [
+        1e-60,
+        5.0,
+        16.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-giga-to-atto",
+      "input_values": [
+        1e-60,
+        5.0,
+        17.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-giga-to-zepto",
+      "input_values": [
+        1e-60,
+        5.0,
+        18.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-giga-to-yocto",
+      "input_values": [
+        1e-60,
+        5.0,
+        19.0
+      ],
+      "expected_result": 9.999999999999999e-28
+    },
+    {
+      "id": "si-mega-to-yotta",
+      "input_values": [
+        1e-60,
+        6.0,
+        0.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-mega-to-zetta",
+      "input_values": [
+        1e-60,
+        6.0,
+        1.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-mega-to-exa",
+      "input_values": [
+        1e-60,
+        6.0,
+        2.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-mega-to-peta",
+      "input_values": [
+        1e-60,
+        6.0,
+        3.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-mega-to-tera",
+      "input_values": [
+        1e-60,
+        6.0,
+        4.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-mega-to-giga",
+      "input_values": [
+        1e-60,
+        6.0,
+        5.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-mega-to-mega",
+      "input_values": [
+        1e-60,
+        6.0,
+        6.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-mega-to-kilo",
+      "input_values": [
+        1e-60,
+        6.0,
+        7.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-mega-to-hecto",
+      "input_values": [
+        1e-60,
+        6.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e-57
+    },
+    {
+      "id": "si-mega-to-deca",
+      "input_values": [
+        1e-60,
+        6.0,
+        9.0
+      ],
+      "expected_result": 1e-55
+    },
+    {
+      "id": "si-mega-to-deci",
+      "input_values": [
+        1e-60,
+        6.0,
+        10.0
+      ],
+      "expected_result": 9.999999999999999e-54
+    },
+    {
+      "id": "si-mega-to-centi",
+      "input_values": [
+        1e-60,
+        6.0,
+        11.0
+      ],
+      "expected_result": 1e-52
+    },
+    {
+      "id": "si-mega-to-milli",
+      "input_values": [
+        1e-60,
+        6.0,
+        12.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-mega-to-micro",
+      "input_values": [
+        1e-60,
+        6.0,
+        13.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-mega-to-nano",
+      "input_values": [
+        1e-60,
+        6.0,
+        14.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-mega-to-pico",
+      "input_values": [
+        1e-60,
+        6.0,
+        15.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-mega-to-femto",
+      "input_values": [
+        1e-60,
+        6.0,
+        16.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-mega-to-atto",
+      "input_values": [
+        1e-60,
+        6.0,
+        17.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-mega-to-zepto",
+      "input_values": [
+        1e-60,
+        6.0,
+        18.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-mega-to-yocto",
+      "input_values": [
+        1e-60,
+        6.0,
+        19.0
+      ],
+      "expected_result": 9.999999999999999e-31
+    },
+    {
+      "id": "si-kilo-to-yotta",
+      "input_values": [
+        1e-60,
+        7.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-kilo-to-zetta",
+      "input_values": [
+        1e-60,
+        7.0,
+        1.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-kilo-to-exa",
+      "input_values": [
+        1e-60,
+        7.0,
+        2.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-kilo-to-peta",
+      "input_values": [
+        1e-60,
+        7.0,
+        3.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-kilo-to-tera",
+      "input_values": [
+        1e-60,
+        7.0,
+        4.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-kilo-to-giga",
+      "input_values": [
+        1e-60,
+        7.0,
+        5.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-kilo-to-mega",
+      "input_values": [
+        1e-60,
+        7.0,
+        6.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-kilo-to-kilo",
+      "input_values": [
+        1e-60,
+        7.0,
+        7.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-kilo-to-hecto",
+      "input_values": [
+        1e-60,
+        7.0,
+        8.0
+      ],
+      "expected_result": 1e-59
+    },
+    {
+      "id": "si-kilo-to-deca",
+      "input_values": [
+        1e-60,
+        7.0,
+        9.0
+      ],
+      "expected_result": 1e-58
+    },
+    {
+      "id": "si-kilo-to-deci",
+      "input_values": [
+        1e-60,
+        7.0,
+        10.0
+      ],
+      "expected_result": 9.999999999999999e-57
+    },
+    {
+      "id": "si-kilo-to-centi",
+      "input_values": [
+        1e-60,
+        7.0,
+        11.0
+      ],
+      "expected_result": 1e-55
+    },
+    {
+      "id": "si-kilo-to-milli",
+      "input_values": [
+        1e-60,
+        7.0,
+        12.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-kilo-to-micro",
+      "input_values": [
+        1e-60,
+        7.0,
+        13.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-kilo-to-nano",
+      "input_values": [
+        1e-60,
+        7.0,
+        14.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-kilo-to-pico",
+      "input_values": [
+        1e-60,
+        7.0,
+        15.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-kilo-to-femto",
+      "input_values": [
+        1e-60,
+        7.0,
+        16.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-kilo-to-atto",
+      "input_values": [
+        1e-60,
+        7.0,
+        17.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-kilo-to-zepto",
+      "input_values": [
+        1e-60,
+        7.0,
+        18.0
+      ],
+      "expected_result": 1e-36
+    },
+    {
+      "id": "si-kilo-to-yocto",
+      "input_values": [
+        1e-60,
+        7.0,
+        19.0
+      ],
+      "expected_result": 1e-33
+    },
+    {
+      "id": "si-hecto-to-yotta",
+      "input_values": [
+        1e-60,
+        8.0,
+        0.0
+      ],
+      "expected_result": 1e-82
+    },
+    {
+      "id": "si-hecto-to-zetta",
+      "input_values": [
+        1e-60,
+        8.0,
+        1.0
+      ],
+      "expected_result": 1e-79
+    },
+    {
+      "id": "si-hecto-to-exa",
+      "input_values": [
+        1e-60,
+        8.0,
+        2.0
+      ],
+      "expected_result": 1e-76
+    },
+    {
+      "id": "si-hecto-to-peta",
+      "input_values": [
+        1e-60,
+        8.0,
+        3.0
+      ],
+      "expected_result": 1e-73
+    },
+    {
+      "id": "si-hecto-to-tera",
+      "input_values": [
+        1e-60,
+        8.0,
+        4.0
+      ],
+      "expected_result": 1e-70
+    },
+    {
+      "id": "si-hecto-to-giga",
+      "input_values": [
+        1e-60,
+        8.0,
+        5.0
+      ],
+      "expected_result": 1e-67
+    },
+    {
+      "id": "si-hecto-to-mega",
+      "input_values": [
+        1e-60,
+        8.0,
+        6.0
+      ],
+      "expected_result": 1e-64
+    },
+    {
+      "id": "si-hecto-to-kilo",
+      "input_values": [
+        1e-60,
+        8.0,
+        7.0
+      ],
+      "expected_result": 1e-61
+    },
+    {
+      "id": "si-hecto-to-hecto",
+      "input_values": [
+        1e-60,
+        8.0,
+        8.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-hecto-to-deca",
+      "input_values": [
+        1e-60,
+        8.0,
+        9.0
+      ],
+      "expected_result": 1e-59
+    },
+    {
+      "id": "si-hecto-to-deci",
+      "input_values": [
+        1e-60,
+        8.0,
+        10.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-hecto-to-centi",
+      "input_values": [
+        1e-60,
+        8.0,
+        11.0
+      ],
+      "expected_result": 9.999999999999999e-57
+    },
+    {
+      "id": "si-hecto-to-milli",
+      "input_values": [
+        1e-60,
+        8.0,
+        12.0
+      ],
+      "expected_result": 1e-55
+    },
+    {
+      "id": "si-hecto-to-micro",
+      "input_values": [
+        1e-60,
+        8.0,
+        13.0
+      ],
+      "expected_result": 1e-52
+    },
+    {
+      "id": "si-hecto-to-nano",
+      "input_values": [
+        1e-60,
+        8.0,
+        14.0
+      ],
+      "expected_result": 1e-49
+    },
+    {
+      "id": "si-hecto-to-pico",
+      "input_values": [
+        1e-60,
+        8.0,
+        15.0
+      ],
+      "expected_result": 1e-46
+    },
+    {
+      "id": "si-hecto-to-femto",
+      "input_values": [
+        1e-60,
+        8.0,
+        16.0
+      ],
+      "expected_result": 9.999999999999999e-44
+    },
+    {
+      "id": "si-hecto-to-atto",
+      "input_values": [
+        1e-60,
+        8.0,
+        17.0
+      ],
+      "expected_result": 1e-40
+    },
+    {
+      "id": "si-hecto-to-zepto",
+      "input_values": [
+        1e-60,
+        8.0,
+        18.0
+      ],
+      "expected_result": 9.999999999999999e-38
+    },
+    {
+      "id": "si-hecto-to-yocto",
+      "input_values": [
+        1e-60,
+        8.0,
+        19.0
+      ],
+      "expected_result": 1e-34
+    },
+    {
+      "id": "si-deca-to-yotta",
+      "input_values": [
+        1e-60,
+        9.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999999e-84
+    },
+    {
+      "id": "si-deca-to-zetta",
+      "input_values": [
+        1e-60,
+        9.0,
+        1.0
+      ],
+      "expected_result": 1e-80
+    },
+    {
+      "id": "si-deca-to-exa",
+      "input_values": [
+        1e-60,
+        9.0,
+        2.0
+      ],
+      "expected_result": 1.0000000000000001e-77
+    },
+    {
+      "id": "si-deca-to-peta",
+      "input_values": [
+        1e-60,
+        9.0,
+        3.0
+      ],
+      "expected_result": 1e-74
+    },
+    {
+      "id": "si-deca-to-tera",
+      "input_values": [
+        1e-60,
+        9.0,
+        4.0
+      ],
+      "expected_result": 1e-71
+    },
+    {
+      "id": "si-deca-to-giga",
+      "input_values": [
+        1e-60,
+        9.0,
+        5.0
+      ],
+      "expected_result": 1e-68
+    },
+    {
+      "id": "si-deca-to-mega",
+      "input_values": [
+        1e-60,
+        9.0,
+        6.0
+      ],
+      "expected_result": 1.0000000000000001e-65
+    },
+    {
+      "id": "si-deca-to-kilo",
+      "input_values": [
+        1e-60,
+        9.0,
+        7.0
+      ],
+      "expected_result": 1e-62
+    },
+    {
+      "id": "si-deca-to-hecto",
+      "input_values": [
+        1e-60,
+        9.0,
+        8.0
+      ],
+      "expected_result": 1e-61
+    },
+    {
+      "id": "si-deca-to-deca",
+      "input_values": [
+        1e-60,
+        9.0,
+        9.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-deca-to-deci",
+      "input_values": [
+        1e-60,
+        9.0,
+        10.0
+      ],
+      "expected_result": 1e-58
+    },
+    {
+      "id": "si-deca-to-centi",
+      "input_values": [
+        1e-60,
+        9.0,
+        11.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-deca-to-milli",
+      "input_values": [
+        1e-60,
+        9.0,
+        12.0
+      ],
+      "expected_result": 9.999999999999999e-57
+    },
+    {
+      "id": "si-deca-to-micro",
+      "input_values": [
+        1e-60,
+        9.0,
+        13.0
+      ],
+      "expected_result": 9.999999999999999e-54
+    },
+    {
+      "id": "si-deca-to-nano",
+      "input_values": [
+        1e-60,
+        9.0,
+        14.0
+      ],
+      "expected_result": 1e-50
+    },
+    {
+      "id": "si-deca-to-pico",
+      "input_values": [
+        1e-60,
+        9.0,
+        15.0
+      ],
+      "expected_result": 1e-47
+    },
+    {
+      "id": "si-deca-to-femto",
+      "input_values": [
+        1e-60,
+        9.0,
+        16.0
+      ],
+      "expected_result": 1e-44
+    },
+    {
+      "id": "si-deca-to-atto",
+      "input_values": [
+        1e-60,
+        9.0,
+        17.0
+      ],
+      "expected_result": 1e-41
+    },
+    {
+      "id": "si-deca-to-zepto",
+      "input_values": [
+        1e-60,
+        9.0,
+        18.0
+      ],
+      "expected_result": 1e-38
+    },
+    {
+      "id": "si-deca-to-yocto",
+      "input_values": [
+        1e-60,
+        9.0,
+        19.0
+      ],
+      "expected_result": 1e-35
+    },
+    {
+      "id": "si-deci-to-yotta",
+      "input_values": [
+        1e-60,
+        10.0,
+        0.0
+      ],
+      "expected_result": 1e-85
+    },
+    {
+      "id": "si-deci-to-zetta",
+      "input_values": [
+        1e-60,
+        10.0,
+        1.0
+      ],
+      "expected_result": 1e-82
+    },
+    {
+      "id": "si-deci-to-exa",
+      "input_values": [
+        1e-60,
+        10.0,
+        2.0
+      ],
+      "expected_result": 1e-79
+    },
+    {
+      "id": "si-deci-to-peta",
+      "input_values": [
+        1e-60,
+        10.0,
+        3.0
+      ],
+      "expected_result": 1e-76
+    },
+    {
+      "id": "si-deci-to-tera",
+      "input_values": [
+        1e-60,
+        10.0,
+        4.0
+      ],
+      "expected_result": 1e-73
+    },
+    {
+      "id": "si-deci-to-giga",
+      "input_values": [
+        1e-60,
+        10.0,
+        5.0
+      ],
+      "expected_result": 1e-70
+    },
+    {
+      "id": "si-deci-to-mega",
+      "input_values": [
+        1e-60,
+        10.0,
+        6.0
+      ],
+      "expected_result": 1e-67
+    },
+    {
+      "id": "si-deci-to-kilo",
+      "input_values": [
+        1e-60,
+        10.0,
+        7.0
+      ],
+      "expected_result": 1e-64
+    },
+    {
+      "id": "si-deci-to-hecto",
+      "input_values": [
+        1e-60,
+        10.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-deci-to-deca",
+      "input_values": [
+        1e-60,
+        10.0,
+        9.0
+      ],
+      "expected_result": 1e-62
+    },
+    {
+      "id": "si-deci-to-deci",
+      "input_values": [
+        1e-60,
+        10.0,
+        10.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-deci-to-centi",
+      "input_values": [
+        1e-60,
+        10.0,
+        11.0
+      ],
+      "expected_result": 1e-59
+    },
+    {
+      "id": "si-deci-to-milli",
+      "input_values": [
+        1e-60,
+        10.0,
+        12.0
+      ],
+      "expected_result": 1e-58
+    },
+    {
+      "id": "si-deci-to-micro",
+      "input_values": [
+        1e-60,
+        10.0,
+        13.0
+      ],
+      "expected_result": 1e-55
+    },
+    {
+      "id": "si-deci-to-nano",
+      "input_values": [
+        1e-60,
+        10.0,
+        14.0
+      ],
+      "expected_result": 1e-52
+    },
+    {
+      "id": "si-deci-to-pico",
+      "input_values": [
+        1e-60,
+        10.0,
+        15.0
+      ],
+      "expected_result": 1e-49
+    },
+    {
+      "id": "si-deci-to-femto",
+      "input_values": [
+        1e-60,
+        10.0,
+        16.0
+      ],
+      "expected_result": 1e-46
+    },
+    {
+      "id": "si-deci-to-atto",
+      "input_values": [
+        1e-60,
+        10.0,
+        17.0
+      ],
+      "expected_result": 9.999999999999999e-44
+    },
+    {
+      "id": "si-deci-to-zepto",
+      "input_values": [
+        1e-60,
+        10.0,
+        18.0
+      ],
+      "expected_result": 1e-40
+    },
+    {
+      "id": "si-deci-to-yocto",
+      "input_values": [
+        1e-60,
+        10.0,
+        19.0
+      ],
+      "expected_result": 9.999999999999999e-38
+    },
+    {
+      "id": "si-centi-to-yotta",
+      "input_values": [
+        1e-60,
+        11.0,
+        0.0
+      ],
+      "expected_result": 1e-86
+    },
+    {
+      "id": "si-centi-to-zetta",
+      "input_values": [
+        1e-60,
+        11.0,
+        1.0
+      ],
+      "expected_result": 9.999999999999999e-84
+    },
+    {
+      "id": "si-centi-to-exa",
+      "input_values": [
+        1e-60,
+        11.0,
+        2.0
+      ],
+      "expected_result": 1e-80
+    },
+    {
+      "id": "si-centi-to-peta",
+      "input_values": [
+        1e-60,
+        11.0,
+        3.0
+      ],
+      "expected_result": 1.0000000000000001e-77
+    },
+    {
+      "id": "si-centi-to-tera",
+      "input_values": [
+        1e-60,
+        11.0,
+        4.0
+      ],
+      "expected_result": 1e-74
+    },
+    {
+      "id": "si-centi-to-giga",
+      "input_values": [
+        1e-60,
+        11.0,
+        5.0
+      ],
+      "expected_result": 1e-71
+    },
+    {
+      "id": "si-centi-to-mega",
+      "input_values": [
+        1e-60,
+        11.0,
+        6.0
+      ],
+      "expected_result": 1e-68
+    },
+    {
+      "id": "si-centi-to-kilo",
+      "input_values": [
+        1e-60,
+        11.0,
+        7.0
+      ],
+      "expected_result": 1.0000000000000001e-65
+    },
+    {
+      "id": "si-centi-to-hecto",
+      "input_values": [
+        1e-60,
+        11.0,
+        8.0
+      ],
+      "expected_result": 1e-64
+    },
+    {
+      "id": "si-centi-to-deca",
+      "input_values": [
+        1e-60,
+        11.0,
+        9.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-centi-to-deci",
+      "input_values": [
+        1e-60,
+        11.0,
+        10.0
+      ],
+      "expected_result": 1e-61
+    },
+    {
+      "id": "si-centi-to-centi",
+      "input_values": [
+        1e-60,
+        11.0,
+        11.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-centi-to-milli",
+      "input_values": [
+        1e-60,
+        11.0,
+        12.0
+      ],
+      "expected_result": 1e-59
+    },
+    {
+      "id": "si-centi-to-micro",
+      "input_values": [
+        1e-60,
+        11.0,
+        13.0
+      ],
+      "expected_result": 9.999999999999999e-57
+    },
+    {
+      "id": "si-centi-to-nano",
+      "input_values": [
+        1e-60,
+        11.0,
+        14.0
+      ],
+      "expected_result": 9.999999999999999e-54
+    },
+    {
+      "id": "si-centi-to-pico",
+      "input_values": [
+        1e-60,
+        11.0,
+        15.0
+      ],
+      "expected_result": 1e-50
+    },
+    {
+      "id": "si-centi-to-femto",
+      "input_values": [
+        1e-60,
+        11.0,
+        16.0
+      ],
+      "expected_result": 1e-47
+    },
+    {
+      "id": "si-centi-to-atto",
+      "input_values": [
+        1e-60,
+        11.0,
+        17.0
+      ],
+      "expected_result": 1e-44
+    },
+    {
+      "id": "si-centi-to-zepto",
+      "input_values": [
+        1e-60,
+        11.0,
+        18.0
+      ],
+      "expected_result": 1e-41
+    },
+    {
+      "id": "si-centi-to-yocto",
+      "input_values": [
+        1e-60,
+        11.0,
+        19.0
+      ],
+      "expected_result": 1e-38
+    },
+    {
+      "id": "si-milli-to-yotta",
+      "input_values": [
+        1e-60,
+        12.0,
+        0.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-milli-to-zetta",
+      "input_values": [
+        1e-60,
+        12.0,
+        1.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-milli-to-exa",
+      "input_values": [
+        1e-60,
+        12.0,
+        2.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-milli-to-peta",
+      "input_values": [
+        1e-60,
+        12.0,
+        3.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-milli-to-tera",
+      "input_values": [
+        1e-60,
+        12.0,
+        4.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-milli-to-giga",
+      "input_values": [
+        1e-60,
+        12.0,
+        5.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-milli-to-mega",
+      "input_values": [
+        1e-60,
+        12.0,
+        6.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-milli-to-kilo",
+      "input_values": [
+        1e-60,
+        12.0,
+        7.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-milli-to-hecto",
+      "input_values": [
+        1e-60,
+        12.0,
+        8.0
+      ],
+      "expected_result": 1.0000000000000001e-65
+    },
+    {
+      "id": "si-milli-to-deca",
+      "input_values": [
+        1e-60,
+        12.0,
+        9.0
+      ],
+      "expected_result": 1e-64
+    },
+    {
+      "id": "si-milli-to-deci",
+      "input_values": [
+        1e-60,
+        12.0,
+        10.0
+      ],
+      "expected_result": 1e-62
+    },
+    {
+      "id": "si-milli-to-centi",
+      "input_values": [
+        1e-60,
+        12.0,
+        11.0
+      ],
+      "expected_result": 1e-61
+    },
+    {
+      "id": "si-milli-to-milli",
+      "input_values": [
+        1e-60,
+        12.0,
+        12.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-milli-to-micro",
+      "input_values": [
+        1e-60,
+        12.0,
+        13.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-milli-to-nano",
+      "input_values": [
+        1e-60,
+        12.0,
+        14.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-milli-to-pico",
+      "input_values": [
+        1e-60,
+        12.0,
+        15.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-milli-to-femto",
+      "input_values": [
+        1e-60,
+        12.0,
+        16.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-milli-to-atto",
+      "input_values": [
+        1e-60,
+        12.0,
+        17.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-milli-to-zepto",
+      "input_values": [
+        1e-60,
+        12.0,
+        18.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-milli-to-yocto",
+      "input_values": [
+        1e-60,
+        12.0,
+        19.0
+      ],
+      "expected_result": 1e-39
+    },
+    {
+      "id": "si-micro-to-yotta",
+      "input_values": [
+        1e-60,
+        13.0,
+        0.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-micro-to-zetta",
+      "input_values": [
+        1e-60,
+        13.0,
+        1.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-micro-to-exa",
+      "input_values": [
+        1e-60,
+        13.0,
+        2.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-micro-to-peta",
+      "input_values": [
+        1e-60,
+        13.0,
+        3.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-micro-to-tera",
+      "input_values": [
+        1e-60,
+        13.0,
+        4.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-micro-to-giga",
+      "input_values": [
+        1e-60,
+        13.0,
+        5.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-micro-to-mega",
+      "input_values": [
+        1e-60,
+        13.0,
+        6.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-micro-to-kilo",
+      "input_values": [
+        1e-60,
+        13.0,
+        7.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-micro-to-hecto",
+      "input_values": [
+        1e-60,
+        13.0,
+        8.0
+      ],
+      "expected_result": 1e-68
+    },
+    {
+      "id": "si-micro-to-deca",
+      "input_values": [
+        1e-60,
+        13.0,
+        9.0
+      ],
+      "expected_result": 1e-67
+    },
+    {
+      "id": "si-micro-to-deci",
+      "input_values": [
+        1e-60,
+        13.0,
+        10.0
+      ],
+      "expected_result": 1.0000000000000001e-65
+    },
+    {
+      "id": "si-micro-to-centi",
+      "input_values": [
+        1e-60,
+        13.0,
+        11.0
+      ],
+      "expected_result": 1e-64
+    },
+    {
+      "id": "si-micro-to-milli",
+      "input_values": [
+        1e-60,
+        13.0,
+        12.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-micro-to-micro",
+      "input_values": [
+        1e-60,
+        13.0,
+        13.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-micro-to-nano",
+      "input_values": [
+        1e-60,
+        13.0,
+        14.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-micro-to-pico",
+      "input_values": [
+        1e-60,
+        13.0,
+        15.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-micro-to-femto",
+      "input_values": [
+        1e-60,
+        13.0,
+        16.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-micro-to-atto",
+      "input_values": [
+        1e-60,
+        13.0,
+        17.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-micro-to-zepto",
+      "input_values": [
+        1e-60,
+        13.0,
+        18.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-micro-to-yocto",
+      "input_values": [
+        1e-60,
+        13.0,
+        19.0
+      ],
+      "expected_result": 1e-42
+    },
+    {
+      "id": "si-nano-to-yotta",
+      "input_values": [
+        1e-60,
+        14.0,
+        0.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-nano-to-zetta",
+      "input_values": [
+        1e-60,
+        14.0,
+        1.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-nano-to-exa",
+      "input_values": [
+        1e-60,
+        14.0,
+        2.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-nano-to-peta",
+      "input_values": [
+        1e-60,
+        14.0,
+        3.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-nano-to-tera",
+      "input_values": [
+        1e-60,
+        14.0,
+        4.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-nano-to-giga",
+      "input_values": [
+        1e-60,
+        14.0,
+        5.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-nano-to-mega",
+      "input_values": [
+        1e-60,
+        14.0,
+        6.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-nano-to-kilo",
+      "input_values": [
+        1e-60,
+        14.0,
+        7.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-nano-to-hecto",
+      "input_values": [
+        1e-60,
+        14.0,
+        8.0
+      ],
+      "expected_result": 1e-71
+    },
+    {
+      "id": "si-nano-to-deca",
+      "input_values": [
+        1e-60,
+        14.0,
+        9.0
+      ],
+      "expected_result": 1e-70
+    },
+    {
+      "id": "si-nano-to-deci",
+      "input_values": [
+        1e-60,
+        14.0,
+        10.0
+      ],
+      "expected_result": 1e-68
+    },
+    {
+      "id": "si-nano-to-centi",
+      "input_values": [
+        1e-60,
+        14.0,
+        11.0
+      ],
+      "expected_result": 1e-67
+    },
+    {
+      "id": "si-nano-to-milli",
+      "input_values": [
+        1e-60,
+        14.0,
+        12.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-nano-to-micro",
+      "input_values": [
+        1e-60,
+        14.0,
+        13.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-nano-to-nano",
+      "input_values": [
+        1e-60,
+        14.0,
+        14.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-nano-to-pico",
+      "input_values": [
+        1e-60,
+        14.0,
+        15.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-nano-to-femto",
+      "input_values": [
+        1e-60,
+        14.0,
+        16.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-nano-to-atto",
+      "input_values": [
+        1e-60,
+        14.0,
+        17.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-nano-to-zepto",
+      "input_values": [
+        1e-60,
+        14.0,
+        18.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-nano-to-yocto",
+      "input_values": [
+        1e-60,
+        14.0,
+        19.0
+      ],
+      "expected_result": 1e-45
+    },
+    {
+      "id": "si-pico-to-yotta",
+      "input_values": [
+        1e-60,
+        15.0,
+        0.0
+      ],
+      "expected_result": 1e-96
+    },
+    {
+      "id": "si-pico-to-zetta",
+      "input_values": [
+        1e-60,
+        15.0,
+        1.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-pico-to-exa",
+      "input_values": [
+        1e-60,
+        15.0,
+        2.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-pico-to-peta",
+      "input_values": [
+        1e-60,
+        15.0,
+        3.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-pico-to-tera",
+      "input_values": [
+        1e-60,
+        15.0,
+        4.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-pico-to-giga",
+      "input_values": [
+        1e-60,
+        15.0,
+        5.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-pico-to-mega",
+      "input_values": [
+        1e-60,
+        15.0,
+        6.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-pico-to-kilo",
+      "input_values": [
+        1e-60,
+        15.0,
+        7.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-pico-to-hecto",
+      "input_values": [
+        1e-60,
+        15.0,
+        8.0
+      ],
+      "expected_result": 1e-74
+    },
+    {
+      "id": "si-pico-to-deca",
+      "input_values": [
+        1e-60,
+        15.0,
+        9.0
+      ],
+      "expected_result": 1e-73
+    },
+    {
+      "id": "si-pico-to-deci",
+      "input_values": [
+        1e-60,
+        15.0,
+        10.0
+      ],
+      "expected_result": 1e-71
+    },
+    {
+      "id": "si-pico-to-centi",
+      "input_values": [
+        1e-60,
+        15.0,
+        11.0
+      ],
+      "expected_result": 1e-70
+    },
+    {
+      "id": "si-pico-to-milli",
+      "input_values": [
+        1e-60,
+        15.0,
+        12.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-pico-to-micro",
+      "input_values": [
+        1e-60,
+        15.0,
+        13.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-pico-to-nano",
+      "input_values": [
+        1e-60,
+        15.0,
+        14.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-pico-to-pico",
+      "input_values": [
+        1e-60,
+        15.0,
+        15.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-pico-to-femto",
+      "input_values": [
+        1e-60,
+        15.0,
+        16.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-pico-to-atto",
+      "input_values": [
+        1e-60,
+        15.0,
+        17.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-pico-to-zepto",
+      "input_values": [
+        1e-60,
+        15.0,
+        18.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-pico-to-yocto",
+      "input_values": [
+        1e-60,
+        15.0,
+        19.0
+      ],
+      "expected_result": 1e-48
+    },
+    {
+      "id": "si-femto-to-yotta",
+      "input_values": [
+        1e-60,
+        16.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999998e-100
+    },
+    {
+      "id": "si-femto-to-zetta",
+      "input_values": [
+        1e-60,
+        16.0,
+        1.0
+      ],
+      "expected_result": 1e-96
+    },
+    {
+      "id": "si-femto-to-exa",
+      "input_values": [
+        1e-60,
+        16.0,
+        2.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-femto-to-peta",
+      "input_values": [
+        1e-60,
+        16.0,
+        3.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-femto-to-tera",
+      "input_values": [
+        1e-60,
+        16.0,
+        4.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-femto-to-giga",
+      "input_values": [
+        1e-60,
+        16.0,
+        5.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-femto-to-mega",
+      "input_values": [
+        1e-60,
+        16.0,
+        6.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-femto-to-kilo",
+      "input_values": [
+        1e-60,
+        16.0,
+        7.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-femto-to-hecto",
+      "input_values": [
+        1e-60,
+        16.0,
+        8.0
+      ],
+      "expected_result": 1.0000000000000001e-77
+    },
+    {
+      "id": "si-femto-to-deca",
+      "input_values": [
+        1e-60,
+        16.0,
+        9.0
+      ],
+      "expected_result": 1e-76
+    },
+    {
+      "id": "si-femto-to-deci",
+      "input_values": [
+        1e-60,
+        16.0,
+        10.0
+      ],
+      "expected_result": 1e-74
+    },
+    {
+      "id": "si-femto-to-centi",
+      "input_values": [
+        1e-60,
+        16.0,
+        11.0
+      ],
+      "expected_result": 1e-73
+    },
+    {
+      "id": "si-femto-to-milli",
+      "input_values": [
+        1e-60,
+        16.0,
+        12.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-femto-to-micro",
+      "input_values": [
+        1e-60,
+        16.0,
+        13.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-femto-to-nano",
+      "input_values": [
+        1e-60,
+        16.0,
+        14.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-femto-to-pico",
+      "input_values": [
+        1e-60,
+        16.0,
+        15.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-femto-to-femto",
+      "input_values": [
+        1e-60,
+        16.0,
+        16.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-femto-to-atto",
+      "input_values": [
+        1e-60,
+        16.0,
+        17.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-femto-to-zepto",
+      "input_values": [
+        1e-60,
+        16.0,
+        18.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-femto-to-yocto",
+      "input_values": [
+        1e-60,
+        16.0,
+        19.0
+      ],
+      "expected_result": 1e-51
+    },
+    {
+      "id": "si-atto-to-yotta",
+      "input_values": [
+        1e-60,
+        17.0,
+        0.0
+      ],
+      "expected_result": 1e-102
+    },
+    {
+      "id": "si-atto-to-zetta",
+      "input_values": [
+        1e-60,
+        17.0,
+        1.0
+      ],
+      "expected_result": 9.999999999999998e-100
+    },
+    {
+      "id": "si-atto-to-exa",
+      "input_values": [
+        1e-60,
+        17.0,
+        2.0
+      ],
+      "expected_result": 1e-96
+    },
+    {
+      "id": "si-atto-to-peta",
+      "input_values": [
+        1e-60,
+        17.0,
+        3.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-atto-to-tera",
+      "input_values": [
+        1e-60,
+        17.0,
+        4.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-atto-to-giga",
+      "input_values": [
+        1e-60,
+        17.0,
+        5.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-atto-to-mega",
+      "input_values": [
+        1e-60,
+        17.0,
+        6.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-atto-to-kilo",
+      "input_values": [
+        1e-60,
+        17.0,
+        7.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-atto-to-hecto",
+      "input_values": [
+        1e-60,
+        17.0,
+        8.0
+      ],
+      "expected_result": 1e-80
+    },
+    {
+      "id": "si-atto-to-deca",
+      "input_values": [
+        1e-60,
+        17.0,
+        9.0
+      ],
+      "expected_result": 1e-79
+    },
+    {
+      "id": "si-atto-to-deci",
+      "input_values": [
+        1e-60,
+        17.0,
+        10.0
+      ],
+      "expected_result": 1.0000000000000001e-77
+    },
+    {
+      "id": "si-atto-to-centi",
+      "input_values": [
+        1e-60,
+        17.0,
+        11.0
+      ],
+      "expected_result": 1e-76
+    },
+    {
+      "id": "si-atto-to-milli",
+      "input_values": [
+        1e-60,
+        17.0,
+        12.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-atto-to-micro",
+      "input_values": [
+        1e-60,
+        17.0,
+        13.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-atto-to-nano",
+      "input_values": [
+        1e-60,
+        17.0,
+        14.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-atto-to-pico",
+      "input_values": [
+        1e-60,
+        17.0,
+        15.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-atto-to-femto",
+      "input_values": [
+        1e-60,
+        17.0,
+        16.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-atto-to-atto",
+      "input_values": [
+        1e-60,
+        17.0,
+        17.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-atto-to-zepto",
+      "input_values": [
+        1e-60,
+        17.0,
+        18.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-atto-to-yocto",
+      "input_values": [
+        1e-60,
+        17.0,
+        19.0
+      ],
+      "expected_result": 1e-54
+    },
+    {
+      "id": "si-zepto-to-yotta",
+      "input_values": [
+        1e-60,
+        18.0,
+        0.0
+      ],
+      "expected_result": 1e-105
+    },
+    {
+      "id": "si-zepto-to-zetta",
+      "input_values": [
+        1e-60,
+        18.0,
+        1.0
+      ],
+      "expected_result": 1e-102
+    },
+    {
+      "id": "si-zepto-to-exa",
+      "input_values": [
+        1e-60,
+        18.0,
+        2.0
+      ],
+      "expected_result": 9.999999999999998e-100
+    },
+    {
+      "id": "si-zepto-to-peta",
+      "input_values": [
+        1e-60,
+        18.0,
+        3.0
+      ],
+      "expected_result": 1e-96
+    },
+    {
+      "id": "si-zepto-to-tera",
+      "input_values": [
+        1e-60,
+        18.0,
+        4.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-zepto-to-giga",
+      "input_values": [
+        1e-60,
+        18.0,
+        5.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-zepto-to-mega",
+      "input_values": [
+        1e-60,
+        18.0,
+        6.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-zepto-to-kilo",
+      "input_values": [
+        1e-60,
+        18.0,
+        7.0
+      ],
+      "expected_result": 9.999999999999999e-85
+    },
+    {
+      "id": "si-zepto-to-hecto",
+      "input_values": [
+        1e-60,
+        18.0,
+        8.0
+      ],
+      "expected_result": 9.999999999999999e-84
+    },
+    {
+      "id": "si-zepto-to-deca",
+      "input_values": [
+        1e-60,
+        18.0,
+        9.0
+      ],
+      "expected_result": 1e-82
+    },
+    {
+      "id": "si-zepto-to-deci",
+      "input_values": [
+        1e-60,
+        18.0,
+        10.0
+      ],
+      "expected_result": 1e-80
+    },
+    {
+      "id": "si-zepto-to-centi",
+      "input_values": [
+        1e-60,
+        18.0,
+        11.0
+      ],
+      "expected_result": 1e-79
+    },
+    {
+      "id": "si-zepto-to-milli",
+      "input_values": [
+        1e-60,
+        18.0,
+        12.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-zepto-to-micro",
+      "input_values": [
+        1e-60,
+        18.0,
+        13.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-zepto-to-nano",
+      "input_values": [
+        1e-60,
+        18.0,
+        14.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-zepto-to-pico",
+      "input_values": [
+        1e-60,
+        18.0,
+        15.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-zepto-to-femto",
+      "input_values": [
+        1e-60,
+        18.0,
+        16.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-zepto-to-atto",
+      "input_values": [
+        1e-60,
+        18.0,
+        17.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-zepto-to-zepto",
+      "input_values": [
+        1e-60,
+        18.0,
+        18.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "si-zepto-to-yocto",
+      "input_values": [
+        1e-60,
+        18.0,
+        19.0
+      ],
+      "expected_result": 1e-57
+    },
+    {
+      "id": "si-yocto-to-yotta",
+      "input_values": [
+        1e-60,
+        19.0,
+        0.0
+      ],
+      "expected_result": 9.999999999999999e-109
+    },
+    {
+      "id": "si-yocto-to-zetta",
+      "input_values": [
+        1e-60,
+        19.0,
+        1.0
+      ],
+      "expected_result": 1e-105
+    },
+    {
+      "id": "si-yocto-to-exa",
+      "input_values": [
+        1e-60,
+        19.0,
+        2.0
+      ],
+      "expected_result": 1e-102
+    },
+    {
+      "id": "si-yocto-to-peta",
+      "input_values": [
+        1e-60,
+        19.0,
+        3.0
+      ],
+      "expected_result": 9.999999999999998e-100
+    },
+    {
+      "id": "si-yocto-to-tera",
+      "input_values": [
+        1e-60,
+        19.0,
+        4.0
+      ],
+      "expected_result": 1e-96
+    },
+    {
+      "id": "si-yocto-to-giga",
+      "input_values": [
+        1e-60,
+        19.0,
+        5.0
+      ],
+      "expected_result": 1.0000000000000001e-93
+    },
+    {
+      "id": "si-yocto-to-mega",
+      "input_values": [
+        1e-60,
+        19.0,
+        6.0
+      ],
+      "expected_result": 1e-90
+    },
+    {
+      "id": "si-yocto-to-kilo",
+      "input_values": [
+        1e-60,
+        19.0,
+        7.0
+      ],
+      "expected_result": 1e-87
+    },
+    {
+      "id": "si-yocto-to-hecto",
+      "input_values": [
+        1e-60,
+        19.0,
+        8.0
+      ],
+      "expected_result": 1e-86
+    },
+    {
+      "id": "si-yocto-to-deca",
+      "input_values": [
+        1e-60,
+        19.0,
+        9.0
+      ],
+      "expected_result": 1e-85
+    },
+    {
+      "id": "si-yocto-to-deci",
+      "input_values": [
+        1e-60,
+        19.0,
+        10.0
+      ],
+      "expected_result": 9.999999999999999e-84
+    },
+    {
+      "id": "si-yocto-to-centi",
+      "input_values": [
+        1e-60,
+        19.0,
+        11.0
+      ],
+      "expected_result": 1e-82
+    },
+    {
+      "id": "si-yocto-to-milli",
+      "input_values": [
+        1e-60,
+        19.0,
+        12.0
+      ],
+      "expected_result": 9.999999999999998e-82
+    },
+    {
+      "id": "si-yocto-to-micro",
+      "input_values": [
+        1e-60,
+        19.0,
+        13.0
+      ],
+      "expected_result": 1e-78
+    },
+    {
+      "id": "si-yocto-to-nano",
+      "input_values": [
+        1e-60,
+        19.0,
+        14.0
+      ],
+      "expected_result": 1.0000000000000001e-75
+    },
+    {
+      "id": "si-yocto-to-pico",
+      "input_values": [
+        1e-60,
+        19.0,
+        15.0
+      ],
+      "expected_result": 1e-72
+    },
+    {
+      "id": "si-yocto-to-femto",
+      "input_values": [
+        1e-60,
+        19.0,
+        16.0
+      ],
+      "expected_result": 1.0000000000000001e-69
+    },
+    {
+      "id": "si-yocto-to-atto",
+      "input_values": [
+        1e-60,
+        19.0,
+        17.0
+      ],
+      "expected_result": 1e-66
+    },
+    {
+      "id": "si-yocto-to-zepto",
+      "input_values": [
+        1e-60,
+        19.0,
+        18.0
+      ],
+      "expected_result": 9.999999999999999e-64
+    },
+    {
+      "id": "si-yocto-to-yocto",
+      "input_values": [
+        1e-60,
+        19.0,
+        19.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-yotta-to-yotta",
+      "input_values": [
+        1e-60,
+        20.0,
+        20.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-yotta-to-zetta",
+      "input_values": [
+        1e-60,
+        20.0,
+        21.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-yotta-to-exa",
+      "input_values": [
+        1e-60,
+        20.0,
+        22.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-yotta-to-peta",
+      "input_values": [
+        1e-60,
+        20.0,
+        23.0
+      ],
+      "expected_result": 1.073741824e-51
+    },
+    {
+      "id": "binary-yotta-to-tera",
+      "input_values": [
+        1e-60,
+        20.0,
+        24.0
+      ],
+      "expected_result": 1.099511627776e-48
+    },
+    {
+      "id": "binary-yotta-to-giga",
+      "input_values": [
+        1e-60,
+        20.0,
+        25.0
+      ],
+      "expected_result": 1.125899906842624e-45
+    },
+    {
+      "id": "binary-yotta-to-mega",
+      "input_values": [
+        1e-60,
+        20.0,
+        26.0
+      ],
+      "expected_result": 1.152921504606847e-42
+    },
+    {
+      "id": "binary-yotta-to-kilo",
+      "input_values": [
+        1e-60,
+        20.0,
+        27.0
+      ],
+      "expected_result": 1.1805916207174113e-39
+    },
+    {
+      "id": "binary-zetta-to-yotta",
+      "input_values": [
+        1e-60,
+        21.0,
+        20.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-zetta-to-zetta",
+      "input_values": [
+        1e-60,
+        21.0,
+        21.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-zetta-to-exa",
+      "input_values": [
+        1e-60,
+        21.0,
+        22.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-zetta-to-peta",
+      "input_values": [
+        1e-60,
+        21.0,
+        23.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-zetta-to-tera",
+      "input_values": [
+        1e-60,
+        21.0,
+        24.0
+      ],
+      "expected_result": 1.073741824e-51
+    },
+    {
+      "id": "binary-zetta-to-giga",
+      "input_values": [
+        1e-60,
+        21.0,
+        25.0
+      ],
+      "expected_result": 1.099511627776e-48
+    },
+    {
+      "id": "binary-zetta-to-mega",
+      "input_values": [
+        1e-60,
+        21.0,
+        26.0
+      ],
+      "expected_result": 1.125899906842624e-45
+    },
+    {
+      "id": "binary-zetta-to-kilo",
+      "input_values": [
+        1e-60,
+        21.0,
+        27.0
+      ],
+      "expected_result": 1.152921504606847e-42
+    },
+    {
+      "id": "binary-exa-to-yotta",
+      "input_values": [
+        1e-60,
+        22.0,
+        20.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-exa-to-zetta",
+      "input_values": [
+        1e-60,
+        22.0,
+        21.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-exa-to-exa",
+      "input_values": [
+        1e-60,
+        22.0,
+        22.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-exa-to-peta",
+      "input_values": [
+        1e-60,
+        22.0,
+        23.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-exa-to-tera",
+      "input_values": [
+        1e-60,
+        22.0,
+        24.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-exa-to-giga",
+      "input_values": [
+        1e-60,
+        22.0,
+        25.0
+      ],
+      "expected_result": 1.073741824e-51
+    },
+    {
+      "id": "binary-exa-to-mega",
+      "input_values": [
+        1e-60,
+        22.0,
+        26.0
+      ],
+      "expected_result": 1.099511627776e-48
+    },
+    {
+      "id": "binary-exa-to-kilo",
+      "input_values": [
+        1e-60,
+        22.0,
+        27.0
+      ],
+      "expected_result": 1.125899906842624e-45
+    },
+    {
+      "id": "binary-peta-to-yotta",
+      "input_values": [
+        1e-60,
+        23.0,
+        20.0
+      ],
+      "expected_result": 9.313225746154785e-70
+    },
+    {
+      "id": "binary-peta-to-zetta",
+      "input_values": [
+        1e-60,
+        23.0,
+        21.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-peta-to-exa",
+      "input_values": [
+        1e-60,
+        23.0,
+        22.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-peta-to-peta",
+      "input_values": [
+        1e-60,
+        23.0,
+        23.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-peta-to-tera",
+      "input_values": [
+        1e-60,
+        23.0,
+        24.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-peta-to-giga",
+      "input_values": [
+        1e-60,
+        23.0,
+        25.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-peta-to-mega",
+      "input_values": [
+        1e-60,
+        23.0,
+        26.0
+      ],
+      "expected_result": 1.073741824e-51
+    },
+    {
+      "id": "binary-peta-to-kilo",
+      "input_values": [
+        1e-60,
+        23.0,
+        27.0
+      ],
+      "expected_result": 1.099511627776e-48
+    },
+    {
+      "id": "binary-tera-to-yotta",
+      "input_values": [
+        1e-60,
+        24.0,
+        20.0
+      ],
+      "expected_result": 9.094947017729282e-73
+    },
+    {
+      "id": "binary-tera-to-zetta",
+      "input_values": [
+        1e-60,
+        24.0,
+        21.0
+      ],
+      "expected_result": 9.313225746154785e-70
+    },
+    {
+      "id": "binary-tera-to-exa",
+      "input_values": [
+        1e-60,
+        24.0,
+        22.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-tera-to-peta",
+      "input_values": [
+        1e-60,
+        24.0,
+        23.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-tera-to-tera",
+      "input_values": [
+        1e-60,
+        24.0,
+        24.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-tera-to-giga",
+      "input_values": [
+        1e-60,
+        24.0,
+        25.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-tera-to-mega",
+      "input_values": [
+        1e-60,
+        24.0,
+        26.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-tera-to-kilo",
+      "input_values": [
+        1e-60,
+        24.0,
+        27.0
+      ],
+      "expected_result": 1.073741824e-51
+    },
+    {
+      "id": "binary-giga-to-yotta",
+      "input_values": [
+        1e-60,
+        25.0,
+        20.0
+      ],
+      "expected_result": 8.881784197001252e-76
+    },
+    {
+      "id": "binary-giga-to-zetta",
+      "input_values": [
+        1e-60,
+        25.0,
+        21.0
+      ],
+      "expected_result": 9.094947017729282e-73
+    },
+    {
+      "id": "binary-giga-to-exa",
+      "input_values": [
+        1e-60,
+        25.0,
+        22.0
+      ],
+      "expected_result": 9.313225746154785e-70
+    },
+    {
+      "id": "binary-giga-to-peta",
+      "input_values": [
+        1e-60,
+        25.0,
+        23.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-giga-to-tera",
+      "input_values": [
+        1e-60,
+        25.0,
+        24.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-giga-to-giga",
+      "input_values": [
+        1e-60,
+        25.0,
+        25.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-giga-to-mega",
+      "input_values": [
+        1e-60,
+        25.0,
+        26.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-giga-to-kilo",
+      "input_values": [
+        1e-60,
+        25.0,
+        27.0
+      ],
+      "expected_result": 1.048576e-54
+    },
+    {
+      "id": "binary-mega-to-yotta",
+      "input_values": [
+        1e-60,
+        26.0,
+        20.0
+      ],
+      "expected_result": 8.673617379884035e-79
+    },
+    {
+      "id": "binary-mega-to-zetta",
+      "input_values": [
+        1e-60,
+        26.0,
+        21.0
+      ],
+      "expected_result": 8.881784197001252e-76
+    },
+    {
+      "id": "binary-mega-to-exa",
+      "input_values": [
+        1e-60,
+        26.0,
+        22.0
+      ],
+      "expected_result": 9.094947017729282e-73
+    },
+    {
+      "id": "binary-mega-to-peta",
+      "input_values": [
+        1e-60,
+        26.0,
+        23.0
+      ],
+      "expected_result": 9.313225746154785e-70
+    },
+    {
+      "id": "binary-mega-to-tera",
+      "input_values": [
+        1e-60,
+        26.0,
+        24.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-mega-to-giga",
+      "input_values": [
+        1e-60,
+        26.0,
+        25.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-mega-to-mega",
+      "input_values": [
+        1e-60,
+        26.0,
+        26.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "binary-mega-to-kilo",
+      "input_values": [
+        1e-60,
+        26.0,
+        27.0
+      ],
+      "expected_result": 1.024e-57
+    },
+    {
+      "id": "binary-kilo-to-yotta",
+      "input_values": [
+        1e-60,
+        27.0,
+        20.0
+      ],
+      "expected_result": 8.470329472543003e-82
+    },
+    {
+      "id": "binary-kilo-to-zetta",
+      "input_values": [
+        1e-60,
+        27.0,
+        21.0
+      ],
+      "expected_result": 8.673617379884035e-79
+    },
+    {
+      "id": "binary-kilo-to-exa",
+      "input_values": [
+        1e-60,
+        27.0,
+        22.0
+      ],
+      "expected_result": 8.881784197001252e-76
+    },
+    {
+      "id": "binary-kilo-to-peta",
+      "input_values": [
+        1e-60,
+        27.0,
+        23.0
+      ],
+      "expected_result": 9.094947017729282e-73
+    },
+    {
+      "id": "binary-kilo-to-tera",
+      "input_values": [
+        1e-60,
+        27.0,
+        24.0
+      ],
+      "expected_result": 9.313225746154785e-70
+    },
+    {
+      "id": "binary-kilo-to-giga",
+      "input_values": [
+        1e-60,
+        27.0,
+        25.0
+      ],
+      "expected_result": 9.5367431640625e-67
+    },
+    {
+      "id": "binary-kilo-to-mega",
+      "input_values": [
+        1e-60,
+        27.0,
+        26.0
+      ],
+      "expected_result": 9.765625e-64
+    },
+    {
+      "id": "binary-kilo-to-kilo",
+      "input_values": [
+        1e-60,
+        27.0,
+        27.0
+      ],
+      "expected_result": 1e-60
+    },
+    {
+      "id": "source-si-giga-to-mega",
+      "input_values": [
+        1.0,
+        5.0,
+        6.0
+      ],
+      "expected_result": 1000.0
+    },
+    {
+      "id": "source-si-mega-to-giga",
+      "input_values": [
+        1.0,
+        6.0,
+        5.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "source-si-same-kilo",
+      "input_values": [
+        1.0,
+        7.0,
+        7.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "source-binary-giga-to-mega",
+      "input_values": [
+        1.0,
+        25.0,
+        26.0
+      ],
+      "expected_result": 1024.0
+    },
+    {
+      "id": "source-binary-mega-to-giga",
+      "input_values": [
+        1.0,
+        26.0,
+        25.0
+      ],
+      "expected_result": 0.0009765625
+    },
+    {
+      "id": "source-binary-same-kilo",
+      "input_values": [
+        1.0,
+        27.0,
+        27.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "negative-si-amount",
+      "input_values": [
+        -2.5,
+        5.0,
+        6.0
+      ],
+      "expected_result": -2500.0
+    },
+    {
+      "id": "negative-binary-amount",
+      "input_values": [
+        -0.5,
+        25.0,
+        26.0
+      ],
+      "expected_result": -512.0
+    },
+    {
+      "id": "si-largest-gap",
+      "input_values": [
+        1e-60,
+        0.0,
+        19.0
+      ],
+      "expected_result": 1e-12
+    },
+    {
+      "id": "si-reverse-largest-gap",
+      "input_values": [
+        -1e-60,
+        19.0,
+        0.0
+      ],
+      "expected_result": -9.999999999999999e-109
+    },
+    {
+      "id": "binary-largest-gap",
+      "input_values": [
+        1e-60,
+        20.0,
+        27.0
+      ],
+      "expected_result": 1.1805916207174113e-39
+    },
+    {
+      "id": "binary-reverse-largest-gap",
+      "input_values": [
+        -1e-60,
+        27.0,
+        20.0
+      ],
+      "expected_result": -8.470329472543003e-82
+    },
+    {
+      "id": "upper-amount-bound-same-prefix",
+      "input_values": [
+        1000000.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "lower-amount-bound-same-prefix",
+      "input_values": [
+        -1000000.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1000000.0
+    },
+    {
+      "id": "invalid-code",
+      "input_values": [
+        1.0,
+        28.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mixed-si-and-binary",
+      "input_values": [
+        1.0,
+        0.0,
+        20.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional-prefix-code",
+      "input_values": [
+        1.0,
+        5.5,
+        6.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-prefix-code",
+      "input_values": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "amount-above-bound",
+      "input_values": [
+        1000000.5,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "amount-below-bound",
+      "input_values": [
+        -1000000.5,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

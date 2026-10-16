@@ -13,10 +13,12 @@ This benchmark traverses a directed graph from a selected start vertex and retur
 - Malformed input or insufficient output capacity returns -2 and writes no output.
 - All nine implementations use fixed-size stack storage and portable integer operations.
 
-The pinned C++ BFS source supports both bidirectional and directed edges and returns the visited set. Rust BFS returns a history only through a requested target. The pinned C++ DFS source builds an undirected graph and recursively prints its traversal; Rust's file named DFS uses a deque as a stack to find a target. The local contract normalizes these APIs to a directed full traversal so both traversal orders can be checked on the same workload.
+The pinned C++ BFS source supports both bidirectional and directed edges and returns the visited set. The Python `breadth_first_search_2.py` source performs full BFS with both `Queue` and `deque`, marking vertices when enqueued. Rust BFS returns a history only through a requested target. The pinned C++ DFS source builds an undirected graph and recursively prints its traversal; Rust's file named DFS uses a deque as a stack to find a target. The local contract normalizes these APIs to a directed full traversal with ascending-neighbor order so traversal results can be checked deterministically.
 
 ## Workload and verification
 
 workload.json includes empty and disconnected graphs, branches, cycles, duplicate edges, a self-loop, and maximum-size inputs. The verifier exhausts all directed graphs through three vertices for every start, checks deterministic random and malformed cases, and validates the full visitation order against an independent oracle.
 
 Build with the i64_array_bytes_output ABI family. benchmarks/run_i64_array_bytes_output.py records measurements. Run benchmarks/verify_graph_traversal.py with --algorithm breadth_first_search to verify all nine language ports.
+
+Pinned Python source: [TheAlgorithms/Python `breadth_first_search_2.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/breadth_first_search_2.py).

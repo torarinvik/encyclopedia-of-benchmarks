@@ -16,3 +16,11 @@ This package follows the pinned [TheAlgorithms Python `rainfall_intensity.py`](h
 ## Workload
 
 [`workload.json`](workload.json) covers several exponent combinations, the maximum intensity within the bounds, a small positive result, and invalid length or nonpositive/out-of-range inputs.
+
+## Build and verification
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm rainfall_intensity --language rust
+python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/r/rainfall_intensity/rust/build.json
+python3 benchmarks/verify_rainfall_intensity.py --languages rust
+```

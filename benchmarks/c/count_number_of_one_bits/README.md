@@ -29,3 +29,4 @@ The pinned Python source provides three ways to count set bits: Brian Kernighan'
 ## Upstream source
 
 - [TheAlgorithms/Python `count_number_of_one_bits.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/count_number_of_one_bits.py)
+- The Python [`binary_count_setbits.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/binary_count_setbits.py) and Ruby [`binary_count_setbits.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/bit_manipulation/binary_count_setbits.rb) variants count set bits on the shared unsigned 32-bit domain.

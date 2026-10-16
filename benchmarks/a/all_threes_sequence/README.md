@@ -16,6 +16,8 @@ This indexed contract measures constant-time term lookup. The source itself expo
 
 [`workload.json`](workload.json) covers initial terms, later indices, the largest signed 64-bit index, and negative invalid indices.
 
+Verify the nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms all_threes_sequence`.
+
 ## Implementations
 
 | Language | Source |

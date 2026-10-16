@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "isautomorphic-i64-bounded-v1",
+  "algorithm": "isautomorphic",
+  "function_symbol": "isautomorphic",
+  "input": {
+    "kind": "signed_i64",
+    "valid_range": [
+      -3037000499,
+      3037000499
+    ],
+    "invalid_result": -1,
+    "negative_result": 0,
+    "result_encoding": {
+      "automorphic": 1,
+      "not_automorphic": 0
+    },
+    "definition": "For nonnegative n, its square ends with the decimal digits of n; zero is true. The bounded positive range keeps n*n within signed 64-bit."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "five",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "six",
+      "input_value": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "seven",
+      "input_value": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "twenty_five",
+      "input_value": 25,
+      "expected_result": 1
+    },
+    {
+      "id": "seventy_six",
+      "input_value": 76,
+      "expected_result": 1
+    },
+    {
+      "id": "one_hundred",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "three_hundred_seventy_six",
+      "input_value": 376,
+      "expected_result": 1
+    },
+    {
+      "id": "six_hundred_twenty_five",
+      "input_value": 625,
+      "expected_result": 1
+    },
+    {
+      "id": "one_thousand",
+      "input_value": 1000,
+      "expected_result": 0
+    },
+    {
+      "id": "nine_thousand_three_hundred_seventy_six",
+      "input_value": 9376,
+      "expected_result": 1
+    },
+    {
+      "id": "ninety_thousand_six_hundred_twenty_five",
+      "input_value": 90625,
+      "expected_result": 1
+    },
+    {
+      "id": "one_hundred_nine_thousand_three_hundred_seventy_six",
+      "input_value": 109376,
+      "expected_result": 1
+    },
+    {
+      "id": "eight_hundred_ninety_thousand_six_hundred_twenty_five",
+      "input_value": 890625,
+      "expected_result": 1
+    },
+    {
+      "id": "two_million_eight_hundred_ninety_thousand_six_hundred_twenty_five",
+      "input_value": 2890625,
+      "expected_result": 1
+    },
+    {
+      "id": "seven_million_one_hundred_nine_thousand_three_hundred_seventy_six",
+      "input_value": 7109376,
+      "expected_result": 1
+    },
+    {
+      "id": "twelve_million_eight_hundred_ninety_thousand_six_hundred_twenty_five",
+      "input_value": 12890625,
+      "expected_result": 1
+    },
+    {
+      "id": "eighty_seven_million_one_hundred_nine_thousand_three_hundred_seventy_six",
+      "input_value": 87109376,
+      "expected_result": 1
+    },
+    {
+      "id": "non_automorphic_neighbor",
+      "input_value": 24,
+      "expected_result": 0
+    },
+    {
+      "id": "non_automorphic_large",
+      "input_value": 123456789,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_large",
+      "input_value": -3037000499,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_safe_square_input",
+      "input_value": 3037000499,
+      "expected_result": 0
+    },
+    {
+      "id": "one_below_maximum_safe",
+      "input_value": 3037000498,
+      "expected_result": 0
+    },
+    {
+      "id": "below_domain",
+      "input_value": -3037000500,
+      "expected_result": -1
+    },
+    {
+      "id": "above_domain",
+      "input_value": 3037000500,
+      "expected_result": -1
+    }
+  ]
+}

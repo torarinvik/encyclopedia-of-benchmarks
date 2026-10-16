@@ -17,3 +17,9 @@ The input bounds keep output small and fit the shared `i64_array_bytes_output` r
 - [Python — `allocation_number.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/allocation_number.py)
 
 Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`. Implementations are in `a/` in all nine language directories.
+
+Verify all nine ports against the independent partition oracle with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm allocation_number
+```

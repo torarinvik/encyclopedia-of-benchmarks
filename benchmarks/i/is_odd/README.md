@@ -21,6 +21,8 @@ returns an integer `0`/`1` result.
 [`workload.json`](workload.json) includes negative and positive odd/even values,
 zero, and the signed endpoints.
 
+Verify the nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms is_odd`.
+
 ## Implementations
 
 | Language | Source |

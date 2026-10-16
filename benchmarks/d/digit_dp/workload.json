@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "id": "java-digit-dp-range-digit-sum-i64-array-scalar-v1",
+  "algorithm": "digit_dp",
+  "function_symbol": "digit_dp",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[lower, upper, target]",
+    "exact_length": 3,
+    "parseable_malformed_length": 4,
+    "bound_range": [
+      -1,
+      1000000000000000000
+    ],
+    "target_range": [
+      -2147483648,
+      2147483647
+    ],
+    "max_digit_sum": 171,
+    "invalid_input_result": -1,
+    "source_result_for_lower_above_upper_or_target_outside_0_through_171": 0
+  },
+  "output": {
+    "kind": "count_as_signed_64_bit_integer",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/dynamicprogramming/DigitDP.java"
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        1,
+        100,
+        5
+      ],
+      "expected_result": 6,
+      "input_length": 3
+    },
+    {
+      "id": "zero_has_zero_digit_sum",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "single_digit_sum_one",
+      "input_values": [
+        0,
+        9,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "inclusive_endpoints",
+      "input_values": [
+        1,
+        10,
+        1
+      ],
+      "expected_result": 2,
+      "input_length": 3
+    },
+    {
+      "id": "two_digit_target_two",
+      "input_values": [
+        0,
+        99,
+        2
+      ],
+      "expected_result": 3,
+      "input_length": 3
+    },
+    {
+      "id": "two_digit_target_nine",
+      "input_values": [
+        0,
+        99,
+        9
+      ],
+      "expected_result": 10,
+      "input_length": 3
+    },
+    {
+      "id": "range_with_only_one_match",
+      "input_values": [
+        50,
+        60,
+        5
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "target_above_all_digits",
+      "input_values": [
+        0,
+        99,
+        171
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "empty_ordered_range",
+      "input_values": [
+        100,
+        99,
+        1
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "negative_lower_bound",
+      "input_values": [
+        -1,
+        9,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "negative_only_range",
+      "input_values": [
+        -1,
+        -1,
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "zero_in_range_from_negative",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "maximum_bound_target_zero",
+      "input_values": [
+        0,
+        1000000000000000000,
+        0
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "maximum_bound_target_one",
+      "input_values": [
+        0,
+        1000000000000000000,
+        1
+      ],
+      "expected_result": 19,
+      "input_length": 3
+    },
+    {
+      "id": "maximum_bound_inclusive_endpoint",
+      "input_values": [
+        1000000000000000000,
+        1000000000000000000,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "maximum_bound_excludes_predecessor",
+      "input_values": [
+        999999999999999999,
+        1000000000000000000,
+        1
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "maximum_theoretical_target",
+      "input_values": [
+        0,
+        1000000000000000000,
+        171
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "negative_target_source_result",
+      "input_values": [
+        0,
+        1000000000000000000,
+        -1
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "target_above_max_digit_sum_source_result",
+      "input_values": [
+        0,
+        1000000000000000000,
+        172
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "missing_target",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 4
+    },
+    {
+      "id": "lower_bound_outside_contract",
+      "input_values": [
+        -2,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "upper_bound_outside_contract",
+      "input_values": [
+        0,
+        1000000000000000001,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "target_outside_i32",
+      "input_values": [
+        0,
+        0,
+        2147483648
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    }
+  ]
+}

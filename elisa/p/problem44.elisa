@@ -1,0 +1,26 @@
+extern sqrt(value: f64) -> f64
+
+def is_pentagonal(value: i64) -> bool:
+    if value < 1:
+        return false
+    discriminant: i64 = 24 * value + 1
+    root: i64 = sqrt(discriminant.f64()).i64()
+    root * root == discriminant and (root + 1) % 6 == 0
+
+def problem44_impl(limit: i64) -> i64:
+    if limit < 1 or limit > 5000:
+        return -1
+    i: mutable i64 = 1
+    while i < limit:
+        first: i64 = i * (3 * i - 1) / 2
+        j: mutable i64 = i
+        while j < limit:
+            second: i64 = j * (3 * j - 1) / 2
+            difference: i64 = second - first
+            if is_pentagonal(first + second) and is_pentagonal(difference):
+                return difference
+            j <- j + 1
+        i <- i + 1
+    -1
+
+export fn problem44(limit: i64) -> i64 = problem44_impl

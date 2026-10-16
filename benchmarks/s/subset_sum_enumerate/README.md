@@ -11,7 +11,7 @@ Enumerate all indexed subsets whose values add to a target. Duplicate values at 
 
 ## Reviewed TheAlgorithms source
 
-The R [`subset_sum.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/subset_sum.r) file also contains `find_all_subsets`. Its recursive enumerator uses a positive-value pruning rule and emits subsets as value vectors. This benchmark defines a portable bounded contract over signed values and identifies subsets by input position so duplicate values remain distinguishable.
+The R [`subset_sum.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/subset_sum.r) file contains a related `find_all_subsets` routine, but it is not an exact source match: it prunes on positive values, emits value vectors in include-first order, and returns immediately when the running sum equals the target. This benchmark instead defines a portable signed-input contract over indexed subsets and ascending mask order. The R routine maps to the separate [Positive Subset Sum Value Enumeration](../subset_sum_values_enumeration/README.md) package, which preserves its value-list output on a strictly positive item domain.
 
 ## Workload and verification
 

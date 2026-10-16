@@ -1,0 +1,17 @@
+const MAX_TARGET: usize = 500
+
+def problem31_impl(target: i64) -> i64:
+    if target < 0 or target > MAX_TARGET.i64():
+        return -1
+    coins: i64[8] = [1, 2, 5, 10, 20, 50, 100, 200]
+    ways: mutable i64[MAX_TARGET + 1] = zeroed
+    ways[0] <- 1
+    for coin_index in 0..<8:
+        coin: usize = coins[coin_index].usize()
+        amount: mutable usize = coin
+        while amount <= target.usize():
+            ways[amount] <- ways[amount] + ways[amount - coin]
+            amount <- amount + 1
+    ways[target.usize()]
+
+export fn problem31(target: i64) -> i64 = problem31_impl

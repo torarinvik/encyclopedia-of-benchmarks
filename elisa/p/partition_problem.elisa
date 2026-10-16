@@ -1,0 +1,31 @@
+# Equal-sum two-way partition using bottom-up subset-sum reachability.
+const MAX_ITEMS: usize = 16
+const MAX_TOTAL: usize = 1024
+
+def partition_problem_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > MAX_ITEMS:
+        return -1
+    total: mutable i64 = 0
+    for index in 0..<length |total, length, input|:
+        value: i64 = input[index]
+        if value < 0 or value > 256 or total > 1024 - value:
+            return -1
+        total <- total + value
+    if total % 2 != 0:
+        return 0
+    target: usize = (total / 2).usize()
+    reachable: mutable i64[MAX_TOTAL + 1] = zeroed
+    reachable[0] <- 1
+    for index in 0..<length |target, input, reachable|:
+        value: usize = input[index].usize()
+        if value <= target:
+            sum: mutable usize = target
+            while sum >= value |sum, value, reachable|:
+                if reachable[sum - value] != 0:
+                    reachable[sum] <- 1
+                if sum == value:
+                    break
+                sum <- sum - 1
+    return reachable[target]
+
+export fn partition_problem(input: i64&, length: usize) -> i64 = partition_problem_impl

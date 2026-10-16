@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-4-scalar-v1",
+  "algorithm": "problem4",
+  "function_symbol": "problem4",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "digits_range": [1, 3],
+    "meaning": "number of decimal digits in each positive factor",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"one_digit_factors","input_value":1,"expected_result":9},
+    {"id":"two_digit_factors","input_value":2,"expected_result":9009},
+    {"id":"three_digit_project_euler_instance","input_value":3,"expected_result":906609},
+    {"id":"zero_digits","input_value":0,"expected_result":-1},
+    {"id":"negative_digits","input_value":-1,"expected_result":-1},
+    {"id":"too_many_digits","input_value":4,"expected_result":-1}
+  ]
+}

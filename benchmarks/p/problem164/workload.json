@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-164-digit-sum-limit-v1",
+  "algorithm": "problem164",
+  "function_symbol": "problem164",
+  "input": {
+    "kind": "digit_count",
+    "minimum": 0,
+    "maximum": 26,
+    "definition": "Number of digits; positive numbers have a nonzero leading digit. Zero digits follows the source recursion base case and returns one.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of numbers for which each consecutive triple of digits sums to at most 9.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero-digit-base-case", "input_value": 0, "expected_result": 1},
+    {"id": "one-digit", "input_value": 1, "expected_result": 9},
+    {"id": "source-example-two-digits", "input_value": 2, "expected_result": 45},
+    {"id": "three-digits", "input_value": 3, "expected_result": 165},
+    {"id": "source-example-ten-digits", "input_value": 10, "expected_result": 21838806},
+    {"id": "canonical-twenty-digits", "input_value": 20, "expected_result": 378158756814587},
+    {"id": "largest-signed-64-bit-count", "input_value": 26, "expected_result": 8326824609494381802},
+    {"id": "negative-digit-count", "input_value": -1, "expected_result": -1},
+    {"id": "first-overflowing-count", "input_value": 27, "expected_result": -1},
+    {"id": "signed-64-bit-minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed-64-bit-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

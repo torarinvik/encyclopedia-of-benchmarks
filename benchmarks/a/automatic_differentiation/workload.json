@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-reverse-mode-automatic-differentiation-scalar-v1",
+  "algorithm": "automatic_differentiation",
+  "function_symbol": "automatic_differentiation",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[leaf_count, operation_count, target_node, source_leaf, leaf_values..., (opcode, left_node, right_node_or_exponent)...]",
+    "leaf_count_range": [
+      1,
+      32
+    ],
+    "operation_count_range": [
+      1,
+      64
+    ],
+    "supported_operations": {
+      "0": "add",
+      "1": "subtract",
+      "2": "multiply",
+      "3": "divide",
+      "5": "integer power"
+    },
+    "operation_order": "Every operation creates node leaf_count + operation_index and may only reference earlier nodes; power stores exponent in its third field.",
+    "target": "An operation-output node; source_leaf is an input leaf index.",
+    "domain": "Leaf values in -16..16, nonzero divisors, exponents 1..8, and absolute intermediate values at most 10^10.",
+    "invalid_or_disconnected_result": -1e+300
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "meaning": "The derivative of the selected target scalar with respect to the selected source leaf; disconnected sources map the source None result to the documented sentinel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "source_doctest_wrt_first",
+      "input_values": [
+        2,
+        3,
+        4,
+        0,
+        2,
+        5,
+        0,
+        0,
+        1,
+        2,
+        0,
+        1,
+        3,
+        2,
+        3
+      ],
+      "input_length": 15,
+      "expected_result": -0.25
+    },
+    {
+      "id": "source_doctest_wrt_second",
+      "input_values": [
+        2,
+        3,
+        4,
+        1,
+        2,
+        5,
+        0,
+        0,
+        1,
+        2,
+        0,
+        1,
+        3,
+        2,
+        3
+      ],
+      "input_length": 15,
+      "expected_result": -0.04000000000000001
+    },
+    {
+      "id": "repeated_operand_multiply",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        7,
+        2,
+        0,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 14.0
+    },
+    {
+      "id": "integer_power",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        3,
+        5,
+        0,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 108.0
+    },
+    {
+      "id": "subtract_then_multiply",
+      "input_values": [
+        2,
+        2,
+        3,
+        0,
+        8,
+        3,
+        1,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 12,
+      "expected_result": 3.0
+    },
+    {
+      "id": "shared_intermediate",
+      "input_values": [
+        2,
+        4,
+        5,
+        0,
+        2,
+        3,
+        0,
+        0,
+        1,
+        2,
+        2,
+        0,
+        1,
+        2,
+        1,
+        0,
+        3,
+        4
+      ],
+      "input_length": 18,
+      "expected_result": 8.0
+    },
+    {
+      "id": "division_chain",
+      "input_values": [
+        2,
+        3,
+        4,
+        1,
+        7,
+        2,
+        3,
+        0,
+        1,
+        2,
+        2,
+        1,
+        0,
+        3,
+        0
+      ],
+      "input_length": 15,
+      "expected_result": 0.0
+    },
+    {
+      "id": "disconnected_source_returns_none_sentinel",
+      "input_values": [
+        2,
+        1,
+        2,
+        1,
+        2,
+        9,
+        2,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_derivative_power",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        5,
+        0,
+        3
+      ],
+      "input_length": 8,
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative_power_base",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        -2,
+        5,
+        0,
+        3
+      ],
+      "input_length": 8,
+      "expected_result": 12.0
+    }
+  ]
+}

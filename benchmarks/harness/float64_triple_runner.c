@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     if (argc != 9 || !parse_f64(argv[1], &start) || !parse_f64(argv[2], &end) ||
         !parse_f64(argv[3], &t) || !parse_f64(argv[4], &expected) ||
         !parse_f64(argv[5], &input_scaled_tolerance) ||
-        input_scaled_tolerance <= 0.0 || !parse_u64(argv[6], &samples_arg) ||
+        input_scaled_tolerance < 0.0 || !parse_u64(argv[6], &samples_arg) ||
         !parse_u64(argv[7], &warmups_arg) || !parse_u64(argv[8], &repetitions_arg) ||
         samples_arg == 0 || samples_arg > 10000 || warmups_arg > 100000 ||
         repetitions_arg == 0 || repetitions_arg > 1000000000) {

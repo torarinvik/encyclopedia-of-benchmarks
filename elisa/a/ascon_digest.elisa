@@ -1,0 +1,86 @@
+# Portable scalar port of TheAlgorithms/C-Sharp AsconDigest.
+def ascon_digest_rotate_right(value: u64, count: usize) -> u64:
+    (value >> count) | (value << (64 - count))
+
+def ascon_digest_permute(state: mutable u64&, rounds: usize) -> void:
+    constants: u64[12] = [0xf0, 0xe1, 0xd2, 0xc3, 0xb4, 0xa5, 0x96, 0x87, 0x78, 0x69, 0x5a, 0x4b]
+    first: mutable usize = 4
+    if rounds == 12:
+        first <- 0
+    for round in first..<12:
+        x0: u64 = state[0]
+        x1: u64 = state[1]
+        x2: u64 = state[2]
+        x3: u64 = state[3]
+        x4: u64 = state[4]
+        c: u64 = constants[round]
+        t0: u64 = x0 ^ x1 ^ x2 ^ x3 ^ c ^ (x1 & (x0 ^ x2 ^ x4 ^ c))
+        t1: u64 = x0 ^ x2 ^ x3 ^ x4 ^ c ^ ((x1 ^ x2 ^ c) & (x1 ^ x3))
+        t2: u64 = x1 ^ x2 ^ x4 ^ c ^ (x3 & x4)
+        t3: u64 = x0 ^ x1 ^ x2 ^ c ^ (~x0 & (x3 ^ x4))
+        t4: u64 = x1 ^ x3 ^ x4 ^ ((x0 ^ x4) & x1)
+        state[0] <- t0 ^ ascon_digest_rotate_right(t0, 19) ^ ascon_digest_rotate_right(t0, 28)
+        state[1] <- t1 ^ ascon_digest_rotate_right(t1, 39) ^ ascon_digest_rotate_right(t1, 61)
+        state[2] <- ~(t2 ^ ascon_digest_rotate_right(t2, 1) ^ ascon_digest_rotate_right(t2, 6))
+        state[3] <- t3 ^ ascon_digest_rotate_right(t3, 10) ^ ascon_digest_rotate_right(t3, 17)
+        state[4] <- t4 ^ ascon_digest_rotate_right(t4, 7) ^ ascon_digest_rotate_right(t4, 41)
+
+def ascon_digest_write_u64_be(output: mutable u8&, offset: usize, value: u64) -> void:
+    for byte in 0..<8:
+        output[offset + byte] <- (value >> (56 - byte * 8)).u8()
+
+def ascon_digest_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2:
+        return -1
+    variant: i64 = input[0]
+    message_length_value: i64 = input[1]
+    if (variant != 0 and variant != 1) or message_length_value < 0 or message_length_value > 4096:
+        return -1
+    message_length: usize = message_length_value.usize()
+    if length != message_length + 2:
+        return -1
+    for index in 0..<message_length:
+        if input[index + 2] < 0 or input[index + 2] > 255:
+            return -1
+
+    state: mutable u64[5] = [0, 0, 0, 0, 0]
+    if variant == 0:
+        state[0] <- 0xee9398aadb67f03d
+        state[1] <- 0x8bb21831c60f1002
+        state[2] <- 0xb48a92db98d5da62
+        state[3] <- 0x43189921b8f8e3e8
+        state[4] <- 0x348fa5c9d525e140
+    else:
+        state[0] <- 0x01470194fc6528a6
+        state[1] <- 0x738ec38ac0adffa7
+        state[2] <- 0x2ec8e3296c76384c
+        state[3] <- 0xd6f6a54d7f52377d
+        state[4] <- 0xa13c42a223be8d87
+    rounds: mutable usize = 12
+    if variant == 1:
+        rounds <- 8
+    complete_length: usize = message_length - message_length % 8
+    offset: mutable usize = 0
+    while offset < complete_length:
+        word: mutable u64 = 0
+        for byte in 0..<8:
+            word <- (word << 8) | input[offset + byte + 2].u64()
+        state[0] <- state[0] ^ word
+        ascon_digest_permute(&state[0], rounds)
+        offset <- offset + 8
+    tail_length: usize = message_length - complete_length
+    final_word: mutable u64 = 0x80 << (56 - tail_length * 8)
+    for byte in 0..<tail_length:
+        final_word <- final_word | (input[complete_length + byte + 2].u64() << (56 - byte * 8))
+    state[0] <- state[0] ^ final_word
+    ascon_digest_permute(&state[0], 12)
+
+    if output == null or capacity < 32:
+        return -2
+    for block in 0..<4:
+        ascon_digest_write_u64_be(output, block * 8, state[0])
+        if block != 3:
+            ascon_digest_permute(&state[0], rounds)
+    32
+
+export fn ascon_digest(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ascon_digest_impl

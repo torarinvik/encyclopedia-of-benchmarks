@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "id": "is-harmonic-series-python-i64-array-float64-v1",
+  "algorithm": "is_harmonic_series",
+  "function_symbol": "is_harmonic_series",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": [
+      "count",
+      "binary64_bit_pattern_as_signed_i64[0..count-1]"
+    ],
+    "count_range": [
+      1,
+      32
+    ],
+    "value_encoding": "reinterpret each signed i64 two-complement bit pattern as IEEE-754 binary64",
+    "zero_values_invalid": true,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "1.0 when reciprocal consecutive differences compare exactly equal, else 0.0",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 0.0,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 0.0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "singleton-positive",
+      "input_values": [
+        1,
+        4619567317775286272
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "singleton-negative",
+      "input_values": [
+        1,
+        -4603804719079489536
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "two-values-always-pass-after-validation",
+      "input_values": [
+        2,
+        4607182418800017408,
+        -4609434218613702656
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "exact-positive-harmonic-progression",
+      "input_values": [
+        4,
+        4607182418800017408,
+        4602678819172646912,
+        4599676419421066581,
+        4598175219545276416
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "exact-negative-harmonic-progression",
+      "input_values": [
+        4,
+        -4616189618054758400,
+        -4620693217682128896,
+        -4623695617433709227,
+        -4625196817309499392
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "exact-progression-scaled-by-two",
+      "input_values": [
+        4,
+        4602678819172646912,
+        4599676419421066581,
+        4598175219545276416,
+        4596373779694328218
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "non-arithmetic-reciprocals",
+      "input_values": [
+        3,
+        4607182418800017408,
+        4602678819172646912,
+        4598175219545276416
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "constant-sequence",
+      "input_values": [
+        4,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "infinity-reciprocals",
+      "input_values": [
+        3,
+        9218868437227405312,
+        4607182418800017408,
+        4602678819172646912
+      ],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "nan-singleton-source-shortcut",
+      "input_values": [
+        1,
+        9221120237041090560
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "nan-two-value-source-shortcut",
+      "input_values": [
+        2,
+        9221120237041090560,
+        4607182418800017408
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "nan-in-three-values",
+      "input_values": [
+        3,
+        9221120237041090560,
+        4607182418800017408,
+        4611686018427387904
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "positive-zero-invalid",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-zero-invalid",
+      "input_values": [
+        1,
+        -9223372036854775808
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "maximum-length-constant",
+      "input_values": [
+        32,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408
+      ],
+      "input_length": 33,
+      "expected_result": 1.0
+    },
+    {
+      "id": "empty-array-invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "empty-series-invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-count-invalid",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "declared-count-too-large",
+      "input_values": [
+        33,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408,
+        4607182418800017408
+      ],
+      "input_length": 34,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short-payload-invalid",
+      "input_values": [
+        3,
+        4607182418800017408,
+        4602678819172646912
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra-payload-invalid",
+      "input_values": [
+        1,
+        4607182418800017408,
+        4611686018427387904
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

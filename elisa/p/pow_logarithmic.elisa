@@ -1,0 +1,24 @@
+const INVALID_RESULT: i64 = -9223372036854775808
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 3
+
+def pow_logarithmic_value(base: i64, exponent: usize) -> i64:
+    if exponent == 0:
+        return 1
+    half: i64 = pow_logarithmic_value(base, exponent / 2)
+    square: i64 = half * half
+    if exponent % 2 == 0:
+        return square
+    square * base
+
+def pow_logarithmic_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return INVALID_RESULT
+    if length != 2:
+        return INVALID_RESULT
+    base: i64 = input[0]
+    raw_exponent: i64 = input[1]
+    if base < -10 or base > 10 or raw_exponent < 0 or raw_exponent > 15:
+        return INVALID_RESULT
+    pow_logarithmic_value(base, raw_exponent.usize())
+
+export fn pow_logarithmic(input: i64&, length: usize) -> i64 = pow_logarithmic_impl

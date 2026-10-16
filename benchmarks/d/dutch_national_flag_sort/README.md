@@ -28,6 +28,8 @@ Use [sort_runner.c](../../harness/sort_runner.c) and [run_sort.py](../../run_sor
 
 ## TheAlgorithms references
 
+- [C LeetCode `75.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/75.c) sorts values 0, 1, and 2 using a three-way partition.
+
 The `dutch_national_flag_sort` candidate appears in four source repositories. The separate C++ filename candidate `dnf_sort` appears in two repositories and uses the same 0/1/2 three-way partition, so it aliases this contract. The pinned C++ version is undefined for empty input and has no branch for values outside 0/1/2; the shared contract defines empty input as unchanged and excludes other keys. These references were inspected at the pinned commits recorded in the catalog:
 
 - [Rust dutch_national_flag_sort.rs](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/dutch_national_flag_sort.rs)

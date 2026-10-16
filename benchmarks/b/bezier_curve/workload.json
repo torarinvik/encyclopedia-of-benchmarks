@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-bezier-curve-v1",
+  "algorithm": "bezier_curve",
+  "function_symbol": "bezier_curve",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[point_count, parameter_millionths, x0, y0, x1, y1, ...]",
+    "point_count_range": [
+      1,
+      16
+    ],
+    "parameter_range": [
+      0,
+      1000000
+    ],
+    "coordinate_range": [
+      -1000000,
+      1000000
+    ]
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[x_at_t_q1e6, y_at_t_q1e6, dx_at_t_q1e6, dy_at_t_q1e6]",
+    "scale": 1000000,
+    "rounding": "nearest with ties away from zero",
+    "return_value": "32 output bytes; -1 invalid input; -2 insufficient output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "single_point",
+      "input_values": [
+        1,
+        500000,
+        100,
+        -250
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "00e1f50500000000804d19f1ffffffff00000000000000000000000000000000",
+      "expected_output_q1e6": [
+        100000000,
+        -250000000,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "line_start",
+      "input_values": [
+        2,
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "40420f000000000080841e000000000080841e0000000000c0c62d0000000000",
+      "expected_output_q1e6": [
+        1000000,
+        2000000,
+        2000000,
+        3000000
+      ]
+    },
+    {
+      "id": "line_midpoint",
+      "input_values": [
+        2,
+        500000,
+        1,
+        2,
+        3,
+        5
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "80841e0000000000e06735000000000080841e0000000000c0c62d0000000000",
+      "expected_output_q1e6": [
+        2000000,
+        3500000,
+        2000000,
+        3000000
+      ]
+    },
+    {
+      "id": "line_end",
+      "input_values": [
+        2,
+        1000000,
+        1,
+        2,
+        3,
+        5
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "c0c62d0000000000404b4c000000000080841e0000000000c0c62d0000000000",
+      "expected_output_q1e6": [
+        3000000,
+        5000000,
+        2000000,
+        3000000
+      ]
+    },
+    {
+      "id": "quadratic_midpoint",
+      "input_values": [
+        3,
+        500000,
+        0,
+        0,
+        5,
+        5,
+        5,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "7038390000000000a025260000000000404b4c00000000000000000000000000",
+      "expected_output_q1e6": [
+        3750000,
+        2500000,
+        5000000,
+        0
+      ]
+    },
+    {
+      "id": "cubic_quarter",
+      "input_values": [
+        4,
+        250000,
+        0,
+        0,
+        100,
+        300,
+        200,
+        -100,
+        400,
+        0
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "4440900400000000209db4060000000030bdff1200000000c068780400000000",
+      "expected_output_q1e6": [
+        76562500,
+        112500000,
+        318750000,
+        75000000
+      ]
+    },
+    {
+      "id": "negative_coordinates",
+      "input_values": [
+        3,
+        375000,
+        -20,
+        40,
+        80,
+        -60,
+        -100,
+        20
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "286bee0000000000342e6cffffffffff806967ffffffffffc02d20fcffffffff",
+      "expected_output_q1e6": [
+        15625000,
+        -9687500,
+        -10000000,
+        -65000000
+      ]
+    },
+    {
+      "id": "maximum_point_count",
+      "input_values": [
+        16,
+        625000,
+        -7000,
+        7000,
+        -6000,
+        6500,
+        -5000,
+        6000,
+        -4000,
+        5500,
+        -3000,
+        5000,
+        -2000,
+        4500,
+        -1000,
+        4000,
+        0,
+        3500,
+        1000,
+        3000,
+        2000,
+        2500,
+        3000,
+        2000,
+        4000,
+        1500,
+        5000,
+        1000,
+        6000,
+        500,
+        7000,
+        0,
+        8000,
+        -500
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "c09f8f8d0000000020f3d5890000000000d6117e030000000015f740feffffff",
+      "expected_output_q1e6": [
+        2375000000,
+        2312500000,
+        15000000000,
+        -7500000000
+      ]
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_point_count",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "parameter_below_range",
+      "input_values": [
+        2,
+        -1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "parameter_above_range",
+      "input_values": [
+        2,
+        1000001,
+        0,
+        0,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        1,
+        0,
+        1000001,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_points",
+      "input_values": [
+        17,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        1,
+        0,
+        2,
+        3,
+        4
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        2,
+        250000,
+        0,
+        0,
+        20,
+        40
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 24
+    }
+  ]
+}

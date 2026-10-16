@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-124-ordered-radicals-v1",
+  "algorithm": "problem124",
+  "function_symbol": "problem124",
+  "input": {
+    "kind": "n_max_and_one_based_rank",
+    "n_max_range": [
+      1,
+      100000
+    ],
+    "rank_rule": "1 <= k <= n_max",
+    "out_of_range_result": -1,
+    "ordering": "ascending radical(n), then ascending n"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The kth integer n in 1..n_max when ordered by radical(n)=product of distinct prime factors, with ties in ascending n order."
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "smallest_domain",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_radical_10_k6",
+      "input_values": [
+        10,
+        6
+      ],
+      "expected_result": 9
+    },
+    {
+      "id": "source_example_radical_10_k9",
+      "input_values": [
+        10,
+        9
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "upper_small_case",
+      "input_values": [
+        100,
+        100
+      ],
+      "expected_result": 97
+    },
+    {
+      "id": "canonical",
+      "input_values": [
+        100000,
+        10000
+      ],
+      "expected_result": 21417
+    },
+    {
+      "id": "upper_domain_k",
+      "input_values": [
+        100000,
+        100000
+      ],
+      "expected_result": 99998
+    },
+    {
+      "id": "zero_rank_invalid",
+      "input_values": [
+        10,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "rank_above_n_max",
+      "input_values": [
+        10,
+        11
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "n_max_above_bound",
+      "input_values": [
+        100001,
+        10000
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_bound",
+      "input_values": [
+        -1,
+        1
+      ],
+      "expected_result": -1
+    }
+  ]
+}

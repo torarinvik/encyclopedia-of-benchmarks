@@ -17,7 +17,7 @@ from build_abi import ROOT, sha256_file
 
 SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions",
                        "leaky_relu", "exponential_linear_unit", "composite_simpson_rule",
-                       "false_position"}
+                       "false_position", "to_polar_angle_degrees", "problem144", "circle"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -32,8 +32,49 @@ def source_agm(a: float, g: float) -> float:
             return a
 
 
+def problem144_source_result(first_x: float, first_y: float) -> float:
+    """Mirror the pinned tangent-gradient reflection and alternate ellipse root."""
+    invalid = -1e300
+    if (not math.isfinite(first_x) or not math.isfinite(first_y)
+            or not 1e-5 <= first_x <= 5.0 or not -10.0 <= first_y <= 0.0
+            or abs(4.0 * first_x * first_x + first_y * first_y - 100.0) > 1e-6):
+        return invalid
+
+    def next_point(x: float, y: float, incoming_gradient: float) -> tuple[float, float, float]:
+        normal_gradient = y / 4.0 / x
+        s2 = 2.0 * normal_gradient / (1.0 + normal_gradient * normal_gradient)
+        c2 = (1.0 - normal_gradient * normal_gradient) / (1.0 + normal_gradient * normal_gradient)
+        outgoing_gradient = (s2 - c2 * incoming_gradient) / (c2 + s2 * incoming_gradient)
+        quadratic = outgoing_gradient * outgoing_gradient + 4.0
+        line_offset = y - outgoing_gradient * x
+        linear = 2.0 * outgoing_gradient * line_offset
+        constant = line_offset * line_offset - 100.0
+        discriminant = linear * linear - 4.0 * quadratic * constant
+        if discriminant < 0.0:
+            return math.nan, math.nan, outgoing_gradient
+        root = math.sqrt(discriminant)
+        minus = (-linear - root) / (2.0 * quadratic)
+        plus = (-linear + root) / (2.0 * quadratic)
+        close = abs(plus - x) <= 1e-9 * max(abs(plus), abs(x))
+        next_x = minus if close else plus
+        return next_x, y + outgoing_gradient * (next_x - x), outgoing_gradient
+
+    x, y = first_x, first_y
+    gradient = (10.1 - y) / -x
+    reflections = 0
+    while not (-0.01 <= x <= 0.01 and y > 0.0):
+        if reflections >= 10_000:
+            return invalid
+        x, y, gradient = next_point(x, y, gradient)
+        if not math.isfinite(x) or not math.isfinite(y):
+            return invalid
+        reflections += 1
+    return float(reflections)
+
+
 def encode_case(case: dict, tolerance: float,
-                algorithm: str = "conditional_probability") -> tuple[float, float, float]:
+                algorithm: str = "conditional_probability",
+                absolute_tolerance: float = 0.0) -> tuple[float, float, float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     if (not isinstance(values, list) or len(values) != 2
             or any(type(value) not in (int, float) or not math.isfinite(float(value)) for value in values)
@@ -145,15 +186,55 @@ def encode_case(case: dict, tolerance: float,
             root = 0.0 if second < 0.0 else 1.0
             if expected == -1.0 or abs(expected - root) > tolerance * max(1.0, abs(first), abs(second)):
                 raise ValueError("false_position expected result must match the uniquely bracketed root")
+    elif algorithm == "to_polar_angle_degrees":
+        valid = (-1_000_000.0 <= first <= 1_000_000.0
+                 and -1_000_000.0 <= second <= 1_000_000.0
+                 and not (first == 0.0 and second == 0.0))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid to_polar_angle_degrees inputs must use the -1e300 result sentinel")
+        else:
+            if first == 0.0:
+                ratio = math.copysign(math.inf, second * math.copysign(1.0, first))
+            else:
+                ratio = second / first
+            angle = math.atan(ratio)
+            if first < 0.0:
+                angle += math.pi
+            expected_value = angle * 180.0 / math.pi
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(first), abs(second)):
+                raise ValueError("to_polar_angle_degrees expected result must match atan(y/x), x<0 adjustment, and degree conversion")
+    elif algorithm == "problem144":
+        valid = (1e-5 <= first <= 5.0 and -10.0 <= second <= 0.0
+                 and abs(4.0 * first * first + second * second - 100.0) <= 1e-6)
+        expected_from_source = problem144_source_result(first, second)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid problem144 points must use the -1e300 result sentinel")
+        elif (expected == -1e300
+              or abs(expected - expected_from_source) > tolerance * max(1.0, abs(first), abs(second))):
+            raise ValueError("problem144 expected result must match the bounded ellipse reflection count")
+    elif algorithm == "circle":
+        valid = (-1_000_000.0 <= first <= 1_000_000.0
+                 and second in (0.0, 1.0))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid circle inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = first * 2.0 * math.pi if second == 0.0 else math.pow(first, 2.0) * math.pi
+            scale = max(1.0, abs(first), abs(second))
+            if expected == -1e300 or abs(expected - expected_value) > max(absolute_tolerance, tolerance * scale):
+                raise ValueError("circle expected result must match the pinned perimeter/area expression")
     else:
         raise ValueError(f"unsupported float64_pair algorithm: {algorithm}")
     return first, second, float(expected)
 
 
 def matches(observed: float, expected: float, tolerance: float,
-            first: float, second: float) -> bool:
+            first: float, second: float, absolute_tolerance: float = 0.0) -> bool:
     scale = max(1.0, abs(first), abs(second))
-    return math.isfinite(observed) and abs(observed - expected) <= tolerance * scale
+    return math.isfinite(observed) and abs(observed - expected) <= max(absolute_tolerance, tolerance * scale)
 
 
 def main() -> int:
@@ -186,7 +267,8 @@ def main() -> int:
             or workload.get("measurement", {}).get("comparison_model") != "float64_pair_call"):
         parser.error("workload does not match the built float64 pair algorithm")
     timing = workload["measurement"]
-    tolerance = float(timing["input_scaled_tolerance"])
+    tolerance = float(timing.get("relative_tolerance", timing.get("input_scaled_tolerance", 0.0)))
+    absolute_tolerance = float(timing.get("absolute_tolerance", 0.0))
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
     repetitions = args.repetitions if args.repetitions is not None else timing["repetitions_per_sample"]
@@ -205,7 +287,7 @@ def main() -> int:
                    "logical_cpu_count": os.cpu_count(), "python_version": platform.python_version()}
     records = []
     for case in workload["cases"]:
-        first, second, expected = encode_case(case, tolerance, algorithm)
+        first, second, expected = encode_case(case, tolerance, algorithm, absolute_tolerance)
         command = [str(executable), *(format(value, ".17g") for value in
                    (first, second, expected, tolerance)),
                    str(samples), str(warmups), str(repetitions)]
@@ -214,7 +296,8 @@ def main() -> int:
             raise SystemExit(f"float64 pair runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)
         observed = float(raw["observed_result"])
-        if not matches(observed, expected, tolerance, first, second) \
+        result_matches = matches(observed, expected, tolerance, first, second, absolute_tolerance)
+        if not result_matches \
                 or len(raw["samples_ns"]) != samples:
             raise ValueError(f"float64 pair runner returned an invalid result for {case['id']}")
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,

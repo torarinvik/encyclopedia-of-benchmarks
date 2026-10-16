@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "line-length-sine-demo-float64-triple-v1",
+  "algorithm": "line_length",
+  "function_symbol": "line_length",
+  "input": {
+    "kind": "finite_binary64_triple",
+    "encoding": "[x_start,x_end,steps]",
+    "x_start_range": [
+      -10.0,
+      10.0
+    ],
+    "x_end_range": [
+      -10.0,
+      10.0
+    ],
+    "ordering": "x_start <= x_end",
+    "steps_range": [
+      1,
+      10000
+    ],
+    "steps_integral": true,
+    "curve": "sin(10*x)",
+    "accumulation": "repeat x2 = (x_end - x_start) / steps + x1; sum sqrt(dx*dx + dy*dy)",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "repeated-step polyline approximation of curve arc length"
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-10,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "one_segment_unit_interval",
+      "input_values": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "expected_result": 1.1384019365291436
+    },
+    {
+      "id": "demo_interval_ten_steps",
+      "input_values": [
+        -10.0,
+        10.0,
+        10.0
+      ],
+      "expected_result": 21.27664409503817
+    },
+    {
+      "id": "default_step_count",
+      "input_values": [
+        -5.5,
+        4.5,
+        100.0
+      ],
+      "expected_result": 62.63028894626876
+    },
+    {
+      "id": "short_interval_medium_steps",
+      "input_values": [
+        -0.25,
+        0.75,
+        250.0
+      ],
+      "expected_result": 6.469792558106229
+    },
+    {
+      "id": "oscillatory_interval_thousand_steps",
+      "input_values": [
+        0.0,
+        10.0,
+        1000.0
+      ],
+      "expected_result": 64.80388063526794
+    },
+    {
+      "id": "demo_interval_max_steps",
+      "input_values": [
+        -10.0,
+        10.0,
+        10000.0
+      ],
+      "expected_result": 129.65814619878827
+    },
+    {
+      "id": "zero_width_interval",
+      "input_values": [
+        4.0,
+        4.0,
+        100.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "fractional_endpoints",
+      "input_values": [
+        -2.25,
+        3.75,
+        37.0
+      ],
+      "expected_result": 35.32895428504601
+    },
+    {
+      "id": "zero_steps_invalid",
+      "input_values": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional_steps_invalid",
+      "input_values": [
+        0.0,
+        1.0,
+        1.5
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "reversed_interval_invalid",
+      "input_values": [
+        1.0,
+        -1.0,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "steps_over_limit_invalid",
+      "input_values": [
+        0.0,
+        1.0,
+        10001.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "start_below_bound_invalid",
+      "input_values": [
+        -10.5,
+        0.0,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "end_above_bound_invalid",
+      "input_values": [
+        0.0,
+        10.5,
+        10.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

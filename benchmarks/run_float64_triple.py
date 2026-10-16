@@ -14,8 +14,19 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from coordinate_converter_oracle import expected_result as coordinate_converter_expected
+from standard_score_oracle import INVALID_RESULT as STANDARD_SCORE_INVALID_RESULT
+from standard_score_oracle import expected_result as standard_score_expected
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "binomial_dist"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "coordinate_converter", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "weight_conversion", "weight", "prefix_conversions", "time_conversions", "mirror_formulae", "simple_interest", "temperature", "line_length", "energy_conversions", "binomial_dist", "orbital_capture_radii", "standard_score"}
+ENERGY_CONVERSION_FACTORS = (1.0, 1000.0, 1000000.0, 1000000000.0, 1.0,
+                             3600.0, 3600000.0, 1.0, 4186.8, 4186800.0,
+                             1.602176634e-19, 1055.05585, 1.355818)
+RUST_WEIGHT_FACTORS = (1e12, 1e9, 1000.0, 1.0, 1e-3, 1e-6, 1e-9, 1e-12, 1e-15,
+                       1016.0469088, 907.18474, 50.80234544, 12.70058636,
+                       6.35029318, 0.45359237, 0.028349523125, 0.0017718451953125,
+                       0.00006479891, 0.3732417216, 0.0311034768, 0.00155517384,
+                       0.0002, 1.66053906660e-27)
 
 
 def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[float, float, float, float]:
@@ -241,6 +252,15 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                                   else math.atan2(end, start))
             if abs(expected - expected_component) > tolerance * max(1.0, abs(start), abs(end)):
                 raise ValueError("cartesian_to_polar expected result must match its selected component")
+    elif algorithm == "coordinate_converter":
+        source_result = coordinate_converter_expected([start, end, t])
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid coordinate_converter inputs must use the -1e300 result sentinel")
+        else:
+            if expected == -1e300 or abs(expected - source_result) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("coordinate_converter expected result must match the selected Java conversion")
     elif algorithm == "ohms_law":
         valid = (start.is_integer() and end.is_integer() and t.is_integer()
                  and -1000.0 <= start <= 1000.0 and -1000.0 <= end <= 1000.0
@@ -284,6 +304,178 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
             if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
                     1.0, abs(start), abs(end)):
                 raise ValueError("length_conversion expected result must match the selected metric-unit conversion")
+    elif algorithm == "weight_conversion":
+        destination_factors = (1.0, 1000.0, 1_000_000.0, 0.001, 0.0009842073,
+                               0.0011023122, 2.2046244202, 0.1574731728,
+                               35.273990723, 5000.0, 6.022136652e26)
+        source_factors = (1.0, 0.001, 0.000001, 1000.0, 1016.04608, 907.184,
+                          0.453592, 6.35029, 0.0283495, 0.0002, 1.660540199e-27)
+        valid = (-1_000_000.0 <= start <= 1_000_000.0
+                 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(destination_factors)
+                 and 0.0 <= t < len(source_factors))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid weight_conversion inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (start * destination_factors[int(t)]) * source_factors[int(end)]
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("weight_conversion expected result must match the source-ordered factor tables")
+    elif algorithm == "weight":
+        valid = (-1_000_000.0 <= start <= 1_000_000.0
+                 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(RUST_WEIGHT_FACTORS)
+                 and 0.0 <= t < len(RUST_WEIGHT_FACTORS))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid weight inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (start * RUST_WEIGHT_FACTORS[int(end)]) / RUST_WEIGHT_FACTORS[int(t)]
+            if expected == -1e300 or not matches_output_relative(
+                    expected, expected_value, tolerance):
+                raise ValueError("weight expected result must match the pinned formula within output-relative tolerance")
+    elif algorithm == "prefix_conversions":
+        si_exponents = (24, 21, 18, 15, 12, 9, 6, 3, 2, 1,
+                        -1, -2, -3, -6, -9, -12, -15, -18, -21, -24)
+        binary_exponents = (8, 7, 6, 5, 4, 3, 2, 1)
+        valid_codes = (end.is_integer() and t.is_integer()
+                       and ((0.0 <= end < len(si_exponents)
+                             and 0.0 <= t < len(si_exponents))
+                            or (20.0 <= end < 20.0 + len(binary_exponents)
+                                and 20.0 <= t < 20.0 + len(binary_exponents))))
+        valid = -1_000_000.0 <= start <= 1_000_000.0 and valid_codes
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid prefix_conversions inputs must use the -1e300 result sentinel")
+        else:
+            known_code, unknown_code = int(end), int(t)
+            if known_code < 20:
+                exponent_delta = si_exponents[known_code] - si_exponents[unknown_code]
+                expected_value = start * (10 ** exponent_delta)
+            else:
+                exponent_delta = (binary_exponents[known_code - 20]
+                                  - binary_exponents[unknown_code - 20])
+                expected_value = start * (2 ** (exponent_delta * 10))
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("prefix_conversions expected result must match the pinned SI or binary exponent formula")
+    elif algorithm == "time_conversions":
+        time_chart = (1.0, 60.0, 3600.0, 86400.0, 604800.0, 2629800.0, 31557600.0)
+        time_chart_inverse = (1.0, 0.016666666666666666, 0.0002777777777777778,
+                              1.1574074074074073e-05, 1.6534391534391535e-06,
+                              3.802570537683474e-07, 3.168808781402895e-08)
+        valid = (0.0 <= start <= 10_000.0 and end.is_integer() and t.is_integer()
+                 and 0.0 <= end < len(time_chart) and 0.0 <= t < len(time_chart_inverse))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid time_conversions inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = round((start * time_chart[int(end)]) * time_chart_inverse[int(t)], 3)
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(expected_value)):
+                raise ValueError("time_conversions expected result must match the source's ordered factor and rounding formula")
+    elif algorithm == "mirror_formulae":
+        valid = (1e-6 <= abs(start) <= 1e6 and 1e-6 <= abs(end) <= 1e6
+                 and t.is_integer() and 0.0 <= t <= 2.0)
+        if valid:
+            denominator = ((1.0 / start) + (1.0 / end) if t == 0.0 else
+                           (1.0 / start) - (1.0 / end))
+            valid = denominator != 0.0
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid or singular mirror_formulae inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = 1.0 / denominator
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(expected_value)):
+                raise ValueError("mirror_formulae expected result must match the selected reciprocal source formula")
+    elif algorithm == "simple_interest":
+        valid = (0.0 < start <= 1_000_000.0 and 0.0 <= end <= 1.0
+                 and 0.0 < t <= 3_650.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid simple_interest inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (start * end) * t
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(expected_value)):
+                raise ValueError("simple_interest expected result must match principal * daily_rate * days")
+    elif algorithm == "energy_conversions":
+        valid = (-1_000_000.0 <= start <= 1_000_000.0 and end.is_integer()
+                 and t.is_integer() and 0.0 <= end < len(ENERGY_CONVERSION_FACTORS)
+                 and 0.0 <= t < len(ENERGY_CONVERSION_FACTORS))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid energy_conversions inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = (start * ENERGY_CONVERSION_FACTORS[int(end)]) / ENERGY_CONVERSION_FACTORS[int(t)]
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("energy_conversions expected result must match the ordered source-factor formula")
+    elif algorithm == "temperature":
+        valid = (-1_000_000.0 <= start <= 1_000_000.0 and end.is_integer()
+                 and t.is_integer() and 0.0 <= end <= 7.0 and 0.0 <= t <= 7.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid temperature inputs must use the -1e300 result sentinel")
+        else:
+            from_unit, to_unit = int(end), int(t)
+            if from_unit == 0:
+                kelvin = start
+            elif from_unit == 1:
+                kelvin = start + 273.15
+            elif from_unit == 2:
+                kelvin = (start + 459.67) * 5.0 / 9.0
+            elif from_unit == 3:
+                kelvin = start * 5.0 / 9.0
+            elif from_unit == 4:
+                kelvin = 373.15 - start * 2.0 / 3.0
+            elif from_unit == 5:
+                kelvin = start * 100.0 / 33.0 + 273.15
+            elif from_unit == 6:
+                kelvin = start * 5.0 / 4.0 + 273.15
+            else:
+                kelvin = (start - 7.5) * 40.0 / 21.0 + 273.15
+
+            if to_unit == 0:
+                expected_value = kelvin
+            elif to_unit == 1:
+                expected_value = kelvin - 273.15
+            elif to_unit == 2:
+                expected_value = kelvin * 9.0 / 5.0 - 459.67
+            elif to_unit == 3:
+                expected_value = kelvin * 9.0 / 5.0
+            elif to_unit == 4:
+                expected_value = (373.15 - kelvin) * 3.0 / 2.0
+            elif to_unit == 5:
+                expected_value = (kelvin - 273.15) * 33.0 / 100.0
+            elif to_unit == 6:
+                expected_value = (kelvin - 273.15) * 4.0 / 5.0
+            else:
+                expected_value = (kelvin - 273.15) * 21.0 / 40.0 + 7.5
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(expected_value)):
+                raise ValueError("temperature expected result must match the pinned two-step conversion")
+    elif algorithm == "line_length":
+        valid = (-10.0 <= start <= end <= 10.0 and t.is_integer() and 1.0 <= t <= 10_000.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid line_length inputs must use the -1e300 result sentinel")
+        else:
+            steps = int(t)
+            x1 = start
+            fx1 = math.sin(10.0 * x1)
+            expected_value = 0.0
+            for _ in range(steps):
+                x2 = (end - start) / steps + x1
+                fx2 = math.sin(10.0 * x2)
+                dx, dy = x2 - x1, fx2 - fx1
+                expected_value += math.sqrt(dx * dx + dy * dy)
+                x1, fx1 = x2, fx2
+            if expected == -1e300 or abs(expected - expected_value) > tolerance * max(
+                    1.0, abs(start), abs(end)):
+                raise ValueError("line_length expected result must match the repeated-step sine polyline")
     elif algorithm == "binomial_dist":
         valid = (start.is_integer() and t.is_integer()
                  and 1.0 <= start <= 16.0 and 1.0 <= t <= start
@@ -301,6 +493,25 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
                                 * math.pow(1.0 - end, n - x))
         if abs(expected - expected_probability) > tolerance:
             raise ValueError("binomial_dist expected result must match the source nCr and exact-success formula")
+    elif algorithm == "orbital_capture_radii":
+        valid = (1.0e-6 <= start <= 1.0e10 and 0.0 <= end <= 2.0e30
+                 and 1.0e6 <= t <= 299792458.0)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid orbital_capture_radii inputs must use the -1e300 result sentinel")
+        else:
+            escape_velocity_squared = (2.0 * 6.67430e-11 * end) / start
+            source_result = float(round(start * math.sqrt(1.0 + escape_velocity_squared / (t * t)), 0))
+            if abs(expected - source_result) > tolerance * max(1.0, abs(start), abs(end)):
+                raise ValueError("orbital_capture_radii expected result must match the pinned capture-radius formula")
+    elif algorithm == "standard_score":
+        source_result = standard_score_expected(start, end, t)
+        if source_result == STANDARD_SCORE_INVALID_RESULT:
+            if expected != STANDARD_SCORE_INVALID_RESULT:
+                raise ValueError("invalid standard_score inputs must use the -1e300 result sentinel")
+        elif expected == STANDARD_SCORE_INVALID_RESULT or abs(expected - source_result) > tolerance * max(
+                1.0, abs(start), abs(end)):
+            raise ValueError("standard_score expected result must match (value - mean) / stdDev")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:
@@ -311,6 +522,25 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
 def matches(observed: float, expected: float, tolerance: float, start: float, end: float) -> bool:
     scale = max(1.0, abs(start), abs(end))
     return math.isfinite(observed) and abs(observed - expected) <= tolerance * scale
+
+
+def matches_output_relative(observed: float, expected: float, tolerance: float) -> bool:
+    if not math.isfinite(observed) or not math.isfinite(expected):
+        return False
+    if expected == -1e300:
+        return observed == expected
+    if expected == 0.0:
+        return observed == 0.0
+    return abs(observed - expected) <= tolerance * abs(expected)
+
+
+def input_scaled_tolerance_for_output(tolerance: float, expected: float,
+                                     start: float, end: float) -> float:
+    """Encode output-relative tolerance for the shared input-scaled C harness."""
+    if expected == -1e300 or expected == 0.0:
+        return 0.0
+    input_scale = max(1.0, abs(start), abs(end))
+    return (tolerance * abs(expected)) / input_scale
 
 
 def main() -> int:
@@ -351,6 +581,8 @@ def main() -> int:
                 or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
             parser.error("ordinary_annuity_future_value tolerances must be finite and nonnegative")
         tolerance = None
+    elif algorithm == "weight":
+        tolerance = float(timing["output_relative_tolerance"])
     else:
         tolerance = float(timing["input_scaled_tolerance"])
     samples = args.samples if args.samples is not None else timing["sample_count"]
@@ -380,15 +612,24 @@ def main() -> int:
                                 absolute_tolerance + relative_tolerance * abs(expected_value))
             case_tolerance = output_tolerance / input_scale
         start, end, t, expected = encode_case(case, case_tolerance, algorithm)
-        command = [str(executable), *(format(value, ".17g") for value in (start, end, t, expected, tolerance)),
+        runner_tolerance = (input_scaled_tolerance_for_output(case_tolerance, expected, start, end)
+                            if algorithm == "weight" else tolerance)
+        command = [str(executable), *(format(value, ".17g") for value in
+                                      (start, end, t, expected, runner_tolerance)),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:
             raise SystemExit(f"float64 triple runner failed for {case['id']}: {completed.stderr}")
         raw = json.loads(completed.stdout)
         observed = float(raw["observed_result"])
-        if not matches(observed, expected, tolerance, start, end) or len(raw["samples_ns"]) != samples:
+        result_matches = (matches_output_relative(observed, expected, case_tolerance)
+                          if algorithm == "weight" else
+                          matches(observed, expected, tolerance, start, end))
+        if not result_matches or len(raw["samples_ns"]) != samples:
             raise ValueError(f"float64 triple runner returned an invalid result for {case['id']}")
+        tolerance_record = ({"result_output_relative_tolerance": case_tolerance}
+                            if algorithm == "weight" else
+                            {"result_input_scaled_tolerance": case_tolerance})
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
@@ -401,7 +642,7 @@ def main() -> int:
                                         "warmup_rounds": warmups, "repetitions_per_sample": repetitions,
                                         "samples_ns": raw["samples_ns"], "observed_result": observed,
                                         "result_checksum": raw["result_checksum"],
-                                        "result_input_scaled_tolerance": case_tolerance}})
+                                        **tolerance_record}})
     output = args.output or ROOT / "results" / letter / algorithm / f"{language}.jsonl"
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("a", encoding="utf-8", newline="\n") as destination:

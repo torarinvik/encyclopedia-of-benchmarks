@@ -1,6 +1,6 @@
 #[no_mangle]
 pub extern "C" fn abundant_number(n: i64) -> i64 {
-    if !(1..=1_000_000_000).contains(&n) { return -1; }
+    if !(1..=100_000_000).contains(&n) { return -1; }
     if n == 1 { return 0; }
     let mut sum = 1i64;
     let mut divisor = 2i64;

@@ -1,0 +1,112 @@
+const MAX_DIMENSION: usize = 8
+const MAX_ENTRY_MICRO: i64 = 1000000000
+const SCALE: f64 = 1000000.0
+const TOLERANCE: f64 = 1.0e-10
+const MAX_ITERATIONS: usize = 1000
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def conjugate_gradient_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def conjugate_gradient_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or input[0] < 1 or input[0] > MAX_DIMENSION.i64():
+        return -1
+    n: usize = input[0].usize()
+    if length != 1 + n * n + n:
+        return -1
+    vector_offset: usize = 1 + n * n
+    matrix: mutable f64[MAX_DIMENSION * MAX_DIMENSION] = zeroed
+    rhs: mutable f64[MAX_DIMENSION] = zeroed
+    solution: mutable f64[MAX_DIMENSION] = zeroed
+    residual: mutable f64[MAX_DIMENSION] = zeroed
+    direction: mutable f64[MAX_DIMENSION] = zeroed
+    product: mutable f64[MAX_DIMENSION] = zeroed
+    index: mutable usize = 0
+    while index < n * n + n:
+        if input[index + 1] < -MAX_ENTRY_MICRO or input[index + 1] > MAX_ENTRY_MICRO:
+            return -1
+        index <- index + 1
+
+    row: mutable usize = 0
+    while row < n:
+        diagonal: i64 = input[1 + row * n + row]
+        if diagonal <= 0:
+            return -1
+        off_diagonal_sum: mutable i64 = 0
+        column: mutable usize = 0
+        while column < n:
+            entry: i64 = input[1 + row * n + column]
+            if entry != input[1 + column * n + row]:
+                return -1
+            if column != row:
+                if entry < 0:
+                    off_diagonal_sum <- off_diagonal_sum - entry
+                else:
+                    off_diagonal_sum <- off_diagonal_sum + entry
+            matrix[row * n + column] <- entry.f64() / SCALE
+            column <- column + 1
+        if diagonal <= off_diagonal_sum:
+            return -1
+        rhs[row] <- input[vector_offset + row].f64() / SCALE
+        residual[row] <- rhs[row]
+        direction[row] <- rhs[row]
+        row <- row + 1
+    output_bytes: usize = n * 8
+    if output_capacity < output_bytes:
+        return -2
+
+    residual_squared: mutable f64 = 0.0
+    index <- 0
+    while index < n:
+        residual_squared <- residual_squared + residual[index] * residual[index]
+        index <- index + 1
+    iteration: mutable usize = 0
+    while iteration < MAX_ITERATIONS and residual_squared > TOLERANCE * TOLERANCE:
+        row <- 0
+        while row < n:
+            product[row] <- 0.0
+            column: mutable usize = 0
+            while column < n:
+                product[row] <- product[row] + matrix[row * n + column] * direction[column]
+                column <- column + 1
+            row <- row + 1
+        denominator: mutable f64 = 0.0
+        index <- 0
+        while index < n:
+            denominator <- denominator + direction[index] * product[index]
+            index <- index + 1
+        if denominator <= 0.0:
+            return -1
+        alpha: f64 = residual_squared / denominator
+        index <- 0
+        while index < n:
+            solution[index] <- solution[index] + alpha * direction[index]
+            residual[index] <- residual[index] - alpha * product[index]
+            index <- index + 1
+        next_residual_squared: mutable f64 = 0.0
+        index <- 0
+        while index < n:
+            next_residual_squared <- next_residual_squared + residual[index] * residual[index]
+            index <- index + 1
+        if next_residual_squared <= TOLERANCE * TOLERANCE:
+            residual_squared <- next_residual_squared
+            break
+        beta: f64 = next_residual_squared / residual_squared
+        index <- 0
+        while index < n:
+            direction[index] <- residual[index] + beta * direction[index]
+            index <- index + 1
+        residual_squared <- next_residual_squared
+        iteration <- iteration + 1
+    index <- 0
+    while index < n:
+        conjugate_gradient_write_f64(output, index * 8, solution[index])
+        index <- index + 1
+    return output_bytes.i64()
+
+export fn conjugate_gradient(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = conjugate_gradient_impl

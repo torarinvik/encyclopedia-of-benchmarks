@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-114-counting-block-combinations-v1",
+  "algorithm": "problem114",
+  "function_symbol": "problem114",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 50],
+    "meaning": "number of units in the row",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of arrangements using grey squares and red blocks of length at least three, with at least one grey square between red blocks"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {"id": "empty_row", "input_value": 0, "expected_result": 1},
+    {"id": "one_unit_row", "input_value": 1, "expected_result": 1},
+    {"id": "below_minimum_block_length", "input_value": 2, "expected_result": 1},
+    {"id": "minimum_red_block", "input_value": 3, "expected_result": 2},
+    {"id": "four_unit_row", "input_value": 4, "expected_result": 4},
+    {"id": "five_unit_row", "input_value": 5, "expected_result": 7},
+    {"id": "source_example_seven", "input_value": 7, "expected_result": 17},
+    {"id": "mixed_block_sizes_eight", "input_value": 8, "expected_result": 27},
+    {"id": "canonical_fifty_unit_row", "input_value": 50, "expected_result": 16475640049},
+    {"id": "negative_length", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_length", "input_value": 51, "expected_result": -1}
+  ]
+}

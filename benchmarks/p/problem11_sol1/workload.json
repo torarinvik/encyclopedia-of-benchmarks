@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-11-sol1-fixed-grid-v1",
+  "algorithm": "problem11_sol1",
+  "function_symbol": "problem11_sol1",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Greatest product of four adjacent entries in the pinned 20-by-20 grid, in a horizontal, vertical, or diagonal direction.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "pinned_grid_result",
+      "input_value": 0,
+      "expected_result": 70600674
+    },
+    {
+      "id": "negative_placeholder_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "nonzero_placeholder_invalid",
+      "input_value": 1,
+      "expected_result": -1
+    }
+  ]
+}

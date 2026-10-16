@@ -7,7 +7,7 @@ This benchmark converts a digit sequence from one radix to another. It follows t
 - Input is `[source_base, target_base, digit...]`, with one or more most-significant-first digits. The array length is 3 through 65.
 - Both radices are 2 through 36. Digits use values 0 through 35 for `0`-`9` and `A`-`Z`; each must be less than the source radix.
 - The source value must fit a nonnegative signed 64-bit integer. Invalid digits, radices, lengths, or overflow return `-1`; insufficient output capacity returns `-2`.
-- Output is canonical uppercase ASCII with no sign or prefix. Implementations use portable checked multiply-and-add and integer division.
+- Output is canonical uppercase ASCII with no sign or prefix. The return value is the exact number of output bytes; the buffer is not NUL-terminated. Implementations use portable checked multiply-and-add and integer division.
 
 ## Workload and verification
 

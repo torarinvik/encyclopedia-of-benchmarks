@@ -1,0 +1,26 @@
+const MAX_VALUE: i64 = 1073741823
+
+def non_repeating_element_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 64 or length % 2 != 0:
+        return -1
+    xor_result: mutable i64 = 0
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > MAX_VALUE:
+            return -1
+        xor_result <- xor_result ^ values[index]
+        index <- index + 1
+    rightmost_set_bit: i64 = xor_result & -xor_result
+    num1: mutable i64 = 0
+    num2: mutable i64 = 0
+    index <- 0
+    while index < length:
+        value: i64 = values[index]
+        if (value & rightmost_set_bit) != 0:
+            num1 <- num1 ^ value
+        else:
+            num2 <- num2 ^ value
+        index <- index + 1
+    (num1 << 32) | num2
+
+export fn non_repeating_element(values: i64&, length: usize) -> i64 = non_repeating_element_impl

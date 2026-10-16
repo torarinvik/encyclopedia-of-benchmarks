@@ -26,4 +26,5 @@ This differs from [`to_lower_case`](../../t/to_lower_case/README.md), which maps
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm acronym --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/a/acronym/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm acronym --languages rust
 ```

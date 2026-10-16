@@ -1,0 +1,171 @@
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def cpu_scheduling_algorithms_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > 3 + 4*32: return -1
+    mode: i64 = input[0]
+    raw_count: i64 = input[1]
+    quantum: i64 = input[2]
+    if mode < 0 or mode > 5 or raw_count < 0 or raw_count > 32 or quantum < 1 or quantum > 32: return -1
+    count: usize = raw_count.usize()
+    if length != 3 + 4*count: return -1
+
+    ids: mutable i64[32] = zeroed
+    arrival: mutable i64[32] = zeroed
+    burst: mutable i64[32] = zeroed
+    priority: mutable i64[32] = zeroed
+    remaining: mutable i64[32] = zeroed
+    completion: mutable i64[32] = zeroed
+    first_run: mutable i64[32] = zeroed
+    order: mutable usize[32] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        base: usize = 3 + 4*i
+        ids[i] <- input[base]
+        arrival[i] <- input[base+1]
+        burst[i] <- input[base+2]
+        priority[i] <- input[base+3]
+        if ids[i] < 0 or ids[i] >= 32 or arrival[i] < 0 or arrival[i] > 256 or
+            burst[i] < 1 or burst[i] > 32 or priority[i] < -32 or priority[i] > 32: return -1
+        j: mutable usize = 0
+        while j < i:
+            if ids[j] == ids[i]: return -1
+            j <- j + 1
+        remaining[i] <- burst[i]
+        completion[i] <- -1
+        first_run[i] <- -1
+        order[i] <- i
+        i <- i + 1
+    bytes: usize = count*56
+    if bytes > 0 and (output == null or capacity < bytes): return -2
+
+    if mode == 0 or mode == 5:
+        i <- 1
+        while i < count:
+            key: usize = order[i]
+            j: mutable usize = i
+            while j > 0 and arrival[order[j-1]] > arrival[key]:
+                order[j] <- order[j-1]
+                j <- j - 1
+            order[j] <- key
+            i <- i + 1
+
+    time: mutable i64 = 0
+    if mode == 0:
+        position: mutable usize = 0
+        while position < count:
+            selected: usize = order[position]
+            if time < arrival[selected]: time <- arrival[selected]
+            first_run[selected] <- time
+            time <- time + burst[selected]
+            completion[selected] <- time
+            position <- position + 1
+    elif mode == 1 or mode == 3:
+        done: mutable usize = 0
+        while done < count:
+            best: mutable usize = count
+            i <- 0
+            while i < count:
+                if completion[i] >= 0 or arrival[i] > time:
+                    i <- i + 1
+                    continue
+                better: mutable bool = best == count
+                if not better and mode == 1:
+                    better <- burst[i] < burst[best] or (burst[i] == burst[best] and
+                        (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
+                elif not better:
+                    better <- priority[i] < priority[best] or (priority[i] == priority[best] and i < best)
+                if better: best <- i
+                i <- i + 1
+            if best == count:
+                time <- time + 1
+                continue
+            first_run[best] <- time
+            time <- time + burst[best]
+            completion[best] <- time
+            done <- done + 1
+    elif mode == 2 or mode == 4:
+        done: mutable usize = 0
+        while done < count:
+            best: mutable usize = count
+            i <- 0
+            while i < count:
+                if remaining[i] <= 0 or arrival[i] > time:
+                    i <- i + 1
+                    continue
+                better: mutable bool = best == count
+                if not better and mode == 2:
+                    better <- remaining[i] < remaining[best] or (remaining[i] == remaining[best] and
+                        (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
+                elif not better:
+                    better <- priority[i] < priority[best] or (priority[i] == priority[best] and i < best)
+                if better: best <- i
+                i <- i + 1
+            if best == count:
+                time <- time + 1
+                continue
+            if first_run[best] < 0: first_run[best] <- time
+            remaining[best] <- remaining[best] - 1
+            time <- time + 1
+            if remaining[best] == 0:
+                completion[best] <- time
+                done <- done + 1
+    else:
+        queue: mutable usize[64] = zeroed
+        head: mutable usize = 0
+        queue_tail: mutable usize = 0
+        queue_size: mutable usize = 0
+        next_arrival: mutable usize = 0
+        done: mutable usize = 0
+        while done < count:
+            while next_arrival < count and arrival[order[next_arrival]] <= time:
+                queue[queue_tail] <- order[next_arrival]
+                next_arrival <- next_arrival + 1
+                queue_tail <- (queue_tail + 1) % 64
+                queue_size <- queue_size + 1
+            if queue_size == 0:
+                time <- time + 1
+                continue
+            current: usize = queue[head]
+            head <- (head + 1) % 64
+            queue_size <- queue_size - 1
+            run_for: mutable i64 = quantum
+            if remaining[current] < run_for: run_for <- remaining[current]
+            slot: mutable usize = 0
+            while slot < run_for.usize():
+                if first_run[current] < 0: first_run[current] <- time
+                remaining[current] <- remaining[current] - 1
+                time <- time + 1
+                while next_arrival < count and arrival[order[next_arrival]] <= time:
+                    queue[queue_tail] <- order[next_arrival]
+                    next_arrival <- next_arrival + 1
+                    queue_tail <- (queue_tail + 1) % 64
+                    queue_size <- queue_size + 1
+                slot <- slot + 1
+            if remaining[current] > 0:
+                queue[queue_tail] <- current
+                queue_tail <- (queue_tail + 1) % 64
+                queue_size <- queue_size + 1
+            else:
+                completion[current] <- time
+                done <- done + 1
+
+    i <- 0
+    while i < count:
+        turnaround: i64 = completion[i] - arrival[i]
+        fields: i64[7] = [ids[i], arrival[i], burst[i], completion[i], turnaround,
+                          turnaround-burst[i], first_run[i]-arrival[i]]
+        field: mutable usize = 0
+        while field < 7:
+            put_i64_le(fields[field], output, i*56+field*8)
+            field <- field + 1
+        i <- i + 1
+    bytes.i64()
+
+export fn cpu_scheduling_algorithms(input: i64&, length: usize,
+                                    output: mutable u8&, capacity: usize) -> i64 = cpu_scheduling_algorithms_impl

@@ -1,0 +1,21 @@
+def bst_from_sorted_array_shape(start: usize, end: usize, heap_index: usize) -> u64:
+    if start >= end:
+        return 0
+    middle: usize = start + (end - start - 1) / 2
+    left_shape: u64 = bst_from_sorted_array_shape(start, middle, 2 * heap_index + 1)
+    right_shape: u64 = bst_from_sorted_array_shape(middle + 1, end, 2 * heap_index + 2)
+    (u64(1) << heap_index) | left_shape | right_shape
+
+def bst_from_sorted_array_impl(input: i64&, length: usize) -> i64:
+    if length > 15:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647:
+            return -1
+        if index > 0 and input[index - 1] >= input[index]:
+            return -1
+        index <- index + 1
+    bst_from_sorted_array_shape(0, length, 0).i64()
+
+export fn bst_from_sorted_array(input: i64&, length: usize) -> i64 = bst_from_sorted_array_impl

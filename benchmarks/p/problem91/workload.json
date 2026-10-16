@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-91-scalar-v1",
+  "algorithm": "problem91",
+  "function_symbol": "problem91",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 50,
+    "meaning": "inclusive upper coordinate bound for both grid axes",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of right triangles with the origin and an unordered pair of distinct points in the inclusive grid",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "unit_grid",
+      "input_value": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "source_example_limit_two",
+      "input_value": 2,
+      "expected_result": 14
+    },
+    {
+      "id": "source_example_limit_ten",
+      "input_value": 10,
+      "expected_result": 448
+    },
+    {
+      "id": "source_default_limit_fifty",
+      "input_value": 50,
+      "expected_result": 14234
+    },
+    {
+      "id": "negative_limit",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "limit_above_benchmark_domain",
+      "input_value": 51,
+      "expected_result": -1
+    }
+  ]
+}

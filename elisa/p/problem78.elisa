@@ -1,0 +1,36 @@
+const MAX_MODULUS: i64 = 1000000
+const MAX_INDEX: usize = 55374
+
+def problem78_positive_mod(value: i64, modulus: i64) -> i64:
+    remainder: mutable i64 = value % modulus
+    if remainder < 0:
+        remainder <- remainder + modulus
+    remainder
+
+def problem78_impl(modulus: i64) -> i64:
+    if modulus < 1 or modulus > MAX_MODULUS:
+        return -1
+    partitions: mutable u32[MAX_INDEX + 1] = zeroed
+    partitions[0] <- 1
+    n: mutable usize = 1
+    while n <= MAX_INDEX:
+        value: mutable i64 = 0
+        j: mutable i64 = 1
+        while true:
+            first: i64 = (3 * j * j - j) / 2
+            if first > n.i64():
+                break
+            sign: i64 = if j % 2 == 0 then -1 else 1
+            value <- problem78_positive_mod(value + sign * partitions[(n.i64() - first).usize()].i64(), modulus)
+            second: i64 = first + j
+            if second > n.i64():
+                break
+            value <- problem78_positive_mod(value + sign * partitions[(n.i64() - second).usize()].i64(), modulus)
+            j <- j + 1
+        if value == 0:
+            return n.i64()
+        partitions[n] <- value.u32()
+        n <- n + 1
+    -1
+
+export fn problem78(modulus: i64) -> i64 = problem78_impl

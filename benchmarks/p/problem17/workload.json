@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-17-scalar-v1",
+  "algorithm": "problem17",
+  "function_symbol": "problem17",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 1000],
+    "meaning": "inclusive upper bound for the numbers written in British English",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "total letters from 1 through the inclusive limit, excluding spaces and hyphens"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty_range", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 3},
+    {"id": "first_five", "input_value": 5, "expected_result": 19},
+    {"id": "through_ninety_nine", "input_value": 99, "expected_result": 854},
+    {"id": "through_one_hundred", "input_value": 100, "expected_result": 864},
+    {"id": "statement_number_three_hundred_forty_two", "input_value": 342, "expected_result": 6117},
+    {"id": "canonical_through_one_thousand", "input_value": 1000, "expected_result": 21124},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_maximum_limit", "input_value": 1001, "expected_result": -1}
+  ]
+}

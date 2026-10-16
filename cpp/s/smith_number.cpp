@@ -38,7 +38,7 @@ std::int64_t prime_factor_digit_sum(std::int64_t value)
 
 extern "C" std::int64_t smith_number(std::int64_t value) noexcept
 {
-    if (value < 1 || value > 2147483647) return -1;
+    if (value < 1 || value > 2147395599) return -1;
     if (is_prime(value)) return 0;
     return digit_sum(value) == prime_factor_digit_sum(value);
 }

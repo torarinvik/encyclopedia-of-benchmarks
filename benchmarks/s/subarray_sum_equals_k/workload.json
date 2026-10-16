@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "subarray-sum-equals-k-i32-prefix-count-v1",
+  "algorithm": "subarray_sum_equals_k",
+  "function_symbol": "subarray_sum_equals_k",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[count, target, values...]",
+    "count_range": [0, 512],
+    "target_range": [-2147483648, 2147483647],
+    "value_range": [-2147483648, 2147483647],
+    "input_modified": false,
+    "maximum_input_length": 514,
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "count of contiguous subarrays whose sum equals the target",
+    "valid_range": [0, 131328],
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    { "id": "three_ones_target_two", "input_values": [3, 2, 1, 1, 1], "input_length": 5, "expected_result": 2 },
+    { "id": "source_example_target_three", "input_values": [3, 3, 1, 2, 3], "input_length": 5, "expected_result": 2 },
+    { "id": "negative_values_source_example", "input_values": [3, 0, -1, -1, 1], "input_length": 5, "expected_result": 1 },
+    { "id": "mixed_zero_sum_source_example", "input_values": [3, 0, 1, -1, 0], "input_length": 5, "expected_result": 3 },
+    { "id": "three_zero_values", "input_values": [3, 0, 0, 0, 0], "input_length": 5, "expected_result": 6 },
+    { "id": "negative_target_repeated_values", "input_values": [3, -1, -1, -1, 1], "input_length": 5, "expected_result": 3 },
+    { "id": "repeated_prefixes", "input_values": [4, 0, 1, -1, 1, -1], "input_length": 6, "expected_result": 4 },
+    { "id": "two_pairs_target_four", "input_values": [3, 4, 2, 2, 2], "input_length": 5, "expected_result": 2 },
+    { "id": "negative_pairs_target_minus_four", "input_values": [3, -4, -2, -2, -2], "input_length": 5, "expected_result": 2 },
+    { "id": "single_exact_match", "input_values": [1, 7, 7], "input_length": 3, "expected_result": 1 },
+    { "id": "single_nonmatch", "input_values": [1, 0, -5], "input_length": 3, "expected_result": 0 },
+    { "id": "empty_values_zero_target", "input_values": [0, 0], "input_length": 2, "expected_result": 0 },
+    { "id": "empty_values_nonzero_target", "input_values": [0, -9], "input_length": 2, "expected_result": 0 },
+    { "id": "many_zero_values", "input_values": [32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 34, "expected_result": 528 },
+    { "id": "i32_min_plus_i32_max", "input_values": [2, -1, -2147483648, 2147483647], "input_length": 4, "expected_result": 1 },
+    { "id": "target_at_i32_min", "input_values": [1, -2147483648, -2147483648], "input_length": 3, "expected_result": 1 },
+    { "id": "value_at_i32_max", "input_values": [1, 2147483647, 2147483647], "input_length": 3, "expected_result": 1 },
+    { "id": "short_array", "input_values": [2, 0, 1], "input_length": 3, "expected_result": -9223372036854775808 },
+    { "id": "extra_array_value", "input_values": [1, 1, 1, 2], "input_length": 4, "expected_result": -9223372036854775808 },
+    { "id": "negative_count", "input_values": [-1, 0], "input_length": 2, "expected_result": -9223372036854775808 },
+    { "id": "count_over_limit", "input_values": [513, 0], "input_length": 2, "expected_result": -9223372036854775808 },
+    { "id": "target_above_i32", "input_values": [0, 2147483648], "input_length": 2, "expected_result": -9223372036854775808 },
+    { "id": "value_below_i32", "input_values": [1, 0, -2147483649], "input_length": 3, "expected_result": -9223372036854775808 },
+    { "id": "empty_packed_input", "input_values": [], "input_length": 0, "expected_result": -9223372036854775808 }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "iterative_ternary_search-v1",
+  "algorithm": "iterative_ternary_search",
+  "cases": [
+    {"id": "empty_miss", "input_values": [0], "expected_result": -1},
+    {"id": "singleton_hit", "input_values": [7, 7], "expected_result": 0},
+    {"id": "singleton_miss", "input_values": [8, 7], "expected_result": -1},
+    {"id": "two_first_hit", "input_values": [7, 7, 12], "expected_result": 0},
+    {"id": "two_last_hit", "input_values": [12, 7, 12], "expected_result": 1},
+    {"id": "multi_endpoint_hit", "input_values": [-9, -9, -4, 2, 8, 13], "expected_result": 0},
+    {"id": "multi_interior_hit", "input_values": [2, -9, -4, 2, 8, 13], "expected_result": 2},
+    {"id": "multi_last_hit", "input_values": [13, -9, -4, 2, 8, 13], "expected_result": 4},
+    {"id": "miss_between", "input_values": [5, -9, -4, 2, 8, 13], "expected_result": -1},
+    {"id": "miss_below", "input_values": [-10, -9, -4, 2, 8, 13], "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "i64_array_scalar_call",
+    "target_comparisons_per_sample": 250000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

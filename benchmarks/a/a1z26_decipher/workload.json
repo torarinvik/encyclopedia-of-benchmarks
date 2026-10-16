@@ -14,6 +14,10 @@
     "insufficient_capacity_result": -2,
     "output_encoding": "one lowercase ASCII byte for each one-based alphabet position"
   },
+  "workspace": {
+    "bytes": 66,
+    "reason": "Output contains one byte for each of at most 66 input positions."
+  },
   "cases": [
     {
       "id": "empty",

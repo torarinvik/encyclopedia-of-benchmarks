@@ -1,0 +1,41 @@
+const DR: i64[8] = [2, 1, -1, -2, -2, -1, 1, 2]
+const DC: i64[8] = [1, 2, 2, 1, -1, -2, -2, -1]
+
+def solve(board: mutable i64&, row: i64, column: i64, step: i64) -> bool:
+    if step == 64:
+        return true
+    for move in 0..<8:
+        next_row: i64 = row + DR[move]
+        next_column: i64 = column + DC[move]
+        if next_row >= 0 and next_row < 8 and next_column >= 0 and next_column < 8:
+            index: usize = (next_row * 8 + next_column).usize()
+            if board[index] == -1:
+                board[index] <- step
+                if solve(board, next_row, next_column, step + 1):
+                    return true
+                board[index] <- -1
+    false
+
+def knight_tour_open_dfs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 0:
+        return -1
+    if output.is_null() or capacity < 512:
+        return -2
+    board: mutable i64[64] = zeroed
+    for index in 0..<64:
+        board[index] <- -1
+    board[0] <- 0
+    if not solve(board, 0, 0, 1):
+        return -1
+    path: mutable i64[64] = zeroed
+    for row in 0..<8:
+        for column in 0..<8:
+            path[board[row * 8 + column].usize()] <- (row * 8 + column).i64()
+    for index in 0..<64:
+        bits: mutable u64 = path[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    512
+
+export fn knight_tour_open_dfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = knight_tour_open_dfs_impl

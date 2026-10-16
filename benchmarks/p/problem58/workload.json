@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-58-spiral-prime-ratio-v1",
+  "algorithm": "problem58",
+  "function_symbol": "problem58",
+  "input": {
+    "kind": "binary64_prime_ratio_threshold",
+    "minimum": 0.1,
+    "maximum": 0.6,
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_integral_side_length",
+    "definition": "The first odd spiral side length for which the ratio of prime diagonal entries is strictly below the threshold."
+  },
+  "cases": [
+    {"id": "source_half_ratio_example", "input_values": [0.5], "expected_result": 11.0},
+    {"id": "source_twenty_percent_example", "input_values": [0.2], "expected_result": 309.0},
+    {"id": "source_11_1_percent_example", "input_values": [0.111], "expected_result": 11317.0},
+    {"id": "canonical_ten_percent", "input_values": [0.1], "expected_result": 26241.0},
+    {"id": "upper_domain_endpoint", "input_values": [0.6], "expected_result": 5.0},
+    {"id": "below_domain", "input_values": [0.09], "expected_result": -1.0},
+    {"id": "above_domain", "input_values": [0.61], "expected_result": -1.0}
+  ],
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

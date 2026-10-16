@@ -1,0 +1,125 @@
+const MAX_TEXT_BYTES: usize = 1024
+
+def is_continuation(byte: usize) -> bool:
+    byte >= 128 and byte <= 191
+
+def decode_utf8(bytes: u8[1024], length: usize, index: usize) -> i64:
+    first: usize = bytes[index].usize()
+    if first <= 127:
+        return first.i64() * 8 + 1
+    if first >= 194 and first <= 223:
+        if index + 1 >= length or not is_continuation(bytes[index + 1].usize()):
+            return -1
+        codepoint: usize = ((first & 31) * 64) | (bytes[index + 1].usize() & 63)
+        return codepoint.i64() * 8 + 2
+    if first >= 224 and first <= 239:
+        if index + 2 >= length:
+            return -1
+        second: usize = bytes[index + 1].usize()
+        third: usize = bytes[index + 2].usize()
+        if not is_continuation(second) or not is_continuation(third) or
+            (first == 224 and second < 160) or (first == 237 and second >= 160):
+            return -1
+        codepoint: usize = ((first & 15) * 4096) | ((second & 63) * 64) | (third & 63)
+        return codepoint.i64() * 8 + 3
+    if first >= 240 and first <= 244:
+        if index + 3 >= length:
+            return -1
+        second: usize = bytes[index + 1].usize()
+        third: usize = bytes[index + 2].usize()
+        fourth: usize = bytes[index + 3].usize()
+        if not is_continuation(second) or not is_continuation(third) or not is_continuation(fourth) or
+            (first == 240 and second < 144) or (first == 244 and second > 143):
+            return -1
+        codepoint: usize = ((first & 7) * 262144) | ((second & 63) * 4096) | ((third & 63) * 64) | (fourth & 63)
+        return codepoint.i64() * 8 + 4
+    -1
+
+def map_turkish(codepoint: i64) -> i64:
+    if codepoint == 305: return 105
+    if codepoint == 304: return 73
+    if codepoint == 252: return 117
+    if codepoint == 220: return 85
+    if codepoint == 246: return 111
+    if codepoint == 214: return 79
+    if codepoint == 351: return 115
+    if codepoint == 350: return 83
+    if codepoint == 231: return 99
+    if codepoint == 199: return 67
+    if codepoint == 287: return 103
+    if codepoint == 286: return 71
+    0
+
+def turkish_to_latin_conversion_impl(values: i64&, length: usize, output: mutable u8&,
+                                     output_capacity: usize) -> i64:
+    if length < 1 or length > MAX_TEXT_BYTES + 1:
+        return -1
+    byte_length_value: i64 = values[0]
+    if byte_length_value < 0 or byte_length_value > MAX_TEXT_BYTES.i64():
+        return -1
+    text_length: usize = byte_length_value.usize()
+    if length != text_length + 1:
+        return -1
+    byte_values_valid: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index + 1]
+            if value < 0 or value > 255:
+                break false
+            index <- index + 1
+            valid
+    if not byte_values_valid:
+        return -1
+    bytes: u8[1024] =
+        while index < text_length |index: mutable usize = 0, bytes: mutable u8[1024] = zeroed| -> bytes:
+            bytes[index] <- values[index + 1].u8()
+            index <- index + 1
+            bytes
+
+    valid_utf8: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            decoded: i64 = decode_utf8(bytes, text_length, index)
+            if decoded < 0:
+                break false
+            index <- index + (decoded % 8).usize()
+            valid
+    if not valid_utf8:
+        return -1
+
+    result_length: usize =
+        while index < text_length |index: mutable usize = 0, result_length: mutable usize = 0| -> result_length:
+            decoded: i64 = decode_utf8(bytes, text_length, index)
+            codepoint: i64 = decoded / 8
+            width: usize = (decoded % 8).usize()
+            mapped: i64 = map_turkish(codepoint)
+            result_length <- result_length + (1 if mapped != 0 else width)
+            index <- index + width
+            result_length
+    if result_length > output_capacity:
+        return -2
+
+    encoded: u8[1024] =
+        while index < text_length |index: mutable usize = 0, written: mutable usize = 0, encoded: mutable u8[1024] = zeroed| -> encoded:
+            decoded: i64 = decode_utf8(bytes, text_length, index)
+            codepoint: i64 = decoded / 8
+            width: usize = (decoded % 8).usize()
+            mapped: i64 = map_turkish(codepoint)
+            if mapped != 0:
+                encoded[written] <- mapped.u8()
+                written <- written + 1
+            else:
+                encoded[written] <- bytes[index]
+                if width > 1: encoded[written + 1] <- bytes[index + 1]
+                if width > 2: encoded[written + 2] <- bytes[index + 2]
+                if width > 3: encoded[written + 3] <- bytes[index + 3]
+                written <- written + width
+            index <- index + width
+            encoded
+    copied: usize =
+        for position in 0..<result_length |copied: mutable usize = 0, output| -> copied:
+            output[copied] <- encoded[position]
+            copied <- copied + 1
+            copied
+    copied.i64()
+
+export fn turkish_to_latin_conversion(values: i64&, length: usize,
+                                      output: mutable u8&, output_capacity: usize) -> i64 = turkish_to_latin_conversion_impl

@@ -4,8 +4,6 @@ def reverse_words_impl(input: i64&, length: usize, output: mutable u8&, output_c
     byte_length: usize = input[0].usize()
     if length != byte_length + 1:
         return -1
-    if output_capacity < byte_length + 1:
-        return -2
     index: usize = 0
     while index < byte_length:
         value: i64 = input[index + 1]
@@ -14,6 +12,8 @@ def reverse_words_impl(input: i64&, length: usize, output: mutable u8&, output_c
         if value == 32 and (index == 0 or index + 1 == byte_length or input[index] == 32):
             return -1
         index <- index + 1
+    if output_capacity < byte_length + 1:
+        return -2
     written: mutable usize = 0
     ending: mutable usize = byte_length
     while ending > 0:

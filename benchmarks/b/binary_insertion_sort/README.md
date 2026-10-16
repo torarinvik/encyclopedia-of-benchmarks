@@ -36,6 +36,8 @@ The C and C++ references search for an insertion point in the sorted prefix, the
 
 ## TheAlgorithms references
 
+- C# [`BinaryInsertionSorter.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/BinaryInsertionSorter.cs) binary-searches the sorted prefix, shifts the suffix, and inserts each value.
+- Go [`binaryinsertionsort.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/sort/binaryinsertionsort.go) uses the same insertion algorithm.
 - [C `binary_insertion_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/binary_insertion_sort.c)
 - [C++ `binary_insertion_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/binary_insertion_sort.cpp)
 - [Rust `binary_insertion_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/binary_insertion_sort.rs)

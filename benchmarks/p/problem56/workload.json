@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-56-binary-scalar-v1",
+  "algorithm": "problem56",
+  "function_symbol": "problem56",
+  "input": {"kind": "positive_pair", "valid_range": "1 <= a <= 200 and 1 <= b <= 200", "meaning": "exclusive upper bounds for base and exponent ranges", "invalid_result": -1},
+  "output": {"kind": "signed_64_bit_integer", "definition": "Maximum decimal digit sum of base^power for 0 <= base < a and 0 <= power < b"},
+  "measurement": {"comparison_model": "binary_scalar_call", "sample_count": 3, "warmup_rounds": 0, "repetitions_per_sample": 1},
+  "cases": [
+    {"id": "default_source_arguments", "input_values": [100, 100], "expected_result": 972},
+    {"id": "documented_small_example", "input_values": [10, 10], "expected_result": 45},
+    {"id": "documented_extended_exponent", "input_values": [100, 200], "expected_result": 1872},
+    {"id": "minimum_dimensions", "input_values": [1, 1], "expected_result": 1},
+    {"id": "zero_base_range_invalid", "input_values": [0, 10], "expected_result": -1},
+    {"id": "zero_power_range_invalid", "input_values": [10, 0], "expected_result": -1},
+    {"id": "upper_a_out_of_contract", "input_values": [201, 1], "expected_result": -1},
+    {"id": "negative_dimension_invalid", "input_values": [10, -1], "expected_result": -1}
+  ]
+}

@@ -41,4 +41,5 @@ python3 benchmarks/run_i64_array_bytes_output.py --algorithm sliding_window_maxi
 ## Upstream references
 
 - [Java `SlidingWindowMaximum.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/queues/SlidingWindowMaximum.java)
+- Java [`MaximumSlidingWindow.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/slidingwindow/MaximumSlidingWindow.java), which has the same fixed-width maximum output for positive window sizes.
 - [Python `sliding_window_maximum.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/sliding_window_maximum.py)

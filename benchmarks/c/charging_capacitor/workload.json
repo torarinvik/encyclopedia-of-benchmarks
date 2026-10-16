@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "id": "charging-capacitor-i64-array-f64-v1",
+  "algorithm": "charging_capacitor",
+  "function_symbol": "charging_capacitor",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": "[source_voltage_micro, resistance_micro, capacitance_micro, time_micro]",
+    "minimum_length": 4,
+    "maximum_length": 4,
+    "scale": 1000000,
+    "maximum_absolute_source_voltage": 1000000,
+    "maximum_absolute_resistance": 1000000000,
+    "maximum_absolute_capacitance": 1000000,
+    "maximum_absolute_time_seconds": 1000000,
+    "maximum_exponential_argument": 10,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "source_voltage * (1 - exp(-time_sec / (resistance * capacitance))), rounded to three decimal places using Python round semantics",
+    "maximum_absolute_value": 22025465795,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-15,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "python-example-1",
+      "input_values": [
+        200000,
+        900000,
+        8400000,
+        500000
+      ],
+      "input_length": 4,
+      "expected_result": 0.013
+    },
+    {
+      "id": "python-example-2",
+      "input_values": [
+        2200000,
+        3500000,
+        2400000,
+        9000000
+      ],
+      "input_length": 4,
+      "expected_result": 1.446
+    },
+    {
+      "id": "python-example-3",
+      "input_values": [
+        15000000,
+        200000000,
+        20000000,
+        2000000
+      ],
+      "input_length": 4,
+      "expected_result": 0.007
+    },
+    {
+      "id": "python-example-4",
+      "input_values": [
+        20000000,
+        2000000000,
+        300,
+        4000000
+      ],
+      "input_length": 4,
+      "expected_result": 19.975
+    },
+    {
+      "id": "zero-time",
+      "input_values": [
+        5000000,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-time-one-time-constant",
+      "input_values": [
+        2000000,
+        1000000,
+        1000000,
+        -1000000
+      ],
+      "input_length": 4,
+      "expected_result": -3.437
+    },
+    {
+      "id": "negative-time-near-boundary",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        -9999000
+      ],
+      "input_length": 4,
+      "expected_result": -22003.45
+    },
+    {
+      "id": "negative-time-exponent-boundary",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        -10000000
+      ],
+      "input_length": 4,
+      "expected_result": -22025.466
+    },
+    {
+      "id": "negative-zero-rounded",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        -500
+      ],
+      "input_length": 4,
+      "expected_result": -0.001
+    },
+    {
+      "id": "positive-small-rounded-zero",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        500
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "positive-small-rounded-milliunit",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        1000
+      ],
+      "input_length": 4,
+      "expected_result": 0.001
+    },
+    {
+      "id": "large-positive-time-saturates",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        1000000000000
+      ],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "maximum-voltage-at-zero-time",
+      "input_values": [
+        1000000000000,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-output-exponent-boundary",
+      "input_values": [
+        1000000000000,
+        1000000,
+        1000000,
+        -10000000
+      ],
+      "input_length": 4,
+      "expected_result": -22025465794.807
+    },
+    {
+      "id": "maximum-component-bounds-at-zero-time",
+      "input_values": [
+        1000000000000,
+        1000000000000000,
+        1000000000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "exponent-above-boundary",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        -10001000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "minimum-values-small-positive-time",
+      "input_values": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one-field",
+      "input_values": [
+        1000000
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "too-many-fields",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-voltage",
+      "input_values": [
+        0,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-voltage",
+      "input_values": [
+        -1,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "voltage-above-bound",
+      "input_values": [
+        1000000000001,
+        1000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-resistance",
+      "input_values": [
+        1000000,
+        0,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-resistance",
+      "input_values": [
+        1000000,
+        -1,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "resistance-above-bound",
+      "input_values": [
+        1000000,
+        1000000000000001,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-capacitance",
+      "input_values": [
+        1000000,
+        1000000,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-capacitance",
+      "input_values": [
+        1000000,
+        1000000,
+        -1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "capacitance-above-bound",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000000001,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time-below-bound",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        -1000000000001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time-above-bound",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        1000000000001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "seeded-valid-00",
+      "input_values": [
+        14176403,
+        1764620,
+        3793191,
+        -686
+      ],
+      "input_length": 4,
+      "expected_result": -0.001
+    },
+    {
+      "id": "seeded-valid-01",
+      "input_values": [
+        2704699,
+        350634,
+        1728211,
+        1101363
+      ],
+      "input_length": 4,
+      "expected_result": 2.265
+    },
+    {
+      "id": "seeded-valid-02",
+      "input_values": [
+        28355264,
+        3419744,
+        4902061,
+        1368615
+      ],
+      "input_length": 4,
+      "expected_result": 2.223
+    },
+    {
+      "id": "seeded-valid-03",
+      "input_values": [
+        46249787,
+        3393322,
+        2052926,
+        1656144
+      ],
+      "input_length": 4,
+      "expected_result": 9.786
+    },
+    {
+      "id": "seeded-valid-04",
+      "input_values": [
+        33397397,
+        587224,
+        2064309,
+        -11794
+      ],
+      "input_length": 4,
+      "expected_result": -0.327
+    },
+    {
+      "id": "seeded-valid-05",
+      "input_values": [
+        4120194,
+        2374816,
+        660517,
+        736703
+      ],
+      "input_length": 4,
+      "expected_result": 1.544
+    },
+    {
+      "id": "seeded-valid-06",
+      "input_values": [
+        45459415,
+        2095774,
+        2365228,
+        1297423
+      ],
+      "input_length": 4,
+      "expected_result": 10.469
+    },
+    {
+      "id": "seeded-valid-07",
+      "input_values": [
+        26229216,
+        1577690,
+        296795,
+        95341
+      ],
+      "input_length": 4,
+      "expected_result": 4.832
+    },
+    {
+      "id": "seeded-valid-08",
+      "input_values": [
+        46144232,
+        113066,
+        4610105,
+        -27866
+      ],
+      "input_length": 4,
+      "expected_result": -2.534
+    },
+    {
+      "id": "seeded-valid-09",
+      "input_values": [
+        11184262,
+        207159,
+        3839519,
+        1040923
+      ],
+      "input_length": 4,
+      "expected_result": 8.163
+    },
+    {
+      "id": "seeded-valid-10",
+      "input_values": [
+        3858268,
+        1059200,
+        681474,
+        1800881
+      ],
+      "input_length": 4,
+      "expected_result": 3.54
+    },
+    {
+      "id": "seeded-valid-11",
+      "input_values": [
+        12787183,
+        4575403,
+        411825,
+        924738
+      ],
+      "input_length": 4,
+      "expected_result": 4.959
+    },
+    {
+      "id": "seeded-valid-12",
+      "input_values": [
+        37468826,
+        1810541,
+        4070937,
+        -30712
+      ],
+      "input_length": 4,
+      "expected_result": -0.156
+    },
+    {
+      "id": "seeded-valid-13",
+      "input_values": [
+        37675514,
+        1648949,
+        4983823,
+        570771
+      ],
+      "input_length": 4,
+      "expected_result": 2.528
+    },
+    {
+      "id": "seeded-valid-14",
+      "input_values": [
+        47766700,
+        2178033,
+        3285685,
+        280202
+      ],
+      "input_length": 4,
+      "expected_result": 1.834
+    },
+    {
+      "id": "seeded-valid-15",
+      "input_values": [
+        48039912,
+        1217693,
+        919927,
+        639979
+      ],
+      "input_length": 4,
+      "expected_result": 20.908
+    },
+    {
+      "id": "seeded-valid-16",
+      "input_values": [
+        2164844,
+        375838,
+        3333329,
+        -23093
+      ],
+      "input_length": 4,
+      "expected_result": -0.04
+    },
+    {
+      "id": "seeded-valid-17",
+      "input_values": [
+        16090619,
+        3565600,
+        3913548,
+        977049
+      ],
+      "input_length": 4,
+      "expected_result": 1.088
+    },
+    {
+      "id": "seeded-valid-18",
+      "input_values": [
+        48641887,
+        193598,
+        2576536,
+        432434
+      ],
+      "input_length": 4,
+      "expected_result": 28.201
+    },
+    {
+      "id": "seeded-valid-19",
+      "input_values": [
+        2629970,
+        4983659,
+        2630197,
+        282541
+      ],
+      "input_length": 4,
+      "expected_result": 0.056
+    },
+    {
+      "id": "seeded-valid-20",
+      "input_values": [
+        16386034,
+        4075036,
+        3814925,
+        -25850
+      ],
+      "input_length": 4,
+      "expected_result": -0.027
+    },
+    {
+      "id": "seeded-valid-21",
+      "input_values": [
+        17906631,
+        2152682,
+        4929361,
+        390800
+      ],
+      "input_length": 4,
+      "expected_result": 0.647
+    },
+    {
+      "id": "seeded-valid-22",
+      "input_values": [
+        28104640,
+        210221,
+        3639199,
+        1264960
+      ],
+      "input_length": 4,
+      "expected_result": 22.726
+    },
+    {
+      "id": "seeded-valid-23",
+      "input_values": [
+        8353810,
+        3411317,
+        4085561,
+        1166943
+      ],
+      "input_length": 4,
+      "expected_result": 0.671
+    },
+    {
+      "id": "seeded-valid-24",
+      "input_values": [
+        7465939,
+        1705895,
+        1045933,
+        -23157
+      ],
+      "input_length": 4,
+      "expected_result": -0.098
+    },
+    {
+      "id": "seeded-valid-25",
+      "input_values": [
+        23140511,
+        499152,
+        387373,
+        180699
+      ],
+      "input_length": 4,
+      "expected_result": 14.052
+    },
+    {
+      "id": "seeded-valid-26",
+      "input_values": [
+        38684856,
+        884892,
+        278912,
+        381498
+      ],
+      "input_length": 4,
+      "expected_result": 30.439
+    },
+    {
+      "id": "seeded-valid-27",
+      "input_values": [
+        37842103,
+        4295209,
+        1583872,
+        623259
+      ],
+      "input_length": 4,
+      "expected_result": 3.313
+    },
+    {
+      "id": "seeded-valid-28",
+      "input_values": [
+        25008906,
+        2839129,
+        1076552,
+        -5371
+      ],
+      "input_length": 4,
+      "expected_result": -0.044
+    },
+    {
+      "id": "seeded-valid-29",
+      "input_values": [
+        9955396,
+        2569376,
+        1088290,
+        1180322
+      ],
+      "input_length": 4,
+      "expected_result": 3.428
+    },
+    {
+      "id": "seeded-valid-30",
+      "input_values": [
+        17072376,
+        2717976,
+        3401135,
+        1269073
+      ],
+      "input_length": 4,
+      "expected_result": 2.19
+    },
+    {
+      "id": "seeded-valid-31",
+      "input_values": [
+        21678876,
+        4856876,
+        4039017,
+        105770
+      ],
+      "input_length": 4,
+      "expected_result": 0.117
+    }
+  ]
+}

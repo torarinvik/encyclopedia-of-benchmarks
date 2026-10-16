@@ -30,12 +30,12 @@ python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_flo
 
 | Language | Source |
 | --- | --- |
-| C | [`c/s/spearman_rank_correlation_coefficient.c`](../../../c/spearman_rank_correlation_coefficient.c) |
-| C3 | [`c3/s/spearman_rank_correlation_coefficient.c3`](../../../c3/spearman_rank_correlation_coefficient.c3) |
-| C++ | [`cpp/s/spearman_rank_correlation_coefficient.cpp`](../../../cpp/spearman_rank_correlation_coefficient.cpp) |
-| Elisa | [`elisa/s/spearman_rank_correlation_coefficient.elisa`](../../../elisa/spearman_rank_correlation_coefficient.elisa) |
-| Nim | [`nim/s/spearman_rank_correlation_coefficient.nim`](../../../nim/spearman_rank_correlation_coefficient.nim) |
-| Odin | [`odin/s/spearman_rank_correlation_coefficient.odin`](../../../odin/spearman_rank_correlation_coefficient.odin) |
-| Rust | [`rust/s/spearman_rank_correlation_coefficient.rs`](../../../rust/spearman_rank_correlation_coefficient.rs) |
-| V | [`v/s/spearman_rank_correlation_coefficient.v`](../../../v/spearman_rank_correlation_coefficient.v) |
-| Zig | [`zig/s/spearman_rank_correlation_coefficient.zig`](../../../zig/spearman_rank_correlation_coefficient.zig) |
+| C | [`c/s/spearman_rank_correlation_coefficient.c`](../../../c/s/spearman_rank_correlation_coefficient.c) |
+| C3 | [`c3/s/spearman_rank_correlation_coefficient.c3`](../../../c3/s/spearman_rank_correlation_coefficient.c3) |
+| C++ | [`cpp/s/spearman_rank_correlation_coefficient.cpp`](../../../cpp/s/spearman_rank_correlation_coefficient.cpp) |
+| Elisa | [`elisa/s/spearman_rank_correlation_coefficient.elisa`](../../../elisa/s/spearman_rank_correlation_coefficient.elisa) |
+| Nim | [`nim/s/spearman_rank_correlation_coefficient.nim`](../../../nim/s/spearman_rank_correlation_coefficient.nim) |
+| Odin | [`odin/s/spearman_rank_correlation_coefficient.odin`](../../../odin/s/spearman_rank_correlation_coefficient.odin) |
+| Rust | [`rust/s/spearman_rank_correlation_coefficient.rs`](../../../rust/s/spearman_rank_correlation_coefficient.rs) |
+| V | [`v/s/spearman_rank_correlation_coefficient.v`](../../../v/s/spearman_rank_correlation_coefficient.v) |
+| Zig | [`zig/s/spearman_rank_correlation_coefficient.zig`](../../../zig/s/spearman_rank_correlation_coefficient.zig) |

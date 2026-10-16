@@ -1,0 +1,41 @@
+# Count triangles whose strict interior contains the origin.
+const MAX_VALUES: usize = 6000
+const MIN_COORD: i64 = -1000
+const MAX_COORD: i64 = 1000
+
+def problem102_origin_inside(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64) -> i64:
+    abx: i64 = x2 - x1
+    aby: i64 = y2 - y1
+    acx: i64 = x3 - x1
+    acy: i64 = y3 - y1
+    denominator: mutable i64 = acx * aby - acy * abx
+    numerator_a: mutable i64 = -(x1 * aby - y1 * abx)
+    numerator_b: mutable i64 = x1 * acy - y1 * acx
+    if denominator == 0:
+        return -1
+    if denominator < 0:
+        denominator <- -denominator
+        numerator_a <- -numerator_a
+        numerator_b <- -numerator_b
+    if numerator_a > 0 and numerator_b > 0 and numerator_a + numerator_b < denominator:
+        1
+    else:
+        0
+
+def problem102_impl(input: i64&, length: usize) -> i64:
+    if length < 6 or length > MAX_VALUES or length % 6 != 0:
+        return -1
+    for index in 0..<length:
+        if input[index] < MIN_COORD or input[index] > MAX_COORD:
+            return -1
+    count: mutable i64 = 0
+    offset: mutable usize = 0
+    while offset < length:
+        inside: i64 = problem102_origin_inside(input[offset], input[offset + 1], input[offset + 2], input[offset + 3], input[offset + 4], input[offset + 5])
+        if inside < 0:
+            return -1
+        count <- count + inside
+        offset <- offset + 6
+    count
+
+export fn problem102(input: i64&, length: usize) -> i64 = problem102_impl

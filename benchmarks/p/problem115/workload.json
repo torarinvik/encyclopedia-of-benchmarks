@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-115-minimum-block-threshold-v1",
+  "algorithm": "problem115",
+  "function_symbol": "problem115",
+  "input": {
+    "kind": "minimum_red_block_length",
+    "minimum": 1,
+    "maximum": 100,
+    "out_of_range_result": -1,
+    "fixed_fill_threshold": 1000000
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Least row length n for which the number of valid fillings with red blocks of at least the input minimum length exceeds 1,000,000."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "minimum_one",
+      "input_value": 1,
+      "expected_result": 20
+    },
+    {
+      "id": "source_example_three",
+      "input_value": 3,
+      "expected_result": 30
+    },
+    {
+      "id": "source_example_ten",
+      "input_value": 10,
+      "expected_result": 57
+    },
+    {
+      "id": "canonical_fifty",
+      "input_value": 50,
+      "expected_result": 168
+    },
+    {
+      "id": "upper_supported",
+      "input_value": 100,
+      "expected_result": 269
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported",
+      "input_value": 101,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

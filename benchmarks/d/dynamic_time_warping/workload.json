@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "id": "dynamic-time-warping-java-i64-array-f64-v1",
+  "algorithm": "dynamic_time_warping",
+  "function_symbol": "dynamic_time_warping",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": [
+      "first_length",
+      "second_length",
+      "band",
+      "first_samples...",
+      "second_samples..."
+    ],
+    "series_length_range": [
+      1,
+      16
+    ],
+    "band_range": [
+      0,
+      16
+    ],
+    "band_minimum": "abs(first_length - second_length)",
+    "sample_value_range": [
+      -1000,
+      1000
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "minimum absolute-difference warping distance inside the band",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "identical-series",
+      "input_values": [
+        3,
+        3,
+        3,
+        1,
+        2,
+        3,
+        1,
+        2,
+        3
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "faster-second-series",
+      "input_values": [
+        3,
+        4,
+        1,
+        1,
+        2,
+        3,
+        1,
+        1,
+        2,
+        3
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero-width-diagonal",
+      "input_values": [
+        3,
+        3,
+        0,
+        1,
+        2,
+        3,
+        2,
+        2,
+        2
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "single-to-many",
+      "input_values": [
+        1,
+        5,
+        4,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "single-extreme-pair",
+      "input_values": [
+        1,
+        1,
+        0,
+        -1000,
+        1000
+      ],
+      "expected_result": 2000.0
+    },
+    {
+      "id": "shifted-equal-length",
+      "input_values": [
+        4,
+        4,
+        1,
+        1,
+        2,
+        3,
+        4,
+        2,
+        3,
+        4,
+        5
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "zero-width-constant-offset",
+      "input_values": [
+        4,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": 4.0
+    },
+    {
+      "id": "shorter-series-band-edge",
+      "input_values": [
+        4,
+        3,
+        1,
+        0,
+        1,
+        2,
+        3,
+        0,
+        2,
+        3
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "minimum-band-long-to-one",
+      "input_values": [
+        16,
+        1,
+        15,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-band-identical",
+      "input_values": [
+        16,
+        16,
+        16,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum-magnitude-distance",
+      "input_values": [
+        16,
+        16,
+        16,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        -1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "expected_result": 32000.0
+    },
+    {
+      "id": "unequal-length-terminal-match",
+      "input_values": [
+        2,
+        3,
+        2,
+        1,
+        2,
+        1,
+        2,
+        4
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "full-band-small",
+      "input_values": [
+        2,
+        2,
+        16,
+        0,
+        5,
+        4,
+        1
+      ],
+      "expected_result": 8.0
+    },
+    {
+      "id": "invalid-empty-first-series",
+      "input_values": [
+        0,
+        1,
+        1,
+        3
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-empty-second-series",
+      "input_values": [
+        1,
+        0,
+        1,
+        3
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-packed-array",
+      "input_values": [
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-extra-packed-value",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        1,
+        2
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-band-too-narrow",
+      "input_values": [
+        2,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-band-negative",
+      "input_values": [
+        2,
+        2,
+        -1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-band-above-bound",
+      "input_values": [
+        2,
+        2,
+        17,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-sample-above-bound",
+      "input_values": [
+        1,
+        1,
+        0,
+        1001,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-first-length-above-bound",
+      "input_values": [
+        17,
+        1,
+        16
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

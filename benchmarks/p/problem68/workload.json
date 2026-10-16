@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-68-magic-ring-v1",
+  "algorithm": "problem68",
+  "function_symbol": "problem68",
+  "input": {
+    "kind": "magic_gon_side_count",
+    "minimum": 3,
+    "maximum": 5,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The first valid magic gon ring in the pinned permutation traversal, concatenated clockwise from the line with the minimum external node."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_three_gon",
+      "input_value": 3,
+      "expected_result": 432621513
+    },
+    {
+      "id": "source_four_gon",
+      "input_value": 4,
+      "expected_result": 426561813732
+    },
+    {
+      "id": "canonical_five_gon",
+      "input_value": 5,
+      "expected_result": 6531031914842725
+    },
+    {
+      "id": "below_supported_sides",
+      "input_value": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_sides",
+      "input_value": 6,
+      "expected_result": -1
+    }
+  ]
+}

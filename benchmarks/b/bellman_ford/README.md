@@ -34,6 +34,8 @@ The benchmark ABI uses caller-owned buffers. The C11 harness allocates them and 
 
 ## Build and verify
 
+The pinned R [`bellman_ford_shortest_path.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/graph_algorithms/bellman_ford_shortest_path.r) also uses directed signed-weight Bellman–Ford and detects source-reachable negative cycles. Its distance vector maps to the all-destination contract after normalizing predecessor and unreachable metadata.
+
 Build any implementation and its graph harness through the shared portable recipe:
 
 ```sh

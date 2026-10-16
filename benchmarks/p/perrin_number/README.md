@@ -23,3 +23,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/p/perrin_number/c
 ```
 
 The nine implementations are in `c/p/perrin_number.c`, `c3/p/perrin_number.c3`, `cpp/p/perrin_number.cpp`, `elisa/p/perrin_number.elisa`, `nim/p/perrin_number.nim`, `odin/p/perrin_number.odin`, `rust/p/perrin_number.rs`, `v/p/perrin_number.v`, and `zig/p/perrin_number.zig`.
+
+Verify the nine ports against the independent indexed-recurrence oracle with `python3 benchmarks/verify_scalar.py --algorithms perrin_number`.

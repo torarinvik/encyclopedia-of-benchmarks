@@ -1,0 +1,31 @@
+extern sin(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1e300
+
+# Repeated-step polyline length for the source demo curve sin(10*x).
+def line_length_impl(x_start: f64, x_end: f64, steps_value: f64) -> f64:
+    if (x_start != x_start or x_end != x_end or steps_value != steps_value or
+        x_start < -10.0 or x_start > 10.0 or x_end < -10.0 or x_end > 10.0 or
+        x_start > x_end or steps_value < 1.0 or steps_value > 10000.0):
+        return INVALID_RESULT
+    steps: i64 = steps_value.i64()
+    if steps.f64() != steps_value:
+        return INVALID_RESULT
+
+    x1: mutable f64 = x_start
+    fx1: mutable f64 = sin(10.0 * x_start)
+    length: mutable f64 = 0.0
+    index: mutable i64 = 0
+    while index < steps:
+        x2: f64 = (x_end - x_start) / steps.f64() + x1
+        fx2: f64 = sin(10.0 * x2)
+        dx: f64 = x2 - x1
+        dy: f64 = fx2 - fx1
+        length <- length + sqrt(dx * dx + dy * dy)
+        x1 <- x2
+        fx1 <- fx2
+        index <- index + 1
+    length
+
+export fn line_length(x_start: f64, x_end: f64, steps_value: f64) -> f64 = line_length_impl

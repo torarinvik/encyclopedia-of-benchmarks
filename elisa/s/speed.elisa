@@ -1,0 +1,64 @@
+const MAX_SPEED_MICRO: i64 = 1000000000000000
+const MAX_ROUNDED_MILLI: f64 = 9007199254740992.0
+
+def to_kmh_factor(unit: i64) -> f64:
+    if unit == 0:
+        return 1.0
+    if unit == 1:
+        return 3.6
+    if unit == 2:
+        return 1.609344
+    if unit == 3:
+        return 1.852
+    if unit == 4:
+        return 1.09728
+    if unit == 5:
+        return 1225.08
+    return 1079252848.8
+
+def from_kmh_factor(unit: i64) -> f64:
+    if unit == 0:
+        return 1.0
+    if unit == 1:
+        return 0.277777778
+    if unit == 2:
+        return 0.621371192
+    if unit == 3:
+        return 0.539956803
+    if unit == 4:
+        return 0.911344415
+    if unit == 5:
+        return 0.000816164
+    return 9.265669311e-10
+
+def round_three_away(scaled: f64) -> f64:
+    if scaled == 0.0:
+        return scaled / 1000.0
+    negative: bool = scaled < 0.0
+    magnitude: f64 = if negative: -scaled else: scaled
+    rounded_milli: mutable u64 = magnitude.u64()
+    if magnitude - rounded_milli.f64() >= 0.5:
+        rounded_milli <- rounded_milli + 1.u64()
+    rounded: f64 = rounded_milli.f64() / 1000.0
+    if negative:
+        return -rounded
+    return rounded
+
+def speed_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 3:
+        return -1.0e300
+    speed_micro: i64 = values[0]
+    from_unit: i64 = values[1]
+    to_unit: i64 = values[2]
+    if speed_micro < -MAX_SPEED_MICRO or speed_micro > MAX_SPEED_MICRO or
+        from_unit < 0 or from_unit > 6 or to_unit < 0 or to_unit > 6:
+        return -1.0e300
+    speed_value: f64 = speed_micro.f64() / 1000000.0
+    kmh: f64 = speed_value * to_kmh_factor(from_unit)
+    result: f64 = kmh * from_kmh_factor(to_unit)
+    scaled: f64 = result * 1000.0
+    if scaled > MAX_ROUNDED_MILLI or scaled < -MAX_ROUNDED_MILLI:
+        return -1.0e300
+    round_three_away(scaled)
+
+export fn speed(values: i64&, length: usize) -> f64 = speed_impl

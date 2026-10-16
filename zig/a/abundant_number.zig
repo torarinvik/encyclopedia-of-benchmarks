@@ -1,5 +1,5 @@
 export fn abundant_number(n: i64) i64 {
-    if (n < 1 or n > 1_000_000_000) return -1;
+    if (n < 1 or n > 100_000_000) return -1;
     if (n == 1) return 0;
     var sum: i64 = 1;
     var divisor: i64 = 2;

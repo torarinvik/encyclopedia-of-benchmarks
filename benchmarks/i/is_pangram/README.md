@@ -30,3 +30,6 @@ The Python source has three implementations. The primary `is_pangram` lowercases
 ## TheAlgorithms source
 
 - [Python `strings/is_pangram.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/strings/is_pangram.py)
+- [Java `Pangram.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/Pangram.java)
+- [Julia `pangram.jl`](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/strings/pangram.jl)
+- [Rust `pangram.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/pangram.rs)

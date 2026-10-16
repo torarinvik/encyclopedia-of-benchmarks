@@ -25,3 +25,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/k/kynea_numbers/c
 ```
 
 The nine implementations are in `c/k/kynea_numbers.c`, `c3/k/kynea_numbers.c3`, `cpp/k/kynea_numbers.cpp`, `elisa/k/kynea_numbers.elisa`, `nim/k/kynea_numbers.nim`, `odin/k/kynea_numbers.odin`, `rust/k/kynea_numbers.rs`, `v/k/kynea_numbers.v`, and `zig/k/kynea_numbers.zig`.
+
+Verify the nine ports against the independent bounded formula with `python3 benchmarks/verify_scalar.py --algorithms kynea_numbers`.

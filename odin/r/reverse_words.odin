@@ -8,12 +8,12 @@ reverse_words :: proc "c" (input: [^]i64, length: c.size_t, output: [^]u8, outpu
 	if input[0] < 0 || input[0] > 256 do return -1
 	n := int(input[0])
 	if length != c.size_t(n + 1) do return -1
-	if output == nil || output_capacity < c.size_t(n + 1) do return -2
 	for index := 0; index < n; index += 1 {
 		value := input[index + 1]
 		if !(value == 32 || (value >= 33 && value <= 126)) do return -1
 		if value == 32 && (index == 0 || index + 1 == n || input[index] == 32) do return -1
 	}
+	if output == nil || output_capacity < c.size_t(n + 1) do return -2
 	written := 0
 	ending := n
 	for ending > 0 {

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-180-scalar-v1",
+  "algorithm": "problem180",
+  "function_symbol": "problem180",
+  "input": {
+    "kind": "rational_order",
+    "minimum": 1,
+    "maximum": 35,
+    "definition": "Maximum denominator bound for the positive proper rational values in golden triples.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Reduced total numerator plus denominator for the sum of distinct golden-triple sums.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "small-order-1", "input_value": 1, "expected_result": 1},
+    {"id": "source-example-order-5", "input_value": 5, "expected_result": 296},
+    {"id": "source-example-order-10", "input_value": 10, "expected_result": 12519},
+    {"id": "source-example-order-20", "input_value": 20, "expected_result": 19408891927},
+    {"id": "canonical-order-35", "input_value": 35, "expected_result": 285196020571078987},
+    {"id": "zero-order", "input_value": 0, "expected_result": -1},
+    {"id": "above-supported-order", "input_value": 36, "expected_result": -1}
+  ]
+}

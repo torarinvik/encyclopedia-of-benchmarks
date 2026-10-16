@@ -10,9 +10,9 @@ fn isBinaryDigit(value: i64) bool {
     return value == '0' or value == '1';
 }
 
-export fn binary_to_excess3(values: [*]const i64, length: usize,
+export fn binary_to_excess3(values: [*c]const i64, length: usize,
     output: [*]u8, output_capacity: usize) i64 {
-    if (length == 0 or length > max_text_length) return -1;
+    if (values == null or length == 0 or length > max_text_length) return -1;
     var start: usize = 0;
     var end = length;
     while (start < end and isAsciiSpace(values[start])) : (start += 1) {}

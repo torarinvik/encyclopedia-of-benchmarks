@@ -1,0 +1,85 @@
+const MAX_VERTICES: usize = 64
+const MAX_EDGES: usize = 256
+const MAX_INPUT_LENGTH: usize = 4 + 3 * MAX_EDGES
+const MAX_DEQUE_CAPACITY: usize = MAX_VERTICES * MAX_VERTICES + 1
+
+def breadth_first_search_zero_one_shortest_path_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+        return -2
+    vertex_value: i64 = input[0]
+    edge_value: i64 = input[1]
+    start_value: i64 = input[2]
+    finish_value: i64 = input[3]
+    if vertex_value < 1 or vertex_value > 64 or edge_value < 0 or edge_value > 256:
+        return -2
+    vertices: usize = vertex_value.usize()
+    edges: usize = edge_value.usize()
+    if length != 4 + 3 * edges or start_value < 0 or start_value >= vertex_value or
+       finish_value < 0 or finish_value >= vertex_value:
+        return -2
+
+    edge_to: mutable usize[256] = zeroed
+    edge_weight: mutable i64[256] = zeroed
+    next_edge: mutable i64[256] = zeroed
+    head_edge: mutable i64[64] = zeroed
+    tail_edge: mutable i64[64] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        head_edge[vertex] <- -1
+        tail_edge[vertex] <- -1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge < edges:
+        from_value: i64 = input[4 + 3 * edge]
+        to_value: i64 = input[5 + 3 * edge]
+        weight_value: i64 = input[6 + 3 * edge]
+        if from_value < 0 or from_value >= vertex_value or to_value < 0 or to_value >= vertex_value or
+           (weight_value != 0 and weight_value != 1):
+            return -2
+        source: usize = from_value.usize()
+        edge_to[edge] <- to_value.usize()
+        edge_weight[edge] <- weight_value
+        next_edge[edge] <- -1
+        if head_edge[source] < 0:
+            head_edge[source] <- edge.i64()
+        else:
+            next_edge[tail_edge[source].usize()] <- edge.i64()
+        tail_edge[source] <- edge.i64()
+        edge <- edge + 1
+
+    start: usize = start_value.usize()
+    finish: usize = finish_value.usize()
+    distance: mutable i64[64] = zeroed
+    vertex <- 0
+    while vertex < vertices:
+        distance[vertex] <- 1000000000
+        vertex <- vertex + 1
+    deque: mutable usize[4097] = zeroed
+    deque_head: mutable usize = 0
+    deque_count: mutable usize = 1
+    distance[start] <- 0
+    deque[0] <- start
+    while deque_count > 0:
+        node: usize = deque[deque_head]
+        deque_head <- (deque_head + 1) % MAX_DEQUE_CAPACITY
+        deque_count <- deque_count - 1
+        edge_index: mutable i64 = head_edge[node]
+        while edge_index >= 0:
+            edge: usize = edge_index.usize()
+            neighbor: usize = edge_to[edge]
+            candidate: i64 = distance[node] + edge_weight[edge]
+            if candidate < distance[neighbor]:
+                distance[neighbor] <- candidate
+                if edge_weight[edge] == 0:
+                    deque_head <- (deque_head + MAX_DEQUE_CAPACITY - 1) % MAX_DEQUE_CAPACITY
+                    deque[deque_head] <- neighbor
+                else:
+                    deque[(deque_head + deque_count) % MAX_DEQUE_CAPACITY] <- neighbor
+                deque_count <- deque_count + 1
+            edge_index <- next_edge[edge]
+    if distance[finish] == 1000000000:
+        return -1
+    distance[finish]
+
+export fn breadth_first_search_zero_one_shortest_path(input: i64&, length: usize) -> i64 =
+    breadth_first_search_zero_one_shortest_path_impl

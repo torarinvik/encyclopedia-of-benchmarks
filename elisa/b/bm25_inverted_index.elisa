@@ -1,0 +1,81 @@
+# Build a bounded term-to-document table and rank one query by BM25.
+def bm25_inverted_index_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 2114:
+        return -2
+    document_count_value: i64 = values[0]
+    if document_count_value < 0 or document_count_value > 32:
+        return -2
+    document_count: usize = document_count_value.usize()
+    if values[length - 1] < 1 or values[length - 1] > 255:
+        return -2
+    query: i64 = values[length - 1]
+    frequency: mutable i64[32] = zeroed
+    document_length: mutable i64[32] = zeroed
+    document_id: mutable i64[32] = zeroed
+    seen_ids: mutable bool[256] = zeroed
+    offset: mutable usize = 1
+    total_terms: mutable i64 = 0
+    document: mutable usize = 0
+    while document < document_count:
+        if offset + 2 > length - 1:
+            return -2
+        id: i64 = values[offset]
+        term_count_value: i64 = values[offset + 1]
+        offset <- offset + 2
+        if id < 0 or id > 255 or term_count_value < 0 or term_count_value > 64:
+            return -2
+        id_index: usize = id.usize()
+        term_count: usize = term_count_value.usize()
+        if seen_ids[id_index] or term_count > length - 1 - offset:
+            return -2
+        seen_ids[id_index] <- true
+        document_id[document] <- id
+        document_length[document] <- term_count_value
+        total_terms <- total_terms + term_count_value
+        item: mutable usize = 0
+        while item < term_count:
+            term_value: i64 = values[offset]
+            offset <- offset + 1
+            if term_value < 1 or term_value > 255:
+                return -2
+            if term_value == query:
+                frequency[document] <- frequency[document] + 1
+            item <- item + 1
+        document <- document + 1
+    if offset != length - 1:
+        return -2
+
+    result_id: mutable i64[32] = zeroed
+    result_tf: mutable i64[32] = zeroed
+    result_denominator: mutable i64[32] = zeroed
+    result_count: mutable usize = 0
+    document <- 0
+    while document < document_count:
+        tf: i64 = frequency[document]
+        if tf > 0:
+            denominator: i64 = 8 * total_terms * tf + 3 * total_terms + 9 * document_count_value * document_length[document]
+            position: mutable usize = result_count
+            while position > 0:
+                previous: usize = position - 1
+                left: i64 = tf * result_denominator[previous]
+                right: i64 = result_tf[previous] * denominator
+                if left < right or (left == right and document_id[document] > result_id[previous]):
+                    break
+                result_id[position] <- result_id[previous]
+                result_tf[position] <- result_tf[previous]
+                result_denominator[position] <- result_denominator[previous]
+                position <- position - 1
+            result_id[position] <- document_id[document]
+            result_tf[position] <- tf
+            result_denominator[position] <- denominator
+            result_count <- result_count + 1
+        document <- document + 1
+    if output_capacity < result_count:
+        return -2
+    index: mutable usize = 0
+    while index < result_count:
+        output[index] <- result_id[index].u8()
+        index <- index + 1
+    result_count.i64()
+
+export fn bm25_inverted_index(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bm25_inverted_index_impl

@@ -293,6 +293,32 @@ def binary_tree_node_sum_oracle(nodes: list[list[int]], root_index: int) -> int:
     return total
 
 
+def binary_tree_node_count_oracle(nodes: list[list[int]], root_index: int) -> int:
+    count = len(nodes)
+    invalid = -9_000_000_000_000_000_000
+    if not 1 <= count <= 900 or type(root_index) is not int or not 0 <= root_index < count:
+        return invalid
+    stack = [root_index]
+    seen: set[int] = set()
+    while stack:
+        node = stack.pop()
+        if node in seen:
+            return invalid
+        seen.add(node)
+        row = nodes[node]
+        if (not isinstance(row, list) or len(row) != 3
+                or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in row)):
+            return invalid
+        _, left, right = row
+        if left < -1 or left >= count or right < -1 or right >= count:
+            return invalid
+        if right >= 0:
+            stack.append(right)
+        if left >= 0:
+            stack.append(left)
+    return len(seen)
+
+
 def bst_iterator_oracle(nodes: list[list[int]], root_index: int) -> int:
     count = len(nodes)
     if not 0 <= count <= MAX_NODE_COUNT or type(root_index) is not int:
@@ -535,6 +561,8 @@ def oracle(nodes: list[list[int]], root_index: int, algorithm: str) -> int:
         return binary_tree_maximum_path_sum_oracle(nodes, root_index)
     if algorithm == "binary_tree_node_sum":
         return binary_tree_node_sum_oracle(nodes, root_index)
+    if algorithm == "binary_tree_node_count":
+        return binary_tree_node_count_oracle(nodes, root_index)
     if algorithm == "bst_iterator":
         return bst_iterator_oracle(nodes, root_index)
     if algorithm == "validate_bst":

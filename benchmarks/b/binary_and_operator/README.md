@@ -15,13 +15,14 @@ int64_t binary_and_operator(const int64_t *input, size_t length,
 
 ## Workload
 
-[`workload.json`](workload.json) covers the pinned examples, zero, equal operands, disjoint bits, and signed-32-bit maximum operands.
+[`workload.json`](workload.json) covers the pinned examples, zero, equal operands, disjoint bits, signed-32-bit maximum operands, and an insufficient output buffer.
 
 The shared byte-output runner validates the two operands, applies the width rule above, and returns the padded ASCII bit string.
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm binary_and_operator --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --algorithm binary_and_operator
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm binary_and_operator --languages rust
 ```
 
 ## Implementations

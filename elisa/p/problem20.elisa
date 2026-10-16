@@ -1,0 +1,29 @@
+# Sum the digits of n! with little-endian decimal multiplication.
+def problem20_impl(n: i64) -> i64:
+    if n < 0 or n > 100:
+        return -1
+    digits: mutable i64[200] = zeroed
+    digits[0] <- 1
+    length: mutable i64 = 1
+    factor: mutable i64 = 2
+    while factor <= n:
+        carry: mutable i64 = 0
+        index: mutable i64 = 0
+        while index < length:
+            value: i64 = digits[index.usize()] * factor + carry
+            digits[index.usize()] <- value % 10
+            carry <- value / 10
+            index <- index + 1
+        while carry > 0:
+            digits[length.usize()] <- carry % 10
+            length <- length + 1
+            carry <- carry / 10
+        factor <- factor + 1
+    sum: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < length:
+        sum <- sum + digits[index.usize()]
+        index <- index + 1
+    sum
+
+export fn problem20(n: i64) -> i64 = problem20_impl

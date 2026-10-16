@@ -1,0 +1,43 @@
+const MAX_EGGS: usize = 12
+const MAX_FLOORS: usize = 128
+const FLOOR_WIDTH: usize = 129
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def egg_dropping_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2:
+        return INVALID_RESULT
+    eggs_value: i64 = input[0]
+    floors_value: i64 = input[1]
+    if eggs_value < 1 or eggs_value > 12 or floors_value < 1 or floors_value > 128:
+        return INVALID_RESULT
+
+    eggs: usize = eggs_value.usize()
+    floors: usize = floors_value.usize()
+    dp: mutable i64[1677] = zeroed
+    egg: mutable usize = 1
+    while egg <= eggs:
+        dp[egg * FLOOR_WIDTH + 1] <- 1
+        egg <- egg + 1
+    floor: mutable usize = 1
+    while floor <= floors:
+        dp[FLOOR_WIDTH + floor] <- floor.i64()
+        floor <- floor + 1
+    egg <- 2
+    while egg <= eggs:
+        floor <- 2
+        while floor <= floors:
+            best: mutable i64 = 9223372036854775807
+            drop: mutable usize = 1
+            while drop <= floor:
+                breaks: i64 = dp[(egg - 1) * FLOOR_WIDTH + drop - 1]
+                survives: i64 = dp[egg * FLOOR_WIDTH + floor - drop]
+                worst: i64 = 1 + if breaks > survives then breaks else survives
+                if worst < best:
+                    best <- worst
+                drop <- drop + 1
+            dp[egg * FLOOR_WIDTH + floor] <- best
+            floor <- floor + 1
+        egg <- egg + 1
+    dp[eggs * FLOOR_WIDTH + floors]
+
+export fn egg_dropping(input: i64&, length: usize) -> i64 = egg_dropping_impl

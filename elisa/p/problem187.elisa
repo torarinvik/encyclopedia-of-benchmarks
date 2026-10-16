@@ -1,0 +1,65 @@
+def problem187_impl(max_number: i64) -> i64:
+    if max_number < 0 or max_number > 100000000:
+        return -1
+    prime_limit: i64 = max_number / 2
+    if prime_limit <= 2:
+        return 0
+
+    composite: mutable u64[781250] = zeroed
+    prime: mutable i64 = 2
+    while prime <= (prime_limit - 1) / prime:
+        prime_word: usize = (prime / 64).usize()
+        prime_mask: u64 = 1.u64() << (prime % 64).u32()
+        if (composite[prime_word] & prime_mask) == 0:
+            multiple: mutable i64 = prime * prime
+            while multiple < prime_limit:
+                word: usize = (multiple / 64).usize()
+                mask: u64 = 1.u64() << (multiple % 64).u32()
+                composite[word] <- composite[word] | mask
+                multiple <- multiple + prime
+        prime <- prime + 1
+    composite[0] <- composite[0] | 3.u64()
+
+    right_value: mutable i64 = prime_limit - 1
+    while right_value >= 2:
+        word: usize = (right_value / 64).usize()
+        mask: u64 = 1.u64() << (right_value % 64).u32()
+        if (composite[word] & mask) == 0:
+            break
+        right_value <- right_value - 1
+    if right_value < 2:
+        return 0
+    prime_count: mutable i64 = 0
+    value: mutable i64 = 2
+    while value <= right_value:
+        word: usize = (value / 64).usize()
+        mask: u64 = 1.u64() << (value % 64).u32()
+        if (composite[word] & mask) == 0:
+            prime_count <- prime_count + 1
+        value <- value + 1
+
+    right_rank: mutable i64 = prime_count - 1
+    left_rank: mutable i64 = 0
+    count: mutable i64 = 0
+    left_value: mutable i64 = 2
+    while left_value <= right_value:
+        left_word: usize = (left_value / 64).usize()
+        left_mask: u64 = 1.u64() << (left_value % 64).u32()
+        if (composite[left_word] & left_mask) == 0:
+            while right_rank >= left_rank and left_value * right_value >= max_number:
+                right_rank <- right_rank - 1
+                right_value <- right_value - 1
+                while right_value >= 2:
+                    word: usize = (right_value / 64).usize()
+                    mask: u64 = 1.u64() << (right_value % 64).u32()
+                    if (composite[word] & mask) == 0:
+                        break
+                    right_value <- right_value - 1
+            if right_rank < left_rank:
+                break
+            count <- count + right_rank - left_rank + 1
+            left_rank <- left_rank + 1
+        left_value <- left_value + 1
+    count
+
+export fn problem187(max_number: i64) -> i64 = problem187_impl

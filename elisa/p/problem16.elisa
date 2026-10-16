@@ -1,0 +1,29 @@
+# Sum digits after repeated decimal multiplication by two.
+def problem16_impl(exponent: i64) -> i64:
+    if exponent < 0 or exponent > 1000:
+        return -1
+    digits: mutable i64[400] = zeroed
+    digits[0] <- 1
+    length: mutable i64 = 1
+    power: mutable i64 = 0
+    while power < exponent:
+        carry: mutable i64 = 0
+        index: mutable i64 = 0
+        while index < length:
+            value: i64 = digits[index.usize()] * 2 + carry
+            digits[index.usize()] <- value % 10
+            carry <- value / 10
+            index <- index + 1
+        while carry > 0:
+            digits[length.usize()] <- carry % 10
+            length <- length + 1
+            carry <- carry / 10
+        power <- power + 1
+    sum: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < length:
+        sum <- sum + digits[index.usize()]
+        index <- index + 1
+    sum
+
+export fn problem16(exponent: i64) -> i64 = problem16_impl

@@ -1,0 +1,93 @@
+def integer_to_english_append_text(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+    index: usize = 0
+    while index < text.len():
+        buffer[position] <- text.byte(index)
+        position <- position + 1
+        index <- index + 1
+
+def integer_to_english_append_word(buffer: mutable u8&, position: mutable usize&, text: &str) -> void:
+    if position > 0:
+        buffer[position] <- 32u8
+        position <- position + 1
+    integer_to_english_append_text(buffer, position, text)
+
+def integer_to_english_append_small(buffer: mutable u8&, position: mutable usize&, value: i64) -> void:
+    word: &str = ""
+    if value == 1: word = "One"
+    else if value == 2: word = "Two"
+    else if value == 3: word = "Three"
+    else if value == 4: word = "Four"
+    else if value == 5: word = "Five"
+    else if value == 6: word = "Six"
+    else if value == 7: word = "Seven"
+    else if value == 8: word = "Eight"
+    else if value == 9: word = "Nine"
+    else if value == 10: word = "Ten"
+    else if value == 11: word = "Eleven"
+    else if value == 12: word = "Twelve"
+    else if value == 13: word = "Thirteen"
+    else if value == 14: word = "Fourteen"
+    else if value == 15: word = "Fifteen"
+    else if value == 16: word = "Sixteen"
+    else if value == 17: word = "Seventeen"
+    else if value == 18: word = "Eighteen"
+    else if value == 19: word = "Nineteen"
+    else if value == 20: word = "Twenty"
+    if word.len() > 0: integer_to_english_append_word(buffer, position, word)
+
+def integer_to_english_append_group(buffer: mutable u8&, position: mutable usize&, value_input: i64) -> void:
+    value: mutable i64 = value_input
+    if value >= 100:
+        integer_to_english_append_small(buffer, position, value / 100)
+        integer_to_english_append_word(buffer, position, "Hundred")
+        value <- value % 100
+    if value <= 20:
+        integer_to_english_append_small(buffer, position, value)
+    else:
+        tens: &str = ""
+        if value / 10 == 2: tens = "Twenty"
+        else if value / 10 == 3: tens = "Thirty"
+        else if value / 10 == 4: tens = "Forty"
+        else if value / 10 == 5: tens = "Fifty"
+        else if value / 10 == 6: tens = "Sixty"
+        else if value / 10 == 7: tens = "Seventy"
+        else if value / 10 == 8: tens = "Eighty"
+        else if value / 10 == 9: tens = "Ninety"
+        integer_to_english_append_word(buffer, position, tens)
+        if value % 10 != 0: integer_to_english_append_small(buffer, position, value % 10)
+
+def integer_to_english_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length != 1:
+        return -1
+    if input[0] < -2147483648 or input[0] > 2147483647:
+        return -1
+    buffer: mutable u8[128] = zeroed
+    position: mutable usize = 0
+    value: mutable i64 = input[0]
+    if value == 0:
+        integer_to_english_append_word(buffer, position, "Zero")
+    else if value > 0:
+        groups: mutable i64[4] = zeroed
+        count: mutable usize = 0
+        while value != 0:
+            groups[count] <- value % 1000
+            count <- count + 1
+            value <- value / 1000
+        while count > 0:
+            count <- count - 1
+            if groups[count] != 0:
+                integer_to_english_append_group(buffer, position, groups[count])
+                scale: &str = ""
+                if count == 1: scale = "Thousand"
+                else if count == 2: scale = "Million"
+                else if count == 3: scale = "Billion"
+                if scale.len() > 0: integer_to_english_append_word(buffer, position, scale)
+    if position > output_capacity or (position != 0 and output == null):
+        return -2
+    index: usize = 0
+    while index < position:
+        output[index] <- buffer[index]
+        index <- index + 1
+    position.i64()
+
+export fn integer_to_english(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = integer_to_english_impl

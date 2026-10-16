@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-800-hybrid-integers-v1",
+  "algorithm": "problem800",
+  "function_symbol": "problem800",
+  "input": {
+    "kind": "base_and_degree",
+    "base_range": [2, 1000000],
+    "degree_range": [1, 1000000],
+    "definition": "Compute the pinned source's count using upper_bound=degree*log2(base), primes below int(upper_bound), and its decreasing-right-pointer traversal.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count prime pairs according to the pinned source's binary64 logarithm comparisons and pointer traversal.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "small-base-small-degree", "input_values": [2, 5], "expected_result": 0},
+    {"id": "source-small-pointer-behavior", "input_values": [2, 20], "expected_result": 5},
+    {"id": "source-example-base-800-degree-one", "input_values": [800, 1], "expected_result": 2},
+    {"id": "source-example-base-and-degree-800", "input_values": [800, 800], "expected_result": 10790},
+    {"id": "canonical-default", "input_values": [800800, 800800], "expected_result": 1412403576},
+    {"id": "base-below-bound", "input_values": [1, 800], "expected_result": -1},
+    {"id": "zero-degree", "input_values": [800, 0], "expected_result": -1},
+    {"id": "base-above-bound", "input_values": [1000001, 800], "expected_result": -1},
+    {"id": "degree-above-bound", "input_values": [800, 1000001], "expected_result": -1},
+    {"id": "signed-64-bit-extremes", "input_values": [-9223372036854775808, 9223372036854775807], "expected_result": -1}
+  ]
+}

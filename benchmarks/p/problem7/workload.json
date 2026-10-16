@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-7-scalar-v1",
+  "algorithm": "problem7",
+  "function_symbol": "problem7",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "index_range": [1, 10001],
+    "meaning": "one-based position in the ascending sequence of prime numbers",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"first_prime","input_value":1,"expected_result":2},
+    {"id":"second_prime","input_value":2,"expected_result":3},
+    {"id":"third_prime","input_value":3,"expected_result":5},
+    {"id":"sixth_prime_example","input_value":6,"expected_result":13},
+    {"id":"hundredth_prime","input_value":100,"expected_result":541},
+    {"id":"thousandth_prime","input_value":1000,"expected_result":7919},
+    {"id":"project_euler_instance","input_value":10001,"expected_result":104743},
+    {"id":"zero_index","input_value":0,"expected_result":-1},
+    {"id":"negative_index","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":10002,"expected_result":-1}
+  ]
+}

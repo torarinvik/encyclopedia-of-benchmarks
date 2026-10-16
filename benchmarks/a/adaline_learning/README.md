@@ -12,4 +12,8 @@ The source initializes all weights and the bias to 1 and updates samples in inpu
 
 Output is little-endian signed-i32 values: `[completed_epochs, scaled_weight_0, ..., scaled_weight_(feature_count-1), scaled_bias, final_prediction_0, ..., final_prediction_(sample_count-1)]`. The function returns the output byte count, `-1` for malformed input, or `-2` when the output buffer is too small.
 
-The workload includes the pinned C demo's fixed ten-row dataset, convergence, iteration-limit, and malformed-input cases. Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`.
+The workload includes the pinned C demo's fixed ten-row dataset, convergence, iteration-limit, and malformed-input cases. Build with the `i64_array_bytes_output` ABI family and record with `benchmarks/run_i64_array_bytes_output.py`; run the independent cross-language verifier with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm adaline_learning --languages rust
+```

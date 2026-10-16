@@ -1,0 +1,32 @@
+# Find the first odd prime index whose source remainder exceeds the limit.
+const MAX_LIMIT: i64 = 10000000000
+const PRIME_LIMIT: usize = 300000
+
+def problem123_impl(limit: i64) -> i64:
+    if limit > MAX_LIMIT:
+        return -1
+    composite: mutable bool[300001] = zeroed
+    factor: mutable i64 = 2
+    while factor * factor <= PRIME_LIMIT.i64():
+        if not composite[factor.usize()]:
+            multiple: mutable i64 = factor * factor
+            while multiple <= PRIME_LIMIT.i64():
+                composite[multiple.usize()] <- true
+                multiple <- multiple + factor
+        factor <- factor + 1
+    n: mutable i64 = 1
+    skip_next: mutable bool = false
+    candidate: mutable i64 = 2
+    while candidate <= PRIME_LIMIT.i64():
+        if not composite[candidate.usize()]:
+            if skip_next:
+                skip_next <- false
+            else:
+                if 2 * candidate * n > limit:
+                    return n
+                skip_next <- true
+                n <- n + 2
+        candidate <- candidate + 1
+    -1
+
+export fn problem123(limit: i64) -> i64 = problem123_impl

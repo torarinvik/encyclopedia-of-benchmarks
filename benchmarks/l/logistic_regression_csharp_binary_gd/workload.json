@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "id": "csharp-binary-logistic-regression-full-batch-gd-probability-v1",
+  "algorithm": "logistic_regression_csharp_binary_gd",
+  "function_symbol": "logistic_regression_csharp_binary_gd",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[sample_count, feature_count, epochs, learning_rate_q1e6, row_major_training_features_q1e6..., labels..., query_features_q1e6...]",
+    "sample_count_range": [
+      1,
+      32
+    ],
+    "feature_count_range": [
+      1,
+      8
+    ],
+    "epochs_range": [
+      0,
+      128
+    ],
+    "learning_rate_q1e6_range": [
+      1,
+      100000
+    ],
+    "training_feature_q1e6_range": [
+      -1000000,
+      1000000
+    ],
+    "query_feature_q1e6_range": [
+      -1000000,
+      1000000
+    ],
+    "label_values": [
+      0,
+      1
+    ],
+    "length_formula": "4 + sample_count * feature_count + sample_count + feature_count",
+    "conversion": "Features and the learning rate are divided by 1,000,000. Labels remain 0 or 1.",
+    "training_rule": "Initialize weights and bias to zero. For each epoch, visit samples in input order, accumulate full-batch weight and bias gradients from sigmoid(dot(features, weights) + bias) - label, then update weights in feature order and bias separately using the mean gradient.",
+    "invalid_input_result": -1e+300,
+    "maximum_input_length": 300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Predicted probability for the packed query feature vector after training.",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_epochs_probability_is_half",
+      "input_values": [
+        2,
+        1,
+        0,
+        100000,
+        1000000,
+        -1000000,
+        1,
+        0,
+        250000
+      ],
+      "input_length": 9,
+      "expected_result": 0.5
+    },
+    {
+      "id": "one_epoch_positive_label",
+      "input_values": [
+        1,
+        1,
+        1,
+        100000,
+        1000000,
+        1,
+        1000000
+      ],
+      "input_length": 7,
+      "expected_result": 0.52497918747894
+    },
+    {
+      "id": "one_epoch_negative_label",
+      "input_values": [
+        1,
+        1,
+        1,
+        100000,
+        1000000,
+        0,
+        1000000
+      ],
+      "input_length": 7,
+      "expected_result": 0.47502081252106
+    },
+    {
+      "id": "intercept_learns_with_zero_features",
+      "input_values": [
+        1,
+        2,
+        1,
+        100000,
+        0,
+        0,
+        1,
+        1000000,
+        -1000000
+      ],
+      "input_length": 9,
+      "expected_result": 0.5124973964842103
+    },
+    {
+      "id": "symmetric_feature_gradients_cancel_at_query_zero",
+      "input_values": [
+        2,
+        1,
+        1,
+        100000,
+        -1000000,
+        1000000,
+        0,
+        1,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 0.5
+    },
+    {
+      "id": "multiple_epochs_one_feature",
+      "input_values": [
+        4,
+        1,
+        12,
+        50000,
+        -1000000,
+        -500000,
+        500000,
+        1000000,
+        0,
+        0,
+        1,
+        1,
+        750000
+      ],
+      "input_length": 13,
+      "expected_result": 0.5403359608125092
+    },
+    {
+      "id": "mixed_two_feature_batch",
+      "input_values": [
+        4,
+        2,
+        16,
+        50000,
+        -1000000,
+        0,
+        0,
+        -1000000,
+        1000000,
+        1000000,
+        500000,
+        -500000,
+        0,
+        0,
+        1,
+        1,
+        250000,
+        -250000
+      ],
+      "input_length": 18,
+      "expected_result": 0.50577410796456
+    },
+    {
+      "id": "three_feature_small_rate",
+      "input_values": [
+        3,
+        3,
+        32,
+        1,
+        1000000,
+        0,
+        -1000000,
+        0,
+        1000000,
+        1000000,
+        -1000000,
+        0,
+        0,
+        1,
+        1,
+        1000000,
+        0,
+        -1000000
+      ],
+      "input_length": 18,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "larger_bounded_batch",
+      "input_values": [
+        8,
+        2,
+        40,
+        250000,
+        -1000000,
+        -500000,
+        -500000,
+        1000000,
+        0,
+        0,
+        500000,
+        500000,
+        -1000000,
+        1000000,
+        1000000,
+        -1000000,
+        1000000,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1000000,
+        -750000
+      ],
+      "input_length": 27,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_header",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_query_feature",
+      "input_values": [
+        1,
+        1,
+        1,
+        100000,
+        1000000,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        1,
+        1,
+        1,
+        100000,
+        1000000,
+        1,
+        0,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_samples",
+      "input_values": [
+        0,
+        1,
+        0,
+        100000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "feature_count_above_bound",
+      "input_values": [
+        1,
+        9,
+        0,
+        100000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "epochs_above_bound",
+      "input_values": [
+        1,
+        1,
+        129,
+        100000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "learning_rate_below_bound",
+      "input_values": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "training_feature_above_bound",
+      "input_values": [
+        1,
+        1,
+        0,
+        100000,
+        1000001,
+        1,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "non_binary_label",
+      "input_values": [
+        1,
+        1,
+        0,
+        100000,
+        0,
+        2,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "query_feature_below_bound",
+      "input_values": [
+        1,
+        1,
+        0,
+        100000,
+        0,
+        1,
+        -1000001
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    }
+  ]
+}

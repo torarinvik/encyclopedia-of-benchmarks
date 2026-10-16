@@ -3,6 +3,10 @@
   "id": "serialize-deserialize-binary-tree-v1",
   "algorithm": "serialize_deserialize_binary_tree",
   "function_symbol": "serialize_deserialize_binary_tree",
+  "workspace": {
+    "bytes": 2200,
+    "meaning": "Maximum canonical output buffer for a valid tree with up to 127 nodes."
+  },
   "input": {
     "kind": "ascii_byte_array",
     "encoding": "ASCII comma-separated preorder tree tokens with explicit null children",
@@ -175,6 +179,26 @@
       ],
       "input_length": 5,
       "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        49,
+        44,
+        110,
+        117,
+        108,
+        108,
+        44,
+        110,
+        117,
+        108,
+        108
+      ],
+      "input_length": 11,
+      "workspace_bytes": 10,
+      "expected_result": -2,
       "expected_output_hex": ""
     }
   ]

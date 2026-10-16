@@ -1,0 +1,81 @@
+# Sort bounded decimal strings by normalized length and lexicographic order.
+def numeric_token_less(values: i64&, left_start: usize, left_length: usize,
+                       right_start: usize, right_length: usize) -> bool:
+    if left_length != right_length: return left_length < right_length
+    for index in 0..<left_length:
+        if values[left_start + index] != values[right_start + index]:
+            return values[left_start + index] < values[right_start + index]
+    return false
+
+def numeric_string_sort_impl(values: i64&, length: usize,
+                             output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length == 0 or length > 2114: return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    starts: mutable usize[64] = zeroed
+    token_lengths: mutable usize[64] = zeroed
+    normalized_starts: mutable usize[64] = zeroed
+    normalized_lengths: mutable usize[64] = zeroed
+    order: mutable usize[64] = zeroed
+    cursor: mutable usize = 1
+    output_length: mutable usize = if count == 0: 0 else: count - 1
+
+    for item in 0..<count:
+        if cursor >= length: return -1
+        token_length_value: i64 = values[cursor]
+        cursor <- cursor + 1
+        if token_length_value < 1 or token_length_value > 32: return -1
+        token_length: usize = token_length_value.usize()
+        if token_length > length - cursor: return -1
+        start: usize = cursor
+        for offset in 0..<token_length:
+            if values[start + offset] < 48 or values[start + offset] > 57: return -1
+        zeros: mutable usize = 0
+        while zeros < token_length and values[start + zeros] == 48:
+            zeros <- zeros + 1
+        starts[item] <- start
+        token_lengths[item] <- token_length
+        normalized_starts[item] <- start + zeros
+        normalized_lengths[item] <- token_length - zeros
+
+        for previous in 0..<item:
+            if normalized_lengths[previous] != normalized_lengths[item]: continue
+            equal: mutable bool = true
+            for offset in 0..<normalized_lengths[item]:
+                if values[normalized_starts[previous] + offset] != values[normalized_starts[item] + offset]:
+                    equal <- false
+                    break
+            if equal:
+                if token_lengths[previous] != token_length: return -1
+                for offset in 0..<token_length:
+                    if values[starts[previous] + offset] != values[start + offset]: return -1
+        output_length <- output_length + token_length
+        cursor <- cursor + token_length
+        order[item] <- item
+
+    if cursor != length or output_length > 2111: return -1
+    for index in 1..<count:
+        key: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and numeric_token_less(values,
+              normalized_starts[key], normalized_lengths[key],
+              normalized_starts[order[position - 1]], normalized_lengths[order[position - 1]]):
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- key
+
+    if (output.is_null() and output_length != 0) or output_capacity < output_length: return -2
+    written: mutable usize = 0
+    for index in 0..<count:
+        if index != 0:
+            output[written] <- 32.u8()
+            written <- written + 1
+        item: usize = order[index]
+        for offset in 0..<token_lengths[item]:
+            output[written] <- values[starts[item] + offset].u8()
+            written <- written + 1
+    return output_length.i64()
+
+export fn numeric_string_sort(values: i64&, length: usize,
+                              output: mutable u8&, output_capacity: usize) -> i64 = numeric_string_sort_impl

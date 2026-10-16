@@ -1,0 +1,43 @@
+def problem174_ceil_sqrt(value: i64) -> i64:
+    if value <= 0:
+        return 0
+    root: mutable i64 = value
+    next: mutable i64 = (root + value / root) / 2
+    while next < root:
+        root <- next
+        next <- (root + value / root) / 2
+    if root * root == value:
+        return root
+    root + 1
+
+def problem174_impl(t_limit: i64, n_limit: i64) -> i64:
+    if t_limit > 1000000:
+        return -1
+    if t_limit < 0:
+        return 0
+    count: mutable u8[1000001] = zeroed
+    outer_width: mutable i64 = 3
+    while outer_width < t_limit / 4 + 2:
+        outer_area: i64 = outer_width * outer_width
+        hole_lower: mutable i64 = 1
+        if outer_area > t_limit:
+            hole_lower <- problem174_ceil_sqrt(outer_area - t_limit)
+            if hole_lower < 1:
+                hole_lower <- 1
+        if (outer_width - hole_lower) % 2 != 0:
+            hole_lower <- hole_lower + 1
+        hole_width: mutable i64 = hole_lower
+        while hole_width < outer_width - 1:
+            tiles: i64 = outer_area - hole_width * hole_width
+            count[tiles.usize()] <- count[tiles.usize()] + 1
+            hole_width <- hole_width + 2
+        outer_width <- outer_width + 1
+    answer: mutable i64 = 0
+    tiles: mutable i64 = 1
+    while tiles <= t_limit:
+        if count[tiles.usize()] >= 1 && count[tiles.usize()] <= n_limit:
+            answer <- answer + 1
+        tiles <- tiles + 1
+    answer
+
+export fn problem174(t_limit: i64, n_limit: i64) -> i64 = problem174_impl

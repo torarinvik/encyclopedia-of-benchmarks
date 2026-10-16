@@ -1,0 +1,48 @@
+def count_reversible(remaining: i64, carry_in: i64, digits: mutable i64[9], length: i64) -> i64:
+    if remaining == 0:
+        if digits[0] == 0 or digits[(length - 1).usize()] == 0: return 0
+        carry: mutable i64 = carry_in
+        i: mutable i64 = length / 2 - 1
+        while i >= 0:
+            carry <- carry + digits[i.usize()] + digits[(length - i - 1).usize()]
+            if carry % 2 == 0: return 0
+            carry <- carry / 10
+            i <- i - 1
+        return 1
+    if remaining == 1:
+        if carry_in % 2 == 0: return 0
+        result: mutable i64 = 0
+        digit: mutable i64 = 0
+        while digit < 10:
+            digits[(length / 2).usize()] <- digit
+            result <- result + count_reversible(0, (carry_in + 2 * digit) / 10, digits, length)
+            digit <- digit + 1
+        return result
+    result: mutable i64 = 0
+    right_index: i64 = (length + remaining) / 2 - 1
+    left_index: i64 = (length - remaining) / 2
+    digit1: mutable i64 = 0
+    while digit1 < 10:
+        digits[right_index.usize()] <- digit1
+        parity: i64 = if (carry_in + digit1) % 2 == 0: 1 else: 0
+        digit2: mutable i64 = parity
+        while digit2 < 10:
+            digits[left_index.usize()] <- digit2
+            result <- result + count_reversible(remaining - 2, (carry_in + digit1 + digit2) / 10, digits, length)
+            digit2 <- digit2 + 2
+        digit1 <- digit1 + 1
+    result
+
+def problem145_impl(max_power: i64) -> i64:
+    if max_power > 9: return -1
+    if max_power <= 0: return 0
+    digits: mutable i64[9] = zeroed
+    total: mutable i64 = 0
+    length: mutable i64 = 1
+    while length <= max_power:
+        if (length - 1) % 4 != 0:
+            total <- total + count_reversible(length, 0, digits, length)
+        length <- length + 1
+    total
+
+export fn problem145(max_power: i64) -> i64 = problem145_impl

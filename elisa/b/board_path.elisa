@@ -1,0 +1,20 @@
+def board_path(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    start: i64 = input[0]
+    end: i64 = input[1]
+    if start < 0 or end < 0 or start > 30 or end > 30 or start > end:
+        return -1
+    ways: mutable i64[31] = zeroed
+    ways[end.usize()] <- 1
+    if end > start:
+        i: mutable i64 = end - 1
+        while i >= start:
+            die: mutable i64 = 1
+            while die <= 6 and i + die <= end:
+                ways[i.usize()] <- ways[i.usize()] + ways[(i + die).usize()]
+                die <- die + 1
+            i <- i - 1
+    return ways[start.usize()]
+
+export fn board_path(input: i64&, length: usize) i64 = board_path

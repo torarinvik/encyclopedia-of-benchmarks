@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-75-singular-integer-right-triangles-v1",
+  "algorithm": "problem75",
+  "function_symbol": "problem75",
+  "input": {
+    "kind": "inclusive_perimeter_limit",
+    "minimum": 0,
+    "maximum": 1500000,
+    "above_maximum_result": -1,
+    "negative_limit_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of perimeter values no greater than the limit that admit exactly one integer-sided right triangle."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "small_exact_example",
+      "input_value": 50,
+      "expected_result": 6
+    },
+    {
+      "id": "source_example_one_thousand",
+      "input_value": 1000,
+      "expected_result": 112
+    },
+    {
+      "id": "source_example_fifty_thousand",
+      "input_value": 50000,
+      "expected_result": 5502
+    },
+    {
+      "id": "canonical_one_point_five_million",
+      "input_value": 1500000,
+      "expected_result": 161667
+    },
+    {
+      "id": "zero_limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_empty_search",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "above_benchmark_bound",
+      "input_value": 1500001,
+      "expected_result": -1
+    }
+  ]
+}

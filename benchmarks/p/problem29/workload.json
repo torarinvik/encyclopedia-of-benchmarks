@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-29-scalar-v1",
+  "algorithm": "problem29",
+  "function_symbol": "problem29",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [
+      1,
+      100
+    ],
+    "meaning": "inclusive upper bound n for both a and b in 2 <= a,b <= n",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of distinct exact integer powers a^b in the bounded domain"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_term_set",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_power",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "first_four_powers",
+      "input_value": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "statement_example_15",
+      "input_value": 5,
+      "expected_result": 15
+    },
+    {
+      "id": "documented_limit_20",
+      "input_value": 20,
+      "expected_result": 324
+    },
+    {
+      "id": "documented_limit_50",
+      "input_value": 50,
+      "expected_result": 2184
+    },
+    {
+      "id": "canonical_limit_100",
+      "input_value": 100,
+      "expected_result": 9183
+    },
+    {
+      "id": "invalid_zero_limit",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_limit_above_maximum",
+      "input_value": 101,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+def one_bit_difference_impl(input: [i64], length: usize) -> i64:
+    if length != 2:
+        return -1
+    left: i64 = input[0]
+    right: i64 = input[1]
+    if left < -2147483648 or left > 2147483647 or right < -2147483648 or right > 2147483647:
+        return -1
+    difference: u32 = left.u32() ^ right.u32()
+    if left == right or difference == 0:
+        return 0
+    if (difference & (difference - 1)) == 0:
+        return 1
+    return 0
+
+export fn one_bit_difference(input: [i64], length: usize) -> i64 = one_bit_difference_impl

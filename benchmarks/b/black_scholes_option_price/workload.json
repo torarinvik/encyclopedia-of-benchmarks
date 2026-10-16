@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "black-scholes-option-price-v1",
+  "algorithm": "black_scholes_option_price",
+  "function_symbol": "black_scholes_option_price",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 6,
+    "layout": ["option_kind", "spot_milliunits", "strike_milliunits", "maturity_milliunits", "volatility_milliunits", "rate_milliunits"],
+    "operation_codes": {"0": "european_call", "1": "european_put"},
+    "milliunit_scale": 1000,
+    "spot_milliunits_minimum": 10,
+    "spot_milliunits_maximum": 1000000000,
+    "strike_milliunits_minimum": 10,
+    "strike_milliunits_maximum": 1000000000,
+    "maturity_milliunits_minimum": 1,
+    "maturity_milliunits_maximum": 100000,
+    "volatility_milliunits_minimum": 1,
+    "volatility_milliunits_maximum": 5000,
+    "rate_milliunits_minimum": -1000,
+    "rate_milliunits_maximum": 1000,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "kind 0: S*N(d1)-K*exp(-r*T)*N(d2); kind 1: K*exp(-r*T)*N(-d2)-S*N(-d1), where d1=(log(S/K)+(r+sigma^2/2)*T)/(sigma*sqrt(T)), d2=d1-sigma*sqrt(T), and N(x)=0.5*erfc(-x/sqrt(2))",
+    "unit": "same currency unit as spot and strike",
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"standard-at-the-money-call","input_values":[0,100000,100000,1000,200,50],"input_length":6,"expected_result":10.450583572185565},
+    {"id":"standard-at-the-money-put","input_values":[1,100000,100000,1000,200,50],"input_length":6,"expected_result":5.573526022256971},
+    {"id":"zero-rate-call","input_values":[0,100000,100000,1000,200,0],"input_length":6,"expected_result":7.965567455405804},
+    {"id":"zero-rate-put","input_values":[1,100000,100000,1000,200,0],"input_length":6,"expected_result":7.965567455405804},
+    {"id":"invalid-kind","input_values":[2,100000,100000,1000,200,50],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-spot","input_values":[0,9,100000,1000,200,50],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-maturity","input_values":[0,100000,100000,0,200,50],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-volatility","input_values":[1,100000,100000,1000,5001,50],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-rate","input_values":[1,100000,100000,1000,200,1001],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-length","input_values":[0,100000,100000,1000,200],"input_length":5,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

@@ -1,0 +1,77 @@
+# One-based kth-smallest selection using the median-of-medians pivot.
+const BFPRT_INVALID: i64 = -2147483649
+
+def bfprt_swap(values: mutable i32&, left: usize, right: usize) -> void:
+    temporary: i32 = values[left]
+    values[left] <- values[right]
+    values[right] <- temporary
+
+def bfprt_select(values: mutable i32&, left_value: usize, right_value: usize, rank: usize) -> i32:
+    left: mutable usize = left_value
+    right: mutable usize = right_value
+    while left < right:
+        count: usize = right - left + 1
+        groups: usize = (count + 4) / 5
+        group: mutable usize = 0
+        while group < groups:
+            group_left: usize = left + group * 5
+            group_right: mutable usize = group_left + 4
+            if group_right > right:
+                group_right <- right
+            index: mutable usize = group_left + 1
+            while index <= group_right:
+                cursor: mutable usize = index
+                while cursor > group_left and values[cursor - 1] > values[cursor]:
+                    bfprt_swap(values, cursor - 1, cursor)
+                    cursor <- cursor - 1
+                index <- index + 1
+            median: usize = group_left + (group_right - group_left + 1) / 2
+            bfprt_swap(values, left + group, median)
+            group <- group + 1
+
+        pivot: mutable i32 = values[left]
+        if groups > 1:
+            pivot <- bfprt_select(values, left, left + groups - 1, left + groups / 2)
+        less: mutable usize = left
+        current: mutable usize = left
+        greater: mutable usize = right + 1
+        while current < greater:
+            if values[current] < pivot:
+                bfprt_swap(values, less, current)
+                less <- less + 1
+                current <- current + 1
+            elif values[current] > pivot:
+                greater <- greater - 1
+                bfprt_swap(values, current, greater)
+            else:
+                current <- current + 1
+        if rank < less:
+            right <- less - 1
+        elif rank >= greater:
+            left <- greater
+        else:
+            return values[rank]
+    values[left]
+
+def bfprt_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2:
+        return BFPRT_INVALID
+    count_value: i64 = input[0]
+    rank_value: i64 = input[1]
+    if count_value < 1 or count_value > 1024:
+        return BFPRT_INVALID
+    count: usize = count_value.usize()
+    if length != count + 2 or rank_value < 1 or rank_value > count_value:
+        return BFPRT_INVALID
+
+    values: mutable i32[1024] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if value < -2147483648 or value > 2147483647:
+            return BFPRT_INVALID
+        values[index] <- value.i32()
+        index <- index + 1
+    bfprt_select(values, 0, count - 1, (rank_value - 1).usize()).i64()
+
+export fn bfprt(input: i64&, length: usize) -> i64 = bfprt_impl

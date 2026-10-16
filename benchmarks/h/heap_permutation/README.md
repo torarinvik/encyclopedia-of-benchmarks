@@ -19,15 +19,15 @@ python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_arra
 
 | Language | Source |
 | --- | --- |
-| C | [`c/a/heap_permutation.c`](../../../c/a/heap_permutation.c) |
-| C3 | [`c3/a/heap_permutation.c3`](../../../c3/a/heap_permutation.c3) |
-| C++ | [`cpp/a/heap_permutation.cpp`](../../../cpp/a/heap_permutation.cpp) |
-| Elisa | [`elisa/a/heap_permutation.elisa`](../../../elisa/a/heap_permutation.elisa) |
-| Nim | [`nim/a/heap_permutation.nim`](../../../nim/a/heap_permutation.nim) |
-| Odin | [`odin/a/heap_permutation.odin`](../../../odin/a/heap_permutation.odin) |
-| Rust | [`rust/a/heap_permutation.rs`](../../../rust/a/heap_permutation.rs) |
-| V | [`v/a/heap_permutation.v`](../../../v/a/heap_permutation.v) |
-| Zig | [`zig/a/heap_permutation.zig`](../../../zig/a/heap_permutation.zig) |
+| C | [`c/h/heap_permutation.c`](../../../c/h/heap_permutation.c) |
+| C3 | [`c3/h/heap_permutation.c3`](../../../c3/h/heap_permutation.c3) |
+| C++ | [`cpp/h/heap_permutation.cpp`](../../../cpp/h/heap_permutation.cpp) |
+| Elisa | [`elisa/h/heap_permutation.elisa`](../../../elisa/h/heap_permutation.elisa) |
+| Nim | [`nim/h/heap_permutation.nim`](../../../nim/h/heap_permutation.nim) |
+| Odin | [`odin/h/heap_permutation.odin`](../../../odin/h/heap_permutation.odin) |
+| Rust | [`rust/h/heap_permutation.rs`](../../../rust/h/heap_permutation.rs) |
+| V | [`v/h/heap_permutation.v`](../../../v/h/heap_permutation.v) |
+| Zig | [`zig/h/heap_permutation.zig`](../../../zig/h/heap_permutation.zig) |
 
 ## Pinned source
 

@@ -1,0 +1,35 @@
+# Bounded port of TheAlgorithms/Python Project Euler 33.
+def gcd_i64(left: i64, right: i64) -> i64:
+    a: mutable i64 = left
+    b: mutable i64 = right
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def problem33_impl(digit_len: i64) -> i64:
+    if digit_len < 0 or digit_len > 5:
+        return -1
+    upper: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < digit_len:
+        upper <- upper * 10
+        index <- index + 1
+    result: mutable f64 = 1.0
+    denominator: mutable i64 = 11
+    numerator: mutable i64 = 11
+    while numerator < upper:
+        while denominator <= 99:
+            if numerator != denominator and numerator % 10 == denominator / 10 and denominator % 10 != 0:
+                left: f64 = (numerator / 10).f64() / (denominator % 10).f64()
+                right: f64 = numerator.f64() / denominator.f64()
+                if left == right:
+                    divisor: i64 = gcd_i64(numerator, denominator)
+                    result <- result * (denominator / divisor).f64() / (numerator / divisor).f64()
+            denominator <- denominator + 1
+        denominator <- 10
+        numerator <- numerator + 1
+    result.i64()
+
+export fn problem33(digit_len: i64) -> i64 = problem33_impl

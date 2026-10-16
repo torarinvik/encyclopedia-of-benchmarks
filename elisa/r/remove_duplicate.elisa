@@ -1,0 +1,89 @@
+def compare_words(values: i64&, start_a: usize, length_a: usize, start_b: usize, length_b: usize) -> i64:
+    common: mutable usize = length_a
+    if length_b < common:
+        common <- length_b
+    index: mutable usize = 0
+    while index < common:
+        a: i64 = values[1 + start_a + index]
+        b: i64 = values[1 + start_b + index]
+        if a < b:
+            return -1
+        if a > b:
+            return 1
+        index <- index + 1
+    if length_a < length_b:
+        return -1
+    if length_a > length_b:
+        return 1
+    0
+
+def remove_duplicate_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or values[0] < 0 or values[0] > 1024 or length != 1 + values[0].usize():
+        return -1
+    text_length: usize = values[0].usize()
+    for index in 0..<text_length:
+        byte: i64 = values[index + 1]
+        if byte != 32 and (byte < 97 or byte > 122):
+            return -1
+
+    starts: mutable usize[512] = zeroed
+    word_lengths: mutable usize[512] = zeroed
+    word_count: mutable usize = 0
+    cursor: mutable usize = 0
+    while cursor < text_length:
+        if values[cursor + 1] == 32:
+            cursor <- cursor + 1
+        else:
+            starts[word_count] <- cursor
+            while cursor < text_length and values[cursor + 1] != 32:
+                cursor <- cursor + 1
+            word_lengths[word_count] <- cursor - starts[word_count]
+            word_count <- word_count + 1
+
+    index: mutable usize = 1
+    while index < word_count:
+        key_start: usize = starts[index]
+        key_length: usize = word_lengths[index]
+        position: mutable usize = index
+        while position > 0 and compare_words(values, starts[position - 1], word_lengths[position - 1],
+                                              key_start, key_length) > 0:
+            starts[position] <- starts[position - 1]
+            word_lengths[position] <- word_lengths[position - 1]
+            position <- position - 1
+        starts[position] <- key_start
+        word_lengths[position] <- key_length
+        index <- index + 1
+
+    output_length: mutable usize = 0
+    unique_count: mutable usize = 0
+    index <- 0
+    while index < word_count:
+        if index == 0 or compare_words(values, starts[index - 1], word_lengths[index - 1],
+                                      starts[index], word_lengths[index]) != 0:
+            if unique_count > 0:
+                output_length <- output_length + 1
+            output_length <- output_length + word_lengths[index]
+            unique_count <- unique_count + 1
+        index <- index + 1
+    if output_length > output_capacity:
+        return -2
+
+    written: mutable usize = 0
+    emitted: mutable usize = 0
+    index <- 0
+    while index < word_count:
+        if index == 0 or compare_words(values, starts[index - 1], word_lengths[index - 1],
+                                      starts[index], word_lengths[index]) != 0:
+            if emitted > 0:
+                output[written] <- 32
+                written <- written + 1
+            byte: mutable usize = 0
+            while byte < word_lengths[index]:
+                output[written] <- values[1 + starts[index] + byte].u8()
+                written <- written + 1
+                byte <- byte + 1
+            emitted <- emitted + 1
+        index <- index + 1
+    output_length.i64()
+
+export fn remove_duplicate(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_duplicate_impl

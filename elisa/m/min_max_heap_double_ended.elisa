@@ -1,0 +1,222 @@
+const MAX_INITIAL: usize = 64
+const MAX_OPERATIONS: usize = 128
+const MAX_HEAP_SIZE: usize = 192
+const INVALID_RESULT: i64 = -1
+const CAPACITY_RESULT: i64 = -2
+
+def min_max_heap_double_ended_is_min_level(index: usize) -> bool:
+    value: mutable usize = index + 1
+    depth: mutable usize = 0
+    while value > 1:
+        value <- value >> 1
+        depth <- depth + 1
+    depth % 2 == 0
+
+def min_max_heap_double_ended_swap(heap: mutable i64&, left: usize, right: usize) -> void:
+    temporary: i64 = heap[left]
+    heap[left] <- heap[right]
+    heap[right] <- temporary
+
+def min_max_heap_double_ended_best(heap: i64&, count: usize, index: usize, find_min: bool) -> i64:
+    best: mutable i64 = -1
+    offset: mutable usize = 0
+    while offset < 6:
+        candidate: usize = if offset < 2: 2 * index + 1 + offset else: 4 * index + 1 + offset
+        if candidate >= count:
+            break
+        if best < 0:
+            best <- candidate.i64()
+        else if find_min:
+            if heap[candidate] < heap[best.usize()]:
+                best <- candidate.i64()
+        else:
+            if heap[candidate] > heap[best.usize()]:
+                best <- candidate.i64()
+        offset <- offset + 1
+    best
+
+def min_max_heap_double_ended_push_down(heap: mutable i64&, count: usize, start: usize, find_min: bool) -> void:
+    index: mutable usize = start
+    while index < count:
+        best_value: i64 = min_max_heap_double_ended_best(heap, count, index, find_min)
+        if best_value < 0:
+            return
+        best: usize = best_value.usize()
+        grandchild: bool = best > 2 and (best - 3) / 4 == index
+        improves: bool = if find_min: heap[best] < heap[index] else: heap[best] > heap[index]
+        if grandchild:
+            if not improves:
+                return
+            min_max_heap_double_ended_swap(heap, best, index)
+            parent: usize = (best - 1) / 2
+            violation: bool = if find_min: heap[best] > heap[parent] else: heap[best] < heap[parent]
+            if violation:
+                min_max_heap_double_ended_swap(heap, best, parent)
+            index <- best
+        else:
+            if improves:
+                min_max_heap_double_ended_swap(heap, best, index)
+            return
+
+def min_max_heap_double_ended_push_up_min(heap: mutable i64&, start: usize) -> void:
+    index: mutable usize = start
+    while index > 2:
+        grandparent: usize = (index - 3) / 4
+        if heap[index] >= heap[grandparent]:
+            return
+        min_max_heap_double_ended_swap(heap, index, grandparent)
+        index <- grandparent
+
+def min_max_heap_double_ended_push_up_max(heap: mutable i64&, start: usize) -> void:
+    index: mutable usize = start
+    while index > 2:
+        grandparent: usize = (index - 3) / 4
+        if heap[index] <= heap[grandparent]:
+            return
+        min_max_heap_double_ended_swap(heap, index, grandparent)
+        index <- grandparent
+
+def min_max_heap_double_ended_push_up(heap: mutable i64&, index: usize) -> void:
+    if index == 0:
+        return
+    parent: usize = (index - 1) / 2
+    if min_max_heap_double_ended_is_min_level(index):
+        if heap[index] > heap[parent]:
+            min_max_heap_double_ended_swap(heap, index, parent)
+            min_max_heap_double_ended_push_up_max(heap, parent)
+        else:
+            min_max_heap_double_ended_push_up_min(heap, index)
+    else if heap[index] < heap[parent]:
+        min_max_heap_double_ended_swap(heap, index, parent)
+        min_max_heap_double_ended_push_up_min(heap, parent)
+    else:
+        min_max_heap_double_ended_push_up_max(heap, index)
+
+def min_max_heap_double_ended_add(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
+    index: usize = count
+    count <- count + 1
+    heap[index] <- value
+    min_max_heap_double_ended_push_up(heap, index)
+
+def min_max_heap_double_ended_max_index(heap: i64&, count: usize) -> usize:
+    if count < 2:
+        return 0
+    if count == 2:
+        return 1
+    if heap[1] > heap[2]:
+        return 1
+    2
+
+def min_max_heap_double_ended_extract_at(heap: mutable i64&, count: mutable usize&, index: usize) -> i64:
+    result: i64 = heap[index]
+    count <- count - 1
+    if index != count:
+        heap[index] <- heap[count]
+    if count > 0 and index < count:
+        min_max_heap_double_ended_push_down(heap, count, index, min_max_heap_double_ended_is_min_level(index))
+    result
+
+def min_max_heap_double_ended_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def min_max_heap_double_ended_sort(values: mutable i64&, count: usize) -> void:
+    index: mutable usize = 1
+    while index < count:
+        value: i64 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > value:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- value
+        index <- index + 1
+
+def min_max_heap_double_ended_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2:
+        return INVALID_RESULT
+    initial_value: i64 = input[0]
+    if initial_value < 0 or initial_value > 64:
+        return INVALID_RESULT
+    initial_count: usize = initial_value.usize()
+    if length < initial_count + 2:
+        return INVALID_RESULT
+    operations_value: i64 = input[initial_count + 1]
+    if operations_value < 0 or operations_value > 128:
+        return INVALID_RESULT
+    operation_count: usize = operations_value.usize()
+    if length != initial_count + 2 + 2 * operation_count:
+        return INVALID_RESULT
+    for index in 0..<initial_count:
+        if input[index + 1] < -2147483648 or input[index + 1] > 2147483647:
+            return INVALID_RESULT
+    for op in 0..<operation_count:
+        opcode: i64 = input[initial_count + 2 + 2 * op]
+        argument: i64 = input[initial_count + 3 + 2 * op]
+        if opcode < 0 or opcode > 5:
+            return INVALID_RESULT
+        if opcode == 0:
+            if argument < -2147483648 or argument > 2147483647:
+                return INVALID_RESULT
+        else if argument != 0:
+            return INVALID_RESULT
+
+    heap: mutable i64[192] = zeroed
+    count: mutable usize = initial_count
+    for index in 0..<initial_count:
+        heap[index] <- input[index + 1]
+    build_index: mutable usize = initial_count / 2
+    while build_index > 0:
+        build_index <- build_index - 1
+        min_max_heap_double_ended_push_down(heap[0], count, build_index, min_max_heap_double_ended_is_min_level(build_index))
+    events: mutable i64[128] = zeroed
+    event_count: mutable usize = 0
+    for op in 0..<operation_count:
+        opcode: i64 = input[initial_count + 2 + 2 * op]
+        argument: i64 = input[initial_count + 3 + 2 * op]
+        if opcode == 0:
+            min_max_heap_double_ended_add(heap[0], count, argument)
+        else if opcode == 1 or opcode == 3:
+            if count == 0:
+                return INVALID_RESULT
+            if opcode == 1:
+                events[event_count] <- heap[0]
+            else:
+                events[event_count] <- min_max_heap_double_ended_extract_at(heap[0], count, 0)
+            event_count <- event_count + 1
+        else if opcode == 2 or opcode == 4:
+            if count == 0:
+                return INVALID_RESULT
+            index: usize = min_max_heap_double_ended_max_index(heap[0], count)
+            if opcode == 2:
+                events[event_count] <- heap[index]
+            else:
+                events[event_count] <- min_max_heap_double_ended_extract_at(heap[0], count, index)
+            event_count <- event_count + 1
+        else:
+            events[event_count] <- count.i64()
+            event_count <- event_count + 1
+    sorted: mutable i64[192] = zeroed
+    for index in 0..<count:
+        sorted[index] <- heap[index]
+    min_max_heap_double_ended_sort(sorted[0], count)
+    required: usize = (2 + event_count + count) * 8
+    if output.is_null() or capacity < required:
+        return CAPACITY_RESULT
+    offset: mutable usize = 0
+    min_max_heap_double_ended_store(event_count.i64(), output, offset)
+    offset <- offset + 8
+    for index in 0..<event_count:
+        min_max_heap_double_ended_store(events[index], output, offset)
+        offset <- offset + 8
+    min_max_heap_double_ended_store(count.i64(), output, offset)
+    offset <- offset + 8
+    for index in 0..<count:
+        min_max_heap_double_ended_store(sorted[index], output, offset)
+        offset <- offset + 8
+    required.i64()
+
+export fn min_max_heap_double_ended(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = min_max_heap_double_ended_impl

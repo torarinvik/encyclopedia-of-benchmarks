@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-136-singleton-difference-v1",
+  "algorithm": "problem136",
+  "function_symbol": "problem136",
+  "input": {
+    "kind": "exclusive_positive_n_limit",
+    "minimum": 0,
+    "maximum": 100000,
+    "negative_result": 0,
+    "above_maximum_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of positive n less than n_limit that have exactly one representation x^2-y^2-z^2 with x,y,z positive consecutive arithmetic-progression terms."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_empty",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "source_small_zero",
+      "input_value": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_ten",
+      "input_value": 10,
+      "expected_result": 3
+    },
+    {
+      "id": "source_example_hundred",
+      "input_value": 100,
+      "expected_result": 25
+    },
+    {
+      "id": "source_example_110",
+      "input_value": 110,
+      "expected_result": 27
+    },
+    {
+      "id": "medium",
+      "input_value": 10000,
+      "expected_result": 1100
+    },
+    {
+      "id": "maximum_supported",
+      "input_value": 100000,
+      "expected_result": 8382
+    },
+    {
+      "id": "first_above_max",
+      "input_value": 100001,
+      "expected_result": -1
+    }
+  ]
+}

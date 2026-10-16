@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-48-fixed-self-powers-v1",
+  "algorithm": "problem48",
+  "function_symbol": "problem48",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Numeric value of the final ten decimal digits of the sum of i^i for i=1..1000; the pinned string result has no leading zeroes.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_fixed_self_powers_sum",
+      "input_value": 0,
+      "expected_result": 9110846700
+    },
+    {
+      "id": "nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    }
+  ]
+}

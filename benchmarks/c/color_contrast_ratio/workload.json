@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "color-contrast-ratio-java-i64-array-f64-v1",
+  "algorithm": "color_contrast_ratio",
+  "function_symbol": "color_contrast_ratio",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 6,
+    "layout": ["red_1", "green_1", "blue_1", "red_2", "green_2", "blue_2"],
+    "channel_range": [0, 255],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "contrast ratio between the two colors",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"black-white","input_values":[0,0,0,255,255,255],"input_length":6,"expected_result":21.0},
+    {"id":"white-black","input_values":[255,255,255,0,0,0],"input_length":6,"expected_result":21.0},
+    {"id":"same-black","input_values":[0,0,0,0,0,0],"input_length":6,"expected_result":1.0},
+    {"id":"same-mid-gray","input_values":[128,128,128,128,128,128],"input_length":6,"expected_result":1.0},
+    {"id":"red-blue","input_values":[255,0,0,0,0,255],"input_length":6,"expected_result":2.148936170212766},
+    {"id":"green-white","input_values":[0,255,0,255,255,255],"input_length":6,"expected_result":1.3721902770517513},
+    {"id":"red-white","input_values":[255,0,0,255,255,255],"input_length":6,"expected_result":3.9984767707539985},
+    {"id":"low-transfer-branch","input_values":[10,10,10,11,11,11],"input_length":6,"expected_result":1.0058690363860938},
+    {"id":"mixed-colors-a","input_values":[17,101,233,239,72,12],"input_length":6,"expected_result":1.379240643646552},
+    {"id":"mixed-colors-b","input_values":[34,120,88,201,188,42],"input_length":6,"expected_result":2.7493687304207715},
+    {"id":"single-red-channel","input_values":[1,0,0,2,0,0],"input_length":6,"expected_result":1.0012889332410184},
+    {"id":"single-blue-channel","input_values":[0,0,1,0,0,2],"input_length":6,"expected_result":1.0004381009476815},
+    {"id":"invalid-short","input_values":[0,0,0,255,255],"input_length":5,"expected_result":-1e300},
+    {"id":"invalid-long","input_values":[0,0,0,255,255,255,0],"input_length":7,"expected_result":-1e300},
+    {"id":"invalid-negative-channel","input_values":[-1,0,0,255,255,255],"input_length":6,"expected_result":-1e300},
+    {"id":"invalid-channel-above-255","input_values":[0,0,0,256,255,255],"input_length":6,"expected_result":-1e300}
+  ]
+}

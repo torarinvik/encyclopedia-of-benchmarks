@@ -1,0 +1,44 @@
+# Normalize the simple undirected C graph ADT to a row-major adjacency matrix.
+const MAX_VERTICES: usize = 32
+const MAX_EDGES: usize = 2047
+
+def graph_c_simple_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[slot * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def graph_c_undirected_simple_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2:
+        return -1
+    vertex_count_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    if vertex_count_value < 1 or vertex_count_value > 32 or edge_count_value < 0 or edge_count_value > 2047:
+        return -1
+    vertices: usize = vertex_count_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    adjacency: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
+    for edge in 0..<edge_count:
+        left_value: i64 = input[2 + 2 * edge]
+        right_value: i64 = input[3 + 2 * edge]
+        if left_value < 0 or right_value < 0 or left_value.u64() >= vertices.u64() or right_value.u64() >= vertices.u64():
+            return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        adjacency[left * vertices + right] <- 1
+        adjacency[right * vertices + left] <- 1
+
+    count: usize = vertices * vertices
+    if output.is_null() or capacity < count * 8:
+        return -2
+    for row in 0..<vertices:
+        for column in 0..<vertices:
+            graph_c_simple_put_i64(output, row * vertices + column, adjacency[row * vertices + column])
+    (count * 8).i64()
+
+export fn graph_c_undirected_simple(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = graph_c_undirected_simple_impl

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "is-isomorphic-ascii-codepoints-i64-array-scalar-v1",
+  "algorithm": "is_isomorphic",
+  "function_symbol": "is_isomorphic",
+  "input": {
+    "kind": "signed_i64_array_of_two_length_prefixed_ascii_strings",
+    "layout": "[source_length, target_length, source_codepoints..., target_codepoints...]",
+    "minimum_length": 2,
+    "maximum_length": 20,
+    "maximum_valid_length": 18,
+    "element_range": [0, 127],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_boolean_integer",
+    "false_value": 0,
+    "true_value": 1,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"empty_strings","input_values":[0,0],"input_length":2,"expected_result":1},
+    {"id":"source_egg_add","input_values":[3,3,101,103,103,97,100,100],"input_length":8,"expected_result":1},
+    {"id":"source_foo_bar","input_values":[3,3,102,111,111,98,97,114],"input_length":8,"expected_result":0},
+    {"id":"source_paper_title","input_values":[5,5,112,97,112,101,114,116,105,116,108,101],"input_length":12,"expected_result":1},
+    {"id":"source_ab_aa","input_values":[2,2,97,98,97,97],"input_length":6,"expected_result":0},
+    {"id":"many_to_one_rejected","input_values":[2,2,97,98,99,99],"input_length":6,"expected_result":0},
+    {"id":"unequal_lengths","input_values":[1,0,65],"input_length":3,"expected_result":0},
+    {"id":"nul_codepoint_is_data","input_values":[4,4,0,65,0,65,66,67,66,67],"input_length":10,"expected_result":1},
+    {"id":"ascii_upper_boundary","input_values":[2,2,126,127,127,126],"input_length":6,"expected_result":1},
+    {"id":"maximum_valid_length","input_values":[8,8,0,1,2,3,4,5,6,7,7,6,5,4,3,2,1,0],"input_length":18,"expected_result":1},
+    {"id":"wrong_packed_length","input_values":[1,1,65],"input_length":3,"expected_result":-1},
+    {"id":"invalid_negative_length","input_values":[-1,0],"input_length":2,"expected_result":-1},
+    {"id":"invalid_codepoint_above_ascii","input_values":[1,1,65,128],"input_length":4,"expected_result":-1},
+    {"id":"invalid_negative_codepoint","input_values":[1,1,-1,65],"input_length":4,"expected_result":-1},
+    {"id":"over_bound_both_strings","input_values":[9,9,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65],"input_length":20,"expected_result":-1}
+  ]
+}

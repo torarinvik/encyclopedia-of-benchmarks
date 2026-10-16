@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "id": "present-value-rust-binary-exact-fixed-point-v1",
+  "algorithm": "present_value_rust",
+  "function_symbol": "present_value_rust",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[count, discount_rate_ppm, cash_flow_0_milli, ...]",
+    "discount_rate_scale": 1000000,
+    "discount_rate_ppm_values": [
+      0,
+      1000000
+    ],
+    "cash_flow_scale": 1000,
+    "cash_flow_milli_step": 125,
+    "cash_flow_count_range": [
+      1,
+      8
+    ],
+    "discount_rate_ppm_range": [
+      0,
+      1000000
+    ],
+    "cash_flow_milli_range": [
+      -1000000,
+      1000000
+    ],
+    "exact_length": "count + 2",
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "present value rounded to two decimals with ties away from zero",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "rate_zero_positive_tie",
+      "input_values": [
+        1,
+        0,
+        1125
+      ],
+      "input_length": 3,
+      "expected_result": 1.13
+    },
+    {
+      "id": "rate_zero_negative_tie",
+      "input_values": [
+        1,
+        0,
+        -1125
+      ],
+      "input_length": 3,
+      "expected_result": -1.13
+    },
+    {
+      "id": "rate_one_positive_tie",
+      "input_values": [
+        2,
+        1000000,
+        0,
+        1250
+      ],
+      "input_length": 4,
+      "expected_result": 0.63
+    },
+    {
+      "id": "rate_one_negative_tie",
+      "input_values": [
+        2,
+        1000000,
+        0,
+        -1250
+      ],
+      "input_length": 4,
+      "expected_result": -0.63
+    },
+    {
+      "id": "rate_zero_exact_sum",
+      "input_values": [
+        4,
+        0,
+        10000,
+        20750,
+        -293000,
+        297000
+      ],
+      "input_length": 6,
+      "expected_result": 34.75
+    },
+    {
+      "id": "rate_one_multi_flow",
+      "input_values": [
+        4,
+        1000000,
+        10000,
+        -5000,
+        1125,
+        2500
+      ],
+      "input_length": 6,
+      "expected_result": 8.09
+    },
+    {
+      "id": "maximum_positive_flow",
+      "input_values": [
+        1,
+        0,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": 1000.0
+    },
+    {
+      "id": "minimum_negative_flow",
+      "input_values": [
+        1,
+        0,
+        -1000000
+      ],
+      "input_length": 3,
+      "expected_result": -1000.0
+    },
+    {
+      "id": "all_zero_flows",
+      "input_values": [
+        4,
+        1000000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum_count",
+      "input_values": [
+        8,
+        1000000,
+        1000000,
+        -500000,
+        250000,
+        -125000,
+        62500,
+        -31250,
+        15625,
+        -78125
+      ],
+      "input_length": 10,
+      "expected_result": 799.44
+    },
+    {
+      "id": "single_flow_discount_rate_one",
+      "input_values": [
+        1,
+        1000000,
+        8125
+      ],
+      "input_length": 3,
+      "expected_result": 8.13
+    },
+    {
+      "id": "empty_cash_flows_invalid",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_discount_invalid",
+      "input_values": [
+        1,
+        -1,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unsupported_discount_rate_invalid",
+      "input_values": [
+        1,
+        500000,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "discount_rate_above_bound_invalid",
+      "input_values": [
+        1,
+        1000001,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "cash_flow_not_multiple_of_125_invalid",
+      "input_values": [
+        1,
+        0,
+        1001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "cash_flow_above_bound_invalid",
+      "input_values": [
+        1,
+        0,
+        1000125
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "cash_flow_below_bound_invalid",
+      "input_values": [
+        1,
+        0,
+        -1000125
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_shape_mismatch_invalid",
+      "input_values": [
+        2,
+        0,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value_invalid",
+      "input_values": [
+        1,
+        0,
+        1000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_above_maximum_invalid",
+      "input_values": [
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "maximum_parseable_length_invalid",
+      "input_values": [
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -16,6 +16,8 @@ Return `1` when `value % 2 == 0`, otherwise return `0`. The full signed 64-bit r
 
 [`workload.json`](workload.json) covers zero, positive and negative odd/even values, and both signed endpoints.
 
+Verify the nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms check_even`.
+
 ## Implementations
 
 | Language | Source |

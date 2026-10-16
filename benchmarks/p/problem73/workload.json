@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-73-fraction-count-v1",
+  "algorithm": "problem73",
+  "function_symbol": "problem73",
+  "input": {
+    "kind": "inclusive_maximum_denominator",
+    "minimum": 0,
+    "maximum": 12000,
+    "definition": "Count reduced fractions a/d strictly between 1/3 and 1/2 for all denominators d through the inclusive limit.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of reduced fractions strictly inside the open interval (1/3, 1/2).",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    { "id": "empty_limit_zero", "input_value": 0, "expected_result": 0 },
+    { "id": "source_example_four", "input_value": 4, "expected_result": 0 },
+    { "id": "source_example_five", "input_value": 5, "expected_result": 1 },
+    { "id": "source_example_eight", "input_value": 8, "expected_result": 3 },
+    { "id": "canonical_twelve_thousand", "input_value": 12000, "expected_result": 7295372 },
+    { "id": "negative_limit", "input_value": -1, "expected_result": -1 },
+    { "id": "above_bound", "input_value": 12001, "expected_result": -1 }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-116-scalar-v1",
+  "algorithm": "problem116",
+  "function_symbol": "problem116",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 91,
+    "meaning": "row length in grey tile units",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of replacement arrangements using one colored block length at a time, with at least one colored tile",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_length",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_length",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "one_unit_length",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "two_unit_length",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_length_five",
+      "input_value": 5,
+      "expected_result": 12
+    },
+    {
+      "id": "source_default_length_fifty",
+      "input_value": 50,
+      "expected_result": 20492570929
+    },
+    {
+      "id": "largest_i64_safe_length",
+      "input_value": 91,
+      "expected_result": 7540898458903436664
+    },
+    {
+      "id": "first_length_over_i64_bound",
+      "input_value": 92,
+      "expected_result": -1
+    }
+  ]
+}

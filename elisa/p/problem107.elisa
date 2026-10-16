@@ -1,0 +1,62 @@
+const MAX_VERTICES: usize = 40
+const MAX_EDGE_WEIGHT: i64 = 999
+
+def edge_weight(input: i64&, left: usize, right: usize) -> i64:
+    if left == right:
+        return -1
+    row: usize = if left > right: left else: right
+    column: usize = if left > right: right else: left
+    input[1 + row * (row - 1) / 2 + column]
+
+def problem107_impl(input: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    vertex_count_value: i64 = input[0]
+    if vertex_count_value < 1 or vertex_count_value > MAX_VERTICES.i64():
+        return -1
+    vertex_count: usize = vertex_count_value.usize()
+    if length != 1 + vertex_count * (vertex_count - 1) / 2:
+        return -1
+
+    total_weight: mutable i64 = 0
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < -1 or input[index] > MAX_EDGE_WEIGHT:
+            return -1
+        if input[index] >= 0:
+            total_weight <- total_weight + input[index]
+        index <- index + 1
+
+    selected: mutable bool[MAX_VERTICES] = zeroed
+    best_weight: mutable i64[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        best_weight[vertex] <- MAX_EDGE_WEIGHT + 1
+        vertex <- vertex + 1
+    best_weight[0] <- 0
+    tree_weight: mutable i64 = 0
+    iteration: mutable usize = 0
+    while iteration < vertex_count:
+        next_vertex: mutable usize = vertex_count
+        next_weight: mutable i64 = MAX_EDGE_WEIGHT + 1
+        vertex <- 0
+        while vertex < vertex_count:
+            if not selected[vertex] and best_weight[vertex] < next_weight:
+                next_vertex <- vertex
+                next_weight <- best_weight[vertex]
+            vertex <- vertex + 1
+        if next_vertex == vertex_count:
+            return -1
+        selected[next_vertex] <- true
+        tree_weight <- tree_weight + next_weight
+        vertex <- 0
+        while vertex < vertex_count:
+            if not selected[vertex]:
+                weight: i64 = edge_weight(input, next_vertex, vertex)
+                if weight >= 0 and weight < best_weight[vertex]:
+                    best_weight[vertex] <- weight
+            vertex <- vertex + 1
+        iteration <- iteration + 1
+    total_weight - tree_weight
+
+export fn problem107(input: i64&, length: usize) -> i64 = problem107_impl

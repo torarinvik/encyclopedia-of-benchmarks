@@ -1,0 +1,31 @@
+def choose_ten(n: i64) -> i64:
+    result: mutable i64 = 1
+    i: mutable i64 = 0
+    while i < 10:
+        result <- result * (n - i) / (i + 1)
+        i <- i + 1
+    result
+
+def problem493_impl(picks: i64) -> i64:
+    if picks < 0 or picks > 70: return -1
+    denominator: i64 = choose_ten(70)
+    missing: i64 = if picks > 60 then 0 else choose_ten(70 - picks)
+    numerator: i64 = 7 * (denominator - missing)
+    whole: i64 = numerator / denominator
+    remainder: mutable i64 = numerator % denominator
+    fraction: mutable i64 = 0
+    i: mutable i64 = 0
+    while i < 9:
+        remainder <- remainder * 10
+        fraction <- fraction * 10 + remainder / denominator
+        remainder <- remainder % denominator
+        i <- i + 1
+    remainder <- remainder * 10
+    guard: i64 = remainder / denominator
+    remainder <- remainder % denominator
+    scaled: mutable i64 = whole * 1000000000 + fraction
+    if guard > 5 or (guard == 5 and (remainder > 0 or scaled % 2 != 0)):
+        scaled <- scaled + 1
+    scaled
+
+export fn problem493(picks: i64) -> i64 = problem493_impl

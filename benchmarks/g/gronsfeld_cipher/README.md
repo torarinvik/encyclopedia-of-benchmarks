@@ -22,5 +22,6 @@ The workload covers the source example, key cycling, key indexing across punctua
 
 - Build: python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm gronsfeld_cipher --language c
 - Record: python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/g/gronsfeld_cipher/c/build.json
+- Verify: python3 benchmarks/verify_i64_array_bytes_output.py --algorithm gronsfeld_cipher --languages rust
 
 The nine implementations are in c/g/gronsfeld_cipher.c, c3/g/gronsfeld_cipher.c3, cpp/g/gronsfeld_cipher.cpp, elisa/g/gronsfeld_cipher.elisa, nim/g/gronsfeld_cipher.nim, odin/g/gronsfeld_cipher.odin, rust/g/gronsfeld_cipher.rs, v/g/gronsfeld_cipher.v, and zig/g/gronsfeld_cipher.zig.

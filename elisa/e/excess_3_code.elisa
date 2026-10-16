@@ -1,0 +1,33 @@
+def excess_3_code_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    digits: mutable u8[19] = zeroed
+    count: mutable usize = 0
+    number: mutable u64 = 0
+    if value >= 0:
+        number <- value.u64()
+    while number > 0:
+        digits[count] <- (number % 10).u8()
+        count <- count + 1
+        number <- number / 10
+    if count == 0:
+        digits[0] <- 0
+        count <- 1
+    output_length: usize = 2 + 4 * count
+    if output_capacity < output_length:
+        return -2
+    output[0] <- 48
+    output[1] <- 98
+    position: mutable usize = 2
+    while count > 0:
+        count <- count - 1
+        nibble: usize = digits[count].usize() + 3
+        bit: mutable usize = 8
+        while bit > 0:
+            if (nibble & bit) != 0:
+                output[position] <- 49
+            else:
+                output[position] <- 48
+            position <- position + 1
+            bit <- bit / 2
+    output_length.i64()
+
+export fn excess_3_code(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = excess_3_code_impl

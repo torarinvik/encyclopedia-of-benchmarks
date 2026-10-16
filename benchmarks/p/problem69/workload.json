@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-69-totient-maximum-v1",
+  "algorithm": "problem69",
+  "function_symbol": "problem69",
+  "input": {
+    "kind": "inclusive_upper_limit",
+    "minimum": 1,
+    "maximum": 1000000,
+    "definition": "Build the totient table through the inclusive limit and scan n from 1 through that limit.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Smallest n reached in the ascending scan that has the maximum n/phi(n) ratio.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    { "id": "lower_bound_one", "input_value": 1, "expected_result": 1 },
+    { "id": "source_example_two", "input_value": 2, "expected_result": 2 },
+    { "id": "source_example_ten", "input_value": 10, "expected_result": 6 },
+    { "id": "equal_ratio_keeps_earlier_value", "input_value": 4, "expected_result": 2 },
+    { "id": "source_example_hundred", "input_value": 100, "expected_result": 30 },
+    { "id": "source_example_9973", "input_value": 9973, "expected_result": 2310 },
+    { "id": "canonical_one_million", "input_value": 1000000, "expected_result": 510510 },
+    { "id": "zero_limit", "input_value": 0, "expected_result": -1 },
+    { "id": "negative_limit", "input_value": -1, "expected_result": -1 },
+    { "id": "above_bound", "input_value": 1000001, "expected_result": -1 }
+  ]
+}

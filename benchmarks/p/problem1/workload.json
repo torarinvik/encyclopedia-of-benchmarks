@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-1-scalar-v1",
+  "algorithm": "problem1",
+  "function_symbol": "problem1",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 100000],
+    "meaning": "sum positive multiples of 3 or 5 strictly below limit",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"zero_limit","input_value":0,"expected_result":0},
+    {"id":"one_limit","input_value":1,"expected_result":0},
+    {"id":"first_multiple_not_below_limit","input_value":3,"expected_result":0},
+    {"id":"first_included_multiple","input_value":4,"expected_result":3},
+    {"id":"multiple_of_five_boundary","input_value":5,"expected_result":3},
+    {"id":"two_multiples","input_value":6,"expected_result":8},
+    {"id":"canonical_small_example","input_value":10,"expected_result":23},
+    {"id":"overlap_counted_once","input_value":16,"expected_result":60},
+    {"id":"project_euler_instance","input_value":1000,"expected_result":233168},
+    {"id":"max_limit","input_value":100000,"expected_result":2333316668},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":100001,"expected_result":-1}
+  ]
+}

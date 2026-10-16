@@ -1,0 +1,434 @@
+{
+  "schema_version": 1,
+  "id": "csharp-min-max-heap-double-ended-i32-trace-v1",
+  "algorithm": "min_max_heap_double_ended",
+  "function_symbol": "min_max_heap_double_ended",
+  "input": {
+    "kind": "signed_i64_array_with_i32_min_max_heap_trace",
+    "layout": "[initial_count, initial_values..., operation_count, (opcode, argument)...]",
+    "initial_count_range": [
+      0,
+      64
+    ],
+    "initial_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "operation_count_range": [
+      0,
+      128
+    ],
+    "operation_pair_layout": "Each operation is exactly two signed i64 values. The argument must be zero for opcodes 1 through 5.",
+    "opcodes": {
+      "0": "Add(argument); no event result",
+      "1": "GetMin(); emits the minimum value",
+      "2": "GetMax(); emits the maximum value",
+      "3": "ExtractMin(); emits and removes the minimum value",
+      "4": "ExtractMax(); emits and removes the maximum value",
+      "5": "Count; emits the current count, including zero"
+    },
+    "add_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "empty_get_or_extract": "invalid",
+    "duplicates": "Retained as separate values.",
+    "exact_length": "initial_count + 2 + 2 * operation_count",
+    "maximum_input_length": 322,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[event_count, event_results..., final_count, final_values_sorted_ascending...]",
+    "event_results": "Results from GetMin, GetMax, ExtractMin, ExtractMax, and Count in operation order. Add emits no result.",
+    "final_values": "The final heap contents in ascending order, retaining duplicates.",
+    "return_value": "number of output bytes written",
+    "maximum_output_bytes": 2576,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "empty_heap_no_operations",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "empty_build_then_add_and_query",
+      "input_values": [
+        0,
+        5,
+        0,
+        5,
+        5,
+        0,
+        1,
+        0,
+        2,
+        0,
+        5,
+        0
+      ],
+      "input_length": 12,
+      "expected_result": 56,
+      "expected_output_hex": "0400000000000000010000000000000005000000000000000500000000000000010000000000000001000000000000000500000000000000"
+    },
+    {
+      "id": "bulk_mixed_duplicates_and_both_ends",
+      "input_values": [
+        5,
+        -4,
+        9,
+        9,
+        0,
+        -4,
+        10,
+        1,
+        0,
+        2,
+        0,
+        5,
+        0,
+        3,
+        0,
+        5,
+        0,
+        2,
+        0,
+        4,
+        0,
+        0,
+        -8,
+        1,
+        0,
+        5,
+        0
+      ],
+      "input_length": 27,
+      "expected_result": 120,
+      "expected_output_hex": "0900000000000000fcffffffffffffff09000000000000000500000000000000fcffffffffffffff040000000000000009000000000000000900000000000000f8ffffffffffffff04000000000000000400000000000000f8fffffffffffffffcffffffffffffff00000000000000000900000000000000"
+    },
+    {
+      "id": "alternating_min_and_max_extractions",
+      "input_values": [
+        7,
+        -2,
+        10,
+        5,
+        4,
+        4,
+        0,
+        -2,
+        7,
+        1,
+        0,
+        2,
+        0,
+        4,
+        0,
+        1,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0
+      ],
+      "input_length": 23,
+      "expected_result": 104,
+      "expected_output_hex": "0700000000000000feffffffffffffff0a000000000000000a00000000000000fefffffffffffffffeffffffffffffff050000000000000004000000000000000400000000000000feffffffffffffff000000000000000004000000000000000400000000000000"
+    },
+    {
+      "id": "heap_can_become_empty_then_reused",
+      "input_values": [
+        1,
+        42,
+        6,
+        3,
+        0,
+        5,
+        0,
+        0,
+        -7,
+        2,
+        0,
+        4,
+        0,
+        5,
+        0
+      ],
+      "input_length": 15,
+      "expected_result": 56,
+      "expected_output_hex": "05000000000000002a000000000000000000000000000000f9fffffffffffffff9ffffffffffffff00000000000000000000000000000000"
+    },
+    {
+      "id": "all_equal_values_are_retained",
+      "input_values": [
+        6,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        7,
+        1,
+        0,
+        2,
+        0,
+        0,
+        5,
+        4,
+        0,
+        3,
+        0,
+        5,
+        0,
+        2,
+        0,
+        4,
+        0
+      ],
+      "input_length": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_i32_boundaries",
+      "input_values": [
+        3,
+        -2147483648,
+        2147483647,
+        0,
+        7,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        0,
+        -2147483648,
+        1,
+        0,
+        4,
+        0,
+        5,
+        0
+      ],
+      "input_length": 19,
+      "expected_result": 80,
+      "expected_output_hex": "060000000000000000000080ffffffffffffff7f0000000000000080ffffffff00000080ffffffffffffff7f000000000200000000000000020000000000000000000080ffffffff0000000000000000"
+    },
+    {
+      "id": "bulk_build_descending_values",
+      "input_values": [
+        12,
+        12,
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        6,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        4,
+        0,
+        3,
+        0
+      ],
+      "input_length": 28,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_is_valid_on_empty",
+      "input_values": [
+        0,
+        1,
+        5,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "empty_get_min",
+      "input_values": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_get_max",
+      "input_values": [
+        0,
+        1,
+        2,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_extract_min",
+      "input_values": [
+        0,
+        1,
+        3,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_extract_max",
+      "input_values": [
+        0,
+        1,
+        4,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unknown_opcode",
+      "input_values": [
+        0,
+        1,
+        6,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonzero_argument_for_get",
+      "input_values": [
+        1,
+        8,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "add_value_above_i32",
+      "input_values": [
+        0,
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_value_below_i32",
+      "input_values": [
+        1,
+        -2147483649,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_count_above_bound",
+      "input_values": [
+        65
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation_count_above_bound",
+      "input_values": [
+        0,
+        129
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_initial_array",
+      "input_values": [
+        2,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_operation_pair",
+      "input_values": [
+        0,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_trailing_value",
+      "input_values": [
+        0,
+        1,
+        5,
+        0,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

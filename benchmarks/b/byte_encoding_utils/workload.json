@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "byte-encoding-utils-u64-big-endian-v1",
+  "algorithm": "byte_encoding_utils",
+  "function_symbol": "byte_encoding_utils",
+  "input": {
+    "kind": "signed_64_bit_integer_bit_pattern",
+    "definition": "The input value is the little-endian packed representation of eight source bytes, or the signed-i64 bit pattern of a UInt64 value. All 64 bit patterns are valid."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer_bit_pattern",
+    "definition": "The input bits with their eight bytes reversed. Interpret the resulting UInt64 bits as signed two\u2019s-complement for the ABI. This represents BigEndianToUint64 over the packed input bytes and UInt64ToBigEndian over the input value."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 72057594037927936
+    },
+    {
+      "id": "byte0_7f",
+      "input_value": 127,
+      "expected_result": 9151314442816847872
+    },
+    {
+      "id": "byte0_80",
+      "input_value": 128,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "byte0_ff",
+      "input_value": 255,
+      "expected_result": -72057594037927936
+    },
+    {
+      "id": "distinct_bytes",
+      "input_value": 72623859790382856,
+      "expected_result": 578437695752307201
+    },
+    {
+      "id": "ascending_nibbles",
+      "input_value": 81985529216486895,
+      "expected_result": -1167088121787636991
+    },
+    {
+      "id": "descending_nibbles",
+      "input_value": -81985529216486896,
+      "expected_result": 1167088121787636990
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": 128
+    },
+    {
+      "id": "signed_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -129
+    },
+    {
+      "id": "low_32_bits",
+      "input_value": 305419896,
+      "expected_result": 8671175384462524416
+    },
+    {
+      "id": "high_32_bits",
+      "input_value": 1311768464867721216,
+      "expected_result": 2018915346
+    },
+    {
+      "id": "alternating_bits",
+      "input_value": 6172840429334713770,
+      "expected_result": -6172840429334713771
+    },
+    {
+      "id": "alternating_inverse",
+      "input_value": -6172840429334713771,
+      "expected_result": 6172840429334713770
+    },
+    {
+      "id": "seeded_pattern_00",
+      "input_value": -6414314011457766554,
+      "expected_result": 7402579807990971302
+    },
+    {
+      "id": "seeded_pattern_01",
+      "input_value": 6502438387485576253,
+      "expected_result": 4399156001069940058
+    },
+    {
+      "id": "seeded_pattern_02",
+      "input_value": 6083462413101427464,
+      "expected_result": 642705545484856404
+    },
+    {
+      "id": "seeded_pattern_03",
+      "input_value": 2668277108584139191,
+      "expected_result": -5203497448162523355
+    },
+    {
+      "id": "seeded_pattern_04",
+      "input_value": -120386660438524038,
+      "expected_result": 8845031584551425278
+    },
+    {
+      "id": "seeded_pattern_05",
+      "input_value": 6213572841009426369,
+      "expected_result": -4490262591808259242
+    },
+    {
+      "id": "seeded_pattern_06",
+      "input_value": -8058862017582652100,
+      "expected_result": 4333898067954313616
+    },
+    {
+      "id": "seeded_pattern_07",
+      "input_value": 1369454512963047643,
+      "expected_result": -2607522931046678253
+    },
+    {
+      "id": "seeded_pattern_08",
+      "input_value": -7875727619595248434,
+      "expected_result": -3540873746694032494
+    },
+    {
+      "id": "seeded_pattern_09",
+      "input_value": 3467402795550802821,
+      "expected_result": -8826210078187053520
+    },
+    {
+      "id": "seeded_pattern_10",
+      "input_value": 7680049951680142000,
+      "expected_result": -5721217995007290006
+    },
+    {
+      "id": "seeded_pattern_11",
+      "input_value": 8654719109295899199,
+      "expected_result": 4540295674079288184
+    },
+    {
+      "id": "seeded_pattern_12",
+      "input_value": 1504371777931192162,
+      "expected_result": 7072822233875013652
+    },
+    {
+      "id": "seeded_pattern_13",
+      "input_value": -5386666665524065399,
+      "expected_result": -8571757336019386699
+    },
+    {
+      "id": "seeded_pattern_14",
+      "input_value": -8999566171655143580,
+      "expected_result": 7241752626656582531
+    },
+    {
+      "id": "seeded_pattern_15",
+      "input_value": -1121966456253742621,
+      "expected_result": -2053333749563036176
+    },
+    {
+      "id": "seeded_pattern_16",
+      "input_value": 8613694725063963446,
+      "expected_result": 3959533870847461751
+    },
+    {
+      "id": "seeded_pattern_17",
+      "input_value": 4934072486178524109,
+      "expected_result": -3671643387664500412
+    },
+    {
+      "id": "seeded_pattern_18",
+      "input_value": 1587039589590910808,
+      "expected_result": 6361066356456818198
+    },
+    {
+      "id": "seeded_pattern_19",
+      "input_value": 851332708120179655,
+      "expected_result": -4056850024501686261
+    },
+    {
+      "id": "seeded_pattern_20",
+      "input_value": -7337240659343584182,
+      "expected_result": 5392011226675031194
+    },
+    {
+      "id": "seeded_pattern_21",
+      "input_value": -1673280857167591343,
+      "expected_result": 5874963322957187048
+    },
+    {
+      "id": "seeded_pattern_22",
+      "input_value": 506364696003389068,
+      "expected_result": -8311933968904092153
+    },
+    {
+      "id": "seeded_pattern_23",
+      "input_value": 8813819219572702187,
+      "expected_result": -1496561829873627014
+    },
+    {
+      "id": "seeded_pattern_24",
+      "input_value": -1286306528772055394,
+      "expected_result": -7017093138328115474
+    },
+    {
+      "id": "seeded_pattern_25",
+      "input_value": 7959926364435891477,
+      "expected_result": 1568791844238030702
+    },
+    {
+      "id": "seeded_pattern_26",
+      "input_value": 1229490662994579712,
+      "expected_result": 40940788947292177
+    },
+    {
+      "id": "seeded_pattern_27",
+      "input_value": 4112859115450465871,
+      "expected_result": 5764227210454963001
+    },
+    {
+      "id": "seeded_pattern_28",
+      "input_value": 1372646427140187698,
+      "expected_result": 3631843190331280403
+    },
+    {
+      "id": "seeded_pattern_29",
+      "input_value": 1485119056816391705,
+      "expected_result": 1821342003165895700
+    },
+    {
+      "id": "seeded_pattern_30",
+      "input_value": -52469583190476108,
+      "expected_result": -5459933760678574593
+    },
+    {
+      "id": "seeded_pattern_31",
+      "input_value": -8659852916193747213,
+      "expected_result": -928264256610774393
+    }
+  ]
+}

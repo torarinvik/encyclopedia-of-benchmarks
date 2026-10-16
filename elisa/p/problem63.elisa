@@ -1,0 +1,32 @@
+def problem63_impl(max_base: i64, max_power: i64) -> i64:
+    base_limit: i64 = if max_base > 10: 10 else: max_base
+    power_limit: i64 = if max_power > 22: 22 else: max_power
+    count: mutable i64 = 0
+    base: mutable i64 = 1
+    while base < base_limit:
+        power: mutable i64 = 1
+        while power < power_limit:
+            digits: mutable i64[32] = zeroed
+            digits[0] <- 1
+            length: mutable i64 = 1
+            exponent: mutable i64 = 0
+            while exponent < power:
+                carry: mutable i64 = 0
+                index: mutable i64 = 0
+                while index < length:
+                    value: i64 = digits[index.usize()] * base + carry
+                    digits[index.usize()] <- value % 10
+                    carry <- value / 10
+                    index <- index + 1
+                while carry > 0:
+                    digits[length.usize()] <- carry % 10
+                    length <- length + 1
+                    carry <- carry / 10
+                exponent <- exponent + 1
+            if length == power:
+                count <- count + 1
+            power <- power + 1
+        base <- base + 1
+    count
+
+export fn problem63(max_base: i64, max_power: i64) -> i64 = problem63_impl

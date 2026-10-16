@@ -1,0 +1,25 @@
+# Count contiguous runs of equal ASCII bytes.
+const MAX_TEXT_BYTES: usize = 4096
+
+def count_homogenous_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > MAX_TEXT_BYTES.i64():
+        return -1
+    count: usize = input[0].usize()
+    if length != count + 1:
+        return -1
+    index: mutable usize = 0
+    while index < count:
+        if input[1 + index] < 0 or input[1 + index] > 127:
+            return -1
+        index <- index + 1
+    if count == 0:
+        return 0
+    runs: mutable usize = 1
+    index <- 2
+    while index <= count:
+        if input[index] != input[index - 1]:
+            runs <- runs + 1
+        index <- index + 1
+    runs.i64()
+
+export fn count_homogenous(input: i64&, length: usize) -> i64 = count_homogenous_impl

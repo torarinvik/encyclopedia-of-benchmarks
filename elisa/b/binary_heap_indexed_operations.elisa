@@ -1,0 +1,93 @@
+# Bounded operation stream for the source MinHeap API.
+def put_i64(out: u8&, slot: usize, value: i64):
+    bits: u64 = value.u64()
+    for b in 0..8:
+        out[slot * 8 + b] = (bits & 255).u8()
+        bits = bits >> 8
+
+def sift_down(heap: i64&, size: usize, index: usize):
+    i: usize = index
+    while true:
+        left: usize = 2 * i + 1
+        right: usize = left + 1
+        smallest: usize = i
+        if left < size and heap[left] < heap[smallest]:
+            smallest = left
+        if right < size and heap[right] < heap[smallest]:
+            smallest = right
+        if smallest == i:
+            return
+        temp: i64 = heap[i]
+        heap[i] = heap[smallest]
+        heap[smallest] = temp
+        i = smallest
+
+def bubble_up(heap: i64&, index: usize):
+    i: usize = index
+    while i > 0:
+        parent: usize = (i - 1) / 2
+        if heap[parent] <= heap[i]:
+            return
+        temp: i64 = heap[i]
+        heap[i] = heap[parent]
+        heap[parent] = temp
+        i = parent
+
+def binary_heap_indexed_operations_impl(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    heap_capacity: i64 = values[0]
+    operation_count: i64 = values[1]
+    if heap_capacity < 1 or heap_capacity > 256 or operation_count < 0 or operation_count > 512 or length != 2 + operation_count.usize() * 3:
+        return -1
+    heap: i64[256]
+    size: usize = 0
+    output_count: usize = 0
+    for i in 0..operation_count.usize():
+        op: i64 = values[2 + 3 * i]
+        a: i64 = values[3 + 3 * i]
+        b: i64 = values[4 + 3 * i]
+        if op == 0:
+            if a < -2147483648 or a > 2147483647 or b != 0:
+                return -1
+            if size < heap_capacity.usize():
+                heap[size] = a
+                bubble_up(heap, size)
+                size += 1
+        elif op == 1 or op == 2:
+            if a != 0 or b != 0 or (op == 1 and size == 0):
+                return -1
+            if output == null or (output_count + 1) * 8 > output_capacity:
+                return -2
+            result: i64 = 2147483647
+            if size > 0:
+                result = heap[0]
+            if op == 2 and size > 0:
+                size -= 1
+                heap[0] = heap[size]
+                if size > 0:
+                    sift_down(heap, size, 0)
+            put_i64(output, output_count, result)
+            output_count += 1
+        elif op == 3:
+            if a < 0 or a.usize() >= size or b < -2147483648 or b > 2147483647 or b > heap[a.usize()]:
+                return -1
+            heap[a.usize()] = b
+            bubble_up(heap, a.usize())
+        elif op == 4:
+            if a < 0 or a.usize() >= size or b != 0:
+                return -1
+            heap[a.usize()] = -2147483648
+            bubble_up(heap, a.usize())
+            size -= 1
+            heap[0] = heap[size]
+            if size > 0:
+                sift_down(heap, size, 0)
+        else:
+            return -1
+    bytes: usize = output_count * 8
+    if bytes > output_capacity:
+        return -2
+    bytes.i64()
+
+export fn binary_heap_indexed_operations(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64 = binary_heap_indexed_operations_impl

@@ -1,0 +1,26 @@
+# Search from both ends inward, matching the recursive source's visit order.
+def search_range(values: i64&, key: i64, left: i64, right: i64, offset: usize) -> i64:
+    if left > right:
+        return -1
+    if values[offset + left.usize()] == key:
+        return left
+    if values[offset + right.usize()] == key:
+        return right
+    search_range(values, key, left + 1, right - 1, offset)
+
+def double_linear_search_recursion_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 1026:
+        return -2
+    count: i64 = values[0]
+    key: i64 = values[1]
+    if count < 0 or count > 1024 or key < -2147483648 or key > 2147483647 or length != usize(2 + count):
+        return -2
+    index: mutable i64 = 0
+    while index < count:
+        value: i64 = values[(2 + index).usize()]
+        if value < -2147483648 or value > 2147483647:
+            return -2
+        index <- index + 1
+    search_range(values, key, 0, count - 1, 2)
+
+export fn double_linear_search_recursion(values: i64&, length: usize) -> i64 = double_linear_search_recursion_impl

@@ -9,6 +9,7 @@ import datetime as dt
 from functools import lru_cache
 import hashlib
 import json
+import math
 from pathlib import Path
 import platform
 import random
@@ -16,12 +17,14 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from uint53_xor_oracle import expected_result as uint53_xor_expected
+from trinomial_triangle_oracle import expected_result as trinomial_triangle_oracle
 from run_binary_scalar import encode_values
 
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version")
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "uint53_xor", "trinomial_triangle")
 
 
 def oracle(left: int, right: int) -> int:
@@ -140,7 +143,154 @@ def ackermann_oracle(m: int, n: int) -> int:
     return _ackermann_value(m, n)
 
 
+def problem56_digit_sum_oracle(a: int, b: int) -> int:
+    if (type(a) is not int or type(b) is not int or not 1 <= a <= 200 or not 1 <= b <= 200):
+        return -1
+    return max(sum(map(int, str(base ** power)))
+               for base in range(a) for power in range(b))
+
+
+@lru_cache(maxsize=8)
+def problem800_source_count(base: int, degree: int) -> int:
+    """Find each right boundary by binary search instead of the ports' pointer scan."""
+    if (type(base) is not int or type(degree) is not int
+            or not 2 <= base <= 1_000_000 or not 1 <= degree <= 1_000_000):
+        return -1
+    upper_bound = degree * math.log2(base)
+    max_prime = int(upper_bound)
+    if max_prime <= 2:
+        return 0
+    sieve = bytearray([1]) * max_prime
+    sieve[0:2] = b"\x00\x00"
+    for prime in range(2, math.isqrt(max_prime - 1) + 1):
+        if sieve[prime]:
+            for multiple in range(prime * prime, max_prime, prime):
+                sieve[multiple] = 0
+    primes = [value for value in range(2, max_prime) if sieve[value]]
+    left, right, count = 0, len(primes) - 1, 0
+    while left < right:
+        left_prime = primes[left]
+
+        def score(rank: int) -> float:
+            right_prime = primes[rank]
+            return (right_prime * math.log2(left_prime)
+                    + left_prime * math.log2(right_prime))
+
+        if score(right) > upper_bound:
+            low, high = 0, right
+            while low < high:
+                middle = (low + high + 1) // 2
+                if score(middle) <= upper_bound:
+                    low = middle
+                else:
+                    high = middle - 1
+            right = low
+        count += right - left
+        left += 1
+    return count
+
+
+def problem63_powerful_digit_count(max_base: int, max_power: int) -> int:
+    if (type(max_base) is not int or type(max_power) is not int
+            or not I64_MIN <= max_base <= I64_MAX or not I64_MIN <= max_power <= I64_MAX):
+        return -1
+    # Decimal-string lengths are exact; source bounds above these caps cannot contribute.
+    return sum(len(str(base ** power)) == power
+               for base in range(1, min(max_base, 10))
+               for power in range(1, min(max_power, 22)))
+
+
+def problem74_chain_count(num_terms: int, max_start: int) -> int:
+    if max_start > 1_000_000:
+        return -1
+    if max_start <= 1:
+        return 0
+    digit_factorials = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
+    memo = {145: 0, 169: 3, 36301: 3, 1454: 3, 871: 2, 45361: 2, 872: 2}
+
+    def digit_factorial_sum(value: int) -> int:
+        total = 0
+        while value:
+            total += digit_factorials[value % 10]
+            value //= 10
+        return total or 1
+
+    count = 0
+    for start in range(1, max_start):
+        path: list[int] = []
+        position: dict[int, int] = {}
+        current = start
+        while current not in memo:
+            following = digit_factorial_sum(current)
+            if following in position:
+                # The source caches the current node as length zero, then
+                # unwinds only the preceding path nodes.
+                memo[current] = 0
+                length = 0
+                break
+            position[current] = len(path)
+            path.append(current)
+            current = following
+        else:
+            length = memo[current]
+        for value in reversed(path):
+            length += 1
+            memo[value] = length
+        count += memo[start] == num_terms
+    return count
+
+
+@lru_cache(maxsize=16)
+def problem124_radical_order(n_max: int, rank: int) -> int:
+    """Order by trial-factored radicals, independently of the ports' sieve buckets."""
+    if not 1 <= rank <= n_max <= 100_000:
+        return -1
+
+    def radical(value: int) -> int:
+        result = 1
+        factor = 2
+        while factor <= value // factor:
+            if value % factor == 0:
+                result *= factor
+                while value % factor == 0:
+                    value //= factor
+            factor = 3 if factor == 2 else factor + 2
+        if value > 1:
+            result *= value
+        return result
+
+    ordered = sorted((radical(value), value) for value in range(1, n_max + 1))
+    return ordered[rank - 1][1]
+
+
+@lru_cache(maxsize=8)
+def problem174_lamina_counts(t_limit: int, n_limit: int) -> int:
+    """Count factor-pair representations, independently of the outer-width scan."""
+    if (type(t_limit) is not int or type(n_limit) is not int
+            or not I64_MIN <= t_limit <= I64_MAX
+            or not I64_MIN <= n_limit <= I64_MAX
+            or t_limit > 1_000_000):
+        return -1
+    if t_limit < 0:
+        return 0
+    if t_limit <= 1:
+        return 0
+    counts = [0] * (t_limit + 1)
+    for difference in range(2, math.isqrt(t_limit - 1) + 1, 2):
+        for total_width in range(difference + 2, t_limit // difference + 1, 2):
+            counts[difference * total_width] += 1
+    return sum(1 <= representations <= n_limit for representations in counts)
+
+
 def result(algorithm: str, left: int, right: int) -> int:
+    if algorithm == "uint53_xor":
+        return uint53_xor_expected(left, right)
+    if algorithm == "problem124":
+        return problem124_radical_order(left, right)
+    if algorithm == "problem800":
+        return problem800_source_count(left, right)
+    if algorithm == "problem174":
+        return problem174_lamina_counts(left, right)
     if algorithm == "hamming_distance":
         return oracle(left, right)
     if algorithm == "gcd":
@@ -157,12 +307,53 @@ def result(algorithm: str, left: int, right: int) -> int:
         return range_bitwise_and_oracle(left, right)
     if algorithm == "first_bad_version":
         return first_bad_version_oracle(left, right)
+    if algorithm == "problem56":
+        return problem56_digit_sum_oracle(left, right)
+    if algorithm == "problem63":
+        return problem63_powerful_digit_count(left, right)
+    if algorithm == "problem74":
+        if (type(left) is not int or type(right) is not int
+                or not I64_MIN <= left <= I64_MAX or not I64_MIN <= right <= I64_MAX):
+            return -1
+        return problem74_chain_count(left, right)
+    if algorithm == "trinomial_triangle":
+        return trinomial_triangle_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
     pairs = {tuple(case["input_values"]) for case in workload["cases"]}
-    if algorithm == "ackermann":
+    if algorithm == "problem56":
+        pairs.update({(1, 1), (2, 2), (10, 10), (100, 100), (100, 200), (200, 1), (1, 200),
+                      (200, 200), (0, 1), (1, 0), (201, 1), (1, 201), (-1, 10), (10, -1)})
+        rng = random.Random(20261015)
+        pairs.update((rng.randrange(1, 31), rng.randrange(1, 31)) for _ in range(64))
+    elif algorithm == "problem63":
+        pairs.update({(0, 0), (1, 1), (2, 2), (10, 22), (11, 22), (10, 23),
+                      (100, 100), (-1, -1), (I64_MIN, I64_MIN), (I64_MAX, I64_MAX),
+                      (I64_MIN, 22), (10, I64_MAX)})
+        rng = random.Random(20261015)
+        pairs.update((rng.randrange(-2, 15), rng.randrange(-2, 28)) for _ in range(64))
+    elif algorithm == "problem74":
+        pairs.update({(60, 1_000_000), (10, 1000), (0, 146), (0, 145),
+                      (1, 2), (60, 1), (-1, 100), (1000, 100),
+                      (60, 0), (60, -1), (60, 1_000_001),
+                      (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
+        rng = random.Random(20261015)
+        pairs.update((rng.randrange(-2, 100), rng.randrange(-2, 5000)) for _ in range(32))
+    elif algorithm == "problem800":
+        pairs.update({(2, 1), (2, 5), (2, 20), (3, 4), (800, 1), (800, 800),
+                      (1, 800), (800, 0), (1_000_001, 1), (2, 1_000_001),
+                      (I64_MIN, I64_MAX), (I64_MAX, I64_MAX)})
+        rng = random.Random(20261015)
+        pairs.update((rng.randrange(2, 1001), rng.randrange(1, 1001)) for _ in range(96))
+    elif algorithm == "problem174":
+        pairs.update({(-1, 10), (0, 10), (7, 10), (8, 1), (32, 2),
+                      (1000, 5), (1000, 10), (10000, 10),
+                      (1000001, 10), (I64_MIN, I64_MAX), (I64_MAX, I64_MAX)})
+        rng = random.Random(20261015)
+        pairs.update((rng.randrange(-2, 2000), rng.randrange(-2, 13)) for _ in range(64))
+    elif algorithm == "ackermann":
         pairs.update((m, n) for m in range(4) for n in range(6))
         left_edges = [I64_MIN, -1, 0, 1, 3, 4, I64_MAX]
         right_edges = [I64_MIN, -1, 0, 1, 5, 6, I64_MAX]
@@ -197,9 +388,17 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                                version_count + 1, U64_MAX}
             edge_bad_values = {value for value in edge_bad_values if value <= U64_MAX}
             pairs.update((version_count, first_bad) for first_bad in edge_bad_values)
-    else:
+    elif algorithm == "trinomial_triangle":
+        pairs.update((n, k) for n in range(11) for k in range(-10, 11))
+        pairs.update({(-1, 0), (11, 0), (10, -11), (10, 11),
+                      (I64_MIN, 0), (I64_MAX, 0), (0, I64_MIN), (0, I64_MAX)})
+    elif algorithm != "problem56":
         pairs.update((left, right) for left in range(256) for right in range(256))
-    if algorithm != "ackermann":
+    if algorithm == "problem124":
+        pairs.update((n_max, rank) for n_max in range(1, 31) for rank in range(1, n_max + 1))
+        pairs.update({(0, 0), (0, 1), (1, 0), (10, 11), (100_001, 1),
+                      (-1, 1), (1, -1), (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
+    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "trinomial_triangle"}:
         if algorithm == "range_bitwise_and":
             edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
                            I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
@@ -207,6 +406,11 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         elif algorithm == "first_bad_version":
             edge_values = [0, 1, 2, 3, I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]
             random_bits = 32
+        elif algorithm == "uint53_xor":
+            edge_values = [0, 1, 2, 3, 1 << 26, 1 << 52,
+                           0x15555555555555, 0x0AAAAAAAAAAAAA,
+                           9_007_199_254_740_991]
+            random_bits = 53
         elif algorithm == "hamming_distance":
             edge_values = [0, 1, 2**63, U64_MAX, 0xAAAAAAAAAAAAAAAA, 0x5555555555555555]
             random_bits = 64
@@ -225,7 +429,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             random_bits = 63
         pairs.update((left, right) for left in edge_values for right in edge_values)
         rng = random.Random(20261014)
-        if algorithm == "range_bitwise_and":
+        if algorithm == "uint53_xor":
+            pairs.update({(-1, 0), (0, -1), (9_007_199_254_740_992, 0),
+                          (0, 9_007_199_254_740_992), (I64_MIN, I64_MAX)})
+        elif algorithm == "range_bitwise_and":
             pairs.update((left, right) for left, right in ((I32_MAX + 1, I32_MAX + 1),
                                                             (0, U64_MAX), (I32_MAX, 0)))
         elif algorithm == "addition_without_arithmetic":
@@ -245,7 +452,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         else:
             pairs.update((rng.getrandbits(random_bits), rng.getrandbits(random_bits)) for _ in range(512))
     for case in workload["cases"]:
-        left, right, expected = encode_values(case)
+        left, right, expected = encode_values(case, algorithm)
         if expected != result(algorithm, left, right):
             raise ValueError(f"workload oracle mismatch: {case['id']}")
     data = "".join(
@@ -280,7 +487,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        left, right, expected = encode_values(case)
+        left, right, expected = encode_values(case, algorithm)
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

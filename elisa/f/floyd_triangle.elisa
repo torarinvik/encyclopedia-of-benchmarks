@@ -1,0 +1,27 @@
+# Generate Floyd's triangle as flattened little-endian 16-bit values.
+const MAX_ROWS: i64 = 90
+
+def floyd_triangle_impl(rows: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if rows < 0 or rows > MAX_ROWS:
+        return -1
+    rows_usize: usize = rows.usize()
+    count: usize = rows_usize * (rows_usize + 1) / 2
+    output_length: usize = count * 2
+    if output_capacity < output_length:
+        return -2
+    index: mutable usize = 0
+    number: mutable i64 = 1
+    row: mutable usize = 1
+    while row <= rows_usize:
+        column: mutable usize = 0
+        while column < row:
+            output[index * 2] <- (number & 255).u8()
+            output[index * 2 + 1] <- ((number >> 8) & 255).u8()
+            number <- number + 1
+            index <- index + 1
+            column <- column + 1
+        row <- row + 1
+    output_length.i64()
+
+export fn floyd_triangle(rows: i64, output: mutable u8&,
+        output_capacity: usize) -> i64 = floyd_triangle_impl

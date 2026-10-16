@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-62-scalar-v1",
+  "algorithm": "problem62",
+  "function_symbol": "problem62",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 1,
+    "maximum": 5,
+    "meaning": "number of cube values sharing a sorted decimal-digit signature",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "First cube, in increasing base order, whose digit-signature group reaches the requested size",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "single_member_group",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "documented_two_member_group",
+      "input_value": 2,
+      "expected_result": 125
+    },
+    {
+      "id": "documented_three_member_group",
+      "input_value": 3,
+      "expected_result": 41063625
+    },
+    {
+      "id": "first_four_member_group",
+      "input_value": 4,
+      "expected_result": 1006012008
+    },
+    {
+      "id": "source_default_five_member_group",
+      "input_value": 5,
+      "expected_result": 127035954683
+    },
+    {
+      "id": "below_supported_group_size",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_group_size",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_group_size",
+      "input_value": 6,
+      "expected_result": -1
+    }
+  ]
+}

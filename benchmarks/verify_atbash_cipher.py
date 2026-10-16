@@ -22,10 +22,13 @@ FAMILY = "i64_array_bytes_output"
 
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+    default_capacity = workload.get("workspace", {}).get("bytes")
 
     def add(values: tuple[int, ...], capacity: int | None = None) -> None:
         result, output = expected_output(list(values), ALGORITHM)
-        selected_capacity = len(output) if capacity is None else capacity
+        selected_capacity = capacity
+        if selected_capacity is None:
+            selected_capacity = len(output) if default_capacity is None else default_capacity
         if result >= 0 and selected_capacity < len(output):
             result, output = -2, b""
         cases[(values, selected_capacity)] = (result, output)
@@ -43,10 +46,14 @@ def corpus(workload: dict) -> tuple[str, int]:
     for case in workload["cases"]:
         values = tuple(case["input_values"])
         result, output = expected_output(list(values), ALGORITHM)
-        if (case["expected_result"] != result
-                or case["expected_output_hex"] != output.hex()):
+        capacity = case.get("workspace_bytes", default_capacity)
+        expected_result = (case.get("capacity_error_result", -2)
+                           if capacity is not None and result >= 0 and capacity < len(output) else result)
+        expected_output = b"" if capacity is not None and result >= 0 and capacity < len(output) else output
+        if (case["expected_result"] != expected_result
+                or case["expected_output_hex"] != expected_output.hex()):
             raise ValueError(f"workload oracle mismatch: {case['id']}")
-        add(values)
+        add(values, capacity)
 
     add((-1,))
     add((128,))
@@ -54,10 +61,10 @@ def corpus(workload: dict) -> tuple[str, int]:
     add((65,), capacity=0)
 
     lines = [f"{len(cases)}\n"]
-    for (values, _capacity), (result, output) in sorted(cases.items()):
+    for (values, capacity), (result, output) in sorted(cases.items()):
         encoded = output.hex() if output else "-"
         values_text = "" if not values else " " + " ".join(map(str, values))
-        lines.append(f"{len(values)} {result} {len(output)}{values_text} {encoded}\n")
+        lines.append(f"{len(values)} {result} {len(output)} {capacity}{values_text} {encoded}\n")
     return "".join(lines), len(cases)
 
 
@@ -88,11 +95,15 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
         raise RuntimeError("recorder emitted an unexpected number of workload records")
     for case, record in zip(workload["cases"], records):
         values = case["input_values"]
-        result, _ = expected_output(values, ALGORITHM)
+        result, output = expected_output(values, ALGORITHM)
+        capacity = case.get(
+            "workspace_bytes", workload.get("workspace", {}).get("bytes", len(output)),
+        )
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
                 or record["workload"]["input_values"] != values
+                or record["workload"]["output_capacity"] != capacity
                 or record["workload"]["expected_result"] != result
                 or record["measurement"]["observed_result"] != result
                 or len(record["measurement"]["samples_ns"]) != 1):

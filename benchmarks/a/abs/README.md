@@ -16,6 +16,7 @@ This benchmark returns the nonnegative magnitude of a signed integer. The review
 
 ## Reviewed TheAlgorithms sources
 
+- [Java `AbsoluteValue.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/AbsoluteValue.java) and [TypeScript `absolute_value.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/absolute_value.ts) expose the same integer mapping, subject to the benchmark's signed 64-bit overflow contract.
 - [Rust `abs.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/abs.rs) — generic signed numeric absolute value.
 - [Nim `abs.nim`](https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/maths/abs.nim) — integer and floating-point variants, plus absolute min/max helpers.
 - [Python `abs.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/abs.py) — numeric magnitude and absolute min/max helpers.

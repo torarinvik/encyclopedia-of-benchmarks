@@ -4,7 +4,7 @@ def is_binary_digit(value: i64) -> bool = value == 48 or value == 49
 
 # The input array contains one ASCII code point per byte.
 def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length == 0 or length > 128:
+    if length == 0 or length > 128 or values.is_null():
         return -1
     start: mutable usize = 0
     end: mutable usize = length

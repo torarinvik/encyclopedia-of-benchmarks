@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "javascript-grid-get-i64-array-scalar-v1",
+  "algorithm": "grid_get",
+  "function_symbol": "grid_get",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation,columns,index]",
+    "operation_mapping": {
+      "0": "one-based column coordinate",
+      "1": "one-based row coordinate"
+    },
+    "columns_range": [
+      1,
+      1000
+    ],
+    "index_range": [
+      0,
+      10000
+    ],
+    "maximum_packed_values": 4,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "selected one-based grid coordinate",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "x_zero",
+      "input_values": [
+        0,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "x_last_col",
+      "input_values": [
+        0,
+        10,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": 10
+    },
+    {
+      "id": "x_wrap_at_columns",
+      "input_values": [
+        0,
+        10,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "x_after_wrap",
+      "input_values": [
+        0,
+        10,
+        11
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "x_one_column_zero",
+      "input_values": [
+        0,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "x_one_column_max_index",
+      "input_values": [
+        0,
+        1,
+        10000
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "y_zero",
+      "input_values": [
+        1,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "y_last_col",
+      "input_values": [
+        1,
+        10,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "y_next_row",
+      "input_values": [
+        1,
+        10,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "y_after_wrap",
+      "input_values": [
+        1,
+        10,
+        11
+      ],
+      "input_length": 3,
+      "expected_result": 2
+    },
+    {
+      "id": "y_max_index",
+      "input_values": [
+        1,
+        1,
+        10000
+      ],
+      "input_length": 3,
+      "expected_result": 10001
+    },
+    {
+      "id": "y_max_columns",
+      "input_values": [
+        1,
+        1000,
+        10000
+      ],
+      "input_length": 3,
+      "expected_result": 11
+    },
+    {
+      "id": "invalid_operation_low",
+      "input_values": [
+        -1,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_operation_high",
+      "input_values": [
+        2,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_columns_zero",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_columns_high",
+      "input_values": [
+        1,
+        1001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_index_negative",
+      "input_values": [
+        0,
+        10,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_index_high",
+      "input_values": [
+        1,
+        10,
+        10001
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        0,
+        10,
+        1,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

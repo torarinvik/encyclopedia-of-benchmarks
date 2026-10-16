@@ -1,0 +1,31 @@
+def hex_to_oct_digit(code: i64) -> i64:
+    if code >= 48 and code <= 57: return code - 48
+    if code >= 65 and code <= 70: return code - 55
+    if code >= 97 and code <= 102: return code - 87
+    return -1
+
+def hex_to_oct_signed_i32(bits: u64) -> i64:
+    if bits <= 2147483647.u64(): return bits.i64()
+    (bits.i64() - 4294967296.i64())
+
+def hex_to_oct_impl(input: i64&, length: usize) -> i64:
+    if length > 8 or (length > 0 and input == null): return -2147483649
+    decimal_bits: mutable u64 = 0
+    index: usize = 0
+    while index < length:
+        digit: i64 = hex_to_oct_digit(input[index])
+        if digit < 0: return -2147483649
+        decimal_bits <- (decimal_bits * 16.u64() + digit.u64()) % 4294967296.u64()
+        index <- index + 1
+    decimal: mutable i64 = hex_to_oct_signed_i32(decimal_bits)
+    if decimal <= 0: return 0
+
+    octal_bits: mutable u64 = 0
+    place_value: mutable u64 = 1
+    while decimal > 0:
+        octal_bits <- (octal_bits + (decimal % 8).u64() * place_value) % 4294967296.u64()
+        decimal <- decimal / 8
+        place_value <- (place_value * 10.u64()) % 4294967296.u64()
+    hex_to_oct_signed_i32(octal_bits)
+
+export fn hex_to_oct(input: i64&, length: usize) -> i64 = hex_to_oct_impl

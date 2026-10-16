@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-16-scalar-v1",
+  "algorithm": "problem16",
+  "function_symbol": "problem16",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "exponent_range": [0, 1000],
+    "meaning": "nonnegative exponent for base two",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {"id":"zero_exponent","input_value":0,"expected_result":1},
+    {"id":"first_power","input_value":1,"expected_result":2},
+    {"id":"second_power","input_value":2,"expected_result":4},
+    {"id":"example_exponent_fifteen","input_value":15,"expected_result":26},
+    {"id":"exponent_ten","input_value":10,"expected_result":7},
+    {"id":"canonical_exponent_one_thousand","input_value":1000,"expected_result":1366},
+    {"id":"negative_exponent","input_value":-1,"expected_result":-1},
+    {"id":"above_maximum_exponent","input_value":1001,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,14 @@
+def problem301_impl(exponent: i64) -> i64:
+    if exponent < 0 or exponent > 30:
+        return -1
+    previous: mutable i64 = 0
+    current: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < exponent + 2:
+        next: i64 = previous + current
+        previous <- current
+        current <- next
+        index <- index + 1
+    previous - exponent % 2
+
+export fn problem301(exponent: i64) -> i64 = problem301_impl

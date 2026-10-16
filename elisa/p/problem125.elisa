@@ -1,0 +1,40 @@
+const MAX_LIMIT: i64 = 100000000
+const HASH_CAPACITY: usize = 32768
+const HASH_MASK: usize = 32767
+
+def problem125_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    seen: mutable i64[32768] = zeroed
+    total: mutable i64 = 0
+    first: mutable i64 = 1
+    done: mutable bool = false
+    while not done:
+        last: mutable i64 = first + 1
+        sum: mutable i64 = first * first + last * last
+        if sum >= limit:
+            done <- true
+        else:
+            while sum < limit:
+                palindrome: mutable bool = sum % 10 != 0
+                if palindrome:
+                    original: i64 = sum
+                    reversed: mutable i64 = 0
+                    value: mutable i64 = sum
+                    while value > 0:
+                        reversed <- reversed * 10 + value % 10
+                        value <- value / 10
+                    palindrome <- original == reversed
+                if palindrome:
+                    slot: mutable usize = (((sum.u64() * 2654435761.u64()) >> 17).usize()) & HASH_MASK
+                    while seen[slot] != 0 and seen[slot] != sum:
+                        slot <- (slot + 1) & HASH_MASK
+                    if seen[slot] == 0:
+                        seen[slot] <- sum
+                        total <- total + sum
+                last <- last + 1
+                sum <- sum + last * last
+            first <- first + 1
+    total
+
+export fn problem125(limit: i64) -> i64 = problem125_impl

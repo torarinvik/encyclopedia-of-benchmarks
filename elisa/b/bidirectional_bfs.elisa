@@ -1,0 +1,124 @@
+const MAX_VERTICES: usize = 64
+const MAX_ARCS: usize = 4096
+
+def bidirectional_bfs_put(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[slot * 8 + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bidirectional_bfs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4:
+        return -1
+    nv: i64 = input[0]
+    av: i64 = input[1]
+    sv: i64 = input[2]
+    tv: i64 = input[3]
+    if nv < 1 or nv > MAX_VERTICES.i64() or av < 0 or av > MAX_ARCS.i64() or sv < 0 or sv >= nv or tv < 0 or tv >= nv or length != 4 + 2 * av.usize():
+        return -1
+    n: usize = nv.usize()
+    m: usize = av.usize()
+    edges: mutable bool[MAX_VERTICES * MAX_VERTICES] = zeroed
+    adjacency: mutable usize[MAX_VERTICES * MAX_VERTICES] = zeroed
+    degree: mutable usize[MAX_VERTICES] = zeroed
+    for i in 0..<m:
+        u: i64 = input[4 + 2 * i]
+        v: i64 = input[5 + 2 * i]
+        if u < 0 or u >= nv or v < 0 or v >= nv:
+            return -1
+        us: usize = u.usize()
+        vs: usize = v.usize()
+        if not edges[us * MAX_VERTICES + vs]:
+            edges[us * MAX_VERTICES + vs] <- true
+            adjacency[us * MAX_VERTICES + degree[us]] <- vs
+            degree[us] <- degree[us] + 1
+    for u in 0..<n:
+        for v in 0..<n:
+            if edges[u * MAX_VERTICES + v] != edges[v * MAX_VERTICES + u]:
+                return -1
+    start: usize = sv.usize()
+    target: usize = tv.usize()
+    path: mutable usize[MAX_VERTICES] = zeroed
+    pc: mutable usize = 0
+    if start == target:
+        path[pc] <- start
+        pc <- pc + 1
+    else:
+        seen: mutable bool[2 * MAX_VERTICES] = zeroed
+        parent: mutable i64[2 * MAX_VERTICES] = zeroed
+        for side in 0..<2:
+            for i in 0..<n:
+                parent[side * MAX_VERTICES + i] <- -1
+        queue: mutable usize[2 * MAX_VERTICES] = zeroed
+        head: mutable usize[2] = zeroed
+        tail: mutable usize[2] = zeroed
+        current: mutable usize = 0
+        seen[start] <- true
+        seen[MAX_VERTICES + target] <- true
+        queue[start] <- start
+        queue[MAX_VERTICES + target] <- target
+        tail[0] <- 1
+        tail[1] <- 1
+        meeting: mutable i64 = -1
+        while head[0] < tail[0] and head[1] < tail[1] and meeting < 0:
+            end: usize = tail[0]
+            while head[0] < end:
+                current <- queue[head[0]]
+                head[0] <- head[0] + 1
+                for j in 0..<degree[current]:
+                    neighbor: usize = adjacency[current * MAX_VERTICES + j]
+                    if seen[neighbor]:
+                        continue
+                    seen[neighbor] <- true
+                    parent[neighbor] <- current.i64()
+                    queue[tail[0]] <- neighbor
+                    tail[0] <- tail[0] + 1
+            for v in 0..<n:
+                if seen[v] and seen[MAX_VERTICES + v]:
+                    meeting <- v.i64()
+                    break
+            if meeting >= 0:
+                break
+            end <- tail[1]
+            while head[1] < end:
+                current <- queue[MAX_VERTICES + head[1]]
+                head[1] <- head[1] + 1
+                for j in 0..<degree[current]:
+                    neighbor: usize = adjacency[current * MAX_VERTICES + j]
+                    if seen[MAX_VERTICES + neighbor]:
+                        continue
+                    seen[MAX_VERTICES + neighbor] <- true
+                    parent[MAX_VERTICES + neighbor] <- current.i64()
+                    queue[MAX_VERTICES + tail[1]] <- neighbor
+                    tail[1] <- tail[1] + 1
+            for v in 0..<n:
+                if seen[v] and seen[MAX_VERTICES + v]:
+                    meeting <- v.i64()
+                    break
+        if meeting >= 0:
+            reverse: mutable usize[MAX_VERTICES] = zeroed
+            count: mutable usize = 0
+            current: mutable i64 = meeting
+            while current != -1:
+                reverse[count] <- current.usize()
+                count <- count + 1
+                current <- parent[current.usize()]
+            while count > 0:
+                count <- count - 1
+                path[pc] <- reverse[count]
+                pc <- pc + 1
+            current <- parent[MAX_VERTICES + meeting.usize()]
+            while current != -1:
+                path[pc] <- current.usize()
+                pc <- pc + 1
+                current <- parent[MAX_VERTICES + current.usize()]
+    bytes: usize = (1 + pc) * 8
+    if output == null or capacity < bytes:
+        return -2
+    bidirectional_bfs_put(output, 0, pc.i64())
+    for i in 0..<pc:
+        bidirectional_bfs_put(output, 1 + i, path[i].i64())
+    bytes.i64()
+
+export def bidirectional_bfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    bidirectional_bfs_impl(input, length, output, capacity)

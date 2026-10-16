@@ -27,6 +27,10 @@
     "maximum_values": 64,
     "maximum_bytes": 256
   },
+  "workspace": {
+    "bytes": 256,
+    "description": "Output buffer capacity in bytes. Ports return -2 without writing when capacity is below four times the shortest input array length."
+  },
   "cases": [
     {
       "id": "pinned_example",
@@ -52,6 +56,32 @@
       ],
       "expected_result": 2,
       "expected_output_hex": "0100000005000000"
+    },
+    {
+      "id": "pinned_example_insufficient_capacity",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        1,
+        2,
+        5,
+        7,
+        9,
+        5,
+        1,
+        3,
+        4,
+        5,
+        8
+      ],
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
     },
     {
       "id": "pinned_example_no_common_values",

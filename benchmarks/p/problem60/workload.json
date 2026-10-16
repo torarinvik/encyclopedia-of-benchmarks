@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-60-default-search-v1",
+  "algorithm": "problem60",
+  "function_symbol": "problem60",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned source defaults to target size 5, 1,000 generated primes, and modulo-3 class flag 1; zero selects that fixed call.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of the first five-prime chain returned by the pinned ascending backtracking traversal.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_default_five_prime_set",
+      "input_value": 0,
+      "expected_result": 26033
+    },
+    {
+      "id": "positive_nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_nonzero_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

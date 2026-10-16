@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "dice-coefficient-v1",
+  "algorithm": "dice_coefficient",
+  "function_symbol": "dice_coefficient",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[lenA, lenB, A_ascii_codes..., B_ascii_codes...]",
+    "string_length_range": [0, 128],
+    "character_code_range": [32, 126],
+    "operation": "Return 1 for equal strings; otherwise return 0 if either length is below 2. Build the set of bigram keys in A, count each bigram occurrence in B whose key appears in A without consuming A counts, then return floor((2*common/(lenA-1+lenB-1))*100)/100.",
+    "case_sensitive": true,
+    "invalid_input_result": -1e300,
+    "exact_shape": "2+lenA+lenB values"
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "JavaScript source Dice score, floored to two decimal places",
+    "invalid_input_result": -1e300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "equal_empty_strings",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "equal_single_character_strings",
+      "input_values": [1, 1, 97, 97],
+      "input_length": 4,
+      "expected_result": 1.0
+    },
+    {
+      "id": "different_single_character_strings",
+      "input_values": [1, 1, 97, 98],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "one_common_bigram",
+      "input_values": [5, 5, 110, 105, 103, 104, 116, 110, 97, 99, 104, 116],
+      "input_length": 12,
+      "expected_result": 0.25
+    },
+    {
+      "id": "repeated_bigrams_are_not_consumed_from_a",
+      "input_values": [2, 3, 97, 97, 97, 97, 97],
+      "input_length": 7,
+      "expected_result": 1.33
+    },
+    {
+      "id": "no_shared_bigrams",
+      "input_values": [3, 3, 97, 98, 99, 120, 121, 122],
+      "input_length": 8,
+      "expected_result": 0.0
+    },
+    {
+      "id": "invalid_packed_length",
+      "input_values": [2, 2, 97],
+      "input_length": 3,
+      "expected_result": -1e300
+    },
+    {
+      "id": "invalid_character_code",
+      "input_values": [1, 1, 31, 31],
+      "input_length": 4,
+      "expected_result": -1e300
+    }
+  ]
+}

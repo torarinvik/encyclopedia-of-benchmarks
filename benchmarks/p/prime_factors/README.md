@@ -22,5 +22,6 @@ All nine portable ports use integer trial division and avoid floating-point squa
 - [TheAlgorithms/JavaScript PrimeFactors.js](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/PrimeFactors.js)
 - [TheAlgorithms/Julia prime_factors.jl](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/prime_factors.jl)
 - [TheAlgorithms/Python prime_factors.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/prime_factors.py)
+- [TheAlgorithms/Python basic_maths.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/basic_maths.py) (`prime_factors`)
 - [TheAlgorithms/Rust prime_factors.rs](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/prime_factors.rs)
 - [TheAlgorithms/Scala PrimeFactors.scala](https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/PrimeFactors.scala)

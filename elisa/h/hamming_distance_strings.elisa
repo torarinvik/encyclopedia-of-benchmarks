@@ -1,0 +1,25 @@
+def hamming_distance_strings_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 260:
+        return -1
+    left_length: i64 = input[0]
+    right_length: i64 = input[1]
+    if left_length < 0 or left_length > 128 or right_length < 0 or right_length > 128:
+        return -1
+    if length != (2 + left_length.usize() + right_length.usize()):
+        return -1
+    index: usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+    if left_length != right_length:
+        return -1
+    distance: mutable i64 = 0
+    index <- 0
+    while index < left_length.usize():
+        if input[2 + index] != input[2 + left_length.usize() + index]:
+            distance <- distance + 1
+        index <- index + 1
+    distance
+
+export fn hamming_distance_strings(input: i64&, length: usize) -> i64 = hamming_distance_strings_impl

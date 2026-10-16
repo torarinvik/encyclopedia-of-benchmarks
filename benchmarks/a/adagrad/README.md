@@ -17,6 +17,7 @@ Build with:
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm adagrad --language rust --with-checker
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/a/adagrad/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm adagrad --languages rust
 ```
 
 ## Implementations

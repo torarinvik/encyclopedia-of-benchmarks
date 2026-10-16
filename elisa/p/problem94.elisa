@@ -1,0 +1,22 @@
+const MAX_PERIMETER: i64 = 1000000000
+
+def problem94_impl(max_perimeter: i64) -> i64:
+    if max_perimeter < 0 or max_perimeter > MAX_PERIMETER:
+        return -1
+    previous: mutable i64 = 1
+    value: mutable i64 = 2
+    perimeter_sum: mutable i64 = 0
+    index: mutable i64 = 0
+    perimeter: mutable i64 = 0
+    while perimeter <= max_perimeter:
+        perimeter_sum <- perimeter_sum + perimeter
+        previous <- previous + 2 * value
+        value <- value + previous
+        if index % 2 == 0:
+            perimeter <- 2 * value + 2
+        else:
+            perimeter <- 2 * value - 2
+        index <- index + 1
+    perimeter_sum
+
+export fn problem94(max_perimeter: i64) -> i64 = problem94_impl

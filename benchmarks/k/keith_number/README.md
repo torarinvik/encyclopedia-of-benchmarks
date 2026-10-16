@@ -24,3 +24,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/k/keith_number/c/
 ```
 
 The nine implementations are in `c/k/keith_number.c`, `c3/k/keith_number.c3`, `cpp/k/keith_number.cpp`, `elisa/k/keith_number.elisa`, `nim/k/keith_number.nim`, `odin/k/keith_number.odin`, `rust/k/keith_number.rs`, `v/k/keith_number.v`, and `zig/k/keith_number.zig`.
+
+Verify the nine ports against the independent digit-recurrence oracle with `python3 benchmarks/verify_scalar.py --algorithms keith_number`.

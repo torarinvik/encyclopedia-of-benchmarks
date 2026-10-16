@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "id": "gamma-python-recursive-half-integer-float64-unary-v1",
+  "algorithm": "gamma",
+  "function_symbol": "gamma_recursive",
+  "description": "Evaluate the pinned recursive gamma recurrence on bounded positive integer and half-integer inputs.",
+  "input": {
+    "kind": "finite_binary64_half_integer",
+    "minimum": 0.5,
+    "maximum": 20.0,
+    "step": 0.5,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64_gamma_value",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "half_base", "input_values": [0.5], "expected_result": 1.7724538509055159},
+    {"id": "one", "input_values": [1.0], "expected_result": 1.0},
+    {"id": "three_halves", "input_values": [1.5], "expected_result": 0.8862269254527578},
+    {"id": "two", "input_values": [2.0], "expected_result": 1.0},
+    {"id": "five_halves", "input_values": [2.5], "expected_result": 1.329340388179137},
+    {"id": "seven_halves_source_example", "input_values": [3.5], "expected_result": 3.323350970447842},
+    {"id": "five", "input_values": [5.0], "expected_result": 24.0},
+    {"id": "ten_and_a_half", "input_values": [10.5], "expected_result": 1133278.3889487854},
+    {"id": "upper_bound", "input_values": [20.0], "expected_result": 1.21645100408832e17},
+    {"id": "zero_invalid", "input_values": [0.0], "expected_result": -1e300},
+    {"id": "negative_invalid", "input_values": [-0.5], "expected_result": -1e300},
+    {"id": "quarter_step_invalid", "input_values": [1.25], "expected_result": -1e300},
+    {"id": "above_benchmark_bound", "input_values": [20.5], "expected_result": -1e300}
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "java-time-converter-i64-array-float64-v1",
+  "algorithm": "time_converter",
+  "function_symbol": "time_converter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[time_micro,from_unit,to_unit]",
+    "scale": 1000000,
+    "time_value_range": [
+      0,
+      1000
+    ],
+    "unit_codes": {
+      "seconds": 0,
+      "minutes": 1,
+      "hours": 2,
+      "days": 3,
+      "weeks": 4,
+      "months": 5,
+      "years": 6
+    },
+    "maximum_packed_values": 4,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "target-unit value rounded to three decimal places using the source's positive Math.round behavior",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero_value",
+      "input_values": [0, 0, 6],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "round_to_three_decimals",
+      "input_values": [1234560, 0, 0],
+      "input_length": 3,
+      "expected_result": 1.235
+    },
+    {
+      "id": "below_half_millisecond",
+      "input_values": [400, 0, 0],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "half_millisecond_rounds_up",
+      "input_values": [500, 0, 0],
+      "input_length": 3,
+      "expected_result": 0.001
+    },
+    {
+      "id": "minute_to_seconds",
+      "input_values": [1000000, 1, 0],
+      "input_length": 3,
+      "expected_result": 60.0
+    },
+    {
+      "id": "hours_to_minutes",
+      "input_values": [2000000, 2, 1],
+      "input_length": 3,
+      "expected_result": 120.0
+    },
+    {
+      "id": "day_to_week",
+      "input_values": [1000000, 3, 4],
+      "input_length": 3,
+      "expected_result": 0.143
+    },
+    {
+      "id": "week_to_days",
+      "input_values": [1000000, 4, 3],
+      "input_length": 3,
+      "expected_result": 7.0
+    },
+    {
+      "id": "month_to_days_uses_30_44_day_factor",
+      "input_values": [1000000, 5, 3],
+      "input_length": 3,
+      "expected_result": 30.438
+    },
+    {
+      "id": "month_to_hours",
+      "input_values": [1000000, 5, 2],
+      "input_length": 3,
+      "expected_result": 730.5
+    },
+    {
+      "id": "year_to_months_uses_365_25_day_factor",
+      "input_values": [1000000, 6, 5],
+      "input_length": 3,
+      "expected_result": 12.0
+    },
+    {
+      "id": "half_year_to_weeks",
+      "input_values": [500000, 6, 4],
+      "input_length": 3,
+      "expected_result": 26.089
+    },
+    {
+      "id": "second_to_minutes",
+      "input_values": [1000000, 0, 1],
+      "input_length": 3,
+      "expected_result": 0.017
+    },
+    {
+      "id": "maximum_time_value",
+      "input_values": [1000000000, 6, 0],
+      "input_length": 3,
+      "expected_result": 31557600000.0
+    },
+    {
+      "id": "negative_time_rejected",
+      "input_values": [-1, 0, 1],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time_value_over_bound_rejected",
+      "input_values": [1000000001, 0, 1],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unknown_source_unit_rejected",
+      "input_values": [1000000, 7, 1],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unknown_target_unit_rejected",
+      "input_values": [1000000, 1, -1],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "truncated_input_rejected",
+      "input_values": [1000000, 1],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value_rejected",
+      "input_values": [1000000, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

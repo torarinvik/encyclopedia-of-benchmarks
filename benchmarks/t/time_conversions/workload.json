@@ -1,0 +1,800 @@
+{
+  "schema_version": 1,
+  "id": "time-conversions-python-binary64-v1",
+  "algorithm": "time_conversions",
+  "function_symbol": "time_conversions",
+  "input": {
+    "kind": "finite_binary64_nonnegative_time_conversion",
+    "time_value_range": [
+      0.0,
+      10000.0
+    ],
+    "unit_codes": {
+      "0": "seconds",
+      "1": "minutes",
+      "2": "hours",
+      "3": "days",
+      "4": "weeks",
+      "5": "months",
+      "6": "years"
+    },
+    "time_chart": [
+      1.0,
+      60.0,
+      3600.0,
+      86400.0,
+      604800.0,
+      2629800.0,
+      31557600.0
+    ],
+    "time_chart_inverse": [
+      1.0,
+      0.016666666666666666,
+      0.0002777777777777778,
+      1.1574074074074073e-05,
+      1.6534391534391535e-06,
+      3.802570537683474e-07,
+      3.168808781402895e-08
+    ],
+    "formula": "round((time_value * time_chart[from]) * time_chart_inverse[to], 3)",
+    "rounding": "Python round(product, 3): nearest decimal 0.001, ties to even; implementations use a fused multiply-add residual to disambiguate exact scaled half-integers before rounding",
+    "invalid_result": -1e+300,
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "seconds-to-seconds",
+      "input_values": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "seconds-to-minutes",
+      "input_values": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.017
+    },
+    {
+      "id": "seconds-to-hours",
+      "input_values": [
+        1.0,
+        0.0,
+        2.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "seconds-to-days",
+      "input_values": [
+        1.0,
+        0.0,
+        3.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "seconds-to-weeks",
+      "input_values": [
+        1.0,
+        0.0,
+        4.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "seconds-to-months",
+      "input_values": [
+        1.0,
+        0.0,
+        5.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "seconds-to-years",
+      "input_values": [
+        1.0,
+        0.0,
+        6.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "minutes-to-seconds",
+      "input_values": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": 60.0
+    },
+    {
+      "id": "minutes-to-minutes",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "minutes-to-hours",
+      "input_values": [
+        1.0,
+        1.0,
+        2.0
+      ],
+      "expected_result": 0.017
+    },
+    {
+      "id": "minutes-to-days",
+      "input_values": [
+        1.0,
+        1.0,
+        3.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "minutes-to-weeks",
+      "input_values": [
+        1.0,
+        1.0,
+        4.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "minutes-to-months",
+      "input_values": [
+        1.0,
+        1.0,
+        5.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "minutes-to-years",
+      "input_values": [
+        1.0,
+        1.0,
+        6.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "hours-to-seconds",
+      "input_values": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "expected_result": 3600.0
+    },
+    {
+      "id": "hours-to-minutes",
+      "input_values": [
+        1.0,
+        2.0,
+        1.0
+      ],
+      "expected_result": 60.0
+    },
+    {
+      "id": "hours-to-hours",
+      "input_values": [
+        1.0,
+        2.0,
+        2.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "hours-to-days",
+      "input_values": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "expected_result": 0.042
+    },
+    {
+      "id": "hours-to-weeks",
+      "input_values": [
+        1.0,
+        2.0,
+        4.0
+      ],
+      "expected_result": 0.006
+    },
+    {
+      "id": "hours-to-months",
+      "input_values": [
+        1.0,
+        2.0,
+        5.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "hours-to-years",
+      "input_values": [
+        1.0,
+        2.0,
+        6.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "days-to-seconds",
+      "input_values": [
+        1.0,
+        3.0,
+        0.0
+      ],
+      "expected_result": 86400.0
+    },
+    {
+      "id": "days-to-minutes",
+      "input_values": [
+        1.0,
+        3.0,
+        1.0
+      ],
+      "expected_result": 1440.0
+    },
+    {
+      "id": "days-to-hours",
+      "input_values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "expected_result": 24.0
+    },
+    {
+      "id": "days-to-days",
+      "input_values": [
+        1.0,
+        3.0,
+        3.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "days-to-weeks",
+      "input_values": [
+        1.0,
+        3.0,
+        4.0
+      ],
+      "expected_result": 0.143
+    },
+    {
+      "id": "days-to-months",
+      "input_values": [
+        1.0,
+        3.0,
+        5.0
+      ],
+      "expected_result": 0.033
+    },
+    {
+      "id": "days-to-years",
+      "input_values": [
+        1.0,
+        3.0,
+        6.0
+      ],
+      "expected_result": 0.003
+    },
+    {
+      "id": "weeks-to-seconds",
+      "input_values": [
+        1.0,
+        4.0,
+        0.0
+      ],
+      "expected_result": 604800.0
+    },
+    {
+      "id": "weeks-to-minutes",
+      "input_values": [
+        1.0,
+        4.0,
+        1.0
+      ],
+      "expected_result": 10080.0
+    },
+    {
+      "id": "weeks-to-hours",
+      "input_values": [
+        1.0,
+        4.0,
+        2.0
+      ],
+      "expected_result": 168.0
+    },
+    {
+      "id": "weeks-to-days",
+      "input_values": [
+        1.0,
+        4.0,
+        3.0
+      ],
+      "expected_result": 7.0
+    },
+    {
+      "id": "weeks-to-weeks",
+      "input_values": [
+        1.0,
+        4.0,
+        4.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "weeks-to-months",
+      "input_values": [
+        1.0,
+        4.0,
+        5.0
+      ],
+      "expected_result": 0.23
+    },
+    {
+      "id": "weeks-to-years",
+      "input_values": [
+        1.0,
+        4.0,
+        6.0
+      ],
+      "expected_result": 0.019
+    },
+    {
+      "id": "months-to-seconds",
+      "input_values": [
+        1.0,
+        5.0,
+        0.0
+      ],
+      "expected_result": 2629800.0
+    },
+    {
+      "id": "months-to-minutes",
+      "input_values": [
+        1.0,
+        5.0,
+        1.0
+      ],
+      "expected_result": 43830.0
+    },
+    {
+      "id": "months-to-hours",
+      "input_values": [
+        1.0,
+        5.0,
+        2.0
+      ],
+      "expected_result": 730.5
+    },
+    {
+      "id": "months-to-days",
+      "input_values": [
+        1.0,
+        5.0,
+        3.0
+      ],
+      "expected_result": 30.438
+    },
+    {
+      "id": "months-to-weeks",
+      "input_values": [
+        1.0,
+        5.0,
+        4.0
+      ],
+      "expected_result": 4.348
+    },
+    {
+      "id": "months-to-months",
+      "input_values": [
+        1.0,
+        5.0,
+        5.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "months-to-years",
+      "input_values": [
+        1.0,
+        5.0,
+        6.0
+      ],
+      "expected_result": 0.083
+    },
+    {
+      "id": "years-to-seconds",
+      "input_values": [
+        1.0,
+        6.0,
+        0.0
+      ],
+      "expected_result": 31557600.0
+    },
+    {
+      "id": "years-to-minutes",
+      "input_values": [
+        1.0,
+        6.0,
+        1.0
+      ],
+      "expected_result": 525960.0
+    },
+    {
+      "id": "years-to-hours",
+      "input_values": [
+        1.0,
+        6.0,
+        2.0
+      ],
+      "expected_result": 8766.0
+    },
+    {
+      "id": "years-to-days",
+      "input_values": [
+        1.0,
+        6.0,
+        3.0
+      ],
+      "expected_result": 365.25
+    },
+    {
+      "id": "years-to-weeks",
+      "input_values": [
+        1.0,
+        6.0,
+        4.0
+      ],
+      "expected_result": 52.179
+    },
+    {
+      "id": "years-to-months",
+      "input_values": [
+        1.0,
+        6.0,
+        5.0
+      ],
+      "expected_result": 12.0
+    },
+    {
+      "id": "years-to-years",
+      "input_values": [
+        1.0,
+        6.0,
+        6.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "source-3500-seconds-to-hours",
+      "input_values": [
+        3500.0,
+        0.0,
+        2.0
+      ],
+      "expected_result": 0.972
+    },
+    {
+      "id": "source-day-to-hours",
+      "input_values": [
+        1.0,
+        3.0,
+        2.0
+      ],
+      "expected_result": 24.0
+    },
+    {
+      "id": "source-120-minutes-to-seconds",
+      "input_values": [
+        120.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": 7200.0
+    },
+    {
+      "id": "source-two-weeks-to-days",
+      "input_values": [
+        2.0,
+        4.0,
+        3.0
+      ],
+      "expected_result": 14.0
+    },
+    {
+      "id": "source-half-hour-to-minutes",
+      "input_values": [
+        0.5,
+        2.0,
+        1.0
+      ],
+      "expected_result": 30.0
+    },
+    {
+      "id": "source-360-months-to-years",
+      "input_values": [
+        360.0,
+        5.0,
+        6.0
+      ],
+      "expected_result": 30.0
+    },
+    {
+      "id": "zero-time",
+      "input_values": [
+        0.0,
+        0.0,
+        6.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "upper-value-bound",
+      "input_values": [
+        10000.0,
+        6.0,
+        0.0
+      ],
+      "expected_result": 315576000000.0
+    },
+    {
+      "id": "lower-value-bound",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-time",
+      "input_values": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-source-code",
+      "input_values": [
+        1.0,
+        7.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional-destination-code",
+      "input_values": [
+        1.0,
+        0.0,
+        1.5
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-unit-code",
+      "input_values": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time-above-bound",
+      "input_values": [
+        10000.5,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time-below-bound",
+      "input_values": [
+        -0.5,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "half_millisecond_just_below",
+      "input_values": [
+        0.0004999999999999999,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "half_millisecond_exact_decimal",
+      "input_values": [
+        0.0005,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_just_above",
+      "input_values": [
+        0.0005000000000000001,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "one_and_half_milliseconds",
+      "input_values": [
+        0.0015,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.002
+    },
+    {
+      "id": "two_and_half_milliseconds_just_below",
+      "input_values": [
+        0.0024999999999999996,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.002
+    },
+    {
+      "id": "two_and_half_milliseconds_exact_decimal",
+      "input_values": [
+        0.0025,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.003
+    },
+    {
+      "id": "two_and_half_milliseconds_just_above",
+      "input_values": [
+        0.0025000000000000005,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.003
+    },
+    {
+      "id": "nine_seconds_to_hours_half_centisecond",
+      "input_values": [
+        9.0,
+        0.0,
+        2.0
+      ],
+      "expected_result": 0.003
+    },
+    {
+      "id": "half_millisecond_factor_path_0_to_1",
+      "input_values": [
+        0.030000000000000002,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_0_to_2",
+      "input_values": [
+        1.8,
+        0.0,
+        2.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_0_to_3",
+      "input_values": [
+        43.2,
+        0.0,
+        3.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_0_to_4",
+      "input_values": [
+        302.4,
+        0.0,
+        4.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_0_to_5",
+      "input_values": [
+        1314.9,
+        0.0,
+        5.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_1_to_0",
+      "input_values": [
+        8.333333333333334e-06,
+        1.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_2_to_0",
+      "input_values": [
+        1.3888888888888888e-07,
+        2.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_3_to_0",
+      "input_values": [
+        5.787037037037037e-09,
+        3.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_4_to_0",
+      "input_values": [
+        8.267195767195767e-10,
+        4.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_5_to_0",
+      "input_values": [
+        1.901285268841737e-10,
+        5.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    },
+    {
+      "id": "half_millisecond_factor_path_6_to_0",
+      "input_values": [
+        1.5844043907014474e-11,
+        6.0,
+        0.0
+      ],
+      "expected_result": 0.001
+    }
+  ]
+}

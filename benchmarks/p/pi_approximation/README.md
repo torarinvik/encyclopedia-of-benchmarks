@@ -16,6 +16,7 @@ This benchmark evaluates the deterministic point-list form of Monte Carlo pi app
 
 - [TheAlgorithms/Java `PiApproximation.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PiApproximation.java) accepts caller-supplied points, counts `x*x + y*y <= 1`, and returns four times the inside fraction.
 - [TheAlgorithms/C-Plus-Plus `approximate_pi.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/approximate_pi.cpp) exposes the same point-list contract and is cataloged as an alias of this benchmark.
+- [TheAlgorithms/C-Plus-Plus-1 `approximate_pi.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/approximate_pi.cpp) is the matching additional-repository copy.
 
 The random-sample variants that generate their own points from a count use different input contracts and remain separate candidates.
 

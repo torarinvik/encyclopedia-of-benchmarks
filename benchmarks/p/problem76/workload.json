@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-76-counting-summations-v1",
+  "algorithm": "problem76",
+  "function_symbol": "problem76",
+  "input": {
+    "kind": "positive_integer_total",
+    "minimum": 1,
+    "maximum": 200,
+    "definition": "Count partitions of the given total into at least two positive parts.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of integer partitions after subtracting the one-part representation.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    { "id": "source_example_one", "input_value": 1, "expected_result": 0 },
+    { "id": "source_example_two", "input_value": 2, "expected_result": 1 },
+    { "id": "source_example_three", "input_value": 3, "expected_result": 2 },
+    { "id": "source_example_five", "input_value": 5, "expected_result": 6 },
+    { "id": "source_example_ten", "input_value": 10, "expected_result": 41 },
+    { "id": "source_example_thirty", "input_value": 30, "expected_result": 5603 },
+    { "id": "source_example_fifty", "input_value": 50, "expected_result": 204225 },
+    { "id": "source_default_hundred", "input_value": 100, "expected_result": 190569291 },
+    { "id": "bounded_maximum_two_hundred", "input_value": 200, "expected_result": 3972999029387 },
+    { "id": "zero_total", "input_value": 0, "expected_result": -1 },
+    { "id": "above_bound", "input_value": 201, "expected_result": -1 }
+  ]
+}

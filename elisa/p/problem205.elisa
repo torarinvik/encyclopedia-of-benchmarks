@@ -1,0 +1,56 @@
+const MAX_TOTAL: usize = 36
+const SCALE: i64 = 10000000
+
+def problem205_distribution(sides: i64, dice: i64, output: mutable i64&) -> bool:
+    current: mutable i64[37] = zeroed
+    next: mutable i64[37] = zeroed
+    current[0] <- 1
+    die: mutable i64 = 0
+    while die < dice:
+        total: mutable usize = 0
+        while total <= MAX_TOTAL:
+            next[total] <- 0
+            total <- total + 1
+        total <- 0
+        while total <= MAX_TOTAL:
+            if current[total] != 0:
+                face: mutable i64 = 1
+                while face <= sides:
+                    next[total + face.usize()] <- next[total + face.usize()] + current[total]
+                    face <- face + 1
+            total <- total + 1
+        total <- 0
+        while total <= MAX_TOTAL:
+            current[total] <- next[total]
+            total <- total + 1
+        die <- die + 1
+    total: mutable usize = 0
+    while total <= MAX_TOTAL:
+        output[total] <- current[total]
+        total <- total + 1
+    true
+
+def problem205_impl(placeholder: i64) -> i64:
+    if placeholder != 0:
+        return -1
+    peter: mutable i64[37] = zeroed
+    colin: mutable i64[37] = zeroed
+    problem205_distribution(4, 9, peter)
+    problem205_distribution(6, 6, colin)
+    wins: mutable i64 = 0
+    colin_below: mutable i64 = 0
+    total: mutable usize = 0
+    while total <= MAX_TOTAL:
+        if total >= 9.usize():
+            wins <- wins + peter[total] * colin_below
+        colin_below <- colin_below + colin[total]
+        total <- total + 1
+    games: i64 = 262144 * 46656
+    scaled: i64 = wins * SCALE
+    rounded: mutable i64 = scaled / games
+    remainder: i64 = scaled % games
+    if 2 * remainder > games or (2 * remainder == games and rounded % 2 != 0):
+        rounded <- rounded + 1
+    rounded
+
+export fn problem205(placeholder: i64) -> i64 = problem205_impl

@@ -1,0 +1,46 @@
+def problem345_bit_count(value: u32) -> i64:
+    count: mutable i64 = 0
+    remaining: mutable u32 = value
+    while remaining != 0:
+        count <- count + (remaining & 1).i64()
+        remaining <- remaining >> 1
+    count
+
+def problem345_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 226:
+        return -1
+    dimension: i64 = input[0]
+    if dimension < 1 or dimension > 15 or length != (dimension * dimension).usize() + 1:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < 0 or input[index] > 1000:
+            return -1
+        index <- index + 1
+
+    best: mutable i64[32768] = zeroed
+    index <- 0
+    while index < 32768:
+        best[index] <- -1
+        index <- index + 1
+    best[0] <- 0
+    state_count: usize = (1.u32() << dimension.u32()).usize()
+    mask: mutable usize = 0
+    while mask < state_count:
+        if best[mask] >= 0:
+            row: i64 = problem345_bit_count(mask.u32())
+            if row < dimension:
+                column: mutable i64 = 0
+                while column < dimension:
+                    bit: usize = (1.u32() << column.u32()).usize()
+                    if (mask & bit) == 0:
+                        next: usize = mask | bit
+                        value_index: usize = 1 + (row * dimension + column).usize()
+                        candidate: i64 = best[mask] + input[value_index]
+                        if candidate > best[next]:
+                            best[next] <- candidate
+                    column <- column + 1
+        mask <- mask + 1
+    best[state_count - 1]
+
+export fn problem345(input: i64&, length: usize) -> i64 = problem345_impl

@@ -16,13 +16,13 @@ fn valid(input &i64,n usize) bool {
 }
 @[export: 'infix_to_prefix']
 pub fn infix_to_prefix(input &i64,length usize,output &u8,output_capacity usize) i64 {
-    if length>max_expression{return -1};if length==0{return 0};if !valid(input,length){return -1}
+    if length>max_expression||(length>0&&unsafe{input==nil}){return -1};if length==0{return 0};if !valid(input,length){return -1}
     unsafe {mut stack:=[max_expression]u8{};mut post:=[max_expression]u8{};mut top:=0;mut count:=0
         for i:=int(length);i>0;{i--;ch:=input[i]
             if is_operand(ch){post[count]=u8(ch);count++}else if ch==41{stack[top]=41;top++}else if ch==40{for top>0&&stack[top-1]!=41{top--;post[count]=stack[top];count++};if top>0{top--}}
             else{for top>0&&stack[top-1]!=41&&precedence(ch)<precedence(i64(stack[top-1])){top--;post[count]=stack[top];count++};stack[top]=u8(ch);top++}
         }
         for top>0{top--;post[count]=stack[top];count++}
-        if output_capacity<count{return -2};for j in 0..count{output[j]=post[count-1-j]};return i64(count)
+        if output_capacity<count||output==nil{return -2};for j in 0..count{output[j]=post[count-1-j]};return i64(count)
     }
 }

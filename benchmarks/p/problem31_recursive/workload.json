@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-31-recursive-scalar-v1",
+  "algorithm": "problem31_recursive",
+  "function_symbol": "problem31_recursive",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "target_range_pence": [0, 200],
+    "meaning": "target amount in pence",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of unordered combinations of standard UK coins summing to the target"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_pence_empty_combination", "input_value": 0, "expected_result": 1},
+    {"id": "one_penny", "input_value": 1, "expected_result": 1},
+    {"id": "two_pence", "input_value": 2, "expected_result": 2},
+    {"id": "five_pence", "input_value": 5, "expected_result": 4},
+    {"id": "six_pence_example", "input_value": 6, "expected_result": 5},
+    {"id": "ten_pence_source_example", "input_value": 10, "expected_result": 11},
+    {"id": "fifty_pence_source_example", "input_value": 50, "expected_result": 451},
+    {"id": "one_pound", "input_value": 100, "expected_result": 4563},
+    {"id": "canonical_two_pounds", "input_value": 200, "expected_result": 73682},
+    {"id": "negative_target", "input_value": -1, "expected_result": -1},
+    {"id": "target_above_maximum", "input_value": 201, "expected_result": -1}
+  ]
+}

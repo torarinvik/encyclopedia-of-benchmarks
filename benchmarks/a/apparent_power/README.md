@@ -13,6 +13,14 @@ The pinned Python function converts voltage and current phasors from polar form 
 
 [`workload.json`](workload.json) includes both output components for the pinned examples, zero magnitude, and nontrivial phase combinations, plus invalid-input sentinels. Every case is one timed scalar result.
 
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_apparent_power.py
+```
+
 ## Implementations
 
 | Language | Source |

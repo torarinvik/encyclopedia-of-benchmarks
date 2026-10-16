@@ -1,0 +1,52 @@
+# Return the shortest directed edge count over single-character vertex labels.
+def breadth_first_search_shortest_path_distance_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4:
+        return -1
+    vertices_value: i64 = input[0]
+    edges_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if vertices_value < 1 or vertices_value > 26 or edges_value < 0 or edges_value > 256:
+        return -1
+    vertices: usize = vertices_value.usize()
+    edges: usize = edges_value.usize()
+    if source_value < 0 or source_value >= vertices_value or target_value < 0 or target_value >= vertices_value or
+       length != 4 + 2 * edges:
+        return -1
+
+    adjacent: mutable bool[676] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        from_value: i64 = input[4 + 2 * edge]
+        to_value: i64 = input[5 + 2 * edge]
+        if from_value < 0 or from_value >= vertices_value or to_value < 0 or to_value >= vertices_value:
+            return -1
+        adjacent[from_value.usize() * vertices + to_value.usize()] <- true
+        edge <- edge + 1
+
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    distance: mutable i64[26] = zeroed
+    queue: mutable usize[26] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertices:
+        distance[vertex] <- -1
+        vertex <- vertex + 1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    distance[source] <- 0
+    queue[0] <- source
+    while head < tail:
+        current: usize = queue[head]
+        head <- head + 1
+        next_vertex: mutable usize = 0
+        while next_vertex < vertices:
+            if adjacent[current * vertices + next_vertex] and distance[next_vertex] < 0:
+                distance[next_vertex] <- distance[current] + 1
+                queue[tail] <- next_vertex
+                tail <- tail + 1
+            next_vertex <- next_vertex + 1
+    distance[target]
+
+export fn breadth_first_search_shortest_path_distance(input: i64&, length: usize) -> i64 =
+    breadth_first_search_shortest_path_distance_impl

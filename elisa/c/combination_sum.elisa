@@ -1,0 +1,65 @@
+const MAX_CANDIDATES: usize = 8
+const MAX_TARGET: usize = 20
+const MAX_PACKED_WORDS: usize = 4096
+
+def combination_sum_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3:
+        return -1
+    count_value: i64 = input[0]
+    target: i64 = input[1]
+    if count_value < 1 or count_value > MAX_CANDIDATES.i64() or target < 0 or target > MAX_TARGET.i64():
+        return -1
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return -1
+    for index in 0..<count:
+        candidate: i64 = input[index + 2]
+        if candidate < 1 or candidate > 24 or (index > 0 and input[index + 1] >= candidate):
+            return -1
+
+    packed_values: mutable i64[MAX_PACKED_WORDS] = zeroed
+    path: mutable i64[MAX_TARGET] = zeroed
+    next_candidate: mutable usize[MAX_TARGET + 1] = zeroed
+    remaining: mutable i64[MAX_TARGET + 1] = zeroed
+    packed_values[0] <- 0
+    remaining[0] <- target
+    used: mutable usize = 1
+    depth: mutable usize = 0
+    active: mutable bool = true
+    while active:
+        if remaining[depth] == 0:
+            packed_values[used] <- depth.i64()
+            used <- used + 1
+            for index in 0..<depth:
+                packed_values[used] <- path[index]
+                used <- used + 1
+            packed_values[0] <- packed_values[0] + 1
+            if depth == 0:
+                active <- false
+            else:
+                depth <- depth - 1
+        elif next_candidate[depth] >= count or input[2 + next_candidate[depth]] > remaining[depth]:
+            if depth == 0:
+                active <- false
+            else:
+                depth <- depth - 1
+        else:
+            candidate_index: usize = next_candidate[depth]
+            next_candidate[depth] <- candidate_index + 1
+            candidate: i64 = input[2 + candidate_index]
+            path[depth] <- candidate
+            remaining[depth + 1] <- remaining[depth] - candidate
+            depth <- depth + 1
+            next_candidate[depth] <- candidate_index
+
+    required: usize = used * 8
+    if output.is_null() or capacity < required:
+        return -2
+    for word in 0..<used:
+        bits: mutable u64 = packed_values[word].u64()
+        for byte in 0..<8:
+            output[word * 8 + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+    required.i64()
+
+export fn combination_sum(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = combination_sum_impl

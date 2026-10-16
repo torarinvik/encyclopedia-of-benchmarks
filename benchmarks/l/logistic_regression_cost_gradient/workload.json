@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "matlab-logistic-regression-cost-gradient-v1",
+  "algorithm": "logistic_regression_cost_gradient",
+  "function_symbol": "logistic_regression_cost_gradient",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[sample_count, feature_count, row_major_feature_q1e6..., theta_q1e6..., binary_labels...]",
+    "sample_count_range": [1, 64],
+    "feature_count_range": [1, 8],
+    "feature_q1e6_range": [-1000000, 1000000],
+    "theta_q1e6_range": [-1000000, 1000000],
+    "label_values": [0, 1],
+    "length_formula": "2 + sample_count * feature_count + feature_count + sample_count",
+    "conversion": "Feature and theta integers are divided by 1,000,000. Labels remain 0 or 1.",
+    "invalid_input_result": -1,
+    "maximum_input_length": 586
+  },
+  "output": {
+    "kind": "float64_vector",
+    "definition": "[mean binary cross-entropy loss, mean gradient for each theta feature in order], encoded as little-endian IEEE-754 binary64",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "single_positive_label",
+      "input_values": [1, 1, 1000000, 1000000, 1],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output": [0.3132616875182228, -0.2689414213699951]
+    },
+    {
+      "id": "single_negative_label",
+      "input_values": [1, 1, -1000000, 1000000, 0],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output": [0.3132616875182228, -0.2689414213699951]
+    },
+    {
+      "id": "zero_theta_score",
+      "input_values": [1, 1, 500000, 0, 1],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output": [0.6931471805599453, -0.25]
+    },
+    {
+      "id": "three_sample_two_feature",
+      "input_values": [3, 2, 0, 0, 1000000, 0, 0, 1000000, 1000000, -1000000, 0, 1, 0],
+      "input_length": 13,
+      "expected_result": 24,
+      "expected_output": [0.4398901851987969, -0.08964714045666504, 0.08964714045666504]
+    },
+    {
+      "id": "four_sample_three_feature",
+      "input_values": [4, 3, 1000000, 0, -500000, 500000, 1000000, 0, -1000000, 500000, 500000, 0, -1000000, 1000000, 250000, -500000, 1, 0, 1, 0, 1],
+      "input_length": 21,
+      "expected_result": 32,
+      "expected_output": [0.6680540456301224, -0.027924427114572645, -0.006588943252400836, -0.11746455738845854]
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_zero_samples",
+      "input_values": [0, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_truncated_layout",
+      "input_values": [1, 1, 1000000, 1000000],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_feature_range",
+      "input_values": [1, 1, 1000001, 0, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_label",
+      "input_values": [1, 1, 0, 0, 2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [1, 2, 1000000, -500000, 250000, -1000000, 1],
+      "input_length": 7,
+      "workspace_bytes": 23,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

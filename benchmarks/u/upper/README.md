@@ -8,6 +8,12 @@ The existing `capitalize` benchmark changes only the initial character. This ben
 
 The shared `run_i64_array_bytes_output.py` runner checks accepted-byte conversions and rejects out-of-domain inputs before timing.
 
+Run the independent cross-language verifier with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm upper
+```
+
 The shared ABI is:
 
 ```c

@@ -1,0 +1,102 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def butterworth_filter_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 6:
+        return -1.0e300
+    kind: i64 = values[0]
+    coefficient_index: i64 = values[1]
+    frequency: i64 = values[2]
+    samplerate: i64 = values[3]
+    gain_milli_db: i64 = values[4]
+    q_micro: i64 = values[5]
+    if kind < 0 or kind > 8 or coefficient_index < 0 or coefficient_index > 5 or frequency < 1 or frequency > 95999 or samplerate < 1 or samplerate > 192000 or 2 * frequency >= samplerate:
+        return -1.0e300
+    if q_micro != -1 and (q_micro < 1 or q_micro > 10000000):
+        return -1.0e300
+    needs_gain: bool = kind >= 4 and kind <= 6
+    if needs_gain:
+        if gain_milli_db < -60000 or gain_milli_db > 60000:
+            return -1.0e300
+    else if gain_milli_db != 0:
+        return -1.0e300
+    gain_db: f64 = if needs_gain: gain_milli_db.f64() / 1000.0 else: 0.0
+    q_factor: f64 = if q_micro == -1: 1.0 / sqrt(2.0) else: q_micro.f64() / 1000000.0
+    w0: f64 = 6.283185307179586476925286766559 * frequency.f64() / samplerate.f64()
+    sine: f64 = sin(w0)
+    cosine: f64 = cos(w0)
+    alpha: f64 = sine / (2.0 * q_factor)
+    a0: mutable f64 = 1.0 + alpha
+    a1: mutable f64 = -2.0 * cosine
+    a2: mutable f64 = 1.0 - alpha
+    b0: mutable f64 = 0.0
+    b1: mutable f64 = 0.0
+    b2: mutable f64 = 0.0
+    if kind == 0:
+        b0 <- (1.0 - cosine) / 2.0
+        b1 <- 1.0 - cosine
+        b2 <- b0
+    else if kind == 1:
+        b0 <- (1.0 + cosine) / 2.0
+        b1 <- -1.0 - cosine
+        b2 <- b0
+    else if kind == 2:
+        b0 <- sine / 2.0
+        b1 <- 0.0
+        b2 <- -b0
+    else if kind == 3:
+        b0 <- 1.0 - alpha
+        b1 <- -2.0 * cosine
+        b2 <- 1.0 + alpha
+        a0 <- b2
+        a1 <- b1
+        a2 <- b0
+    else if kind == 4:
+        big_a: f64 = pow(10.0, gain_db / 40.0)
+        b0 <- 1.0 + alpha * big_a
+        b1 <- -2.0 * cosine
+        b2 <- 1.0 - alpha * big_a
+        a0 <- 1.0 + alpha / big_a
+        a1 <- -2.0 * cosine
+        a2 <- 1.0 - alpha / big_a
+    else if kind == 5 or kind == 6:
+        big_a: f64 = pow(10.0, gain_db / 40.0)
+        pmc: f64 = (big_a + 1.0) - (big_a - 1.0) * cosine
+        ppmc: f64 = (big_a + 1.0) + (big_a - 1.0) * cosine
+        mpc: f64 = (big_a - 1.0) - (big_a + 1.0) * cosine
+        pmpc: f64 = (big_a - 1.0) + (big_a + 1.0) * cosine
+        aa2: f64 = 2.0 * sqrt(big_a) * alpha
+        if kind == 5:
+            b0 <- big_a * (pmc + aa2)
+            b1 <- 2.0 * big_a * mpc
+            b2 <- big_a * (pmc - aa2)
+            a0 <- ppmc + aa2
+            a1 <- -2.0 * pmpc
+            a2 <- ppmc - aa2
+        else:
+            b0 <- big_a * (ppmc + aa2)
+            b1 <- -2.0 * big_a * pmpc
+            b2 <- big_a * (ppmc - aa2)
+            a0 <- pmc + aa2
+            a1 <- 2.0 * mpc
+            a2 <- pmc - aa2
+    else if kind == 7:
+        b0 <- 1.0
+        b1 <- -2.0 * cosine
+        b2 <- 1.0
+    else:
+        b0 <- alpha
+        b1 <- 0.0
+        b2 <- -alpha
+    coefficients: mutable f64[6] = zeroed
+    coefficients[0] <- a0
+    coefficients[1] <- a1
+    coefficients[2] <- a2
+    coefficients[3] <- b0
+    coefficients[4] <- b1
+    coefficients[5] <- b2
+    coefficients[coefficient_index.usize()]
+
+export fn butterworth_filter(values: i64&, length: usize) -> f64 = butterworth_filter_impl

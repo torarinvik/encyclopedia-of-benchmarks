@@ -1,0 +1,85 @@
+def graph_lua_directed_weighted_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def graph_lua_directed_weighted_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 63: return -1
+    n: usize = input[0].usize()
+    operations: usize = input[1].usize()
+    if length != 2 + 4 * operations: return -1
+    kind: mutable i64[256] = zeroed
+    weight: mutable i64[256] = zeroed
+    result_kind: mutable i64[63] = zeroed
+    result_value: mutable i64[63] = zeroed
+    index: mutable usize = 0
+    while index < operations:
+        operation: i64 = input[2 + 4 * index]
+        from: i64 = input[3 + 4 * index]
+        to: i64 = input[4 + 4 * index]
+        value: i64 = input[5 + 4 * index]
+        if operation < 0 or operation > 5 or from < 0 or from >= input[0] or to < 0 or to >= input[0]: return -1
+        slot: usize = from.usize() * 16 + to.usize()
+        if operation == 0:
+            if value < -1000 or value > 1000: return -1
+            kind[slot] <- 2
+            weight[slot] <- value
+            result_kind[index] <- -1
+        else if operation == 1:
+            if value != 0: return -1
+            kind[slot] <- 1
+            weight[slot] <- 0
+            result_kind[index] <- -1
+        else if operation == 2:
+            if value != 0: return -1
+            kind[slot] <- 0
+            weight[slot] <- 0
+            result_kind[index] <- -1
+        else if operation == 3:
+            if value != 0 or kind[slot] != 0: return -1
+            kind[slot] <- 1
+            weight[slot] <- 0
+            result_kind[index] <- -1
+        else if operation == 4:
+            if value != 0: return -1
+            result_kind[index] <- kind[slot]
+            if kind[slot] == 2: result_value[index] <- weight[slot]
+        else:
+            if value != 0: return -1
+            if kind[slot] != 0: result_kind[index] <- 1
+            else: result_kind[index] <- 0
+        index <- index + 1
+    edges: mutable usize = 0
+    from_index: mutable usize = 0
+    while from_index < n:
+        to_index: mutable usize = 0
+        while to_index < n:
+            if kind[from_index * 16 + to_index] != 0: edges <- edges + 1
+            to_index <- to_index + 1
+        from_index <- from_index + 1
+    words: usize = 2 + 2 * operations + 4 * edges
+    if output.is_null() or capacity < words * 8: return -2
+    graph_lua_directed_weighted_put_i64(output, 0, operations.i64())
+    index <- 0
+    while index < operations:
+        graph_lua_directed_weighted_put_i64(output, 1 + 2 * index, result_kind[index])
+        graph_lua_directed_weighted_put_i64(output, 2 + 2 * index, result_value[index])
+        index <- index + 1
+    graph_lua_directed_weighted_put_i64(output, 1 + 2 * operations, edges.i64())
+    word: mutable usize = 2 + 2 * operations
+    from_index <- 0
+    while from_index < n:
+        to_index: mutable usize = 0
+        while to_index < n:
+            slot: usize = from_index * 16 + to_index
+            if kind[slot] != 0:
+                graph_lua_directed_weighted_put_i64(output, word, from_index.i64())
+                graph_lua_directed_weighted_put_i64(output, word + 1, to_index.i64())
+                graph_lua_directed_weighted_put_i64(output, word + 2, kind[slot])
+                graph_lua_directed_weighted_put_i64(output, word + 3, weight[slot])
+                word <- word + 4
+            to_index <- to_index + 1
+        from_index <- from_index + 1
+    (words * 8).i64()

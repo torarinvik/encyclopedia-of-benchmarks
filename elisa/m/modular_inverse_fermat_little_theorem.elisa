@@ -1,0 +1,34 @@
+# Fermat modular inverse via prime validation and binary exponentiation.
+def is_prime(value: i64) -> bool:
+    if value <= 1:
+        return false
+    divisor: mutable i64 = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def binary_exponentiation(base_input: i64, exponent_input: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_input % modulus
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if exponent % 2 != 0:
+            result <- result * base % modulus
+        base <- base * base % modulus
+        exponent <- exponent / 2
+    result
+
+def modular_inverse_fermat_little_theorem_impl(a: i64, m: i64) -> i64:
+    if a < -1000000 or a > 1000000 or m < 2 or m > 1000000:
+        return -1
+    if a == 0 or a <= -m or a >= m or not is_prime(m):
+        return -1
+    normalized: mutable i64 = a
+    while normalized < 0:
+        normalized <- normalized + m
+    binary_exponentiation(normalized, m - 2, m)
+
+export fn modular_inverse_fermat_little_theorem(a: i64, m: i64) -> i64 =
+    modular_inverse_fermat_little_theorem_impl

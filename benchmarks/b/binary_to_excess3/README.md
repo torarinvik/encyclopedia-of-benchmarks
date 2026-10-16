@@ -22,6 +22,7 @@ This differs from [`binary_to_decimal`](../binary_to_decimal/README.md), which r
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm binary_to_excess3 --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/b/binary_to_excess3/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm binary_to_excess3 --language rust
 ```
 
 | Language | Source |

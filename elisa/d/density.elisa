@@ -1,0 +1,15 @@
+const invalid_result: f64 = -1.0e300
+
+def density_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3: return invalid_result
+    nodes: i64 = values[0]
+    edges: i64 = values[1]
+    directed: i64 = values[2]
+    if nodes < 2 or nodes > 100000 or (directed != 0 and directed != 1): return invalid_result
+    max_edges: mutable i64 = nodes * (nodes - 1)
+    if directed == 0: max_edges <- max_edges / 2
+    if edges < 0 or edges > max_edges: return invalid_result
+    factor: f64 = if directed == 1: 1.0 else: 2.0
+    (factor * edges.f64()) / (nodes.f64() * (nodes - 1).f64())
+
+export fn density(values: i64&, length: usize) -> f64 = density_impl

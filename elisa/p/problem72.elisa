@@ -1,0 +1,29 @@
+# Sum Euler's totient values for denominators from 2 through the inclusive limit.
+def problem72_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 1000000:
+        return -1
+    if limit < 2:
+        return 0
+    phi: mutable i32[1000001] = zeroed
+    if limit >= 1:
+        phi[1] <- 1
+    value: mutable i64 = 2
+    while value <= limit:
+        phi[value.usize()] <- value.i32()
+        value <- value + 1
+    prime: mutable i64 = 2
+    while prime <= limit:
+        if phi[prime.usize()] == prime.i32():
+            multiple: mutable i64 = prime
+            while multiple <= limit:
+                phi[multiple.usize()] <- phi[multiple.usize()] - phi[multiple.usize()] / prime.i32()
+                multiple <- multiple + prime
+        prime <- prime + 1
+    total: mutable i64 = 0
+    denominator: mutable i64 = 2
+    while denominator <= limit:
+        total <- total + phi[denominator.usize()].i64()
+        denominator <- denominator + 1
+    total
+
+export fn problem72(limit: i64) -> i64 = problem72_impl

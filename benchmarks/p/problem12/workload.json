@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-12-scalar-v1",
+  "algorithm": "problem12",
+  "function_symbol": "problem12",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum_divisors_range": [0, 500],
+    "meaning": "minimum positive-divisor count for a triangular number",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"zero_threshold","input_value":0,"expected_result":1},
+    {"id":"one_divisor","input_value":1,"expected_result":1},
+    {"id":"two_divisors","input_value":2,"expected_result":3},
+    {"id":"three_divisors","input_value":3,"expected_result":6},
+    {"id":"more_than_five_divisors_example","input_value":5,"expected_result":28},
+    {"id":"canonical_500_divisor_threshold","input_value":500,"expected_result":76576500},
+    {"id":"negative_threshold","input_value":-1,"expected_result":-1},
+    {"id":"above_supported_threshold","input_value":501,"expected_result":-1}
+  ]
+}

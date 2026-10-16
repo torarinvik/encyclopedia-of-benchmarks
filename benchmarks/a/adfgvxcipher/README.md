@@ -27,6 +27,12 @@ The decryption port follows the Java helper's actual column-fill order, includin
 
 [`workload.json`](workload.json) covers the pinned `attack at 1200am` example in both directions, ASCII normalization, an empty message, and invalid mode, key, and ciphertext inputs. The shared `i64_array_bytes_output` runner validates the workload with its source-specific ADFGVX oracle before recording.
 
+Run the independent cross-language verifier with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm adfgvxcipher
+```
+
 | Language | Source |
 | --- | --- |
 | C | [`c/a/adfgvxcipher.c`](../../../c/a/adfgvxcipher.c) |

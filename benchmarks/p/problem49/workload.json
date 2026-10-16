@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-49-fixed-search-v1",
+  "algorithm": "problem49",
+  "function_symbol": "problem49",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Largest 12-digit concatenation of the source-selected arithmetic progressions of 4-digit prime permutations.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_fixed_search",
+      "input_value": 0,
+      "expected_result": 296962999629
+    },
+    {
+      "id": "positive_nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_nonzero_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

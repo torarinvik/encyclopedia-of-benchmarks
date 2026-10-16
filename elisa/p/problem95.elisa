@@ -1,0 +1,35 @@
+# Find the smallest start in the first longest aliquot cycle under limit.
+def problem95_impl(limit: i64) -> i64:
+    if limit < 1 or limit > 1000000:
+        return -1
+    sums: mutable u32[1000001] = zeroed
+    divisor: mutable i64 = 1
+    while divisor <= limit / 2:
+        multiple: mutable i64 = 2 * divisor
+        while multiple <= limit:
+            sums[multiple.usize()] <- sums[multiple.usize()] + divisor.u32()
+            multiple <- multiple + divisor
+        divisor <- divisor + 1
+    best_length: mutable i64 = 0
+    answer: mutable i64 = 0
+    start: mutable i64 = 2
+    while start <= limit:
+        current: mutable u32 = sums[start.usize()]
+        length: mutable i64 = 1
+        sums[start.usize()] <- sums[start.usize()] | 2147483648.u32()
+        while current > 1 && current.i64() <= limit && (sums[current.usize()] & 2147483648.u32()) == 0:
+            sums[current.usize()] <- sums[current.usize()] | 2147483648.u32()
+            current <- sums[current.usize()] & 2147483647.u32()
+            length <- length + 1
+        if current.i64() == start && length > best_length:
+            best_length <- length
+            answer <- start
+        current <- start.u32()
+        for step in 0..<length.usize():
+            next: u32 = sums[current.usize()] & 2147483647.u32()
+            sums[current.usize()] <- next
+            current <- next
+        start <- start + 1
+    answer
+
+export fn problem95(limit: i64) -> i64 = problem95_impl

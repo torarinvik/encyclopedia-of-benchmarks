@@ -1,0 +1,21 @@
+# Sum fixed-range numbers equal to the fifth powers of their decimal digits.
+def digit_fifth_power(digit: i64) -> i64:
+    digit * digit * digit * digit * digit
+
+def problem30_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    total: mutable i64 = 0
+    number: mutable i64 = 1000
+    while number < 1000000:
+        remaining: mutable i64 = number
+        digit_sum: mutable i64 = 0
+        while remaining > 0:
+            digit_sum <- digit_sum + digit_fifth_power(remaining % 10)
+            remaining <- remaining / 10
+        if digit_sum == number:
+            total <- total + number
+        number <- number + 1
+    total
+
+export fn problem30(ignored: i64) -> i64 = problem30_impl

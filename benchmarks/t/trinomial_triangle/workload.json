@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "trinomial-triangle-coefficient-binary-scalar-v1",
+  "algorithm": "trinomial_triangle",
+  "function_symbol": "trinomial_triangle",
+  "input": {
+    "kind": "signed_integer_pair",
+    "layout": "[n, k]",
+    "row_range": [0, 10],
+    "position_range": [-10, 10],
+    "source_recurrence": "T(0,0)=1; T(n,k)=0 when k < -n or k > n; otherwise T(n-1,k-1)+T(n-1,k)+T(n-1,k+1) in that order",
+    "invalid_result": -1
+  },
+  "output": "trinomial triangle coefficient as signed integer",
+  "cases": [
+    {"id":"base_center","input_values":[0,0],"expected_result":1},
+    {"id":"base_outside","input_values":[0,1],"expected_result":0},
+    {"id":"row_one_left","input_values":[1,-1],"expected_result":1},
+    {"id":"row_one_center","input_values":[1,0],"expected_result":1},
+    {"id":"row_one_right","input_values":[1,1],"expected_result":1},
+    {"id":"row_two_center","input_values":[2,0],"expected_result":3},
+    {"id":"row_two_edge","input_values":[2,2],"expected_result":1},
+    {"id":"row_five_center","input_values":[5,0],"expected_result":51},
+    {"id":"row_five_inner","input_values":[5,2],"expected_result":30},
+    {"id":"row_five_edge","input_values":[5,-5],"expected_result":1},
+    {"id":"outside_row_positive","input_values":[3,4],"expected_result":0},
+    {"id":"outside_row_negative","input_values":[3,-4],"expected_result":0},
+    {"id":"row_ten_center","input_values":[10,0],"expected_result":8953},
+    {"id":"row_ten_edge","input_values":[10,10],"expected_result":1},
+    {"id":"negative_row_invalid","input_values":[-1,0],"expected_result":-1},
+    {"id":"row_above_bound_invalid","input_values":[11,0],"expected_result":-1},
+    {"id":"position_above_bound_invalid","input_values":[10,11],"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  }
+}

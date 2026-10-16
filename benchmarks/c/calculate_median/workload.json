@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "calculate-median-sorted-array-v1",
+  "algorithm": "calculate_median",
+  "function_symbol": "calculate_median",
+  "input": {
+    "kind": "nonempty_sorted_array_of_signed_32_bit_integers",
+    "minimum_length": 1,
+    "maximum_length": 1024,
+    "ordering": "nondecreasing",
+    "result_encoding": "twice_the_statistical_median",
+    "invalid_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "valid_result_range": [-4294967296, 4294967294]
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "single_positive", "input_values": [7], "expected_result": 14},
+    {"id": "single_negative", "input_values": [-7], "expected_result": -14},
+    {"id": "even_integer_median", "input_values": [2, 8], "expected_result": 10},
+    {"id": "even_half_integer_median", "input_values": [2, 3], "expected_result": 5},
+    {"id": "negative_half_integer_median", "input_values": [-3, -2], "expected_result": -5},
+    {"id": "odd_with_duplicates", "input_values": [-4, 1, 1, 9, 14], "expected_result": 2},
+    {"id": "even_with_duplicates", "input_values": [-8, 0, 4, 4, 4, 10], "expected_result": 8},
+    {"id": "signed_i32_endpoints", "input_values": [-2147483648, 2147483647], "expected_result": -1},
+    {"id": "empty_invalid", "input_values": [], "expected_result": -9223372036854775808}
+  ]
+}

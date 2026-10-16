@@ -1,0 +1,73 @@
+const MAX_TEXT_LENGTH: usize = 512
+const MAX_INPUT_LENGTH: usize = MAX_TEXT_LENGTH + 2
+
+def lower_ascii(value: u8) -> u8:
+    if value >= 65 and value <= 90:
+        return (value.i64() + 32).u8()
+    value
+
+def max_word_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    text_length_value: i64 = input[0]
+    if text_length_value < 1 or text_length_value > 512:
+        return -1
+    text_length: usize = text_length_value.usize()
+    if length != 1 + text_length:
+        return -1
+    text: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    for i in 0..<text_length:
+        value: i64 = input[i + 1]
+        letter: bool = (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+        if value == 32:
+            if i == 0 or i + 1 == text_length or text[i - 1] == 32:
+                return -1
+        else if not letter or value == 73:
+            return -1
+        text[i] <- value.u8()
+
+    starts: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    lengths: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    counts: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    unique_count: mutable usize = 0
+    start: mutable usize = 0
+    while start < text_length:
+        end: mutable usize = start
+        while end < text_length and text[end] != 32:
+            end <- end + 1
+        word_length: usize = end - start
+        if word_length > 6:
+            return -1
+        found: mutable usize = unique_count
+        for key in 0..<unique_count:
+            if lengths[key] != word_length:
+                continue
+            offset: mutable usize = 0
+            while offset < word_length and lower_ascii(text[starts[key] + offset]) == lower_ascii(text[start + offset]):
+                offset <- offset + 1
+            if offset == word_length:
+                found <- key
+                break
+        if found == unique_count:
+            starts[unique_count] <- start
+            lengths[unique_count] <- word_length
+            counts[unique_count] <- 1
+            unique_count <- unique_count + 1
+        else:
+            counts[found] <- counts[found] + 1
+        start <- end + 1
+
+    winner: mutable usize = 0
+    for key in 1..<unique_count:
+        if counts[key] > counts[winner]:
+            winner <- key
+    result_length: usize = lengths[winner]
+    if output_capacity < result_length or output.is_null():
+        return -2
+    single_word: bool = unique_count == 1 and counts[0] == 1
+    for i in 0..<result_length:
+        value: u8 = text[starts[winner] + i]
+        output[i] <- if single_word: value else: lower_ascii(value)
+    result_length.i64()
+
+export fn max_word(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = max_word_impl

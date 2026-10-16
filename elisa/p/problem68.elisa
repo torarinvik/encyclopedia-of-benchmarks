@@ -1,0 +1,75 @@
+def problem68_impl(gon_side: i64) -> i64:
+    if gon_side < 3 or gon_side > 5: return -1
+    n: i64 = gon_side
+    length: i64 = 2 * n
+    values: mutable i64[10] = zeroed
+    cursor: mutable i64 = 0
+    value: mutable i64 = n + 1
+    while value >= 1:
+        values[cursor.usize()] <- value
+        cursor <- cursor + 1
+        value <- value - 1
+    value <- n + 2
+    while value <= 2 * n:
+        values[cursor.usize()] <- value
+        cursor <- cursor + 1
+        value <- value + 1
+    indices: mutable i64[10] = zeroed
+    index: mutable i64 = 0
+    while index < length:
+        indices[index.usize()] <- index
+        index <- index + 1
+    done: mutable bool = false
+    while not done:
+        total: i64 = values[indices[0].usize()] + values[indices[1].usize()] + values[indices[2].usize()]
+        magic: mutable bool = true
+        minimum_outer: mutable i64 = values[indices[0].usize()]
+        line: mutable i64 = 1
+        while line < n:
+            outer: i64 = if line == n - 1: 2 * n - 1 else: 2 * line + 1
+            inner_left: i64 = 2 * line
+            inner_right: i64 = if line == n - 1: 1 else: 2 * line + 2
+            external: i64 = values[indices[outer.usize()].usize()]
+            if external + values[indices[inner_left.usize()].usize()] + values[indices[inner_right.usize()].usize()] != total:
+                magic <- false
+            if external < minimum_outer: minimum_outer <- external
+            line <- line + 1
+        if magic and values[indices[0].usize()] == minimum_outer:
+            result: mutable i64 = 0
+            line <- 0
+            while line < n:
+                outer: i64 = if line == 0: 0 else if line == n - 1: 2 * n - 1 else: 2 * line + 1
+                inner_left: i64 = if line == 0: 1 else: 2 * line
+                inner_right: i64 = if line == n - 1: 1 else if line == 0: 2 else: 2 * line + 2
+                first: i64 = values[indices[outer.usize()].usize()]
+                second: i64 = values[indices[inner_left.usize()].usize()]
+                third: i64 = values[indices[inner_right.usize()].usize()]
+                if first >= 10: result <- result * 100 + first
+                else: result <- result * 10 + first
+                if second >= 10: result <- result * 100 + second
+                else: result <- result * 10 + second
+                if third >= 10: result <- result * 100 + third
+                else: result <- result * 10 + third
+                line <- line + 1
+            return result
+        pivot: mutable i64 = length - 2
+        while pivot >= 0 and indices[pivot.usize()] >= indices[(pivot + 1).usize()]: pivot <- pivot - 1
+        if pivot < 0:
+            done <- true
+        else:
+            successor: mutable i64 = length - 1
+            while indices[successor.usize()] <= indices[pivot.usize()]: successor <- successor - 1
+            temporary: mutable i64 = indices[pivot.usize()]
+            indices[pivot.usize()] <- indices[successor.usize()]
+            indices[successor.usize()] <- temporary
+            left: mutable i64 = pivot + 1
+            right: mutable i64 = length - 1
+            while left < right:
+                temporary <- indices[left.usize()]
+                indices[left.usize()] <- indices[right.usize()]
+                indices[right.usize()] <- temporary
+                left <- left + 1
+                right <- right - 1
+    -1
+
+export fn problem68(gon_side: i64) -> i64 = problem68_impl

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-112-bouncy-proportion-v1",
+  "algorithm": "problem112",
+  "function_symbol": "problem112",
+  "input": {
+    "kind": "integer_target_percent",
+    "minimum": 1,
+    "maximum": 99,
+    "out_of_range_result": -1,
+    "threshold_rule": "first n where bouncy_count(n) * 100 >= percent * n"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Least positive integer n where the proportion of bouncy numbers from 1 through n reaches the target percentage."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_percent",
+      "input_value": 1,
+      "expected_result": 102
+    },
+    {
+      "id": "fifty_percent",
+      "input_value": 50,
+      "expected_result": 538
+    },
+    {
+      "id": "eighty_percent",
+      "input_value": 80,
+      "expected_result": 4770
+    },
+    {
+      "id": "ninety_percent",
+      "input_value": 90,
+      "expected_result": 21780
+    },
+    {
+      "id": "canonical_ninety_nine_percent",
+      "input_value": 99,
+      "expected_result": 1587000
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "one_hundred_invalid",
+      "input_value": 100,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

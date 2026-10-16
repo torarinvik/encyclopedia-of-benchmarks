@@ -1,0 +1,40 @@
+# Direct permutation port of TheAlgorithms/Python Project Euler 43.
+def problem43_impl(n: i64) -> i64:
+    if n != 10:
+        return -1
+    digits: mutable i64[10] = [0,1,2,3,4,5,6,7,8,9]
+    divisors: i64[4] = [7,11,13,17]
+    total: mutable i64 = 0
+    done: mutable bool = false
+    while not done:
+        if digits[3] % 2 == 0 and (digits[2]+digits[3]+digits[4]) % 3 == 0 and digits[5] % 5 == 0:
+            valid: mutable bool = true
+            for i in 0..4:
+                if (digits[i+4]*100+digits[i+5]*10+digits[i+6]) % divisors[i] != 0:
+                    valid <- false
+            if valid:
+                value: mutable i64 = 0
+                for digit in digits: value <- value*10+digit
+                total <- total+value
+        pivot: mutable i64 = 8
+        while pivot >= 0 and digits[pivot.usize()] >= digits[(pivot+1).usize()]:
+            pivot <- pivot-1
+        if pivot < 0:
+            done <- true
+        else:
+            successor: mutable i64 = 9
+            while digits[successor.usize()] <= digits[pivot.usize()]: successor <- successor-1
+            temporary: mutable i64 = digits[pivot.usize()]
+            digits[pivot.usize()] <- digits[successor.usize()]
+            digits[successor.usize()] <- temporary
+            left: mutable i64 = pivot+1
+            right: mutable i64 = 9
+            while left < right:
+                temporary <- digits[left.usize()]
+                digits[left.usize()] <- digits[right.usize()]
+                digits[right.usize()] <- temporary
+                left <- left+1
+                right <- right-1
+    total
+
+export fn problem43(n: i64) -> i64 = problem43_impl

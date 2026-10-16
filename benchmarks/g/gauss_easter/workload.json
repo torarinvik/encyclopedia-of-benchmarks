@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "id": "gauss-easter-python-source-v1",
+  "algorithm": "gauss_easter",
+  "function_symbol": "gauss_easter",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "year_range": [
+      1,
+      9999
+    ],
+    "meaning": "proleptic Gregorian year passed to the pinned Python datetime-based Gauss Easter function",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer_yyyymmdd",
+    "meaning": "UTC result date encoded as YYYYMMDD",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "year_1",
+      "input_value": 1,
+      "expected_result": 10401
+    },
+    {
+      "id": "year_2",
+      "input_value": 2,
+      "expected_result": 20414
+    },
+    {
+      "id": "year_3",
+      "input_value": 3,
+      "expected_result": 30406
+    },
+    {
+      "id": "year_4",
+      "input_value": 4,
+      "expected_result": 40328
+    },
+    {
+      "id": "year_19",
+      "input_value": 19,
+      "expected_result": 190407
+    },
+    {
+      "id": "year_100",
+      "input_value": 100,
+      "expected_result": 1000416
+    },
+    {
+      "id": "year_1582",
+      "input_value": 1582,
+      "expected_result": 15820419
+    },
+    {
+      "id": "year_1583",
+      "input_value": 1583,
+      "expected_result": 15830411
+    },
+    {
+      "id": "year_1800",
+      "input_value": 1800,
+      "expected_result": 18000416
+    },
+    {
+      "id": "year_1900",
+      "input_value": 1900,
+      "expected_result": 19000416
+    },
+    {
+      "id": "year_1994",
+      "input_value": 1994,
+      "expected_result": 19940328
+    },
+    {
+      "id": "year_2000",
+      "input_value": 2000,
+      "expected_result": 20000423
+    },
+    {
+      "id": "year_2007",
+      "input_value": 2007,
+      "expected_result": 20070408
+    },
+    {
+      "id": "year_2008",
+      "input_value": 2008,
+      "expected_result": 20080323
+    },
+    {
+      "id": "year_2010",
+      "input_value": 2010,
+      "expected_result": 20100404
+    },
+    {
+      "id": "year_2020",
+      "input_value": 2020,
+      "expected_result": 20200412
+    },
+    {
+      "id": "year_2021",
+      "input_value": 2021,
+      "expected_result": 20210404
+    },
+    {
+      "id": "year_2023",
+      "input_value": 2023,
+      "expected_result": 20230409
+    },
+    {
+      "id": "year_2032",
+      "input_value": 2032,
+      "expected_result": 20320328
+    },
+    {
+      "id": "year_2099",
+      "input_value": 2099,
+      "expected_result": 20990412
+    },
+    {
+      "id": "year_2100",
+      "input_value": 2100,
+      "expected_result": 21000326
+    },
+    {
+      "id": "year_2400",
+      "input_value": 2400,
+      "expected_result": 24000416
+    },
+    {
+      "id": "year_4000",
+      "input_value": 4000,
+      "expected_result": 40000409
+    },
+    {
+      "id": "year_9998",
+      "input_value": 9998,
+      "expected_result": 99980406
+    },
+    {
+      "id": "year_9999",
+      "input_value": 9999,
+      "expected_result": 99990329
+    },
+    {
+      "id": "year_negative_1",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "year_0",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "year_10000",
+      "input_value": 10000,
+      "expected_result": -1
+    },
+    {
+      "id": "year_9223372036854775807",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    },
+    {
+      "id": "year_negative_9223372036854775808",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "year_200",
+      "input_value": 200,
+      "expected_result": 2000423
+    },
+    {
+      "id": "year_300",
+      "input_value": 300,
+      "expected_result": 3000326
+    },
+    {
+      "id": "year_400",
+      "input_value": 400,
+      "expected_result": 4000402
+    },
+    {
+      "id": "year_500",
+      "input_value": 500,
+      "expected_result": 5000402
+    },
+    {
+      "id": "year_600",
+      "input_value": 600,
+      "expected_result": 6000409
+    },
+    {
+      "id": "year_700",
+      "input_value": 700,
+      "expected_result": 7000416
+    },
+    {
+      "id": "year_800",
+      "input_value": 800,
+      "expected_result": 8000423
+    },
+    {
+      "id": "year_900",
+      "input_value": 900,
+      "expected_result": 9000326
+    },
+    {
+      "id": "year_1000",
+      "input_value": 1000,
+      "expected_result": 10000402
+    },
+    {
+      "id": "year_1100",
+      "input_value": 1100,
+      "expected_result": 11000409
+    },
+    {
+      "id": "year_1200",
+      "input_value": 1200,
+      "expected_result": 12000409
+    },
+    {
+      "id": "year_1300",
+      "input_value": 1300,
+      "expected_result": 13000416
+    },
+    {
+      "id": "year_1400",
+      "input_value": 1400,
+      "expected_result": 14000423
+    },
+    {
+      "id": "year_1500",
+      "input_value": 1500,
+      "expected_result": 15000326
+    },
+    {
+      "id": "year_1600",
+      "input_value": 1600,
+      "expected_result": 16000402
+    },
+    {
+      "id": "year_1700",
+      "input_value": 1700,
+      "expected_result": 17000409
+    },
+    {
+      "id": "year_2200",
+      "input_value": 2200,
+      "expected_result": 22000402
+    },
+    {
+      "id": "year_2300",
+      "input_value": 2300,
+      "expected_result": 23000409
+    },
+    {
+      "id": "year_2500",
+      "input_value": 2500,
+      "expected_result": 25000416
+    },
+    {
+      "id": "year_2600",
+      "input_value": 2600,
+      "expected_result": 26000326
+    },
+    {
+      "id": "year_2700",
+      "input_value": 2700,
+      "expected_result": 27000402
+    },
+    {
+      "id": "year_2800",
+      "input_value": 2800,
+      "expected_result": 28000402
+    },
+    {
+      "id": "year_2900",
+      "input_value": 2900,
+      "expected_result": 29000409
+    },
+    {
+      "id": "year_3000",
+      "input_value": 3000,
+      "expected_result": 30000416
+    },
+    {
+      "id": "year_3100",
+      "input_value": 3100,
+      "expected_result": 31000423
+    },
+    {
+      "id": "year_3200",
+      "input_value": 3200,
+      "expected_result": 32000326
+    },
+    {
+      "id": "year_3300",
+      "input_value": 3300,
+      "expected_result": 33000402
+    },
+    {
+      "id": "year_3400",
+      "input_value": 3400,
+      "expected_result": 34000409
+    },
+    {
+      "id": "year_3500",
+      "input_value": 3500,
+      "expected_result": 35000409
+    },
+    {
+      "id": "year_3600",
+      "input_value": 3600,
+      "expected_result": 36000416
+    },
+    {
+      "id": "year_3700",
+      "input_value": 3700,
+      "expected_result": 37000423
+    },
+    {
+      "id": "year_3800",
+      "input_value": 3800,
+      "expected_result": 38000326
+    },
+    {
+      "id": "year_3900",
+      "input_value": 3900,
+      "expected_result": 39000402
+    },
+    {
+      "id": "year_4100",
+      "input_value": 4100,
+      "expected_result": 41000409
+    },
+    {
+      "id": "year_4200",
+      "input_value": 4200,
+      "expected_result": 42000416
+    },
+    {
+      "id": "year_4300",
+      "input_value": 4300,
+      "expected_result": 43000423
+    },
+    {
+      "id": "year_4400",
+      "input_value": 4400,
+      "expected_result": 44000326
+    },
+    {
+      "id": "year_4500",
+      "input_value": 4500,
+      "expected_result": 45000402
+    },
+    {
+      "id": "year_4600",
+      "input_value": 4600,
+      "expected_result": 46000409
+    },
+    {
+      "id": "year_4700",
+      "input_value": 4700,
+      "expected_result": 47000416
+    },
+    {
+      "id": "year_4800",
+      "input_value": 4800,
+      "expected_result": 48000416
+    },
+    {
+      "id": "year_4900",
+      "input_value": 4900,
+      "expected_result": 49000423
+    },
+    {
+      "id": "year_5000",
+      "input_value": 5000,
+      "expected_result": 50000326
+    },
+    {
+      "id": "year_5100",
+      "input_value": 5100,
+      "expected_result": 51000402
+    },
+    {
+      "id": "year_5200",
+      "input_value": 5200,
+      "expected_result": 52000409
+    },
+    {
+      "id": "year_5300",
+      "input_value": 5300,
+      "expected_result": 53000416
+    },
+    {
+      "id": "year_5400",
+      "input_value": 5400,
+      "expected_result": 54000416
+    },
+    {
+      "id": "year_5500",
+      "input_value": 5500,
+      "expected_result": 55000423
+    },
+    {
+      "id": "year_5600",
+      "input_value": 5600,
+      "expected_result": 56000402
+    },
+    {
+      "id": "year_5700",
+      "input_value": 5700,
+      "expected_result": 57000402
+    },
+    {
+      "id": "year_5800",
+      "input_value": 5800,
+      "expected_result": 58000409
+    },
+    {
+      "id": "year_5900",
+      "input_value": 5900,
+      "expected_result": 59000416
+    },
+    {
+      "id": "year_6000",
+      "input_value": 6000,
+      "expected_result": 60000423
+    },
+    {
+      "id": "year_6100",
+      "input_value": 6100,
+      "expected_result": 61000423
+    },
+    {
+      "id": "year_6200",
+      "input_value": 6200,
+      "expected_result": 62000402
+    },
+    {
+      "id": "year_6300",
+      "input_value": 6300,
+      "expected_result": 63000409
+    },
+    {
+      "id": "year_6400",
+      "input_value": 6400,
+      "expected_result": 64000409
+    },
+    {
+      "id": "year_6500",
+      "input_value": 6500,
+      "expected_result": 65000416
+    },
+    {
+      "id": "year_6600",
+      "input_value": 6600,
+      "expected_result": 66000423
+    },
+    {
+      "id": "year_6700",
+      "input_value": 6700,
+      "expected_result": 67000326
+    },
+    {
+      "id": "year_6800",
+      "input_value": 6800,
+      "expected_result": 68000402
+    },
+    {
+      "id": "year_6900",
+      "input_value": 6900,
+      "expected_result": 69000409
+    },
+    {
+      "id": "year_7000",
+      "input_value": 7000,
+      "expected_result": 70000409
+    },
+    {
+      "id": "year_7100",
+      "input_value": 7100,
+      "expected_result": 71000416
+    },
+    {
+      "id": "year_7200",
+      "input_value": 7200,
+      "expected_result": 72000423
+    },
+    {
+      "id": "year_7300",
+      "input_value": 7300,
+      "expected_result": 73000326
+    },
+    {
+      "id": "year_7400",
+      "input_value": 7400,
+      "expected_result": 74000402
+    },
+    {
+      "id": "year_7500",
+      "input_value": 7500,
+      "expected_result": 75000409
+    },
+    {
+      "id": "year_7600",
+      "input_value": 7600,
+      "expected_result": 76000409
+    },
+    {
+      "id": "year_7700",
+      "input_value": 7700,
+      "expected_result": 77000416
+    },
+    {
+      "id": "year_7800",
+      "input_value": 7800,
+      "expected_result": 78000423
+    },
+    {
+      "id": "year_7900",
+      "input_value": 7900,
+      "expected_result": 79000402
+    },
+    {
+      "id": "year_8000",
+      "input_value": 8000,
+      "expected_result": 80000402
+    },
+    {
+      "id": "year_8100",
+      "input_value": 8100,
+      "expected_result": 81000409
+    },
+    {
+      "id": "year_8200",
+      "input_value": 8200,
+      "expected_result": 82000416
+    },
+    {
+      "id": "year_8300",
+      "input_value": 8300,
+      "expected_result": 83000416
+    },
+    {
+      "id": "year_8400",
+      "input_value": 8400,
+      "expected_result": 84000423
+    },
+    {
+      "id": "year_8500",
+      "input_value": 8500,
+      "expected_result": 85000402
+    },
+    {
+      "id": "year_8600",
+      "input_value": 8600,
+      "expected_result": 86000402
+    },
+    {
+      "id": "year_8700",
+      "input_value": 8700,
+      "expected_result": 87000409
+    },
+    {
+      "id": "year_8800",
+      "input_value": 8800,
+      "expected_result": 88000416
+    },
+    {
+      "id": "year_8900",
+      "input_value": 8900,
+      "expected_result": 89000416
+    },
+    {
+      "id": "year_9000",
+      "input_value": 9000,
+      "expected_result": 90000326
+    },
+    {
+      "id": "year_9100",
+      "input_value": 9100,
+      "expected_result": 91000402
+    },
+    {
+      "id": "year_9200",
+      "input_value": 9200,
+      "expected_result": 92000402
+    },
+    {
+      "id": "year_9300",
+      "input_value": 9300,
+      "expected_result": 93000409
+    },
+    {
+      "id": "year_9400",
+      "input_value": 9400,
+      "expected_result": 94000416
+    },
+    {
+      "id": "year_9500",
+      "input_value": 9500,
+      "expected_result": 95000423
+    },
+    {
+      "id": "year_9600",
+      "input_value": 9600,
+      "expected_result": 96000326
+    },
+    {
+      "id": "year_9700",
+      "input_value": 9700,
+      "expected_result": 97000402
+    },
+    {
+      "id": "year_9800",
+      "input_value": 9800,
+      "expected_result": 98000409
+    },
+    {
+      "id": "year_9900",
+      "input_value": 9900,
+      "expected_result": 99000409
+    }
+  ]
+}

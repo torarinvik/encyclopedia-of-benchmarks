@@ -1,0 +1,99 @@
+# Search the pinned prime replacement filter for its default eight-prime family.
+const LIMIT: usize = 1000000
+const PRIME: u8 = 1
+const FILTERED_PRIME: u8 = 2
+const FILTERED_CHECKED: u8 = 3
+const CHECKED_NONPRIME: u8 = 4
+const CHECKED_OTHER_PRIME: u8 = 5
+
+def repeated_extra_digits(value: i64) -> usize:
+    counts: mutable usize[10] = zeroed
+    length: mutable usize = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        counts[(remaining % 10).usize()] <- counts[(remaining % 10).usize()] + 1
+        length <- length + 1
+        remaining <- remaining / 10
+    distinct: mutable usize = 0
+    for digit in 0..<10:
+        if counts[digit] > 0:
+            distinct <- distinct + 1
+    length - distinct
+
+def count_digit(value: i64, digit: i64) -> usize:
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    while remaining > 0:
+        if remaining % 10 == digit:
+            count <- count + 1
+        remaining <- remaining / 10
+    count
+
+def replace_all(value: i64, digit: i64, replacement: i64) -> i64:
+    result: mutable i64 = value
+    remaining: mutable i64 = value
+    place: mutable i64 = 1
+    while remaining > 0:
+        if remaining % 10 == digit:
+            result <- result + (replacement - digit) * place
+        remaining <- remaining / 10
+        place <- place * 10
+    result
+
+def problem51_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    state: mutable u8[LIMIT] = zeroed
+    value: mutable usize = 2
+    while value < LIMIT:
+        state[value] <- PRIME
+        value <- value + 1
+    prime: mutable usize = 2
+    while prime * prime < LIMIT:
+        if state[prime] == PRIME:
+            multiple: mutable usize = prime * prime
+            while multiple < LIMIT:
+                state[multiple] <- 0
+                multiple <- multiple + prime
+        prime <- prime + 1
+    value <- 2
+    while value < LIMIT:
+        if state[value] == PRIME and repeated_extra_digits(value.i64()) >= 3:
+            state[value] <- FILTERED_PRIME
+        value <- value + 1
+
+    number: mutable usize = 2
+    while number < LIMIT:
+        if state[number] == FILTERED_PRIME:
+            value_i64: i64 = number.i64()
+            place: mutable i64 = 1
+            while value_i64 / place >= 10:
+                place <- place * 10
+            seen_digits: mutable bool[10] = zeroed
+            while place > 0:
+                digit: i64 = (value_i64 / place) % 10
+                digit_index: usize = digit.usize()
+                if not seen_digits[digit_index] and count_digit(value_i64, digit) >= 2:
+                    seen_digits[digit_index] <- true
+                    family_count: mutable usize = 0
+                    family_minimum: mutable i64 = 9223372036854775807
+                    for replacement in 0..<10:
+                        member: i64 = replace_all(value_i64, digit, replacement.i64())
+                        member_index: usize = member.usize()
+                        if state[member_index] == FILTERED_PRIME:
+                            state[member_index] <- FILTERED_CHECKED
+                        else if state[member_index] == 0:
+                            state[member_index] <- CHECKED_NONPRIME
+                        else if state[member_index] == PRIME:
+                            state[member_index] <- CHECKED_OTHER_PRIME
+                        if state[member_index] == FILTERED_PRIME or state[member_index] == FILTERED_CHECKED:
+                            family_count <- family_count + 1
+                            if member < family_minimum:
+                                family_minimum <- member
+                    if family_count == 8:
+                        return family_minimum
+                place <- place / 10
+        number <- number + 1
+    -1
+
+export fn problem51(ignored: i64) -> i64 = problem51_impl

@@ -22,6 +22,7 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "float64_i32": ("float64_i32_call", ["float64_i32_runner"]),
             "float64_pair": ("float64_pair_call", ["float64_pair_runner", "float64_pair_check"]),
             "float64_triple": ("float64_triple_call", ["float64_triple_runner", "float64_triple_check"]),
+            "i64_triple": ("i64_triple_call", ["i64_triple_runner", "i64_triple_check"]),
             "float64_unary": ("float64_unary_call", ["float64_unary_runner", "float64_unary_check"]),
             "float64_point_array": ("float64_point_array_call",
                                     ["float64_point_array_runner", "float64_point_array_check"]),
@@ -32,7 +33,7 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
             "i64_array_scalar": ("i64_array_scalar_call",
                                  ["i64_array_scalar_runner", "i64_array_scalar_check"]),
             "i64_array_float64": ("i64_array_float64_call",
-                                  ["i64_array_float64_runner"]),
+                                  ["i64_array_float64_runner", "i64_array_float64_check"]),
             "search": ("binary_search", ["runner"]),
             "sort": ("sort_call", ["sort_runner", "sort_checker"]),
             "shortest_path": ("shortest_path_call", ["shortest_path_runner"]),
@@ -69,7 +70,15 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", algorithm) is None:
         raise ValueError("algorithm must be a normalized catalog name")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
-    source = ROOT / language / letter / f"{algorithm}.{EXTENSIONS[language]}"
+    language_root = ROOT / language / letter
+    source_name = f"{algorithm}.{EXTENSIONS[language]}"
+    # Coverage accepts both the flat source layout and a per-algorithm
+    # subdirectory. Prefer the flat path when both exist so existing builds
+    # keep resolving to the same source.
+    source_candidates = (language_root / source_name,
+                         language_root / algorithm / source_name)
+    source = next((candidate for candidate in source_candidates if candidate.is_file()),
+                  source_candidates[0])
     workload = ROOT / "benchmarks" / letter / algorithm / "workload.json"
     if not source.is_file() or not workload.is_file():
         raise ValueError(f"source or workload missing for {algorithm}/{language}")

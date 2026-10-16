@@ -15,3 +15,4 @@ This benchmark encodes arbitrary bytes as RFC 4648 Base64 and decodes that repre
 ## Reviewed TheAlgorithms sources
 
 - [Go `base64.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/conversion/base64.go), [Java `Base64.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/Base64.java), and [Rust `base64.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/base64.rs) provide the discovery references. The benchmark normalizes their byte-oriented encoders and decoders to a shared strict RFC 4648 contract across all target languages.
+- The JavaScript [`ArrayBufferToBase64.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/ArrayBufferToBase64.js) source also matches the byte encoder and padding rules.

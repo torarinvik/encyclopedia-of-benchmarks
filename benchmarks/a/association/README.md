@@ -14,6 +14,12 @@ The input bitmasks replace the notebook's external `grocery_data.csv` and Pandas
 
 [`workload.json`](workload.json) includes the pinned 20-transaction grocery example, small candidate-join/prune cases, support counts, empty output, malformed inputs, and insufficient capacity.
 
+Verify the nine implementations against the independent bitmask support oracle with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm association
+```
+
 ## Implementations
 
 | Language | Source |

@@ -1,0 +1,80 @@
+def is_stripped_punctuation(value: i64) -> bool:
+    value == 46 or value == 44 or value == 33 or value == 63 or value == 40 or
+        value == 41 or value == 91 or value == 93 or value == 123 or value == 125
+
+def largest_smallest_words_impl(values: i64&, length: usize, output: mutable u8&,
+                                output_capacity: usize) -> i64:
+    if values == null or length < 1 or length > 515 or values[0] < 1 or values[0] > 512 or
+        length != 1 + values[0].usize():
+        return -1
+    text_length: usize = values[0].usize()
+    text: u8[512] = zeroed
+    valid_text: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index + 1]
+            if value < 32 or value > 126:
+                break false
+            text[index] <- value.u8()
+            index <- index + 1
+            valid
+    if not valid_text:
+        return -1
+
+    best_state: usize[5] =
+        while state[0] < text_length |state: mutable usize[5] = [0, 0, 0, 513, 0]| -> state:
+            pos: usize = state[0]
+            while pos < text_length and text[pos] == 32.u8():
+                pos <- pos + 1
+            if pos == text_length:
+                break state
+            token_start: usize = pos
+            pos <- while pos < text_length |scan: mutable usize = pos| -> scan:
+                if text[scan] == 32.u8():
+                    break scan
+                scan <- scan + 1
+                scan
+            first: usize = token_start
+            last: usize = pos
+            while first < last and is_stripped_punctuation(text[first].i64()):
+                first <- first + 1
+            while last > first and is_stripped_punctuation(text[last - 1].i64()):
+                last <- last - 1
+            word_length: usize = last - first
+            if word_length < state[3]:
+                state[1] <- first
+                state[3] <- word_length
+            if word_length > state[2]:
+                state[4] <- first
+                state[2] <- word_length
+            state[0] <- pos
+            state
+    small_start: usize = best_state[1]
+    small_length: usize = best_state[3]
+    large_start: usize = best_state[4]
+    large_length: usize = best_state[2]
+    if small_length == 513:
+        return -1
+    output_length: usize = 8 + small_length + large_length
+    if output == null or output_length > output_capacity:
+        return -2
+    output[0] <- small_length.u8()
+    output[1] <- (small_length >> 8).u8()
+    output[2] <- (small_length >> 16).u8()
+    output[3] <- (small_length >> 24).u8()
+    byte: usize = 0
+    while byte < small_length:
+        output[4 + byte] <- text[small_start + byte]
+        byte <- byte + 1
+    header: usize = 4 + small_length
+    output[header] <- large_length.u8()
+    output[header + 1] <- (large_length >> 8).u8()
+    output[header + 2] <- (large_length >> 16).u8()
+    output[header + 3] <- (large_length >> 24).u8()
+    byte <- 0
+    while byte < large_length:
+        output[header + 4 + byte] <- text[large_start + byte]
+        byte <- byte + 1
+    output_length.i64()
+
+export fn largest_smallest_words(values: i64&, length: usize, output: mutable u8&,
+                                 output_capacity: usize) -> i64 = largest_smallest_words_impl

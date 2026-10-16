@@ -1,0 +1,144 @@
+const MAX_CELLS: usize = 400
+const INF_COST: i64 = 1000000
+
+def bidirectional_a_star_heuristic(a: usize, b: usize, columns: usize) -> i64:
+    dy: i64 = a.i64() / columns.i64() - b.i64() / columns.i64()
+    dx: i64 = a.i64() % columns.i64() - b.i64() % columns.i64()
+    h: mutable i64 = 0
+    while (h + 1) * (h + 1) <= dy * dy + dx * dx:
+        h <- h + 1
+    h
+
+def bidirectional_a_star_put(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[slot * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bidirectional_a_star_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or input[0] < 1 or input[0] > 20 or input[1] < 1 or input[1] > 20:
+        return -1
+    rows: usize = input[0].usize()
+    columns: usize = input[1].usize()
+    cells: usize = rows * columns
+    if input[2] < 0 or input[2] >= rows.i64() or input[3] < 0 or input[3] >= columns.i64() or input[4] < 0 or input[4] >= rows.i64() or input[5] < 0 or input[5] >= columns.i64() or length != 6 + cells:
+        return -1
+    start: usize = input[2].usize() * columns + input[3].usize()
+    goal: usize = input[4].usize() * columns + input[5].usize()
+    blocked: mutable bool[MAX_CELLS] = zeroed
+    for i in 0..<cells:
+        if input[6 + i] != 0 and input[6 + i] != 1:
+            return -1
+        blocked[i] <- input[6 + i] == 1
+    if blocked[start] or blocked[goal]:
+        return -1
+    g: mutable i64[2 * MAX_CELLS] = zeroed
+    parent: mutable i64[2 * MAX_CELLS] = zeroed
+    order: mutable i64[2 * MAX_CELLS] = zeroed
+    opened: mutable bool[2 * MAX_CELLS] = zeroed
+    closed: mutable bool[2 * MAX_CELLS] = zeroed
+    seq: mutable i64[2] = zeroed
+    for side in 0..<2:
+        for i in 0..<cells:
+            g[side * MAX_CELLS + i] <- INF_COST
+            parent[side * MAX_CELLS + i] <- -1
+    g[start] <- 0
+    g[MAX_CELLS + goal] <- 0
+    opened[start] <- true
+    opened[MAX_CELLS + goal] <- true
+    seq[0] <- 1
+    seq[1] <- 1
+    dr: i64[4] = [-1, 0, 1, 0]
+    dc: i64[4] = [0, -1, 0, 1]
+    best: mutable i64 = INF_COST
+    meet: mutable i64 = -1
+    while true:
+        min_g: mutable i64[2] = [INF_COST, INF_COST]
+        for side in 0..<2:
+            for v in 0..<cells:
+                slot: usize = side * MAX_CELLS + v
+                if opened[slot] and g[slot] < min_g[side]:
+                    min_g[side] <- g[slot]
+        if best < INF_COST and (min_g[0] == INF_COST or min_g[1] == INF_COST or min_g[0] + min_g[1] >= best):
+            break
+        for side in 0..<2:
+            target: usize = if side == 0: goal else: start
+            chosen: mutable i64 = -1
+            best_f: mutable i64 = INF_COST
+            for v in 0..<cells:
+                slot: usize = side * MAX_CELLS + v
+                if opened[slot]:
+                    f: i64 = g[slot] + bidirectional_a_star_heuristic(v, target, columns)
+                    if chosen < 0 or f < best_f or (f == best_f and order[slot] < order[side * MAX_CELLS + chosen.usize()]):
+                        chosen <- v.i64()
+                        best_f <- f
+            if chosen < 0:
+                continue
+            u: usize = chosen.usize()
+            slot: usize = side * MAX_CELLS + u
+            opened[slot] <- false
+            closed[slot] <- true
+            opposite: usize = (1 - side) * MAX_CELLS + u
+            if g[opposite] < INF_COST and g[slot] + g[opposite] < best:
+                best <- g[slot] + g[opposite]
+                meet <- chosen
+            y: i64 = (u / columns).i64()
+            x: i64 = (u % columns).i64()
+            for d in 0..<4:
+                ny: i64 = y + dr[d]
+                nx: i64 = x + dc[d]
+                if ny < 0 or ny >= rows.i64() or nx < 0 or nx >= columns.i64():
+                    continue
+                v: usize = ny.usize() * columns + nx.usize()
+                vslot: usize = side * MAX_CELLS + v
+                if blocked[v] or closed[vslot]:
+                    continue
+                new_g: i64 = g[slot] + 1
+                if new_g < g[vslot]:
+                    g[vslot] <- new_g
+                    parent[vslot] <- chosen
+                    opened[vslot] <- true
+                    order[vslot] <- seq[side]
+                    seq[side] <- seq[side] + 1
+                    opposite_v: usize = (1 - side) * MAX_CELLS + v
+                    if g[opposite_v] < INF_COST and new_g + g[opposite_v] < best:
+                        best <- new_g + g[opposite_v]
+                        meet <- v.i64()
+        any: mutable bool = false
+        for side in 0..<2:
+            for v in 0..<cells:
+                any <- any or opened[side * MAX_CELLS + v]
+        if not any:
+            break
+    path: mutable i64[MAX_CELLS] = zeroed
+    reverse: mutable i64[MAX_CELLS] = zeroed
+    count: mutable usize = 0
+    if meet < 0:
+        path[0] <- start.i64()
+        count <- 1
+    else:
+        n: mutable usize = 0
+        v: mutable i64 = meet
+        while v >= 0:
+            reverse[n] <- v
+            n <- n + 1
+            v <- parent[v.usize()]
+        while n > 0:
+            n <- n - 1
+            path[count] <- reverse[n]
+            count <- count + 1
+        v <- parent[MAX_CELLS + meet.usize()]
+        while v >= 0:
+            path[count] <- v
+            count <- count + 1
+            v <- parent[MAX_CELLS + v.usize()]
+    bytes: usize = (1 + 2 * count) * 8
+    if output == null or capacity < bytes:
+        return -2
+    bidirectional_a_star_put(output, 0, count.i64())
+    for i in 0..<count:
+        bidirectional_a_star_put(output, 1 + 2 * i, (path[i].usize() / columns).i64())
+        bidirectional_a_star_put(output, 2 + 2 * i, (path[i].usize() % columns).i64())
+    bytes.i64()
+
+export fn bidirectional_a_star(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bidirectional_a_star_impl

@@ -1,0 +1,16 @@
+def djb2_impl(input: i64&, length: usize) -> i64:
+    if length > 65 or (length > 0 and input.is_null()):
+        return -1
+    if length > 64:
+        return -1
+    hash: mutable i64 = 5381
+    index: mutable usize = 0
+    while index < length:
+        code_point: i64 = input[index]
+        if code_point < 0 or code_point > 255:
+            return -1
+        hash <- (hash * 33 + code_point) % 4294967296
+        index <- index + 1
+    hash
+
+export fn djb2(input: i64&, length: usize) -> i64 = djb2_impl

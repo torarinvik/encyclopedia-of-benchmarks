@@ -1,0 +1,16 @@
+# Sum the even Fibonacci terms strictly below the supplied limit.
+def problem2_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 4000000:
+        return -1
+    previous: mutable i64 = 1
+    current: mutable i64 = 2
+    total: mutable i64 = 0
+    while current < limit:
+        if current % 2 == 0:
+            total <- total + current
+        next: i64 = previous + current
+        previous <- current
+        current <- next
+    total
+
+export fn problem2(limit: i64) -> i64 = problem2_impl

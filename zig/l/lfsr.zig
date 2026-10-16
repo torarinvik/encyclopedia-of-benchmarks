@@ -1,0 +1,8 @@
+const MAX_TAPS:usize=63;const MAX_CLOCKS:usize=256;
+fn feedback(state:u64,input:[*c]const i64,count:usize)u64{var bit:u64=0;for(0..count)|i|bit^=(state>>@intCast(input[6+i]))&1;return bit;}
+fn put(out:[*]u8,slot:usize,value:i64)void{const bits:u64=@bitCast(value);for(0..8)|i|out[slot*8+i]=@truncate(bits>>@intCast(i*8));}
+export fn lfsr(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<6)return -1;const width0=input[0];const clock0=input[1];const taps0=input[2];const clocks0=input[3];const frame0=input[5];if(width0<1 or width0>63 or clock0<0 or clock0>=width0 or taps0<0 or taps0>MAX_TAPS or clocks0<0 or clocks0>MAX_CLOCKS or frame0<0 or frame0>4194303)return -1;const width:usize=@intCast(width0);const tap_count:usize=@intCast(taps0);const clocks:usize=@intCast(clocks0);if(length!=6+tap_count)return -1;for(0..tap_count)|i|{const tap=input[6+i];if(tap<0 or tap>=width0)return -1;}
+ const key:u64=@bitCast(input[4]);const frame:u64=@intCast(frame0);const mask=(@as(u64,1)<<@intCast(width))-1;var state:u64=0;var bit:usize=64;while(bit>0){bit-=1;state=((state<<1)|(((key>>@intCast(bit))&1)^feedback(state,input,tap_count)))&mask;}bit=22;while(bit>0){bit-=1;state=((state<<1)|(((frame>>@intCast(bit))&1)^feedback(state,input,tap_count)))&mask;}
+ const bytes=(clocks+2)*8;if(output==null or capacity<bytes)return -2;put(output,0,@intCast(clocks));for(0..clocks)|i|{const out=(state>>@intCast(width-1))&1;const fb=feedback(state,input,tap_count);state=((state<<1)|fb)&mask;put(output,1+i,@intCast(out));}put(output,1+clocks,@intCast(state));return @intCast(bytes);
+}

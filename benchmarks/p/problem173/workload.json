@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-173-scalar-v1",
+  "algorithm": "problem173",
+  "function_symbol": "problem173",
+  "input": {
+    "kind": "maximum_tile_count",
+    "minimum": 0,
+    "maximum": 1000000,
+    "definition": "Count distinct square laminae that use at most this many square tiles.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of different square laminae fitting within the tile limit.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero-tiles", "input_value": 0, "expected_result": 0},
+    {"id": "minimum-two-by-two-lamina", "input_value": 4, "expected_result": 0},
+    {"id": "one-three-by-three-lamina", "input_value": 8, "expected_result": 1},
+    {"id": "up-to-32-tiles", "input_value": 32, "expected_result": 9},
+    {"id": "source-example-100-tiles", "input_value": 100, "expected_result": 41},
+    {"id": "canonical-one-million-tiles", "input_value": 1000000, "expected_result": 1572729},
+    {"id": "negative-limit", "input_value": -1, "expected_result": -1},
+    {"id": "above-supported-limit", "input_value": 1000001, "expected_result": -1}
+  ]
+}

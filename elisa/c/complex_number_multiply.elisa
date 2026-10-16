@@ -1,0 +1,122 @@
+def parse_component(input: i64&, start: usize, ending: usize) -> i64:
+    position: mutable usize = start
+    negative: mutable bool = false
+    if position < ending and input[position] == 45:
+        negative <- true
+        position <- position + 1
+    if position == ending:
+        return -32768
+
+    magnitude: mutable i64 = 0
+    while position < ending:
+        digit: i64 = input[position] - 48
+        if digit < 0 or digit > 9:
+            return -32768
+        if magnitude > (32767 - digit) / 10:
+            return -32768
+        magnitude <- magnitude * 10 + digit
+        position <- position + 1
+    if negative:
+        return -magnitude
+    return magnitude
+
+def decimal_length(value: i64) -> usize:
+    length: mutable usize = 0
+    if value < 0:
+        length <- 1
+    magnitude: mutable i64 = value
+    if magnitude < 0:
+        magnitude <- -magnitude
+    if magnitude == 0:
+        return length + 1
+    while magnitude > 0:
+        length <- length + 1
+        magnitude <- magnitude / 10
+    return length
+
+def append_decimal(value: i64, output: mutable u8&, offset: usize) -> usize:
+    index: mutable usize = offset
+    magnitude: mutable i64 = value
+    if magnitude < 0:
+        output[index] <- 45.u8()
+        index <- index + 1
+        magnitude <- -magnitude
+    start: usize = index
+    if magnitude == 0:
+        output[index] <- 48.u8()
+        return index + 1
+    while magnitude > 0:
+        output[index] <- (48 + magnitude % 10).u8()
+        index <- index + 1
+        magnitude <- magnitude / 10
+    left: mutable usize = start
+    right: mutable usize = index - 1
+    while left < right:
+        temporary: u8 = output[left]
+        output[left] <- output[right]
+        output[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    return index
+
+def complex_number_multiply_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130:
+        return -1
+    raw_left_length: i64 = input[0]
+    raw_right_length: i64 = input[1]
+    if raw_left_length < 4 or raw_left_length > 64 or raw_right_length < 4 or raw_right_length > 64:
+        return -1
+    left_length: usize = raw_left_length.usize()
+    right_length: usize = raw_right_length.usize()
+    if length != 2 + left_length + right_length:
+        return -1
+    index: mutable usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] > 127:
+            return -1
+        index <- index + 1
+
+    left_separator: mutable usize = left_length
+    index <- 0
+    while index + 1 < left_length:
+        if input[2 + index] == 43:
+            if left_separator != left_length:
+                return -1
+            left_separator <- index
+        index <- index + 1
+    if left_separator == left_length or input[2 + left_length - 1] != 105:
+        return -1
+    left_real: i64 = parse_component(input, 2, 2 + left_separator)
+    left_imaginary: i64 = parse_component(input, 2 + left_separator + 1, 2 + left_length - 1)
+    if left_real == -32768 or left_imaginary == -32768:
+        return -1
+
+    right_start: usize = 2 + left_length
+    right_separator: mutable usize = right_length
+    index <- 0
+    while index + 1 < right_length:
+        if input[right_start + index] == 43:
+            if right_separator != right_length:
+                return -1
+            right_separator <- index
+        index <- index + 1
+    if right_separator == right_length or input[right_start + right_length - 1] != 105:
+        return -1
+    right_real: i64 = parse_component(input, right_start, right_start + right_separator)
+    right_imaginary: i64 = parse_component(input, right_start + right_separator + 1, right_start + right_length - 1)
+    if right_real == -32768 or right_imaginary == -32768:
+        return -1
+
+    real: i64 = left_real * right_real - left_imaginary * right_imaginary
+    imaginary: i64 = left_real * right_imaginary + left_imaginary * right_real
+    needed: usize = decimal_length(real) + decimal_length(imaginary) + 2
+    if output.is_null() or output_capacity < needed:
+        return -2
+    written: mutable usize = append_decimal(real, output, 0)
+    output[written] <- 43.u8()
+    written <- written + 1
+    written <- append_decimal(imaginary, output, written)
+    output[written] <- 105.u8()
+    return (written + 1).i64()
+
+export fn complex_number_multiply(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = complex_number_multiply_impl

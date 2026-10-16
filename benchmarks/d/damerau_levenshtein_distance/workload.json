@@ -118,6 +118,17 @@
       "expected_result": 1
     },
     {
+      "id": "repeated_character_source_correction",
+      "input_values": [
+        2,
+        1,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 1
+    },
+    {
       "id": "adjacent_transposition",
       "input_values": [
         2,

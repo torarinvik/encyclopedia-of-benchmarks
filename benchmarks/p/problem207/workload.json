@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-207-integer-partitions-v1",
+  "algorithm": "problem207",
+  "function_symbol": "problem207",
+  "input": {
+    "kind": "bounded_binary64_maximum_proportion",
+    "argument_order": ["max_proportion"],
+    "bounds": {"max_proportion": [0.00001, 1.0]},
+    "comparison": "strictly less than the maximum proportion",
+    "maximum_valid_partition_count": 5000000,
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "smallest qualifying integer partition value k, represented as an exact binary64 integer",
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-6,
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "source_threshold_one", "input_values": [1.0], "expected_result": 6.0},
+    {"id": "source_threshold_one_half", "input_values": [0.5], "expected_result": 30.0},
+    {"id": "source_threshold_three_thirteenths", "input_values": [0.23076923076923078], "expected_result": 210.0},
+    {"id": "canonical_threshold_one_over_12345", "input_values": [0.00008100445524503848], "expected_result": 44043947822.0},
+    {"id": "zero_threshold_invalid", "input_values": [0.0], "expected_result": -1e300},
+    {"id": "below_supported_threshold_invalid", "input_values": [0.000001], "expected_result": -1e300},
+    {"id": "above_one_invalid", "input_values": [1.000001], "expected_result": -1e300}
+  ]
+}

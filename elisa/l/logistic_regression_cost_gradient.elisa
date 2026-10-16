@@ -1,0 +1,55 @@
+extern exp(value: f64) -> f64
+extern log(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MAX_SAMPLES: usize = 64
+const MAX_FEATURES: usize = 8
+
+def put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def logistic_regression_cost_gradient_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2: return -1
+    m_value: i64 = input[0]
+    d_value: i64 = input[1]
+    if m_value < 1 or m_value > 64 or d_value < 1 or d_value > 8: return -1
+    m: usize = m_value.usize()
+    d: usize = d_value.usize()
+    features_offset: usize = 2
+    theta_offset: usize = features_offset + m * d
+    labels_offset: usize = theta_offset + d
+    if length != labels_offset + m: return -1
+    for index in 0..<(m * d):
+        if input[features_offset + index] < -1000000 or input[features_offset + index] > 1000000: return -1
+    for feature in 0..<d:
+        if input[theta_offset + feature] < -1000000 or input[theta_offset + feature] > 1000000: return -1
+    for sample in 0..<m:
+        label: i64 = input[labels_offset + sample]
+        if label != 0 and label != 1: return -1
+    required: usize = (d + 1) * 8
+    if capacity < required: return -2
+
+    loss: mutable f64 = 0.0
+    gradient: mutable f64[8] = zeroed
+    for sample in 0..<m:
+        score: mutable f64 = 0.0
+        for feature in 0..<d:
+            x: f64 = input[features_offset + sample * d + feature].f64() / 1000000.0
+            theta: f64 = input[theta_offset + feature].f64() / 1000000.0
+            score <- score + x * theta
+        probability: f64 = 1.0 / (1.0 + exp(-score))
+        label: f64 = input[labels_offset + sample].f64()
+        loss <- loss - label * log(probability) - (1.0 - label) * log(1.0 - probability)
+        residual: f64 = probability - label
+        for feature in 0..<d:
+            x: f64 = input[features_offset + sample * d + feature].f64() / 1000000.0
+            gradient[feature] <- gradient[feature] + residual * x
+    put_f64(output, 0, loss / m.f64())
+    for feature in 0..<d:
+        put_f64(output, (feature + 1) * 8, gradient[feature] / m.f64())
+    required.i64()
+
+export fn logistic_regression_cost_gradient(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = logistic_regression_cost_gradient_impl

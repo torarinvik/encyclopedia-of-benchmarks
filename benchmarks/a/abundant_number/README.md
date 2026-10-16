@@ -4,12 +4,12 @@ Determine whether a positive integer is abundant: the sum of its positive proper
 
 ## Contract
 
-- Input is a signed 64-bit integer from 1 through 1,000,000,000.
+- Input is a signed 64-bit integer from 1 through 100,000,000.
 - Return 1 when the proper-divisor sum is greater than the input, and 0 otherwise.
 - Inputs outside the stated range return -1.
 - The implementations scan divisor pairs from 2 while the divisor is at most n divided by itself. A square root is included only once, and the scan exits as soon as the sum exceeds n.
 
-The bound keeps the benchmark compatible with the pinned Java int implementation and avoids overflow in its doubled-divisor comparison. The contract gives zero and negative inputs a deterministic sentinel result; the Python source instead returns false for nonpositive integers.
+The upper bound keeps the pinned Java implementation's signed 32-bit divisor sums in range: for `n <= 100,000,000`, the divisor sum is at most `n * H_n < 1.94 billion`, and `2 * n` is at most 200 million. This makes both public Java decision methods agree with the mathematical proper-divisor predicate across the benchmark range. The contract gives zero and negative inputs a deterministic sentinel result; the Java source throws for nonpositive integers.
 
 ## Workload and verification
 

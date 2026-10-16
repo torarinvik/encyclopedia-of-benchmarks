@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-3-scalar-v1",
+  "algorithm": "problem3",
+  "function_symbol": "problem3",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "number_range": [2, 600851475143],
+    "meaning": "positive integer whose largest prime factor is returned",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"smallest_prime","input_value":2,"expected_result":2},
+    {"id":"three","input_value":3,"expected_result":3},
+    {"id":"square_of_two","input_value":4,"expected_result":2},
+    {"id":"power_of_two","input_value":65536,"expected_result":2},
+    {"id":"small_composite","input_value":12,"expected_result":3},
+    {"id":"product_of_primes","input_value":210,"expected_result":7},
+    {"id":"small_prime","input_value":97,"expected_result":97},
+    {"id":"project_euler_example","input_value":13195,"expected_result":29},
+    {"id":"canonical_instance","input_value":600851475143,"expected_result":6857},
+    {"id":"below_minimum","input_value":1,"expected_result":-1},
+    {"id":"zero_input","input_value":0,"expected_result":-1},
+    {"id":"negative_input","input_value":-1,"expected_result":-1},
+    {"id":"above_maximum","input_value":600851475144,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,46 @@
+def problem164_impl(n_digits: i64) -> i64:
+    if n_digits < 0 or n_digits > 26:
+        return -1
+    if n_digits == 0:
+        return 1
+
+    current: mutable i64[100] = zeroed
+    next: mutable i64[100] = zeroed
+    first: mutable i64 = 1
+    while first <= 9:
+        current[(first * 10).usize()] <- 1
+        first <- first + 1
+
+    used: mutable i64 = 1
+    while used < n_digits:
+        index: mutable i64 = 0
+        while index < 100:
+            next[index.usize()] <- 0
+            index <- index + 1
+        previous: mutable i64 = 0
+        while previous <= 9:
+            before_previous: mutable i64 = 0
+            while before_previous <= 9:
+                ways: i64 = current[(previous * 10 + before_previous).usize()]
+                maximum_digit: i64 = 9 - previous - before_previous
+                digit: mutable i64 = 0
+                while digit <= maximum_digit:
+                    slot: usize = (digit * 10 + previous).usize()
+                    next[slot] <- next[slot] + ways
+                    digit <- digit + 1
+                before_previous <- before_previous + 1
+            previous <- previous + 1
+        index <- 0
+        while index < 100:
+            current[index.usize()] <- next[index.usize()]
+            index <- index + 1
+        used <- used + 1
+
+    total: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < 100:
+        total <- total + current[index.usize()]
+        index <- index + 1
+    total
+
+export fn problem164(n_digits: i64) -> i64 = problem164_impl

@@ -1,0 +1,16 @@
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def ipv4_conversion_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 4:
+        return INVALID_RESULT
+    address: mutable i64 = 0
+    index: mutable usize = 0
+    while index < 4:
+        octet: i64 = input[index]
+        if octet < 0 or octet > 255:
+            return INVALID_RESULT
+        address <- address * 256 + octet
+        index <- index + 1
+    address
+
+export fn ipv4_conversion(input: i64&, length: usize) -> i64 = ipv4_conversion_impl

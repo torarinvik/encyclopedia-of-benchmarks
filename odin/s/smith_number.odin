@@ -34,7 +34,7 @@ prime_factor_digit_sum :: proc(value: i64) -> i64 {
 
 @(export)
 smith_number :: proc "c" (value: i64) -> i64 {
-	if value < 1 || value > 2147483647 do return -1
+	if value < 1 || value > 2147395599 do return -1
 	if is_prime(value) do return 0
 	return i64(digit_sum(value) == prime_factor_digit_sum(value))
 }

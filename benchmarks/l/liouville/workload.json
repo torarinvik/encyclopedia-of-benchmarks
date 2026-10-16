@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "go-liouville-distinct-factor-parity-v1",
+  "algorithm": "liouville",
+  "input": {
+    "minimum": 1,
+    "maximum": 2147483647,
+    "out_of_range_result": -2,
+    "encoding": "integer",
+    "meaning": "(-1)^omega(n), where omega counts distinct prime divisors"
+  },
+  "cases": [
+    { "id": "one-empty-factorization", "input_value": 1, "expected_result": 1 },
+    { "id": "prime-two", "input_value": 2, "expected_result": -1 },
+    { "id": "prime-large", "input_value": 999983, "expected_result": -1 },
+    { "id": "one-distinct-factor-square", "input_value": 4, "expected_result": -1 },
+    { "id": "one-distinct-factor-power", "input_value": 64, "expected_result": -1 },
+    { "id": "two-distinct-factors", "input_value": 12, "expected_result": 1 },
+    { "id": "three-distinct-factors", "input_value": 30, "expected_result": -1 },
+    { "id": "repeated-factors-do-not-change-count", "input_value": 60, "expected_result": -1 },
+    { "id": "two-distinct-repeated-factors", "input_value": 72, "expected_result": 1 },
+    { "id": "boundary-prime", "input_value": 2147483647, "expected_result": -1 },
+    { "id": "zero-invalid", "input_value": 0, "expected_result": -2 },
+    { "id": "negative-invalid", "input_value": -1, "expected_result": -2 },
+    { "id": "above-bound-invalid", "input_value": 2147483648, "expected_result": -2 },
+    { "id": "minimum-i64-invalid", "input_value": -9223372036854775808, "expected_result": -2 },
+    { "id": "maximum-i64-invalid", "input_value": 9223372036854775807, "expected_result": -2 }
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

@@ -12,7 +12,9 @@ Return whether a selection of input elements adds to a requested target. Element
 
 ## Reviewed TheAlgorithms sources
 
-The pinned [C++ backtracking implementation](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/subset_sum.cpp) and its duplicate in C-Plus-Plus-1 count matching subsets; the [C++ dynamic-programming implementation](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/subset_sum.cpp), [Java implementation](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SubsetSum.java), [Go implementation](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/subsetsum.go), and Rust backtracking/dynamic-programming implementations decide existence. The C++ dynamic variant, Java space-optimized variant, and Rust variants contribute alternate decision strategies for the same operation. R also provides subset enumeration in the reviewed `subset_sum.r` source; that output operation is tracked as a separate benchmark candidate.
+The signed-existence mapping is the pinned [Rust backtracking implementation](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/backtracking/subset_sum.rs), which handles signed items and targets and treats target zero as reachable through the empty subset. The C++ backtracking files count matching indexed subsets and are mapped to [Subset Sum Count](../subset_sum_count/README.md). The signed C++ top-down memoized variants are mapped to [Subset Sum Dynamic Programming](../subset_sum_dynamic/README.md).
+
+The Java, Go, R, and Rust dynamic-programming decision variants require nonnegative values and targets; they are mapped to the separate [Subset Sum Nonnegative Existence](../subset_sum_nonnegative_exists/README.md) contract. The R `find_all_subsets` routine returns value lists with positive-value pruning and is tracked separately from this signed positional-mask workload.
 
 ## Workload and verification
 

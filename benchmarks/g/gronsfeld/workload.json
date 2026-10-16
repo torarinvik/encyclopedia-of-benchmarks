@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "gronsfeld-rust-ascii-letters-only-key-v1",
+  "algorithm": "gronsfeld",
+  "function_symbol": "gronsfeld",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": ["text_bytes", 0, "key_bytes"],
+    "text_length_range": [0, 256],
+    "text_byte_range": [1, 127],
+    "key_length_range": [1, 64],
+    "key_byte_range": [48, 57],
+    "key_advances_on": "ASCII_letters_only",
+    "case_behavior": "preserve_and_wrap_within_case",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "length": "same_as_text",
+    "invalid_input_bytes": []
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"basic_lowercase","input_length":7,"input_values":[97,98,99,0,49,50,51],"expected_result":3,"expected_output_hex":"626466"},
+    {"id":"preserve_uppercase","input_length":7,"input_values":[65,66,67,0,49,50,51],"expected_result":3,"expected_output_hex":"424446"},
+    {"id":"preserve_mixed_case","input_length":7,"input_values":[97,65,98,66,0,49,50],"expected_result":4,"expected_output_hex":"62436344"},
+    {"id":"punctuation_does_not_advance_key","input_length":9,"input_values":[97,32,98,44,99,33,0,49,50],"expected_result":6,"expected_output_hex":"6220642c6421"},
+    {"id":"key_cycles_on_letters","input_length":7,"input_values":[97,98,99,100,0,49,50],"expected_result":4,"expected_output_hex":"62646466"},
+    {"id":"uppercase_and_lowercase_wrap","input_length":5,"input_values":[122,90,0,49,57],"expected_result":2,"expected_output_hex":"6149"},
+    {"id":"nonletters_copy_unchanged","input_length":7,"input_values":[49,50,51,46,32,0,57],"expected_result":5,"expected_output_hex":"3132332e20"},
+    {"id":"empty_text_with_key","input_length":2,"input_values":[0,52],"expected_result":0,"expected_output_hex":""},
+    {"id":"source_example","input_length":15,"input_values":[72,101,108,108,111,44,32,87,111,114,108,100,33,0,53],"expected_result":13,"expected_output_hex":"4d6a7171742c20427477716921"},
+    {"id":"insufficient_output_capacity","input_length":6,"input_values":[97,98,99,0,49,50],"workspace_bytes":2,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"empty_key_rejected","input_length":1,"input_values":[0],"expected_result":-1,"expected_output_hex":""},
+    {"id":"empty_key_rejected_without_letters","input_length":2,"input_values":[33,0],"expected_result":-1,"expected_output_hex":""},
+    {"id":"nondigit_key","input_length":4,"input_values":[65,0,49,120],"expected_result":-1,"expected_output_hex":""},
+    {"id":"non_ascii_text_outside_contract","input_length":3,"input_values":[128,0,49],"expected_result":-1,"expected_output_hex":""},
+    {"id":"missing_separator","input_length":3,"input_values":[65,66,49],"expected_result":-1,"expected_output_hex":""}
+  ]
+}

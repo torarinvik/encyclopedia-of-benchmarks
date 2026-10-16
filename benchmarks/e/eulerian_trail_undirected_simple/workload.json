@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "eulerian-trail-undirected-simple-i64-array-bytes-v1",
+  "algorithm": "eulerian_trail_undirected_simple",
+  "function_symbol": "eulerian_trail_undirected_simple",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["vertex_count", "edge_count", "u0", "v0", "u1", "v1", "..."],
+    "vertex_count_range": [2, 10],
+    "edge_count_range": [0, 45],
+    "vertex_label_range": [0, 9],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": ["status", "trail_vertex_count", "trail_vertices..."],
+    "status_values": {"circuit": 1, "open_trail": 2},
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "triangle_circuit",
+      "input_values": [4, 3, 1, 2, 2, 3, 3, 1],
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000004000000000000000100000000000000020000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "open_path_highest_odd_start",
+      "input_values": [3, 2, 0, 1, 1, 2],
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "circuit_preserves_adjacency_order",
+      "input_values": [5, 4, 1, 2, 1, 3, 2, 4, 3, 4],
+      "expected_result": 56,
+      "expected_output_hex": "0100000000000000050000000000000001000000000000000200000000000000040000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "empty_edge_circuit",
+      "input_values": [3, 0],
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "disconnected_nonzero_degree_vertices",
+      "input_values": [4, 2, 0, 1, 2, 3],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

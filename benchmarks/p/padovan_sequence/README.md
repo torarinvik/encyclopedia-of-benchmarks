@@ -25,3 +25,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/p/padovan_sequenc
 ```
 
 The nine implementations are in `c/p/padovan_sequence.c`, `c3/p/padovan_sequence.c3`, `cpp/p/padovan_sequence.cpp`, `elisa/p/padovan_sequence.elisa`, `nim/p/padovan_sequence.nim`, `odin/p/padovan_sequence.odin`, `rust/p/padovan_sequence.rs`, `v/p/padovan_sequence.v`, and `zig/p/padovan_sequence.zig`.
+
+Verify the nine ports against the independent indexed-recurrence oracle with `python3 benchmarks/verify_scalar.py --algorithms padovan_sequence`.

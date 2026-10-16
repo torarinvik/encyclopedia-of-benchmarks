@@ -1,0 +1,5 @@
+const MAX_N:usize=8;const MAX_OUT:usize=737;
+fn safe(rows:*[MAX_N]usize,col:usize,row:usize)bool{for(0..col)|c|{const prior=rows[c];if(prior==row or prior+c==row+col or prior+col==row+c)return false;}return true;}
+fn enumerate(n:usize,col:usize,rows:*[MAX_N]usize,out:*[MAX_OUT]i64,used:*usize)void{if(col==n){for(0..n)|c|{out[used.*]=@intCast(rows[c]);used.*+=1;}out[0]+=1;return;}for(0..n)|row|{if(safe(rows,col,row)){rows[col]=row;enumerate(n,col+1,rows,out,used);}}}
+fn put(output:[*c]u8,index:usize,value:i64)void{const bits:u64=@bitCast(value);for(0..8)|b|output[index*8+b]=@truncate(bits>>@intCast(8*b));}
+pub export fn n_queens_backtracking_csharp(n:i64,output:[*c]u8,capacity:usize)i64{if(n<0 or n>@as(i64,@intCast(MAX_N)))return -1;var values=[_]i64{0}**MAX_OUT;var used:usize=1;if(n>0){var rows=[_]usize{0}**MAX_N;enumerate(@intCast(n),0,&rows,&values,&used);}const required=used*8;if(output==null or capacity<required)return -2;for(0..used)|i|put(output,i,values[i]);return @intCast(required);}

@@ -10,6 +10,12 @@ The `i64_array_bytes_output` input contains one signed 64-bit ASCII code point p
 
 [`workload.json`](workload.json) includes the pinned source's examples, single-character and periodic strings, an embedded NUL byte, empty input, non-ASCII input, and short capacity.
 
+Verify all nine implementations against the independent minimal-rotation oracle with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm booths_algorithm
+```
+
 ## Implementations
 
 | Language | Source |

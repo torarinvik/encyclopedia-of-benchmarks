@@ -1,0 +1,24 @@
+def problem115_impl(min_block_length: i64) -> i64:
+    if min_block_length < 1 or min_block_length > 100: return -1
+    ways: mutable i64[1024] = zeroed
+    i: mutable i64 = 0
+    while i < min_block_length:
+        ways[i.usize()] <- 1
+        i <- i + 1
+    n: mutable i64 = min_block_length
+    while n < 1024:
+        ways[n.usize()] <- 1
+        block_length: mutable i64 = min_block_length
+        while block_length <= n:
+            block_start: mutable i64 = 0
+            while block_start < n - block_length:
+                index: i64 = n - block_start - block_length - 1
+                ways[n.usize()] <- ways[n.usize()] + ways[index.usize()]
+                block_start <- block_start + 1
+            ways[n.usize()] <- ways[n.usize()] + 1
+            block_length <- block_length + 1
+        if ways[n.usize()] > 1000000: break n
+        n <- n + 1
+    -1
+
+export fn problem115(min_block_length: i64) -> i64 = problem115_impl

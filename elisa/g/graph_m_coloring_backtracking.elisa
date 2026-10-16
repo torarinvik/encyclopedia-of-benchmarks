@@ -1,0 +1,76 @@
+const MAX_VERTICES: usize = 12
+
+def graph_m_coloring_backtracking_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    n_value: i64 = input[0]
+    max_colors_value: i64 = input[1]
+    if n_value < 0 or n_value > 12 or max_colors_value < 0 or max_colors_value > 12:
+        return -1
+    n: usize = n_value.usize()
+    max_colors: usize = max_colors_value.usize()
+    if length != 2 + n * n:
+        return -1
+    matrix_valid: bool =
+        while row < n |row: mutable usize = 0, valid: mutable bool = true| -> valid:
+            row_valid: bool =
+                while column < n |column: mutable usize = 0, valid_row: mutable bool = true| -> valid_row:
+                    cell: i64 = input[2 + row * n + column]
+                    if cell < 0 or cell > 1 or cell != input[2 + column * n + row] or (row == column and cell != 0):
+                        break false
+                    column <- column + 1
+            if not row_valid:
+                break false
+            row <- row + 1
+    if not matrix_valid:
+        return -1
+    state: mutable i64[168] = zeroed
+    matrix_size: usize = n * n
+    for index in 0..<matrix_size:
+        state[index] <- input[2 + index]
+    for vertex in 0..<n:
+        state[matrix_size + vertex] <- -1
+    next_color_offset: usize = matrix_size + n
+    vertex: mutable usize = 0
+    search_finished: mutable bool = n == 0
+    search_found: mutable bool = n == 0
+    while not search_finished:
+        if vertex == n:
+            search_found <- true
+            search_finished <- true
+        elif state[next_color_offset + vertex] >= max_colors.i64():
+            state[next_color_offset + vertex] <- 0
+            if vertex == 0:
+                search_finished <- true
+            else:
+                vertex <- vertex - 1
+                state[matrix_size + vertex] <- -1
+                state[next_color_offset + vertex] <- state[next_color_offset + vertex] + 1
+        else:
+            conflict: bool =
+                while neighbor < vertex |neighbor: mutable usize = 0, is_conflict: mutable bool = false| -> is_conflict:
+                    if state[vertex * n + neighbor] == 1 and state[matrix_size + neighbor] == state[next_color_offset + vertex]:
+                        break true
+                    neighbor <- neighbor + 1
+            if conflict:
+                state[next_color_offset + vertex] <- state[next_color_offset + vertex] + 1
+            else:
+                state[matrix_size + vertex] <- state[next_color_offset + vertex]
+                vertex <- vertex + 1
+                if vertex < n:
+                    state[next_color_offset + vertex] <- 0
+    if not search_found:
+        return 0
+    required: usize = n * 8
+    if required == 0:
+        return 0
+    if capacity < required:
+        return -2
+    for vertex in 0..<n:
+        bits: mutable u64 = state[matrix_size + vertex].u64()
+        for byte in 0..<8:
+            output[vertex * 8 + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+    required.i64()
+
+export fn graph_m_coloring_backtracking(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_m_coloring_backtracking_impl

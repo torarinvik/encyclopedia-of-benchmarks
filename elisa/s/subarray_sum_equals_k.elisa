@@ -1,0 +1,49 @@
+const MAX_ITEMS: usize = 512
+const TABLE_SIZE: usize = 2048
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def subarray_sum_equals_k_slot(value: i64) -> usize:
+    magnitude: i64 = if value < 0 then -value else value
+    magnitude.usize() % TABLE_SIZE
+
+def subarray_sum_equals_k_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 514:
+        return INVALID_RESULT
+    count_value: i64 = input[0]
+    target: i64 = input[1]
+    if count_value < 0 or count_value > 512 or target < -2147483648 or target > 2147483647:
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return INVALID_RESULT
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if value < -2147483648 or value > 2147483647:
+            return INVALID_RESULT
+        index <- index + 1
+
+    keys: mutable i64[TABLE_SIZE] = zeroed
+    frequencies: mutable i64[TABLE_SIZE] = zeroed
+    frequencies[0] <- 1
+    prefix_sum: mutable i64 = 0
+    result: mutable i64 = 0
+    index <- 0
+    while index < count:
+        prefix_sum <- prefix_sum + input[index + 2]
+        required: i64 = prefix_sum - target
+        slot: mutable usize = subarray_sum_equals_k_slot(required)
+        while frequencies[slot] != 0 and keys[slot] != required:
+            slot <- (slot + 1) % TABLE_SIZE
+        result <- result + frequencies[slot]
+
+        slot <- subarray_sum_equals_k_slot(prefix_sum)
+        while frequencies[slot] != 0 and keys[slot] != prefix_sum:
+            slot <- (slot + 1) % TABLE_SIZE
+        if frequencies[slot] == 0:
+            keys[slot] <- prefix_sum
+        frequencies[slot] <- frequencies[slot] + 1
+        index <- index + 1
+    result
+
+export fn subarray_sum_equals_k(input: i64&, length: usize) -> i64 = subarray_sum_equals_k_impl

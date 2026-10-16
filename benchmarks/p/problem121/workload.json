@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-121-disc-game-prize-fund-v1",
+  "algorithm": "problem121",
+  "function_symbol": "problem121",
+  "input": {
+    "kind": "turn_count",
+    "minimum": 1,
+    "maximum": 15,
+    "definition": "Number of returns-to-bag turns; a win requires strictly more blue than red draws.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Maximum whole-pound prize fund including the \u00a31 entry with nonnegative expected profit for the banker.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one-turn",
+      "input_value": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "two-turns",
+      "input_value": 2,
+      "expected_result": 6
+    },
+    {
+      "id": "source-example-four-turns",
+      "input_value": 4,
+      "expected_result": 10
+    },
+    {
+      "id": "source-example-ten-turns",
+      "input_value": 10,
+      "expected_result": 225
+    },
+    {
+      "id": "canonical-fifteen-turns",
+      "input_value": 15,
+      "expected_result": 2269
+    },
+    {
+      "id": "zero-turns",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-turn-count",
+      "input_value": 16,
+      "expected_result": -1
+    }
+  ]
+}

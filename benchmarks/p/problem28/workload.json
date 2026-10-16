@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-28-scalar-v1",
+  "algorithm": "problem28",
+  "function_symbol": "problem28",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "size_range": [0, 100000],
+    "meaning": "inclusive side length for the spiral diagonal sum",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_size", "input_value": 0, "expected_result": 1},
+    {"id": "size_one", "input_value": 1, "expected_result": 1},
+    {"id": "size_two", "input_value": 2, "expected_result": 1},
+    {"id": "size_three", "input_value": 3, "expected_result": 25},
+    {"id": "even_size_four_source_behavior", "input_value": 4, "expected_result": 25},
+    {"id": "published_size_five_example", "input_value": 5, "expected_result": 101},
+    {"id": "published_size_ten_example", "input_value": 10, "expected_result": 537},
+    {"id": "published_size_five_hundred_example", "input_value": 500, "expected_result": 82959497},
+    {"id": "canonical_size", "input_value": 1001, "expected_result": 669171001},
+    {"id": "maximum_supported_size", "input_value": 100000, "expected_result": 666651666899997},
+    {"id": "negative_size", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_size", "input_value": 100001, "expected_result": -1}
+  ]
+}

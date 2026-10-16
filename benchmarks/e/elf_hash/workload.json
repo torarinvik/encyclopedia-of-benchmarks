@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "elf-hash-ascii-codepoints-i64-array-scalar-v1",
+  "algorithm": "elf_hash",
+  "function_symbol": "elf_hash",
+  "input": {
+    "kind": "signed_i64_array_of_unicode_codepoints",
+    "layout": "one codepoint per array element",
+    "minimum_length": 0,
+    "maximum_length": 8,
+    "element_range": [0, 127],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 8589934591,
+    "definition": "the nonnegative value returned by the source ELF recurrence"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"empty_string","input_values":[],"input_length":0,"expected_result":0},
+    {"id":"single_ascii_a","input_values":[65],"input_length":1,"expected_result":65},
+    {"id":"source_text_prefix","input_values":[108,111,114,101,109,32,105,112],"input_length":8,"expected_result":109834800},
+    {"id":"nul_is_an_ordinary_codepoint","input_values":[65,0,66],"input_length":3,"expected_result":16706},
+    {"id":"maximum_ascii_codepoint","input_values":[127],"input_length":1,"expected_result":127},
+    {"id":"maximum_valid_length","input_values":[127,127,127,127,127,127,127,127],"input_length":8,"expected_result":125271839},
+    {"id":"preserve_bit_above_high_mask","input_values":[15,15,15,15,15,15,15,16],"input_length":8,"expected_result":4294967296},
+    {"id":"non_ascii_codepoint_rejected","input_values":[128],"input_length":1,"expected_result":-1},
+    {"id":"negative_codepoint_rejected","input_values":[-1],"input_length":1,"expected_result":-1},
+    {"id":"over_bound_length_rejected","input_values":[97,98,99,100,101,102,103,104,105],"input_length":9,"expected_result":-1}
+  ]
+}

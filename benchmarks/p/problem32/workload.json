@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-32-pandigital-products-v1",
+  "algorithm": "problem32",
+  "function_symbol": "problem32",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The Project Euler operation examines the fixed 1-to-9 pandigital digit set. A zero placeholder is accepted only for the shared scalar runner ABI."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of distinct products that form a 1-to-9 pandigital multiplicand × multiplier = product identity."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "canonical_pandigital_product_sum", "input_value": 0, "expected_result": 45228},
+    {"id": "nonzero_placeholder_invalid", "input_value": 1, "expected_result": -1}
+  ]
+}

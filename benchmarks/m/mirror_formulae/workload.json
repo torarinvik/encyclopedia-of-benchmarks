@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "mirror-formulae-float64-triple-v1",
+  "algorithm": "mirror_formulae",
+  "function_symbol": "mirror_formulae",
+  "input": {
+    "kind": "mirror_equation_mode_and_distances",
+    "layout": [
+      "distance_a",
+      "distance_b",
+      "operation_code"
+    ],
+    "operation_codes": {
+      "0": "focal_length(distance_of_object, distance_of_image)",
+      "1": "object_distance(focal_length, distance_of_image)",
+      "2": "image_distance(focal_length, distance_of_object)"
+    },
+    "distance_domain": "finite, nonzero, with absolute value in [1e-6, 1e6]",
+    "invalid_result": -1e+300,
+    "singular_denominator_result": -1e+300,
+    "formulae": [
+      "1 / ((1 / distance_of_object) + (1 / distance_of_image))",
+      "1 / ((1 / focal_length) - (1 / distance_of_image))",
+      "1 / ((1 / focal_length) - (1 / distance_of_object))"
+    ],
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "focal_length_source_10_20",
+      "input_values": [
+        10.0,
+        20.0,
+        0.0
+      ],
+      "expected_result": 6.666666666666666
+    },
+    {
+      "id": "focal_length_source_9_5_6_7",
+      "input_values": [
+        9.5,
+        6.7,
+        0.0
+      ],
+      "expected_result": 3.9290123456790127
+    },
+    {
+      "id": "object_distance_source_30_20",
+      "input_values": [
+        30.0,
+        20.0,
+        1.0
+      ],
+      "expected_result": -59.999999999999986
+    },
+    {
+      "id": "object_distance_source_10_5_11_7",
+      "input_values": [
+        10.5,
+        11.7,
+        1.0
+      ],
+      "expected_result": 102.37500000000007
+    },
+    {
+      "id": "image_distance_source_10_40",
+      "input_values": [
+        10.0,
+        40.0,
+        2.0
+      ],
+      "expected_result": 13.333333333333332
+    },
+    {
+      "id": "image_distance_source_1_5_6_7",
+      "input_values": [
+        1.5,
+        6.7,
+        2.0
+      ],
+      "expected_result": 1.9326923076923077
+    },
+    {
+      "id": "focal_length_positive_negative",
+      "input_values": [
+        10.0,
+        -20.0,
+        0.0
+      ],
+      "expected_result": 20.0
+    },
+    {
+      "id": "focal_length_negative_positive",
+      "input_values": [
+        -10.0,
+        20.0,
+        0.0
+      ],
+      "expected_result": -20.0
+    },
+    {
+      "id": "object_distance_opposite_sign",
+      "input_values": [
+        10.0,
+        -20.0,
+        1.0
+      ],
+      "expected_result": 6.666666666666666
+    },
+    {
+      "id": "image_distance_opposite_sign",
+      "input_values": [
+        -20.0,
+        10.0,
+        2.0
+      ],
+      "expected_result": -6.666666666666666
+    },
+    {
+      "id": "focal_length_minimum_magnitudes",
+      "input_values": [
+        1e-06,
+        1e-06,
+        0.0
+      ],
+      "expected_result": 5e-07
+    },
+    {
+      "id": "focal_length_maximum_magnitudes",
+      "input_values": [
+        1000000.0,
+        1000000.0,
+        0.0
+      ],
+      "expected_result": 500000.0
+    },
+    {
+      "id": "invalid_zero_first_distance",
+      "input_values": [
+        0.0,
+        20.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_zero_second_distance",
+      "input_values": [
+        20.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_focal_singular_denominator",
+      "input_values": [
+        10.0,
+        -10.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_object_singular_denominator",
+      "input_values": [
+        10.0,
+        10.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_image_singular_denominator",
+      "input_values": [
+        10.0,
+        10.0,
+        2.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_operation_code",
+      "input_values": [
+        10.0,
+        20.0,
+        3.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_fractional_operation_code",
+      "input_values": [
+        10.0,
+        20.0,
+        0.5
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_distance_below_domain",
+      "input_values": [
+        1e-07,
+        20.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_distance_above_domain",
+      "input_values": [
+        20.0,
+        -10000000.0,
+        2.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

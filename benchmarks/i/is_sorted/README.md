@@ -29,5 +29,6 @@ The pinned Lua source also accepts a caller-provided comparator; this benchmark 
 
 ## Pinned sources
 
+- The PHP [`ArrayHelpers.php`](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Utils/ArrayHelpers.php) helper checks nondecreasing order; this benchmark normalizes its exception to false.
 - [Lua `src/sorting/is_sorted.lua`](https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/sorting/is_sorted.lua)
 - [Python `data_structures/binary_tree/is_sorted.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/is_sorted.py) is the distinct BST-validation source.

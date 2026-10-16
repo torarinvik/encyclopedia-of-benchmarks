@@ -11,7 +11,7 @@ Given consecutive altitude gains along a route, return the highest altitude reac
 
 ## Source and related algorithms
 
-The pinned Ruby source is [`find_the_highest_altitude.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/find_the_highest_altitude.rb). It defines `largest_altitude` twice; the later definition is effective. That implementation initializes both current altitude and maximum altitude to zero, adds each gain in order, and retains the highest prefix including the starting point. [`prefix_sum`](../prefix_sum/README.md) returns or queries cumulative sums; this package returns only their maximum including the initial zero.
+The pinned Ruby source is [`find_the_highest_altitude.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/find_the_highest_altitude.rb). It defines `largest_altitude` twice; the later definition is effective. That implementation initializes both current altitude and maximum altitude to zero, adds each gain in order, and retains the highest prefix including the starting point. [`prefix_sum`](../../p/prefix_sum/README.md) returns or queries cumulative sums; this package returns only their maximum including the initial zero.
 
 [`workload.json`](workload.json) covers empty input, positive and negative routes, the pinned examples, and invalid packing and values. The nine ports use the shared `i64_array_scalar` ABI. The source-backed expected-value check is in [`benchmarks/run_i64_array_scalar.py`](../../run_i64_array_scalar.py).
 

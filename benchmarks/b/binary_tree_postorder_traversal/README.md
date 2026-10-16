@@ -11,6 +11,10 @@ Write every node value in left-right-root postorder into caller-owned output sto
 
 The pinned C++ source [iterative tree traversals](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/iterative_tree_traversals.cpp) writes a popped node, pushes its left child and then its right child, and reverses the collected sequence. This yields left-right-root postorder. The second indexed C++ source has the same traversal.
 
+The pinned Java [`PostOrderTraversal.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/PostOrderTraversal.java) and Ruby [`postorder_traversal.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/binary_trees/postorder_traversal.rb) also emit left-right-root node values. Their empty-root results are outside this package's nonempty input domain.
+
+The C `recursive_traversals.c` and C++ `recursive_tree_traversal.cpp` sources also expose postorder; see the [full traversal guide](../binary_tree_traversal/README.md) for their pinned references.
+
 [`workload.json`](workload.json) covers both child branches, negative values, nonzero roots, skewed trees, signed 64-bit boundaries, and malformed inputs.
 
 | Language | Source |

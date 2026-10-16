@@ -1,0 +1,143 @@
+const P551_MAX_N: i64 = 1000000000000000
+const P551_STATE_CAPACITY: usize = 32768
+const P551_JUMP_CAPACITY: usize = 131072
+const P551_TABLE_MASK: usize = P551_STATE_CAPACITY - 1
+
+struct P551State:
+    prefix_sum: i64
+    suffix: i64
+    head: i64
+
+struct P551Jump:
+    difference: i64
+    terms: i64
+    k: i64
+    next: i64
+
+struct P551Step:
+    difference: i64
+    terms: i64
+
+def p551_power10(exponent: i64) -> i64:
+    result: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < exponent:
+        result <- result * 10
+        index <- index + 1
+    result
+
+def p551_digit_sum(input: i64) -> i64:
+    value: mutable i64 = input
+    total: mutable i64 = 0
+    while value > 0:
+        total <- total + value % 10
+        value <- value / 10
+    total
+
+def p551_find_state(states: mutable P551State&, prefix_sum: i64, suffix: i64) -> i64:
+    slot: usize = ((suffix % P551_STATE_CAPACITY.i64() + prefix_sum * 1009) % P551_STATE_CAPACITY.i64()).usize()
+    probe: mutable usize = 0
+    while probe < P551_STATE_CAPACITY:
+        index: usize = (slot + probe) & P551_TABLE_MASK
+        if states[index].head == -2:
+            states[index].prefix_sum <- prefix_sum
+            states[index].suffix <- suffix
+            states[index].head <- -1
+            return index.i64()
+        if states[index].prefix_sum == prefix_sum and states[index].suffix == suffix:
+            return index.i64()
+        probe <- probe + 1
+    -1
+
+def p551_add_jump(states: mutable P551State&, jumps: mutable P551Jump&, jump_count: mutable usize&,
+                  failed: mutable bool&, state_index: usize, difference: i64, terms: i64, k: i64) -> void:
+    if jump_count >= P551_JUMP_CAPACITY:
+        failed <- true
+        return
+    index: usize = jump_count
+    jump_count <- jump_count + 1
+    jumps[index] <- P551Jump(difference, terms, k, states[state_index].head)
+    states[state_index].head <- index.i64()
+
+def p551_compute(value: mutable i64&, k: i64, index_input: i64, target: i64) -> P551Step:
+    index: mutable i64 = index_input
+    start: i64 = index
+    base: i64 = p551_power10(k)
+    prefix_sum: i64 = p551_digit_sum(value / base)
+    suffix: mutable i64 = value % base
+    difference: mutable i64 = 0
+    while index < target:
+        index <- index + 1
+        addend: i64 = prefix_sum + p551_digit_sum(suffix)
+        difference <- difference + addend
+        suffix <- suffix + addend
+        if suffix >= base:
+            break
+    value <- value + difference
+    P551Step(difference, index - start)
+
+def p551_next_term(value: mutable i64&, k: i64, index: i64, target: i64,
+                   states: mutable P551State&, jumps: mutable P551Jump&,
+                   jump_count: mutable usize&, failed: mutable bool&) -> P551Step:
+    base: i64 = p551_power10(k)
+    prefix_sum: i64 = p551_digit_sum(value / base)
+    suffix: i64 = value % base
+    max_terms: i64 = target - index
+    state_index_value: i64 = p551_find_state(states, prefix_sum, suffix)
+    if state_index_value < 0:
+        return P551Step(0, 0)
+    state_index: usize = state_index_value.usize()
+    difference: mutable i64 = 0
+    terms: mutable i64 = 0
+    best: mutable i64 = -1
+    jump: mutable i64 = states[state_index].head
+    while jump >= 0:
+        entry: P551Jump = jumps[jump.usize()]
+        if entry.k <= k and entry.terms <= max_terms and (best < 0 or entry.terms > jumps[best.usize()].terms):
+            best <- jump
+        jump <- entry.next
+    if best >= 0:
+        entry: P551Jump = jumps[best.usize()]
+        difference <- entry.difference
+        terms <- entry.terms
+        value <- value + difference
+    if terms >= max_terms or suffix + difference >= base:
+        return P551Step(difference, terms)
+    if k > 2:
+        while not failed:
+            extra: P551Step = p551_next_term(value, k - 1, index + terms, target,
+                                             states, jumps, jump_count, failed)
+            difference <- difference + extra.difference
+            terms <- terms + extra.terms
+            if terms >= max_terms or suffix + difference >= base:
+                break
+    else:
+        extra: P551Step = p551_compute(value, k, index + terms, target)
+        difference <- difference + extra.difference
+        terms <- terms + extra.terms
+    if not failed and terms < max_terms:
+        p551_add_jump(states, jumps, jump_count, failed, state_index, difference, terms, k)
+    P551Step(difference, terms)
+
+def p551_impl(n: i64) -> i64:
+    if n < 1 or n > P551_MAX_N:
+        return -1
+    states: mutable P551State[P551_STATE_CAPACITY] = zeroed
+    jumps: mutable P551Jump[P551_JUMP_CAPACITY] = zeroed
+    index: mutable usize = 0
+    while index < P551_STATE_CAPACITY:
+        states[index].head <- -2
+        index <- index + 1
+    jump_count: mutable usize = 0
+    failed: mutable bool = false
+    value: mutable i64 = 1
+    jumped: mutable i64 = 0
+    while jumped != n - 1 and not failed:
+        step: P551Step = p551_next_term(value, 18, 1 + jumped, n,
+                                        states, jumps, jump_count, failed)
+        jumped <- jumped + step.terms
+    if failed:
+        return -1
+    value
+
+export fn problem551(n: i64) -> i64 = p551_impl

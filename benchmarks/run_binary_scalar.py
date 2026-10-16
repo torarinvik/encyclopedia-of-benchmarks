@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+from functools import lru_cache
 import json
 import math
 import os
@@ -14,9 +15,108 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from uint53_xor_oracle import expected_result as uint53_xor_expected
 
 U64_MAX = 2**64 - 1
 I64_MIN = -(2**63)
+I64_MAX = 2**63 - 1
+DIGIT_FACTORIALS = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
+
+
+@lru_cache(maxsize=8)
+def problem800_source_result(base: int, degree: int) -> int:
+    """Mirror the pinned sieve and decreasing-right-pointer traversal."""
+    if not 2 <= base <= 1_000_000 or not 1 <= degree <= 1_000_000:
+        return -1
+    upper_bound = degree * math.log2(base)
+    max_prime = int(upper_bound)
+    if max_prime <= 2:
+        return 0
+    is_prime = bytearray(b"\x01") * max_prime
+    is_prime[0:2] = b"\x00\x00"
+    for prime in range(2, math.isqrt(max_prime - 1) + 1):
+        if is_prime[prime]:
+            start = prime * prime
+            is_prime[start:max_prime:prime] = b"\\x00" * (((max_prime - 1 - start) // prime) + 1)
+    primes = [value for value in range(2, max_prime) if is_prime[value]]
+    count = 0
+    left, right = 0, len(primes) - 1
+    while left < right:
+        while (primes[right] * math.log2(primes[left])
+               + primes[left] * math.log2(primes[right]) > upper_bound):
+            right -= 1
+        count += right - left
+        left += 1
+    return count
+
+
+def problem74_count(num_terms: int, max_start: int) -> int:
+    if max_start > 1_000_000:
+        return -1
+    if max_start <= 1:
+        return 0
+    cache = {145: 0, 169: 3, 36301: 3, 1454: 3, 871: 2, 45361: 2, 872: 2}
+
+    def digit_factorial_sum(value: int) -> int:
+        total = 0
+        while True:
+            total += DIGIT_FACTORIALS[value % 10]
+            value //= 10
+            if value == 0:
+                return total
+
+    def chain_length(start: int) -> int:
+        path: list[int] = []
+        path_members: set[int] = set()
+        current = start
+        while current not in cache:
+            next_value = digit_factorial_sum(current)
+            if next_value in path_members:
+                cache[current] = 0
+                result = 0
+                break
+            path.append(current)
+            path_members.add(current)
+            current = next_value
+        else:
+            result = cache[current]
+        while path:
+            current = path.pop()
+            result += 1
+            cache[current] = result
+        return cache[start]
+
+    return sum(chain_length(start) == num_terms for start in range(1, max_start))
+
+
+def problem174_source_result(t_limit: int, n_limit: int) -> int:
+    """Mirror the pinned outer-width and parity-adjusted hole-width scan."""
+    if (not I64_MIN <= t_limit <= I64_MAX
+            or not I64_MIN <= n_limit <= I64_MAX
+            or t_limit > 1_000_000):
+        return -1
+    if t_limit < 0:
+        return 0
+    counts = bytearray(t_limit + 1)
+    for outer_width in range(3, t_limit // 4 + 2):
+        outer_area = outer_width * outer_width
+        hole_lower = (max(math.ceil(math.sqrt(outer_area - t_limit)), 1)
+                      if outer_area > t_limit else 1)
+        hole_lower += (outer_width - hole_lower) % 2
+        for hole_width in range(hole_lower, outer_width - 1, 2):
+            counts[outer_area - hole_width * hole_width] += 1
+    return sum(1 <= count <= n_limit for count in counts)
+
+
+def trinomial_triangle_source_result(n: int, k: int) -> int:
+    """Mirror the pinned three-parent recurrence for bounded (n, k)."""
+    if k < -n or k > n:
+        return 0
+    if n == 0:
+        return 1
+    return (trinomial_triangle_source_result(n - 1, k - 1)
+            + trinomial_triangle_source_result(n - 1, k)
+            + trinomial_triangle_source_result(n - 1, k + 1))
 
 
 def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
@@ -26,7 +126,62 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             or any(type(value) is not int or not I64_MIN <= value <= U64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError("binary scalar cases require two 64-bit inputs and an integer result")
-    if algorithm == "count_number_of_one_bits":
+    if algorithm == "uint53_xor":
+        expected_from_source = uint53_xor_expected(values[0], values[1])
+        if expected != expected_from_source:
+            raise ValueError("uint53_xor expected_result must match bounded numeric XOR")
+    elif algorithm == "problem800":
+        base, degree = values
+        expected_from_source = problem800_source_result(base, degree)
+        if expected != expected_from_source:
+            raise ValueError("problem800 expected_result must match the pinned binary64 prime-pointer traversal")
+    elif algorithm == "problem56":
+        a, b = values
+        valid = 1 <= a <= 200 and 1 <= b <= 200
+        expected_from_source = (-1 if not valid else
+            max(sum(int(digit) for digit in str(pow(base, power)))
+                for base in range(a) for power in range(b)))
+        if expected != expected_from_source:
+            raise ValueError("problem56 expected_result must match the bounded arbitrary-precision digit-sum search")
+    elif algorithm == "problem74":
+        num_terms, max_start = values
+        if not all(I64_MIN <= value <= I64_MAX for value in values):
+            expected_from_source = -1
+        else:
+            expected_from_source = problem74_count(num_terms, max_start)
+        if expected != expected_from_source:
+            raise ValueError("problem74 expected_result must match the seeded digit-factorial chain scan")
+    elif algorithm == "problem174":
+        t_limit, n_limit = values
+        expected_from_source = problem174_source_result(t_limit, n_limit)
+        if expected != expected_from_source:
+            raise ValueError("problem174 expected_result must match the pinned bounded lamina-count scan")
+    elif algorithm == "problem124":
+        n_max, rank = values
+        if 1 <= rank <= n_max <= 100_000:
+            radicals = [1] * (n_max + 1)
+            for prime in range(2, n_max + 1):
+                if radicals[prime] == 1:
+                    for multiple in range(prime, n_max + 1, prime):
+                        radicals[multiple] *= prime
+            ordered = sorted(range(1, n_max + 1), key=lambda value: (radicals[value], value))
+            expected_from_source = ordered[rank - 1]
+        else:
+            expected_from_source = -1
+        if expected != expected_from_source:
+            raise ValueError("problem124 expected_result must match radical ordering with ascending ties")
+    elif algorithm == "problem63":
+        max_base, max_power = values
+        valid = all(I64_MIN <= value <= 2**63 - 1 for value in values)
+        expected_from_source = -1
+        if valid:
+            expected_from_source = sum(
+                len(str(base ** power)) == power
+                for base in range(1, min(max_base, 10))
+                for power in range(1, min(max_power, 22)))
+        if expected != expected_from_source:
+            raise ValueError("problem63 expected_result must count exact digit-power matches in the exclusive bounds")
+    elif algorithm == "count_number_of_one_bits":
         number, method = values
         valid = 0 <= number <= 0xFFFFFFFF and 0 <= method <= 2
         expected_from_source = number.bit_count() if valid else -1
@@ -113,6 +268,23 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             expected_from_source = result - 0x100000000 if result >= 0x80000000 else result
         if expected != expected_from_source:
             raise ValueError("binary_pow expected_result must match Java int exponentiation by squaring")
+    elif algorithm == "modular_inverse":
+        value, modulus = values
+        valid = 0 <= value <= 1_000_000 and 2 <= modulus <= 1_000_000
+        if not valid or math.gcd(value, modulus) != 1:
+            expected_from_source = -1
+        else:
+            expected_from_source = pow(value, -1, modulus)
+        if expected != expected_from_source:
+            raise ValueError("modular_inverse expected_result must match the bounded least-positive modular inverse")
+    elif algorithm == "trinomial_triangle":
+        n, k = values
+        if not 0 <= n <= 10 or not -10 <= k <= 10:
+            expected_from_source = -1
+        else:
+            expected_from_source = trinomial_triangle_source_result(n, k)
+        if expected != expected_from_source:
+            raise ValueError("trinomial_triangle expected_result must match the bounded three-parent recurrence")
     return values[0], values[1], expected
 
 

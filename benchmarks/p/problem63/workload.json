@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-63-powerful-digit-count-v1",
+  "algorithm": "problem63",
+  "function_symbol": "problem63",
+  "input": {
+    "kind": "exclusive_base_and_power_bounds",
+    "arguments": [
+      "max_base",
+      "max_power"
+    ],
+    "semantics": "Count base**power with decimal digit count equal to power for base in range(1,max_base) and power in range(1,max_power). Bounds above 10 and 22 are capped because no larger base or power can contribute.",
+    "signed_64_bit_inputs": true
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of positive integers that are an nth power and have exactly n decimal digits within the source bounds."
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "pinned_source_example",
+      "input_values": [
+        10,
+        22
+      ],
+      "expected_result": 49
+    },
+    {
+      "id": "one_base_one_power",
+      "input_values": [
+        2,
+        2
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "empty_ranges_one",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "no_power_iterations",
+      "input_values": [
+        10,
+        1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "base_bound_above_source_limit",
+      "input_values": [
+        11,
+        22
+      ],
+      "expected_result": 49
+    },
+    {
+      "id": "power_bound_above_source_limit",
+      "input_values": [
+        10,
+        23
+      ],
+      "expected_result": 49
+    },
+    {
+      "id": "both_bounds_above_source_limits",
+      "input_values": [
+        100,
+        100
+      ],
+      "expected_result": 49
+    },
+    {
+      "id": "negative_bounds",
+      "input_values": [
+        -1,
+        -1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "minimum_i64_bounds",
+      "input_values": [
+        -9223372036854775808,
+        -9223372036854775808
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_i64_bounds",
+      "input_values": [
+        9223372036854775807,
+        9223372036854775807
+      ],
+      "expected_result": 49
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+# Present-value-weighted average cash-flow time, preserving the pinned loop order.
+extern pow(base: f64, exponent: f64) -> f64
+const SCALE: i64 = 1000000
+const MAX_FACE_VALUE_MICRO: i64 = 1000000000000
+const MAX_RATE_MICRO: i64 = 1000000
+const MAX_PERIODS: i64 = 64
+const MAX_INPUT_LENGTH: usize = 5
+const INVALID_RESULT: f64 = -1.0e300
+
+def macaulay_duration_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    face_micro: i64 = values[0]
+    coupon_micro: i64 = values[1]
+    periods: i64 = values[2]
+    yield_micro: i64 = values[3]
+    if face_micro < 1 or face_micro > MAX_FACE_VALUE_MICRO or coupon_micro < 0 or coupon_micro > MAX_RATE_MICRO or periods < 1 or periods > MAX_PERIODS or yield_micro < 1 or yield_micro > MAX_RATE_MICRO:
+        return INVALID_RESULT
+    face_value: f64 = face_micro.f64() / SCALE.f64()
+    coupon_rate: f64 = coupon_micro.f64() / SCALE.f64()
+    yield_rate: f64 = yield_micro.f64() / SCALE.f64()
+    total_present_value: mutable f64 = 0.0
+    total_time_weighted_value: mutable f64 = 0.0
+    period: mutable i64 = 1
+    while period <= periods:
+        cash_flow: f64 = face_value * coupon_rate + (if period == periods then face_value else 0.0)
+        time_weighted_value: f64 = (period.f64() * cash_flow) / pow(1.0 + yield_rate, period.f64())
+        total_time_weighted_value <- total_time_weighted_value + time_weighted_value
+        present_value: f64 = cash_flow / pow(1.0 + yield_rate, period.f64())
+        total_present_value <- total_present_value + present_value
+        period <- period + 1
+    total_time_weighted_value / total_present_value
+
+export fn macaulay_duration(values: i64&, length: usize) -> f64 = macaulay_duration_impl

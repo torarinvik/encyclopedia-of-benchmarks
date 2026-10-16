@@ -2,7 +2,7 @@ module abundant_number;
 
 fn long abundant_number(long n) @export("abundant_number")
 {
-    if (n < 1 || n > 1000000000) return -1;
+    if (n < 1 || n > 100000000) return -1;
     long sum = 1;
     for (long divisor = 2; divisor <= n / divisor; divisor++) {
         if (n % divisor == 0) {

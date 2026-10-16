@@ -1,0 +1,76 @@
+const MAX_KEYWORD_LENGTH: usize = 26
+const MAX_MESSAGE_LENGTH: usize = 512
+const MAX_INPUT_LENGTH: usize = 3 + MAX_KEYWORD_LENGTH + MAX_MESSAGE_LENGTH + 1
+
+def keyword_shifted_alphabet_impl(input: i64&, length: usize,
+                                  output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    operation: i64 = input[0]
+    keyword_length_value: i64 = input[1]
+    message_length_value: i64 = input[2]
+    if (operation != 0 and operation != 1) or keyword_length_value < 1 or keyword_length_value > 26 or
+        message_length_value < 1 or message_length_value > 512:
+        return -1
+    keyword_length: usize = keyword_length_value.usize()
+    message_length: usize = message_length_value.usize()
+    if length != 3 + keyword_length + message_length:
+        return -1
+
+    keyword: mutable u8[MAX_KEYWORD_LENGTH] = zeroed
+    seen: mutable bool[26] = zeroed
+    for i in 0..<keyword_length:
+        value: i64 = input[3 + i]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)):
+            return -1
+        lower_value: mutable i64 = value
+        if value >= 65 and value <= 90:
+            lower_value <- value + 32
+        lower: u8 = lower_value.u8()
+        index: usize = (lower - 97).usize()
+        if seen[index]:
+            return -1
+        seen[index] <- true
+        keyword[i] <- lower
+    message: mutable u8[MAX_MESSAGE_LENGTH] = zeroed
+    for i in 0..<message_length:
+        value: i64 = input[3 + keyword_length + i]
+        if value < 0 or value > 127:
+            return -1
+        message[i] <- value.u8()
+
+    cipher_alphabet: mutable u8[26] = zeroed
+    encode: mutable u8[26] = zeroed
+    decode: mutable u8[26] = zeroed
+    cipher_length: mutable usize = 0
+    for i in 0..<keyword_length:
+        cipher_alphabet[cipher_length] <- keyword[i]
+        cipher_length <- cipher_length + 1
+    for i in 0..<26:
+        letter: u8 = (97 + i).u8()
+        if not seen[i]:
+            cipher_alphabet[cipher_length] <- letter
+            cipher_length <- cipher_length + 1
+    for i in 0..<26:
+        encode[i] <- cipher_alphabet[i]
+        decode[(cipher_alphabet[i] - 97).usize()] <- (97 + i).u8()
+
+    if output_capacity < message_length or output.is_null():
+        return -2
+    for i in 0..<message_length:
+        value: u8 = message[i]
+        uppercase: bool = value >= 65 and value <= 90
+        index: mutable usize = 0
+        if uppercase:
+            index <- (value - 65).usize()
+        else if value >= 97 and value <= 122:
+            index <- (value - 97).usize()
+        else:
+            output[i] <- value
+            continue
+        translated: u8 = if operation == 0: encode[index] else: decode[index]
+        output[i] <- if uppercase: (translated - 32).u8() else: translated
+    message_length.i64()
+
+export fn keyword_shifted_alphabet(input: i64&, length: usize,
+                                   output: mutable u8&, output_capacity: usize) -> i64 = keyword_shifted_alphabet_impl

@@ -16,6 +16,8 @@ This returns a cube value. It is different from `perfect_cube`, which checks whe
 
 [`workload.json`](workload.json) covers the first terms, a large supported index, the signed 64-bit boundary, and invalid indices.
 
+Verify the nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms cubes_sequence`.
+
 ## Implementations
 
 | Language | Source |

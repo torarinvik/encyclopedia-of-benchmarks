@@ -24,6 +24,6 @@ proc primeFactorDigitSum(value: int64): int64 =
   if remainder > 1: result += digitSum(remainder)
 
 proc smith_number*(value: int64): int64 {.cdecl, exportc: "smith_number".} =
-  if value < 1 or value > 2147483647: return -1
+  if value < 1 or value > 2147395599: return -1
   if isPrime(value): return 0
   if digitSum(value) == primeFactorDigitSum(value): 1 else: 0

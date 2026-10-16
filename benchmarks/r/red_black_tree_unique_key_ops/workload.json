@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "red-black-tree-unique-key-ops-i64-v1",
+  "algorithm": "red_black_tree_unique_key_ops",
+  "function_symbol": "red_black_tree_unique_key_ops",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["operation_count", "operation, key pairs..."],
+    "operation_count_range": [0, 128],
+    "operations": {
+      "0": "insert absent key",
+      "1": "search key",
+      "2": "delete present key"
+    },
+    "key_range": [-2147483648, 2147483647],
+    "duplicate_active_insert": "invalid",
+    "absent_delete": "invalid",
+    "deleted_keys_may_be_reinserted": true,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": ["inorder_count", "sorted_keys...", "search_count", "search_results..."],
+    "search_result_values": {"0": "absent", "1": "present"},
+    "return_value": "number of output bytes"
+  },
+  "workspace": {
+    "bytes": 1040,
+    "meaning": "maximum output capacity: up to 128 result i64 values plus two count headers"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_trace",
+      "input_values": [0],
+      "workspace_bytes": 1040,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "ordered_keys_and_membership",
+      "input_values": [4, 0, 7, 0, -2, 1, 7, 1, 9],
+      "workspace_bytes": 1040,
+      "expected_result": 48,
+      "expected_output_hex": "0200000000000000feffffffffffffff0700000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "delete_rebalance_and_search",
+      "input_values": [6, 0, 10, 0, 5, 0, 15, 2, 10, 1, 10, 1, 15],
+      "workspace_bytes": 1040,
+      "expected_result": 48,
+      "expected_output_hex": "020000000000000005000000000000000f00000000000000020000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "delete_and_reinsert_key",
+      "input_values": [4, 0, 4, 2, 4, 0, 4, 1, 4],
+      "workspace_bytes": 1040,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000040000000000000001000000000000000100000000000000"
+    }
+  ]
+}

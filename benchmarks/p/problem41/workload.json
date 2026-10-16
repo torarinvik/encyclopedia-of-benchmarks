@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-41-scalar-v1",
+  "algorithm": "problem41",
+  "function_symbol": "problem41",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "digit_count_range": [1, 9],
+    "meaning": "n for the pandigital digit set 1 through n",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "largest prime permutation of digits 1 through n, or zero if none exists"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_digit_no_prime", "input_value": 1, "expected_result": 0},
+    {"id": "two_digits_source_example", "input_value": 2, "expected_result": 0},
+    {"id": "three_digits_no_prime", "input_value": 3, "expected_result": 0},
+    {"id": "four_digits_source_example", "input_value": 4, "expected_result": 4231},
+    {"id": "five_digits_no_prime", "input_value": 5, "expected_result": 0},
+    {"id": "six_digits_no_prime", "input_value": 6, "expected_result": 0},
+    {"id": "seven_digits_canonical_example", "input_value": 7, "expected_result": 7652413},
+    {"id": "eight_digits_no_prime", "input_value": 8, "expected_result": 0},
+    {"id": "nine_digits_no_prime", "input_value": 9, "expected_result": 0},
+    {"id": "zero_digits", "input_value": 0, "expected_result": -1},
+    {"id": "ten_digits_outside_single_digit_domain", "input_value": 10, "expected_result": -1}
+  ]
+}

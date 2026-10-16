@@ -1,0 +1,74 @@
+extern exp(value: f64) -> f64
+
+const MAX_SAMPLES: usize = 32
+const MAX_FEATURES: usize = 8
+const INVALID_RESULT: f64 = -1.0e300
+
+def logistic_regression_csharp_binary_gd_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 4:
+        return INVALID_RESULT
+    m_value: i64 = input[0]
+    d_value: i64 = input[1]
+    epochs_value: i64 = input[2]
+    rate_q: i64 = input[3]
+    if m_value < 1 or m_value > 32 or d_value < 1 or d_value > 8 or epochs_value < 0 or epochs_value > 128 or rate_q < 1 or rate_q > 100000:
+        return INVALID_RESULT
+    m: usize = m_value.usize()
+    d: usize = d_value.usize()
+    epochs: usize = epochs_value.usize()
+    feature_count: usize = m * d
+    labels_offset: usize = 4 + feature_count
+    query_offset: usize = labels_offset + m
+    if length != query_offset + d:
+        return INVALID_RESULT
+    for index in 0..<feature_count:
+        if input[4 + index] < -1000000 or input[4 + index] > 1000000:
+            return INVALID_RESULT
+    for sample in 0..<m:
+        label: i64 = input[labels_offset + sample]
+        if label != 0 and label != 1:
+            return INVALID_RESULT
+    for feature in 0..<d:
+        if input[query_offset + feature] < -1000000 or input[query_offset + feature] > 1000000:
+            return INVALID_RESULT
+
+    weights: mutable f64[8] = zeroed
+    gradient: mutable f64[8] = zeroed
+    bias: mutable f64 = 0.0
+    learning_rate: f64 = rate_q.f64() / 1000000.0
+    epoch: mutable usize = 0
+    while epoch < epochs:
+        for feature in 0..<d:
+            gradient[feature] <- 0.0
+        bias_gradient: mutable f64 = 0.0
+        sample: mutable usize = 0
+        while sample < m:
+            dot: mutable f64 = 0.0
+            feature: mutable usize = 0
+            while feature < d:
+                x: f64 = input[4 + sample * d + feature].f64() / 1000000.0
+                dot <- dot + x * weights[feature]
+                feature <- feature + 1
+            linear: f64 = dot + bias
+            prediction: f64 = 1.0 / (1.0 + exp(-linear))
+            error: f64 = prediction - input[labels_offset + sample].f64()
+            feature <- 0
+            while feature < d:
+                x: f64 = input[4 + sample * d + feature].f64() / 1000000.0
+                gradient[feature] <- gradient[feature] + error * x
+                feature <- feature + 1
+            bias_gradient <- bias_gradient + error
+            sample <- sample + 1
+        for feature in 0..<d:
+            weights[feature] <- weights[feature] - learning_rate * gradient[feature] / m.f64()
+        bias <- bias - learning_rate * bias_gradient / m.f64()
+        epoch <- epoch + 1
+
+    query_dot: mutable f64 = 0.0
+    for feature in 0..<d:
+        x: f64 = input[query_offset + feature].f64() / 1000000.0
+        query_dot <- query_dot + x * weights[feature]
+    query_linear: f64 = query_dot + bias
+    1.0 / (1.0 + exp(-query_linear))
+
+export fn logistic_regression_csharp_binary_gd(input: i64&, length: usize) -> f64 = logistic_regression_csharp_binary_gd_impl

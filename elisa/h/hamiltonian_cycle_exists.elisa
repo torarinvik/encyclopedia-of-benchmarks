@@ -1,0 +1,50 @@
+const MAX_VERTICES: usize = 8
+const MAX_INPUT_LENGTH: usize = 58
+
+def has_cycle(n: usize, graph: i64&, visited: mutable i64&, current: usize, position: usize) -> bool:
+    if position == n:
+        return graph[current * MAX_VERTICES] != 0
+    next: mutable usize = 0
+    while next < n:
+        if graph[current * MAX_VERTICES + next] != 0 and visited[next] == 0:
+            visited[next] <- 1
+            if has_cycle(n, graph, visited, next, position + 1):
+                return true
+            visited[next] <- 0
+        next <- next + 1
+    false
+
+def hamiltonian_cycle_exists_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 3 or n_value > 8 or m_value < 0:
+        return -1
+    n: usize = n_value.usize()
+    if m_value > (n * (n - 1) / 2).i64():
+        return -1
+    m: usize = m_value.usize()
+    if length != 2 + 2 * m:
+        return -1
+    graph: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < m:
+        u_value: i64 = input[2 + 2 * edge]
+        v_value: i64 = input[3 + 2 * edge]
+        if u_value < 0 or v_value < 0 or u_value >= n_value or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        if graph[u * MAX_VERTICES + v] != 0:
+            return -1
+        graph[u * MAX_VERTICES + v] <- 1
+        graph[v * MAX_VERTICES + u] <- 1
+        edge <- edge + 1
+    visited: mutable i64[MAX_VERTICES] = zeroed
+    visited[0] <- 1
+    if has_cycle(n, graph, visited, 0, 1):
+        return 1
+    0
+
+export fn hamiltonian_cycle_exists(input: i64&, length: usize) -> i64 = hamiltonian_cycle_exists_impl

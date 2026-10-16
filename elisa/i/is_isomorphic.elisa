@@ -1,0 +1,42 @@
+# Check whether two bounded ASCII strings preserve a one-to-one mapping.
+const MAX_CODEPOINTS: usize = 8
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_CODEPOINTS + 2
+
+def is_isomorphic_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    source_length: i64 = input[0]
+    target_length: i64 = input[1]
+    if source_length < 0 or source_length > MAX_CODEPOINTS.i64() or target_length < 0 or target_length > MAX_CODEPOINTS.i64():
+        return -1
+    source_count: usize = source_length.usize()
+    target_count: usize = target_length.usize()
+    if length != 2 + source_count + target_count:
+        return -1
+    index: mutable usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] > 127:
+            return -1
+        index <- index + 1
+    if source_count != target_count:
+        return 0
+
+    source_to_target: mutable i64[128] = zeroed
+    target_to_source: mutable i64[128] = zeroed
+    index <- 0
+    while index < 128:
+        source_to_target[index] <- -1
+        target_to_source[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < source_count:
+        source: i64 = input[2 + index]
+        target: i64 = input[2 + source_count + index]
+        if (source_to_target[source.usize()] != -1 and source_to_target[source.usize()] != target) or (target_to_source[target.usize()] != -1 and target_to_source[target.usize()] != source):
+            return 0
+        source_to_target[source.usize()] <- target
+        target_to_source[target.usize()] <- source
+        index <- index + 1
+    1
+
+export fn is_isomorphic(input: i64&, length: usize) -> i64 = is_isomorphic_impl

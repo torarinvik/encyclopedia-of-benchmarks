@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-94-almost-equilateral-perimeters-v1",
+  "algorithm": "problem94",
+  "function_symbol": "problem94",
+  "input": {
+    "kind": "maximum_perimeter_limit",
+    "minimum": 0,
+    "maximum": 1000000000,
+    "definition": "Sum perimeters of almost-equilateral integer-area triangles with perimeter at most this limit.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of perimeters of all qualifying triangles with perimeter no greater than the input limit.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "before-first-perimeter",
+      "input_value": 15,
+      "expected_result": 0
+    },
+    {
+      "id": "source-example-limit-20",
+      "input_value": 20,
+      "expected_result": 16
+    },
+    {
+      "id": "first-perimeter-included",
+      "input_value": 16,
+      "expected_result": 16
+    },
+    {
+      "id": "second-perimeter-included",
+      "input_value": 50,
+      "expected_result": 66
+    },
+    {
+      "id": "canonical-one-billion-limit",
+      "input_value": 1000000000,
+      "expected_result": 518408346
+    },
+    {
+      "id": "negative-limit",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-limit",
+      "input_value": 1000000001,
+      "expected_result": -1
+    }
+  ]
+}

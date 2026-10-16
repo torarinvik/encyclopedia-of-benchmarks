@@ -1,0 +1,22 @@
+def problem7_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    factor: mutable i64 = 2
+    while factor <= value / factor:
+        if value % factor == 0:
+            return false
+        factor <- factor + 1
+    true
+
+def problem7_impl(index: i64) -> i64:
+    if index < 1 or index > 10001:
+        return -1
+    count: mutable i64 = 0
+    candidate: mutable i64 = 1
+    while count < index:
+        candidate <- candidate + 1
+        if problem7_is_prime(candidate):
+            count <- count + 1
+    candidate
+
+export fn problem7(index: i64) -> i64 = problem7_impl

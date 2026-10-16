@@ -1,0 +1,72 @@
+# Evaluate a 2D Bezier point and its tangent with fixed-point output rounding.
+def bezier_curve_power(base: f64, exponent: usize) -> f64:
+    result: mutable f64 = 1.0
+    index: mutable usize = 0
+    while index < exponent |index, result|:
+        result <- result * base
+        index <- index + 1
+    result
+
+def bezier_curve_choose(n: usize, k_input: usize) -> u64:
+    k: mutable usize = k_input
+    if k > n - k:
+        k <- n - k
+    result: mutable u64 = 1.u64()
+    index: mutable usize = 1
+    while index <= k |index, result, n, k|:
+        result <- result * (n - k + index).u64() / index.u64()
+        index <- index + 1
+    result
+
+def bezier_curve_round_scaled(value: f64) -> i64:
+    scaled: f64 = value * 1000000.0
+    if scaled >= 0.0:
+        return (scaled + 0.5).i64()
+    (scaled - 0.5).i64()
+
+def bezier_curve_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
+
+def bezier_curve_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length < 4 or length > 34:
+        return -1
+    point_count_value: i64 = values[0]
+    parameter_q: i64 = values[1]
+    if point_count_value < 1 or point_count_value > 16 or parameter_q < 0 or parameter_q > 1000000:
+        return -1
+    point_count: usize = point_count_value.usize()
+    if length != 2 + 2 * point_count:
+        return -1
+    for index in 2..<length:
+        if values[index] < -1000000 or values[index] > 1000000:
+            return -1
+    if output == null or output_capacity < 32:
+        return -2
+
+    degree: usize = point_count - 1
+    t: f64 = parameter_q.f64() / 1000000.0
+    x: mutable f64 = 0.0
+    y: mutable f64 = 0.0
+    dx: mutable f64 = 0.0
+    dy: mutable f64 = 0.0
+    for index in 0..<point_count |index, values, t, degree, x, y|:
+        weight: f64 = (bezier_curve_choose(degree, index).f64() *
+            bezier_curve_power(1.0 - t, degree - index) * bezier_curve_power(t, index))
+        x <- x + weight * values[2 + 2 * index].f64()
+        y <- y + weight * values[3 + 2 * index].f64()
+    for index in 0..<degree |index, values, t, degree, dx, dy|:
+        weight: f64 = (degree.f64() * bezier_curve_choose(degree - 1, index).f64() *
+            bezier_curve_power(1.0 - t, degree - 1 - index) * bezier_curve_power(t, index))
+        dx <- dx + weight * (values[4 + 2 * index] - values[2 + 2 * index]).f64()
+        dy <- dy + weight * (values[5 + 2 * index] - values[3 + 2 * index]).f64()
+    bezier_curve_write_i64(output, 0, bezier_curve_round_scaled(x))
+    bezier_curve_write_i64(output, 8, bezier_curve_round_scaled(y))
+    bezier_curve_write_i64(output, 16, bezier_curve_round_scaled(dx))
+    bezier_curve_write_i64(output, 24, bezier_curve_round_scaled(dy))
+    32
+
+export fn bezier_curve(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = bezier_curve_impl

@@ -1,0 +1,59 @@
+const max_nodes: usize = 16
+const max_edges: usize = 64
+const max_resource: usize = 32
+const inf: i64 = 9223372036854775807
+
+def constrained_shortest_path_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5: return -2
+    n_raw: i64 = input[0]
+    m_raw: i64 = input[1]
+    start_raw: i64 = input[2]
+    target_raw: i64 = input[3]
+    limit_raw: i64 = input[4]
+    if n_raw < 1 or n_raw > 16 or m_raw < 0 or m_raw > 64 or limit_raw < 0 or limit_raw > 32: return -2
+    n: usize = n_raw.usize()
+    m: usize = m_raw.usize()
+    limit: usize = limit_raw.usize()
+    if length != 5 + 4*m or start_raw < 0 or start_raw >= n_raw or target_raw < 0 or target_raw >= n_raw: return -2
+    e: mutable usize = 0
+    while e < m:
+        p: usize = 5 + 4*e
+        if input[p] < 0 or input[p] >= n_raw or input[p+1] < 0 or input[p+1] >= n_raw or input[p+2] < 0 or input[p+2] > 1000 or input[p+3] < 1 or input[p+3] > 32: return -2
+        e <- e + 1
+    dp: mutable i64[528] = zeroed
+    i: mutable usize = 0
+    while i < 33*16:
+        dp[i] <- inf
+        i <- i + 1
+    start: usize = start_raw.usize()
+    target: usize = target_raw.usize()
+    dp[start] <- 0
+    r: mutable usize = 0
+    while r <= limit:
+        u: mutable usize = 0
+        while u < n:
+            current: i64 = dp[r*16+u]
+            if current != inf:
+                e <- 0
+                while e < m:
+                    p: usize = 5 + 4*e
+                    if input[p].usize() == u:
+                        resource: usize = input[p+3].usize()
+                        if r + resource <= limit:
+                            v: usize = input[p+1].usize()
+                            candidate: i64 = current + input[p+2]
+                            at: usize = (r+resource)*16+v
+                            if candidate < dp[at]: dp[at] <- candidate
+                    e <- e + 1
+            u <- u + 1
+        r <- r + 1
+    answer: mutable i64 = inf
+    r <- 0
+    while r <= limit:
+        candidate: i64 = dp[r*16+target]
+        if candidate < answer: answer <- candidate
+        r <- r + 1
+    if answer == inf: return -1
+    answer
+
+export fn constrained_shortest_path(input: i64&, length: usize) -> i64 = constrained_shortest_path_impl

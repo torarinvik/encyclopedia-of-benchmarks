@@ -1,0 +1,112 @@
+const MAX_OPS: usize = 128
+const MAX_LEVELS: usize = 8
+const MIN_KEY: i64 = -2147483647
+const MAX_KEY: i64 = 2147483646
+
+def random_level(state: mutable u32&) -> usize:
+    level: mutable usize = 1
+    while level < MAX_LEVELS:
+        state <- state ^ (state << 13)
+        state <- state ^ (state >> 17)
+        state <- state ^ (state << 5)
+        if (state & 1) != 0:
+            break
+        level <- level + 1
+    level
+
+def find_update(keys: i64&, links: usize&, active: usize, key: i64,
+                update: mutable usize&) -> usize:
+    current: mutable usize = 0
+    level: mutable usize = active
+    while level > 0:
+        level <- level - 1
+        while links[current * MAX_LEVELS + level] != 0 and keys[links[current * MAX_LEVELS + level]] < key:
+            current <- links[current * MAX_LEVELS + level]
+        update[level] <- current
+    links[current * MAX_LEVELS]
+
+def contains_key(keys: i64&, links: usize&, active: usize, key: i64) -> bool:
+    update: mutable usize[MAX_LEVELS] = zeroed
+    found: usize = find_update(keys, links, active, key, update)
+    found != 0 and keys[found] == key
+
+def insert_key(keys: mutable i64&, values: mutable i64&, links: mutable usize&,
+               next_node: mutable usize&, active: mutable usize&, rng: mutable u32&, key: i64) -> void:
+    update: mutable usize[MAX_LEVELS] = zeroed
+    find_update(keys, links, active, key, update)
+    height: usize = random_level(rng)
+    if height > active:
+        for level in active..<height:
+            update[level] <- 0
+        active <- height
+    id: usize = next_node
+    next_node <- next_node + 1
+    keys[id] <- key
+    values[id] <- key
+    level: mutable usize = 0
+    while level < height:
+        links[id * MAX_LEVELS + level] <- links[update[level] * MAX_LEVELS + level]
+        links[update[level] * MAX_LEVELS + level] <- id
+        level <- level + 1
+
+def erase_key(keys: mutable i64&, links: mutable usize&, active: usize, key: i64) -> bool:
+    update: mutable usize[MAX_LEVELS] = zeroed
+    found: usize = find_update(keys, links, active, key, update)
+    if found == 0 or keys[found] != key:
+        return false
+    for level in 0..<active:
+        if links[update[level] * MAX_LEVELS + level] == found:
+            links[update[level] * MAX_LEVELS + level] <- links[found * MAX_LEVELS + level]
+    true
+
+def put_i64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def skip_list_unique_key_set_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_OPS.i64():
+        return -1
+    operations: usize = input[0].usize()
+    if length != 1 + 2 * operations:
+        return -1
+    for index in 0..<operations:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if operation < 0 or operation > 2 or key < MIN_KEY or key > MAX_KEY:
+            return -1
+    keys: mutable i64[MAX_OPS + 1] = zeroed
+    values: mutable i64[MAX_OPS + 1] = zeroed
+    links: mutable usize[(MAX_OPS + 1) * MAX_LEVELS] = zeroed
+    next_node: mutable usize = 1
+    active: mutable usize = 1
+    rng: mutable u32 = 0x9E3779B9
+    for index in 0..<operations:
+        operation: i64 = input[1 + 2 * index]
+        key: i64 = input[2 + 2 * index]
+        if operation == 0:
+            if contains_key(keys, links, active, key):
+                return -1
+            insert_key(keys, values, links, &next_node, &active, &rng, key)
+        elif operation == 1:
+            contains_key(keys, links, active, key)
+        elif not erase_key(keys, links, active, key):
+            return -1
+    count: mutable usize = 0
+    current: mutable usize = links[0]
+    while current != 0:
+        count <- count + 1
+        current <- links[current * MAX_LEVELS]
+    required: usize = count * 8
+    if output == null or capacity < required:
+        return -2
+    current <- links[0]
+    index: mutable usize = 0
+    while current != 0:
+        put_i64(output, index * 8, values[current])
+        index <- index + 1
+        current <- links[current * MAX_LEVELS]
+    required.i64()
+
+export fn skip_list_unique_key_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = skip_list_unique_key_set_impl

@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "id": "date-to-day-javascript-gregorian-weekday-v1",
+  "algorithm": "date_to_day",
+  "function_symbol": "date_to_day",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": [
+      "ASCII date bytes",
+      0
+    ],
+    "date_format": "d/m/yyyy or dd/mm/yyyy",
+    "day_digit_count_range": [
+      1,
+      2
+    ],
+    "month_digit_count_range": [
+      1,
+      2
+    ],
+    "year_digit_count": 4,
+    "year_range": [
+      1,
+      9999
+    ],
+    "valid_gregorian_calendar_dates_only": true,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "contents": "weekday name in English ASCII",
+    "length": "6 through 9 bytes"
+  },
+  "workspace": {
+    "bytes": 9,
+    "reason": "The longest weekday name, Wednesday, is nine ASCII bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "pinned_source_example",
+      "input_length": 11,
+      "input_values": [
+        49,
+        56,
+        47,
+        49,
+        50,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "467269646179"
+    },
+    {
+      "id": "one_digit_day_and_month",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        49,
+        47,
+        50,
+        48,
+        48,
+        48,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "5361747572646179"
+    },
+    {
+      "id": "two_digit_day_and_month",
+      "input_length": 11,
+      "input_values": [
+        48,
+        49,
+        47,
+        48,
+        49,
+        47,
+        50,
+        48,
+        48,
+        48,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "5361747572646179"
+    },
+    {
+      "id": "leap_day_2000",
+      "input_length": 10,
+      "input_values": [
+        50,
+        57,
+        47,
+        50,
+        47,
+        50,
+        48,
+        48,
+        48,
+        0
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "54756573646179"
+    },
+    {
+      "id": "century_nonleap_february",
+      "input_length": 10,
+      "input_values": [
+        50,
+        56,
+        47,
+        50,
+        47,
+        49,
+        57,
+        48,
+        48,
+        0
+      ],
+      "expected_result": 9,
+      "expected_output_hex": "5765646e6573646179"
+    },
+    {
+      "id": "century_nonleap_march",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        51,
+        47,
+        49,
+        57,
+        48,
+        48,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "5468757273646179"
+    },
+    {
+      "id": "leap_day_2024",
+      "input_length": 10,
+      "input_values": [
+        50,
+        57,
+        47,
+        50,
+        47,
+        50,
+        48,
+        50,
+        52,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "5468757273646179"
+    },
+    {
+      "id": "february_boundary",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        50,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "5361747572646179"
+    },
+    {
+      "id": "minimum_year",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        49,
+        47,
+        48,
+        48,
+        48,
+        49,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "4d6f6e646179"
+    },
+    {
+      "id": "maximum_year",
+      "input_length": 11,
+      "input_values": [
+        51,
+        49,
+        47,
+        49,
+        50,
+        47,
+        57,
+        57,
+        57,
+        57,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "467269646179"
+    },
+    {
+      "id": "invalid_century_leap_day",
+      "input_length": 10,
+      "input_values": [
+        50,
+        57,
+        47,
+        50,
+        47,
+        49,
+        57,
+        48,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "year_zero_outside_contract",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        49,
+        47,
+        48,
+        48,
+        48,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "month_zero",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        48,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "month_thirteen",
+      "input_length": 10,
+      "input_values": [
+        49,
+        47,
+        49,
+        51,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "day_zero",
+      "input_length": 9,
+      "input_values": [
+        48,
+        47,
+        49,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "day_exceeds_month",
+      "input_length": 10,
+      "input_values": [
+        51,
+        49,
+        47,
+        52,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "day_exceeds_february",
+      "input_length": 10,
+      "input_values": [
+        51,
+        48,
+        47,
+        50,
+        47,
+        50,
+        48,
+        50,
+        52,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "three_digit_day",
+      "input_length": 11,
+      "input_values": [
+        48,
+        48,
+        49,
+        47,
+        49,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "three_digit_month",
+      "input_length": 11,
+      "input_values": [
+        49,
+        47,
+        48,
+        48,
+        49,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "three_digit_year_full_length",
+      "input_length": 10,
+      "input_values": [
+        48,
+        49,
+        47,
+        48,
+        49,
+        47,
+        48,
+        48,
+        49,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_separator",
+      "input_length": 9,
+      "input_values": [
+        49,
+        45,
+        49,
+        45,
+        50,
+        48,
+        50,
+        48,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_terminal_nul",
+      "input_length": 10,
+      "input_values": [
+        51,
+        49,
+        47,
+        49,
+        50,
+        47,
+        50,
+        48,
+        50,
+        48
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_nul_final_value",
+      "input_length": 9,
+      "input_values": [
+        49,
+        47,
+        49,
+        47,
+        50,
+        48,
+        50,
+        48,
+        65
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "embedded_nul",
+      "input_length": 10,
+      "input_values": [
+        49,
+        47,
+        49,
+        47,
+        50,
+        48,
+        50,
+        48,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_length": 10,
+      "input_values": [
+        50,
+        56,
+        47,
+        50,
+        47,
+        49,
+        57,
+        48,
+        48,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 8,
+      "capacity_error_result": -2
+    }
+  ]
+}

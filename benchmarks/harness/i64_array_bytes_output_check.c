@@ -1,5 +1,8 @@
 /* Batch checker for digit arrays whose algorithm writes ordered output bytes. */
 #include <inttypes.h>
+#include <errno.h>
+#include <float.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +16,40 @@
 #define MAX_OUTPUT_BYTES 400004
 extern int64_t BENCHMARK_FUNCTION(const int64_t *values, size_t length,
                                  uint8_t *output, size_t output_capacity);
+
+static double decode_little_endian_f64(const uint8_t *bytes)
+{
+    uint64_t bits = 0;
+    double value;
+    for (size_t index = 0; index < 8; ++index)
+        bits |= (uint64_t)bytes[index] << (8 * index);
+    memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+
+static int finite_f64(double value)
+{
+    return value == value && value <= DBL_MAX && value >= -DBL_MAX;
+}
+
+static int output_matches(const uint8_t *observed, const uint8_t *expected,
+                          size_t expected_bytes, int float64_vector,
+                          double absolute_tolerance, double relative_tolerance)
+{
+    if (!float64_vector)
+        return expected_bytes == 0 || memcmp(observed, expected, expected_bytes) == 0;
+    if (expected_bytes % 8 != 0) return 0;
+    for (size_t offset = 0; offset < expected_bytes; offset += 8) {
+        const double actual = decode_little_endian_f64(observed + offset);
+        const double reference = decode_little_endian_f64(expected + offset);
+        const double difference = actual >= reference ? actual - reference : reference - actual;
+        const double magnitude = reference >= 0.0 ? reference : -reference;
+        const double allowed = absolute_tolerance + relative_tolerance * magnitude;
+        if (!finite_f64(actual) || !finite_f64(reference) || !finite_f64(difference) ||
+            !finite_f64(allowed) || difference > allowed) return 0;
+    }
+    return 1;
+}
 
 static int hex_value(char value)
 {
@@ -29,11 +66,49 @@ int main(void)
         fprintf(stderr, "expected a nonempty case count\n");
         return 2;
     }
+    int float64_vector = 0;
+    int have_first_length = 0;
+    uint64_t first_length = 0;
+    double absolute_tolerance = 0.0, relative_tolerance = 0.0;
+    char comparison_mode[32];
+    if (scanf("%31s", comparison_mode) != 1) {
+        fprintf(stderr, "missing checker comparison mode\n");
+        return 2;
+    }
+    if (strcmp(comparison_mode, "float64_vector") == 0) {
+        if (scanf("%lf %lf", &absolute_tolerance, &relative_tolerance) != 2 ||
+            !finite_f64(absolute_tolerance) || absolute_tolerance < 0.0 ||
+            !finite_f64(relative_tolerance) || relative_tolerance < 0.0) {
+            fprintf(stderr, "invalid checker float64 tolerances\n");
+            return 2;
+        }
+        float64_vector = 1;
+    } else {
+        char *end = NULL;
+        errno = 0;
+        const unsigned long long parsed_length = strtoull(comparison_mode, &end, 10);
+        if (errno != 0 || end == comparison_mode || *end != '\0' ||
+            parsed_length > MAX_INPUT_LENGTH) {
+            fprintf(stderr, "invalid checker comparison mode or first case length\n");
+            return 2;
+        }
+        first_length = (uint64_t)parsed_length;
+        have_first_length = 1;
+    }
     while (checked < case_count) {
-        uint64_t length, expected_bytes, output_capacity;
+        uint64_t length, expected_bytes, output_capacity, null_input_flag;
         int64_t expected_count;
-        if (scanf("%" SCNu64 " %" SCNd64 " %" SCNu64,
-                  &length, &expected_count, &expected_bytes) != 3 ||
+        int header_result;
+        if (checked == 0 && have_first_length) {
+            length = first_length;
+            header_result = scanf("%" SCNd64 " %" SCNu64,
+                                  &expected_count, &expected_bytes) == 2 ? 3 : 0;
+        } else {
+            header_result = scanf("%" SCNu64 " %" SCNd64 " %" SCNu64,
+                                  &length, &expected_count, &expected_bytes);
+        }
+        have_first_length = 0;
+        if (header_result != 3 ||
             length > MAX_INPUT_LENGTH || expected_bytes > MAX_OUTPUT_BYTES ||
             expected_count < -2 || expected_count > 100000) {
             fprintf(stderr, "invalid output-array case header\n");
@@ -47,6 +122,10 @@ int main(void)
 #else
         output_capacity = expected_bytes;
 #endif
+        if (scanf("%" SCNu64, &null_input_flag) != 1 || null_input_flag > 1 ||
+            (null_input_flag != 0 && length == 0)) {
+            fprintf(stderr, "invalid null-input flag\n"); return 2;
+        }
         int64_t *values = length == 0 ? NULL : malloc((size_t)length * sizeof(*values));
         uint8_t *expected = malloc(expected_bytes == 0 ? 1 : (size_t)expected_bytes);
         uint8_t *observed = malloc(output_capacity == 0 ? 1 : (size_t)output_capacity);
@@ -100,12 +179,24 @@ int main(void)
                 fprintf(stderr, "expected output encoding has trailing characters\n"); return 2;
             }
         }
-        observed[0] = UINT8_C(0xA5);
-        const int64_t result = BENCHMARK_FUNCTION(values, (size_t)length, observed,
+        const size_t canary_length = output_capacity == 0 ? 1 : (size_t)output_capacity;
+        memset(observed, 0xA5, canary_length);
+        const int64_t result = BENCHMARK_FUNCTION(null_input_flag ? NULL : values,
+                                                   (size_t)length, observed,
                                                    (size_t)output_capacity);
+        int canary_changed = 0;
+        if (null_input_flag || expected_count == -2 || output_capacity == 0) {
+            for (size_t index = 0; index < canary_length; ++index) {
+                if (observed[index] != UINT8_C(0xA5)) {
+                    canary_changed = 1;
+                    break;
+                }
+            }
+        }
         if (result != expected_count ||
-            (expected_bytes != 0 && memcmp(observed, expected, (size_t)expected_bytes) != 0) ||
-            (output_capacity == 0 && observed[0] != UINT8_C(0xA5))) {
+            !output_matches(observed, expected, (size_t)expected_bytes, float64_vector,
+                            absolute_tolerance, relative_tolerance) ||
+            ((null_input_flag || expected_count == -2 || output_capacity == 0) && canary_changed)) {
             fprintf(stderr, "case=%" PRIu64 ": expected count=%" PRId64
                     " output-bytes=%" PRIu64 ", capacity=%" PRIu64
                     ", observed count=%" PRId64 "\n",

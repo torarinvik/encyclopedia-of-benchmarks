@@ -1,0 +1,23 @@
+def is_bouncy(value: i64) -> bool:
+    increasing: mutable bool = false
+    decreasing: mutable bool = false
+    previous: mutable i64 = value % 10
+    current: mutable i64 = value / 10
+    while current > 0:
+        digit: i64 = current % 10
+        if digit < previous: increasing <- true
+        if digit > previous: decreasing <- true
+        previous <- digit
+        current <- current / 10
+    increasing and decreasing
+
+def problem112_impl(percent: i64) -> i64:
+    if percent < 1 or percent > 99: return -1
+    bouncy: mutable i64 = 0
+    n: mutable i64 = 1
+    while true:
+        if is_bouncy(n): bouncy <- bouncy + 1
+        if bouncy * 100 >= percent * n: break n
+        n <- n + 1
+
+export fn problem112(percent: i64) -> i64 = problem112_impl

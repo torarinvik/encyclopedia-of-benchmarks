@@ -1,0 +1,93 @@
+const MAX_PRIMES: usize = 1000
+const TARGET_SIZE: usize = 5
+const PAIR_CACHE_SIZE: usize = 1000000
+
+def problem60_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value == 2 or value == 3:
+        return true
+    if value % 2 == 0 or value % 3 == 0:
+        return false
+    divisor: mutable i64 = 5
+    while divisor <= value / divisor:
+        if value % divisor == 0 or value % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
+
+def problem60_concatenate(left: i64, right: i64) -> i64:
+    scale: mutable i64 = 10
+    while scale <= right:
+        scale <- scale * 10
+    left * scale + right
+
+def problem60_pair_works(primes: i64&, cache: mutable u8&, left_index: usize,
+                         right_index: usize) -> bool:
+    key: usize = left_index * MAX_PRIMES + right_index
+    if cache[key] != 0:
+        return cache[key] == 2
+    reverse_key: usize = right_index * MAX_PRIMES + left_index
+    if cache[reverse_key] != 0:
+        return cache[reverse_key] == 2
+    left: i64 = primes[left_index]
+    right: i64 = primes[right_index]
+    result: bool = problem60_is_prime(problem60_concatenate(left, right)) and
+                   problem60_is_prime(problem60_concatenate(right, left))
+    state: u8 = if result then 2 else 1
+    cache[key] <- state
+    cache[reverse_key] <- state
+    result
+
+def problem60_search_set(primes: i64&, prime_count: usize, cache: mutable u8&,
+                         chain: mutable usize&, depth: usize, start: usize,
+                         sum: i64) -> i64:
+    if depth == TARGET_SIZE:
+        return sum
+    candidate: mutable usize = start
+    while candidate < prime_count:
+        compatible: mutable bool = true
+        member: mutable usize = 0
+        while member < depth:
+            if not problem60_pair_works(primes, cache, candidate, chain[member]):
+                compatible <- false
+                break
+            member <- member + 1
+        if compatible:
+            chain[depth] <- candidate
+            result: i64 = problem60_search_set(primes, prime_count, cache, chain,
+                                               depth + 1, candidate + 1,
+                                               sum + primes[candidate])
+            if result != 0:
+                return result
+        candidate <- candidate + 1
+    0
+
+def problem60_impl(placeholder: i64) -> i64:
+    if placeholder != 0:
+        return -1
+    primes: mutable i64[MAX_PRIMES] = zeroed
+    primes[0] <- 3
+    primes[1] <- 7
+    primes[2] <- 13
+    primes[3] <- 19
+    prime_count: mutable usize = 4
+    while prime_count < MAX_PRIMES:
+        candidate: mutable i64 = primes[prime_count - 1] + 3
+        while not problem60_is_prime(candidate):
+            candidate <- candidate + 3
+        primes[prime_count] <- candidate
+        prime_count <- prime_count + 1
+    cache: mutable u8[PAIR_CACHE_SIZE] = zeroed
+    chain: mutable usize[TARGET_SIZE] = zeroed
+    start: mutable usize = 0
+    while start < prime_count:
+        chain[0] <- start
+        result: i64 = problem60_search_set(primes, prime_count, cache, chain,
+                                           1, start + 1, primes[start])
+        if result != 0:
+            return result
+        start <- start + 1
+    -1
+
+export fn problem60(placeholder: i64) -> i64 = problem60_impl

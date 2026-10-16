@@ -1,0 +1,22 @@
+const SCALE: i64 = 1000000
+const MAX_ABS_TEMPERATURE_MICRO: i64 = 1000000000000
+const MAX_INPUT_LENGTH: usize = 3
+const INVALID_RESULT: f64 = -1.0e300
+
+def temperature_converter_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    operation: i64 = values[0]
+    temperature_micro: i64 = values[1]
+    if temperature_micro < -MAX_ABS_TEMPERATURE_MICRO or temperature_micro > MAX_ABS_TEMPERATURE_MICRO:
+        return INVALID_RESULT
+    temperature: f64 = temperature_micro.f64() / SCALE.f64()
+    if operation == 0: return temperature * 9.0 / 5.0 + 32.0
+    if operation == 1: return temperature + 273.15
+    if operation == 2: return (temperature - 32.0) * 5.0 / 9.0
+    if operation == 3: return (temperature - 32.0) * 5.0 / 9.0 + 273.15
+    if operation == 4: return temperature - 273.15
+    if operation == 5: return (temperature - 273.15) * 9.0 / 5.0 + 32.0
+    INVALID_RESULT
+
+export fn temperature_converter(values: i64&, length: usize) -> f64 = temperature_converter_impl

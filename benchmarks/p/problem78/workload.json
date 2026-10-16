@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-78-partition-divisibility-v1",
+  "algorithm": "problem78",
+  "function_symbol": "problem78",
+  "input": {
+    "kind": "partition_modulus",
+    "minimum": 1,
+    "maximum": 1000000,
+    "definition": "Search for the least positive n with p(n) divisible by the modulus, bounded through n=55374.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "First positive index whose partition count has zero residue modulo the input modulus.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    { "id": "modulus_one", "input_value": 1, "expected_result": 1 },
+    { "id": "source_example_modulus_nine", "input_value": 9, "expected_result": 14 },
+    { "id": "canonical_modulus_one_million", "input_value": 1000000, "expected_result": 55374 },
+    { "id": "zero_modulus", "input_value": 0, "expected_result": -1 },
+    { "id": "negative_modulus", "input_value": -1, "expected_result": -1 },
+    { "id": "above_bound", "input_value": 1000001, "expected_result": -1 }
+  ]
+}

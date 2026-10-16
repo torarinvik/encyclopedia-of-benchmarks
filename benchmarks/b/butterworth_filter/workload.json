@@ -1,0 +1,1083 @@
+{
+  "schema_version": 1,
+  "id": "butterworth-filter-i64-array-f64-v1",
+  "algorithm": "butterworth_filter",
+  "function_symbol": "butterworth_filter",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": "[filter_kind, coefficient_index, frequency_hz, samplerate_hz, gain_milli_db, q_factor_micro]",
+    "length": 6,
+    "filter_kind_range": [
+      0,
+      8
+    ],
+    "coefficient_index_range": [
+      0,
+      5
+    ],
+    "frequency_hz_range": [
+      1,
+      95999
+    ],
+    "samplerate_hz_range": [
+      1,
+      192000
+    ],
+    "valid_frequency_rule": "2 * frequency_hz < samplerate_hz",
+    "gain_milli_db_range": [
+      -60000,
+      60000
+    ],
+    "q_factor_micro_range": [
+      1,
+      10000000
+    ],
+    "default_q_sentinel": -1,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Selected element of [a0, a1, a2, b0, b1, b2] for the selected second-order filter factory",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "pinned-lowpass-0",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-lowpass-1",
+      "input_values": [
+        0,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-lowpass-2",
+      "input_values": [
+        0,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-lowpass-3",
+      "input_values": [
+        0,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.004277569313094809
+    },
+    {
+      "id": "pinned-lowpass-4",
+      "input_values": [
+        0,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.008555138626189618
+    },
+    {
+      "id": "pinned-lowpass-5",
+      "input_values": [
+        0,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.004277569313094809
+    },
+    {
+      "id": "pinned-highpass-0",
+      "input_values": [
+        1,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-highpass-1",
+      "input_values": [
+        1,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-highpass-2",
+      "input_values": [
+        1,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-highpass-3",
+      "input_values": [
+        1,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9957224306869052
+    },
+    {
+      "id": "pinned-highpass-4",
+      "input_values": [
+        1,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9914448613738105
+    },
+    {
+      "id": "pinned-highpass-5",
+      "input_values": [
+        1,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9957224306869052
+    },
+    {
+      "id": "pinned-bandpass-0",
+      "input_values": [
+        2,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-bandpass-1",
+      "input_values": [
+        2,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-bandpass-2",
+      "input_values": [
+        2,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-bandpass-3",
+      "input_values": [
+        2,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.06526309611002579
+    },
+    {
+      "id": "pinned-bandpass-4",
+      "input_values": [
+        2,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "pinned-bandpass-5",
+      "input_values": [
+        2,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -0.06526309611002579
+    },
+    {
+      "id": "pinned-allpass-0",
+      "input_values": [
+        3,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-allpass-1",
+      "input_values": [
+        3,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-allpass-2",
+      "input_values": [
+        3,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-allpass-3",
+      "input_values": [
+        3,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-allpass-4",
+      "input_values": [
+        3,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-allpass-5",
+      "input_values": [
+        3,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-peak-0",
+      "input_values": [
+        4,
+        0,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0653405327119334
+    },
+    {
+      "id": "pinned-peak-1",
+      "input_values": [
+        4,
+        1,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-peak-2",
+      "input_values": [
+        4,
+        2,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9346594672880666
+    },
+    {
+      "id": "pinned-peak-3",
+      "input_values": [
+        4,
+        3,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.1303715025601122
+    },
+    {
+      "id": "pinned-peak-4",
+      "input_values": [
+        4,
+        4,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-peak-5",
+      "input_values": [
+        4,
+        5,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.8696284974398878
+    },
+    {
+      "id": "pinned-lowshelf-0",
+      "input_values": [
+        5,
+        0,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 3.0409336710888786
+    },
+    {
+      "id": "pinned-lowshelf-1",
+      "input_values": [
+        5,
+        1,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -5.608870992220748
+    },
+    {
+      "id": "pinned-lowshelf-2",
+      "input_values": [
+        5,
+        2,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 2.602157875636628
+    },
+    {
+      "id": "pinned-lowshelf-3",
+      "input_values": [
+        5,
+        3,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 3.139954022810743
+    },
+    {
+      "id": "pinned-lowshelf-4",
+      "input_values": [
+        5,
+        4,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -5.591841778072785
+    },
+    {
+      "id": "pinned-lowshelf-5",
+      "input_values": [
+        5,
+        5,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 2.5201667380627257
+    },
+    {
+      "id": "pinned-highshelf-0",
+      "input_values": [
+        6,
+        0,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 2.2229172136088806
+    },
+    {
+      "id": "pinned-highshelf-1",
+      "input_values": [
+        6,
+        1,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -3.9587208137297303
+    },
+    {
+      "id": "pinned-highshelf-2",
+      "input_values": [
+        6,
+        2,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.7841414181566304
+    },
+    {
+      "id": "pinned-highshelf-3",
+      "input_values": [
+        6,
+        3,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 4.295432981120543
+    },
+    {
+      "id": "pinned-highshelf-4",
+      "input_values": [
+        6,
+        4,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -7.922740859457287
+    },
+    {
+      "id": "pinned-highshelf-5",
+      "input_values": [
+        6,
+        5,
+        1000,
+        48000,
+        6000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 3.6756456963725253
+    },
+    {
+      "id": "pinned-notch-0",
+      "input_values": [
+        7,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-notch-1",
+      "input_values": [
+        7,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-notch-2",
+      "input_values": [
+        7,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-notch-3",
+      "input_values": [
+        7,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "pinned-notch-4",
+      "input_values": [
+        7,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-notch-5",
+      "input_values": [
+        7,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "pinned-bandpass_peak-0",
+      "input_values": [
+        8,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "pinned-bandpass_peak-1",
+      "input_values": [
+        8,
+        1,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1.9828897227476208
+    },
+    {
+      "id": "pinned-bandpass_peak-2",
+      "input_values": [
+        8,
+        2,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9077040443587427
+    },
+    {
+      "id": "pinned-bandpass_peak-3",
+      "input_values": [
+        8,
+        3,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.09229595564125725
+    },
+    {
+      "id": "pinned-bandpass_peak-4",
+      "input_values": [
+        8,
+        4,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "pinned-bandpass_peak-5",
+      "input_values": [
+        8,
+        5,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -0.09229595564125725
+    },
+    {
+      "id": "custom-q-lowpass",
+      "input_values": [
+        0,
+        0,
+        2000,
+        48000,
+        0,
+        500000
+      ],
+      "input_length": 6,
+      "expected_result": 1.2588190451025207
+    },
+    {
+      "id": "minimum-frequency",
+      "input_values": [
+        1,
+        1,
+        1,
+        3,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 0.9999999999999997
+    },
+    {
+      "id": "near-nyquist-maximum-q",
+      "input_values": [
+        2,
+        0,
+        95999,
+        192000,
+        0,
+        10000000
+      ],
+      "input_length": 6,
+      "expected_result": 1.0000016362461734
+    },
+    {
+      "id": "near-nyquist-minimum-q",
+      "input_values": [
+        2,
+        0,
+        95999,
+        192000,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 17.36246173466984
+    },
+    {
+      "id": "peak-negative-gain",
+      "input_values": [
+        4,
+        0,
+        440,
+        44100,
+        -60000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 1.9905569799871385
+    },
+    {
+      "id": "lowshelf-positive-gain",
+      "input_values": [
+        5,
+        3,
+        1200,
+        48000,
+        60000,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 114.5090689325045
+    },
+    {
+      "id": "highshelf-negative-gain",
+      "input_values": [
+        6,
+        5,
+        12000,
+        96000,
+        -12000,
+        707107
+      ],
+      "input_length": 6,
+      "expected_result": 0.22078689872837187
+    },
+    {
+      "id": "notch-custom-q",
+      "input_values": [
+        7,
+        4,
+        60,
+        48000,
+        0,
+        2000000
+      ],
+      "input_length": 6,
+      "expected_result": -1.9999383152895793
+    },
+    {
+      "id": "bandpass-peak-custom-q",
+      "input_values": [
+        8,
+        5,
+        10000,
+        48000,
+        0,
+        250000
+      ],
+      "input_length": 6,
+      "expected_result": -1.9318516525781366
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        0,
+        -1,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "bad-filter-kind",
+      "input_values": [
+        9,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "bad-coefficient-index",
+      "input_values": [
+        0,
+        6,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-frequency",
+      "input_values": [
+        0,
+        0,
+        0,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "frequency-over-limit",
+      "input_values": [
+        0,
+        0,
+        96000,
+        192000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-samplerate",
+      "input_values": [
+        0,
+        0,
+        1000,
+        0,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "samplerate-over-limit",
+      "input_values": [
+        0,
+        0,
+        1000,
+        192001,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "at-nyquist",
+      "input_values": [
+        0,
+        0,
+        24000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero-q-invalid-not-default",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-q-invalid",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        0,
+        -2
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "q-over-limit",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        0,
+        10000001
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gain-on-lowpass",
+      "input_values": [
+        0,
+        0,
+        1000,
+        48000,
+        1,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing-peak-gain",
+      "input_values": [
+        4,
+        0,
+        1000,
+        48000,
+        0,
+        -1
+      ],
+      "input_length": 6,
+      "expected_result": 1.0922959556412573
+    },
+    {
+      "id": "gain-under-limit",
+      "input_values": [
+        4,
+        0,
+        1000,
+        48000,
+        -60001,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gain-over-limit",
+      "input_values": [
+        6,
+        0,
+        1000,
+        48000,
+        60001,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    }
+  ]
+}

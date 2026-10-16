@@ -1,0 +1,23 @@
+# Add a bounded integer level to each image channel with byte clipping.
+def change_brightness_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 4096: return -1
+    level: i64 = values[0]
+    if level < -255 or level > 255: return -1
+    channels: usize = length - 1
+    index: mutable usize = 0
+    while index < channels:
+        pixel: i64 = values[index + 1]
+        if pixel < 0 or pixel > 255: return -1
+        index <- index + 1
+    if channels > output_capacity: return -2
+    index <- 0
+    while index < channels:
+        pixel: i64 = values[index + 1]
+        value: mutable i64 = pixel + level
+        if value < 0: value <- 0
+        if value > 255: value <- 255
+        output[index] <- value.u8()
+        index <- index + 1
+    channels.i64()
+
+export fn change_brightness(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = change_brightness_impl

@@ -1,0 +1,26 @@
+def ones_complement_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length == 0 or length > 64:
+        return -1
+    if input.is_null():
+        return -1
+    invalid: mutable bool = false
+    index: mutable usize = 0
+    while index < length and not invalid:
+        if input[index] != 48 and input[index] != 49:
+            invalid <- true
+        else:
+            index <- index + 1
+    if invalid:
+        return -1
+    if length > capacity or output.is_null():
+        return -2
+    index <- 0
+    while index < length:
+        if input[index] == 48:
+            output[index] <- 49
+        else:
+            output[index] <- 48
+        index <- index + 1
+    length.i64()
+
+export fn ones_complement(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ones_complement_impl

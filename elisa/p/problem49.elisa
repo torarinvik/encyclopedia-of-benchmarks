@@ -1,0 +1,72 @@
+# Concatenate the largest first arithmetic prime-permutation sequence.
+const LIMIT: usize = 10000
+
+def digit_signature(value: i64) -> usize:
+    digits: mutable i64[4] = [value / 1000, value / 100 % 10, value / 10 % 10, value % 10]
+    for first in 0..<4:
+        for second in first + 1..<4:
+            if digits[first] > digits[second]:
+                temporary: i64 = digits[first]
+                digits[first] <- digits[second]
+                digits[second] <- temporary
+    (digits[0] * 1000 + digits[1] * 100 + digits[2] * 10 + digits[3]).usize()
+
+def problem49_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    prime_flags: mutable bool[LIMIT] = zeroed
+    value: mutable usize = 2
+    while value < LIMIT:
+        prime_flags[value] <- true
+        value <- value + 1
+    prime: mutable usize = 2
+    while prime * prime < LIMIT:
+        if prime_flags[prime]:
+            multiple: mutable usize = prime * prime
+            while multiple < LIMIT:
+                prime_flags[multiple] <- false
+                multiple <- multiple + prime
+        prime <- prime + 1
+    primes: mutable i64[1100] = zeroed
+    signatures: mutable usize[LIMIT] = zeroed
+    prime_count: mutable usize = 0
+    value <- 1001
+    while value < LIMIT:
+        if prime_flags[value]:
+            primes[prime_count] <- value.i64()
+            prime_count <- prime_count + 1
+            signatures[value] <- digit_signature(value.i64())
+        value <- value + 2
+    seen_signatures: mutable bool[LIMIT] = zeroed
+    best: mutable i64 = 0
+    for seed in 0..<prime_count:
+        signature: usize = signatures[primes[seed].usize()]
+        if seen_signatures[signature]:
+            continue
+        seen_signatures[signature] <- true
+        group: mutable i64[24] = zeroed
+        group_count: mutable usize = 0
+        for candidate in 0..<prime_count:
+            candidate_value: i64 = primes[candidate]
+            if signatures[candidate_value.usize()] == signature:
+                group[group_count] <- candidate_value
+                group_count <- group_count + 1
+        found: mutable bool = false
+        first: mutable usize = 0
+        while first < group_count and not found:
+            second: mutable usize = first + 1
+            while second < group_count and not found:
+                third: mutable usize = second + 1
+                while third < group_count:
+                    if group[second] - group[first] == group[third] - group[second]:
+                        sequence: i64 = group[first] * 100000000 + group[second] * 10000 + group[third]
+                        if sequence > best:
+                            best <- sequence
+                        found <- true
+                        break
+                    third <- third + 1
+                second <- second + 1
+            first <- first + 1
+    best
+
+export fn problem49(ignored: i64) -> i64 = problem49_impl

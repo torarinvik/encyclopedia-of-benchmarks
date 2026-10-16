@@ -1,0 +1,32 @@
+# Black-Scholes European call/put price. Inputs use thousandths.
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern erfc(value: f64) -> f64
+
+def black_scholes_option_price_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 6:
+        return -1.0e300
+    kind: i64 = values[0]
+    spot_units: i64 = values[1]
+    strike_units: i64 = values[2]
+    time_units: i64 = values[3]
+    volatility_units: i64 = values[4]
+    rate_units: i64 = values[5]
+    if (kind != 0 and kind != 1) or spot_units < 10 or spot_units > 1000000000 or strike_units < 10 or strike_units > 1000000000 or time_units < 1 or time_units > 100000 or volatility_units < 1 or volatility_units > 5000 or rate_units < -1000 or rate_units > 1000:
+        return -1.0e300
+    spot: f64 = spot_units.f64() / 1000.0
+    strike: f64 = strike_units.f64() / 1000.0
+    time: f64 = time_units.f64() / 1000.0
+    volatility: f64 = volatility_units.f64() / 1000.0
+    rate: f64 = rate_units.f64() / 1000.0
+    sigma_sqrt_time: f64 = volatility * sqrt(time)
+    d1: f64 = (log(spot / strike) + (rate + volatility * volatility / 2.0) * time) / sigma_sqrt_time
+    d2: f64 = d1 - sigma_sqrt_time
+    cdf_d1: f64 = 0.5 * erfc(-d1 / sqrt(2.0))
+    cdf_d2: f64 = 0.5 * erfc(-d2 / sqrt(2.0))
+    if kind == 0:
+        return spot * cdf_d1 - strike * exp(-rate * time) * cdf_d2
+    strike * exp(-rate * time) * (0.5 * erfc(d2 / sqrt(2.0))) - spot * (0.5 * erfc(d1 / sqrt(2.0)))
+
+export fn black_scholes_option_price(values: i64&, length: usize) -> f64 = black_scholes_option_price_impl

@@ -12,6 +12,14 @@ This benchmark ports the pinned Python `convert_speed` function. It multiplies t
 
 [`workload.json`](workload.json) includes all twelve source-documented unit directions, identity conversion, zero speed, and invalid selector and bound cases.
 
+## Verification
+
+Run the independent oracle against the supported language ports with:
+
+```sh
+python3 benchmarks/verify_speed_conversions.py
+```
+
 ## Implementations
 
 | Language | Source |

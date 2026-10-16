@@ -1,0 +1,32 @@
+# Bottom-up dynamic programming for a row-major number triangle.
+def problem67_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 5051:
+        return -1
+    rows: i64 = input[0]
+    if rows < 1 or rows > 100 or length != (1 + (rows * (rows + 1) / 2).usize()):
+        return -1
+    best: mutable i64[5050] = zeroed
+    value_count: usize = length - 1
+    index: mutable usize = 0
+    while index < value_count:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 1000000:
+            return -1
+        best[index] <- value
+        index <- index + 1
+    row: mutable i64 = rows - 1
+    while row > 0:
+        parent_start: usize = ((row - 1) * row / 2).usize()
+        child_start: usize = (row * (row + 1) / 2).usize()
+        column: mutable i64 = 0
+        while column < row:
+            parent: usize = parent_start + column.usize()
+            child: usize = child_start + column.usize()
+            left: i64 = best[child]
+            right: i64 = best[child + 1]
+            best[parent] <- best[parent] + (if left > right then left else right)
+            column <- column + 1
+        row <- row - 1
+    best[0]
+
+export fn problem67(input: i64&, length: usize) -> i64 = problem67_impl

@@ -1,0 +1,85 @@
+def crc_polynomial_division_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > 3 + 64 + 16: return -1
+    operation: i64 = input[0]
+    raw_message_length: i64 = input[1]
+    raw_polynomial_length: i64 = input[2]
+    if operation < 0 or operation > 1 or raw_message_length < 1 or raw_message_length > 64 or
+        raw_polynomial_length < 2 or raw_polynomial_length > 16: return -1
+    message_length: usize = raw_message_length.usize()
+    polynomial_length: usize = raw_polynomial_length.usize()
+    if length != 3 + message_length + polynomial_length: return -1
+
+    message: mutable u8[64] = zeroed
+    polynomial: mutable u8[16] = zeroed
+    dividend: mutable u8[79] = zeroed
+    remainder: mutable u8[16] = zeroed
+    i: mutable usize = 0
+    while i < message_length:
+        bit: i64 = input[3+i]
+        if bit < 0 or bit > 1: return -1
+        message[i] <- bit.u8()
+        i <- i + 1
+    i <- 0
+    while i < polynomial_length:
+        bit: i64 = input[3+message_length+i]
+        if bit < 0 or bit > 1: return -1
+        polynomial[i] <- bit.u8()
+        i <- i + 1
+    if polynomial[0] != 1 or polynomial[polynomial_length-1] != 1: return -1
+
+    dividend_length: mutable usize = message_length
+    i <- 0
+    while i < message_length:
+        dividend[i] <- message[i]
+        i <- i + 1
+    if operation == 0:
+        while dividend_length < message_length + polynomial_length - 1:
+            dividend[dividend_length] <- 0
+            dividend_length <- dividend_length + 1
+    remainder_length: mutable usize = 0
+    cursor: mutable usize = 0
+    while cursor < dividend_length:
+        while remainder_length < polynomial_length and cursor < dividend_length:
+            remainder[remainder_length] <- dividend[cursor]
+            remainder_length <- remainder_length + 1
+            cursor <- cursor + 1
+        if remainder_length == polynomial_length:
+            if remainder[0] == 1:
+                i <- 0
+                while i < polynomial_length:
+                    if remainder[i] == polynomial[i]: remainder[i] <- 0
+                    else: remainder[i] <- 1
+                    i <- i + 1
+            leading_zeroes: mutable usize = 0
+            while leading_zeroes < remainder_length and remainder[leading_zeroes] == 0:
+                leading_zeroes <- leading_zeroes + 1
+            i <- leading_zeroes
+            while i < remainder_length:
+                remainder[i-leading_zeroes] <- remainder[i]
+                i <- i + 1
+            remainder_length <- remainder_length - leading_zeroes
+
+    output_length: mutable usize = message_length + remainder_length
+    if operation == 1: output_length <- 1
+    if output == null or capacity < output_length: return -2
+    if operation == 0:
+        i <- 0
+        while i < message_length:
+            output[i] <- message[i]
+            i <- i + 1
+        i <- 0
+        while i < remainder_length:
+            output[message_length+i] <- remainder[i]
+            i <- i + 1
+    else:
+        nonzero: mutable u8 = 0
+        i <- 0
+        while i < remainder_length:
+            nonzero <- nonzero | remainder[i]
+            i <- i + 1
+        if nonzero == 0: output[0] <- 0
+        else: output[0] <- 1
+    output_length.i64()
+
+export fn crc_polynomial_division(input: i64&, length: usize,
+                                  output: mutable u8&, capacity: usize) -> i64 = crc_polynomial_division_impl

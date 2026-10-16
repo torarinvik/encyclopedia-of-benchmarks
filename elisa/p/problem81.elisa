@@ -1,0 +1,38 @@
+const MAX_DIMENSION: usize = 80
+const MAX_CELL_VALUE: i64 = 9999
+
+def problem81_impl(input: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    dimension_value: i64 = input[0]
+    if dimension_value < 1 or dimension_value > MAX_DIMENSION.i64():
+        return -1
+    dimension: usize = dimension_value.usize()
+    if length != 1 + dimension * dimension:
+        return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < 0 or input[index] > MAX_CELL_VALUE:
+            return -1
+        index <- index + 1
+
+    costs: mutable i64[80] = zeroed
+    costs[0] <- input[1]
+    column: mutable usize = 1
+    while column < dimension:
+        costs[column] <- costs[column - 1] + input[1 + column]
+        column <- column + 1
+    row: mutable usize = 1
+    while row < dimension:
+        row_offset: usize = 1 + row * dimension
+        costs[0] <- costs[0] + input[row_offset]
+        column <- 1
+        while column < dimension:
+            above: i64 = costs[column]
+            left: i64 = costs[column - 1]
+            costs[column] <- (if above < left: above else: left) + input[row_offset + column]
+            column <- column + 1
+        row <- row + 1
+    costs[dimension - 1]
+
+export fn problem81(input: i64&, length: usize) -> i64 = problem81_impl

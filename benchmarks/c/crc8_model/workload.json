@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "crc8-model-i64-array-scalar-v1",
+  "algorithm": "crc8_model",
+  "function_symbol": "crc8_model",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["poly", "init", "ref_in", "ref_out", "xor_out", "byte_length", "payload..."],
+    "model_parameter_range": [0, 255],
+    "reflection_flag_values": [0, 1],
+    "byte_length_range": [0, 100001],
+    "payload_byte_range": [0, 255],
+    "invalid_result": -1
+  },
+  "output": "CRC-8 checksum in the range 0 through 255, returned as signed i64",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "crc8_smbus_standard_check",
+      "input_values": [7, 0, 0, 0, 0, 9, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+      "expected_result": 244
+    },
+    {
+      "id": "crc8_maxim_reflected_check",
+      "input_values": [49, 0, 1, 1, 0, 9, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+      "expected_result": 161
+    },
+    {
+      "id": "refin_without_refout",
+      "input_values": [7, 0, 1, 0, 0, 9, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+      "expected_result": 4
+    },
+    {
+      "id": "refout_without_refin",
+      "input_values": [7, 0, 0, 1, 0, 9, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+      "expected_result": 47
+    },
+    {
+      "id": "empty_custom_init_and_refout",
+      "input_values": [7, 18, 0, 1, 52, 0],
+      "expected_result": 124
+    },
+    {
+      "id": "empty_zero_model",
+      "input_values": [7, 0, 0, 0, 0, 0],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_byte_count_length",
+      "input_values": [7, 0, 0, 0, 0, 1],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_payload_byte",
+      "input_values": [7, 0, 0, 0, 0, 1, 256],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_reflection_flag",
+      "input_values": [7, 0, 2, 0, 0, 0],
+      "expected_result": -1
+    }
+  ]
+}

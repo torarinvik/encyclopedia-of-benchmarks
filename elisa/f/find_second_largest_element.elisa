@@ -1,0 +1,24 @@
+def find_second_largest_element_impl(input: i64&, length: usize) -> i64:
+    invalid: i64 = -9223372036854775808
+    if input == null or length < 3 or length > 10001:
+        return invalid
+    n: i64 = input[0]
+    if n < 2 or n > 10000 or length != n.usize() + 1:
+        return invalid
+    largest: mutable i64 = -2147483648
+    for i in 0..<n.usize():
+        value: i64 = input[i + 1]
+        if value < -2147483648 or value > 2147483647:
+            return invalid
+        if value > largest:
+            largest <- value
+    second: mutable i64 = -2147483649
+    for i in 0..<n.usize():
+        value: i64 = input[i + 1]
+        if value < largest and value > second:
+            second <- value
+    if second == -2147483649:
+        return invalid
+    second
+
+export fn find_second_largest_element(input: i64&, length: usize) -> i64 = find_second_largest_element_impl

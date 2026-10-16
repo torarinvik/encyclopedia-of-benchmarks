@@ -39,6 +39,9 @@
     "output_scale": 1000000,
     "insufficient_output_result": -2
   },
+  "workspace": {
+    "bytes": 2048
+  },
   "cases": [
     {
       "id": "single_update",

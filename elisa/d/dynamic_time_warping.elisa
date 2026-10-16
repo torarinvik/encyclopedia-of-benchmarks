@@ -1,0 +1,56 @@
+const MAX_SERIES_LENGTH: i64 = 16
+const MAX_SAMPLE_VALUE: i64 = 1000
+const INVALID_RESULT: f64 = -1.0e300
+const UNREACHABLE: f64 = 1.0e300
+
+def dynamic_time_warping_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 3 or length > 35:
+        return INVALID_RESULT
+    first_length_value: i64 = values[0]
+    second_length_value: i64 = values[1]
+    band_value: i64 = values[2]
+    if first_length_value < 1 or first_length_value > MAX_SERIES_LENGTH or second_length_value < 1 or second_length_value > MAX_SERIES_LENGTH:
+        return INVALID_RESULT
+    first_length: usize = first_length_value.usize()
+    second_length: usize = second_length_value.usize()
+    difference: i64 = first_length_value - second_length_value
+    if difference < 0:
+        difference <- -difference
+    if band_value < difference or band_value > MAX_SERIES_LENGTH or length != 3 + first_length + second_length:
+        return INVALID_RESULT
+    band: usize = band_value.usize()
+    for index in 0..<(first_length + second_length):
+        value: i64 = values[3 + index]
+        if value < -MAX_SAMPLE_VALUE or value > MAX_SAMPLE_VALUE:
+            return INVALID_RESULT
+
+    rows: mutable f64[2][17] = zeroed
+    for column in 0..<(second_length + 1):
+        rows[0][column] <- UNREACHABLE
+    rows[0][0] <- 0.0
+    for row in 1..<(first_length + 1):
+        current: usize = row % 2
+        previous: usize = (row - 1) % 2
+        for column in 0..<(second_length + 1):
+            rows[current][column] <- UNREACHABLE
+        start: mutable usize = 1
+        if row > band:
+            start <- row - band
+        end: mutable usize = second_length
+        if row + band < second_length:
+            end <- row + band
+        column: mutable usize = start
+        while column <= end:
+            difference_value: i64 = values[3 + row - 1] - values[3 + first_length + column - 1]
+            if difference_value < 0:
+                difference_value <- -difference_value
+            best: mutable f64 = rows[previous][column]
+            if rows[current][column - 1] < best:
+                best <- rows[current][column - 1]
+            if rows[previous][column - 1] < best:
+                best <- rows[previous][column - 1]
+            rows[current][column] <- difference_value.f64() + best
+            column <- column + 1
+    rows[first_length % 2][second_length]
+
+export fn dynamic_time_warping(values: i64&, length: usize) f64 = dynamic_time_warping_impl

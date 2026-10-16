@@ -1,4 +1,4 @@
-/* Batch checker for a three-input binary64 interpolation function. */
+/* Batch checker for a three-input binary64 function. */
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
@@ -21,8 +21,8 @@ int main(void)
         double start, end, t, expected, relative_tolerance;
         if (scanf("%lf %lf %lf %lf %lf", &start, &end, &t, &expected, &relative_tolerance) != 5 ||
             !isfinite(start) || !isfinite(end) || !isfinite(t) || !isfinite(expected) ||
-            !isfinite(relative_tolerance) || t < 0.0 || t > 1.0 || relative_tolerance <= 0.0) {
-            fprintf(stderr, "invalid binary64 interpolation case\n");
+            !isfinite(relative_tolerance) || relative_tolerance < 0.0) {
+            fprintf(stderr, "invalid binary64 triple case\n");
             return 2;
         }
         const double observed = BENCHMARK_FUNCTION(start, end, t);

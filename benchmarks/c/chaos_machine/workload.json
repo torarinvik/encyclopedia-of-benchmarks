@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "chaos-machine-seeded-state-v1",
+  "algorithm": "chaos_machine",
+  "function_symbol": "chaos_machine",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[seed_count, seed_0, ..., seed_(n-1), pull_count]",
+    "maximum_seed_count": 64,
+    "maximum_seed": 1000000,
+    "maximum_pull_count": 64,
+    "invalid_input_result": -1,
+    "zero_state_division_result": -1
+  },
+  "output": {
+    "kind": "little_endian_u32_bytes",
+    "encoding": "One 32-bit PRNG result per pull, encoded as four little-endian bytes.",
+    "successful_result": "Number of output bytes.",
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_bytes": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "workspace": {
+    "bytes": 256
+  },
+  "cases": [
+    {
+      "id": "initial_state_three_pulls",
+      "input_values": [
+        0,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": 12,
+      "expected_output_hex": "7520b8f99819f8480001a2e4",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "one_seed_four_pulls",
+      "input_values": [
+        1,
+        42,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "e8eef2bcfa7f8e494f6fc67af878f6da",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "multiple_seeds",
+      "input_values": [
+        2,
+        17,
+        31,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 20,
+      "expected_output_hex": "e492b55d10b41e81f16b2a4ae9a4bc08655f0b2b",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "zero_seed",
+      "input_values": [
+        1,
+        0,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "49100c95074bbc1a",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "maximum_seed",
+      "input_values": [
+        1,
+        1000000,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 20,
+      "expected_output_hex": "9e823429dc49b0ce3de3c4653cf4022645e9a3bd",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "push_without_pull",
+      "input_values": [
+        2,
+        11,
+        29,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "empty_result",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "workspace_bytes": 0
+    },
+    {
+      "id": "maximum_state_and_output",
+      "input_values": [
+        64,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "input_length": 66,
+      "expected_result": 256,
+      "expected_output_hex": "62e49160ba209ec324c588f949761b66cba78d0411487d1fa1535741c7f12d4b40100885ab595fe090aca9085ea61494faa6c5cc47a424b21e3804b24d9268e5926c77646cd45e03b98b62e5cee30ba18a78501abbba956a2ef329a6430d3979b810526bb7371463645aea1636c61d115b1b531bb27522dcf08b70b0a68f71716a2097b2e49aa3b72af1a5e1dfd7b695493fbeeaf7212a9c9e26c23d887f583e3781dfa6e02c09f8db5ea27fb1b5f404a7cec4ea4c4bbc8158bcf0159eafcb4dc2e294bd6ace18e0f695c86d1180724469733e3f2d5e0bdb68017822d855a7670df174a8ed9708bbfcce230278f4fe69ee9d0a7cb7b542fb9700272b6fc0a411",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        2,
+        17,
+        31,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 4
+    },
+    {
+      "id": "negative_seed_count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "seed_count_length_mismatch",
+      "input_values": [
+        2,
+        10,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "seed_out_of_range",
+      "input_values": [
+        1,
+        1000001,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "pull_count_out_of_range",
+      "input_values": [
+        0,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    },
+    {
+      "id": "negative_seed",
+      "input_values": [
+        1,
+        -1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 256
+    }
+  ]
+}

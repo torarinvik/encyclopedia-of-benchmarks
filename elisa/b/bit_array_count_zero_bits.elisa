@@ -1,0 +1,12 @@
+def bit_array_count_zero_bits_impl(values: i64&, length: usize) -> i64:
+    if length > 4096:
+        return -1
+    zero_count: mutable i64 = 0
+    for index in 0..<length:
+        if values[index] != 0 and values[index] != 1:
+            return -1
+        if values[index] == 0:
+            zero_count <- zero_count + 1
+    zero_count
+
+export fn bit_array_count_zero_bits(values: i64&, length: usize) -> i64 = bit_array_count_zero_bits_impl

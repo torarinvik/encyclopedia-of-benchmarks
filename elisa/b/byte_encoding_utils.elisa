@@ -1,0 +1,15 @@
+# Reverse the eight bytes in a 64-bit bit pattern.
+def byte_encoding_utils_impl(value: i64) -> i64:
+    high: i64 = (value >> 56) & 255
+    high_signed: i64 = if high >= 128: high - 256 else: high
+    high_term: i64 = high_signed * 72057594037927936
+    b6: i64 = (value >> 48) & 255
+    b5: i64 = (value >> 40) & 255
+    b4: i64 = (value >> 32) & 255
+    b3: i64 = (value >> 24) & 255
+    b2: i64 = (value >> 16) & 255
+    b1: i64 = (value >> 8) & 255
+    b0: i64 = value & 255
+    high_term + (b6 << 48) + (b5 << 40) + (b4 << 32) + (b3 << 24) + (b2 << 16) + (b1 << 8) + b0
+
+export fn byte_encoding_utils(value: i64) -> i64 = byte_encoding_utils_impl

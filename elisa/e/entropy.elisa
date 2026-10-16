@@ -1,0 +1,81 @@
+extern log2(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+# Reproduce the source's rounded single/bigram entropy output for bounded ASCII.
+def entropy_round_even(value: f64) -> i64:
+    lower: f64 = floor(value)
+    fraction: f64 = value - lower
+    if fraction < 0.5: return lower.i64()
+    if fraction > 0.5: return (lower + 1.0).i64()
+    integer: i64 = lower.i64()
+    if integer % 2 == 0: return integer
+    integer + 1
+
+def entropy_emit_line(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+    position: mutable usize = position_input
+    value: mutable i64 = value_input
+    if value < 0:
+        output[position] <- 45u8
+        position <- position + 1
+        value <- -value
+    if value >= 10:
+        output[position] <- (48 + value / 10).u8()
+        position <- position + 1
+    output[position] <- (48 + value % 10).u8()
+    position <- position + 1
+    output[position] <- 46u8
+    output[position + 1] <- 48u8
+    output[position + 2] <- 10u8
+    position + 3
+
+def entropy_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 513: return -1
+    n: i64 = input[0]
+    if n < 1 or n > 512 or length != (n + 1).usize(): return -1
+    singles: mutable i64[128] = zeroed
+    pairs: mutable i64[16384] = zeroed
+    index: mutable usize = 0
+    while index < n.usize():
+        ch: i64 = input[index + 1]
+        if ch < 0 or ch >= 128: return -1
+        singles[ch.usize()] <- singles[ch.usize()] + 1
+        index <- index + 1
+    pairs[32 * 128 + input[1].usize()] <- pairs[32 * 128 + input[1].usize()] + 1
+    index <- 0
+    while index + 1 < n.usize():
+        slot: usize = input[index + 1].usize() * 128 + input[index + 2].usize()
+        pairs[slot] <- pairs[slot] + 1
+        index <- index + 1
+    alpha: i64[27] = [32,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122]
+    sum_single: mutable f64 = 0.0
+    sum_pair: mutable f64 = 0.0
+    alpha_index: mutable usize = 0
+    while alpha_index < 27:
+        count: i64 = singles[alpha[alpha_index].usize()]
+        if count > 0:
+            probability: f64 = count.f64() / n.f64()
+            sum_single <- sum_single + probability * log2(probability)
+        alpha_index <- alpha_index + 1
+    alpha_index <- 0
+    while alpha_index < 27:
+        second_index: mutable usize = 0
+        while second_index < 27:
+            first: usize = alpha[alpha_index].usize()
+            second: usize = alpha[second_index].usize()
+            count: i64 = pairs[first * 128 + second]
+            if count > 0:
+                probability: f64 = count.f64() / n.f64()
+                sum_pair <- sum_pair + probability * log2(probability)
+            second_index <- second_index + 1
+        alpha_index <- alpha_index + 1
+    temp: mutable u8[32] = zeroed
+    written: mutable usize = entropy_emit_line(temp, 0, entropy_round_even(-sum_single))
+    written <- entropy_emit_line(temp, written, entropy_round_even(-sum_pair))
+    written <- entropy_emit_line(temp, written, entropy_round_even((-sum_pair) - (-sum_single)))
+    if capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- temp[index]
+        index <- index + 1
+    written.i64()
+export fn entropy(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = entropy_impl

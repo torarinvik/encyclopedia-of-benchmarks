@@ -1,0 +1,185 @@
+const MAX_IMAGE_SIDE: usize = 8
+const MAX_KERNEL_SIDE: usize = 4
+const MAX_FILTERS: usize = 3
+const MAX_HIDDEN: usize = 8
+const MAX_OUTPUTS: usize = 4
+const MAX_ENTRY_MICRO: i64 = 1000000
+extern exp(value: f64) -> f64
+extern floor(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def convolution_neural_network_sigmoid(value: f64) -> f64:
+    1.0 / (1.0 + exp(-value))
+
+def convolution_neural_network_round_three(value: f64) -> f64:
+    scaled: f64 = value * 1000.0
+    lower: f64 = floor(scaled)
+    integer: mutable i64 = lower.i64()
+    fraction: f64 = scaled - lower
+    if fraction > 0.5 or (fraction == 0.5 and integer % 2 != 0):
+        integer <- integer + 1
+    integer.f64() / 1000.0
+
+def convolution_neural_network_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def convolution_neural_network_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 7 or length > 2048: return -1
+    image_side_value: i64 = input[0]
+    kernel_side_value: i64 = input[1]
+    stride_value: i64 = input[2]
+    filters_value: i64 = input[3]
+    pool_value: i64 = input[4]
+    hidden_value: i64 = input[5]
+    outputs_value: i64 = input[6]
+    if image_side_value < 2 or image_side_value > MAX_IMAGE_SIDE.i64(): return -1
+    if kernel_side_value < 1 or kernel_side_value > MAX_KERNEL_SIDE.i64(): return -1
+    if stride_value < 1 or stride_value > 4 or filters_value < 1 or filters_value > MAX_FILTERS.i64(): return -1
+    if pool_value < 1 or pool_value > 2 or hidden_value < 1 or hidden_value > MAX_HIDDEN.i64(): return -1
+    if outputs_value < 1 or outputs_value > MAX_OUTPUTS.i64() or kernel_side_value > image_side_value: return -1
+    image_side: usize = image_side_value.usize()
+    kernel_side: usize = kernel_side_value.usize()
+    stride: usize = stride_value.usize()
+    filters: usize = filters_value.usize()
+    pool_side: usize = pool_value.usize()
+    hidden: usize = hidden_value.usize()
+    outputs: usize = outputs_value.usize()
+    conv_side: usize = (image_side - kernel_side) / stride + 1
+    if conv_side < pool_side or conv_side % pool_side != 0: return -1
+    pooled_side: usize = conv_side / pool_side
+    feature_count: usize = filters * pooled_side * pooled_side
+    image_count: usize = image_side * image_side
+    kernel_count: usize = filters * kernel_side * kernel_side
+    hidden_weight_count: usize = hidden * feature_count
+    output_weight_count: usize = outputs * hidden
+    expected_length: usize = 7 + image_count + kernel_count + filters + hidden_weight_count + output_weight_count + hidden + outputs
+    if length != expected_length: return -1
+
+    image: mutable f64[64] = zeroed
+    kernels: mutable f64[48] = zeroed
+    conv_bias: mutable f64[3] = zeroed
+    hidden_weights: mutable f64[1536] = zeroed
+    output_weights: mutable f64[32] = zeroed
+    hidden_bias: mutable f64[8] = zeroed
+    output_bias: mutable f64[4] = zeroed
+    feature_maps: mutable f64[192] = zeroed
+    flattened: mutable f64[192] = zeroed
+    hidden_output: mutable f64[8] = zeroed
+    position: mutable usize = 7
+    index: mutable usize = 0
+    while index < image_count:
+        raw: i64 = input[position]
+        if raw < 0 or raw > MAX_ENTRY_MICRO: return -1
+        image[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < kernel_count:
+        raw: i64 = input[position]
+        if raw < -500000 or raw > 500000: return -1
+        kernels[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < filters:
+        raw: i64 = input[position]
+        if raw < -MAX_ENTRY_MICRO or raw > MAX_ENTRY_MICRO: return -1
+        conv_bias[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < hidden_weight_count:
+        raw: i64 = input[position]
+        if raw < -500000 or raw > 500000: return -1
+        hidden_weights[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < output_weight_count:
+        raw: i64 = input[position]
+        if raw < -500000 or raw > 500000: return -1
+        output_weights[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < hidden:
+        raw: i64 = input[position]
+        if raw < -MAX_ENTRY_MICRO or raw > MAX_ENTRY_MICRO: return -1
+        hidden_bias[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < outputs:
+        raw: i64 = input[position]
+        if raw < -MAX_ENTRY_MICRO or raw > MAX_ENTRY_MICRO: return -1
+        output_bias[index] <- raw.f64() / 1000000.0
+        position <- position + 1
+        index <- index + 1
+    output_bytes: usize = outputs * 8
+    if output_capacity < output_bytes: return -2
+
+    filter: mutable usize = 0
+    while filter < filters:
+        top: mutable usize = 0
+        while top < conv_side:
+            left: mutable usize = 0
+            while left < conv_side:
+                total: mutable f64 = 0.0
+                row: mutable usize = 0
+                while row < kernel_side:
+                    column: mutable usize = 0
+                    while column < kernel_side:
+                        total <- total + image[(top * stride + row) * image_side + left * stride + column] * kernels[filter * kernel_side * kernel_side + row * kernel_side + column]
+                        column <- column + 1
+                    row <- row + 1
+                feature_maps[(filter * conv_side + top) * conv_side + left] <- convolution_neural_network_sigmoid(total - conv_bias[filter])
+                left <- left + 1
+            top <- top + 1
+        filter <- filter + 1
+    feature_index: mutable usize = 0
+    pool_area: usize = pool_side * pool_side
+    filter <- 0
+    while filter < filters:
+        top: mutable usize = 0
+        while top < conv_side:
+            left: mutable usize = 0
+            while left < conv_side:
+                total: mutable f64 = 0.0
+                row: mutable usize = 0
+                while row < pool_side:
+                    column: mutable usize = 0
+                    while column < pool_side:
+                        total <- total + feature_maps[(filter * conv_side + top + row) * conv_side + left + column]
+                        column <- column + 1
+                    row <- row + 1
+                flattened[feature_index] <- total / pool_area.f64()
+                feature_index <- feature_index + 1
+                left <- left + pool_side
+            top <- top + pool_side
+        filter <- filter + 1
+    unit: mutable usize = 0
+    while unit < hidden:
+        total: mutable f64 = 0.0
+        index <- 0
+        while index < feature_count:
+            total <- total + flattened[index] * hidden_weights[unit * feature_count + index]
+            index <- index + 1
+        hidden_output[unit] <- convolution_neural_network_sigmoid(total - hidden_bias[unit])
+        unit <- unit + 1
+    unit <- 0
+    while unit < outputs:
+        total: mutable f64 = 0.0
+        index <- 0
+        while index < hidden:
+            total <- total + hidden_output[index] * output_weights[unit * hidden + index]
+            index <- index + 1
+        convolution_neural_network_write_f64(output, unit * 8, convolution_neural_network_round_three(convolution_neural_network_sigmoid(total - output_bias[unit])))
+        unit <- unit + 1
+    output_bytes.i64()
+
+export fn convolution_neural_network(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = convolution_neural_network_impl

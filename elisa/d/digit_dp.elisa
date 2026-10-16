@@ -1,0 +1,64 @@
+const MAX_DIGITS: usize = 19
+const MAX_DIGIT_SUM: usize = 171
+const MAX_INPUT_LENGTH: usize = 4
+const MIN_BOUND: i64 = -1
+const MAX_BOUND: i64 = 1000000000000000000
+
+def digit_dp_count_up_to(bound_value: i64, target: usize) -> i64:
+    if bound_value < 0:
+        return 0
+    bound: mutable i64 = bound_value
+    digits: mutable usize[MAX_DIGITS] = zeroed
+    digit_count: mutable usize = 0
+    while true:
+        digits[digit_count] <- (bound % 10).usize()
+        digit_count <- digit_count + 1
+        bound <- bound / 10
+        if bound == 0:
+            break
+
+    loose: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+    tight: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+    tight[0] <- 1
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        limit: usize = digits[digit_count]
+        next_loose: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+        next_tight: mutable i64[MAX_DIGIT_SUM + 1] = zeroed
+        sum: mutable usize = 0
+        while sum <= target:
+            digit: mutable usize = 0
+            while digit <= 9 and sum + digit <= target:
+                next_loose[sum + digit] <- next_loose[sum + digit] + loose[sum]
+                digit <- digit + 1
+            digit <- 0
+            while digit <= limit and sum + digit <= target:
+                if digit == limit:
+                    next_tight[sum + digit] <- next_tight[sum + digit] + tight[sum]
+                else:
+                    next_loose[sum + digit] <- next_loose[sum + digit] + tight[sum]
+                digit <- digit + 1
+            sum <- sum + 1
+        sum <- 0
+        while sum <= target:
+            loose[sum] <- next_loose[sum]
+            tight[sum] <- next_tight[sum]
+            sum <- sum + 1
+    loose[target] + tight[target]
+
+def digit_dp_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MAX_INPUT_LENGTH or length != 3:
+        return -1
+    lower: i64 = input[0]
+    upper: i64 = input[1]
+    target_value: i64 = input[2]
+    if lower < MIN_BOUND or lower > MAX_BOUND or upper < MIN_BOUND or upper > MAX_BOUND:
+        return -1
+    if target_value < -2147483648 or target_value > 2147483647:
+        return -1
+    if lower > upper or target_value < 0 or target_value > MAX_DIGIT_SUM.i64():
+        return 0
+    target: usize = target_value.usize()
+    digit_dp_count_up_to(upper, target) - digit_dp_count_up_to(lower - 1, target)
+
+export fn digit_dp(input: i64&, length: usize) -> i64 = digit_dp_impl

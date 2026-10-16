@@ -1,0 +1,57 @@
+# Exact digit-by-digit square root using base-1e9 limbs.
+def mul_add(src: i64&, factor: i64, add: i64, dst: mutable i64&) -> void:
+    carry: mutable i64 = add
+    for index in 0..<16:
+        value: i64 = src[index] * factor + carry
+        dst[index] <- value % 1000000000
+        carry <- value / 1000000000
+
+def ge(left: i64&, right: i64&) -> bool:
+    for index in 0..<16:
+        reverse: usize = 15 - index
+        if left[reverse] != right[reverse]:
+            return left[reverse] > right[reverse]
+    true
+
+def subtract(left: mutable i64&, right: i64&) -> void:
+    borrow: mutable i64 = 0
+    for index in 0..<16:
+        amount: i64 = right[index] + borrow
+        if left[index] < amount:
+            left[index] <- left[index] + 1000000000 - amount
+            borrow <- 1
+        else:
+            left[index] <- left[index] - amount
+            borrow <- 0
+
+def problem80_impl(placeholder: i64) -> i64:
+    if placeholder != 0:
+        return -1
+    answer: mutable i64 = 0
+    for number in 2..<100:
+        integer_root: mutable i64 = 0
+        while (integer_root + 1) * (integer_root + 1) <= number:
+            integer_root <- integer_root + 1
+        if integer_root * integer_root == number:
+            continue
+        root: mutable i64[16] = zeroed
+        remainder: mutable i64[16] = zeroed
+        scaled: mutable i64[16] = zeroed
+        trial: mutable i64[16] = zeroed
+        digit_sum: mutable i64 = 0
+        for step in 0..<100:
+            mul_add(remainder, 100, if step == 0 then number else 0, remainder)
+            digit: mutable i64 = 9
+            while digit >= 0:
+                mul_add(root, 20, digit, scaled)
+                mul_add(scaled, digit, 0, trial)
+                if ge(remainder, trial):
+                    break
+                digit <- digit - 1
+            subtract(remainder, trial)
+            mul_add(root, 10, digit, root)
+            digit_sum <- digit_sum + digit
+        answer <- answer + digit_sum
+    answer
+
+export fn problem80(placeholder: i64) -> i64 = problem80_impl

@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "subset-sum-values-enumeration-positive-i64-array-bytes-v1",
+  "algorithm": "subset_sum_values_enumeration",
+  "function_symbol": "subset_sum_values_enumeration",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[target, item0, item1, ...]",
+    "minimum_length": 1,
+    "maximum_length": 12,
+    "maximum_items": 11,
+    "target_range": [
+      0,
+      256
+    ],
+    "item_range": [
+      1,
+      64
+    ],
+    "strictly_positive_items": true,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_value_lists",
+    "encoding": "Concatenate each result as [subset_length, item0, item1, ...], with every field encoded as signed little-endian i64; parse records until the output byte count is exhausted.",
+    "ordering": "include-first recursive order from the pinned R source; distinct input positions preserve duplicate value-list records.",
+    "target_zero": "one empty subset is emitted immediately, even if positive items are present.",
+    "no_results": "zero output bytes.",
+    "return_value": "output byte length",
+    "maximum_output_bytes": 196608,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "target_zero_empty_items_emits_empty_list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "target_zero_returns_immediately",
+      "input_values": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "positive_target_empty_items",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one_exact_item",
+      "input_values": [
+        4,
+        4
+      ],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000400000000000000"
+    },
+    {
+      "id": "single_include_first_match",
+      "input_values": [
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 40,
+      "expected_output_hex": "02000000000000000100000000000000020000000000000001000000000000000300000000000000"
+    },
+    {
+      "id": "duplicate_values_emit_duplicate_lists",
+      "input_values": [
+        2,
+        2,
+        2
+      ],
+      "input_length": 3,
+      "workspace_bytes": 31,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "multiple_paths_include_first_order",
+      "input_values": [
+        3,
+        3,
+        1,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "01000000000000000300000000000000020000000000000001000000000000000200000000000000020000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "classic_positive_example",
+      "input_values": [
+        9,
+        3,
+        34,
+        4,
+        12,
+        5,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000030000000000000004000000000000000200000000000000020000000000000004000000000000000500000000000000"
+    },
+    {
+      "id": "no_matching_subset",
+      "input_values": [
+        4,
+        3,
+        5,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target_above_total",
+      "input_values": [
+        16,
+        3,
+        5,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_item_count_full_sum",
+      "input_values": [
+        11,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 12,
+      "expected_result": 96,
+      "expected_output_hex": "0b0000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000010000000000000001000000000000000100000000000000"
+    },
+    {
+      "id": "zero_item_is_invalid",
+      "input_values": [
+        0,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_item_is_invalid",
+      "input_values": [
+        3,
+        1,
+        -2
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_target_is_invalid",
+      "input_values": [
+        -1,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target_above_limit",
+      "input_values": [
+        257,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "item_above_limit",
+      "input_values": [
+        3,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_items",
+      "input_values": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_target",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

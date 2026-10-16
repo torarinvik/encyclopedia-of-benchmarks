@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-44-pentagonal-difference-v1",
+  "algorithm": "problem44",
+  "function_symbol": "problem44",
+  "input": {
+    "kind": "pentagonal_index_exclusive_limit",
+    "minimum": 1,
+    "maximum": 5000,
+    "out_of_range_result": -1,
+    "definition": "Search pentagonal indices from 1 up to, but not including, limit."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The first difference found in ascending lower-index then ascending upper-index traversal for which both sum and difference are pentagonal."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "canonical_search_limit", "input_value": 5000, "expected_result": 5482660},
+    {"id": "zero_limit_invalid", "input_value": 0, "expected_result": -1},
+    {"id": "above_maximum_limit", "input_value": 5001, "expected_result": -1}
+  ]
+}

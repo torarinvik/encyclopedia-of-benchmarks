@@ -20,6 +20,12 @@ The pinned Java [`AutoCorrelation.java`](https://github.com/TheAlgorithms/Java/b
 
 The shared `i64_array_bytes_output` runner validates the packed input and compares the returned signed-i64 byte sequence.
 
+Verify all nine ports against the independent lag-based oracle with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm auto_correlation
+```
+
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm auto_correlation --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/a/auto_correlation/rust/build.json

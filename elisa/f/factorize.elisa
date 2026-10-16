@@ -1,0 +1,44 @@
+# Encode ascending prime/exponent pairs as little-endian u32 values.
+def factor_pairs(value: i64, primes: mutable u32&, exponents: mutable u32&) -> usize:
+    if value <= 1:
+        primes[0] <- value.u32()
+        exponents[0] <- 1
+        return 1
+    count: mutable usize = 0
+    remaining: mutable i64 = value
+    divisor: mutable i64 = 2
+    while divisor <= remaining / divisor:
+        if remaining % divisor == 0:
+            exponent: mutable u32 = 0
+            while remaining % divisor == 0:
+                remaining <- remaining / divisor
+                exponent <- exponent + 1
+            primes[count] <- divisor.u32()
+            exponents[count] <- exponent
+            count <- count + 1
+        divisor <- divisor + 1
+    if remaining > 1:
+        primes[count] <- remaining.u32()
+        exponents[count] <- 1
+        count <- count + 1
+    count
+
+def write_u32le(value: u32, output: mutable u8&, position: usize):
+    for byte in 0..<4:
+        output[position + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def factorize_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 0 or value > 1000005:
+        return -1
+    primes: mutable u32[10]
+    exponents: mutable u32[10]
+    count: usize = factor_pairs(value, &primes[0], &exponents[0])
+    required: usize = count * 8
+    if output_capacity < required:
+        return -2
+    for i in 0 ..< count:
+        write_u32le(primes[i], output, 8 * i)
+        write_u32le(exponents[i], output, 8 * i + 4)
+    required.i64()
+
+export fn factorize(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = factorize_impl

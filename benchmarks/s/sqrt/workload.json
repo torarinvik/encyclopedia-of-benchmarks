@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "go-fast-inverse-sqrt-reciprocal-float32-v1",
+  "algorithm": "sqrt",
+  "function_symbol": "go_sqrt_f32",
+  "input": {
+    "kind": "finite_positive_binary64_cast_to_binary32",
+    "minimum": 1e-06,
+    "maximum": 1000000.0,
+    "seed_format": "IEEE-754 binary32",
+    "magic_constant": "0x5f3759df",
+    "newton_iterations": 2,
+    "operation": "round the input to binary32, compute the pinned Go FastInverseSqrt result with two binary32 Newton corrections, then compute 1.0f / inverse_root in binary32",
+    "invalid_input_result": -1.0
+  },
+  "output": {
+    "kind": "binary64_widened_from_binary32",
+    "definition": "reciprocal of the approximate fast inverse square root, with the reciprocal rounded to binary32",
+    "invalid_input_result": -1.0
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "minimum_input",
+      "input_values": [
+        1e-06
+      ],
+      "expected_result": 0.001000000862404704
+    },
+    {
+      "id": "just_above_minimum",
+      "input_values": [
+        1.0000001e-06
+      ],
+      "expected_result": 0.0010000010952353477
+    },
+    {
+      "id": "one_eighth",
+      "input_values": [
+        0.125
+      ],
+      "expected_result": 0.35355344414711
+    },
+    {
+      "id": "half",
+      "input_values": [
+        0.5
+      ],
+      "expected_result": 0.70710688829422
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1.0
+      ],
+      "expected_result": 1.0000044107437134
+    },
+    {
+      "id": "two",
+      "input_values": [
+        2.0
+      ],
+      "expected_result": 1.41421377658844
+    },
+    {
+      "id": "ten",
+      "input_values": [
+        10.0
+      ],
+      "expected_result": 3.1622917652130127
+    },
+    {
+      "id": "fractional",
+      "input_values": [
+        123.456
+      ],
+      "expected_result": 11.11108112335205
+    },
+    {
+      "id": "reciprocal_boundary",
+      "input_values": [
+        0.001
+      ],
+      "expected_result": 0.03162284567952156
+    },
+    {
+      "id": "power_of_two",
+      "input_values": [
+        32.0
+      ],
+      "expected_result": 5.65685510635376
+    },
+    {
+      "id": "sixteen",
+      "input_values": [
+        16.0
+      ],
+      "expected_result": 4.0000176429748535
+    },
+    {
+      "id": "large_fractional",
+      "input_values": [
+        98765.4321
+      ],
+      "expected_result": 314.2705993652344
+    },
+    {
+      "id": "maximum_input",
+      "input_values": [
+        1000000.0
+      ],
+      "expected_result": 1000.00439453125
+    },
+    {
+      "id": "zero_invalid",
+      "input_values": [
+        0.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1.0
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "below_domain",
+      "input_values": [
+        5e-07
+      ],
+      "expected_result": -1.0
+    },
+    {
+      "id": "above_domain",
+      "input_values": [
+        1000001.0
+      ],
+      "expected_result": -1.0
+    }
+  ]
+}

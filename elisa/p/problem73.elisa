@@ -1,0 +1,33 @@
+const MAX_DENOMINATOR: i64 = 12000
+
+def problem73_gcd(left_value: usize, right_value: usize) -> usize:
+    left: mutable usize = left_value
+    right: mutable usize = right_value
+    while right != 0:
+        remainder: usize = left % right
+        left <- right
+        right <- remainder
+    left
+
+def problem73_impl(max_denominator: i64) -> i64:
+    if max_denominator < 0 or max_denominator > MAX_DENOMINATOR:
+        return -1
+    count: mutable i64 = 0
+    denominator: mutable usize = 0
+    bound: usize = max_denominator.usize()
+    while denominator <= bound:
+        numerator_start: mutable usize = denominator / 3 + 1
+        numerator_step: mutable usize = 1
+        if denominator % 2 == 0:
+            numerator_start <- numerator_start + 1 - numerator_start % 2
+            numerator_step <- 2
+        numerator_end: usize = (denominator + 1) / 2
+        numerator: mutable usize = numerator_start
+        while numerator < numerator_end:
+            if problem73_gcd(numerator, denominator) == 1:
+                count <- count + 1
+            numerator <- numerator + numerator_step
+        denominator <- denominator + 1
+    count
+
+export fn problem73(max_denominator: i64) -> i64 = problem73_impl

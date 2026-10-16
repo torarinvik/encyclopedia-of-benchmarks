@@ -1,0 +1,35 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def ground_to_ground_projectile_motion_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return -1.0e300
+    operation: i64 = values[0]
+    speed_value: i64 = values[1]
+    angle_value: i64 = values[2]
+    auxiliary_value: i64 = values[3]
+    if operation < 0 or operation > 2 or speed_value < 0 or speed_value > 1000000000 or
+            angle_value < -360000000 or angle_value > 360000000:
+        return -1.0e300
+    if operation == 1:
+        if auxiliary_value < 0 or auxiliary_value > 1000000000:
+            return -1.0e300
+    else:
+        if auxiliary_value < 1000 or auxiliary_value > 100000000:
+            return -1.0e300
+
+    speed: f64 = speed_value.f64() / 1000000.0
+    angle: f64 = angle_value.f64() / 1000000.0
+    radians: f64 = angle * (3.14159265358979323846264338327950288 / 180.0)
+    vertical_velocity: f64 = speed * sin(radians)
+    if operation == 0:
+        gravity: f64 = auxiliary_value.f64() / 1000000.0
+        return 2.0 * vertical_velocity / gravity
+    if operation == 1:
+        time: f64 = auxiliary_value.f64() / 1000000.0
+        return (speed * cos(radians)) * time
+    gravity: f64 = auxiliary_value.f64() / 1000000.0
+    return pow(vertical_velocity, 2.0) / (2.0 * gravity)
+
+export fn ground_to_ground_projectile_motion(values: i64&, length: usize) -> f64 = ground_to_ground_projectile_motion_impl

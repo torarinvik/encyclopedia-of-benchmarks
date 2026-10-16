@@ -1,0 +1,55 @@
+# Count circular primes through one million with a compact odd-only sieve.
+const ODD_SLOTS: usize = 500001
+
+def problem35_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    odd_prime: mutable bool[ODD_SLOTS] = zeroed
+    index: mutable usize = 1
+    while index < ODD_SLOTS:
+        odd_prime[index] <- true
+        index <- index + 1
+
+    candidate: mutable i64 = 3
+    while candidate <= 1000000 / candidate:
+        if odd_prime[(candidate / 2).usize()]:
+            composite: mutable i64 = candidate * candidate
+            while composite <= 1000000:
+                odd_prime[(composite / 2).usize()] <- false
+                composite <- composite + 2 * candidate
+        candidate <- candidate + 2
+
+    count: mutable i64 = 1
+    number: mutable i64 = 3
+    while number <= 1000000:
+        if odd_prime[(number / 2).usize()]:
+            remaining: mutable i64 = number
+            has_even_digit: mutable bool = false
+            while remaining > 0:
+                if (remaining % 10) % 2 == 0:
+                    has_even_digit <- true
+                    break
+                remaining <- remaining / 10
+            if not has_even_digit:
+                power10: mutable i64 = 1
+                digits: mutable i64 = 1
+                remaining <- number
+                while remaining >= 10:
+                    power10 <- power10 * 10
+                    remaining <- remaining / 10
+                    digits <- digits + 1
+                rotation: mutable i64 = number
+                circular: mutable bool = true
+                turn: mutable i64 = 0
+                while turn < digits:
+                    if not odd_prime[(rotation / 2).usize()]:
+                        circular <- false
+                        break
+                    rotation <- (rotation % 10) * power10 + rotation / 10
+                    turn <- turn + 1
+                if circular:
+                    count <- count + 1
+        number <- number + 2
+    count
+
+export fn problem35(ignored: i64) -> i64 = problem35_impl

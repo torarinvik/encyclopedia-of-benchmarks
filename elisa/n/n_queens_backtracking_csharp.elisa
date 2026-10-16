@@ -1,0 +1,41 @@
+const MAX_N: usize = 8
+const MAX_OUTPUT_WORDS: usize = 737
+
+def safe(rows: i64&, column: usize, row: usize) -> bool:
+    for previous_column in 0..<column:
+        previous_row: usize = rows[previous_column].usize()
+        if previous_row == row or previous_row + column == row + previous_column or previous_row + previous_column == row + column:
+            return false
+    true
+
+def enumerate(n: usize, column: usize, rows: mutable i64&, values: mutable i64&, used: mutable usize&) -> void:
+    if column == n:
+        for current_column in 0..<n:
+            values[used] <- rows[current_column]
+            used <- used + 1
+        values[0] <- values[0] + 1
+        return
+    for row in 0..<n:
+        if safe(rows, column, row):
+            rows[column] <- row.i64()
+            enumerate(n, column + 1, rows, values, used)
+
+def n_queens_backtracking_csharp_impl(n: i64, output: mutable u8&, capacity: usize) -> i64:
+    if n < 0 or n > 8:
+        return -1
+    values: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    used: mutable usize = 1
+    if n > 0:
+        rows: mutable i64[MAX_N] = zeroed
+        enumerate(n.usize(), 0, rows, values, used)
+    required: usize = used * 8
+    if output.is_null() or capacity < required:
+        return -2
+    for index in 0..<used:
+        bits: mutable u64 = values[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    required.i64()
+
+export fn n_queens_backtracking_csharp(n: i64, output: mutable u8&, capacity: usize) -> i64 = n_queens_backtracking_csharp_impl

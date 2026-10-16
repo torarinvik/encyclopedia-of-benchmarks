@@ -1,0 +1,30 @@
+# Find the unique mode of a bounded array of small nonnegative integers.
+def mode_impl(values: i64&, length: usize) -> i64:
+    if length == 0 or length > 4096:
+        return -1
+    counts: mutable usize[256] = zeroed
+    valid: mutable bool = true
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 255:
+            valid <- false
+            break
+        counts[value.usize()] <- counts[value.usize()] + 1
+        index <- index + 1
+    if not valid:
+        return -1
+    mode_value: mutable i64 = -1
+    maximum: mutable usize = 0
+    unique: mutable bool = true
+    for value in 0..256:
+        count: usize = counts[value]
+        if count > maximum:
+            maximum <- count
+            mode_value <- value.i64()
+            unique <- true
+        elif count != 0 and count == maximum:
+            unique <- false
+    if unique: mode_value else: -1
+
+export fn mode(values: i64&, length: usize) -> i64 = mode_impl

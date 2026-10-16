@@ -1,0 +1,29 @@
+# Validate an ASCII card string using the source prefix and Luhn rules.
+def credit_card_validator_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > 65: return -1
+    n: i64 = input[0]
+    if n < 0 or n > 64 or length != (n + 1).usize(): return -1
+    all_digits: mutable bool = true
+    index: mutable usize = 0
+    while index < n.usize():
+        ch: i64 = input[index + 1]
+        if ch < 0 or ch > 127: return -1
+        if ch < 48 or ch > 57: all_digits <- false
+        index <- index + 1
+    if not all_digits or n < 13 or n > 16: return 0
+    first: i64 = input[1] - 48
+    second: i64 = input[2] - 48
+    if not (first == 4 or first == 5 or first == 6 or (first == 3 and (second == 4 or second == 5 or second == 7))): return 0
+    sum: mutable i64 = 0
+    index <- 0
+    while index < n.usize():
+        digit: mutable i64 = input[index + 1] - 48
+        if (index % 2).i64() == n % 2:
+            digit <- digit * 2
+            if digit > 9: digit <- digit - 9
+        sum <- sum + digit
+        index <- index + 1
+    if sum % 10 == 0: return 1
+    0
+
+export fn credit_card_validator(input: i64&, length: usize) -> i64 = credit_card_validator_impl

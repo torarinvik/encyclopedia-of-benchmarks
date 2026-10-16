@@ -1,0 +1,34 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+
+const PI: f64 = 3.14159265358979323846264338327950288
+
+def factorial(n: i64) -> f64:
+    result: f64 = 1.0
+    i: i64 = 2
+    while i <= n:
+        result = result * i.f64()
+        i = i + 1
+    result
+
+def maclaurin_series_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    mode: i64 = values[0]
+    theta_input: i64 = values[1]
+    accuracy: i64 = values[2]
+    if (mode != 0 and mode != 1) or theta_input < -10 or theta_input > 10 or accuracy < 1 or accuracy > 30:
+        return -1.0e300
+    theta: f64 = theta_input.f64()
+    div: f64 = floor(theta / (2.0 * PI))
+    theta = theta - 2.0 * div * PI
+    sum: f64 = 0.0
+    r: i64 = 0
+    while r < accuracy:
+        exponent: i64 = if mode == 0 then 2 * r + 1 else 2 * r
+        sign: f64 = if r % 2 == 0 then 1.0 else -1.0
+        sum = sum + sign * pow(theta, exponent.f64()) / factorial(exponent)
+        r = r + 1
+    sum
+
+export fn maclaurin_series(values: i64&, length: usize) f64 = maclaurin_series_impl

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-100-blue-disc-arrangements-v1",
+  "algorithm": "problem100",
+  "function_symbol": "problem100",
+  "input": {
+    "kind": "minimum_total_disc_threshold",
+    "minimum": 0,
+    "maximum": 1000000000000,
+    "definition": "Return blue discs for the first 50-percent arrangement with a total strictly above the input threshold.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of blue discs in the first qualifying arrangement.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero-threshold",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "source-example-2",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "source-example-4",
+      "input_value": 4,
+      "expected_result": 15
+    },
+    {
+      "id": "source-example-21",
+      "input_value": 21,
+      "expected_result": 85
+    },
+    {
+      "id": "canonical-one-trillion-threshold",
+      "input_value": 1000000000000,
+      "expected_result": 756872327473
+    },
+    {
+      "id": "negative-threshold",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-threshold",
+      "input_value": 1000000000001,
+      "expected_result": -1
+    }
+  ]
+}

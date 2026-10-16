@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-64-odd-periods-v1",
+  "algorithm": "problem64",
+  "function_symbol": "problem64",
+  "input": {
+    "kind": "inclusive_upper_limit",
+    "minimum": 0,
+    "maximum": 10000,
+    "definition": "Count eligible N values from 2 through the inclusive limit.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of non-square N values at or below the limit whose square-root continued-fraction period is odd.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    { "id": "empty_range_zero", "input_value": 0, "expected_result": 0 },
+    { "id": "empty_range_one", "input_value": 1, "expected_result": 0 },
+    { "id": "source_example_two", "input_value": 2, "expected_result": 1 },
+    { "id": "source_example_five", "input_value": 5, "expected_result": 2 },
+    { "id": "source_example_seven", "input_value": 7, "expected_result": 2 },
+    { "id": "source_example_eleven", "input_value": 11, "expected_result": 3 },
+    { "id": "source_example_thirteen", "input_value": 13, "expected_result": 4 },
+    { "id": "canonical_bound", "input_value": 10000, "expected_result": 1322 },
+    { "id": "negative_limit", "input_value": -1, "expected_result": -1 },
+    { "id": "above_bound", "input_value": 10001, "expected_result": -1 }
+  ]
+}

@@ -1,0 +1,24 @@
+const MAX_LENGTH: i64 = 50
+
+def problem114_impl(length: i64) -> i64:
+    if length < 0 or length > MAX_LENGTH:
+        return -1
+    ways: mutable i64[51] = zeroed
+    index: mutable i64 = 0
+    while index <= length:
+        ways[index.usize()] <- 1
+        index <- index + 1
+    row_length: mutable i64 = 3
+    while row_length <= length:
+        block_length: mutable i64 = 3
+        while block_length <= row_length:
+            block_start: mutable i64 = 0
+            while block_start < row_length - block_length:
+                ways[row_length.usize()] <- ways[row_length.usize()] + ways[(row_length - block_start - block_length - 1).usize()]
+                block_start <- block_start + 1
+            ways[row_length.usize()] <- ways[row_length.usize()] + 1
+            block_length <- block_length + 1
+        row_length <- row_length + 1
+    ways[length.usize()]
+
+export fn problem114(length: i64) -> i64 = problem114_impl

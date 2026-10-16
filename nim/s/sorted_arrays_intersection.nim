@@ -1,10 +1,10 @@
-## Intersect three strictly increasing arrays and emit ascending signed i64 values.
+## Intersect three strictly increasing arrays and emit ascending signed i32 values.
 const ArrayCount = 3
 const MaxArrayLength = 64
-const BytesPerValue = 8
+const BytesPerValue = 4
 
-proc storeI64Le(output: ptr UncheckedArray[uint8], position: int, value: int64) =
-  let bits = cast[uint64](value)
+proc storeI32Le(output: ptr UncheckedArray[uint8], position: int, value: int64) =
+  let bits = cast[uint32](int32(value))
   for byte in 0 ..< BytesPerValue:
     output[position + byte] = uint8((bits shr (byte * 8)) and 255)
 
@@ -21,12 +21,13 @@ proc sorted_arrays_intersection*(input: ptr UncheckedArray[int64], length: csize
     if size > int(length) - position: return -1
     starts[arrayIndex] = position
     sizes[arrayIndex] = size
-    for index in 1 ..< size:
-      if input[position + index - 1] >= input[position + index]: return -1
+    for index in 0 ..< size:
+      if input[position + index] < int64(low(int32)) or input[position + index] > int64(high(int32)): return -1
+      if index > 0 and input[position + index - 1] >= input[position + index]: return -1
     position += size
   if position != int(length): return -1
   let maximumResult = min(sizes[0], min(sizes[1], sizes[2]))
-  if int(outputCapacity) < maximumResult * BytesPerValue or (maximumResult > 0 and output == nil): return -2
+  if outputCapacity < csize_t(maximumResult * BytesPerValue) or (maximumResult > 0 and output == nil): return -2
 
   var cursor: array[ArrayCount, int]
   var resultCount = 0
@@ -35,7 +36,7 @@ proc sorted_arrays_intersection*(input: ptr UncheckedArray[int64], length: csize
     let second = input[starts[1] + cursor[1]]
     let third = input[starts[2] + cursor[2]]
     if first == second and first == third:
-      storeI64Le(output, resultCount * BytesPerValue, first)
+      storeI32Le(output, resultCount * BytesPerValue, first)
       inc resultCount
       inc cursor[0]; inc cursor[1]; inc cursor[2]
     elif first < second:

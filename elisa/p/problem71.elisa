@@ -1,0 +1,38 @@
+# Find the numerator of the closest bounded fraction below a reduced target.
+const MAX_DENOMINATOR: i64 = 1000000
+
+def gcd_positive(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def problem71_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 3:
+        return -1
+    target_numerator: i64 = input[0]
+    target_denominator: i64 = input[1]
+    limit: i64 = input[2]
+    if target_numerator < 1 or target_denominator <= target_numerator or
+            target_denominator > MAX_DENOMINATOR or limit < 1 or
+            limit > MAX_DENOMINATOR or gcd_positive(target_numerator, target_denominator) != 1:
+        return -1
+
+    best_numerator: mutable i64 = 0
+    best_denominator: mutable i64 = 1
+    current_denominator: mutable i64 = 1
+    while current_denominator <= limit:
+        current_numerator: mutable i64 =
+            current_denominator * target_numerator / target_denominator
+        if current_denominator % target_denominator == 0:
+            current_numerator <- current_numerator - 1
+        if current_numerator * best_denominator > current_denominator * best_numerator:
+            best_numerator <- current_numerator
+            best_denominator <- current_denominator
+        current_denominator <- current_denominator + 1
+    best_numerator
+
+export fn problem71(input: i64&, length: usize) -> i64 = problem71_impl

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-113-scalar-v1",
+  "algorithm": "problem113",
+  "function_symbol": "problem113",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 100,
+    "meaning": "upper bound on the number of decimal digits",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of positive non-bouncy integers below 10 to the requested digit bound",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "negative_bound_source_empty_range",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_digit_bound",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_one_digit",
+      "input_value": 1,
+      "expected_result": 9
+    },
+    {
+      "id": "source_example_six_digits",
+      "input_value": 6,
+      "expected_result": 12951
+    },
+    {
+      "id": "source_example_ten_digits",
+      "input_value": 10,
+      "expected_result": 277032
+    },
+    {
+      "id": "source_default_one_hundred_digits",
+      "input_value": 100,
+      "expected_result": 51161058134250
+    },
+    {
+      "id": "above_benchmark_domain",
+      "input_value": 101,
+      "expected_result": -1
+    }
+  ]
+}

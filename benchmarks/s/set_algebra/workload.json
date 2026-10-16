@@ -1,0 +1,552 @@
+{
+  "schema_version": "1.0.0",
+  "id": "go-set-algebra-integer-operations-v1",
+  "algorithm": "set_algebra",
+  "function_symbol": "set_algebra",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[operation, left_count, right_count, membership_key, left_values..., right_values...]",
+    "operation_codes": {
+      "0": "membership in left set",
+      "1": "subset",
+      "2": "proper subset",
+      "3": "superset",
+      "4": "proper superset",
+      "5": "union",
+      "6": "intersection",
+      "7": "left difference",
+      "8": "symmetric difference"
+    },
+    "set_length_range": [
+      0,
+      64
+    ],
+    "key_range": [
+      -1000000,
+      1000000
+    ],
+    "duplicate_values": "accepted and collapsed, matching insertion into a set",
+    "maximum_input_length": 132,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_i64_array",
+    "description": "Operations 0 through 4 return one 0/1 value. Operations 5 through 8 return sorted unique set elements without a count prefix; empty results return zero bytes.",
+    "return_value": "output byte length (8 * output element count)",
+    "maximum_output_bytes": 1024,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "membership_present",
+      "input_values": [
+        0,
+        3,
+        0,
+        2,
+        1,
+        2,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "membership_absent",
+      "input_values": [
+        0,
+        3,
+        0,
+        9,
+        1,
+        2,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "subset_true",
+      "input_values": [
+        1,
+        2,
+        3,
+        0,
+        1,
+        2,
+        1,
+        2,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "proper_subset_true",
+      "input_values": [
+        2,
+        2,
+        3,
+        0,
+        1,
+        2,
+        1,
+        2,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "equal_sets_are_subsets",
+      "input_values": [
+        1,
+        3,
+        2,
+        0,
+        1,
+        2,
+        2,
+        2,
+        1
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "equal_sets_are_not_proper_subsets",
+      "input_values": [
+        2,
+        2,
+        2,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "superset_true",
+      "input_values": [
+        3,
+        3,
+        2,
+        0,
+        1,
+        2,
+        3,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "proper_superset_true",
+      "input_values": [
+        4,
+        3,
+        2,
+        0,
+        1,
+        2,
+        3,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "equal_sets_are_not_proper_supersets",
+      "input_values": [
+        4,
+        2,
+        2,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "union_sorted_and_unique",
+      "input_values": [
+        5,
+        3,
+        3,
+        0,
+        3,
+        1,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000020000000000000003000000000000000400000000000000"
+    },
+    {
+      "id": "intersection",
+      "input_values": [
+        6,
+        4,
+        3,
+        0,
+        5,
+        2,
+        3,
+        2,
+        3,
+        4,
+        2
+      ],
+      "input_length": 11,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000300000000000000"
+    },
+    {
+      "id": "left_difference",
+      "input_values": [
+        7,
+        3,
+        2,
+        0,
+        1,
+        2,
+        3,
+        2,
+        4
+      ],
+      "input_length": 9,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000300000000000000"
+    },
+    {
+      "id": "symmetric_difference",
+      "input_values": [
+        8,
+        3,
+        3,
+        0,
+        1,
+        2,
+        3,
+        2,
+        3,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000400000000000000"
+    },
+    {
+      "id": "duplicate_items_normalize_to_sets",
+      "input_values": [
+        5,
+        4,
+        3,
+        0,
+        2,
+        2,
+        1,
+        2,
+        1,
+        4,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000002000000000000000400000000000000"
+    },
+    {
+      "id": "negative_values_sort_ascending",
+      "input_values": [
+        5,
+        3,
+        3,
+        0,
+        0,
+        -7,
+        5,
+        -2,
+        5,
+        -9
+      ],
+      "input_length": 10,
+      "expected_result": 40,
+      "expected_output_hex": "f7fffffffffffffff9fffffffffffffffeffffffffffffff00000000000000000500000000000000"
+    },
+    {
+      "id": "empty_intersection_returns_zero_bytes",
+      "input_values": [
+        6,
+        2,
+        2,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "union_of_empty_sets_returns_zero_bytes",
+      "input_values": [
+        5,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_array_lengths",
+      "input_values": [
+        5,
+        2,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation_out_of_range",
+      "input_values": [
+        9,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "membership_key_out_of_range",
+      "input_values": [
+        0,
+        1,
+        0,
+        1000001,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "element_out_of_range",
+      "input_values": [
+        5,
+        1,
+        0,
+        0,
+        1000001
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "set_length_out_of_range",
+      "input_values": [
+        5,
+        65,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        5,
+        1,
+        1,
+        0,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 8,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "maximum_input_and_union_output",
+      "input_values": [
+        5,
+        64,
+        64,
+        0,
+        -64,
+        -63,
+        -62,
+        -61,
+        -60,
+        -59,
+        -58,
+        -57,
+        -56,
+        -55,
+        -54,
+        -53,
+        -52,
+        -51,
+        -50,
+        -49,
+        -48,
+        -47,
+        -46,
+        -45,
+        -44,
+        -43,
+        -42,
+        -41,
+        -40,
+        -39,
+        -38,
+        -37,
+        -36,
+        -35,
+        -34,
+        -33,
+        -32,
+        -31,
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "input_length": 132,
+      "expected_result": 1024,
+      "expected_output_hex": "c0ffffffffffffffc1ffffffffffffffc2ffffffffffffffc3ffffffffffffffc4ffffffffffffffc5ffffffffffffffc6ffffffffffffffc7ffffffffffffffc8ffffffffffffffc9ffffffffffffffcaffffffffffffffcbffffffffffffffccffffffffffffffcdffffffffffffffceffffffffffffffcfffffffffffffffd0ffffffffffffffd1ffffffffffffffd2ffffffffffffffd3ffffffffffffffd4ffffffffffffffd5ffffffffffffffd6ffffffffffffffd7ffffffffffffffd8ffffffffffffffd9ffffffffffffffdaffffffffffffffdbffffffffffffffdcffffffffffffffddffffffffffffffdeffffffffffffffdfffffffffffffffe0ffffffffffffffe1ffffffffffffffe2ffffffffffffffe3ffffffffffffffe4ffffffffffffffe5ffffffffffffffe6ffffffffffffffe7ffffffffffffffe8ffffffffffffffe9ffffffffffffffeaffffffffffffffebffffffffffffffecffffffffffffffedffffffffffffffeeffffffffffffffeffffffffffffffff0fffffffffffffff1fffffffffffffff2fffffffffffffff3fffffffffffffff4fffffffffffffff5fffffffffffffff6fffffffffffffff7fffffffffffffff8fffffffffffffff9fffffffffffffffafffffffffffffffbfffffffffffffffcfffffffffffffffdfffffffffffffffeffffffffffffffffffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f0000000000000010000000000000001100000000000000120000000000000013000000000000001400000000000000150000000000000016000000000000001700000000000000180000000000000019000000000000001a000000000000001b000000000000001c000000000000001d000000000000001e000000000000001f0000000000000020000000000000002100000000000000220000000000000023000000000000002400000000000000250000000000000026000000000000002700000000000000280000000000000029000000000000002a000000000000002b000000000000002c000000000000002d000000000000002e000000000000002f0000000000000030000000000000003100000000000000320000000000000033000000000000003400000000000000350000000000000036000000000000003700000000000000380000000000000039000000000000003a000000000000003b000000000000003c000000000000003d000000000000003e000000000000003f000000000000004000000000000000"
+    }
+  ]
+}

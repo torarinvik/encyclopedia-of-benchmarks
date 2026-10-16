@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-70-totient-permutation-v1",
+  "algorithm": "problem70",
+  "function_symbol": "problem70",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 10000000],
+    "meaning": "inclusive maximum n to search for a totient digit permutation with the smallest n/phi(n) ratio",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "smallest-ratio n whose decimal digits are a permutation of phi(n), or the source's initial value 1 when no candidate exists"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_search_returns_initial_value", "input_value": 0, "expected_result": 1},
+    {"id": "single_value_search_returns_initial_value", "input_value": 1, "expected_result": 1},
+    {"id": "no_candidate_below_first_match", "input_value": 20, "expected_result": 1},
+    {"id": "first_digit_permutation", "input_value": 21, "expected_result": 21},
+    {"id": "source_example_one_hundred", "input_value": 100, "expected_result": 21},
+    {"id": "source_example_ten_thousand", "input_value": 10000, "expected_result": 4435},
+    {"id": "canonical_ten_million", "input_value": 10000000, "expected_result": 8319823},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_limit", "input_value": 10000001, "expected_result": -1}
+  ]
+}

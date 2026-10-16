@@ -1,0 +1,34 @@
+# Count divisors by prime factorization; split consecutive factors of T_n first.
+def problem12_divisor_count(value: i64) -> i64:
+    count: mutable i64 = 1
+    factor: mutable i64 = 2
+    remaining: mutable i64 = value
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            exponent: mutable i64 = 0
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+                exponent <- exponent + 1
+            count <- count * (exponent + 1)
+        factor <- factor + 1
+    if remaining > 1:
+        count <- count * 2
+    count
+
+def problem12_impl(minimum_divisors: i64) -> i64:
+    if minimum_divisors < 0 or minimum_divisors > 500:
+        return -1
+    index: mutable i64 = 1
+    while index <= 12375:
+        left: mutable i64 = index
+        right: mutable i64 = index + 1
+        if index % 2 == 0:
+            left <- left / 2
+        else:
+            right <- right / 2
+        if problem12_divisor_count(left) * problem12_divisor_count(right) >= minimum_divisors:
+            return index * (index + 1) / 2
+        index <- index + 1
+    -1
+
+export fn problem12(minimum_divisors: i64) -> i64 = problem12_impl

@@ -1,0 +1,70 @@
+const MAX_INPUT_LENGTH: usize = 4096
+const MAX_WORDS: usize = 2049
+
+def remove_duplicate_words_is_whitespace(byte: i64) -> bool:
+    byte == 32 or (byte >= 9 and byte <= 13)
+
+def remove_duplicate_words_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_INPUT_LENGTH.i64():
+        return -1
+    text_length: usize = input[0].usize()
+    if length != text_length + 1:
+        return -1
+    index: usize = 0
+    while index < text_length:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    starts: mutable usize[MAX_WORDS] = zeroed
+    word_lengths: mutable usize[MAX_WORDS] = zeroed
+    word_count: mutable usize = 0
+    token_start: mutable usize = 0
+    output_length: mutable usize = 0
+    boundary: mutable usize = 0
+    while boundary <= text_length:
+        if boundary < text_length and not remove_duplicate_words_is_whitespace(input[boundary + 1]):
+            boundary <- boundary + 1
+        else:
+            word_length: usize = boundary - token_start
+            duplicate: mutable bool = false
+            previous: mutable usize = 0
+            while previous < word_count and not duplicate:
+                if word_lengths[previous] == word_length:
+                    offset: mutable usize = 0
+                    while offset < word_length and input[1 + starts[previous] + offset] == input[1 + token_start + offset]:
+                        offset <- offset + 1
+                    if offset == word_length:
+                        duplicate <- true
+                previous <- previous + 1
+            if not duplicate:
+                if word_count == MAX_WORDS:
+                    return -1
+                starts[word_count] <- token_start
+                word_lengths[word_count] <- word_length
+                if word_count > 0:
+                    output_length <- output_length + 1
+                output_length <- output_length + word_length
+                word_count <- word_count + 1
+            if boundary < text_length:
+                token_start <- boundary + 1
+            boundary <- boundary + 1
+    if output_length > output_capacity or (output_length > 0 and output.is_null()):
+        return -2
+
+    written: mutable usize = 0
+    word: mutable usize = 0
+    while word < word_count:
+        if word > 0:
+            output[written] <- 32
+            written <- written + 1
+        offset: mutable usize = 0
+        while offset < word_lengths[word]:
+            output[written] <- input[1 + starts[word] + offset].u8()
+            written <- written + 1
+            offset <- offset + 1
+        word <- word + 1
+    written.i64()
+
+export fn remove_duplicate_words(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = remove_duplicate_words_impl

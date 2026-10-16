@@ -1,0 +1,46 @@
+# Sum the numerator digits of the requested convergent for e.
+def problem65_impl(max_n: i64) -> i64:
+    if max_n < 1 or max_n > 100:
+        return -1
+    previous: mutable i64[256] = zeroed
+    current: mutable i64[256] = zeroed
+    next: mutable i64[256] = zeroed
+    previous[0] <- 1
+    current[0] <- 2
+    previous_length: mutable i64 = 1
+    current_length: mutable i64 = 1
+    i: mutable i64 = 2
+    while i <= max_n:
+        coefficient: i64 = if i % 3 == 0: (2 * i) / 3 else: 1
+        carry: mutable i64 = 0
+        position: mutable i64 = 0
+        while position < current_length:
+            old: i64 = if position < previous_length: previous[position.usize()] else: 0
+            total: i64 = coefficient * current[position.usize()] + old + carry
+            next[position.usize()] <- total % 10
+            carry <- total / 10
+            position <- position + 1
+        next_length: mutable i64 = current_length
+        while carry != 0:
+            next[next_length.usize()] <- carry % 10
+            next_length <- next_length + 1
+            carry <- carry / 10
+        position <- 0
+        while position < current_length:
+            previous[position.usize()] <- current[position.usize()]
+            position <- position + 1
+        position <- 0
+        while position < next_length:
+            current[position.usize()] <- next[position.usize()]
+            position <- position + 1
+        previous_length <- current_length
+        current_length <- next_length
+        i <- i + 1
+    digit_sum: mutable i64 = 0
+    position: mutable i64 = 0
+    while position < current_length:
+        digit_sum <- digit_sum + current[position.usize()]
+        position <- position + 1
+    digit_sum
+
+export fn problem65(max_n: i64) -> i64 = problem65_impl

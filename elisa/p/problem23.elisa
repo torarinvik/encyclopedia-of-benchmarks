@@ -1,0 +1,43 @@
+# Sum positive integers through the limit that are not sums of two abundant numbers.
+const MAX_LIMIT: usize = 28123
+
+def problem23_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 28123:
+        return -1
+    bound: usize = limit.usize()
+    proper_divisor_sums: mutable i64[MAX_LIMIT + 1] = zeroed
+    abundant: mutable bool[MAX_LIMIT + 1] = zeroed
+    representable: mutable bool[MAX_LIMIT + 1] = zeroed
+
+    divisor: mutable usize = 1
+    while divisor <= bound / 2:
+        multiple: mutable usize = 2 * divisor
+        while multiple <= bound:
+            proper_divisor_sums[multiple] <- proper_divisor_sums[multiple] + divisor.i64()
+            multiple <- multiple + divisor
+        divisor <- divisor + 1
+
+    value: mutable usize = 12
+    while value <= bound:
+        abundant[value] <- proper_divisor_sums[value] > value.i64()
+        value <- value + 1
+
+    left: mutable usize = 12
+    while left <= bound:
+        if abundant[left]:
+            right: mutable usize = left
+            while right <= bound - left:
+                if abundant[right]:
+                    representable[left + right] <- true
+                right <- right + 1
+        left <- left + 1
+
+    total: mutable i64 = 0
+    value <- 1
+    while value <= bound:
+        if not representable[value]:
+            total <- total + value.i64()
+        value <- value + 1
+    total
+
+export fn problem23(limit: i64) -> i64 = problem23_impl

@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "id": "cpp-exponential-dist-statistics-v1",
+  "algorithm": "exponential_dist",
+  "function_symbol": "exponential_dist",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation, lambda_micro]",
+    "scale_per_rate_unit": 1000000,
+    "operation_mapping": {
+      "0": "expected value",
+      "1": "variance",
+      "2": "standard deviation"
+    },
+    "valid_rate_micro_range": [
+      1,
+      1000000000
+    ],
+    "maximum_packed_values": 3,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected exponential-distribution statistic",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "expected_value_rate_one",
+      "input_values": [
+        0,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "variance_rate_one",
+      "input_values": [
+        1,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "standard_deviation_rate_one",
+      "input_values": [
+        2,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "expected_value_rate_two",
+      "input_values": [
+        0,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.5
+    },
+    {
+      "id": "variance_rate_two",
+      "input_values": [
+        1,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.25
+    },
+    {
+      "id": "standard_deviation_rate_two",
+      "input_values": [
+        2,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.5
+    },
+    {
+      "id": "expected_value_rate_three",
+      "input_values": [
+        0,
+        3000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.3333333333333333
+    },
+    {
+      "id": "variance_rate_three",
+      "input_values": [
+        1,
+        3000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.1111111111111111
+    },
+    {
+      "id": "standard_deviation_rate_three",
+      "input_values": [
+        2,
+        3000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.3333333333333333
+    },
+    {
+      "id": "subunit_rate_expected",
+      "input_values": [
+        0,
+        500000
+      ],
+      "input_length": 2,
+      "expected_result": 2.0
+    },
+    {
+      "id": "subunit_rate_variance",
+      "input_values": [
+        1,
+        500000
+      ],
+      "input_length": 2,
+      "expected_result": 4.0
+    },
+    {
+      "id": "minimum_positive_rate",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "maximum_rate_boundary",
+      "input_values": [
+        2,
+        1000000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.001
+    },
+    {
+      "id": "invalid_operation_negative",
+      "input_values": [
+        -1,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_operation_above_range",
+      "input_values": [
+        3,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_zero_rate",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_rate",
+      "input_values": [
+        2,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_rate_one_over_bound",
+      "input_values": [
+        1,
+        1000000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        0,
+        1000000,
+        17
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

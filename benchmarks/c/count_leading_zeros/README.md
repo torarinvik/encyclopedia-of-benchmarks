@@ -22,4 +22,7 @@ python3 benchmarks/build_abi.py --family scalar --algorithm count_leading_zeros 
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/count_leading_zeros/c/build.json
 ```
 
+Verify the nine ports against the fixed-width independent oracle with
+`python3 benchmarks/verify_scalar.py --algorithms count_leading_zeros`.
+
 The nine implementations are in `c/c/count_leading_zeros.c`, `c3/c/count_leading_zeros.c3`, `cpp/c/count_leading_zeros.cpp`, `elisa/c/count_leading_zeros.elisa`, `nim/c/count_leading_zeros.nim`, `odin/c/count_leading_zeros.odin`, `rust/c/count_leading_zeros.rs`, `v/c/count_leading_zeros.v`, and `zig/c/count_leading_zeros.zig`.

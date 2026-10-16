@@ -1,0 +1,64 @@
+def is_valid_email_address_letter(value: i64) -> bool:
+    (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def is_valid_email_address_digit(value: i64) -> bool:
+    value >= 48 and value <= 57
+
+def is_valid_email_address_local_special(value: i64) -> bool:
+    value == 33 or value == 35 or value == 36 or value == 37 or value == 38 or value == 39 or
+    value == 40 or value == 41 or value == 42 or value == 43 or value == 45 or value == 46 or
+    value == 47 or value == 61 or value == 63 or value == 94 or value == 95 or value == 96 or
+    value == 123 or value == 124 or value == 125 or value == 126
+
+def is_valid_email_address_local_allowed(value: i64) -> bool:
+    is_valid_email_address_letter(value) or is_valid_email_address_digit(value) or is_valid_email_address_local_special(value)
+
+def is_valid_email_address_domain_allowed(value: i64) -> bool:
+    is_valid_email_address_letter(value) or is_valid_email_address_digit(value) or value == 46 or value == 45
+
+def is_valid_email_address_impl(values: i64&, length: usize) -> i64:
+    if length > 320:
+        return 0
+    if values == null and length > 0:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > 0x10ffff:
+            return -1
+        index <- index + 1
+
+    at: mutable usize = length
+    index <- 0
+    while index < length:
+        if values[index] == 64:
+            if at != length:
+                return 0
+            at <- index
+        index <- index + 1
+    if at == length:
+        return 0
+
+    domain_start: usize = at + 1
+    if at > 64 or length - domain_start > 255:
+        return 0
+    index <- 0
+    while index < at:
+        value: i64 = values[index]
+        if not is_valid_email_address_local_allowed(value):
+            return 0
+        if value == 46 and (index == 0 or index + 1 == at or values[index - 1] == 46):
+            return 0
+        index <- index + 1
+    index <- domain_start
+    while index < length:
+        value: i64 = values[index]
+        if not is_valid_email_address_domain_allowed(value):
+            return 0
+        if value == 45 and index == domain_start:
+            return 0
+        if value == 46 and (index == domain_start or index + 1 == length or values[index - 1] == 46):
+            return 0
+        index <- index + 1
+    1
+
+export fn is_valid_email_address(values: i64&, length: usize) -> i64 = is_valid_email_address_impl

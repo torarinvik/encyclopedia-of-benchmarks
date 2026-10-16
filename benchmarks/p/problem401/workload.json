@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-problem-401-scalar-v1",
+  "algorithm": "problem401",
+  "function_symbol": "problem401",
+  "input": {
+    "kind": "inclusive_limit",
+    "minimum": 0,
+    "maximum": 1000,
+    "definition": "Sum source sigma2 values for every integer from 0 through this inclusive limit.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "modulus": 1000000000,
+    "definition": "Source sum modulo 1,000,000,000; each sigma2 source value omits divisor 1.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "limit-zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "limit-one-source-quirk",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "limit-two",
+      "input_value": 2,
+      "expected_result": 4
+    },
+    {
+      "id": "limit-three",
+      "input_value": 3,
+      "expected_result": 13
+    },
+    {
+      "id": "limit-six",
+      "input_value": 6,
+      "expected_result": 107
+    },
+    {
+      "id": "source-default-limit",
+      "input_value": 1000,
+      "expected_result": 401381971
+    },
+    {
+      "id": "negative-limit",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-limit",
+      "input_value": 1001,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+def problem191_impl(days: i64) -> i64:
+    if days < 0 or days > 65: return -1
+    ways: mutable i64[396] = zeroed
+    absent: mutable i64 = 0
+    while absent <= 1:
+        late: mutable i64 = 0
+        while late <= 2:
+            ways[(absent * 3 + late).usize()] <- 1
+            late <- late + 1
+        absent <- absent + 1
+    remaining: mutable i64 = 1
+    while remaining <= days:
+        absent <- 0
+        while absent <= 1:
+            late <- 0
+            while late <= 2:
+                previous: i64 = (remaining - 1) * 6
+                late_state: i64 = if late < 2: ways[(previous + absent * 3 + late + 1).usize()] else: 0
+                absent_state: i64 = if absent == 0: ways[(previous + 3).usize()] else: 0
+                on_time_state: i64 = ways[(previous + absent * 3).usize()]
+                ways[(remaining * 6 + absent * 3 + late).usize()] <- late_state + absent_state + on_time_state
+                late <- late + 1
+            absent <- absent + 1
+        remaining <- remaining + 1
+    ways[(days * 6).usize()]
+
+export fn problem191(days: i64) -> i64 = problem191_impl

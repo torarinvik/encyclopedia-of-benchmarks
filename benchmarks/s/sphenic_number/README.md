@@ -23,3 +23,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/s/sphenic_number/
 ```
 
 The nine implementations are in `c/s/sphenic_number.c`, `c3/s/sphenic_number.c3`, `cpp/s/sphenic_number.cpp`, `elisa/s/sphenic_number.elisa`, `nim/s/sphenic_number.nim`, `odin/s/sphenic_number.odin`, `rust/s/sphenic_number.rs`, `v/s/sphenic_number.v`, and `zig/s/sphenic_number.zig`.
+
+Verify the nine ports against the independent square-free factorization oracle with `python3 benchmarks/verify_scalar.py --algorithms sphenic_number`.

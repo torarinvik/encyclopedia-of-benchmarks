@@ -1,0 +1,184 @@
+# Portable fixed-point grayscale Canny edge detector.
+const MAX_SIDE: usize = 16
+const MAX_PIXELS: usize = 256
+const NORM_SCALE: i64 = 1048576
+const ANGLE_SCALE: i64 = 1000000000
+const TAN_22_5_Q9: i64 = 414213562
+
+def canny_clamp(coordinate: i64, side: usize) -> usize:
+    if coordinate < 0: return 0
+    if coordinate >= side.i64(): return side - 1
+    coordinate.usize()
+
+def canny_isqrt(value: u64) -> u64:
+    if value < 2: return value
+    low: mutable u64 = 1
+    high: mutable u64 = value if value < 4294967296 else 4294967296
+    while low <= high:
+        middle: u64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle + 1
+        else:
+            high <- middle - 1
+    high
+
+def canny_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > MAX_PIXELS + 1: return -1
+    side_value: i64 = values[0]
+    if side_value < 1 or side_value > MAX_SIDE.i64(): return -1
+    side: usize = side_value.usize()
+    pixels: usize = side * side
+    if length != pixels + 1: return -1
+    index: mutable usize = 0
+    while index < pixels:
+        if values[index + 1] < 0 or values[index + 1] > 255: return -1
+        index <- index + 1
+    if output_capacity < pixels or output == null: return -2
+
+    gaussian: i64[25] = [85321, 66110, 30754, 8589, 1440,
+        66110, 51225, 23829, 6655, 1116,
+        30754, 23829, 11085, 3096, 519,
+        8589, 6655, 3096, 865, 145,
+        1440, 1116, 519, 145, 24]
+    sobel_x: i64[9] = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+    sobel_y: i64[9] = [1, 2, 1, 0, 0, 0, -1, -2, -1]
+    blurred: mutable i32[MAX_PIXELS] = zeroed
+    gradient_x: mutable i32[MAX_PIXELS] = zeroed
+    gradient_y: mutable i32[MAX_PIXELS] = zeroed
+    magnitude: mutable u8[MAX_PIXELS] = zeroed
+    direction: mutable u8[MAX_PIXELS] = zeroed
+    destination: mutable u8[MAX_PIXELS] = zeroed
+
+    row: mutable usize = 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            total: mutable i64 = 0
+            ky: mutable i64 = -4
+            while ky <= 4:
+                source_row: usize = canny_clamp(row.i64() + ky, side)
+                kx: mutable i64 = -4
+                while kx <= 4:
+                    source_column: usize = canny_clamp(column.i64() + kx, side)
+                    ay_value: mutable i64 = ky
+                    ax_value: mutable i64 = kx
+                    if ky < 0: ay_value <- -ky
+                    if kx < 0: ax_value <- -kx
+                    ay: usize = ay_value.usize()
+                    ax: usize = ax_value.usize()
+                    total <- total + gaussian[ay * 5 + ax] * values[1 + source_row * side + source_column]
+                    kx <- kx + 1
+                ky <- ky + 1
+            blurred[row * side + column] <- total.i32()
+            column <- column + 1
+        row <- row + 1
+
+    maximum_x: mutable i64 = 0
+    maximum_y: mutable i64 = 0
+    row <- 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            total_x: mutable i64 = 0
+            total_y: mutable i64 = 0
+            ky: mutable i64 = -1
+            while ky <= 1:
+                source_row: usize = canny_clamp(row.i64() + ky, side)
+                kx: mutable i64 = -1
+                while kx <= 1:
+                    source_column: usize = canny_clamp(column.i64() + kx, side)
+                    sample: i32 = blurred[source_row * side + source_column]
+                    kernel_index: usize = (ky + 1).usize() * 3 + (kx + 1).usize()
+                    total_x <- total_x + sample.i64() * sobel_x[kernel_index]
+                    total_y <- total_y + sample.i64() * sobel_y[kernel_index]
+                    kx <- kx + 1
+                ky <- ky + 1
+            if total_x < 0: total_x <- -total_x
+            if total_y < 0: total_y <- -total_y
+            offset: usize = row * side + column
+            gradient_x[offset] <- total_x.i32()
+            gradient_y[offset] <- total_y.i32()
+            if total_x > maximum_x: maximum_x <- total_x
+            if total_y > maximum_y: maximum_y <- total_y
+            column <- column + 1
+        row <- row + 1
+
+    maximum_magnitude: mutable u64 = 0
+    index <- 0
+    while index < pixels:
+        normalized_x: mutable i64 = 0
+        normalized_y: mutable i64 = 0
+        if maximum_x != 0: normalized_x <- gradient_x[index].i64() * 255 * NORM_SCALE / maximum_x
+        if maximum_y != 0: normalized_y <- gradient_y[index].i64() * 255 * NORM_SCALE / maximum_y
+        x: u64 = normalized_x.u64()
+        y: u64 = normalized_y.u64()
+        gradient_magnitude: u64 = canny_isqrt(x * x + y * y)
+        if gradient_magnitude > maximum_magnitude: maximum_magnitude <- gradient_magnitude
+        if normalized_y * ANGLE_SCALE < normalized_x * TAN_22_5_Q9:
+            direction[index] <- 0
+        elif normalized_x * ANGLE_SCALE <= normalized_y * TAN_22_5_Q9:
+            direction[index] <- 2
+        else:
+            direction[index] <- 1
+        index <- index + 1
+    if maximum_magnitude != 0:
+        index <- 0
+        while index < pixels:
+            normalized_x: mutable i64 = 0
+            normalized_y: mutable i64 = 0
+            if maximum_x != 0: normalized_x <- gradient_x[index].i64() * 255 * NORM_SCALE / maximum_x
+            if maximum_y != 0: normalized_y <- gradient_y[index].i64() * 255 * NORM_SCALE / maximum_y
+            x: u64 = normalized_x.u64()
+            y: u64 = normalized_y.u64()
+            gradient_magnitude: u64 = canny_isqrt(x * x + y * y)
+            magnitude[index] <- (gradient_magnitude * 255 / maximum_magnitude).u8()
+            index <- index + 1
+
+    row <- 1
+    while row + 1 < side:
+        column: mutable usize = 1
+        while column + 1 < side:
+            offset: usize = row * side + column
+            before: mutable usize = offset - 1
+            after: mutable usize = offset + 1
+            if direction[offset] == 2:
+                before <- offset - side
+                after <- offset + side
+            elif direction[offset] == 1:
+                before <- offset + side - 1
+                after <- offset - side + 1
+            if magnitude[offset] >= magnitude[before] and magnitude[offset] >= magnitude[after]:
+                destination[offset] <- magnitude[offset]
+            column <- column + 1
+        row <- row + 1
+    index <- 0
+    while index < pixels:
+        if destination[index] >= 30: destination[index] <- 255
+        elif destination[index] <= 15: destination[index] <- 0
+        else: destination[index] <- 128
+        index <- index + 1
+    row <- 1
+    while row + 1 < side:
+        column: mutable usize = 1
+        while column + 1 < side:
+            offset: usize = row * side + column
+            if destination[offset] == 128:
+                connected: mutable bool = false
+                dy: mutable i64 = -1
+                while dy <= 1:
+                    dx: mutable i64 = -1
+                    while dx <= 1:
+                        if (dx != 0 or dy != 0) and destination[(row.i64() + dy).usize() * side + (column.i64() + dx).usize()] == 255:
+                            connected <- true
+                        dx <- dx + 1
+                    dy <- dy + 1
+                destination[offset] <- 255 if connected else 0
+            column <- column + 1
+        row <- row + 1
+    index <- 0
+    while index < pixels:
+        output[index] <- destination[index].u8()
+        index <- index + 1
+    pixels.i64()
+
+export fn canny(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = canny_impl

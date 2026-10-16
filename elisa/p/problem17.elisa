@@ -1,0 +1,53 @@
+# Count the letters in British English number names, excluding spaces and hyphens.
+def problem17_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 1000:
+        return -1
+    ones: mutable i64[20] = zeroed
+    ones[1] <- 3
+    ones[2] <- 3
+    ones[3] <- 5
+    ones[4] <- 4
+    ones[5] <- 4
+    ones[6] <- 3
+    ones[7] <- 5
+    ones[8] <- 5
+    ones[9] <- 4
+    ones[10] <- 3
+    ones[11] <- 6
+    ones[12] <- 6
+    ones[13] <- 8
+    ones[14] <- 8
+    ones[15] <- 7
+    ones[16] <- 7
+    ones[17] <- 9
+    ones[18] <- 8
+    ones[19] <- 8
+    tens: mutable i64[10] = zeroed
+    tens[2] <- 6
+    tens[3] <- 6
+    tens[4] <- 5
+    tens[5] <- 5
+    tens[6] <- 5
+    tens[7] <- 7
+    tens[8] <- 6
+    tens[9] <- 6
+    total: mutable i64 = 0
+    value: mutable i64 = 1
+    while value <= limit:
+        if value == 1000:
+            total <- total + ones[1] + 8
+        else:
+            remainder: mutable i64 = value
+            if value >= 100:
+                total <- total + ones[(value / 100).usize()] + 7
+                remainder <- value % 100
+                if remainder != 0:
+                    total <- total + 3
+            if remainder < 20:
+                total <- total + ones[remainder.usize()]
+            else:
+                total <- total + tens[(remainder / 10).usize()] + ones[(remainder % 10).usize()]
+        value <- value + 1
+    total
+
+export fn problem17(limit: i64) -> i64 = problem17_impl

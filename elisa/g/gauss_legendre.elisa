@@ -1,0 +1,33 @@
+const MAX_ITERATIONS: i64 = 8
+const INVALID_RESULT: f64 = -1.0e300
+
+extern sqrt(value: f64) -> f64
+
+def gauss_legendre_pi(iterations: i64) -> f64:
+    a: mutable f64 = 1.0
+    b: mutable f64 = sqrt(0.5)
+    t: mutable f64 = 0.25
+    p: mutable f64 = 1.0
+    index: mutable i64 = 0
+    while index < iterations:
+        next_a: f64 = (a + b) / 2.0
+        next_b: f64 = sqrt(a * b)
+        difference: f64 = a - next_a
+        next_t: f64 = t - p * difference * difference
+        next_p: f64 = 2.0 * p
+        a <- next_a
+        b <- next_b
+        t <- next_t
+        p <- next_p
+        index <- index + 1
+    sum: f64 = a + b
+    sum * sum / (4.0 * t)
+
+def gauss_legendre_impl(iterations_value: f64) -> f64:
+    if not (iterations_value >= 0.0 and iterations_value <= MAX_ITERATIONS.f64()):
+        return INVALID_RESULT
+    if iterations_value != iterations_value.i64().f64():
+        return INVALID_RESULT
+    gauss_legendre_pi(iterations_value.i64())
+
+export fn gauss_legendre(iterations_value: f64) -> f64 = gauss_legendre_impl

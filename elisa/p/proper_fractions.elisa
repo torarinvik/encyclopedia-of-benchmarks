@@ -1,0 +1,60 @@
+# Emit reduced proper fractions for one positive denominator.
+def proper_fractions_gcd(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def proper_fractions_decimal_width(value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    width: mutable usize = 1
+    while value >= 10:
+        value <- value / 10
+        width <- width + 1
+    width
+
+def proper_fractions_append_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    while true:
+        digits[count] <- (value % 10).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0: break
+    position: mutable usize = position_input
+    while count > 0:
+        count <- count - 1
+        output[position] <- 48u8 + digits[count]
+        position <- position + 1
+    position
+
+def proper_fractions_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 1: return -1
+    denominator: i64 = values[0]
+    if denominator < 0 or denominator > 256: return -1
+    if denominator <= 1: return 0
+    needed: mutable usize = 0
+    numerator: mutable i64 = 1
+    while numerator < denominator:
+        if proper_fractions_gcd(numerator, denominator) == 1:
+            needed <- needed + proper_fractions_decimal_width(numerator) + proper_fractions_decimal_width(denominator) + 2
+        numerator <- numerator + 1
+    if output_capacity < needed: return -2
+    position: mutable usize = 0
+    numerator <- 1
+    while numerator < denominator:
+        if proper_fractions_gcd(numerator, denominator) == 1:
+            position <- proper_fractions_append_decimal(output, position, numerator)
+            output[position] <- 47u8
+            position <- position + 1
+            position <- proper_fractions_append_decimal(output, position, denominator)
+            output[position] <- 10u8
+            position <- position + 1
+        numerator <- numerator + 1
+    position.i64()
+
+export fn proper_fractions(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = proper_fractions_impl

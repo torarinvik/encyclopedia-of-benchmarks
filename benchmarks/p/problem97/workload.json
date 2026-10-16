@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-97-scalar-v1",
+  "algorithm": "problem97",
+  "function_symbol": "problem97",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 18,
+    "meaning": "number of trailing decimal digits to return",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The numeric value of the source's unpadded decimal suffix modulo 10 to the requested digit count",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_digits",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_one_digit",
+      "input_value": 1,
+      "expected_result": 7
+    },
+    {
+      "id": "source_example_eight_digits",
+      "input_value": 8,
+      "expected_result": 39992577
+    },
+    {
+      "id": "source_default_ten_digits",
+      "input_value": 10,
+      "expected_result": 8739992577
+    },
+    {
+      "id": "eighteen_digit_boundary",
+      "input_value": 18,
+      "expected_result": 994790198739992577
+    },
+    {
+      "id": "negative_digit_count",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "digit_count_above_scalar_range",
+      "input_value": 19,
+      "expected_result": -1
+    }
+  ]
+}

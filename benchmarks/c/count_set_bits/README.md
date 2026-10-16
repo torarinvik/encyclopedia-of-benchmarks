@@ -26,4 +26,7 @@ python3 benchmarks/build_abi.py --family scalar --algorithm count_set_bits --lan
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/count_set_bits/rust/build.json
 ```
 
+Verify the nine ports against the independent prefix-popcount oracle with
+`python3 benchmarks/verify_scalar.py --algorithms count_set_bits`.
+
 The nine implementations are in `c/c/count_set_bits.c`, `c3/c/count_set_bits.c3`, `cpp/c/count_set_bits.cpp`, `elisa/c/count_set_bits.elisa`, `nim/c/count_set_bits.nim`, `odin/c/count_set_bits.odin`, `rust/c/count_set_bits.rs`, `v/c/count_set_bits.v`, and `zig/c/count_set_bits.zig`.

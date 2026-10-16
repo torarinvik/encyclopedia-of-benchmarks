@@ -1,0 +1,95 @@
+const MAX_INPUT: usize = 4096
+const BLOCK_BYTES: usize = 128
+const IV: u64[8] = [
+    0x6A09E667F3BCC908,0xBB67AE8584CAA73B,0x3C6EF372FE94F82B,0xA54FF53A5F1D36F1,
+    0x510E527FADE682D1,0x9B05688C2B3E6C1F,0x1F83D9ABFB41BD6B,0x5BE0CD19137E2179]
+const SIGMA: usize[160] = [
+    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
+    14,10,4,8,9,15,13,6,1,12,0,2,11,7,5,3,
+    11,8,12,0,5,2,15,13,10,14,3,6,7,1,9,4,
+    7,9,3,1,13,12,11,14,2,6,5,10,4,0,15,8,
+    9,0,5,7,2,4,10,15,14,1,11,12,6,8,3,13,
+    2,12,6,10,0,11,8,3,4,13,7,5,15,14,1,9,
+    12,5,1,15,14,13,4,10,0,7,6,3,9,2,8,11,
+    13,11,7,14,12,1,3,9,5,0,15,4,8,6,2,10,
+    6,15,14,9,11,3,0,8,12,2,13,7,1,4,10,5,
+    10,2,8,4,7,6,1,5,15,11,9,14,3,12,13,0]
+
+def blake2b_add64(left: u64, right: u64) -> u64:
+    low: u64 = (left & 0xFFFF_FFFF) + (right & 0xFFFF_FFFF)
+    high: u64 = (left >> 32) + (right >> 32) + (low >> 32)
+    ((high & 0xFFFF_FFFF) << 32) | (low & 0xFFFF_FFFF)
+
+def blake2b_rotr(value: u64, amount: usize) -> u64:
+    (value >> amount) | (value << (64 - amount))
+
+def blake2b_mix(v: mutable u64&, a: usize, b: usize, c: usize, d: usize,
+        x: u64, y: u64) -> void:
+    v[a] <- blake2b_add64(blake2b_add64(v[a], v[b]), x)
+    v[d] <- blake2b_rotr(v[d] ^ v[a], 32)
+    v[c] <- blake2b_add64(v[c], v[d])
+    v[b] <- blake2b_rotr(v[b] ^ v[c], 24)
+    v[a] <- blake2b_add64(blake2b_add64(v[a], v[b]), y)
+    v[d] <- blake2b_rotr(v[d] ^ v[a], 16)
+    v[c] <- blake2b_add64(v[c], v[d])
+    v[b] <- blake2b_rotr(v[b] ^ v[c], 63)
+
+def blake2b_compress(h: mutable u64&, block: u8&, counter: u64, is_last: bool) -> void:
+    message_words: mutable u64[16] = zeroed
+    for index in 0..<16:
+        for byte in 0..<8:
+            message_words[index] <- message_words[index] | (block[index * 8 + byte].u64() << (8 * byte))
+    v: mutable u64[16] = zeroed
+    for index in 0..<8:
+        v[index] <- h[index]
+        v[index + 8] <- IV[index]
+    v[12] <- v[12] ^ counter
+    if is_last:
+        v[14] <- 0xFFFF_FFFF_FFFF_FFFF ^ v[14]
+    for round in 0..<12:
+        sigma_offset: usize = (round % 10) * 16
+        blake2b_mix(&v[0], 0,4,8,12, message_words[SIGMA[sigma_offset]], message_words[SIGMA[sigma_offset + 1]])
+        blake2b_mix(&v[0], 1,5,9,13, message_words[SIGMA[sigma_offset + 2]], message_words[SIGMA[sigma_offset + 3]])
+        blake2b_mix(&v[0], 2,6,10,14, message_words[SIGMA[sigma_offset + 4]], message_words[SIGMA[sigma_offset + 5]])
+        blake2b_mix(&v[0], 3,7,11,15, message_words[SIGMA[sigma_offset + 6]], message_words[SIGMA[sigma_offset + 7]])
+        blake2b_mix(&v[0], 0,5,10,15, message_words[SIGMA[sigma_offset + 8]], message_words[SIGMA[sigma_offset + 9]])
+        blake2b_mix(&v[0], 1,6,11,12, message_words[SIGMA[sigma_offset + 10]], message_words[SIGMA[sigma_offset + 11]])
+        blake2b_mix(&v[0], 2,7,8,13, message_words[SIGMA[sigma_offset + 12]], message_words[SIGMA[sigma_offset + 13]])
+        blake2b_mix(&v[0], 3,4,9,14, message_words[SIGMA[sigma_offset + 14]], message_words[SIGMA[sigma_offset + 15]])
+    for index in 0..<8:
+        h[index] <- h[index] ^ v[index] ^ v[index + 8]
+
+def blake2b_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_INPUT or (length > 0 and input == null):
+        return -1
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    if output == null or capacity < 64:
+        return -2
+    h: mutable u64[8] = zeroed
+    for index in 0..<8:
+        h[index] <- IV[index]
+    h[0] <- h[0] ^ 0x01010040
+    block: mutable u8[BLOCK_BYTES] = zeroed
+    consumed: mutable usize = 0
+    counter: mutable u64 = 0
+    while length - consumed > BLOCK_BYTES:
+        for index in 0..<BLOCK_BYTES:
+            block[index] <- input[consumed + index].u8()
+        counter <- counter + BLOCK_BYTES.u64()
+        blake2b_compress(&h[0], &block[0], counter, false)
+        consumed <- consumed + BLOCK_BYTES
+        for index in 0..<BLOCK_BYTES:
+            block[index] <- 0
+    remaining: usize = length - consumed
+    for index in 0..<remaining:
+        block[index] <- input[consumed + index].u8()
+    counter <- counter + remaining.u64()
+    blake2b_compress(&h[0], &block[0], counter, true)
+    for word in 0..<8:
+        for byte in 0..<8:
+            output[word * 8 + byte] <- ((h[word] >> (8 * byte)) & 255).u8()
+    64
+
+export fn blake2b(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = blake2b_impl

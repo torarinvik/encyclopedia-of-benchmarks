@@ -17,6 +17,7 @@ This benchmark generates the first N rows of Pascal's triangle. It updates one r
 
 ## Reviewed TheAlgorithms sources
 
+- [C LeetCode `118.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/118.c) — generates the first `numRows` rows.
 - [C++](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/pascal_triangle.cpp) — generates and prints a centered triangle.
 - [Additional C++ copy](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/pascal_triangle.cpp)
 - [Java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PascalTriangle.java) — returns the first N rows.

@@ -21,6 +21,116 @@ MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "butterfly_pattern":
+        if not 1 <= value <= 45:
+            return -1, b""
+        rows = ["*" * count + " " * (2 * (value - count) - 1) + "*" * count
+                for count in range(1, value)]
+        rows.append("*" * (2 * value - 1))
+        rows.extend("*" * count + " " * (2 * (value - count) - 1) + "*" * count
+                    for count in range(value - 1, 0, -1))
+        output = "\n".join(rows).encode("ascii")
+        return len(output), output
+
+    if encoding == "harmonic_series":
+        if not -512 <= value <= 512:
+            return -1, b""
+        if value <= 0:
+            return 0, b""
+        output = "".join(f"1/{denominator}\n" if denominator > 1 else "1\n"
+                         for denominator in range(1, value + 1)).encode("ascii")
+        return len(output), output
+
+    if encoding == "excess_3_code":
+        number = max(0, value)
+        digits = str(number)
+        output = bytearray(b"0b")
+        for digit in digits:
+            nibble = int(digit) + 3
+            output.extend(ord("1") if nibble & bit else ord("0")
+                          for bit in (8, 4, 2, 1))
+        result = bytes(output)
+        return len(result), result
+
+    if encoding == "floyd_triangle":
+        if not 0 <= value <= 90:
+            return -1, b""
+        count = value * (value + 1) // 2
+        output = b"".join(struct.pack("<H", number) for number in range(1, count + 1))
+        return len(output), output
+
+    if encoding == "comma_separated_decimal":
+        if not 1 <= value <= 80:
+            return -1, b""
+        totients = []
+        for number in range(1, value + 1):
+            remainder = number
+            result = number
+            divisor = 2
+            while divisor <= remainder // divisor:
+                if remainder % divisor == 0:
+                    result -= result // divisor
+                    while remainder % divisor == 0:
+                        remainder //= divisor
+                divisor += 1
+            if remainder > 1:
+                result -= result // remainder
+            totients.append(str(result))
+        output = ",".join(totients).encode("ascii")
+        return len(output), output
+
+    if encoding == "decimal_to_gray":
+        if not 0 <= value <= 2**63 - 1:
+            return -1, b""
+        output = format(value ^ (value >> 1), "b").encode("ascii")
+        return len(output), output
+
+    if encoding == "n_queens_backtracking_csharp":
+        if not 0 <= value <= 8:
+            return -1, b""
+        if value == 0:
+            return 8, struct.pack("<q", 0)
+        solutions: list[tuple[int, ...]] = []
+        placement = [-1] * value
+        used_rows: set[int] = set()
+        used_rising_diagonals: set[int] = set()
+        used_falling_diagonals: set[int] = set()
+
+        def search(column: int) -> None:
+            if column == value:
+                solutions.append(tuple(placement))
+                return
+            for row in range(value):
+                rising = row - column
+                falling = row + column
+                if (row in used_rows or rising in used_rising_diagonals
+                        or falling in used_falling_diagonals):
+                    continue
+                placement[column] = row
+                used_rows.add(row)
+                used_rising_diagonals.add(rising)
+                used_falling_diagonals.add(falling)
+                search(column + 1)
+                used_rows.remove(row)
+                used_rising_diagonals.remove(rising)
+                used_falling_diagonals.remove(falling)
+
+        search(0)
+        output_values = [len(solutions)]
+        for solution in solutions:
+            output_values.extend(solution)
+        output = b"".join(struct.pack("<q", item) for item in output_values)
+        return len(output), output
+
+    if encoding == "faster_perfect_numbers":
+        if not 0 <= value <= 2_305_843_009_213_693_951:
+            return -1, b""
+        perfect_numbers = (6, 28, 496, 8128, 33_550_336, 8_589_869_056,
+                           137_438_691_328, 2_305_843_008_139_952_128)
+        output = b"".join(struct.pack("<q", number)
+                           for number in perfect_numbers if number <= value)
+        return len(output), output
+
     if encoding == "decimal_to_hex":
         if not 0 <= value <= 9_007_199_254_740_991:
             return -1, b""
@@ -122,6 +232,12 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
                 index = end
             term = bytes(next_term)
         return len(term), term
+    if encoding == "floyd_triangle":
+        if not 0 <= value <= 90:
+            return -1, b""
+        count = value * (value + 1) // 2
+        output = b"".join(struct.pack("<H", number) for number in range(1, count + 1))
+        return len(output), output
     if encoding == "pascal_triangle_row":
         if not 0 <= value <= 33:
             return -1, b""
@@ -177,6 +293,28 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
         if remaining > 1:
             pairs.extend(struct.pack("<II", remaining, 1))
         output = bytes(pairs)
+        return len(output), output
+    if encoding == "factorize_pairs_u32le":
+        if not 0 <= value <= 1_000_005:
+            return -1, b""
+        if value <= 1:
+            pairs = [(value, 1)]
+        else:
+            remaining = value
+            divisor = 2
+            pairs = []
+            while divisor <= remaining // divisor:
+                if remaining % divisor == 0:
+                    exponent = 0
+                    while remaining % divisor == 0:
+                        remaining //= divisor
+                        exponent += 1
+                    pairs.append((divisor, exponent))
+                divisor += 1
+            if remaining > 1:
+                pairs.append((remaining, 1))
+        output = b"".join(struct.pack("<II", factor, exponent)
+                         for factor, exponent in pairs)
         return len(output), output
     if encoding == "juggler_sequence_i32le":
         if not 1 <= value <= 25:
@@ -328,7 +466,9 @@ def main() -> int:
             or workload.get("measurement", {}).get("comparison_model") != "i64_scalar_bytes_output_call"):
         parser.error("workload does not match the built scalar byte-output algorithm")
     encoding = (algorithm if algorithm in {"hexagonal_numbers", "hexagonal_numbers_one_based",
-                                          "decimal_to_hex", "fizz_buzz"}
+                                          "decimal_to_hex", "decimal_to_gray",
+                                          "n_queens_backtracking_csharp",
+                                          "faster_perfect_numbers", "fizz_buzz"}
                 else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

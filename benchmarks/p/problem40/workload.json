@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-40-fixed-digits-v1",
+  "algorithm": "problem40",
+  "function_symbol": "problem40",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Product of the Champernowne constant digits at positions 1, 10, 100, 1000, 10000, 100000, and 1000000.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_fixed_digit_positions",
+      "input_value": 0,
+      "expected_result": 210
+    },
+    {
+      "id": "nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    }
+  ]
+}

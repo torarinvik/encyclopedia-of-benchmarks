@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-19-fixed-period-v1",
+  "algorithm": "problem19",
+  "function_symbol": "problem19",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "Problem 19 has a fixed period from January 1901 through December 2000. A zero-valued placeholder is accepted only for the shared scalar runner ABI."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of months in the fixed period whose first day is Sunday."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "canonical_twentieth_century", "input_value": 0, "expected_result": 171},
+    {"id": "nonzero_placeholder_invalid", "input_value": 1, "expected_result": -1}
+  ]
+}

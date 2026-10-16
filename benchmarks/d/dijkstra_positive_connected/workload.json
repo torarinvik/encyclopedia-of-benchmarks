@@ -7,7 +7,7 @@
     "kind": "packed_signed_64_bit_integer_array",
     "layout": "[vertex_count, edge_count, (u,v,weight)...]",
     "vertex_count_range": [
-      1,
+      2,
       4
     ],
     "edge_count_range": "n-1 through n*(n-1)/2",
@@ -105,41 +105,54 @@
       "expected_output_hex": "0000000000000000020000000000000002000000000000000900000000000000"
     },
     {
-      "id": "single_vertex",
+      "id": "two_vertex_graph",
       "input_values": [
+        2,
         1,
-        0
+        0,
+        1,
+        255
       ],
-      "input_length": 2,
-      "expected_result": 8,
-      "expected_output_hex": "0000000000000000"
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "0000000000000000ff00000000000000"
     },
     {
       "id": "disconnected_graph",
       "input_values": [
+        4,
         3,
-        1,
         0,
         1,
-        5
+        2,
+        1,
+        2,
+        3,
+        2,
+        0,
+        2,
+        1
       ],
-      "input_length": 5,
+      "input_length": 12,
       "expected_result": -1,
       "expected_output_hex": ""
     },
     {
       "id": "duplicate_undirected_edge",
       "input_values": [
-        2,
-        2,
+        3,
+        3,
         0,
         1,
         3,
         1,
         0,
-        3
+        3,
+        1,
+        2,
+        4
       ],
-      "input_length": 8,
+      "input_length": 11,
       "expected_result": -1,
       "expected_output_hex": ""
     },
@@ -159,13 +172,13 @@
     {
       "id": "self_loop",
       "input_values": [
-        2,
+        3,
         2,
         0,
         0,
         1,
-        0,
         1,
+        2,
         2
       ],
       "input_length": 8,

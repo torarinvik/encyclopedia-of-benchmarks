@@ -1,0 +1,51 @@
+def string_compression_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > 64 or (length > 0 and input == null):
+        return -1
+
+    valid_input: bool =
+        while index < length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input[index]
+            if value < 0 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+
+    encoded_length: usize =
+        while index < length |index: mutable usize = 0, total: mutable usize = 0| -> total:
+            value: i64 = input[index]
+            end: mutable usize = index + 1
+            while end < length and input[end] == value:
+                end <- end + 1
+            count: usize = end - index
+            total <- total + 1
+            if count > 1:
+                if count >= 10:
+                    total <- total + 2
+                else:
+                    total <- total + 1
+            index <- end
+            total
+    if output_capacity < encoded_length or (encoded_length > 0 and output == null):
+        return -2
+
+    while index < length |index: mutable usize = 0, write_index: mutable usize = 0, output| -> output:
+        value: i64 = input[index]
+        end: mutable usize = index + 1
+        while end < length and input[end] == value:
+            end <- end + 1
+        count: usize = end - index
+        output[write_index] <- value.u8()
+        write_index <- write_index + 1
+        if count > 1:
+            if count >= 10:
+                output[write_index] <- (48 + count / 10).u8()
+                write_index <- write_index + 1
+            output[write_index] <- (48 + count % 10).u8()
+            write_index <- write_index + 1
+        index <- end
+        output
+    encoded_length.i64()
+
+export fn string_compression(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = string_compression_impl

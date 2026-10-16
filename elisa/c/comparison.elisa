@@ -1,0 +1,56 @@
+def comparison_fold_ascii(value: i64, mode: i64) -> i64:
+    if mode == 1 and value >= 65 and value <= 90:
+        return value + 32
+    return value
+
+def comparison_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > 131:
+        return -2
+    mode: i64 = values[0]
+    first_length_value: i64 = values[1]
+    if (mode != 0 and mode != 1) or first_length_value < 0 or first_length_value > 64:
+        return -2
+    first_length: usize = first_length_value.usize()
+    second_length_position: usize = 2 + first_length
+    if second_length_position >= length:
+        return -2
+    second_length_value: i64 = values[second_length_position]
+    if second_length_value < 0 or second_length_value > 64:
+        return -2
+    second_length: usize = second_length_value.usize()
+    second_start: usize = second_length_position + 1
+    if second_start + second_length != length:
+        return -2
+
+    index: mutable usize = 0
+    while index < first_length:
+        value: i64 = values[2 + index]
+        if value < 1 or value > 127:
+            return -2
+        index <- index + 1
+    index <- 0
+    while index < second_length:
+        value: i64 = values[second_start + index]
+        if value < 1 or value > 127:
+            return -2
+        index <- index + 1
+
+    common_length: mutable usize = first_length
+    if second_length < common_length:
+        common_length <- second_length
+    index <- 0
+    while index < common_length:
+        left: i64 = comparison_fold_ascii(values[2 + index], mode)
+        right: i64 = comparison_fold_ascii(values[second_start + index], mode)
+        if left < right:
+            return -1
+        if left > right:
+            return 1
+        index <- index + 1
+    if first_length < second_length:
+        return -1
+    if first_length > second_length:
+        return 1
+    return 0
+
+export fn comparison(values: i64&, length: usize) -> i64 = comparison_impl

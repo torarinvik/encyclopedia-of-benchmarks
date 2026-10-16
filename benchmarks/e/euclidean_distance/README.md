@@ -1,6 +1,6 @@
 # Euclidean Distance
 
-This benchmark ports the n-dimensional distance functions found in the pinned [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/EuclideanDistance.js), [MATLAB-Octave](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/maths/euclidean_distance.m), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/euclidean_distance.py), [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/euclidean_distance.r), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/euclidean_distance.rs) sources.
+This benchmark ports the n-dimensional distance functions found in the pinned [JavaScript](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/EuclideanDistance.js), [MATLAB-Octave](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/maths/euclidean_distance.m), [Python](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/euclidean_distance.py), [R](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/euclidean_distance.r), and [Rust](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/euclidean_distance.rs) sources. The pinned JavaScript [`Coordinate.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/Coordinate.js) also supplies a two-dimensional Euclidean formula that is covered by this n-dimensional contract.
 
 ## Contract
 
@@ -16,6 +16,14 @@ The sources differ on mismatched vector dimensions: MATLAB-Octave returns NaN, P
 ## Workload and build
 
 [workload.json](workload.json) covers zero-, one-, two-, three-, and four-dimensional vectors, identical vectors, malformed lengths, and invalid coordinates. Build with the i64_array_float64 family.
+
+## Verification
+
+Run the independent bounded oracle against the supported language ports with:
+
+```sh
+python3 benchmarks/verify_euclidean_distance.py
+```
 
 ## Implementations
 

@@ -1,0 +1,58 @@
+# Find the minimum sum for the source's bounded perfect-square search.
+const MAX_SQUARE_ROOT: i64 = 2500
+const MAX_I64: i64 = 9223372036854775807
+
+def problem142_is_square(value: i64) -> bool:
+    if value < 0 or value > MAX_SQUARE_ROOT * MAX_SQUARE_ROOT:
+        return false
+    low: mutable i64 = 0
+    high: mutable i64 = MAX_SQUARE_ROOT
+    while low <= high:
+        middle: i64 = low + (high - low) / 2
+        square: i64 = middle * middle
+        if square == value:
+            return true
+        if square < value:
+            low <- middle + 1
+        else:
+            high <- middle - 1
+    false
+
+def problem142_impl(number_of_terms: i64) -> i64:
+    if number_of_terms == 1:
+        return 1
+    if number_of_terms == 2:
+        return 9
+    if number_of_terms != 3:
+        return -1
+    minimum: mutable i64 = MAX_I64
+    a: mutable i64 = 1
+    while a <= MAX_SQUARE_ROOT:
+        a_sq: i64 = a * a
+        b: mutable i64 = 1
+        while b <= MAX_SQUARE_ROOT:
+            b_sq: i64 = b * b
+            if problem142_is_square(a_sq + b_sq):
+                first_c: i64 = if a > b: a + 1 else: b + 1
+                c: mutable i64 = first_c
+                while c <= MAX_SQUARE_ROOT:
+                    c_sq: i64 = c * c
+                    if minimum != MAX_I64 and (a_sq - b_sq + 3 * c_sq) / 2 > minimum:
+                        break
+                    if problem142_is_square(c_sq - b_sq) and problem142_is_square(a_sq + c_sq):
+                        x2: i64 = a_sq + b_sq + c_sq
+                        y2: i64 = a_sq - b_sq + c_sq
+                        z2: i64 = c_sq - a_sq - b_sq
+                        if z2 > 0 and x2 % 2 == 0 and y2 % 2 == 0 and z2 % 2 == 0:
+                            sum: i64 = (x2 + y2 + z2) / 2
+                            if sum < minimum:
+                                minimum <- sum
+                    c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    if minimum == MAX_I64:
+        -1
+    else:
+        minimum
+
+export fn problem142(number_of_terms: i64) -> i64 = problem142_impl

@@ -1,0 +1,87 @@
+# Count roots in Java Graph.countGraphs()'s ordered outgoing DFS forest.
+const MAX_EDGE_COUNT: usize = 64
+const MAX_VERTEX_ID: i64 = 63
+const MAX_NODE_COUNT: usize = 128
+const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_EDGE_COUNT
+
+def directed_dfs_forest_count_find_last(label: i64, labels: i64&, node_count: usize) -> usize:
+    found: mutable usize = MAX_NODE_COUNT
+    node: mutable usize = 0
+    while node < node_count:
+        if labels[node] == label:
+            found <- node
+        node <- node + 1
+    found
+
+def directed_dfs_forest_count_visit(current: usize, edge_count: usize,
+        edge_starts: usize&, edge_ends: usize&, visited: mutable bool&) -> void:
+    visited[current] <- true
+    edge: mutable usize = 0
+    while edge < edge_count:
+        destination: usize = edge_ends[edge]
+        if edge_starts[edge] == current and not visited[destination]:
+            directed_dfs_forest_count_visit(destination, edge_count, edge_starts, edge_ends, visited)
+        edge <- edge + 1
+
+def directed_dfs_forest_count_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1:
+        return -1
+    edge_count_value: i64 = input[0]
+    if edge_count_value < 0 or edge_count_value > MAX_EDGE_COUNT.i64():
+        return -1
+    edge_count: usize = edge_count_value.usize()
+    if length != 1 + 2 * edge_count:
+        return -1
+
+    labels: mutable i64[MAX_NODE_COUNT] = zeroed
+    edge_starts: mutable usize[MAX_EDGE_COUNT] = zeroed
+    edge_ends: mutable usize[MAX_EDGE_COUNT] = zeroed
+    node_count: mutable usize = 0
+    edge: mutable usize = 0
+    while edge < edge_count:
+        start_label: i64 = input[1 + 2 * edge]
+        end_label: i64 = input[2 + 2 * edge]
+        if start_label < 0 or start_label > MAX_VERTEX_ID or end_label < 0 or end_label > MAX_VERTEX_ID:
+            return -1
+
+        start: mutable usize = directed_dfs_forest_count_find_last(start_label, labels, node_count)
+        end: mutable usize = MAX_NODE_COUNT
+        if start_label == end_label:
+            if start == MAX_NODE_COUNT:
+                start <- node_count
+                labels[node_count] <- start_label
+                node_count <- node_count + 1
+            end <- node_count
+            labels[node_count] <- end_label
+            node_count <- node_count + 1
+        else:
+            end <- directed_dfs_forest_count_find_last(end_label, labels, node_count)
+            if start == MAX_NODE_COUNT:
+                start <- node_count
+                labels[node_count] <- start_label
+                node_count <- node_count + 1
+            if end == MAX_NODE_COUNT:
+                end <- node_count
+                labels[node_count] <- end_label
+                node_count <- node_count + 1
+        edge_starts[edge] <- start
+        edge_ends[edge] <- end
+        edge <- edge + 1
+
+    marked: mutable bool[MAX_NODE_COUNT] = zeroed
+    roots: mutable i64 = 0
+    root: mutable usize = 0
+    while root < node_count:
+        if not marked[root]:
+            visited: mutable bool[MAX_NODE_COUNT] = zeroed
+            directed_dfs_forest_count_visit(root, edge_count, edge_starts, edge_ends, visited)
+            node: mutable usize = 0
+            while node < node_count:
+                if visited[node]:
+                    marked[node] <- true
+                node <- node + 1
+            roots <- roots + 1
+        root <- root + 1
+    roots
+
+export fn directed_dfs_forest_count(input: i64&, length: usize) -> i64 = directed_dfs_forest_count_impl

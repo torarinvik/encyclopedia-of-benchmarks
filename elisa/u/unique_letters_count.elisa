@@ -1,0 +1,58 @@
+def unique_letters_count_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def unique_letters_count_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > 257:
+        return -1
+    text_length_value: i64 = input[0]
+    if text_length_value < 0 or text_length_value > 256 or length != text_length_value.usize() + 1:
+        return -1
+    text_length: usize = text_length_value.usize()
+
+    index: mutable usize = 0
+    while index < text_length:
+        byte: i64 = input[index + 1]
+        if byte < 0 or byte > 127:
+            return -1
+        index <- index + 1
+
+    frequencies: mutable i64[26] = zeroed
+    first_seen: mutable i64[26] = zeroed
+    unique_count: mutable usize = 0
+    index <- 0
+    while index < text_length:
+        byte: mutable i64 = input[index + 1]
+        if byte >= 65 and byte <= 90:
+            byte <- byte + 32
+        elif byte < 97 or byte > 122:
+            index <- index + 1
+            continue
+        letter_index: usize = (byte - 97).usize()
+        if frequencies[letter_index] == 0:
+            first_seen[unique_count] <- byte
+            unique_count <- unique_count + 1
+        frequencies[letter_index] <- frequencies[letter_index] + 1
+        index <- index + 1
+
+    maximum_result: mutable usize = text_length
+    if maximum_result > 26:
+        maximum_result <- 26
+    required_capacity: usize = maximum_result * 8
+    if output_capacity < required_capacity or (required_capacity > 0 and output == null):
+        return -2
+
+    index <- 0
+    while index < unique_count:
+        letter: i64 = first_seen[index]
+        unique_letters_count_store_i32(letter, output, index * 8)
+        unique_letters_count_store_i32(frequencies[(letter - 97).usize()], output, index * 8 + 4)
+        index <- index + 1
+    unique_count.i64()
+
+export fn unique_letters_count(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = unique_letters_count_impl

@@ -32,6 +32,10 @@
     "invalid_input_result": -1,
     "insufficient_output_capacity_result": -2
   },
+  "workspace": {
+    "bytes": 32752,
+    "meaning": "maximum encoding for 2,047 nonempty itemsets"
+  },
   "measurement": {
     "comparison_model": "i64_array_bytes_output_call",
     "sample_count": 5,

@@ -1,0 +1,16 @@
+# Count mixed tilings with unit grey tiles and oblong tiles of lengths 2, 3, and 4.
+def problem117_impl(length: i64) -> i64:
+    if length < 0 or length > 67:
+        return -1
+    ways: mutable i64[68] = zeroed
+    ways[0] <- 1
+    row: mutable i64 = 1
+    while row <= length:
+        ways[row.usize()] <- ways[(row - 1).usize()]
+        if row >= 2: ways[row.usize()] <- ways[row.usize()] + ways[(row - 2).usize()]
+        if row >= 3: ways[row.usize()] <- ways[row.usize()] + ways[(row - 3).usize()]
+        if row >= 4: ways[row.usize()] <- ways[row.usize()] + ways[(row - 4).usize()]
+        row <- row + 1
+    ways[length.usize()]
+
+export fn problem117(length: i64) -> i64 = problem117_impl

@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "java-temperature-converter-i64-array-float64-v1",
+  "algorithm": "temperature_converter",
+  "function_symbol": "temperature_converter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation,temperature_micro]",
+    "scale": 1000000,
+    "temperature_value_range": [
+      -1000000,
+      1000000
+    ],
+    "operation_codes": {
+      "celsius_to_fahrenheit": 0,
+      "celsius_to_kelvin": 1,
+      "fahrenheit_to_celsius": 2,
+      "fahrenheit_to_kelvin": 3,
+      "kelvin_to_celsius": 4,
+      "kelvin_to_fahrenheit": 5
+    },
+    "maximum_packed_values": 3,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "direct result of the selected pinned conversion expression, with no rounding",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "celsius_zero_to_fahrenheit",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 32.0
+    },
+    {
+      "id": "celsius_boiling_to_fahrenheit",
+      "input_values": [0, 100000000],
+      "input_length": 2,
+      "expected_result": 212.0
+    },
+    {
+      "id": "celsius_negative_forty_to_fahrenheit",
+      "input_values": [0, -40000000],
+      "input_length": 2,
+      "expected_result": -40.0
+    },
+    {
+      "id": "fractional_celsius_to_fahrenheit",
+      "input_values": [0, 36600000],
+      "input_length": 2,
+      "expected_result": 97.88
+    },
+    {
+      "id": "celsius_zero_to_kelvin",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": 273.15
+    },
+    {
+      "id": "absolute_zero_celsius_to_kelvin",
+      "input_values": [1, -273150000],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "fahrenheit_freezing_to_celsius",
+      "input_values": [2, 32000000],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "fahrenheit_boiling_to_celsius",
+      "input_values": [2, 212000000],
+      "input_length": 2,
+      "expected_result": 100.0
+    },
+    {
+      "id": "fahrenheit_one_to_celsius_fractional_result",
+      "input_values": [2, 1000000],
+      "input_length": 2,
+      "expected_result": -17.22222222222222
+    },
+    {
+      "id": "negative_forty_fahrenheit_to_celsius",
+      "input_values": [2, -40000000],
+      "input_length": 2,
+      "expected_result": -40.0
+    },
+    {
+      "id": "fahrenheit_freezing_to_kelvin",
+      "input_values": [3, 32000000],
+      "input_length": 2,
+      "expected_result": 273.15
+    },
+    {
+      "id": "fractional_fahrenheit_to_kelvin",
+      "input_values": [3, 98600000],
+      "input_length": 2,
+      "expected_result": 310.15
+    },
+    {
+      "id": "absolute_zero_fahrenheit_to_kelvin",
+      "input_values": [3, -459670000],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_kelvin_to_celsius",
+      "input_values": [4, 0],
+      "input_length": 2,
+      "expected_result": -273.15
+    },
+    {
+      "id": "room_temperature_kelvin_to_celsius",
+      "input_values": [4, 293150000],
+      "input_length": 2,
+      "expected_result": 20.0
+    },
+    {
+      "id": "absolute_zero_kelvin_to_fahrenheit",
+      "input_values": [5, 0],
+      "input_length": 2,
+      "expected_result": -459.67
+    },
+    {
+      "id": "boiling_point_kelvin_to_fahrenheit",
+      "input_values": [5, 373150000],
+      "input_length": 2,
+      "expected_result": 212.0
+    },
+    {
+      "id": "fractional_kelvin_to_fahrenheit",
+      "input_values": [5, 300000000],
+      "input_length": 2,
+      "expected_result": 80.33
+    },
+    {
+      "id": "minimum_temperature_bound",
+      "input_values": [0, -1000000000000],
+      "input_length": 2,
+      "expected_result": -1799968.0
+    },
+    {
+      "id": "maximum_temperature_bound",
+      "input_values": [1, 1000000000000],
+      "input_length": 2,
+      "expected_result": 1000273.15
+    },
+    {
+      "id": "negative_operation_rejected",
+      "input_values": [-1, 0],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unknown_operation_rejected",
+      "input_values": [6, 0],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "temperature_above_bound_rejected",
+      "input_values": [0, 1000000000001],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "temperature_below_bound_rejected",
+      "input_values": [0, -1000000000001],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "i64_minimum_rejected",
+      "input_values": [0, -9223372036854775808],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "i64_maximum_rejected",
+      "input_values": [0, 9223372036854775807],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "truncated_input_rejected",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value_rejected",
+      "input_values": [0, 0, 0],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

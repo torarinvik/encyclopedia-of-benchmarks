@@ -13,7 +13,7 @@ Compute the signed nth root of the product of the input values, following the pi
 
 ## Source and related algorithms
 
-The pinned [Python `geometric_mean.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/geometric_mean.py) accepts variadic numeric arguments, checks the final product for a forbidden negative value when the total argument count is even, takes an `n`th root, preserves the sign for negative products of odd length, and snaps an exactly representable rounded root to an integer. This benchmark restricts inputs to bounded integers. The separately named `arithmetic_geometric_mean` candidate iterates the arithmetic and geometric means of two values; it is a different operation.
+The pinned [Python `geometric_mean.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/geometric_mean.py) accepts variadic numeric arguments, checks the final product for a forbidden negative value when the total argument count is even, takes an `n`th root, preserves the sign for negative products of odd length, and snaps an exactly representable rounded root to an integer. The `geometricMean` function in the pinned [Haskell `Center.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Statistics/Center.hs) computes the product raised to the reciprocal count; the shared benchmark domain restricts this source to bounded positive integers. The separately named `arithmetic_geometric_mean` candidate iterates the arithmetic and geometric means of two values; it is a different operation.
 
 ## Workload and build
 

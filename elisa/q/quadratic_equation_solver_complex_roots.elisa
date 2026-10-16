@@ -1,0 +1,37 @@
+extern sqrt(value: f64) -> f64
+
+def quadratic_equation_solver_complex_roots_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return -1.0e300
+    a: i64 = values[0]
+    b: i64 = values[1]
+    c: i64 = values[2]
+    component: i64 = values[3]
+    if a == 0 or a < -1000000 or a > 1000000 or
+            b < -1000000 or b > 1000000 or
+            c < -1000000 or c > 1000000 or
+            component < 0 or component > 3:
+        return -1.0e300
+
+    discriminant: i64 = b * b - 4 * a * c
+    denominator: f64 = 2.0 * a.f64()
+    if discriminant > 0:
+        if component >= 2:
+            return -1.0e300
+        square_root: f64 = sqrt(discriminant.f64())
+        if component == 0:
+            return (-b.f64() + square_root) / denominator
+        return (-b.f64() - square_root) / denominator
+    if discriminant == 0:
+        if component == 0:
+            return -b.f64() / denominator
+        return -1.0e300
+
+    if component < 2:
+        return -b.f64() / denominator
+    imaginary: f64 = sqrt((-discriminant).f64()) / denominator
+    if component == 2:
+        return imaginary
+    return -imaginary
+
+export fn quadratic_equation_solver_complex_roots(values: i64&, length: usize) -> f64 = quadratic_equation_solver_complex_roots_impl

@@ -17,6 +17,8 @@ The Rust `average.rs` defines `mean` as a sum followed by division and returns `
 - [Java `Average.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Average.java)
 - [JavaScript `AverageMean.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/AverageMean.js)
 - [Python `average_mean.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/average_mean.py)
+- [Julia `average_mean.jl`](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/average_mean.jl)
+- [Mojo `average_mean.mojo`](https://github.com/TheAlgorithms/Mojo/blob/de31759cab02892cb7ccc7767d97fc000b10fcae/maths/average_mean.mojo)
 - [Ruby `average_mean.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/average_mean.rb)
 - [Solidity `AverageMean.sol`](https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/AverageMean.sol)
 - [Go pairwise `arithmeticmean.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/binary/arithmeticmean.go)

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-493-expected-colours-i64-scalar-v1",
+  "algorithm": "problem493",
+  "function_symbol": "problem493",
+  "input": {
+    "kind": "number_of_picks",
+    "minimum": 0,
+    "maximum": 70,
+    "definition": "Number of balls drawn without replacement from the 70-ball urn.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "scaled_signed_64_bit_integer",
+    "scale": 1000000000,
+    "definition": "Expected distinct-colour count rounded to nine decimal places, represented as the decimal output multiplied by 1,000,000,000.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_picks",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one_pick",
+      "input_value": 1,
+      "expected_result": 1000000000
+    },
+    {
+      "id": "five_picks",
+      "input_value": 5,
+      "expected_result": 3841234423
+    },
+    {
+      "id": "source_example_ten_picks",
+      "input_value": 10,
+      "expected_result": 5669644129
+    },
+    {
+      "id": "canonical_twenty_picks",
+      "input_value": 20,
+      "expected_result": 6818741802
+    },
+    {
+      "id": "source_example_thirty_picks",
+      "input_value": 30,
+      "expected_result": 6985042712
+    },
+    {
+      "id": "forty_picks",
+      "input_value": 40,
+      "expected_result": 6999469844
+    },
+    {
+      "id": "all_ten_of_one_colour_can_be_missing",
+      "input_value": 60,
+      "expected_result": 7000000000
+    },
+    {
+      "id": "more_than_sixty_picks",
+      "input_value": 61,
+      "expected_result": 7000000000
+    },
+    {
+      "id": "all_balls",
+      "input_value": 70,
+      "expected_result": 7000000000
+    },
+    {
+      "id": "negative_picks",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "too_many_picks",
+      "input_value": 71,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "coordinate-compression-i64-array-bytes-output-v1",
+  "algorithm": "coordinate_compression",
+  "function_symbol": "coordinate_compression",
+  "description": "Map values to zero-based ranks among sorted distinct values, preserving input order.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, values...]",
+    "n_range": [
+      0,
+      128
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "operation": "assign each distinct value its rank in ascending numeric order, then emit the rank corresponding to each input value"
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "one rank per input value in original order",
+    "empty_output_byte_length": 0,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Maximum output payload for 128 signed 64-bit ranks"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "python_example",
+      "input_values": [
+        4,
+        100,
+        10,
+        52,
+        83
+      ],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "0300000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "duplicates",
+      "input_values": [
+        7,
+        5,
+        1,
+        5,
+        2,
+        1,
+        9,
+        2
+      ],
+      "input_length": 8,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000000000000000000002000000000000000100000000000000000000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        6,
+        -10,
+        4,
+        -3,
+        4,
+        0,
+        -10
+      ],
+      "input_length": 7,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000003000000000000000100000000000000030000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "already_sorted",
+      "input_values": [
+        6,
+        -4,
+        -1,
+        0,
+        2,
+        9,
+        12
+      ],
+      "input_length": 7,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000001000000000000000200000000000000030000000000000004000000000000000500000000000000"
+    },
+    {
+      "id": "reverse_sorted",
+      "input_values": [
+        6,
+        12,
+        9,
+        2,
+        0,
+        -1,
+        -4
+      ],
+      "input_length": 7,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000004000000000000000300000000000000020000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "all_equal",
+      "input_values": [
+        5,
+        17,
+        17,
+        17,
+        17,
+        17
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        -2147483648
+      ],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "int32_boundaries",
+      "input_values": [
+        4,
+        2147483647,
+        -2147483648,
+        0,
+        2147483647
+      ],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output_hex": "0200000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "invalid_length_missing_value",
+      "input_values": [
+        3,
+        4,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_negative_n",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_n_above_bound",
+      "input_values": [
+        129
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_value_outside_int32",
+      "input_values": [
+        2,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        1,
+        7
+      ],
+      "input_length": 2,
+      "workspace_bytes": 7,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

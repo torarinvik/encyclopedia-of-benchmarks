@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "linear-convolution-java-i64-array-bytes-output-v1",
+  "algorithm": "convolution",
+  "function_symbol": "convolution",
+  "description": "Compute full linear convolution of two discrete signals with exact bounded integer samples.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[a_count, b_count, a..., b...]",
+    "a_count_range": [
+      1,
+      64
+    ],
+    "b_count_range": [
+      1,
+      64
+    ],
+    "sample_range": [
+      -1000000,
+      1000000
+    ],
+    "exact_packed_length": "2 + a_count + b_count",
+    "coefficient_formula": "output[i] = sum(a[k] * b[i-k]) for max(0, i-b_count+1) <= k <= min(i,a_count-1)",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "a_count + b_count - 1 coefficients in increasing output index",
+    "maximum_coefficient_magnitude": 64000000000000,
+    "successful_result": "output byte length"
+  },
+  "workspace": {
+    "bytes": 1016,
+    "meaning": "Maximum output payload for 127 signed 64-bit coefficients"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/maths/Convolution.java"
+  },
+  "cases": [
+    {
+      "id": "unequal_signals",
+      "input_values": [
+        3,
+        2,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "04000000000000000d0000000000000016000000000000000f00000000000000"
+    },
+    {
+      "id": "signed_full_overlap",
+      "input_values": [
+        2,
+        3,
+        -1,
+        2,
+        3,
+        -4,
+        5
+      ],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "fdffffffffffffff0a00000000000000f3ffffffffffffff0a00000000000000"
+    },
+    {
+      "id": "singleton_right_signal",
+      "input_values": [
+        4,
+        1,
+        2,
+        -1,
+        3,
+        4,
+        5
+      ],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "0a00000000000000fbffffffffffffff0f000000000000001400000000000000"
+    },
+    {
+      "id": "singleton_signals",
+      "input_values": [
+        1,
+        1,
+        -7,
+        6
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "d6ffffffffffffff"
+    },
+    {
+      "id": "zero_signal",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        2,
+        -3
+      ],
+      "input_length": 7,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "impulse_signal",
+      "input_values": [
+        4,
+        3,
+        0,
+        0,
+        1,
+        0,
+        2,
+        -1,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000200000000000000ffffffffffffffff03000000000000000000000000000000"
+    },
+    {
+      "id": "sample_boundaries",
+      "input_values": [
+        1,
+        1,
+        1000000,
+        -1000000
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "00f05a2b17ffffff"
+    },
+    {
+      "id": "invalid_missing_sample",
+      "input_values": [
+        1,
+        2,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_empty_signal",
+      "input_values": [
+        0,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_length_above_bound",
+      "input_values": [
+        65,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_sample_above_bound",
+      "input_values": [
+        1,
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7,
+      "capacity_error_result": -2
+    }
+  ]
+}

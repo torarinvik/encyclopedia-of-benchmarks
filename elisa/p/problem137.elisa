@@ -1,0 +1,14 @@
+def problem137_impl(n: i64) -> i64:
+    if n < 1 or n > 23:
+        return -1
+    previous: mutable i64 = 1
+    current: mutable i64 = 1
+    index: mutable i64 = 0
+    while index < 2 * n - 1:
+        next: i64 = previous + current
+        previous <- current
+        current <- next
+        index <- index + 1
+    previous * current
+
+export fn problem137(n: i64) -> i64 = problem137_impl

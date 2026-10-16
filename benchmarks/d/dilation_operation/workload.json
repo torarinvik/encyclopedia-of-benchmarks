@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "dilation-operation-python-binary-3x3-i64-array-bytes-v1",
+  "algorithm": "dilation_operation",
+  "function_symbol": "dilation_operation",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": ["rows", "columns", "image[rows*columns] row-major", "kernel[9] row-major"],
+    "length_rule": "exactly 2 + rows*columns + 9",
+    "rows_range": [1, 16],
+    "columns_range": [1, 16],
+    "image_and_kernel_cell_values": [0, 1],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_matrix",
+    "shape": "rows by columns, row-major",
+    "cell_values": [0, 1],
+    "successful_result": "number of output cells",
+    "output_bytes": "4*rows*columns"
+  },
+  "workspace": {"bytes": 1024, "meaning": "Maximum output buffer for 16x16 signed 32-bit cells"},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"center-cross","input_values":[3,3,0,0,0,0,1,0,0,0,0,0,0,1,0,1,1,1,0,1,0],"input_length":21,"expected_result":9,"expected_output_hex":"000000000100000000000000010000000100000001000000000000000100000000000000"},
+    {"id":"zero-padded-corner","input_values":[3,3,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],"input_length":21,"expected_result":9,"expected_output_hex":"010000000100000000000000010000000100000000000000000000000000000000000000"},
+    {"id":"single-cell-image","input_values":[1,1,1,0,1,0,1,1,1,1,0,1],"input_length":12,"expected_result":1,"expected_output_hex":"01000000"},
+    {"id":"asymmetric-kernel-not-flipped","input_values":[3,3,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0],"input_length":21,"expected_result":9,"expected_output_hex":"000000000000000000000000000000000000000000000000000000000000000001000000"},
+    {"id":"all-zero-image","input_values":[2,4,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1],"input_length":19,"expected_result":8,"expected_output_hex":"0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id":"invalid-dimension","input_values":[0,3,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1],"input_length":21,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-binary-cell","input_values":[1,1,2,0,0,0,0,0,0,0,0,1],"input_length":12,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-packed-length","input_values":[1,1,1,0,0,0,0,0,0,0,0],"input_length":11,"expected_result":-1,"expected_output_hex":""},
+    {"id":"insufficient-output-capacity","input_values":[1,1,1,0,0,0,0,0,0,0,0,1],"input_length":12,"expected_result":-2,"expected_output_hex":"","workspace_bytes":3,"capacity_error_result":-2}
+  ]
+}

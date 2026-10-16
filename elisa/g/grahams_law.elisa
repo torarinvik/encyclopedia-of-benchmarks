@@ -1,0 +1,52 @@
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+extern memcpy(destination: mutable f64&, source: i64&, length: usize) -> mutable f64&
+
+def decode_positive(values: i64&, index: usize) -> f64:
+    result: mutable f64 = 0.0
+    memcpy(&result, &values[index], 8)
+    if not (result >= 1.0e-6 and result <= 1.0e6):
+        return 0.0
+    result
+
+def rounded_six(value: f64) -> f64:
+    if not (value >= 0.0 and value <= 1000000.0):
+        return -1.0e300
+    scaled: f64 = value * 1000000.0
+    lower: mutable f64 = floor(scaled)
+    fraction: f64 = scaled - lower
+    if fraction >= 0.499 and fraction <= 0.501:
+        return -1.0e300
+    if fraction > 0.5:
+        lower <- lower + 1.0
+    lower / 1000000.0
+
+def grahams_law_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > 4 or values[0] < 0 or values[0] > 4:
+        return -1.0e300
+    operation: i64 = values[0]
+    if (operation == 0 and length != 3) or (operation != 0 and length != 4):
+        return -1.0e300
+    first: f64 = decode_positive(values, 1)
+    second: f64 = decode_positive(values, 2)
+    if first == 0.0 or second == 0.0:
+        return -1.0e300
+    result: mutable f64 = 0.0
+    if operation == 0:
+        result <- sqrt(second / first)
+    else:
+        third: f64 = decode_positive(values, 3)
+        if third == 0.0:
+            return -1.0e300
+        if operation == 1:
+            result <- first * sqrt(third / second)
+        elif operation == 2:
+            result <- first / sqrt(third / second)
+        elif operation == 3:
+            result <- first / pow(second / third, 2.0)
+        else:
+            result <- pow(second / third, 2.0) / first
+    rounded_six(result)
+
+export fn grahams_law(values: i64&, length: usize) -> f64 = grahams_law_impl

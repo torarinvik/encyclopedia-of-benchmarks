@@ -1,0 +1,115 @@
+const MAX_DIMENSION: usize = 8
+const MAX_MATRIX_MICRO: i64 = 1000000000
+const MAX_VECTOR_MICRO: i64 = 1000000000
+const MAX_SPECTRAL_MICRO: i64 = 1000000000
+const MAX_ITERATIONS: i64 = 1000
+
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def chebyshev_iteration_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def chebyshev_iteration_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > 1 + MAX_DIMENSION * MAX_DIMENSION + 2 * MAX_DIMENSION + 4:
+        return -1
+    if input[0] < 1 or input[0] > MAX_DIMENSION.i64(): return -1
+    n: usize = input[0].usize()
+    if length != 1 + n * n + 2 * n + 4: return -1
+    matrix_end: usize = 1 + n * n
+    vector_end: usize = matrix_end + 2 * n
+    matrix: mutable f64[MAX_DIMENSION * MAX_DIMENSION] = zeroed
+    b: mutable f64[MAX_DIMENSION] = zeroed
+    x: mutable f64[MAX_DIMENSION] = zeroed
+    residual: mutable f64[MAX_DIMENSION] = zeroed
+    direction: mutable f64[MAX_DIMENSION] = zeroed
+    index: mutable usize = 0
+    while index < n * n:
+        value: i64 = input[index + 1]
+        if value < -MAX_MATRIX_MICRO or value > MAX_MATRIX_MICRO: return -1
+        matrix[index] <- value.f64() / 1000000.0
+        index <- index + 1
+    index <- 0
+    while index < n:
+        rhs: i64 = input[matrix_end + index]
+        guess: i64 = input[matrix_end + n + index]
+        if rhs < -MAX_VECTOR_MICRO or rhs > MAX_VECTOR_MICRO or guess < -MAX_VECTOR_MICRO or guess > MAX_VECTOR_MICRO:
+            return -1
+        b[index] <- rhs.f64() / 1000000.0
+        x[index] <- guess.f64() / 1000000.0
+        index <- index + 1
+    min_micro: i64 = input[vector_end]
+    max_micro: i64 = input[vector_end + 1]
+    iterations: i64 = input[vector_end + 2]
+    tolerance_micro: i64 = input[vector_end + 3]
+    if min_micro < 1 or max_micro <= min_micro or max_micro > MAX_SPECTRAL_MICRO: return -1
+    if iterations < 1 or iterations > MAX_ITERATIONS or tolerance_micro < 1 or tolerance_micro > MAX_VECTOR_MICRO: return -1
+    min_eigenvalue: f64 = min_micro.f64() / 1000000.0
+    max_eigenvalue: f64 = max_micro.f64() / 1000000.0
+    tolerance: f64 = tolerance_micro.f64() / 1000000.0
+    output_bytes: usize = n * 8
+    if output == null or output_capacity < output_bytes: return -2
+
+    row: mutable usize = 0
+    while row < n:
+        product: mutable f64 = 0.0
+        column: mutable usize = 0
+        while column < n:
+            product <- product + matrix[row * n + column] * x[column]
+            column <- column + 1
+        residual[row] <- b[row] - product
+        row <- row + 1
+    d: f64 = (max_eigenvalue + min_eigenvalue) / 2.0
+    c: f64 = (max_eigenvalue - min_eigenvalue) / 2.0
+    alpha: mutable f64 = 0.0
+    alpha_previous: mutable f64 = 0.0
+    iteration: mutable i64 = 0
+    while iteration < iterations:
+        squares: mutable f64 = 0.0
+        index <- 0
+        while index < n:
+            squares <- squares + residual[index] * residual[index]
+            index <- index + 1
+        break if sqrt(squares) < tolerance
+        if iteration == 0:
+            alpha <- 1.0 / d
+            index <- 0
+            while index < n:
+                direction[index] <- residual[index]
+                index <- index + 1
+        else:
+            half_step: f64 = c * alpha_previous / 2.0
+            beta: f64 = half_step * half_step
+            alpha <- 1.0 / (d - beta / alpha_previous)
+            direction_scale: f64 = beta / alpha_previous
+            index <- 0
+            while index < n:
+                direction[index] <- residual[index] + direction_scale * direction[index]
+                index <- index + 1
+        index <- 0
+        while index < n:
+            x[index] <- x[index] + alpha * direction[index]
+            index <- index + 1
+        row <- 0
+        while row < n:
+            product: mutable f64 = 0.0
+            column: mutable usize = 0
+            while column < n:
+                product <- product + matrix[row * n + column] * x[column]
+                column <- column + 1
+            residual[row] <- b[row] - product
+            row <- row + 1
+        alpha_previous <- alpha
+        iteration <- iteration + 1
+    index <- 0
+    while index < n:
+        chebyshev_iteration_write_f64(output, index * 8, x[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn chebyshev_iteration(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = chebyshev_iteration_impl

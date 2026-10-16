@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-50-consecutive-prime-sum-v1",
+  "algorithm": "problem50",
+  "function_symbol": "problem50",
+  "input": {
+    "kind": "prime_exclusive_ceiling",
+    "minimum": 3,
+    "maximum": 1000000,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Prime below the ceiling that is the sum of the longest run of consecutive primes; equal-length updates follow ascending start-index order as in the source."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "source_example_500", "input_value": 500, "expected_result": 499},
+    {"id": "one_thousand", "input_value": 1000, "expected_result": 953},
+    {"id": "ten_thousand", "input_value": 10000, "expected_result": 9521},
+    {"id": "canonical_one_million", "input_value": 1000000, "expected_result": 997651},
+    {"id": "below_minimum", "input_value": 2, "expected_result": -1},
+    {"id": "above_maximum", "input_value": 1000001, "expected_result": -1}
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-117-mixed-tilings-v1",
+  "algorithm": "problem117",
+  "function_symbol": "problem117",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Row length; grey tiles have length 1 and any number of length-2, length-3, and length-4 colored tiles may be adjacent",
+    "minimum": 0,
+    "maximum": 67,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of ways to tile the row with unit grey tiles and oblong lengths 2, 3, or 4"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_length",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one_unit",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "two_units",
+      "input_value": 2,
+      "expected_result": 2
+    },
+    {
+      "id": "three_units",
+      "input_value": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "four_units",
+      "input_value": 4,
+      "expected_result": 8
+    },
+    {
+      "id": "source_example_five",
+      "input_value": 5,
+      "expected_result": 15
+    },
+    {
+      "id": "ten_units",
+      "input_value": 10,
+      "expected_result": 401
+    },
+    {
+      "id": "canonical_fifty",
+      "input_value": 50,
+      "expected_result": 100808458960497
+    },
+    {
+      "id": "largest_i64_safe_length",
+      "input_value": 67,
+      "expected_result": 7057305768232953720
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "overflow_bound_invalid",
+      "input_value": 68,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_max_invalid",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+# Discrete center of mass with the source's binary64 summation and two-decimal rounding.
+const MAX_PARTICLES: usize = 64
+const MAX_COORDINATE_UNITS: i64 = 1000000
+const MAX_MASS_UNITS: i64 = 1000000
+
+def round_two_python(value: f64) -> f64:
+    if value == 0.0:
+        return value
+    negative: bool = value < 0.0
+    normalized: mutable f64 = if negative: -value else: value
+    exponent: mutable i64 = 0
+    while normalized >= 1.0:
+        normalized <- normalized * 0.5
+        exponent <- exponent + 1
+    while normalized < 0.5:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    significand: u64 = (normalized * 9007199254740992.0).u64()
+    numerator: u64 = significand * 100.u64()
+    shift: i64 = 53 - exponent
+    cents: mutable u64 = 0.u64()
+    if shift < 0:
+        cents <- numerator << (-shift).u32()
+    else if shift == 0:
+        cents <- numerator
+    else if shift < 64:
+        denominator: u64 = 1.u64() << shift.u32()
+        cents <- numerator >> shift.u32()
+        remainder: u64 = numerator & (denominator - 1.u64())
+        half: u64 = denominator >> 1
+        if remainder > half or (remainder == half and (cents & 1.u64()) != 0.u64()):
+            cents <- cents + 1.u64()
+    rounded: f64 = cents.f64() / 100.0
+    if negative: return -rounded
+    return rounded
+
+def center_of_mass_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 2 or length > 258:
+        return -1.0e300
+    selector: i64 = values[0]
+    count_value: i64 = values[1]
+    if selector < 0 or selector > 2 or count_value < 1 or count_value > 64 or length != 2 + 4 * count_value.usize():
+        return -1.0e300
+    count: usize = count_value.usize()
+    for index in 0..<count:
+        offset: usize = 2 + 4 * index
+        for coordinate in 0..<3:
+            unit: i64 = values[offset + coordinate]
+            if unit < -MAX_COORDINATE_UNITS or unit > MAX_COORDINATE_UNITS:
+                return -1.0e300
+        mass: i64 = values[offset + 3]
+        if mass < 1 or mass > MAX_MASS_UNITS:
+            return -1.0e300
+    total_mass: mutable f64 = 0.0
+    for index in 0..<count:
+        total_mass <- total_mass + values[2 + 4 * index + 3].f64() / 1000.0
+    weighted_coordinate: mutable f64 = 0.0
+    for index in 0..<count:
+        offset: usize = 2 + 4 * index
+        coordinate: f64 = values[offset + selector.usize()].f64() / 1000.0
+        mass: f64 = values[offset + 3].f64() / 1000.0
+        weighted_coordinate <- weighted_coordinate + coordinate * mass
+    round_two_python(weighted_coordinate / total_mass)
+
+export fn center_of_mass(values: i64&, length: usize) -> f64 = center_of_mass_impl

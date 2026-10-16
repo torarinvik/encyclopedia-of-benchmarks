@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-20-scalar-v1",
+  "algorithm": "problem20",
+  "function_symbol": "problem20",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "n_range": [0, 100],
+    "meaning": "factorial input n",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of the decimal digits of n!"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 3
+  },
+  "cases": [
+    {"id": "zero_factorial", "input_value": 0, "expected_result": 1},
+    {"id": "one_factorial", "input_value": 1, "expected_result": 1},
+    {"id": "two_factorial", "input_value": 2, "expected_result": 2},
+    {"id": "five_factorial", "input_value": 5, "expected_result": 3},
+    {"id": "example_ten_factorial", "input_value": 10, "expected_result": 27},
+    {"id": "twenty_factorial", "input_value": 20, "expected_result": 54},
+    {"id": "canonical_one_hundred_factorial", "input_value": 100, "expected_result": 648},
+    {"id": "negative_input", "input_value": -1, "expected_result": -1},
+    {"id": "above_maximum_input", "input_value": 101, "expected_result": -1}
+  ]
+}

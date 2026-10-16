@@ -1,0 +1,29 @@
+# Apply the pinned contrast factor with truncation and byte clipping.
+def change_contrast_truncate_divide(numerator_input: i64, denominator: i64) -> i64:
+    if numerator_input < 0: return -((-numerator_input) / denominator)
+    numerator_input / denominator
+
+def change_contrast_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 4096: return -1
+    level: i64 = values[0]
+    if level < -255 or level > 255: return -1
+    channels: usize = length - 1
+    index: mutable usize = 0
+    while index < channels:
+        pixel: i64 = values[index + 1]
+        if pixel < 0 or pixel > 255: return -1
+        index <- index + 1
+    if channels > output_capacity: return -2
+    denominator: i64 = 255 * (259 - level)
+    index <- 0
+    while index < channels:
+        channel: i64 = values[index + 1]
+        numerator: i64 = 128 * denominator + 259 * (level + 255) * (channel - 128)
+        value: mutable i64 = change_contrast_truncate_divide(numerator, denominator)
+        if value < 0: value <- 0
+        if value > 255: value <- 255
+        output[index] <- value.u8()
+        index <- index + 1
+    channels.i64()
+
+export fn change_contrast(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = change_contrast_impl

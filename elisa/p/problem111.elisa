@@ -1,0 +1,99 @@
+const MAX_N: i64 = 10000000000
+
+def is_prime(value: i64, primes: i64[100001], count: i64) -> bool:
+    index: mutable i64 = 0
+    while index < count:
+        prime: i64 = primes[index.usize()]
+        if value % prime == 0: return false
+        index <- index + 1
+    true
+
+def problem111_impl(n: i64) -> i64:
+    if n < 1000 or n > MAX_N: return -1
+    composite: mutable bool[100002] = zeroed
+    primes: mutable i64[100001] = zeroed
+    prime_count: mutable i64 = 0
+    root: mutable i64 = 0
+    while root + 1 <= n / (root + 1): root <- root + 1
+    sieve_limit: i64 = root + 1
+    p: mutable i64 = 2
+    while p <= sieve_limit:
+        if not composite[p.usize()]:
+            primes[prime_count.usize()] <- p
+            prime_count <- prime_count + 1
+            if p * p <= sieve_limit:
+                multiple: mutable i64 = p * p
+                while multiple <= sieve_limit:
+                    composite[multiple.usize()] <- true
+                    multiple <- multiple + p
+        p <- p + 1
+    digits: mutable i64 = 0
+    copy: mutable i64 = n
+    while copy > 0:
+        digits <- digits + 1
+        copy <- copy / 10
+    width: i64 = digits - 1
+    repeated_two: i64 = width - 2
+    total: mutable i64 = 0
+    i: mutable i64 = 1
+    while i <= 9:
+        j: mutable i64 = 1
+        while j <= 9:
+            value: mutable i64 = i
+            z: mutable i64 = 0
+            while z < width - 2:
+                value <- value * 10
+                z <- z + 1
+            value <- value * 10 + j
+            if is_prime(value, primes, prime_count): total <- total + value
+            j <- j + 1
+        i <- i + 1
+    one_digit: mutable bool[10] = zeroed
+    i <- 1
+    while i <= 9:
+        j <- 0
+        while j < width:
+            k: mutable i64 = 0
+            while k <= 9:
+                value: mutable i64 = 0
+                position: mutable i64 = 0
+                while position < width:
+                    value <- value * 10 + (if position == j then k else i)
+                    position <- position + 1
+                if is_prime(value, primes, prime_count):
+                    one_digit[i.usize()] <- true
+                    total <- total + value
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    i <- 1
+    while i <= 9:
+        if not one_digit[i.usize()]:
+            j: mutable i64 = 0
+            while j <= repeated_two:
+                k: mutable i64 = 0
+                while k <= repeated_two - j:
+                    m1: mutable i64 = 0
+                    while m1 <= 9:
+                        if m1 == 0 and j == 0:
+                            m1 <- m1 + 1
+                            continue
+                        m2: mutable i64 = 0
+                        while m2 <= 9:
+                            value: mutable i64 = 0
+                            position: mutable i64 = 0
+                            while position < width:
+                                digit: mutable i64 = i
+                                if position == j: digit <- m1
+                                else if position == j + k + 1: digit <- m2
+                                value <- value * 10 + digit
+                                position <- position + 1
+                            if is_prime(value, primes, prime_count): total <- total + value
+                            m2 <- m2 + 1
+                        m1 <- m1 + 1
+                    k <- k + 1
+                j <- j + 1
+        i <- i + 1
+    total
+
+export fn problem111(n: i64) -> i64 = problem111_impl

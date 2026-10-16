@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-138-special-isosceles-triangles-v1",
+  "algorithm": "problem138",
+  "function_symbol": "problem138",
+  "input": {
+    "kind": "count_of_pell_sequence_terms",
+    "minimum": 0,
+    "maximum": 14,
+    "negative_result": 0,
+    "above_maximum_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of the first count positive triangle lengths produced after skipping the initial non-triangle negative Pell solution."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_empty",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "first_triangle",
+      "input_value": 1,
+      "expected_result": 17
+    },
+    {
+      "id": "source_example_two",
+      "input_value": 2,
+      "expected_result": 322
+    },
+    {
+      "id": "source_example_five",
+      "input_value": 5,
+      "expected_result": 1866293
+    },
+    {
+      "id": "canonical_twelve",
+      "input_value": 12,
+      "expected_result": 1118049290473932
+    },
+    {
+      "id": "upper_supported",
+      "input_value": 14,
+      "expected_result": 360008399296352014
+    },
+    {
+      "id": "above_supported",
+      "input_value": 15,
+      "expected_result": -1
+    }
+  ]
+}

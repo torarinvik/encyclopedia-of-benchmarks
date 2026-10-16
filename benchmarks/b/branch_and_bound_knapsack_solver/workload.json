@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "branch-and-bound-knapsack-v1",
+  "algorithm": "branch_and_bound_knapsack_solver",
+  "function_symbol": "branch_and_bound_knapsack_solver",
+  "input": {
+    "kind": "bounded_i64_item_array",
+    "encoding": "[item_count, capacity, weight_0, value_0, ...]",
+    "maximum_items": 8,
+    "maximum_weight": 1000,
+    "maximum_value": 1000,
+    "maximum_capacity": 8000,
+    "item_weights": "positive integers",
+    "item_values": "positive integers"
+  },
+  "output": {
+    "kind": "selected_input_item_ids",
+    "success": "one byte per selected input index, in reverse stable density-sorted path order",
+    "result": "number of selected items",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "limits": {
+    "maximum_search_nodes": 511
+  },
+  "workspace": {
+    "bytes": 8
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_capacity",
+      "input_values": [
+        3,
+        0,
+        1,
+        8,
+        2,
+        9,
+        3,
+        10
+      ],
+      "input_length": 8,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_item",
+      "input_values": [
+        1,
+        5,
+        2,
+        9
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "item_over_capacity",
+      "input_values": [
+        1,
+        1,
+        2,
+        9
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fractional_upper_bound",
+      "input_values": [
+        4,
+        9,
+        6,
+        12,
+        5,
+        9,
+        4,
+        7,
+        3,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 2,
+      "expected_output_hex": "0201"
+    },
+    {
+      "id": "ascending_density_source_bug",
+      "input_values": [
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 8,
+      "expected_result": 1,
+      "expected_output_hex": "02"
+    },
+    {
+      "id": "stable_equal_density_tie",
+      "input_values": [
+        3,
+        3,
+        2,
+        4,
+        1,
+        2,
+        3,
+        6
+      ],
+      "input_length": 8,
+      "expected_result": 2,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "exact_capacity",
+      "input_values": [
+        3,
+        7,
+        4,
+        8,
+        3,
+        6,
+        2,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 2,
+      "expected_output_hex": "0100"
+    },
+    {
+      "id": "all_items_fit",
+      "input_values": [
+        4,
+        100,
+        8,
+        10,
+        2,
+        3,
+        5,
+        7,
+        1,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 4,
+      "expected_output_hex": "03000201"
+    },
+    {
+      "id": "choose_two_of_four",
+      "input_values": [
+        4,
+        10,
+        6,
+        30,
+        5,
+        25,
+        4,
+        20,
+        3,
+        14
+      ],
+      "input_length": 10,
+      "expected_result": 2,
+      "expected_output_hex": "0200"
+    },
+    {
+      "id": "infeasible_heavy_mix",
+      "input_values": [
+        4,
+        5,
+        6,
+        100,
+        7,
+        120,
+        2,
+        4,
+        2,
+        5
+      ],
+      "input_length": 10,
+      "expected_result": 2,
+      "expected_output_hex": "0203"
+    },
+    {
+      "id": "capacity_shortfall",
+      "input_values": [
+        2,
+        4,
+        3,
+        8,
+        4,
+        12
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "zero_output_capacity",
+      "input_values": [
+        2,
+        10,
+        2,
+        6,
+        3,
+        7
+      ],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 0
+    }
+  ]
+}

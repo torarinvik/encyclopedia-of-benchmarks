@@ -1,0 +1,8 @@
+#[derive(Clone,Copy)]struct Move{row:usize,col:usize,degree:usize}
+const DX:[i32;8]=[1,2,2,1,-1,-2,-2,-1];const DY:[i32;8]=[-2,-1,1,2,2,1,-1,-2];
+fn count_neighbors(b:&[[i32;8];8],r:i32,c:i32)->usize{let mut n=0;for i in 0..8{let y=r+DY[i];let x=c+DX[i];if y>=0&&y<8&&x>=0&&x<8&&b[y as usize][x as usize]==0{n+=1;}}n}
+fn neighbors(b:&[[i32;8];8],r:i32,c:i32)->([Move;8],usize){let mut out=[Move{row:0,col:0,degree:0};8];let mut n=0;for i in 0..8{let y=r+DY[i];let x=c+DX[i];if y>=0&&y<8&&x>=0&&x<8&&b[y as usize][x as usize]==0{out[n]=Move{row:y as usize,col:x as usize,degree:count_neighbors(b,y,x)};n+=1;}}for i in 1..n{let value=out[i];let mut j=i;while j>0&&out[j-1].degree>value.degree{out[j]=out[j-1];j-=1;}out[j]=value;}(out,n)}
+fn orphan(b:&[[i32;8];8],count:i32,r:i32,c:i32)->bool{if count<63{let(moves,n)=neighbors(b,r,c);for m in moves.iter().take(n){if count_neighbors(b,m.row as i32,m.col as i32)==0{return true;}}}false}
+fn solve(b:&mut[[i32;8];8],r:i32,c:i32,count:i32)->bool{if count>64{return true;}let(moves,n)=neighbors(b,r,c);if n==0&&count!=64{return false;}for m in moves.iter().take(n){b[m.row][m.col]=count;if !orphan(b,count,m.row as i32,m.col as i32)&&solve(b,m.row as i32,m.col as i32,count+1){return true;}b[m.row][m.col]=0;}false}
+unsafe fn put(out:*mut u8,i:usize,v:i64){let bits=v as u64;for b in 0..8{*out.add(i*8+b)=(bits>>(8*b))as u8;}}
+#[no_mangle]pub unsafe extern "C" fn knights_tour_warnsdorff_open(_input:*const i64,len:usize,out:*mut u8,cap:usize)->i64{if len!=0{return -1;}if out.is_null()||cap<512{return -2;}let mut board=[[0i32;8];8];board[0][0]=1;if !solve(&mut board,0,0,2){return -1;}let mut path=[0i64;64];for r in 0..8{for c in 0..8{path[(board[r][c]-1)as usize]=(r*8+c)as i64;}}for i in 0..64{put(out,i,path[i]);}512}

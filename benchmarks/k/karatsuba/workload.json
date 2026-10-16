@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "karatsuba-bounded-nonnegative-i64-array-scalar-v1",
+  "algorithm": "karatsuba",
+  "function_symbol": "karatsuba",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[left, right]",
+    "minimum_length": 2,
+    "maximum_length": 3,
+    "valid_length": 2,
+    "operand_range": [0, 1000000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 1000000000000,
+    "definition": "the exact product of the two valid operands"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"python_source_example","input_values":[15463,23489],"input_length":2,"expected_result":363210407},
+    {"id":"small_source_example","input_values":[3,9],"input_length":2,"expected_result":27},
+    {"id":"four_digit_operands","input_values":[1234,5678],"input_length":2,"expected_result":7006652},
+    {"id":"unequal_digit_lengths","input_values":[999,8888],"input_length":2,"expected_result":8879112},
+    {"id":"leading_zero_operand","input_values":[0,1000000],"input_length":2,"expected_result":0},
+    {"id":"max_operands","input_values":[1000000,1000000],"input_length":2,"expected_result":1000000000000},
+    {"id":"split_boundary","input_values":[999999,1000000],"input_length":2,"expected_result":999999000000},
+    {"id":"single_digit_by_large","input_values":[7,999999],"input_length":2,"expected_result":6999993},
+    {"id":"negative_operand_rejected","input_values":[-1,20],"input_length":2,"expected_result":-1},
+    {"id":"over_bound_operand_rejected","input_values":[1000001,20],"input_length":2,"expected_result":-1},
+    {"id":"short_shape_rejected","input_values":[42],"input_length":1,"expected_result":-1},
+    {"id":"extra_value_rejected","input_values":[42,7,0],"input_length":3,"expected_result":-1}
+  ]
+}

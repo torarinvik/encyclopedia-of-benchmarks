@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "coulombs-law-microcoulombs-millimeters-binary64-v1",
+  "algorithm": "coulombs_law",
+  "function_symbol": "coulombs_law",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": "[charge1_microcoulombs, charge2_microcoulombs, distance_millimeters]",
+    "required_length": 3,
+    "charge_range_microcoulombs": [
+      -1000000,
+      1000000
+    ],
+    "distance_range_millimeters": [
+      1,
+      1000000
+    ],
+    "input_modified": false,
+    "maximum_input_length": 3,
+    "invalid_input_result": -1e+300,
+    "charges_must_be_nonzero": true,
+    "charge_domain": "each charge is in [-1000000,-1] or [1,1000000] microcoulombs"
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "magnitude of the point-charge electrostatic force in newtons",
+    "coulombs_constant": 8987551792.3,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one_microcoulomb_at_one_meter",
+      "input_values": [
+        1,
+        1,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 0.0089875517923
+    },
+    {
+      "id": "one_microcoulomb_at_one_millimeter",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 8987.5517923
+    },
+    {
+      "id": "opposite_sign_charges_magnitude",
+      "input_values": [
+        100,
+        -200,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 179.75103584599998
+    },
+    {
+      "id": "two_negative_charges",
+      "input_values": [
+        -50,
+        -80,
+        250
+      ],
+      "input_length": 3,
+      "expected_result": 575.2033147072
+    },
+    {
+      "id": "small_nonzero_first_charge",
+      "input_values": [
+        1,
+        -900000,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 80887966.13069998
+    },
+    {
+      "id": "double_charge_scales_force",
+      "input_values": [
+        2,
+        3,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 0.0539253107538
+    },
+    {
+      "id": "double_distance_quarters_force",
+      "input_values": [
+        100,
+        200,
+        2000
+      ],
+      "input_length": 3,
+      "expected_result": 44.937758961499995
+    },
+    {
+      "id": "maximum_charges_minimum_distance",
+      "input_values": [
+        1000000,
+        -1000000,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 8987551792300000.0
+    },
+    {
+      "id": "maximum_distance",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": 8987.551792299999
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "input_too_short",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "input_too_long",
+      "input_values": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "first_charge_above_limit",
+      "input_values": [
+        1000001,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "second_charge_below_limit",
+      "input_values": [
+        1,
+        -1000001,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_distance",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_distance",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "distance_above_limit",
+      "input_values": [
+        1,
+        1,
+        1000001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_first_charge",
+      "input_values": [
+        0,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_second_charge",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

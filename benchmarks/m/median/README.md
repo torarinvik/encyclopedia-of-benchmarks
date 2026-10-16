@@ -27,3 +27,4 @@ The ports use the same bounded insertion-sort baseline in C, C3, C++, Elisa, Nim
 - [TheAlgorithms/Julia average_median.jl](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/average_median.jl)
 - [TheAlgorithms/Python average_median.py](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/average_median.py)
 - [TheAlgorithms/Ruby average_median.rb](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/average_median.rb)
+- [TheAlgorithms/Haskell `Center.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Statistics/Center.hs), with list and vector variants that sort before selecting the center or averaging the middle pair.

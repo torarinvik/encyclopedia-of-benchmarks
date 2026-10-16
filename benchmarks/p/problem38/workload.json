@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-38-scalar-v1",
+  "algorithm": "problem38",
+  "function_symbol": "problem38",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "placeholder_value": 0,
+    "meaning": "zero represents the pinned no-argument source function",
+    "other_values_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "other_values_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "no_argument_source", "input_value": 0, "expected_result": 932718654},
+    {"id": "negative_placeholder", "input_value": -1, "expected_result": -1},
+    {"id": "nonzero_placeholder", "input_value": 1, "expected_result": -1}
+  ]
+}

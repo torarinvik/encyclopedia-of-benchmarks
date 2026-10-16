@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-2-scalar-v1",
+  "algorithm": "problem2",
+  "function_symbol": "problem2",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 4000000],
+    "meaning": "sum even Fibonacci terms strictly below limit, sequence starts 1,2",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"zero_limit","input_value":0,"expected_result":0},
+    {"id":"one_limit","input_value":1,"expected_result":0},
+    {"id":"two_limit_excludes_two","input_value":2,"expected_result":0},
+    {"id":"first_even_fibonacci_included","input_value":3,"expected_result":2},
+    {"id":"strictly_below_eight","input_value":8,"expected_result":2},
+    {"id":"eight_included","input_value":9,"expected_result":10},
+    {"id":"strictly_below_thirty_four","input_value":34,"expected_result":10},
+    {"id":"thirty_four_included","input_value":35,"expected_result":44},
+    {"id":"one_hundred_forty_four_included","input_value":145,"expected_result":188},
+    {"id":"one_thousand","input_value":1000,"expected_result":798},
+    {"id":"one_million","input_value":1000000,"expected_result":1089154},
+    {"id":"project_euler_instance","input_value":4000000,"expected_result":4613732},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":4000001,"expected_result":-1}
+  ]
+}

@@ -14,8 +14,10 @@ This benchmark tests whether an integer is prime with the Miller–Rabin strong 
 - [C++ `math/miller_rabin.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/miller_rabin.cpp)
 - [Rust `src/math/miller_rabin.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/miller_rabin.rs)
 - [Additional C++ repository `math/miller_rabin.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/miller_rabin.cpp)
+- [Python `ciphers/rabin_miller.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rabin_miller.py)
+- [Python `ciphers/deterministic_miller_rabin.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/deterministic_miller_rabin.py)
 
-The C++ source uses random witnesses and the Rust source accepts the witness list as an argument. Their return conventions also differ. This benchmark fixes the bases and uses a shared boolean result so all nine ports perform the same deterministic test.
+The C++ and `rabin_miller.py` sources use random witnesses, while the Rust source accepts the witness list as an argument. The deterministic Python source selects a threshold-dependent prefix of prime bases; its prefix returns the same deterministic classification as `[2, 3, 5, 7]` over this benchmark's signed 32-bit domain. The randomized Python source also screens small primes before its five rounds. Witness choices and return conventions differ, so this benchmark fixes the bases and uses a shared boolean result. The raw Python `rabin_miller` primitive is undefined below 3; the benchmark's input guard returns before invoking the primality test for values below 2.
 
 ## Workload and verification
 

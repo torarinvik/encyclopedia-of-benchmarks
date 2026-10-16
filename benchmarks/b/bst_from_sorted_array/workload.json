@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "bst-from-sorted-array-lower-midpoint-shape-i64-v1",
+  "algorithm": "bst_from_sorted_array",
+  "function_symbol": "bst_from_sorted_array",
+  "input": {
+    "kind": "strictly_increasing_signed_i32_array",
+    "maximum_values": 15,
+    "malformed_input_result": -1
+  },
+  "output": {
+    "kind": "occupied_heap_index_bitset",
+    "root_index": 0,
+    "left_child_index": "2 * parent + 1",
+    "right_child_index": "2 * parent + 2",
+    "malformed_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "expected_result": 0},
+    {"id": "singleton", "input_values": [42], "expected_result": 1},
+    {"id": "two_values_lower_midpoint", "input_values": [1, 2], "expected_result": 5},
+    {"id": "three_values", "input_values": [1, 2, 3], "expected_result": 7},
+    {"id": "four_values_lower_midpoint", "input_values": [1, 2, 3, 4], "expected_result": 71},
+    {"id": "negative_values", "input_values": [-9, -4, -1], "expected_result": 7},
+    {"id": "signed_i32_boundaries", "input_values": [-2147483648, -1, 2147483647], "expected_result": 7},
+    {"id": "maximum_length", "input_values": [-14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14], "expected_result": 32767},
+    {"id": "too_many_values", "input_values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "expected_result": -1},
+    {"id": "duplicate_values", "input_values": [1, 2, 2, 3], "expected_result": -1},
+    {"id": "descending_values", "input_values": [3, 2, 1], "expected_result": -1},
+    {"id": "below_i32", "input_values": [-2147483649], "expected_result": -1},
+    {"id": "above_i32", "input_values": [2147483648], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,53 @@
+def is_squarefree(number: i64) -> bool:
+    copy: mutable i64 = number
+    divisor: mutable i64 = 2
+    while divisor * divisor <= copy:
+        multiplicity: mutable i64 = 0
+        while copy % divisor == 0:
+            copy <- copy / divisor
+            multiplicity <- multiplicity + 1
+        if multiplicity >= 2: return false
+        divisor <- divisor + 1
+    true
+
+def problem203_impl(depth: i64) -> i64:
+    if depth > 51: return -1
+    row: mutable i64[51] = zeroed
+    row[0] <- 1
+    values: mutable i64[1326] = zeroed
+    values[0] <- 1
+    count: mutable i64 = 1
+    row_length: mutable i64 = 1
+    row_index: mutable i64 = 2
+    while row_index <= depth:
+        row[row_length.usize()] <- 1
+        col: mutable i64 = row_length - 1
+        while col > 0:
+            row[col.usize()] <- row[col.usize()] + row[(col - 1).usize()]
+            col <- col - 1
+        row[0] <- 1
+        row_length <- row_length + 1
+        col <- 0
+        while col < row_length:
+            values[count.usize()] <- row[col.usize()]
+            count <- count + 1
+            col <- col + 1
+        row_index <- row_index + 1
+    i: mutable i64 = 1
+    while i < count:
+        value: i64 = values[i.usize()]
+        j: mutable i64 = i
+        while j > 0 and values[(j - 1).usize()] > value:
+            values[j.usize()] <- values[(j - 1).usize()]
+            j <- j - 1
+        values[j.usize()] <- value
+        i <- i + 1
+    total: mutable i64 = 0
+    i <- 0
+    while i < count:
+        if i == 0 or values[i.usize()] != values[(i - 1).usize()]:
+            if is_squarefree(values[i.usize()]): total <- total + values[i.usize()]
+        i <- i + 1
+    total
+
+export fn problem203(depth: i64) -> i64 = problem203_impl

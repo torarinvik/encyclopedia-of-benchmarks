@@ -1,0 +1,100 @@
+const MAX_NODES: usize = 64
+const MAX_EDGES: usize = 94
+const MAX_INPUT_LENGTH: usize = 4 + MAX_NODES + 2 * MAX_EDGES
+const MAX_OUTPUT_BYTES: usize = 128
+
+def depth_first_search_target_route_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 5 or length > MAX_INPUT_LENGTH:
+        return -2
+    node_count_value: i64 = values[0]
+    start_label: i64 = values[1]
+    target_label: i64 = values[2]
+    if node_count_value < 1 or node_count_value > MAX_NODES.i64() or start_label < 0 or start_label > 255 or target_label < 0 or target_label > 255:
+        return -2
+    node_count: usize = node_count_value.usize()
+    edge_count_position: usize = 3 + node_count
+    if edge_count_position >= length:
+        return -2
+
+    labels: mutable i64[64] = zeroed
+    start_index: mutable usize = node_count
+    index: mutable usize = 0
+    while index < node_count:
+        label: i64 = values[3 + index]
+        if label < 0 or label > 255:
+            return -2
+        prior: usize = 0
+        while prior < index:
+            if labels[prior] == label:
+                return -2
+            prior <- prior + 1
+        labels[index] <- label
+        if label == start_label:
+            start_index <- index
+        index <- index + 1
+    if start_index == node_count:
+        return -2
+
+    edge_count_value: i64 = values[edge_count_position]
+    if edge_count_value < 0 or edge_count_value > MAX_EDGES.i64():
+        return -2
+    edge_count: usize = edge_count_value.usize()
+    if length != edge_count_position + 1 + 2 * edge_count:
+        return -2
+
+    adjacency: mutable u64[64] = zeroed
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left_label: i64 = values[edge_count_position + 1 + 2 * edge]
+        right_label: i64 = values[edge_count_position + 2 + 2 * edge]
+        left: mutable usize = node_count
+        right: mutable usize = node_count
+        index <- 0
+        while index < node_count:
+            if labels[index] == left_label:
+                left <- index
+            if labels[index] == right_label:
+                right <- index
+            index <- index + 1
+        if left == node_count or right == node_count:
+            return -2
+        adjacency[left] <- adjacency[left] | (1.u64() << right)
+        adjacency[right] <- adjacency[right] | (1.u64() << left)
+        edge <- edge + 1
+
+    stack: mutable usize[64] = zeroed
+    stack_count: mutable usize = 1
+    stack[0] <- start_index
+    route: mutable u8[128] = zeroed
+    route_count: mutable usize = 0
+    while stack_count != 0:
+        stack_count <- stack_count - 1
+        current: usize = stack[stack_count]
+        if route_count == MAX_OUTPUT_BYTES:
+            return -2
+        route[route_count] <- labels[current].u8()
+        route_count <- route_count + 1
+        neighbor: mutable usize = 0
+        while neighbor < node_count:
+            bit: u64 = 1.u64() << neighbor
+            if (adjacency[current] & bit) != 0:
+                pending: mutable usize = 0
+                while pending < stack_count and stack[pending] != neighbor:
+                    pending <- pending + 1
+                if pending == stack_count:
+                    stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+            adjacency[current] <- adjacency[current] & ~bit
+            adjacency[neighbor] <- adjacency[neighbor] & ~(1.u64() << current)
+            neighbor <- neighbor + 1
+        if labels[current] == target_label:
+            if output_capacity < route_count or (route_count != 0 and output.is_null()):
+                return -2
+            index <- 0
+            while index < route_count:
+                output[index] <- route[index]
+                index <- index + 1
+            return route_count.i64()
+    0
+
+export fn depth_first_search_target_route(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = depth_first_search_target_route_impl

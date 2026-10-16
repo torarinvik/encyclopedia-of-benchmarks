@@ -1,0 +1,15 @@
+# Match the pinned MATLAB to_polar angle formula in degrees.
+extern atan(value: f64) -> f64
+const PI: f64 = 3.141592653589793238462643383279502884
+
+def to_polar_angle_degrees_impl(x: f64, y: f64) -> f64:
+    if x != x or y != y or x < -1000000.0 or x > 1000000.0 or y < -1000000.0 or y > 1000000.0 or (x == 0.0 and y == 0.0):
+        return -1.0e300
+    theta: f64 = 0.0
+    if x >= 0.0:
+        theta = atan(y / x)
+    else:
+        theta = atan(y / x) + PI
+    theta * (180.0 / PI)
+
+export fn to_polar_angle_degrees(x: f64, y: f64) -> f64 = to_polar_angle_degrees_impl

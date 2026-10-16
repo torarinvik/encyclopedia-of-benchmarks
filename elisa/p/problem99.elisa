@@ -1,0 +1,32 @@
+extern log10(value: f64) -> f64
+
+const MAX_PAIR_COUNT: usize = 1000
+const MAX_BASE: i64 = 1000000
+const MAX_EXPONENT: i64 = 1200000
+
+def problem99_impl(input: i64&, length: usize) -> i64:
+    if length < 1:
+        return -1
+    pair_count_value: i64 = input[0]
+    if pair_count_value < 0 or pair_count_value > MAX_PAIR_COUNT.i64():
+        return -1
+    pair_count: usize = pair_count_value.usize()
+    if length != 1 + 2 * pair_count:
+        return -1
+
+    largest: mutable f64 = 0.0
+    result: mutable i64 = 0
+    index: mutable usize = 0
+    while index < pair_count:
+        base: i64 = input[1 + 2 * index]
+        exponent: i64 = input[2 + 2 * index]
+        if base < 1 or base > MAX_BASE or exponent < 0 or exponent > MAX_EXPONENT:
+            return -1
+        value: f64 = exponent.f64() * log10(base.f64())
+        if value > largest:
+            largest <- value
+            result <- index.i64() + 1
+        index <- index + 1
+    result
+
+export fn problem99(input: i64&, length: usize) -> i64 = problem99_impl

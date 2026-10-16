@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-135-scalar-v1",
+  "algorithm": "problem135",
+  "function_symbol": "problem135",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": -9223372036854775808,
+    "maximum": 1000000,
+    "meaning": "inclusive upper bound used by the pinned source's scans",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of positive values at most the limit with exactly ten source-valid arithmetic-progression solutions",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "negative_limit_empty_source_ranges",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "source_least_value_1155_before_inclusive_boundary",
+      "input_value": 1154,
+      "expected_result": 0
+    },
+    {
+      "id": "source_least_value_1155_inclusive",
+      "input_value": 1155,
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_one_hundred",
+      "input_value": 100,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_ten_thousand",
+      "input_value": 10000,
+      "expected_result": 45
+    },
+    {
+      "id": "source_example_fifty_thousand_fifty",
+      "input_value": 50050,
+      "expected_result": 292
+    },
+    {
+      "id": "source_default_one_million_inclusive",
+      "input_value": 1000000,
+      "expected_result": 4989
+    },
+    {
+      "id": "above_benchmark_domain",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ]
+}

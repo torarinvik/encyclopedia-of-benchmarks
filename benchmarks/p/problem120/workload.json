@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-120-square-remainders-v1",
+  "algorithm": "problem120",
+  "function_symbol": "problem120",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 1000],
+    "meaning": "inclusive upper bound for a in the square-remainder sum",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of maximum remainders for a from 3 through the inclusive bound"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "zero_bound", "input_value": 0, "expected_result": 0},
+    {"id": "below_first_a", "input_value": 2, "expected_result": 0},
+    {"id": "first_term_a_three", "input_value": 3, "expected_result": 6},
+    {"id": "source_example_ten", "input_value": 10, "expected_result": 300},
+    {"id": "source_example_one_hundred", "input_value": 100, "expected_result": 330750},
+    {"id": "canonical_one_thousand", "input_value": 1000, "expected_result": 333082500},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_limit", "input_value": 1001, "expected_result": -1}
+  ]
+}

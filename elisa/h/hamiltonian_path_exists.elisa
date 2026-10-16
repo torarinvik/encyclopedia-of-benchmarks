@@ -1,0 +1,33 @@
+const MAX_VERTICES: usize = 8
+const MAX_STATES: usize = 256
+
+def hamiltonian_path_exists_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 65: return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 8: return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * n: return -1
+    routes: mutable i64[MAX_VERTICES] = zeroed
+    for row in 0..<n:
+        for col in 0..<n:
+            cell: i64 = input[1 + row * n + col]
+            if cell != 0 and cell != 1: return -1
+            if cell == 1: routes[row] <- routes[row] | (1 << col)
+    dp: mutable i64[MAX_STATES * MAX_VERTICES] = zeroed
+    for start in 0..<n:
+        dp[(1 << start) * MAX_VERTICES + start] <- 1
+    state_count: usize = (1 << n).usize()
+    full: usize = state_count - 1
+    for subset in 1..<state_count:
+        for last in 0..<n:
+            if dp[subset * MAX_VERTICES + last] == 0:
+                continue
+            for next in 0..<n:
+                bit: usize = (1 << next).usize()
+                if (subset & bit) == 0 and (routes[last] & (1 << next)) != 0:
+                    dp[(subset | bit) * MAX_VERTICES + next] <- 1
+    for last in 0..<n:
+        if dp[full * MAX_VERTICES + last] != 0: return 1
+    0
+
+export fn hamiltonian_path_exists(input: i64&, length: usize) -> i64 = hamiltonian_path_exists_impl

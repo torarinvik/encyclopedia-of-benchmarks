@@ -1,0 +1,44 @@
+const MIN_VALUE: f64 = 1e-6
+const MAX_VALUE: f64 = 1e6
+const FRACTION_SCALE: f64 = 4503599627370496.0
+const FRACTION_MASK: u64 = 4503599627370495
+const MAGIC: u64 = 0x5fe6eb50c7b537a9
+
+# Elisa has no f64 bit reinterpret cast. Decode and encode normal positive
+# binary64 fields arithmetically; the contract keeps both values normal.
+def positive_f64_bits(value: f64) -> u64:
+    normalized: mutable f64 = value
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u64 = ((normalized - 1.0) * FRACTION_SCALE).u64()
+    ((exponent + 1023).u64() << 52) | fraction
+
+def positive_f64_from_bits(bits: u64) -> f64:
+    exponent_bits: i32 = ((bits >> 52) & 2047).i32()
+    fraction_bits: u64 = bits & FRACTION_MASK
+    value: mutable f64 = 1.0 + fraction_bits.f64() / FRACTION_SCALE
+    exponent: mutable i32 = exponent_bits - 1023
+    while exponent > 0:
+        value <- value * 2.0
+        exponent <- exponent - 1
+    while exponent < 0:
+        value <- value / 2.0
+        exponent <- exponent + 1
+    value
+
+def fast_inverse_sqrt_cpp_impl(value: f64) -> f64:
+    if value != value or value < MIN_VALUE or value > MAX_VALUE: return -1.0
+    y: f64 = value
+    x2: f64 = y * 0.5
+    bits: u64 = positive_f64_bits(y)
+    y <- positive_f64_from_bits(MAGIC - (bits >> 1))
+    y <- y * (1.5 - (x2 * y * y))
+    y <- y * (1.5 - (x2 * y * y))
+    y
+
+export fn fast_inverse_sqrt_cpp(value: f64) -> f64 = fast_inverse_sqrt_cpp_impl

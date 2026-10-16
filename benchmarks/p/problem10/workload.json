@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-10-scalar-v1",
+  "algorithm": "problem10",
+  "function_symbol": "problem10",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 2000000],
+    "meaning": "exclusive upper bound for prime summation",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"zero_limit","input_value":0,"expected_result":0},
+    {"id":"one_limit","input_value":1,"expected_result":0},
+    {"id":"two_limit_excludes_two","input_value":2,"expected_result":0},
+    {"id":"below_ten","input_value":10,"expected_result":17},
+    {"id":"below_one_thousand","input_value":1000,"expected_result":76127},
+    {"id":"canonical_two_million_limit","input_value":2000000,"expected_result":142913828922},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":2000001,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,76 @@
+const MAX_NAMES: usize = 6000
+const MAX_NAME_LENGTH: usize = 19
+const MAX_INPUT_LENGTH: usize = 100001
+
+def problem22_compare(input: i64&, offsets: mutable usize&, name_lengths: mutable usize&,
+        first: usize, second: usize) -> i64:
+    first_length: usize = name_lengths[first]
+    second_length: usize = name_lengths[second]
+    shared_length: mutable usize = first_length
+    if second_length < shared_length:
+        shared_length <- second_length
+    for index in 0..<shared_length:
+        first_letter: i64 = input[offsets[first] + index]
+        second_letter: i64 = input[offsets[second] + index]
+        if first_letter < second_letter:
+            return -1
+        if first_letter > second_letter:
+            return 1
+    if first_length < second_length:
+        return -1
+    if first_length > second_length:
+        return 1
+    0
+
+def problem22_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > 6000:
+        return -1
+    count: usize = input[0].usize()
+    offsets: mutable usize[6000] = zeroed
+    name_lengths: mutable usize[6000] = zeroed
+    order: mutable usize[6000] = zeroed
+    cursor: mutable usize = 1
+    for name in 0..<count:
+        if cursor >= length:
+            return -1
+        raw_name_length: i64 = input[cursor]
+        cursor <- cursor + 1
+        if raw_name_length < 1 or raw_name_length > 19:
+            return -1
+        name_length: usize = raw_name_length.usize()
+        if name_length > length - cursor:
+            return -1
+        offsets[name] <- cursor
+        name_lengths[name] <- name_length
+        for letter in 0..<name_length:
+            value: i64 = input[cursor + letter]
+            if value < 1 or value > 26:
+                return -1
+        cursor <- cursor + name_length
+        order[name] <- name
+    if cursor != length:
+        return -1
+
+    gaps: usize[8] = [701, 301, 132, 57, 23, 10, 4, 1]
+    for gap_index in 0..<8:
+        gap: usize = gaps[gap_index]
+        if gap >= count:
+            continue
+        for index in gap..<count:
+            key: usize = order[index]
+            position: mutable usize = index
+            while position >= gap and problem22_compare(input, &offsets[0], &name_lengths[0], order[position - gap], key) > 0:
+                order[position] <- order[position - gap]
+                position <- position - gap
+            order[position] <- key
+
+    total: mutable i64 = 0
+    for position in 0..<count:
+        name: usize = order[position]
+        score: mutable i64 = 0
+        for letter in 0..<name_lengths[name]:
+            score <- score + input[offsets[name] + letter]
+        total <- total + (position.i64() + 1) * score
+    total
+
+export fn problem22(input: i64&, length: usize) -> i64 = problem22_impl

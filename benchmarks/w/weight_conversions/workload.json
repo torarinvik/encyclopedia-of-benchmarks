@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "id": "ruby-weight-conversions-integer-text-v1",
+  "algorithm": "weight_conversions",
+  "function_symbol": "weight_conversions",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation_code, integer_amount]",
+    "operation_codes": {
+      "0": "kilogram_to_gram",
+      "1": "gram_to_kilogram",
+      "2": "pound_to_ounce",
+      "3": "ounce_to_pound",
+      "4": "kilogram_to_pound",
+      "5": "pound_to_kilogram"
+    },
+    "amount_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "NUL_terminated_ASCII_text",
+    "encoding": "The formatted conversion string returned by the pinned Ruby method.",
+    "successful_result": "Payload byte length, excluding the NUL terminator."
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum output capacity including the NUL terminator."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "source-kilogram-to-gram",
+      "input_values": [
+        0,
+        2
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "32206b67203d2032303030206700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "source-gram-to-kilogram",
+      "input_values": [
+        1,
+        3000
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "333030302067203d2033206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "source-pound-to-ounce",
+      "input_values": [
+        2,
+        16
+      ],
+      "expected_result": 14,
+      "expected_output_hex": "3136206c62203d20323536206f7a00",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "source-ounce-to-pound",
+      "input_values": [
+        3,
+        16
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "3136206f7a203d2031206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "source-kilogram-to-pound",
+      "input_values": [
+        4,
+        1
+      ],
+      "expected_result": 14,
+      "expected_output_hex": "31206b67203d20322e3231206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "source-pound-to-kilogram",
+      "input_values": [
+        5,
+        100
+      ],
+      "expected_result": 17,
+      "expected_output_hex": "313030206c62203d2034352e3335206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "gram-negative-floor",
+      "input_values": [
+        1,
+        -1
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "2d312067203d202d31206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "gram-negative-nonmultiple",
+      "input_values": [
+        1,
+        -1001
+      ],
+      "expected_result": 15,
+      "expected_output_hex": "2d313030312067203d202d32206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "ounce-negative-floor",
+      "input_values": [
+        3,
+        -1
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "2d31206f7a203d202d31206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "ounce-negative-nonmultiple",
+      "input_values": [
+        3,
+        -17
+      ],
+      "expected_result": 14,
+      "expected_output_hex": "2d3137206f7a203d202d32206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "kilogram-negative-rounding",
+      "input_values": [
+        4,
+        -1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "2d31206b67203d202d322e3231206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "pound-negative-rounding",
+      "input_values": [
+        5,
+        -1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "2d31206c62203d202d302e3435206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "kilogram-zero-format",
+      "input_values": [
+        4,
+        0
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "30206b67203d20302e30206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "pound-zero-format",
+      "input_values": [
+        5,
+        0
+      ],
+      "expected_result": 13,
+      "expected_output_hex": "30206c62203d20302e30206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "kilogram-one-decimal",
+      "input_values": [
+        4,
+        100
+      ],
+      "expected_result": 17,
+      "expected_output_hex": "313030206b67203d203232302e35206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "pound-two-decimals",
+      "input_values": [
+        5,
+        1
+      ],
+      "expected_result": 14,
+      "expected_output_hex": "31206c62203d20302e3435206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "negative-one-decimal",
+      "input_values": [
+        4,
+        -100
+      ],
+      "expected_result": 19,
+      "expected_output_hex": "2d313030206b67203d202d3232302e35206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op0-minimum",
+      "input_values": [
+        0,
+        -1000000
+      ],
+      "expected_result": 27,
+      "expected_output_hex": "2d31303030303030206b67203d202d31303030303030303030206700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op0-maximum",
+      "input_values": [
+        0,
+        1000000
+      ],
+      "expected_result": 25,
+      "expected_output_hex": "31303030303030206b67203d2031303030303030303030206700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op1-minimum",
+      "input_values": [
+        1,
+        -1000000
+      ],
+      "expected_result": 21,
+      "expected_output_hex": "2d313030303030302067203d202d31303030206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op1-maximum",
+      "input_values": [
+        1,
+        1000000
+      ],
+      "expected_result": 19,
+      "expected_output_hex": "313030303030302067203d2031303030206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op2-minimum",
+      "input_values": [
+        2,
+        -1000000
+      ],
+      "expected_result": 26,
+      "expected_output_hex": "2d31303030303030206c62203d202d3136303030303030206f7a00",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op2-maximum",
+      "input_values": [
+        2,
+        1000000
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "31303030303030206c62203d203136303030303030206f7a00",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op3-minimum",
+      "input_values": [
+        3,
+        -1000000
+      ],
+      "expected_result": 23,
+      "expected_output_hex": "2d31303030303030206f7a203d202d3632353030206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op3-maximum",
+      "input_values": [
+        3,
+        1000000
+      ],
+      "expected_result": 21,
+      "expected_output_hex": "31303030303030206f7a203d203632353030206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op4-minimum",
+      "input_values": [
+        4,
+        -1000000
+      ],
+      "expected_result": 27,
+      "expected_output_hex": "2d31303030303030206b67203d202d323230353030302e30206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op4-maximum",
+      "input_values": [
+        4,
+        1000000
+      ],
+      "expected_result": 25,
+      "expected_output_hex": "31303030303030206b67203d20323230353030302e30206c6200",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op5-minimum",
+      "input_values": [
+        5,
+        -1000000
+      ],
+      "expected_result": 27,
+      "expected_output_hex": "2d31303030303030206c62203d202d3435333531342e3734206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "op5-maximum",
+      "input_values": [
+        5,
+        1000000
+      ],
+      "expected_result": 25,
+      "expected_output_hex": "31303030303030206c62203d203435333531342e3734206b6700",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-short",
+      "input_values": [
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-long",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-operation-negative",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-operation-large",
+      "input_values": [
+        6,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-amount-below-minimum",
+      "input_values": [
+        0,
+        -1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "invalid-amount-above-maximum",
+      "input_values": [
+        5,
+        1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 64
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [
+        4,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 4
+    }
+  ]
+}

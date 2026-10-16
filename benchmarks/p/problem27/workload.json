@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-27-scalar-v1",
+  "algorithm": "problem27",
+  "function_symbol": "problem27",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 1000],
+    "meaning": "exclusive bound for both the absolute a coefficient range and positive b coefficients",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "product a*b for the first coefficient pair with the longest consecutive prime run"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "no_b_candidates_at_one", "input_value": 1, "expected_result": 0},
+    {"id": "no_b_candidates_at_two", "input_value": 2, "expected_result": 0},
+    {"id": "first_two_coefficient_values", "input_value": 3, "expected_result": -2},
+    {"id": "canonical_limit", "input_value": 1000, "expected_result": -59231},
+    {"id": "zero_limit", "input_value": 0, "expected_result": -1},
+    {"id": "above_maximum_limit", "input_value": 1001, "expected_result": -1}
+  ]
+}

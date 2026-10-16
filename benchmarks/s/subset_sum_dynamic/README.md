@@ -1,6 +1,6 @@
 # Subset Sum Dynamic Programming
 
-This package ports the pinned C++ `subset_sum_problem` implementation, which decides whether any indexed subset reaches a target. It uses top-down recursion with memoization keyed by the current item index and remaining target.
+This package ports the pinned C++ `subset_sum_problem` implementation and the C-Plus-Plus-1 `dynamic_programming/subset_sum.cpp` variant. Both decide whether an indexed subset reaches a target with top-down include/exclude recursion and memoization keyed by item index and remaining target.
 
 ## Contract
 
@@ -30,3 +30,4 @@ The bounded state keeps the memo table small while including signed targets and 
 ## Upstream source
 
 - [TheAlgorithms/C-Plus-Plus `subset_sum_dynamic.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/subset_sum_dynamic.cpp)
+- [TheAlgorithms/C-Plus-Plus-1 `subset_sum.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/subset_sum.cpp)

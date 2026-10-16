@@ -1,0 +1,20 @@
+# Return the final term of a bounded N-bonacci sequence.
+def n_bonacci_impl(values: i64&, length: usize) -> i64:
+    if length != 2:
+        return -1
+    order_value: i64 = values[0]
+    count_value: i64 = values[1]
+    if order_value < 1 or count_value <= order_value or count_value > 64:
+        return -1
+    order: usize = order_value.usize()
+    count: usize = count_value.usize()
+    terms: mutable i64[64] = zeroed
+    terms[order - 1] <- 1
+    terms[order] <- 1
+    index: mutable usize = order + 1
+    while index < count:
+        terms[index] <- 2 * terms[index - 1] - terms[index - 1 - order]
+        index <- index + 1
+    terms[count - 1]
+
+export fn n_bonacci(values: i64&, length: usize) -> i64 = n_bonacci_impl

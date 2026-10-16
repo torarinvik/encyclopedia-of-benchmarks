@@ -10,18 +10,24 @@ The output contains `n` real components as signed 64-bit integers. Each componen
 
 The workload covers the pinned four-bin Rust example, a singleton, conjugate-symmetric and general complex inputs, DC-only and alternating-frequency signals, the maximum length, and malformed dimensions and components.
 
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm inverse_fast_fourier_transform --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm inverse_fast_fourier_transform
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm inverse_fast_fourier_transform --languages rust
+```
+
 ## Pinned source and ports
 
 - Rust [`fast_fourier_transform.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_fourier_transform.rs)
 
 | Language | Source |
 | --- | --- |
-| C | [`c/f/inverse_fast_fourier_transform.c`](../../../c/f/inverse_fast_fourier_transform.c) |
-| C3 | [`c3/f/inverse_fast_fourier_transform.c3`](../../../c3/f/inverse_fast_fourier_transform.c3) |
-| C++ | [`cpp/f/inverse_fast_fourier_transform.cpp`](../../../cpp/f/inverse_fast_fourier_transform.cpp) |
-| Elisa | [`elisa/f/inverse_fast_fourier_transform.elisa`](../../../elisa/f/inverse_fast_fourier_transform.elisa) |
-| Nim | [`nim/f/inverse_fast_fourier_transform.nim`](../../../nim/f/inverse_fast_fourier_transform.nim) |
-| Odin | [`odin/f/inverse_fast_fourier_transform.odin`](../../../odin/f/inverse_fast_fourier_transform.odin) |
-| Rust | [`rust/f/inverse_fast_fourier_transform.rs`](../../../rust/f/inverse_fast_fourier_transform.rs) |
-| V | [`v/f/inverse_fast_fourier_transform.v`](../../../v/f/inverse_fast_fourier_transform.v) |
-| Zig | [`zig/f/inverse_fast_fourier_transform.zig`](../../../zig/f/inverse_fast_fourier_transform.zig) |
+| C | [`c/i/inverse_fast_fourier_transform.c`](../../../c/i/inverse_fast_fourier_transform.c) |
+| C3 | [`c3/i/inverse_fast_fourier_transform.c3`](../../../c3/i/inverse_fast_fourier_transform.c3) |
+| C++ | [`cpp/i/inverse_fast_fourier_transform.cpp`](../../../cpp/i/inverse_fast_fourier_transform.cpp) |
+| Elisa | [`elisa/i/inverse_fast_fourier_transform.elisa`](../../../elisa/i/inverse_fast_fourier_transform.elisa) |
+| Nim | [`nim/i/inverse_fast_fourier_transform.nim`](../../../nim/i/inverse_fast_fourier_transform.nim) |
+| Odin | [`odin/i/inverse_fast_fourier_transform.odin`](../../../odin/i/inverse_fast_fourier_transform.odin) |
+| Rust | [`rust/i/inverse_fast_fourier_transform.rs`](../../../rust/i/inverse_fast_fourier_transform.rs) |
+| V | [`v/i/inverse_fast_fourier_transform.v`](../../../v/i/inverse_fast_fourier_transform.v) |
+| Zig | [`zig/i/inverse_fast_fourier_transform.zig`](../../../zig/i/inverse_fast_fourier_transform.zig) |

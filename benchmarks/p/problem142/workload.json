@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-142-scalar-v1",
+  "algorithm": "problem142",
+  "function_symbol": "problem142",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 1,
+    "maximum": 3,
+    "meaning": "requested number of terms for the documented 1-, 2-, and 3-term cases",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Special-case result for one/two terms or the minimum three-square-collection sum from the source's bounded search",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_one_term_special_case",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "source_two_term_special_case",
+      "input_value": 2,
+      "expected_result": 9
+    },
+    {
+      "id": "source_default_three_term_search",
+      "input_value": 3,
+      "expected_result": 1006193
+    },
+    {
+      "id": "zero_terms_outside_benchmark_domain",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "four_terms_outside_benchmark_domain",
+      "input_value": 4,
+      "expected_result": -1
+    }
+  ]
+}

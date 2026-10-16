@@ -1,0 +1,44 @@
+extern floor(value: f64) -> f64
+
+const max_string_length: usize = 128
+const alphabet_size: usize = 95
+const invalid_result: f64 = -1.0e300
+
+def dice_coefficient_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 2: return invalid_result
+    len_a_raw: i64 = values[0]
+    len_b_raw: i64 = values[1]
+    if len_a_raw < 0 or len_a_raw > 128 or len_b_raw < 0 or len_b_raw > 128: return invalid_result
+    len_a: usize = len_a_raw.usize()
+    len_b: usize = len_b_raw.usize()
+    if length != 2 + len_a + len_b: return invalid_result
+    i: mutable usize = 0
+    while i < len_a + len_b:
+        if values[2+i] < 32 or values[2+i] > 126: return invalid_result
+        i <- i + 1
+    equal: mutable bool = len_a == len_b
+    i <- 0
+    while equal and i < len_a:
+        if values[2+i] != values[2+len_a+i]: equal <- false
+        i <- i + 1
+    if equal: return 1.0
+    if len_a < 2 or len_b < 2: return 0.0
+    present: mutable bool[9025] = zeroed
+    i <- 0
+    while i + 1 < len_a:
+        first: usize = (values[2+i] - 32).usize()
+        second: usize = (values[2+i+1] - 32).usize()
+        present[first*alphabet_size+second] <- true
+        i <- i + 1
+    common: mutable usize = 0
+    i <- 0
+    while i + 1 < len_b:
+        first: usize = (values[2+len_a+i] - 32).usize()
+        second: usize = (values[2+len_a+i+1] - 32).usize()
+        if present[first*alphabet_size+second]: common <- common + 1
+        i <- i + 1
+    denominator: f64 = (len_a + len_b - 2).f64()
+    score: f64 = (2.0 * common.f64()) / denominator
+    floor(score * 100.0) / 100.0
+
+export fn dice_coefficient(values: i64&, length: usize) -> f64 = dice_coefficient_impl

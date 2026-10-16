@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "id": "cpp-directed-hamiltonian-path-existence-i64-array-scalar-v1",
+  "algorithm": "hamiltonian_path_exists",
+  "function_symbol": "hamiltonian_path_exists",
+  "description": "Determine whether a directed graph contains a path that visits every vertex exactly once.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[vertex_count, row-major adjacency matrix cells...]",
+    "vertex_count_range": [
+      0,
+      8
+    ],
+    "matrix_cell_range": [
+      0,
+      1
+    ],
+    "matrix_cell_meaning": "1 means the directed edge from the corresponding row vertex to column vertex exists",
+    "exact_packed_length": "1 + vertex_count * vertex_count",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1 if a directed Hamiltonian path exists, otherwise 0",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "graph/hamiltons_cycle.cpp"
+  },
+  "cases": [
+    {
+      "id": "empty_graph",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_vertex",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "directed_chain",
+      "input_values": [
+        4,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 17,
+      "expected_result": 1
+    },
+    {
+      "id": "path_starts_after_vertex_zero",
+      "input_values": [
+        3,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "directed_cycle",
+      "input_values": [
+        3,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "no_edges",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 17,
+      "expected_result": 0
+    },
+    {
+      "id": "isolated_vertex",
+      "input_values": [
+        4,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 17,
+      "expected_result": 0
+    },
+    {
+      "id": "complete_eight_vertices",
+      "input_values": [
+        8,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 65,
+      "expected_result": 1
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_negative_vertex_count",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_vertex_count_too_high",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_matrix_length",
+      "input_values": [
+        3,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_matrix_cell",
+      "input_values": [
+        2,
+        0,
+        2,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_extra_cell",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ]
+}

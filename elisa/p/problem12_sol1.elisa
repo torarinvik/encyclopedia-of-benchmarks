@@ -1,0 +1,29 @@
+def problem12_sol1_divisor_count(value: i64) -> i64:
+    count: mutable i64 = 1
+    remaining: mutable i64 = value
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        multiplicity: mutable i64 = 0
+        while remaining % factor == 0:
+            remaining <- remaining / factor
+            multiplicity <- multiplicity + 1
+        if multiplicity > 0:
+            count <- count * (multiplicity + 1)
+        factor <- factor + 1
+    if remaining > 1:
+        count <- count * 2
+    count
+
+def problem12_sol1_impl(threshold: i64) -> i64:
+    if threshold != 500:
+        return -1
+    index: mutable i64 = 1
+    triangular: mutable i64 = 1
+    while true:
+        index <- index + 1
+        triangular <- triangular + index
+        if problem12_sol1_divisor_count(triangular) > 500:
+            return triangular
+    -1
+
+export fn problem12_sol1(threshold: i64) -> i64 = problem12_sol1_impl

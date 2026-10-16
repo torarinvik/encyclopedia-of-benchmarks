@@ -1,0 +1,42 @@
+def egg_dropping_puzzle_impl(input: i64&, length: usize) -> i64:
+    if length != 2 or input.is_null():
+        return -1
+    eggs_value: i64 = input[0]
+    floors_value: i64 = input[1]
+    if eggs_value < 1 or eggs_value > 8 or floors_value < 1 or floors_value > 32:
+        return -1
+
+    eggs: usize = eggs_value.usize()
+    floors: usize = floors_value.usize()
+    dp: mutable i64[9][33] = zeroed
+    egg: mutable usize = 1
+    while egg <= eggs:
+        dp[egg][1] <- 1
+        egg <- egg + 1
+    floor_count: mutable usize = 1
+    while floor_count <= floors:
+        dp[1][floor_count] <- floor_count.i64()
+        floor_count <- floor_count + 1
+
+    egg <- 2
+    while egg <= eggs:
+        floor_count <- 2
+        while floor_count <= floors:
+            best: mutable i64 = 33
+            drop_floor: mutable usize = 1
+            while drop_floor <= floor_count:
+                broken: i64 = dp[egg - 1][drop_floor - 1]
+                survives: i64 = dp[egg][floor_count - drop_floor]
+                worst: mutable i64 = broken
+                if survives > worst:
+                    worst <- survives
+                candidate: i64 = worst + 1
+                if candidate < best:
+                    best <- candidate
+                drop_floor <- drop_floor + 1
+            dp[egg][floor_count] <- best
+            floor_count <- floor_count + 1
+        egg <- egg + 1
+    dp[eggs][floors]
+
+export fn egg_dropping_puzzle(input: i64&, length: usize) -> i64 = egg_dropping_puzzle_impl

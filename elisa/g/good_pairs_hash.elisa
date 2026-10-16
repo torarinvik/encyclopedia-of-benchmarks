@@ -1,0 +1,32 @@
+# Count equal-value index pairs with a bounded open-addressed frequency table.
+const MAX_ARRAY_LENGTH: usize = 256
+const MAX_INPUT_LENGTH: usize = 258
+const TABLE_SIZE: usize = 512
+const MAX_VALUE: i64 = 1000000
+
+def good_pairs_hash_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    declared: i64 = input[0]
+    if declared < 0 or declared > MAX_ARRAY_LENGTH.i64() or length != declared.usize() + 1: return -1
+    count: usize = declared.usize()
+    keys: mutable i64[TABLE_SIZE] = zeroed
+    frequencies: mutable u64[TABLE_SIZE] = zeroed
+    occupied: mutable bool[TABLE_SIZE] = zeroed
+    for index in 0..<count:
+        value: i64 = input[index + 1]
+        if value < -MAX_VALUE or value > MAX_VALUE: return -1
+        slot: mutable usize = (((value + MAX_VALUE).u64() * 2654435761u64) & 511u64).usize()
+        while occupied[slot] and keys[slot] != value:
+            slot <- (slot + 1) & (TABLE_SIZE - 1)
+        if not occupied[slot]:
+            occupied[slot] <- true
+            keys[slot] <- value
+        frequencies[slot] <- frequencies[slot] + 1
+    pairs: mutable u64 = 0
+    for slot in 0..<TABLE_SIZE:
+        frequency: u64 = frequencies[slot]
+        if frequency > 1:
+            pairs <- pairs + frequency * (frequency - 1) / 2
+    pairs.i64()
+
+export fn good_pairs_hash(input: i64&, length: usize) -> i64 = good_pairs_hash_impl

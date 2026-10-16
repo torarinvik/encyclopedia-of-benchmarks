@@ -17,6 +17,7 @@ This benchmark solves the 0/1 knapsack problem with bottom-up dynamic programmin
 ## Reviewed TheAlgorithms sources
 
 - [C++ `0_1_knapsack.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/0_1_knapsack.cpp) — tabulated two-dimensional recurrence.
+- [C++ additional repository `0_1_knapsack.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/dynamic_programming/0_1_knapsack.cpp) — matching bottom-up recurrence.
 - [Java `KnapsackZeroOneTabulation.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/KnapsackZeroOneTabulation.java) — bottom-up table.
 - [Kotlin `ZeroOneKnapsackProblem.kt`](https://github.com/TheAlgorithms/Kotlin/blob/b913c1d85c972fd1e679c5d832d6458b21be8fb0/src/main/kotlin/dynamicProgramming/ZeroOneKnapsackProblem.kt) — bottom-up table.
 - [Go `knapsack.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/knapsack.go)

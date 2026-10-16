@@ -1,0 +1,166 @@
+const MAX_VERTICES: usize = 26
+const MAX_EDGES: usize = 256
+const MAX_DEGREE: usize = 512
+const MAX_INPUT_LENGTH: usize = 541
+const MAX_OUTPUT_VALUES: usize = 645
+const MAX_QUEUE: usize = 513
+
+def graph_js_undirected_unweighted_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def graph_js_undirected_unweighted_impl(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_vertex_count: i64 = values[0]
+    if raw_vertex_count < 1 or raw_vertex_count > MAX_VERTICES.i64():
+        return -1
+    vertex_count: usize = raw_vertex_count.usize()
+    if length < 1 + vertex_count + 2:
+        return -1
+
+    vertices: mutable usize[MAX_VERTICES] = zeroed
+    declared: mutable bool[MAX_VERTICES] = zeroed
+    index: mutable usize = 0
+    while index < vertex_count:
+        value: i64 = values[1 + index]
+        if value < 97 or value > 122:
+            return -1
+        vertex: usize = (value - 97).usize()
+        if declared[vertex]:
+            return -1
+        declared[vertex] <- true
+        vertices[index] <- vertex
+        index <- index + 1
+
+    edge_count_offset: usize = 1 + vertex_count
+    raw_edge_count: i64 = values[edge_count_offset]
+    if raw_edge_count < 0 or raw_edge_count > MAX_EDGES.i64():
+        return -1
+    edge_count: usize = raw_edge_count.usize()
+    if length != 1 + vertex_count + 1 + 2 * edge_count + 1:
+        return -1
+
+    adjacency: mutable u8[MAX_VERTICES * MAX_DEGREE] = zeroed
+    degree: mutable usize[MAX_VERTICES] = zeroed
+    position: mutable usize = edge_count_offset + 1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        left_value: i64 = values[position]
+        right_value: i64 = values[position + 1]
+        position <- position + 2
+        if left_value < 97 or left_value > 122 or right_value < 97 or right_value > 122:
+            return -1
+        left: usize = (left_value - 97).usize()
+        right: usize = (right_value - 97).usize()
+        if declared[left] and declared[right]:
+            if degree[left] >= MAX_DEGREE or degree[right] >= MAX_DEGREE:
+                return -1
+            adjacency[left * MAX_DEGREE + degree[left]] <- right.u8()
+            degree[left] <- degree[left] + 1
+            adjacency[right * MAX_DEGREE + degree[right]] <- left.u8()
+            degree[right] <- degree[right] + 1
+        edge <- edge + 1
+    start_value: i64 = values[position]
+    if start_value < 97 or start_value > 122:
+        return -1
+    start: usize = (start_value - 97).usize()
+    if not declared[start]:
+        return -1
+
+    result: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    result_length: mutable usize = 0
+    result[result_length] <- vertex_count.i64()
+    result_length <- result_length + 1
+    index <- 0
+    while index < vertex_count:
+        vertex: usize = vertices[index]
+        result[result_length] <- (97 + vertex).i64()
+        result[result_length + 1] <- degree[vertex].i64()
+        result_length <- result_length + 2
+        edge <- 0
+        while edge < degree[vertex]:
+            neighbor: usize = adjacency[vertex * MAX_DEGREE + edge].usize()
+            result[result_length] <- (97 + neighbor).i64()
+            result_length <- result_length + 1
+            edge <- edge + 1
+        index <- index + 1
+
+    visited: mutable bool[MAX_VERTICES] = zeroed
+    queue: mutable usize[MAX_QUEUE] = zeroed
+    levels: mutable usize[MAX_QUEUE] = zeroed
+    bfs_count_slot: usize = result_length
+    result_length <- result_length + 1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- start
+    levels[0] <- 0
+    bfs_count: mutable usize = 0
+    while head < tail:
+        vertex: usize = queue[head]
+        level: usize = levels[head]
+        head <- head + 1
+        if visited[vertex]:
+            continue
+        visited[vertex] <- true
+        result[result_length] <- (97 + vertex).i64()
+        result[result_length + 1] <- level.i64()
+        result_length <- result_length + 2
+        bfs_count <- bfs_count + 1
+        edge <- 0
+        while edge < degree[vertex]:
+            queue[tail] <- adjacency[vertex * MAX_DEGREE + edge].usize()
+            levels[tail] <- level + 1
+            tail <- tail + 1
+            edge <- edge + 1
+    result[bfs_count_slot] <- bfs_count.i64()
+
+    index <- 0
+    while index < MAX_VERTICES:
+        visited[index] <- false
+        index <- index + 1
+    dfs_count_slot: usize = result_length
+    result_length <- result_length + 1
+    stack_vertices: mutable usize[MAX_VERTICES] = zeroed
+    stack_next_edge: mutable usize[MAX_VERTICES] = zeroed
+    stack_depth: mutable usize = 1
+    stack_vertices[0] <- start
+    visited[start] <- true
+    result[result_length] <- (97 + start).i64()
+    result_length <- result_length + 1
+    dfs_count: mutable usize = 1
+    while stack_depth > 0:
+        top: usize = stack_depth - 1
+        vertex: usize = stack_vertices[top]
+        if stack_next_edge[top] >= degree[vertex]:
+            stack_depth <- stack_depth - 1
+            continue
+        edge = stack_next_edge[top]
+        stack_next_edge[top] <- stack_next_edge[top] + 1
+        neighbor: usize = adjacency[vertex * MAX_DEGREE + edge].usize()
+        if not visited[neighbor]:
+            visited[neighbor] <- true
+            result[result_length] <- (97 + neighbor).i64()
+            result_length <- result_length + 1
+            dfs_count <- dfs_count + 1
+            stack_vertices[stack_depth] <- neighbor
+            stack_next_edge[stack_depth] <- 0
+            stack_depth <- stack_depth + 1
+    result[dfs_count_slot] <- dfs_count.i64()
+
+    output_bytes: usize = result_length * 8
+    if output == null or capacity < output_bytes:
+        return -2
+    index <- 0
+    while index < result_length:
+        graph_js_undirected_unweighted_store(result[index], output, index * 8)
+        index <- index + 1
+    output_bytes.i64()
+
+export fn graph_js_undirected_unweighted(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = graph_js_undirected_unweighted_impl

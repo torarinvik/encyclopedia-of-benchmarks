@@ -1,0 +1,57 @@
+# Enumerate positive value lists in include-first source order.
+const MAX_ITEMS: usize = 11
+const MAX_TARGET: i64 = 256
+const MAX_ITEM: i64 = 64
+
+def write_i64_le(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+    shift: mutable usize = 0
+    while shift < 64:
+        output[position] <- ((value >> shift) & 255).u8()
+        position <- position + 1
+        shift <- shift + 8
+
+def enumerate(input: i64&, items: usize, index: usize, target: i64, total: i64,
+              chosen: mutable i64&, chosen_count: usize, output: mutable u8&,
+              position: mutable usize&, emit: bool) -> usize:
+    if total == target:
+        if emit:
+            write_i64_le(output, &position, chosen_count.i64())
+            for i in 0..<chosen_count:
+                write_i64_le(output, &position, chosen[i])
+        return chosen_count + 1
+    if index == items or total > target:
+        return 0
+    chosen[chosen_count] <- input[index + 1]
+    include_slots: usize = enumerate(input, items, index + 1, target,
+        total + input[index + 1], chosen, chosen_count + 1, output, position, emit)
+    exclude_slots: usize = enumerate(input, items, index + 1, target,
+        total, chosen, chosen_count, output, position, emit)
+    include_slots + exclude_slots
+
+def subset_sum_values_enumeration_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length == 0 or length > MAX_ITEMS + 1:
+        return -1
+    target: i64 = input[0]
+    if target < 0 or target > MAX_TARGET:
+        return -1
+    items: usize = length - 1
+    for index in 0..<items:
+        if input[index + 1] < 1 or input[index + 1] > MAX_ITEM:
+            return -1
+
+    chosen: mutable i64[MAX_ITEMS] = zeroed
+    dummy_position: mutable usize = 0
+    slots: usize = enumerate(input, items, 0, target, 0, chosen, 0,
+        output, dummy_position, false)
+    required: usize = slots * 8
+    if required == 0:
+        return 0
+    if output.is_null() or output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    enumerate(input, items, 0, target, 0, chosen, 0, output, position, true)
+    position.i64()
+
+export fn subset_sum_values_enumeration(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = subset_sum_values_enumeration_impl

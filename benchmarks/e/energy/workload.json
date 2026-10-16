@@ -1,0 +1,1392 @@
+{
+  "schema_version": 1,
+  "id": "rust-energy-conversion-i64-array-float64-v1",
+  "algorithm": "energy",
+  "function_symbol": "energy",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[value_micro,from_unit,to_unit]",
+    "scale": 1000000,
+    "value_micro_range": [
+      -1000000000000,
+      1000000000000
+    ],
+    "unit_code_range": [
+      0,
+      54
+    ],
+    "maximum_packed_values": 4,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "convert from the selected unit to joules then divide by the target unit factor",
+    "invalid_result": -1e+300,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "from_00_joule_to_joule",
+      "input_values": [
+        1000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_joule_to_00_joule",
+      "input_values": [
+        1000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_01_kilojoule_to_joule",
+      "input_values": [
+        1000000,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000.0
+    },
+    {
+      "id": "from_joule_to_01_kilojoule",
+      "input_values": [
+        1000000,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0.001
+    },
+    {
+      "id": "from_02_megajoule_to_joule",
+      "input_values": [
+        1000000,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "from_joule_to_02_megajoule",
+      "input_values": [
+        1000000,
+        0,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 1e-06
+    },
+    {
+      "id": "from_03_gigajoule_to_joule",
+      "input_values": [
+        1000000,
+        3,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000000000.0
+    },
+    {
+      "id": "from_joule_to_03_gigajoule",
+      "input_values": [
+        1000000,
+        0,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 1e-09
+    },
+    {
+      "id": "from_04_millijoule_to_joule",
+      "input_values": [
+        1000000,
+        4,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.001
+    },
+    {
+      "id": "from_joule_to_04_millijoule",
+      "input_values": [
+        1000000,
+        0,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 1000.0
+    },
+    {
+      "id": "from_05_microjoule_to_joule",
+      "input_values": [
+        1000000,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1e-06
+    },
+    {
+      "id": "from_joule_to_05_microjoule",
+      "input_values": [
+        1000000,
+        0,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 1000000.0
+    },
+    {
+      "id": "from_06_nanojoule_to_joule",
+      "input_values": [
+        1000000,
+        6,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1e-09
+    },
+    {
+      "id": "from_joule_to_06_nanojoule",
+      "input_values": [
+        1000000,
+        0,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": 999999999.9999999
+    },
+    {
+      "id": "from_07_attojoule_to_joule",
+      "input_values": [
+        1000000,
+        7,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1e-18
+    },
+    {
+      "id": "from_joule_to_07_attojoule",
+      "input_values": [
+        1000000,
+        0,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": 9.999999999999999e+17
+    },
+    {
+      "id": "from_08_wattsecond_to_joule",
+      "input_values": [
+        1000000,
+        8,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_joule_to_08_wattsecond",
+      "input_values": [
+        1000000,
+        0,
+        8
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_09_watthour_to_joule",
+      "input_values": [
+        1000000,
+        9,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3600.0
+    },
+    {
+      "id": "from_joule_to_09_watthour",
+      "input_values": [
+        1000000,
+        0,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": 0.0002777777777777778
+    },
+    {
+      "id": "from_10_kilowattsecond_to_joule",
+      "input_values": [
+        1000000,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000.0
+    },
+    {
+      "id": "from_joule_to_10_kilowattsecond",
+      "input_values": [
+        1000000,
+        0,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 0.001
+    },
+    {
+      "id": "from_11_kilowatthour_to_joule",
+      "input_values": [
+        1000000,
+        11,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3600000.0
+    },
+    {
+      "id": "from_joule_to_11_kilowatthour",
+      "input_values": [
+        1000000,
+        0,
+        11
+      ],
+      "input_length": 3,
+      "expected_result": 2.7777777777777776e-07
+    },
+    {
+      "id": "from_12_megawatthour_to_joule",
+      "input_values": [
+        1000000,
+        12,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3600000000.0
+    },
+    {
+      "id": "from_joule_to_12_megawatthour",
+      "input_values": [
+        1000000,
+        0,
+        12
+      ],
+      "input_length": 3,
+      "expected_result": 2.7777777777777777e-10
+    },
+    {
+      "id": "from_13_gigawatthour_to_joule",
+      "input_values": [
+        1000000,
+        13,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3600000000000.0
+    },
+    {
+      "id": "from_joule_to_13_gigawatthour",
+      "input_values": [
+        1000000,
+        0,
+        13
+      ],
+      "input_length": 3,
+      "expected_result": 2.777777777777778e-13
+    },
+    {
+      "id": "from_14_newtonmeter_to_joule",
+      "input_values": [
+        1000000,
+        14,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_joule_to_14_newtonmeter",
+      "input_values": [
+        1000000,
+        0,
+        14
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "from_15_erg_to_joule",
+      "input_values": [
+        1000000,
+        15,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1e-07
+    },
+    {
+      "id": "from_joule_to_15_erg",
+      "input_values": [
+        1000000,
+        0,
+        15
+      ],
+      "input_length": 3,
+      "expected_result": 10000000.0
+    },
+    {
+      "id": "from_16_dynecentimeter_to_joule",
+      "input_values": [
+        1000000,
+        16,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1e-07
+    },
+    {
+      "id": "from_joule_to_16_dynecentimeter",
+      "input_values": [
+        1000000,
+        0,
+        16
+      ],
+      "input_length": 3,
+      "expected_result": 10000000.0
+    },
+    {
+      "id": "from_17_calorienutritional_to_joule",
+      "input_values": [
+        1000000,
+        17,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4186.8
+    },
+    {
+      "id": "from_joule_to_17_calorienutritional",
+      "input_values": [
+        1000000,
+        0,
+        17
+      ],
+      "input_length": 3,
+      "expected_result": 0.00023884589662749592
+    },
+    {
+      "id": "from_18_kilocalorienutritional_to_joule",
+      "input_values": [
+        1000000,
+        18,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4186800.0
+    },
+    {
+      "id": "from_joule_to_18_kilocalorienutritional",
+      "input_values": [
+        1000000,
+        0,
+        18
+      ],
+      "input_length": 3,
+      "expected_result": 2.388458966274959e-07
+    },
+    {
+      "id": "from_19_calorieit_to_joule",
+      "input_values": [
+        1000000,
+        19,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4.1868
+    },
+    {
+      "id": "from_joule_to_19_calorieit",
+      "input_values": [
+        1000000,
+        0,
+        19
+      ],
+      "input_length": 3,
+      "expected_result": 0.23884589662749595
+    },
+    {
+      "id": "from_20_kilocalorieit_to_joule",
+      "input_values": [
+        1000000,
+        20,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4186.8
+    },
+    {
+      "id": "from_joule_to_20_kilocalorieit",
+      "input_values": [
+        1000000,
+        0,
+        20
+      ],
+      "input_length": 3,
+      "expected_result": 0.00023884589662749592
+    },
+    {
+      "id": "from_21_calorieth_to_joule",
+      "input_values": [
+        1000000,
+        21,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4.184
+    },
+    {
+      "id": "from_joule_to_21_calorieth",
+      "input_values": [
+        1000000,
+        0,
+        21
+      ],
+      "input_length": 3,
+      "expected_result": 0.2390057361376673
+    },
+    {
+      "id": "from_22_kilocalorieth_to_joule",
+      "input_values": [
+        1000000,
+        22,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4184.0
+    },
+    {
+      "id": "from_joule_to_22_kilocalorieth",
+      "input_values": [
+        1000000,
+        0,
+        22
+      ],
+      "input_length": 3,
+      "expected_result": 0.0002390057361376673
+    },
+    {
+      "id": "from_23_electronvolt_to_joule",
+      "input_values": [
+        1000000,
+        23,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.602176634e-19
+    },
+    {
+      "id": "from_joule_to_23_electronvolt",
+      "input_values": [
+        1000000,
+        0,
+        23
+      ],
+      "input_length": 3,
+      "expected_result": 6.241509074460763e+18
+    },
+    {
+      "id": "from_24_kiloelectronvolt_to_joule",
+      "input_values": [
+        1000000,
+        24,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.602176634e-16
+    },
+    {
+      "id": "from_joule_to_24_kiloelectronvolt",
+      "input_values": [
+        1000000,
+        0,
+        24
+      ],
+      "input_length": 3,
+      "expected_result": 6241509074460763.0
+    },
+    {
+      "id": "from_25_megaelectronvolt_to_joule",
+      "input_values": [
+        1000000,
+        25,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.602176634e-13
+    },
+    {
+      "id": "from_joule_to_25_megaelectronvolt",
+      "input_values": [
+        1000000,
+        0,
+        25
+      ],
+      "input_length": 3,
+      "expected_result": 6241509074460.763
+    },
+    {
+      "id": "from_26_btuit_to_joule",
+      "input_values": [
+        1000000,
+        26,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1055.05585262
+    },
+    {
+      "id": "from_joule_to_26_btuit",
+      "input_values": [
+        1000000,
+        0,
+        26
+      ],
+      "input_length": 3,
+      "expected_result": 0.0009478171203133172
+    },
+    {
+      "id": "from_27_btuth_to_joule",
+      "input_values": [
+        1000000,
+        27,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1054.3499999744
+    },
+    {
+      "id": "from_joule_to_27_btuth",
+      "input_values": [
+        1000000,
+        0,
+        27
+      ],
+      "input_length": 3,
+      "expected_result": 0.0009484516527000337
+    },
+    {
+      "id": "from_28_megabtuit_to_joule",
+      "input_values": [
+        1000000,
+        28,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1055055852.62
+    },
+    {
+      "id": "from_joule_to_28_megabtuit",
+      "input_values": [
+        1000000,
+        0,
+        28
+      ],
+      "input_length": 3,
+      "expected_result": 9.478171203133171e-10
+    },
+    {
+      "id": "from_29_footpound_to_joule",
+      "input_values": [
+        1000000,
+        29,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.3558179483
+    },
+    {
+      "id": "from_joule_to_29_footpound",
+      "input_values": [
+        1000000,
+        0,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 0.7375621492943472
+    },
+    {
+      "id": "from_30_poundforcefoot_to_joule",
+      "input_values": [
+        1000000,
+        30,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.3558179483
+    },
+    {
+      "id": "from_joule_to_30_poundforcefoot",
+      "input_values": [
+        1000000,
+        0,
+        30
+      ],
+      "input_length": 3,
+      "expected_result": 0.7375621492943472
+    },
+    {
+      "id": "from_31_poundforceinch_to_joule",
+      "input_values": [
+        1000000,
+        31,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.112984829
+    },
+    {
+      "id": "from_joule_to_31_poundforceinch",
+      "input_values": [
+        1000000,
+        0,
+        31
+      ],
+      "input_length": 3,
+      "expected_result": 8.850745793490558
+    },
+    {
+      "id": "from_32_inchpound_to_joule",
+      "input_values": [
+        1000000,
+        32,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.112984829
+    },
+    {
+      "id": "from_joule_to_32_inchpound",
+      "input_values": [
+        1000000,
+        0,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": 8.850745793490558
+    },
+    {
+      "id": "from_33_inchounce_to_joule",
+      "input_values": [
+        1000000,
+        33,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0070615518
+    },
+    {
+      "id": "from_joule_to_33_inchounce",
+      "input_values": [
+        1000000,
+        0,
+        33
+      ],
+      "input_length": 3,
+      "expected_result": 141.61193294652315
+    },
+    {
+      "id": "from_34_ounceforceinch_to_joule",
+      "input_values": [
+        1000000,
+        34,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0070615518
+    },
+    {
+      "id": "from_joule_to_34_ounceforceinch",
+      "input_values": [
+        1000000,
+        0,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": 141.61193294652315
+    },
+    {
+      "id": "from_35_poundalfoot_to_joule",
+      "input_values": [
+        1000000,
+        35,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.04214011
+    },
+    {
+      "id": "from_joule_to_35_poundalfoot",
+      "input_values": [
+        1000000,
+        0,
+        35
+      ],
+      "input_length": 3,
+      "expected_result": 23.730360457056232
+    },
+    {
+      "id": "from_36_horsepowerhour_to_joule",
+      "input_values": [
+        1000000,
+        36,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 2684519.5368856
+    },
+    {
+      "id": "from_joule_to_36_horsepowerhour",
+      "input_values": [
+        1000000,
+        0,
+        36
+      ],
+      "input_length": 3,
+      "expected_result": 3.725061361110946e-07
+    },
+    {
+      "id": "from_37_horsepowermetrichour_to_joule",
+      "input_values": [
+        1000000,
+        37,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 2647795.5
+    },
+    {
+      "id": "from_joule_to_37_horsepowermetrichour",
+      "input_values": [
+        1000000,
+        0,
+        37
+      ],
+      "input_length": 3,
+      "expected_result": 3.7767267147330673e-07
+    },
+    {
+      "id": "from_38_kilogramforcemeter_to_joule",
+      "input_values": [
+        1000000,
+        38,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 9.8066499997
+    },
+    {
+      "id": "from_joule_to_38_kilogramforcemeter",
+      "input_values": [
+        1000000,
+        0,
+        38
+      ],
+      "input_length": 3,
+      "expected_result": 0.1019716213009123
+    },
+    {
+      "id": "from_39_kilogramforcecentimeter_to_joule",
+      "input_values": [
+        1000000,
+        39,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0980665
+    },
+    {
+      "id": "from_joule_to_39_kilogramforcecentimeter",
+      "input_values": [
+        1000000,
+        0,
+        39
+      ],
+      "input_length": 3,
+      "expected_result": 10.197162129779283
+    },
+    {
+      "id": "from_40_kilopondmeter_to_joule",
+      "input_values": [
+        1000000,
+        40,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 9.8066499997
+    },
+    {
+      "id": "from_joule_to_40_kilopondmeter",
+      "input_values": [
+        1000000,
+        0,
+        40
+      ],
+      "input_length": 3,
+      "expected_result": 0.1019716213009123
+    },
+    {
+      "id": "from_41_gramforcemeter_to_joule",
+      "input_values": [
+        1000000,
+        41,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.00980665
+    },
+    {
+      "id": "from_joule_to_41_gramforcemeter",
+      "input_values": [
+        1000000,
+        0,
+        41
+      ],
+      "input_length": 3,
+      "expected_result": 101.97162129779282
+    },
+    {
+      "id": "from_42_gramforcecentimeter_to_joule",
+      "input_values": [
+        1000000,
+        42,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 9.80665e-05
+    },
+    {
+      "id": "from_joule_to_42_gramforcecentimeter",
+      "input_values": [
+        1000000,
+        0,
+        42
+      ],
+      "input_length": 3,
+      "expected_result": 10197.162129779283
+    },
+    {
+      "id": "from_43_therm_to_joule",
+      "input_values": [
+        1000000,
+        43,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 105505600.0
+    },
+    {
+      "id": "from_joule_to_43_therm",
+      "input_values": [
+        1000000,
+        0,
+        43
+      ],
+      "input_length": 3,
+      "expected_result": 9.478169879134377e-09
+    },
+    {
+      "id": "from_44_thermec_to_joule",
+      "input_values": [
+        1000000,
+        44,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 105505600.0
+    },
+    {
+      "id": "from_joule_to_44_thermec",
+      "input_values": [
+        1000000,
+        0,
+        44
+      ],
+      "input_length": 3,
+      "expected_result": 9.478169879134377e-09
+    },
+    {
+      "id": "from_45_thermus_to_joule",
+      "input_values": [
+        1000000,
+        45,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 105480400.0
+    },
+    {
+      "id": "from_joule_to_45_thermus",
+      "input_values": [
+        1000000,
+        0,
+        45
+      ],
+      "input_length": 3,
+      "expected_result": 9.480434279733487e-09
+    },
+    {
+      "id": "from_46_tonhourrefrigeration_to_joule",
+      "input_values": [
+        1000000,
+        46,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 12660670.23144
+    },
+    {
+      "id": "from_joule_to_46_tonhourrefrigeration",
+      "input_values": [
+        1000000,
+        0,
+        46
+      ],
+      "input_length": 3,
+      "expected_result": 7.898476002610977e-08
+    },
+    {
+      "id": "from_47_fueloilequivalentkiloliter_to_joule",
+      "input_values": [
+        1000000,
+        47,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 40197627984.822
+    },
+    {
+      "id": "from_joule_to_47_fueloilequivalentkiloliter",
+      "input_values": [
+        1000000,
+        0,
+        47
+      ],
+      "input_length": 3,
+      "expected_result": 2.4877089772003076e-11
+    },
+    {
+      "id": "from_48_fueloilequivalentbarrel_to_joule",
+      "input_values": [
+        1000000,
+        48,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 6383087908.3509
+    },
+    {
+      "id": "from_joule_to_48_fueloilequivalentbarrel",
+      "input_values": [
+        1000000,
+        0,
+        48
+      ],
+      "input_length": 3,
+      "expected_result": 1.5666398682864994e-10
+    },
+    {
+      "id": "from_49_tonexplosives_to_joule",
+      "input_values": [
+        1000000,
+        49,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4184000000.0
+    },
+    {
+      "id": "from_joule_to_49_tonexplosives",
+      "input_values": [
+        1000000,
+        0,
+        49
+      ],
+      "input_length": 3,
+      "expected_result": 2.390057361376673e-10
+    },
+    {
+      "id": "from_50_kiloton_to_joule",
+      "input_values": [
+        1000000,
+        50,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4184000000000.0
+    },
+    {
+      "id": "from_joule_to_50_kiloton",
+      "input_values": [
+        1000000,
+        0,
+        50
+      ],
+      "input_length": 3,
+      "expected_result": 2.3900573613766733e-13
+    },
+    {
+      "id": "from_51_megaton_to_joule",
+      "input_values": [
+        1000000,
+        51,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4184000000000000.0
+    },
+    {
+      "id": "from_joule_to_51_megaton",
+      "input_values": [
+        1000000,
+        0,
+        51
+      ],
+      "input_length": 3,
+      "expected_result": 2.390057361376673e-16
+    },
+    {
+      "id": "from_52_gigaton_to_joule",
+      "input_values": [
+        1000000,
+        52,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4.184e+18
+    },
+    {
+      "id": "from_joule_to_52_gigaton",
+      "input_values": [
+        1000000,
+        0,
+        52
+      ],
+      "input_length": 3,
+      "expected_result": 2.390057361376673e-19
+    },
+    {
+      "id": "from_53_hartreeenergy_to_joule",
+      "input_values": [
+        1000000,
+        53,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4.3597482e-18
+    },
+    {
+      "id": "from_joule_to_53_hartreeenergy",
+      "input_values": [
+        1000000,
+        0,
+        53
+      ],
+      "input_length": 3,
+      "expected_result": 2.293710448690592e+17
+    },
+    {
+      "id": "from_54_rydbergconstant_to_joule",
+      "input_values": [
+        1000000,
+        54,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 2.1798741e-18
+    },
+    {
+      "id": "from_joule_to_54_rydbergconstant",
+      "input_values": [
+        1000000,
+        0,
+        54
+      ],
+      "input_length": 3,
+      "expected_result": 4.587420897381184e+17
+    },
+    {
+      "id": "same_unit_00_joule",
+      "input_values": [
+        42000000,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_01_kilojoule",
+      "input_values": [
+        42000000,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_07_attojoule",
+      "input_values": [
+        42000000,
+        7,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_17_calorienutritional",
+      "input_values": [
+        42000000,
+        17,
+        17
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_18_kilocalorienutritional",
+      "input_values": [
+        42000000,
+        18,
+        18
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_20_kilocalorieit",
+      "input_values": [
+        42000000,
+        20,
+        20
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_26_btuit",
+      "input_values": [
+        42000000,
+        26,
+        26
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_29_footpound",
+      "input_values": [
+        42000000,
+        29,
+        29
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_37_horsepowermetrichour",
+      "input_values": [
+        42000000,
+        37,
+        37
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_53_hartreeenergy",
+      "input_values": [
+        42000000,
+        53,
+        53
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "same_unit_54_rydbergconstant",
+      "input_values": [
+        42000000,
+        54,
+        54
+      ],
+      "input_length": 3,
+      "expected_result": 42.0
+    },
+    {
+      "id": "source_gigaton_to_attojoule",
+      "input_values": [
+        1000000,
+        52,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": 4.184e+36
+    },
+    {
+      "id": "source_attojoule_to_gigaton",
+      "input_values": [
+        1000000,
+        7,
+        52
+      ],
+      "input_length": 3,
+      "expected_result": 2.390057361376673e-37
+    },
+    {
+      "id": "negative_value",
+      "input_values": [
+        -2500000,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -2.5e-06
+    },
+    {
+      "id": "minimum_nonzero_value",
+      "input_values": [
+        1,
+        7,
+        52
+      ],
+      "input_length": 3,
+      "expected_result": 2.3900573613766734e-43
+    },
+    {
+      "id": "maximum_positive_value",
+      "input_values": [
+        1000000000000,
+        52,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": 4.1839999999999994e+42
+    },
+    {
+      "id": "maximum_negative_value",
+      "input_values": [
+        -1000000000000,
+        52,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -4.1839999999999994e+42
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_value",
+      "input_values": [
+        1000000,
+        0,
+        0,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "value_below_bound",
+      "input_values": [
+        -1000000000001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "value_above_bound",
+      "input_values": [
+        1000000000001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "from_unit_negative",
+      "input_values": [
+        1000000,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "from_unit_high",
+      "input_values": [
+        1000000,
+        55,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "to_unit_negative",
+      "input_values": [
+        1000000,
+        0,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "to_unit_high",
+      "input_values": [
+        1000000,
+        0,
+        55
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

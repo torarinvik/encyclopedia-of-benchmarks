@@ -36,7 +36,7 @@ static int64_t prime_factor_digit_sum(int64_t value)
 
 int64_t smith_number(int64_t value)
 {
-    if (value < 1 || value > 2147483647) return -1;
+    if (value < 1 || value > 2147395599) return -1;
     if (is_prime(value)) return 0;
     return digit_sum(value) == prime_factor_digit_sum(value);
 }

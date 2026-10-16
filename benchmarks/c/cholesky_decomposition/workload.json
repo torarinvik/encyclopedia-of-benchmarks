@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "id": "cholesky-decomposition-bounded-f64-vector-v1",
+  "algorithm": "cholesky_decomposition",
+  "function_symbol": "cholesky_decomposition",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, row-major n*n matrix entries in micro-units]",
+    "dimension_range": [
+      1,
+      6
+    ],
+    "entry_scale": 1000000,
+    "entry_range_micro_units": [
+      -1000000000,
+      1000000000
+    ],
+    "maximum_input_length": 37,
+    "matrix_domain": "finite real-valued matrix after division by 1,000,000; source allclose symmetry check; every Cholesky pivot must be positive",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "full n-by-n lower-triangular factor L in row-major order; entries above the diagonal are zero",
+    "encoding": "n*n little-endian IEEE-754 binary64 values",
+    "return_value": "output byte length (8*n*n)",
+    "max_length": 36,
+    "max_output_bytes": 288,
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-09,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "source_semantics": {
+    "symmetry_check": "NumPy allclose defaults: abs(a-b) <= 1e-8 + 1e-5*abs(b), applied to matrix and transpose.",
+    "failure_behavior": "The source asserts square/symmetric input and raises ValueError for a nonpositive pivot; this bounded ABI maps malformed, nonsymmetric, or non-positive-definite inputs to -1 with empty output.",
+    "factorization": "Use the source lower-triangle recurrence and return the entire lower-triangular matrix, including zeros above the diagonal."
+  },
+  "workspace": {
+    "bytes": 288,
+    "meaning": "maximum output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-by-one-perfect-square",
+      "input_values": [
+        1,
+        4000000
+      ],
+      "input_length": 2,
+      "workspace_bytes": 288,
+      "expected_result": 8,
+      "expected_output": [
+        2.0
+      ]
+    },
+    {
+      "id": "pinned-three-by-three-example",
+      "input_values": [
+        3,
+        4000000,
+        12000000,
+        -16000000,
+        12000000,
+        37000000,
+        -43000000,
+        -16000000,
+        -43000000,
+        98000000
+      ],
+      "input_length": 10,
+      "workspace_bytes": 288,
+      "expected_result": 72,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        6.0,
+        1.0,
+        0.0,
+        -8.0,
+        5.0,
+        3.0
+      ]
+    },
+    {
+      "id": "irrational-two-by-two-spd",
+      "input_values": [
+        2,
+        2000000,
+        1000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 288,
+      "expected_result": 32,
+      "expected_output": [
+        1.4142135623730951,
+        0.0,
+        0.7071067811865475,
+        1.224744871391589
+      ]
+    },
+    {
+      "id": "allclose-near-symmetric-uses-lower-triangle",
+      "input_values": [
+        2,
+        4000000,
+        2000001,
+        2000000,
+        3000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 288,
+      "expected_result": 32,
+      "expected_output": [
+        2.0,
+        0.0,
+        1.0,
+        1.4142135623730951
+      ]
+    },
+    {
+      "id": "maximum-dimension-and-output",
+      "input_values": [
+        6,
+        4000000,
+        2000000,
+        -2000000,
+        4000000,
+        0,
+        2000000,
+        2000000,
+        5000000,
+        1000000,
+        2000000,
+        -2000000,
+        3000000,
+        -2000000,
+        1000000,
+        6000000,
+        0,
+        -1000000,
+        -2000000,
+        4000000,
+        2000000,
+        0,
+        9000000,
+        2000000,
+        1000000,
+        0,
+        -2000000,
+        -1000000,
+        2000000,
+        11000000,
+        5000000,
+        2000000,
+        3000000,
+        -2000000,
+        1000000,
+        5000000,
+        11000000
+      ],
+      "input_length": 37,
+      "workspace_bytes": 288,
+      "expected_result": 288,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        1.0,
+        3.0,
+        0.0,
+        1.0,
+        1.0,
+        -1.0,
+        0.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "maximum-entry-bound",
+      "input_values": [
+        1,
+        1000000000
+      ],
+      "input_length": 2,
+      "workspace_bytes": 288,
+      "expected_result": 8,
+      "expected_output": [
+        31.622776601683793
+      ]
+    },
+    {
+      "id": "exact-output-capacity",
+      "input_values": [
+        2,
+        2000000,
+        1000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 32,
+      "expected_result": 32,
+      "expected_output": [
+        1.4142135623730951,
+        0.0,
+        0.7071067811865475,
+        1.224744871391589
+      ]
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        2,
+        2000000,
+        1000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 31,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "zero-capacity-valid-shape",
+      "input_values": [
+        1,
+        4000000
+      ],
+      "input_length": 2,
+      "workspace_bytes": 0,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "nonpositive-first-pivot",
+      "input_values": [
+        1,
+        -1000000
+      ],
+      "input_length": 2,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "positive-semidefinite-zero-pivot",
+      "input_values": [
+        2,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "symmetric-indefinite",
+      "input_values": [
+        2,
+        1000000,
+        2000000,
+        2000000,
+        1000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "asymmetry-outside-allclose-tolerance",
+      "input_values": [
+        2,
+        4000000,
+        2000021,
+        2000000,
+        3000000
+      ],
+      "input_length": 5,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-empty-input",
+      "input_values": [],
+      "input_length": 0,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-zero-dimension",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-dimension-above-bound",
+      "input_values": [
+        7
+      ],
+      "input_length": 1,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-packed-length",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 4,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-entry-outside-domain",
+      "input_values": [
+        1,
+        1000000001
+      ],
+      "input_length": 2,
+      "workspace_bytes": 288,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

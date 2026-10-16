@@ -1,0 +1,154 @@
+# Deterministic centroid decomposition for a bounded undirected tree.
+const MAX_NODES: usize = 64
+const MAX_INPUT_LENGTH: usize = 2 * MAX_NODES - 1
+const MAX_DIRECTED_EDGES: usize = 2 * (MAX_NODES - 1)
+const INVALID_PARENT: i64 = -2
+
+def centroid_find_set(parent: usize&, node: usize) -> usize:
+    root: mutable usize = node
+    while parent[root] != root:
+        root <- parent[root]
+    root
+
+def centroid_decomposition_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    node_value: i64 = input[0]
+    if node_value < 1 or node_value > MAX_NODES.i64(): return -1
+    node_count: usize = node_value.usize()
+    if length != 2 * node_count - 1: return -1
+
+    set_parent: mutable usize[MAX_NODES] = zeroed
+    head: mutable i64[MAX_NODES] = zeroed
+    edge_to: mutable usize[MAX_DIRECTED_EDGES] = zeroed
+    edge_next: mutable i64[MAX_DIRECTED_EDGES] = zeroed
+    edge_count: mutable usize = 0
+    node: mutable usize = 0
+    while node < node_count:
+        set_parent[node] <- node
+        head[node] <- -1
+        node <- node + 1
+
+    position: mutable usize = 1
+    while position < length:
+        left_value: i64 = input[position]
+        right_value: i64 = input[position + 1]
+        if left_value < 0 or left_value >= node_count.i64() or right_value < 0 or right_value >= node_count.i64() or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        left_root: usize = centroid_find_set(&set_parent[0], left)
+        right_root: usize = centroid_find_set(&set_parent[0], right)
+        if left_root == right_root: return -1
+        set_parent[right_root] <- left_root
+
+        edge_to[edge_count] <- right
+        edge_next[edge_count] <- head[left]
+        head[left] <- edge_count.i64()
+        edge_count <- edge_count + 1
+        edge_to[edge_count] <- left
+        edge_next[edge_count] <- head[right]
+        head[right] <- edge_count.i64()
+        edge_count <- edge_count + 1
+        position <- position + 2
+
+    required_bytes: usize = node_count * 4
+    if output_capacity < required_bytes or output == null: return -2
+
+    removed: mutable bool[MAX_NODES] = zeroed
+    traversal_parent: mutable i64[MAX_NODES] = zeroed
+    subtree_size: mutable usize[MAX_NODES] = zeroed
+    order: mutable usize[MAX_NODES] = zeroed
+    walk_stack: mutable usize[MAX_NODES] = zeroed
+    task_node: mutable usize[MAX_NODES] = zeroed
+    task_parent: mutable i64[MAX_NODES] = zeroed
+    decomposition_parent: mutable i64[MAX_NODES] = zeroed
+    node <- 0
+    while node < node_count:
+        traversal_parent[node] <- INVALID_PARENT
+        decomposition_parent[node] <- INVALID_PARENT
+        node <- node + 1
+
+    task_count: mutable usize = 1
+    current: mutable usize = 0
+    neighbor: mutable usize = 0
+    edge: mutable i64 = 0
+    index: mutable usize = 0
+    task_node[0] <- 0
+    task_parent[0] <- -1
+    while task_count > 0 |task_count, task_node, task_parent, traversal_parent, walk_stack, order, subtree_size, removed, head, edge_to, edge_next, decomposition_parent, output|:
+        task_count <- task_count - 1
+        start: usize = task_node[task_count]
+        centroid_parent: i64 = task_parent[task_count]
+        node <- 0
+        while node < node_count:
+            traversal_parent[node] <- INVALID_PARENT
+            node <- node + 1
+
+        stack_count: mutable usize = 1
+        order_count: mutable usize = 0
+        walk_stack[0] <- start
+        traversal_parent[start] <- -1
+        while stack_count > 0 |stack_count, walk_stack, order, subtree_size, current, neighbor, edge, traversal_parent, removed, head, edge_to, edge_next|:
+            stack_count <- stack_count - 1
+            current <- walk_stack[stack_count]
+            order[order_count] <- current
+            order_count <- order_count + 1
+            subtree_size[current] <- 1
+            edge <- head[current]
+            while edge >= 0 |edge, stack_count, walk_stack, traversal_parent, neighbor, removed, head, edge_to, edge_next|:
+                neighbor <- edge_to[edge.usize()]
+                if neighbor.i64() != traversal_parent[current] and not removed[neighbor] and traversal_parent[neighbor] == INVALID_PARENT:
+                    traversal_parent[neighbor] <- current.i64()
+                    walk_stack[stack_count] <- neighbor
+                    stack_count <- stack_count + 1
+                edge <- edge_next[edge.usize()]
+
+        index <- order_count
+        while index > 0 |index, order, traversal_parent, subtree_size|:
+            index <- index - 1
+            current <- order[index]
+            parent: i64 = traversal_parent[current]
+            if parent >= 0:
+                subtree_size[parent.usize()] <- subtree_size[parent.usize()] + subtree_size[current]
+
+        centroid: mutable i64 = -1
+        smallest_largest_branch: mutable usize = node_count + 1
+        index <- 0
+        while index < order_count |index, order, subtree_size, traversal_parent, current, neighbor, edge, head, edge_to, edge_next, centroid, smallest_largest_branch|:
+            current <- order[index]
+            largest_branch: mutable usize = order_count - subtree_size[current]
+            edge <- head[current]
+            while edge >= 0 |edge, neighbor, largest_branch, traversal_parent, subtree_size, edge_to, edge_next|:
+                neighbor <- edge_to[edge.usize()]
+                if traversal_parent[neighbor] == current.i64() and subtree_size[neighbor] > largest_branch:
+                    largest_branch <- subtree_size[neighbor]
+                edge <- edge_next[edge.usize()]
+            if largest_branch < smallest_largest_branch or (largest_branch == smallest_largest_branch and current.i64() < centroid):
+                centroid <- current.i64()
+                smallest_largest_branch <- largest_branch
+            index <- index + 1
+
+        center: usize = centroid.usize()
+        decomposition_parent[center] <- centroid_parent
+        removed[center] <- true
+        edge <- head[center]
+        while edge >= 0 |edge, task_count, task_node, task_parent, neighbor, removed, edge_to, edge_next|:
+            neighbor <- edge_to[edge.usize()]
+            if not removed[neighbor]:
+                task_node[task_count] <- neighbor
+                task_parent[task_count] <- centroid
+                task_count <- task_count + 1
+            edge <- edge_next[edge.usize()]
+
+    node <- 0
+    while node < node_count |node, decomposition_parent, output|:
+        parent_bits: i64 = decomposition_parent[node]
+        output[node * 4] <- (parent_bits & 255).u8()
+        output[node * 4 + 1] <- ((parent_bits >> 8) & 255).u8()
+        output[node * 4 + 2] <- ((parent_bits >> 16) & 255).u8()
+        output[node * 4 + 3] <- ((parent_bits >> 24) & 255).u8()
+        node <- node + 1
+    node_count.i64()
+
+export fn centroid_decomposition(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = centroid_decomposition_impl

@@ -1,9 +1,9 @@
 const array_count = 3
 const max_array_length = 64
-const bytes_per_value = 8
+const bytes_per_value = 4
 
-fn store_i64_le(mut output &u8, position int, value i64) {
-	bits := u64(value)
+fn store_i32_le(mut output &u8, position int, value i64) {
+	bits := u32(i32(value))
 	for byte in 0 .. bytes_per_value {
 		unsafe { output[position + byte] = u8((bits >> (byte * 8)) & 255) }
 	}
@@ -22,8 +22,10 @@ pub fn sorted_arrays_intersection(input &i64, length usize, mut output &u8, outp
 		if size > int(length) - position { return -1 }
 		starts[array] = position
 		sizes[array] = size
-		for index in 1 .. size {
-			if unsafe { input[position + index - 1] >= input[position + index] } { return -1 }
+		for index in 0 .. size {
+			value := unsafe { input[position + index] }
+			if value < -2147483648 || value > 2147483647 { return -1 }
+			if index > 0 && unsafe { input[position + index - 1] >= value } { return -1 }
 		}
 		position += size
 	}
@@ -38,7 +40,7 @@ pub fn sorted_arrays_intersection(input &i64, length usize, mut output &u8, outp
 		second := unsafe { input[starts[1] + cursor[1]] }
 		third := unsafe { input[starts[2] + cursor[2]] }
 		if first == second && first == third {
-			store_i64_le(mut output, result_count * bytes_per_value, first)
+			store_i32_le(mut output, result_count * bytes_per_value, first)
 			result_count++
 			cursor[0]++; cursor[1]++; cursor[2]++
 		} else if first < second {

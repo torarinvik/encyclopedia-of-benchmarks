@@ -1,0 +1,75 @@
+# Directed shortest distance using forward and reverse Dijkstra searches.
+def bidirectional_dijkstra_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if n_value < 1 or n_value > 64 or m_value < 0 or m_value > 256: return -1
+    if source_value < 0 or source_value >= n_value or target_value < 0 or target_value >= n_value: return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    if length != 4 + 3 * m: return -1
+    for edge in 0..<m:
+        from: i64 = input[4 + 3 * edge]
+        to: i64 = input[5 + 3 * edge]
+        weight: i64 = input[6 + 3 * edge]
+        if from < 0 or from >= n_value or to < 0 or to >= n_value or weight < 0 or weight > 1000000: return -1
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    if source == target: return 0
+
+    forward: mutable i64[64] = zeroed
+    backward: mutable i64[64] = zeroed
+    settled_forward: mutable bool[64] = zeroed
+    settled_backward: mutable bool[64] = zeroed
+    for vertex in 0..<n:
+        forward[vertex] <- 1000000000
+        backward[vertex] <- 1000000000
+    forward[source] <- 0
+    backward[target] <- 0
+    best: mutable i64 = 1000000000
+
+    for step in 0..<(2 * n):
+        next_forward: mutable usize = n
+        next_backward: mutable usize = n
+        min_forward: mutable i64 = 1000000000
+        min_backward: mutable i64 = 1000000000
+        for vertex in 0..<n:
+            if not settled_forward[vertex] and forward[vertex] < min_forward:
+                min_forward <- forward[vertex]
+                next_forward <- vertex
+            if not settled_backward[vertex] and backward[vertex] < min_backward:
+                min_backward <- backward[vertex]
+                next_backward <- vertex
+        if next_forward == n or next_backward == n: break
+        if best != 1000000000 and min_forward + min_backward >= best: break
+
+        if min_forward <= min_backward:
+            current: usize = next_forward
+            settled_forward[current] <- true
+            if backward[current] != 1000000000 and forward[current] + backward[current] < best:
+                best <- forward[current] + backward[current]
+            for edge in 0..<m:
+                if input[4 + 3 * edge].usize() != current: continue
+                to: usize = input[5 + 3 * edge].usize()
+                candidate: i64 = forward[current] + input[6 + 3 * edge]
+                if not settled_forward[to] and candidate < forward[to]: forward[to] <- candidate
+                if backward[to] != 1000000000 and candidate + backward[to] < best:
+                    best <- candidate + backward[to]
+        else:
+            current: usize = next_backward
+            settled_backward[current] <- true
+            if forward[current] != 1000000000 and forward[current] + backward[current] < best:
+                best <- forward[current] + backward[current]
+            for edge in 0..<m:
+                if input[5 + 3 * edge].usize() != current: continue
+                from: usize = input[4 + 3 * edge].usize()
+                candidate: i64 = backward[current] + input[6 + 3 * edge]
+                if not settled_backward[from] and candidate < backward[from]: backward[from] <- candidate
+                if forward[from] != 1000000000 and forward[from] + input[6 + 3 * edge] + backward[current] < best:
+                    best <- forward[from] + input[6 + 3 * edge] + backward[current]
+    if best == 1000000000: return -1
+    best
+
+export fn bidirectional_dijkstra(input: i64&, length: usize) -> i64 = bidirectional_dijkstra_impl

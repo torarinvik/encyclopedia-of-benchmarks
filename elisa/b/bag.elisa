@@ -1,0 +1,60 @@
+# Portable bag operations over a fixed-capacity linked-list-style multiset.
+def bag_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits >> (byte * 8)).u8()
+
+def bag_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2:
+        return -1
+    insert_count_value: i64 = input[0]
+    if insert_count_value < 0 or insert_count_value > 128:
+        return -1
+    insert_count: usize = insert_count_value.usize()
+    if length < insert_count + 2:
+        return -1
+    query_count_value: i64 = input[insert_count + 1]
+    if query_count_value < 0 or query_count_value > 64:
+        return -1
+    query_count: usize = query_count_value.usize()
+    if length != insert_count + query_count + 2:
+        return -1
+
+    for index in 0..<insert_count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+    for query in 0..<query_count:
+        value: i64 = input[insert_count + query + 2]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+    output_length: usize = (query_count + 2) * 8
+    if output == null or capacity < output_length:
+        return -2
+
+    values: mutable i64[128] = zeroed
+    distinct_count: mutable usize = 0
+    for index in 0..<insert_count:
+        value: i64 = input[index + 1]
+        node: mutable usize = 0
+        while node < distinct_count and values[node] != value:
+            node <- node + 1
+        if node == distinct_count:
+            values[node] <- value
+            distinct_count <- distinct_count + 1
+
+    bag_put_i64(output, 0, insert_count_value)
+    empty_result: mutable i64 = 0
+    if insert_count_value == 0:
+        empty_result <- 1
+    bag_put_i64(output, 8, empty_result)
+    for query in 0..<query_count:
+        target: i64 = input[insert_count + query + 2]
+        contains: mutable i64 = 0
+        for node in 0..<distinct_count:
+            if values[node] == target:
+                contains <- 1
+        bag_put_i64(output, (query + 2) * 8, contains)
+    output_length.i64()
+
+export fn bag(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bag_impl

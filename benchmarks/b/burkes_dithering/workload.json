@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "id": "burkes-dithering-bgr-black-white-bitset-i64-v1",
+  "algorithm": "burkes_dithering",
+  "function_symbol": "burkes_dithering",
+  "input": {
+    "kind": "square_bgr_byte_image",
+    "encoding": "[side, threshold, (blue, green, red) * side * side] in row-major order",
+    "maximum_side": 7,
+    "threshold_range": [
+      1,
+      254
+    ],
+    "malformed_input_result": -1
+  },
+  "output": {
+    "kind": "white_pixel_bitset",
+    "encoding": "bit (y * side + x) is set for white pixels",
+    "malformed_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "too_short",
+      "input_values": [
+        1,
+        128
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "single_black_pixel",
+      "input_values": [
+        1,
+        128,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "single_white_pixel",
+      "input_values": [
+        1,
+        128,
+        255,
+        255,
+        255
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "threshold_equality_is_white",
+      "input_values": [
+        1,
+        128,
+        128,
+        128,
+        128
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "exact_rational_grayscale_edge",
+      "input_values": [
+        1,
+        89,
+        0,
+        118,
+        66
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_red_pixel",
+      "input_values": [
+        1,
+        128,
+        0,
+        0,
+        255
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "single_blue_pixel",
+      "input_values": [
+        1,
+        128,
+        255,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "two_by_two_error_spread",
+      "input_values": [
+        2,
+        128,
+        100,
+        100,
+        100,
+        155,
+        155,
+        155,
+        115,
+        115,
+        115,
+        140,
+        140,
+        140
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "three_by_three_gradient",
+      "input_values": [
+        3,
+        128,
+        10,
+        10,
+        10,
+        200,
+        200,
+        200,
+        80,
+        80,
+        80,
+        180,
+        180,
+        180,
+        100,
+        100,
+        100,
+        230,
+        230,
+        230,
+        240,
+        240,
+        240,
+        20,
+        20,
+        20,
+        127,
+        127,
+        127
+      ],
+      "expected_result": 362
+    },
+    {
+      "id": "maximum_side",
+      "input_values": [
+        7,
+        127,
+        19,
+        19,
+        19,
+        56,
+        56,
+        56,
+        93,
+        93,
+        93,
+        130,
+        130,
+        130,
+        167,
+        167,
+        167,
+        204,
+        204,
+        204,
+        241,
+        241,
+        241,
+        22,
+        22,
+        22,
+        59,
+        59,
+        59,
+        96,
+        96,
+        96,
+        133,
+        133,
+        133,
+        170,
+        170,
+        170,
+        207,
+        207,
+        207,
+        244,
+        244,
+        244,
+        25,
+        25,
+        25,
+        62,
+        62,
+        62,
+        99,
+        99,
+        99,
+        136,
+        136,
+        136,
+        173,
+        173,
+        173,
+        210,
+        210,
+        210,
+        247,
+        247,
+        247,
+        28,
+        28,
+        28,
+        65,
+        65,
+        65,
+        102,
+        102,
+        102,
+        139,
+        139,
+        139,
+        176,
+        176,
+        176,
+        213,
+        213,
+        213,
+        250,
+        250,
+        250,
+        31,
+        31,
+        31,
+        68,
+        68,
+        68,
+        105,
+        105,
+        105,
+        142,
+        142,
+        142,
+        179,
+        179,
+        179,
+        216,
+        216,
+        216,
+        253,
+        253,
+        253,
+        34,
+        34,
+        34,
+        71,
+        71,
+        71,
+        108,
+        108,
+        108,
+        145,
+        145,
+        145,
+        182,
+        182,
+        182,
+        219,
+        219,
+        219,
+        0,
+        0,
+        0,
+        37,
+        37,
+        37,
+        74,
+        74,
+        74,
+        111,
+        111,
+        111,
+        148,
+        148,
+        148,
+        185,
+        185,
+        185,
+        222,
+        222,
+        222,
+        3,
+        3,
+        3
+      ],
+      "expected_result": 230788181932664
+    },
+    {
+      "id": "zero_side",
+      "input_values": [
+        0,
+        128
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "threshold_zero",
+      "input_values": [
+        1,
+        0,
+        40,
+        50,
+        60
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "threshold_255",
+      "input_values": [
+        1,
+        255,
+        40,
+        50,
+        60
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_channel_count",
+      "input_values": [
+        2,
+        128,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "channel_below_range",
+      "input_values": [
+        1,
+        128,
+        -1,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "channel_above_range",
+      "input_values": [
+        1,
+        128,
+        256,
+        0,
+        0
+      ],
+      "expected_result": -1
+    }
+  ]
+}

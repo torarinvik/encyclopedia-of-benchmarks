@@ -1,0 +1,29 @@
+def problem24_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    rank: mutable i64 = 999999
+    factorial: mutable i64 = 362880
+    used: mutable i64 = 0
+    result: mutable i64 = 0
+    slots: mutable i64 = 10
+    while slots > 0:
+        choice: mutable i64 = rank / factorial
+        rank <- rank % factorial
+        selected: mutable i64 = -1
+        digit: mutable i64 = 0
+        while digit < 10:
+            bit: i64 = 1 << digit
+            if (used & bit) == 0:
+                if choice == 0:
+                    selected <- digit
+                    used <- used | bit
+                    break
+                choice <- choice - 1
+            digit <- digit + 1
+        result <- result * 10 + selected
+        if slots > 1:
+            factorial <- factorial / (slots - 1)
+        slots <- slots - 1
+    result
+
+export fn problem24(ignored: i64) -> i64 = problem24_impl

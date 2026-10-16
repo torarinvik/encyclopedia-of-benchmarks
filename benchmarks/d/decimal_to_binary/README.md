@@ -37,6 +37,7 @@ All nine implementations use the same scalar-to-byte-buffer ABI and portable int
 - [C `decimal_to_binary.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/conversions/decimal_to_binary.c)
 - [C++ `decimal_to_binary.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/decimal_to_binary.cpp) and [additional C++ repository copy](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/decimal_to_binary.cpp)
 - [Dart `Decimal_To_Binary.dart`](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/conversions/Decimal_To_Binary.dart)
+- [Go `decimaltobinary.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/conversion/decimaltobinary.go) (same digit representation on the source's documented nonnegative range)
 - [Java `DecimalToBinary.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/conversions/DecimalToBinary.java)
 - [JavaScript `DecimalToBinary.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Conversions/DecimalToBinary.js)
 - [PHP `DecimalToBinary.php`](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Conversions/DecimalToBinary.php)

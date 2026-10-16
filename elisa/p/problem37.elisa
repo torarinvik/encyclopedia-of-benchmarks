@@ -1,0 +1,40 @@
+def is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value == 2 or value == 3:
+        return true
+    if value % 2 == 0 or value % 3 == 0:
+        return false
+    divisor: mutable i64 = 5
+    while divisor <= value / divisor:
+        if value % divisor == 0 or value % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
+
+def is_truncatable_prime(value: i64) -> bool:
+    if not is_prime(value):
+        return false
+    power: mutable i64 = 10
+    while power < value:
+        if not is_prime(value / power) or not is_prime(value % power):
+            return false
+        power <- power * 10
+    true
+
+def problem37_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    found: mutable i64 = 0
+    sum: mutable i64 = 0
+    candidate: mutable i64 = 13
+    while candidate <= 1000000 and found < 11:
+        if is_truncatable_prime(candidate):
+            sum <- sum + candidate
+            found <- found + 1
+        candidate <- candidate + 2
+    if found == 11:
+        return sum
+    -1
+
+export fn problem37(ignored: i64) -> i64 = problem37_impl

@@ -1,0 +1,22 @@
+def xor_search_missing_number_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 257:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 255 or length != (n_value + 1).usize():
+        return -1
+    n: usize = n_value.usize()
+    seen: mutable u8[256] = zeroed
+    result: mutable i64 = n_value
+    index: mutable usize = 0
+    while index < n:
+        value: i64 = input[index + 1]
+        if value < 0 or value > n_value:
+            return -1
+        if seen[value.usize()] != 0:
+            return -1
+        seen[value.usize()] <- 1
+        result <- result ^ index.i64() ^ value
+        index <- index + 1
+    result
+
+export fn xor_search_missing_number(input: i64&, length: usize) -> i64 = xor_search_missing_number_impl

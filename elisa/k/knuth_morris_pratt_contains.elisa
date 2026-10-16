@@ -1,0 +1,50 @@
+# Return whether a pattern occurs using Knuth-Morris-Pratt matching.
+def knuth_morris_pratt_contains_impl(input_values: i64&, length: usize) -> i64:
+    if length < 2 or length > 8194:
+        return -1
+    text_length_value: i64 = input_values[0]
+    pattern_length_value: i64 = input_values[1]
+    if text_length_value < 0 or text_length_value > 4096 or pattern_length_value < 0 or pattern_length_value > 4096:
+        return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if length != 2 + text_length + pattern_length:
+        return -1
+
+    valid_input: bool =
+        while index < text_length + pattern_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = input_values[2 + index]
+            if value < 0 or value > 127:
+                break false
+            index <- index + 1
+            valid
+    if not valid_input:
+        return -1
+    if pattern_length == 0:
+        return 0
+
+    pattern_start: usize = 2 + text_length
+    prefix: mutable usize[4096] = zeroed
+    index: mutable usize = 1
+    matched: mutable usize = 0
+    while index < pattern_length:
+        while matched > 0 and input_values[pattern_start + index] != input_values[pattern_start + matched]:
+            matched <- prefix[matched - 1]
+        if input_values[pattern_start + index] == input_values[pattern_start + matched]:
+            matched <- matched + 1
+        prefix[index] <- matched
+        index <- index + 1
+
+    match_result: i64 =
+        while text_index < text_length |text_index: mutable usize = 0, pattern_index: mutable usize = 0, result: mutable i64 = 0| -> result:
+            while pattern_index > 0 and input_values[2 + text_index] != input_values[pattern_start + pattern_index]:
+                pattern_index <- prefix[pattern_index - 1]
+            if input_values[2 + text_index] == input_values[pattern_start + pattern_index]:
+                pattern_index <- pattern_index + 1
+            if pattern_index == pattern_length:
+                break 1
+            text_index <- text_index + 1
+            result
+    match_result
+
+export fn knuth_morris_pratt_contains(input_values: i64&, length: usize) -> i64 = knuth_morris_pratt_contains_impl

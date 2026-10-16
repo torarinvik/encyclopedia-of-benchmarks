@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-25-digit-index-v1",
+  "algorithm": "problem25",
+  "function_symbol": "problem25",
+  "input": {
+    "kind": "fibonacci_decimal_digit_count",
+    "minimum": 2,
+    "maximum": 1000,
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The 1-based index of the first Fibonacci term with exactly the requested number of decimal digits."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "minimum_supported_digits", "input_value": 2, "expected_result": 7},
+    {"id": "three_digits", "input_value": 3, "expected_result": 12},
+    {"id": "ten_digits", "input_value": 10, "expected_result": 45},
+    {"id": "fifty_digits", "input_value": 50, "expected_result": 237},
+    {"id": "one_hundred_digits", "input_value": 100, "expected_result": 476},
+    {"id": "canonical_one_thousand_digits", "input_value": 1000, "expected_result": 4782},
+    {"id": "one_digit_out_of_range", "input_value": 1, "expected_result": -1},
+    {"id": "above_maximum_digits", "input_value": 1001, "expected_result": -1}
+  ]
+}

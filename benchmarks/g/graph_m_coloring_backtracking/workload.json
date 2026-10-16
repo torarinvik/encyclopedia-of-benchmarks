@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "python-graph-m-coloring-first-solution-v1",
+  "algorithm": "graph_m_coloring_backtracking",
+  "function_symbol": "graph_m_coloring_backtracking",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[vertex_count, max_colors, row-major adjacency_matrix...]",
+    "vertex_count_range": [
+      0,
+      12
+    ],
+    "max_colors_range": [
+      0,
+      12
+    ],
+    "matrix_shape": "exactly vertex_count by vertex_count",
+    "matrix_values": "symmetric 0/1 matrix with zero diagonal",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "one color per vertex in ascending order; empty if no coloring exists",
+    "color_order": "try colors 0 through max_colors-1 in ascending order and return the first full assignment",
+    "empty_graph": "returns an empty vector, as does the source function",
+    "return_value": "number of output bytes"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "empty_graph",
+      "description": "The source's empty assignment is returned for a graph with no vertices.",
+      "input_values": [
+        0,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_vertex",
+      "description": "One vertex uses the first available color.",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "single_edge_one_color",
+      "description": "A single edge cannot be colored with one color.",
+      "input_values": [
+        2,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_edge_two_colors",
+      "description": "A single edge uses the first two colors.",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "triangle_two_colors",
+      "description": "A triangle is not two-colorable.",
+      "input_values": [
+        3,
+        2,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "triangle_three_colors",
+      "description": "A triangle uses three colors.",
+      "input_values": [
+        3,
+        3,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "path_four_two_colors",
+      "description": "The depth-first search returns its first alternating assignment.",
+      "input_values": [
+        4,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 18,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "disconnected_three_vertices",
+      "description": "The first assignment reuses color zero on every isolated vertex.",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 11,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "more_colors_than_vertices",
+      "description": "Available colors may exceed the vertex count, as in the source API.",
+      "input_values": [
+        2,
+        4,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "zero_colors_empty",
+      "description": "The empty graph succeeds immediately, even with zero colors.",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_colors_nonempty",
+      "description": "A nonempty graph cannot be colored when no colors are available.",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    }
+  ]
+}

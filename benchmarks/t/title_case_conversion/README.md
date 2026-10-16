@@ -14,6 +14,12 @@ Output is the transformed ASCII bytes followed by one NUL byte. The function ret
 
 The workload covers empty input, uppercase and lowercase words, mixed case, several words, maximum length, malformed spacing and bytes, a packing mismatch, and insufficient output capacity. All nine ports use the `i64_array_bytes_output` ABI.
 
+Verify the ports and workload with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm title_case_conversion
+```
+
 ## Implementations
 
 | Language | Source |

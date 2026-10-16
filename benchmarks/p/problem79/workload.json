@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-79-passcode-from-fixed-keylog-v1",
+  "algorithm": "problem79",
+  "function_symbol": "problem79",
+  "input": {
+    "kind": "zero_only_fixed_keylog_placeholder",
+    "valid_value": 0,
+    "invalid_input_result": -1,
+    "data_source": "The pinned 50-line keylog.txt embedded as fixed-width three-digit attempts."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Shortest passcode containing each digit in the keylog once and satisfying every attempt as an ordered subsequence."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "pinned_keylog_file",
+      "input_value": 0,
+      "expected_result": 73162890
+    },
+    {
+      "id": "nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

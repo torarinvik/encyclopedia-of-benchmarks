@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-52-scalar-v1",
+  "algorithm": "problem52",
+  "function_symbol": "problem52",
+  "input": {"kind": "ignored_zero", "minimum": 0, "maximum": 0, "meaning": "the pinned no-argument source function", "other_values_result": -1},
+  "output": {"kind": "signed_64_bit_integer", "other_values_result": -1},
+  "measurement": {"comparison_model": "scalar_call", "sample_count": 3, "warmup_rounds": 0, "repetitions_per_sample": 1},
+  "cases": [
+    {"id": "fixed_source_search", "input_value": 0, "expected_result": 142857},
+    {"id": "negative_placeholder_invalid", "input_value": -1, "expected_result": -1},
+    {"id": "nonzero_placeholder_invalid", "input_value": 1, "expected_result": -1}
+  ]
+}

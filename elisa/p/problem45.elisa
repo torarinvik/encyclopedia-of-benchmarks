@@ -1,0 +1,32 @@
+# Find the next hexagonal number that is also pentagonal.
+const MAX_ROOT: i64 = 200000
+const MAX_INDEX: i64 = 27693
+
+def integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = MAX_ROOT
+    while high - low > 1:
+        middle: i64 = (low + high) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def is_pentagonal(value: i64) -> bool:
+    discriminant: i64 = 24 * value + 1
+    root: i64 = integer_sqrt(discriminant)
+    root * root == discriminant and (root + 1) % 6 == 0
+
+def problem45_impl(start: i64) -> i64:
+    if start < 0 or start > MAX_INDEX:
+        return -1
+    index: mutable i64 = start
+    while index <= MAX_INDEX:
+        value: i64 = index * (2 * index - 1)
+        if is_pentagonal(value):
+            return value
+        index <- index + 1
+    -1
+
+export fn problem45(start: i64) -> i64 = problem45_impl

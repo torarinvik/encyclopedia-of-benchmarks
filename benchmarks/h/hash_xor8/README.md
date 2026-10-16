@@ -32,12 +32,14 @@ byte. Its examples include `Hello World` → 228 and `Hello World!` → 195.
 
 [`workload.json`](workload.json) includes the source examples, empty and
 single-character strings, embedded terminators, and invalid bytes before and
-after the terminator.
+after the terminator. The independent oracle is
+[`hash_xor8_oracle.py`](../../hash_xor8_oracle.py).
 Build and record with:
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_scalar --algorithm hash_xor8 --language rust
 python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scalar/h/hash_xor8/rust/build.json
+python3 benchmarks/verify_i64_array_scalar.py --algorithms hash_xor8
 ```
 
 | Language | Source |

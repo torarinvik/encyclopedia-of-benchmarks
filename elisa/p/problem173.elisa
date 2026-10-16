@@ -1,0 +1,33 @@
+const MAX_TILES: i64 = 1000000
+
+def problem173_ceil_sqrt(value: i64) -> i64:
+    if value <= 0:
+        return 0
+    root: mutable i64 = value
+    next: mutable i64 = (root + value / root) / 2
+    while next < root:
+        root <- next
+        next <- (root + value / root) / 2
+    if root * root == value:
+        return root
+    root + 1
+
+def problem173_impl(max_tiles: i64) -> i64:
+    if max_tiles < 0 or max_tiles > MAX_TILES:
+        return -1
+    answer: mutable i64 = 0
+    outer_width: mutable i64 = 3
+    while outer_width < max_tiles / 4 + 2:
+        hole_width: mutable i64 = 1
+        outer_area: i64 = outer_width * outer_width
+        if outer_area > max_tiles:
+            hole_width <- problem173_ceil_sqrt(outer_area - max_tiles)
+            if hole_width < 1:
+                hole_width <- 1
+        if (outer_width - hole_width) % 2 != 0:
+            hole_width <- hole_width + 1
+        answer <- answer + (outer_width - hole_width - 2) / 2 + 1
+        outer_width <- outer_width + 1
+    answer
+
+export fn problem173(max_tiles: i64) -> i64 = problem173_impl

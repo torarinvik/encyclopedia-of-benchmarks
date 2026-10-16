@@ -1,0 +1,141 @@
+const N: usize = 32
+const M: usize = 256
+const Q: usize = 64
+
+def graph_swift_directed_paths_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3:
+        return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or m_value < 0 or m_value > 256:
+        return -1
+    m: usize = m_value.usize()
+    query_position: usize = 2 + 2 * m
+    if length < query_position + 1:
+        return -1
+    q_value: i64 = input[query_position]
+    if q_value < 1 or q_value > 64:
+        return -1
+    q: usize = q_value.usize()
+    if length != query_position + 1 + 3 * q:
+        return -1
+    n: usize = n_value.usize()
+    adjacency: mutable usize[N * M] = zeroed
+    degree: mutable usize[N] = zeroed
+    for edge in 0..<m:
+        from_value: i64 = input[2 + 2 * edge]
+        to_value: i64 = input[3 + 2 * edge]
+        if from_value < 0 or from_value.usize() >= n or to_value <= from_value or to_value.usize() >= n:
+            return -1
+        from: usize = from_value.usize()
+        adjacency[from * M + degree[from]] <- to_value.usize()
+        degree[from] <- degree[from] + 1
+    modes: mutable usize[Q] = zeroed
+    starts: mutable usize[Q] = zeroed
+    destinations: mutable usize[Q] = zeroed
+    for query in 0..<q:
+        position: usize = query_position + 1 + 3 * query
+        mode: i64 = input[position]
+        start: i64 = input[position + 1]
+        destination: i64 = input[position + 2]
+        if mode < 0 or mode > 1 or start < 0 or start.usize() >= n or destination < 0 or destination.usize() >= n:
+            return -1
+        modes[query] <- mode.usize()
+        starts[query] <- start.usize()
+        destinations[query] <- destination.usize()
+    paths: mutable i64[Q * (N + 1)] = zeroed
+    path_lengths: mutable i64[Q] = zeroed
+    words: mutable usize = 0
+    for query in 0..<q:
+        mode: usize = modes[query]
+        start: usize = starts[query]
+        destination: usize = destinations[query]
+        length_found: mutable i64 = -1
+        path_nodes: mutable usize[N] = zeroed
+        if mode == 0:
+            stack_nodes: mutable usize[N + 1] = zeroed
+            next_edge: mutable usize[N + 1] = zeroed
+            visited: mutable bool[N] = zeroed
+            depth: mutable usize = 0
+            stack_nodes[0] <- start
+            visited[start] <- true
+            while true:
+                current: usize = stack_nodes[depth]
+                if current == destination:
+                    length_found <- depth.i64()
+                    for index in 0..<depth:
+                        path_nodes[index] <- stack_nodes[index + 1]
+                    break
+                if next_edge[depth] < degree[current]:
+                    next: usize = adjacency[current * M + next_edge[depth]]
+                    next_edge[depth] <- next_edge[depth] + 1
+                    if not visited[next]:
+                        visited[next] <- true
+                        depth <- depth + 1
+                        stack_nodes[depth] <- next
+                        next_edge[depth] <- 0
+                elif depth == 0:
+                    break
+                else:
+                    depth <- depth - 1
+        else:
+            parent: mutable i64[N] = zeroed
+            for index in 0..<N:
+                parent[index] <- -1
+            queue: mutable usize[N] = zeroed
+            head: mutable usize = 0
+            tail: mutable usize = 0
+            parent[start] <- start.i64()
+            queue[tail] <- start
+            tail <- tail + 1
+            while head < tail:
+                current: usize = queue[head]
+                head <- head + 1
+                if current == destination:
+                    break
+                for index in 0..<degree[current]:
+                    next: usize = adjacency[current * M + index]
+                    if parent[next] == -1:
+                        parent[next] <- current.i64()
+                        queue[tail] <- next
+                        tail <- tail + 1
+            if parent[destination] != -1:
+                reverse: mutable usize[N] = zeroed
+                count: mutable usize = 0
+                current: mutable usize = destination
+                while current != start:
+                    reverse[count] <- current
+                    count <- count + 1
+                    current <- parent[current].usize()
+                length_found <- count.i64()
+                for index in 0..<count:
+                    path_nodes[index] <- reverse[count - index - 1]
+        path_lengths[query] <- length_found
+        words <- words + 1
+        if length_found > 0:
+            words <- words + length_found.usize()
+        paths[query * N] <- length_found
+        if length_found > 0:
+            for index in 0..<length_found.usize():
+                paths[query * N + 1 + index] <- path_nodes[index].i64()
+    required: usize = words * 8
+    if output.is_null() or capacity < required:
+        return -2
+    word: mutable usize = 0
+    for query in 0..<q:
+        count: i64 = paths[query * N]
+        bits: mutable u64 = count.u64()
+        for byte in 0..<8:
+            output[word * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+        word <- word + 1
+        if count > 0:
+            for index in 0..<count.usize():
+                bits <- paths[query * N + 1 + index].u64()
+                for byte in 0..<8:
+                    output[word * 8 + byte] <- (bits & 255).u8()
+                    bits <- bits >> 8
+                word <- word + 1
+    (required * 8 / 8).i64()
+
+export fn graph_swift_directed_paths(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_swift_directed_paths_impl

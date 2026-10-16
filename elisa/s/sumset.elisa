@@ -1,0 +1,78 @@
+# Emit the sorted unique pairwise sums of two bounded integer sets.
+def sumset_decimal_width(value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    width: mutable usize = 1
+    if value < 0:
+        value <- -value
+        width <- width + 1
+    while value >= 10:
+        value <- value / 10
+        width <- width + 1
+    width
+
+def sumset_append_signed_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    position: mutable usize = position_input
+    if value < 0:
+        output[position] <- 45u8
+        position <- position + 1
+        value <- -value
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    while true:
+        digits[count] <- (value % 10).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0: break
+    while count > 0:
+        count <- count - 1
+        output[position] <- 48u8 + digits[count]
+        position <- position + 1
+    position
+
+def sumset_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2: return -1
+    count_a: i64 = values[0]
+    count_b: i64 = values[1]
+    if count_a < 0 or count_a > 64 or count_b < 0 or count_b > 64 or length != 2 + count_a.usize() + count_b.usize(): return -1
+    present: mutable bool[4001] = zeroed
+    index_a: mutable usize = 0
+    while index_a < count_a.usize():
+        value: i64 = values[2 + index_a]
+        if value < -1000 or value > 1000: return -1
+        index_a <- index_a + 1
+    index_b: mutable usize = 0
+    while index_b < count_b.usize():
+        value: i64 = values[2 + count_a.usize() + index_b]
+        if value < -1000 or value > 1000: return -1
+        index_b <- index_b + 1
+    index_a <- 0
+    while index_a < count_a.usize():
+        left: i64 = values[2 + index_a]
+        index_b <- 0
+        while index_b < count_b.usize():
+            right: i64 = values[2 + count_a.usize() + index_b]
+            present[(left + right + 2000).usize()] <- true
+            index_b <- index_b + 1
+        index_a <- index_a + 1
+    needed: mutable usize = 0
+    index: mutable usize = 0
+    while index < 4001:
+        if present[index]:
+            sum: i64 = index.i64() - 2000
+            needed <- needed + sumset_decimal_width(sum) + 1
+        index <- index + 1
+    if needed == 0: return 0
+    if output_capacity < needed: return -2
+    position: mutable usize = 0
+    index <- 0
+    while index < 4001:
+        if present[index]:
+            sum: i64 = index.i64() - 2000
+            position <- sumset_append_signed_decimal(output, position, sum)
+            output[position] <- 10u8
+            position <- position + 1
+        index <- index + 1
+    position.i64()
+
+export fn sumset(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sumset_impl

@@ -1,0 +1,71 @@
+# Emit the bounded Python P-series list as newline-delimited ASCII.
+def p_series_decimal_width(value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    width: mutable usize = 1
+    while value >= 10:
+        value <- value / 10
+        width <- width + 1
+    width
+
+def p_series_append_decimal(output: mutable u8&, position_input: usize, value_input: i64) -> usize:
+    value: mutable i64 = value_input
+    digits: mutable u8[20] = zeroed
+    count: mutable usize = 0
+    while true:
+        digits[count] <- (value % 10).u8()
+        count <- count + 1
+        value <- value / 10
+        if value == 0: break
+    position: mutable usize = position_input
+    while count > 0:
+        count <- count - 1
+        output[position] <- 48u8 + digits[count]
+        position <- position + 1
+    position
+
+def p_series_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 2: return -1
+    nth_term: i64 = values[0]
+    power: i64 = values[1]
+    if nth_term < -256 or nth_term > 256 or power < 0 or power > 7: return -1
+    if nth_term <= 0: return 0
+
+    needed: mutable usize = 2
+    term: mutable i64 = 2
+    while term <= nth_term:
+        denominator: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < power:
+            denominator <- denominator * term
+            exponent <- exponent + 1
+        needed <- needed + 5 + p_series_decimal_width(denominator)
+        term <- term + 1
+    if output_capacity < needed: return -2
+
+    position: mutable usize = 0
+    output[position] <- 49u8
+    position <- position + 1
+    output[position] <- 10u8
+    position <- position + 1
+    term <- 2
+    while term <= nth_term:
+        denominator: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < power:
+            denominator <- denominator * term
+            exponent <- exponent + 1
+        output[position] <- 49u8
+        position <- position + 1
+        output[position] <- 32u8
+        position <- position + 1
+        output[position] <- 47u8
+        position <- position + 1
+        output[position] <- 32u8
+        position <- position + 1
+        position <- p_series_append_decimal(output, position, denominator)
+        output[position] <- 10u8
+        position <- position + 1
+        term <- term + 1
+    position.i64()
+
+export fn p_series(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = p_series_impl

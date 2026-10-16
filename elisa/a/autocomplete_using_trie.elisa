@@ -1,0 +1,128 @@
+const MAX_WORDS: usize = 32
+const MAX_LEN: usize = 16
+const MAX_QUERIES: usize = 16
+const MAX_NODES: usize = 513
+const MAX_OUTPUT_WORDS: usize = 8721
+
+def autocomplete_using_trie_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > 32:
+        return -1
+    children: mutable i32[MAX_NODES * 26] = zeroed
+    for index in 0..<(MAX_NODES * 26):
+        children[index] <- -1
+    terminal: mutable bool[MAX_NODES] = zeroed
+    node_count: mutable usize = 1
+    position: mutable usize = 1
+    for word_index in 0..<input[0].usize():
+        if position >= length:
+            return -1
+        word_length: i64 = input[position]
+        position <- position + 1
+        if word_length < 1 or word_length > 16 or position + word_length.usize() > length:
+            return -1
+        node: mutable usize = 0
+        for index in 0..<word_length.usize():
+            character: i64 = input[position]
+            position <- position + 1
+            if character < 97 or character > 122:
+                return -1
+            letter: usize = (character - 97).usize()
+            child: mutable i32 = children[node * 26 + letter]
+            if child < 0:
+                if node_count >= MAX_NODES:
+                    return -1
+                children[node * 26 + letter] <- node_count.i32()
+                child <- node_count.i32()
+                node_count <- node_count + 1
+            node <- child.usize()
+        terminal[node] <- true
+
+    if position >= length:
+        return -1
+    query_count_value: i64 = input[position]
+    position <- position + 1
+    if query_count_value < 0 or query_count_value > 16:
+        return -1
+    query_count: usize = query_count_value.usize()
+    query_positions: mutable usize[MAX_QUERIES] = zeroed
+    query_lengths: mutable usize[MAX_QUERIES] = zeroed
+    for query in 0..<query_count:
+        if position >= length:
+            return -1
+        prefix_length: i64 = input[position]
+        position <- position + 1
+        if prefix_length < 0 or prefix_length > 16 or position + prefix_length.usize() > length:
+            return -1
+        query_positions[query] <- position
+        query_lengths[query] <- prefix_length.usize()
+        for index in 0..<prefix_length.usize():
+            character: i64 = input[position + index]
+            if character < 97 or character > 122:
+                return -1
+        position <- position + prefix_length.usize()
+    if position != length:
+        return -1
+
+    values: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    used: mutable usize = 1
+    values[0] <- query_count.i64()
+    for query in 0..<query_count:
+        node: mutable usize = 0
+        path: mutable usize[MAX_LEN] = zeroed
+        found: mutable bool = true
+        for index in 0..<query_lengths[query]:
+            letter: usize = (input[query_positions[query] + index] - 97).usize()
+            path[index] <- letter
+            child: i32 = children[node * 26 + letter]
+            if child < 0:
+                found <- false
+                break
+            node <- child.usize()
+
+        count_position: usize = used
+        used <- used + 1
+        count: mutable usize = 0
+        if found:
+            depth: mutable usize = query_lengths[query]
+            stack_nodes: mutable usize[MAX_LEN + 1] = zeroed
+            next_child: mutable usize[MAX_LEN + 1] = zeroed
+            terminal_written: mutable bool[MAX_LEN + 1] = zeroed
+            stack_nodes[depth] <- node
+            while depth >= query_lengths[query]:
+                current_node: usize = stack_nodes[depth]
+                if not terminal_written[depth]:
+                    terminal_written[depth] <- true
+                    if terminal[current_node]:
+                        values[used] <- depth.i64()
+                        used <- used + 1
+                        for index in 0..<depth:
+                            values[used] <- (97 + path[index]).i64()
+                            used <- used + 1
+                        count <- count + 1
+                if next_child[depth] < 26:
+                    letter: usize = next_child[depth]
+                    next_child[depth] <- next_child[depth] + 1
+                    child: i32 = children[current_node * 26 + letter]
+                    if child >= 0:
+                        path[depth] <- letter
+                        depth <- depth + 1
+                        stack_nodes[depth] <- child.usize()
+                        next_child[depth] <- 0
+                        terminal_written[depth] <- false
+                else:
+                    if depth == query_lengths[query]:
+                        break
+                    depth <- depth - 1
+        values[count_position] <- count.i64()
+
+    required: usize = used * 8
+    if capacity < required:
+        return -2
+    for index in 0..<used:
+        bits: mutable u64 = values[index].u64()
+        for byte in 0..<8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+    required.i64()
+
+export fn autocomplete_using_trie(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = autocomplete_using_trie_impl

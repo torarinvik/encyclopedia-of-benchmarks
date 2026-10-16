@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-47-consecutive-factor-counts-v1",
+  "algorithm": "problem47",
+  "function_symbol": "problem47",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 4],
+    "meaning": "number of consecutive integers requested, each with that many distinct prime factors",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "first integer in the earliest qualifying consecutive run"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_consecutive_integer", "input_value": 1, "expected_result": 2},
+    {"id": "documented_two_integer_run", "input_value": 2, "expected_result": 14},
+    {"id": "documented_three_integer_run", "input_value": 3, "expected_result": 644},
+    {"id": "canonical_four_integer_run", "input_value": 4, "expected_result": 134043},
+    {"id": "below_supported_run_length", "input_value": 0, "expected_result": -1},
+    {"id": "above_supported_run_length", "input_value": 5, "expected_result": -1}
+  ]
+}

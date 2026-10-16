@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-86-cuboid-route-count-v1",
+  "algorithm": "problem86",
+  "function_symbol": "problem86",
+  "input": {
+    "kind": "strictly_exceeded_cuboid_count_limit",
+    "minimum": 0,
+    "maximum": 1000000,
+    "above_maximum_result": -1,
+    "negative_limit_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Least maximum side M such that more than the requested number of integer shortest-surface-path cuboids have sides 1<=a<=b<=c<=M."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_example_100",
+      "input_value": 100,
+      "expected_result": 24
+    },
+    {
+      "id": "source_example_1000",
+      "input_value": 1000,
+      "expected_result": 72
+    },
+    {
+      "id": "source_example_2000",
+      "input_value": 2000,
+      "expected_result": 100
+    },
+    {
+      "id": "source_example_20000",
+      "input_value": 20000,
+      "expected_result": 288
+    },
+    {
+      "id": "zero_threshold",
+      "input_value": 0,
+      "expected_result": 3
+    },
+    {
+      "id": "negative_source_empty_loop",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "canonical_one_million",
+      "input_value": 1000000,
+      "expected_result": 1818
+    },
+    {
+      "id": "above_benchmark_bound",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ]
+}

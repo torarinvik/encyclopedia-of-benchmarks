@@ -1,0 +1,17 @@
+const MAX_MIN_TOTAL: i64 = 1000000000000
+
+def problem100_impl(min_total: i64) -> i64:
+    if min_total < 0 or min_total > MAX_MIN_TOTAL:
+        return -1
+    previous_numerator: mutable i64 = 1
+    previous_denominator: mutable i64 = 0
+    numerator: mutable i64 = 1
+    denominator: mutable i64 = 1
+    while numerator <= 2 * min_total - 1:
+        previous_numerator <- previous_numerator + 2 * numerator
+        numerator <- numerator + 2 * previous_numerator
+        previous_denominator <- previous_denominator + 2 * denominator
+        denominator <- denominator + 2 * previous_denominator
+    (denominator + 1) / 2
+
+export fn problem100(min_total: i64) -> i64 = problem100_impl

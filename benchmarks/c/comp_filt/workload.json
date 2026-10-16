@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "id": "comp-filt-haskell-i64-array-float64-v1",
+  "algorithm": "comp_filt",
+  "function_symbol": "comp_filt",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "layout": [
+      "alpha_ppm",
+      "delta_t_micro",
+      "sample_count",
+      "output_index",
+      "rates[0..n-1]",
+      "accelerometer_angles[0..n-1]"
+    ],
+    "sample_count_range": [
+      1,
+      32
+    ],
+    "alpha_ppm_range": [
+      0,
+      1000000
+    ],
+    "delta_t_micro_range": [
+      0,
+      1000000
+    ],
+    "signal_micro_range": [
+      -1000000,
+      1000000
+    ],
+    "output_index_range": "0 through sample_count inclusive",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected item from scanl trace; index 0 is the initial accelerometer angle",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "initial-reference-index-zero",
+      "input_values": [
+        950000,
+        100000,
+        2,
+        0,
+        200000,
+        -100000,
+        100000,
+        -200000
+      ],
+      "input_length": 8,
+      "expected_result": 0.1
+    },
+    {
+      "id": "first-scanl-update",
+      "input_values": [
+        950000,
+        100000,
+        2,
+        1,
+        200000,
+        -100000,
+        100000,
+        -200000
+      ],
+      "input_length": 8,
+      "expected_result": 0.11900000000000001
+    },
+    {
+      "id": "final-scanl-update",
+      "input_values": [
+        950000,
+        100000,
+        2,
+        2,
+        200000,
+        -100000,
+        100000,
+        -200000
+      ],
+      "input_length": 8,
+      "expected_result": 0.09355
+    },
+    {
+      "id": "alpha-zero-first-update",
+      "input_values": [
+        0,
+        500000,
+        2,
+        1,
+        1000000,
+        -1000000,
+        500000,
+        -250000
+      ],
+      "input_length": 8,
+      "expected_result": 0.5
+    },
+    {
+      "id": "alpha-zero-final-reference",
+      "input_values": [
+        0,
+        500000,
+        2,
+        2,
+        1000000,
+        -1000000,
+        500000,
+        -250000
+      ],
+      "input_length": 8,
+      "expected_result": -0.25
+    },
+    {
+      "id": "alpha-one-integrated-rate",
+      "input_values": [
+        1000000,
+        1000000,
+        2,
+        2,
+        200000,
+        -100000,
+        300000,
+        800000
+      ],
+      "input_length": 8,
+      "expected_result": 0.4
+    },
+    {
+      "id": "zero-delta-time-blends-reference",
+      "input_values": [
+        500000,
+        0,
+        3,
+        3,
+        1000000,
+        0,
+        -1000000,
+        100000,
+        -300000,
+        500000
+      ],
+      "input_length": 10,
+      "expected_result": 0.2
+    },
+    {
+      "id": "middle-trace-entry",
+      "input_values": [
+        650000,
+        250000,
+        3,
+        2,
+        -400000,
+        100000,
+        800000,
+        -200000,
+        600000,
+        300000
+      ],
+      "input_length": 10,
+      "expected_result": 0.053999999999999965
+    },
+    {
+      "id": "negative-reference-and-rate",
+      "input_values": [
+        800000,
+        750000,
+        3,
+        3,
+        -500000,
+        250000,
+        -125000,
+        -750000,
+        500000,
+        -250000
+      ],
+      "input_length": 10,
+      "expected_result": -0.597
+    },
+    {
+      "id": "one-sample-first-update",
+      "input_values": [
+        333333,
+        123456,
+        1,
+        1,
+        -1000000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 0.958848041152
+    },
+    {
+      "id": "one-sample-initial-value",
+      "input_values": [
+        333333,
+        123456,
+        1,
+        0,
+        -1000000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "maximum-sample-count-final",
+      "input_values": [
+        999999,
+        1000000,
+        32,
+        32,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000
+      ],
+      "input_length": 68,
+      "expected_result": -0.9999840002239975
+    },
+    {
+      "id": "invalid-alpha-below-range",
+      "input_values": [
+        -1,
+        100000,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-alpha-above-range",
+      "input_values": [
+        1000001,
+        100000,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-delta-time",
+      "input_values": [
+        500000,
+        1000001,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-empty-samples",
+      "input_values": [
+        500000,
+        100000,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-output-index",
+      "input_values": [
+        500000,
+        100000,
+        1,
+        2,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-rate",
+      "input_values": [
+        500000,
+        100000,
+        1,
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-accelerometer-angle",
+      "input_values": [
+        500000,
+        100000,
+        1,
+        1,
+        0,
+        -1000001
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-input",
+      "input_values": [
+        500000,
+        100000,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-long-input",
+      "input_values": [
+        500000,
+        100000,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    }
+  ]
+}

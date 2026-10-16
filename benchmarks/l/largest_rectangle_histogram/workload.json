@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "largest-rectangle-histogram-v1",
+  "algorithm": "largest_rectangle_histogram",
+  "input": {
+    "kind": "array_of_signed_64_bit_histogram_heights",
+    "length_range": [0, 64],
+    "element_range": [0, 1000000],
+    "maximum_area": 64000000,
+    "result": "largest rectangle area for contiguous bars of unit width",
+    "invalid_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "input_length": 0, "expected_result": 0},
+    {"id": "single_zero", "input_values": [0], "input_length": 1, "expected_result": 0},
+    {"id": "single_positive", "input_values": [7], "input_length": 1, "expected_result": 7},
+    {"id": "python_source_example_one", "input_values": [2, 1, 5, 6, 2, 3], "input_length": 6, "expected_result": 10},
+    {"id": "python_source_example_two", "input_values": [2, 4], "input_length": 2, "expected_result": 4},
+    {"id": "python_source_example_three", "input_values": [6, 2, 5, 4, 5, 1, 6], "input_length": 7, "expected_result": 12},
+    {"id": "java_source_example", "input_values": [2, 1, 5, 6, 2, 3], "input_length": 6, "expected_result": 10},
+    {"id": "equal_heights", "input_values": [2, 2, 2, 2], "input_length": 4, "expected_result": 8},
+    {"id": "increasing_heights", "input_values": [1, 2, 3, 4], "input_length": 4, "expected_result": 6},
+    {"id": "decreasing_heights", "input_values": [4, 3, 2, 1], "input_length": 4, "expected_result": 6},
+    {"id": "zero_splits_histogram", "input_values": [3, 0, 3], "input_length": 3, "expected_result": 3},
+    {"id": "two_plateaus", "input_values": [2, 2, 0, 3, 3], "input_length": 5, "expected_result": 6},
+    {"id": "maximum_length_and_height", "input_values": [1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000], "input_length": 64, "expected_result": 64000000},
+    {"id": "maximum_length_all_zero", "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 64, "expected_result": 0},
+    {"id": "negative_height_invalid", "input_values": [-1], "input_length": 1, "expected_result": -9223372036854775808},
+    {"id": "height_above_bound_invalid", "input_values": [1000001], "input_length": 1, "expected_result": -9223372036854775808},
+    {"id": "signed_64_boundary_invalid", "input_values": [-9223372036854775808], "input_length": 1, "expected_result": -9223372036854775808},
+    {"id": "overlength_invalid", "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "input_length": 65, "expected_result": -9223372036854775808}
+  ]
+}

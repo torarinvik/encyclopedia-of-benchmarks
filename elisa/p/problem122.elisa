@@ -1,0 +1,32 @@
+# Search source-ordered star addition chains at increasing depth.
+def solve(chain: mutable i64&, length: usize, goal: i64, depth: usize) -> bool:
+    last: i64 = chain[length - 1]
+    for index in 0..<length:
+        next: i64 = chain[index] + last
+        if next == goal:
+            return true
+        if next > goal:
+            break
+        if length < depth:
+            chain[length] <- next
+            if solve(chain, length + 1, goal, depth):
+                return true
+    false
+
+def problem122_impl(maximum: i64) -> i64:
+    if maximum < 0 or maximum > 200:
+        return -1
+    total: mutable i64 = 0
+    for goal in 2..(maximum + 1):
+        chain: mutable i64[32] = zeroed
+        chain[0] <- 1
+        depth: mutable usize = 0
+        while true:
+            depth <- depth + 1
+            chain[0] <- 1
+            if solve(chain, 1, goal, depth):
+                break
+        total <- total + depth.i64()
+    total
+
+export fn problem122(maximum: i64) -> i64 = problem122_impl

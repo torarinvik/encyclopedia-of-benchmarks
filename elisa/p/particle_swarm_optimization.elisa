@@ -1,0 +1,126 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const PARTICLE_COUNT: usize = 50
+const DIMENSION_COUNT: usize = 5
+const ITERATION_COUNT: usize = 1000
+const MAX_INPUT_LENGTH: usize = 2
+const OUTPUT_VALUE_COUNT: usize = 1 + DIMENSION_COUNT + ITERATION_COUNT
+const OUTPUT_BYTES: usize = OUTPUT_VALUE_COUNT * 8
+
+def particle_swarm_optimization_next_uniform(state: mutable u64&) -> f64:
+    state <- state ^ (state << 13)
+    state <- state ^ (state >> 7)
+    state <- state ^ (state << 17)
+    (state >> 11).f64() * 1.1102230246251565e-16
+
+def particle_swarm_optimization_sphere(point: f64&) -> f64:
+    cost: mutable f64 = 0.0
+    coordinate: mutable usize = 0
+    while coordinate < DIMENSION_COUNT:
+        cost <- cost + point[coordinate] * point[coordinate]
+        coordinate <- coordinate + 1
+    cost
+
+def particle_swarm_optimization_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def particle_swarm_optimization_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH or length != 1 or input[0] <= 0:
+        return -1
+    if output == null or output_capacity < OUTPUT_BYTES:
+        return -2
+
+    random_state: mutable u64 = input[0].u64()
+    positions: mutable f64[PARTICLE_COUNT][DIMENSION_COUNT] = zeroed
+    velocities: mutable f64[PARTICLE_COUNT][DIMENSION_COUNT] = zeroed
+    personal_positions: mutable f64[PARTICLE_COUNT][DIMENSION_COUNT] = zeroed
+    personal_costs: mutable f64[PARTICLE_COUNT] = zeroed
+    global_position: mutable f64[DIMENSION_COUNT] = zeroed
+    history: mutable f64[ITERATION_COUNT] = zeroed
+    global_cost: mutable f64 = 1.7976931348623157e308
+    cost: mutable f64 = 0.0
+
+    particle: mutable usize = 0
+    while particle < PARTICLE_COUNT:
+        coordinate: mutable usize = 0
+        while coordinate < DIMENSION_COUNT:
+            positions[particle][coordinate] <- -10.0 + 20.0 * particle_swarm_optimization_next_uniform(random_state)
+            personal_positions[particle][coordinate] <- positions[particle][coordinate]
+            coordinate <- coordinate + 1
+        cost <- particle_swarm_optimization_sphere(&positions[particle][0])
+        personal_costs[particle] <- cost
+        if cost < global_cost:
+            global_cost <- cost
+            coordinate <- 0
+            while coordinate < DIMENSION_COUNT:
+                global_position[coordinate] <- personal_positions[particle][coordinate]
+                coordinate <- coordinate + 1
+        particle <- particle + 1
+
+    inertia: mutable f64 = 1.0
+    iteration: mutable usize = 0
+    while iteration < ITERATION_COUNT:
+        particle <- 0
+        while particle < PARTICLE_COUNT:
+            personal_random: mutable f64[DIMENSION_COUNT] = zeroed
+            social_random: mutable f64[DIMENSION_COUNT] = zeroed
+            coordinate <- 0
+            while coordinate < DIMENSION_COUNT:
+                personal_random[coordinate] <- particle_swarm_optimization_next_uniform(random_state)
+                coordinate <- coordinate + 1
+            coordinate <- 0
+            while coordinate < DIMENSION_COUNT:
+                social_random[coordinate] <- particle_swarm_optimization_next_uniform(random_state)
+                coordinate <- coordinate + 1
+
+            coordinate <- 0
+            while coordinate < DIMENSION_COUNT:
+                cognitive: f64 = (2.0 * personal_random[coordinate]) *
+                    (personal_positions[particle][coordinate] - positions[particle][coordinate])
+                social: f64 = (2.0 * social_random[coordinate]) *
+                    (global_position[coordinate] - positions[particle][coordinate])
+                velocities[particle][coordinate] <- inertia * velocities[particle][coordinate] + cognitive + social
+                positions[particle][coordinate] <- positions[particle][coordinate] + velocities[particle][coordinate]
+                coordinate <- coordinate + 1
+
+            cost <- particle_swarm_optimization_sphere(&positions[particle][0])
+            if cost < personal_costs[particle]:
+                personal_costs[particle] <- cost
+                coordinate <- 0
+                while coordinate < DIMENSION_COUNT:
+                    personal_positions[particle][coordinate] <- positions[particle][coordinate]
+                    coordinate <- coordinate + 1
+                if cost < global_cost:
+                    global_cost <- cost
+                    coordinate <- 0
+                    while coordinate < DIMENSION_COUNT:
+                        global_position[coordinate] <- personal_positions[particle][coordinate]
+                        coordinate <- coordinate + 1
+            particle <- particle + 1
+        history[iteration] <- global_cost
+        inertia <- inertia * 0.99
+        iteration <- iteration + 1
+
+    offset: mutable usize = 0
+    particle_swarm_optimization_write_f64(output, offset, global_cost)
+    offset <- offset + 8
+    coordinate <- 0
+    while coordinate < DIMENSION_COUNT:
+        particle_swarm_optimization_write_f64(output, offset, global_position[coordinate])
+        offset <- offset + 8
+        coordinate <- coordinate + 1
+    iteration <- 0
+    while iteration < ITERATION_COUNT:
+        particle_swarm_optimization_write_f64(output, offset, history[iteration])
+        offset <- offset + 8
+        iteration <- iteration + 1
+    OUTPUT_BYTES.i64()
+
+export fn particle_swarm_optimization(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = particle_swarm_optimization_impl

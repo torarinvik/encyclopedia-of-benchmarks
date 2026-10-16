@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "braikenridge-maclaurin-construction-v1",
+  "algorithm": "braikenridge_maclaurin_construction",
+  "input": {
+    "kind": "five_integer_points",
+    "encoding": "[x1, y1, x2, y2, x3, y3, x4, y4, x5, y5]",
+    "coordinate_range": "-10..10"
+  },
+  "output": {
+    "kind": "six_signed_i64_little_endian",
+    "success": "six determinant coefficients [a,b,c,d,e,f], each signed 64-bit little-endian",
+    "invalid_or_insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 20
+  },
+  "workspace": {
+    "bytes": 48
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        0,
+        0,
+        5,
+        0,
+        2,
+        3,
+        1,
+        10,
+        6,
+        7
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "c07cffffffffffffc837000000000000f82500000000000040900200000000000818feffffffffff0000000000000000"
+    },
+    {
+      "id": "integer_circle",
+      "input_values": [
+        3,
+        4,
+        4,
+        3,
+        0,
+        5,
+        -3,
+        4,
+        -4,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "a0ffffffffffffff0000000000000000a0ffffffffffffff000000000000000000000000000000006009000000000000"
+    },
+    {
+      "id": "parabola",
+      "input_values": [
+        -2,
+        4,
+        -1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        2,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "2001000000000000000000000000000000000000000000000000000000000000e0feffffffffffff0000000000000000"
+    },
+    {
+      "id": "collinear_degenerate",
+      "input_values": [
+        -2,
+        -3,
+        -1,
+        -1,
+        0,
+        1,
+        1,
+        3,
+        2,
+        5
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "duplicate_points",
+      "input_values": [
+        1,
+        2,
+        1,
+        2,
+        3,
+        4,
+        -1,
+        0,
+        2,
+        -3
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "negative_and_zero_coordinates",
+      "input_values": [
+        -10,
+        0,
+        0,
+        -10,
+        10,
+        0,
+        0,
+        10,
+        1,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "c063ffffffffffff802fc4ffffffffffc063ffffffffffff0000000000000000000000000000000000093d0000000000"
+    },
+    {
+      "id": "five_axes_and_origin",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        -1,
+        0,
+        0,
+        1,
+        0,
+        -1
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "all_same_point",
+      "input_values": [
+        2,
+        -2,
+        2,
+        -2,
+        2,
+        -2,
+        2,
+        -2,
+        2,
+        -2
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "small_coordinates",
+      "input_values": [
+        -1,
+        -1,
+        -1,
+        0,
+        0,
+        1,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "f8ffffffffffffff0400000000000000f8ffffffffffffff0400000000000000fcffffffffffffff0c00000000000000"
+    },
+    {
+      "id": "coordinate_limit",
+      "input_values": [
+        -10,
+        -10,
+        -10,
+        10,
+        10,
+        -10,
+        10,
+        10,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output_hex": "0024f40000000000000000000000000000dc0bffffffffff000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_range_coordinate",
+      "input_values": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        11,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        0,
+        0,
+        5,
+        0,
+        2,
+        3,
+        1,
+        10,
+        6,
+        7
+      ],
+      "input_length": 10,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2,
+      "workspace_bytes": 47
+    }
+  ]
+}

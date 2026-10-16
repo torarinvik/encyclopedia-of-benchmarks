@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "id": "conjugate-gradient-bounded-spd-f64-vector-v1",
+  "algorithm": "conjugate_gradient",
+  "function_symbol": "conjugate_gradient",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, row-major n*n matrix entries in micro-units, n right-hand-side values in micro-units]",
+    "dimension_range": [
+      1,
+      8
+    ],
+    "entry_scale": 1000000,
+    "matrix_domain": "exactly symmetric integer matrix with positive diagonal and each diagonal strictly greater than the sum of absolute off-diagonal entries; this guarantees positive definiteness",
+    "entry_range_micro_units": [
+      -1000000000,
+      1000000000
+    ],
+    "maximum_input_length": 73,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "solution vector x of A*x=b, compared against the exact rational solution rounded to binary64",
+    "encoding": "n little-endian IEEE-754 binary64 values",
+    "return_value": "output byte length (8*n)",
+    "max_length": 8,
+    "max_output_bytes": 64,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "source_semantics": {
+    "initial_state": "x=0, residual=b, search direction=b",
+    "recurrence": "standard conjugate-gradient alpha and beta updates for symmetric positive-definite A",
+    "convergence": "bounded ports stop when the Euclidean residual norm is at most 1e-10 or after 1000 iterations",
+    "source_correction": "the upstream implementation stops on changes in x and residual and can continue into a zero-denominator step after exact convergence; this benchmark uses residual norm stopping and returns the current solution for a zero right-hand side"
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "maximum n-element binary64 output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-by-one",
+      "input_values": [
+        1,
+        4000000,
+        2000000
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output": [
+        0.5
+      ]
+    },
+    {
+      "id": "two-by-two",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        1000000,
+        3000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 7,
+      "expected_result": 16,
+      "expected_output": [
+        0.09090909090909091,
+        0.6363636363636364
+      ]
+    },
+    {
+      "id": "signed-three-by-three",
+      "input_values": [
+        3,
+        6000000,
+        -1000000,
+        0,
+        -1000000,
+        5000000,
+        1000000,
+        0,
+        1000000,
+        4000000,
+        4000000,
+        3000000,
+        10000000
+      ],
+      "input_length": 13,
+      "expected_result": 24,
+      "expected_output": [
+        0.7090909090909091,
+        0.2545454545454545,
+        2.4363636363636365
+      ]
+    },
+    {
+      "id": "four-by-four",
+      "input_values": [
+        4,
+        5000000,
+        1000000,
+        0,
+        0,
+        1000000,
+        6000000,
+        -1000000,
+        0,
+        0,
+        -1000000,
+        5000000,
+        1000000,
+        0,
+        0,
+        1000000,
+        4000000,
+        4000000,
+        3000000,
+        -2000000,
+        6000000
+      ],
+      "input_length": 21,
+      "expected_result": 32,
+      "expected_output": [
+        0.7476459510357816,
+        0.2617702448210923,
+        -0.6817325800376648,
+        1.670433145009416
+      ]
+    },
+    {
+      "id": "six-by-six",
+      "input_values": [
+        6,
+        8000000,
+        1000000,
+        0,
+        0,
+        0,
+        0,
+        1000000,
+        7000000,
+        -1000000,
+        0,
+        0,
+        0,
+        0,
+        -1000000,
+        6000000,
+        2000000,
+        0,
+        0,
+        0,
+        0,
+        2000000,
+        8000000,
+        -1000000,
+        0,
+        0,
+        0,
+        0,
+        -1000000,
+        7000000,
+        1000000,
+        0,
+        0,
+        0,
+        0,
+        1000000,
+        6000000,
+        3000000,
+        -5000000,
+        4000000,
+        7000000,
+        -5000000,
+        4000000
+      ],
+      "input_length": 43,
+      "expected_result": 48,
+      "expected_output": [
+        0.4671258345305502,
+        -0.7370066762444013,
+        0.3080791008197414,
+        0.7072593594185752,
+        -0.7257669230119158,
+        0.787627820501986
+      ]
+    },
+    {
+      "id": "zero-right-hand-side",
+      "input_values": [
+        3,
+        4000000,
+        1000000,
+        0,
+        1000000,
+        3000000,
+        -1000000,
+        0,
+        -1000000,
+        2000000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 13,
+      "expected_result": 24,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "invalid-nonsymmetric",
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        2000000,
+        4000000,
+        1000000,
+        2000000
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-not-strictly-dominant",
+      "input_values": [
+        2,
+        1000000,
+        2000000,
+        2000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        3,
+        4000000,
+        1000000,
+        0,
+        1000000,
+        3000000,
+        1000000,
+        0,
+        1000000,
+        2000000,
+        2000000,
+        5000000,
+        7000000
+      ],
+      "input_length": 13,
+      "expected_result": -2,
+      "expected_output": [],
+      "workspace_bytes": 23
+    },
+    {
+      "id": "invalid-dimension",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed-length",
+      "input_values": [
+        2,
+        4000000,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-entry-range",
+      "input_values": [
+        1,
+        1000000001,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+# Return the decimal integer formed by the binary digits of a bounded hex value.
+def hex_digit(byte: i64) -> i64:
+    if byte >= 48 and byte <= 57:
+        return byte - 48
+    if byte >= 65 and byte <= 70:
+        return byte - 65 + 10
+    if byte >= 97 and byte <= 102:
+        return byte - 97 + 10
+    -1
+
+def hex_to_bin_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > 5:
+        return -9223372036854775808
+    start: mutable usize = 0
+    sign: mutable i64 = 1
+    if input[0] == 45:
+        sign <- -1
+        start <- 1
+    if length - start < 1 or length - start > 4:
+        return -9223372036854775808
+
+    value: mutable i64 = 0
+    index: mutable usize = start
+    while index < length:
+        digit: i64 = hex_digit(input[index])
+        if digit < 0:
+            return -9223372036854775808
+        value <- value * 16 + digit
+        index <- index + 1
+    if value == 0:
+        return -9223372036854775808
+
+    decimal_binary_digits: mutable i64 = 0
+    place: mutable i64 = 1
+    while value > 0:
+        decimal_binary_digits <- decimal_binary_digits + (value % 2) * place
+        value <- value / 2
+        if value > 0:
+            place <- place * 10
+    sign * decimal_binary_digits
+
+export fn hex_to_bin(input: i64&, length: usize) -> i64 = hex_to_bin_impl

@@ -1,0 +1,35 @@
+const MAX_TEXT_LENGTH: usize = 512
+const MAX_INPUT_LENGTH: usize = MAX_TEXT_LENGTH + 2
+
+def remove_duplicate_from_string_impl(input: i64&, length: usize,
+                                     output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    text_length_value: i64 = input[0]
+    if text_length_value < 0 or text_length_value > 512:
+        return -1
+    text_length: usize = text_length_value.usize()
+    if length != 1 + text_length:
+        return -1
+
+    result: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    seen: mutable bool[128] = zeroed
+    result_length: mutable usize = 0
+    for index in 0..<text_length:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 127:
+            return -1
+        byte: usize = value.usize()
+        if not seen[byte]:
+            seen[byte] <- true
+            result[result_length] <- value.u8()
+            result_length <- result_length + 1
+
+    if output_capacity < result_length or (result_length != 0 and output.is_null()):
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn remove_duplicate_from_string(input: i64&, length: usize,
+                                       output: mutable u8&, output_capacity: usize) -> i64 = remove_duplicate_from_string_impl

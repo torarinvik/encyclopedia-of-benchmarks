@@ -1,0 +1,50 @@
+const MAX_LIMIT: i64 = 999966663333
+
+def problem234_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT: return -1
+    composite: mutable bool[1000100] = zeroed
+    primes: mutable i64[80000] = zeroed
+    prime_count: mutable i64 = 0
+    root: mutable i64 = 0
+    while root + 1 <= limit / (root + 1): root <- root + 1
+    sieve_end: i64 = root + 100
+    p: mutable i64 = 2
+    while p < sieve_end:
+        if not composite[p.usize()]:
+            primes[prime_count.usize()] <- p
+            prime_count <- prime_count + 1
+            if p * p < sieve_end:
+                multiple: mutable i64 = p * p
+                while multiple < sieve_end:
+                    composite[multiple.usize()] <- true
+                    multiple <- multiple + p
+        p <- p + 1
+    total: mutable i64 = 0
+    index: mutable i64 = 0
+    p <- primes[0]
+    while p * p <= limit:
+        q: i64 = primes[(index + 1).usize()]
+        lower: i64 = p * p
+        upper: mutable i64 = q * q
+        current: mutable i64 = lower + p
+        while upper > current and current <= limit:
+            total <- total + current
+            current <- current + p
+        while upper - q > limit: upper <- upper - q
+        current <- upper - q
+        while current > lower:
+            total <- total + current
+            current <- current - q
+        current <- 0
+        while upper > current and current <= limit:
+            if current <= lower:
+                current <- current + p * q
+            else:
+                if current > limit: break
+                total <- total - 2 * current
+                current <- current + p * q
+        p <- q
+        index <- index + 1
+    total
+
+export fn problem234(limit: i64) -> i64 = problem234_impl

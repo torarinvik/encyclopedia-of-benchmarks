@@ -1,0 +1,50 @@
+const MAX_LENGTH: usize = 1024
+
+def cyclic_sort_impl(values: i64&, length: usize, output: mutable u8&,
+                     output_capacity: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    valid: bool =
+        while index < length |index: mutable usize = 0, seen: mutable bool[1025] = zeroed, valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < 1 or value > length.i64():
+                break false
+            slot: usize = value.usize()
+            if seen[slot]:
+                break false
+            seen[slot] <- true
+            index <- index + 1
+            valid
+    if not valid:
+        return -1
+
+    copied: i64[1024] =
+        while index < length |index: mutable usize = 0, copy: mutable i64[1024] = zeroed| -> copy:
+            copy[index] <- values[index]
+            index <- index + 1
+            copy
+    sorted: mutable i64[1024] =
+        while index < length |index: mutable usize = 0, work: mutable i64[1024] = copied| -> work:
+            destination: usize = (work[index] - 1).usize()
+            if destination == index:
+                index <- index + 1
+            else:
+                temporary: i64 = work[index]
+                work[index] <- work[destination]
+                work[destination] <- temporary
+            work
+
+    output_length: usize = length * 8
+    if output_length > output_capacity:
+        return -2
+    while offset < output_length |offset: mutable usize = 0, output, sorted| -> output:
+        item: usize = offset / 8
+        byte: usize = offset % 8
+        bits: u64 = sorted[item].u64()
+        output[offset] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+        offset <- offset + 1
+        output
+    length.i64()
+
+export fn cyclic_sort(values: i64&, length: usize, output: mutable u8&,
+                      output_capacity: usize) -> i64 = cyclic_sort_impl

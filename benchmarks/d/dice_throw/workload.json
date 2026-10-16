@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "dice-throw-java-i64-array-scalar-v1",
+  "algorithm": "dice_throw",
+  "function_symbol": "dice_throw",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "required_length": 3,
+    "layout": ["faces", "dice", "target"],
+    "faces_range": [1, 8],
+    "dice_range": [1, 8],
+    "target_range": [0, 64],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "number of ordered outcomes whose face values sum to target",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-die-middle-face","input_values":[6,1,3],"expected_result":1},
+    {"id":"one-die-maximum-face","input_values":[6,1,6],"expected_result":1},
+    {"id":"one-die-zero-total","input_values":[6,1,0],"expected_result":0},
+    {"id":"one-die-above-maximum","input_values":[6,1,7],"expected_result":0},
+    {"id":"two-dice-minimum","input_values":[6,2,2],"expected_result":1},
+    {"id":"two-d6-sum-7","input_values":[6,2,7],"expected_result":6},
+    {"id":"two-dice-maximum","input_values":[6,2,12],"expected_result":1},
+    {"id":"three-d6-sum-8","input_values":[6,3,8],"expected_result":21},
+    {"id":"four-d4-sum-5","input_values":[4,4,5],"expected_result":4},
+    {"id":"four-d3-sum-7","input_values":[3,4,7],"expected_result":16},
+    {"id":"eight-d8-minimum","input_values":[8,8,8],"expected_result":1},
+    {"id":"eight-d8-midpoint","input_values":[8,8,32],"expected_result":848443},
+    {"id":"eight-d8-maximum","input_values":[8,8,64],"expected_result":1},
+    {"id":"one-face-eight-dice","input_values":[1,8,8],"expected_result":1},
+    {"id":"one-face-unreachable-total","input_values":[1,8,7],"expected_result":0},
+    {"id":"target-above-dice-maximum","input_values":[4,4,64],"expected_result":0},
+    {"id":"invalid-short-array","input_values":[6,3],"expected_result":-1},
+    {"id":"invalid-long-array","input_values":[6,3,8,0],"expected_result":-1},
+    {"id":"invalid-zero-faces","input_values":[0,3,8],"expected_result":-1},
+    {"id":"invalid-zero-dice","input_values":[6,0,8],"expected_result":-1},
+    {"id":"invalid-negative-target","input_values":[6,3,-1],"expected_result":-1},
+    {"id":"invalid-target-above-bound","input_values":[6,3,65],"expected_result":-1},
+    {"id":"invalid-faces-above-bound","input_values":[9,3,8],"expected_result":-1},
+    {"id":"invalid-dice-above-bound","input_values":[6,9,8],"expected_result":-1}
+  ]
+}

@@ -1,0 +1,121 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MAX_INPUT_LENGTH: usize = 131
+const MAX_FFT_LENGTH: usize = 128
+const PI: f64 = 3.14159265358979323846264338327950288
+
+def convolution_fft_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def convolution_fft_transform(real: mutable f64&, imag: mutable f64&, n: usize, inverse: bool) -> void:
+    reverse: mutable usize = 0
+    position: mutable usize = 1
+    while position < n:
+        bit: mutable usize = n >> 1
+        while (reverse & bit) != 0:
+            reverse <- reverse ^ bit
+            bit <- bit >> 1
+        reverse <- reverse ^ bit
+        if position < reverse:
+            temporary: mutable f64 = real[position]
+            real[position] <- real[reverse]
+            real[reverse] <- temporary
+            temporary <- imag[position]
+            imag[position] <- imag[reverse]
+            imag[reverse] <- temporary
+        position <- position + 1
+    block: mutable usize = 2
+    while block <= n:
+        direction: f64 = if inverse: -1.0 else: 1.0
+        angle: f64 = -2.0 * PI / block.f64() * direction
+        step_real: f64 = cos(angle)
+        step_imag: f64 = sin(angle)
+        start: mutable usize = 0
+        while start < n:
+            weight_real: mutable f64 = 1.0
+            weight_imag: mutable f64 = 0.0
+            offset: mutable usize = 0
+            while offset < block / 2:
+                first: usize = start + offset
+                second: usize = first + block / 2
+                product_real: f64 = weight_real * real[second] - weight_imag * imag[second]
+                product_imag: f64 = weight_real * imag[second] + weight_imag * real[second]
+                first_real: f64 = real[first]
+                first_imag: f64 = imag[first]
+                real[first] <- first_real + product_real
+                imag[first] <- first_imag + product_imag
+                real[second] <- first_real - product_real
+                imag[second] <- first_imag - product_imag
+                next_real: f64 = weight_real * step_real - weight_imag * step_imag
+                weight_imag <- weight_real * step_imag + weight_imag * step_real
+                weight_real <- next_real
+                offset <- offset + 1
+            start <- start + block
+        block <- block * 2
+    if inverse:
+        index: mutable usize = 0
+        while index < n:
+            real[index] <- real[index] / n.f64()
+            imag[index] <- imag[index] / n.f64()
+            index <- index + 1
+
+def convolution_fft_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_a: i64 = input[0]
+    raw_b: i64 = input[1]
+    if raw_a < 1 or raw_a > 64 or raw_b < 1 or raw_b > 64:
+        return -1
+    a_count: usize = raw_a.usize()
+    b_count: usize = raw_b.usize()
+    if length != 2 + a_count + b_count:
+        return -1
+    index: mutable usize = 0
+    while index < a_count + b_count:
+        if input[index + 2] < -64 or input[index + 2] > 64:
+            return -1
+        index <- index + 1
+    result_count: usize = a_count + b_count - 1
+    byte_count: usize = result_count * 16
+    if output.is_null() or capacity < byte_count:
+        return -2
+    fft_length: mutable usize = 1
+    while fft_length < result_count:
+        fft_length <- fft_length * 2
+    a_real: mutable f64[128] = zeroed
+    a_imag: mutable f64[128] = zeroed
+    b_real: mutable f64[128] = zeroed
+    b_imag: mutable f64[128] = zeroed
+    product_real: mutable f64[128] = zeroed
+    product_imag: mutable f64[128] = zeroed
+    index <- 0
+    while index < a_count:
+        a_real[index] <- input[index + 2].f64() / 16.0
+        index <- index + 1
+    index <- 0
+    while index < b_count:
+        b_real[index] <- input[a_count + index + 2].f64() / 16.0
+        index <- index + 1
+    convolution_fft_transform(a_real[0], a_imag[0], fft_length, false)
+    convolution_fft_transform(b_real[0], b_imag[0], fft_length, false)
+    index <- 0
+    while index < fft_length:
+        product_real[index] <- a_real[index] * b_real[index] - a_imag[index] * b_imag[index]
+        product_imag[index] <- a_real[index] * b_imag[index] + a_imag[index] * b_real[index]
+        index <- index + 1
+    convolution_fft_transform(product_real[0], product_imag[0], fft_length, true)
+    index <- 0
+    while index < result_count:
+        convolution_fft_write_f64(output, index * 16, product_real[index])
+        convolution_fft_write_f64(output, index * 16 + 8, product_imag[index])
+        index <- index + 1
+    byte_count.i64()
+
+export fn convolution_fft(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = convolution_fft_impl

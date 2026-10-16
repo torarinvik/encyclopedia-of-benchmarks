@@ -1,0 +1,21 @@
+const SCALE: i64 = 1000000
+const MIN_PROBABILITY_MICRO: i64 = 1
+const MAX_PROBABILITY_MICRO: i64 = 999999
+const MIN_RATIO_MICRO: i64 = 1000
+const MAX_RATIO_MICRO: i64 = 100000000
+const MAX_INPUT_LENGTH: usize = 3
+const INVALID_RESULT: f64 = -1.0e300
+
+def kelly_criterion_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    probability_micro: i64 = values[0]
+    ratio_micro: i64 = values[1]
+    if probability_micro < MIN_PROBABILITY_MICRO or probability_micro > MAX_PROBABILITY_MICRO or ratio_micro < MIN_RATIO_MICRO or ratio_micro > MAX_RATIO_MICRO:
+        return INVALID_RESULT
+    win_probability: f64 = probability_micro.f64() / SCALE.f64()
+    win_loss_ratio: f64 = ratio_micro.f64() / SCALE.f64()
+    loss_probability: f64 = 1.0 - win_probability
+    (win_probability * win_loss_ratio - loss_probability) / win_loss_ratio
+
+export fn kelly_criterion(values: i64&, length: usize) -> f64 = kelly_criterion_impl

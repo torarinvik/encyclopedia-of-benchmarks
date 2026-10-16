@@ -1,0 +1,57 @@
+module present_value;
+
+extern pow(base: f64, exponent: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def round_two_python(value: f64) -> f64:
+    if value == 0.0:
+        return value
+    negative: bool = value < 0.0
+    normalized: mutable f64 = if negative: -value else: value
+    exponent: mutable i64 = 0
+    while normalized >= 1.0:
+        normalized <- normalized * 0.5
+        exponent <- exponent + 1
+    while normalized < 0.5:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    significand: u64 = (normalized * 9007199254740992.0).u64()
+    numerator: u64 = significand * 100.u64()
+    shift: i64 = 53 - exponent
+    cents: mutable u64 = 0.u64()
+    if shift < 0:
+        cents <- numerator << (-shift).u32()
+    else if shift == 0:
+        cents <- numerator
+    else if shift < 64:
+        denominator: u64 = 1.u64() << shift.u32()
+        cents <- numerator >> shift.u32()
+        remainder: u64 = numerator & (denominator - 1.u64())
+        half: u64 = denominator >> 1
+        if remainder > half or (remainder == half and (cents & 1.u64()) != 0.u64()):
+            cents <- cents + 1.u64()
+    rounded: f64 = cents.f64() / 100.0
+    if negative: return -rounded
+    return rounded
+
+def present_value_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 3 or length > 10:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    rate_ppm: i64 = values[1]
+    if count_value < 1 or count_value > 8 or length != 2 + count_value.usize() or (rate_ppm != 0 and rate_ppm != 1000000):
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    for i in 0..<count:
+        flow: i64 = values[i + 2]
+        if flow < -1000000 or flow > 1000000 or flow % 125 != 0:
+            return INVALID_RESULT
+    rate: f64 = rate_ppm.f64() / 1000000.0
+    total: mutable f64 = 0.0
+    for i in 0..<count:
+        cash_flow: f64 = values[i + 2].f64() / 1000.0
+        total <- total + cash_flow / pow(1.0 + rate, i.f64())
+    return round_two_python(total)
+
+export fn present_value(values: i64&, length: usize) -> f64 = present_value_impl

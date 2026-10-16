@@ -15,7 +15,7 @@ Converts a length between metric units whose sizes are powers of one thousand. T
 
 This package follows the pinned [TheAlgorithms Rust `order_of_magnitude_conversion.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/conversions/order_of_magnitude_conversion.rs). Its `MetricLengthUnit` enum assigns exponents from meter (0) through yottameter (24) in steps of three, and `convert_metric_length` evaluates `value * 10_f64.powi(from_exp - to_exp)`. The source's string wrapper accepts full names and symbols, case-insensitively and with plural forms, and returns an error for invalid names. The benchmark encodes the enum variants as numeric codes so all ports use the same ABI; invalid codes map to the sentinel above because the enum-based source function itself only accepts valid variants.
 
-The separately cataloged `length_conversion` candidate uses a different set of eight units, including imperial units, and converts through meter multipliers. This benchmark covers the nine SI prefixes and the source's direct power-of-ten formula only.
+The pinned Python [`astronomical_length_scale_conversion.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/astronomical_length_scale_conversion.py) applies the same power-of-ten conversion for its metric prefix subset and is cataloged as an alias on the shared units. The separately cataloged `length_conversion` candidate uses a different set of eight units, including imperial units, and converts through meter multipliers. This benchmark covers the nine SI prefixes and the source's direct power-of-ten formula only.
 
 ## Workload and build
 

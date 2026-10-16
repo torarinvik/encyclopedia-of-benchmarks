@@ -4,4 +4,4 @@ This package benchmarks the pinned [TheAlgorithms/Python implementation](https:/
 
 The `i64_array_float64` ABI accepts exactly two signed integers in this order: `[temperature, molar_mass]`. Temperature is bounded to 0..1,000 and molar mass to 1..1,000. These are benchmark bounds over the source's floating-point API; nonnegative temperature and positive molar mass preserve its guards. Ports preserve the constant, operation order, and half-power; zero temperature returns 0. Invalid lengths and out-of-contract values return -1e300 under the benchmark ABI, while the source raises exceptions for negative temperature or nonpositive molar mass.
 
-The output is binary64 root-mean-square speed in metres per second. Runtime and auxiliary space are O(1).
+The output is binary64 root-mean-square speed in metres per second, compared with absolute and relative tolerances of `1e-12` to allow for small differences among language math libraries. Runtime and auxiliary space are O(1).

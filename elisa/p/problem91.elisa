@@ -1,0 +1,31 @@
+# Count right triangles formed by unordered grid-point pairs and the origin.
+const MAX_LIMIT: i64 = 50
+
+def problem91_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    count: mutable i64 = 0
+    x1: mutable i64 = 0
+    while x1 <= limit:
+        y1: mutable i64 = 0
+        while y1 <= limit:
+            x2: mutable i64 = x1
+            while x2 <= limit:
+                first_y2: i64 = if x2 == x1: y1 + 1 else: 0
+                y2: mutable i64 = first_y2
+                while y2 <= limit:
+                    if not ((x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0)):
+                        op: i64 = x1 * x1 + y1 * y1
+                        oq: i64 = x2 * x2 + y2 * y2
+                        dx: i64 = x1 - x2
+                        dy: i64 = y1 - y2
+                        pq: i64 = dx * dx + dy * dy
+                        if op + oq == pq or op + pq == oq or oq + pq == op:
+                            count <- count + 1
+                    y2 <- y2 + 1
+                x2 <- x2 + 1
+            y1 <- y1 + 1
+        x1 <- x1 + 1
+    count
+
+export fn problem91(limit: i64) -> i64 = problem91_impl

@@ -21,3 +21,5 @@ The ASCII domain makes Java-style UTF-16 code units and byte indexing identical 
 ## Run
 
 The source-backed expected-value check is in [`benchmarks/run_i64_array_scalar.py`](../../run_i64_array_scalar.py). Build with the `i64_array_scalar` ABI family and record with that runner.
+
+Run the independent recurrence oracle and recorder-provenance check with `python3 benchmarks/verify_i64_array_scalar.py --algorithms optimal_string_alignment_distance`.

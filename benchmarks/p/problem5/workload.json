@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-5-scalar-v1",
+  "algorithm": "problem5",
+  "function_symbol": "problem5",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 20],
+    "meaning": "smallest positive multiple of every integer from 1 through limit",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"limit_one","input_value":1,"expected_result":1},
+    {"id":"limit_two","input_value":2,"expected_result":2},
+    {"id":"limit_three","input_value":3,"expected_result":6},
+    {"id":"limit_four","input_value":4,"expected_result":12},
+    {"id":"limit_five","input_value":5,"expected_result":60},
+    {"id":"limit_six","input_value":6,"expected_result":60},
+    {"id":"limit_ten","input_value":10,"expected_result":2520},
+    {"id":"limit_twelve","input_value":12,"expected_result":27720},
+    {"id":"project_euler_instance","input_value":20,"expected_result":232792560},
+    {"id":"zero_limit","input_value":0,"expected_result":-1},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":21,"expected_result":-1}
+  ]
+}

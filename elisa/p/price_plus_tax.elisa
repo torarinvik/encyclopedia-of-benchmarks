@@ -1,0 +1,18 @@
+const SCALE: i64 = 1000000
+const MAX_PRICE_MICRO: i64 = 1000000000000
+const MAX_TAX_RATE_MICRO: i64 = 1000000
+const MAX_INPUT_LENGTH: usize = 3
+const INVALID_RESULT: f64 = -1.0e300
+
+def price_plus_tax_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    price_micro: i64 = values[0]
+    tax_rate_micro: i64 = values[1]
+    if price_micro < 0 || price_micro > MAX_PRICE_MICRO || tax_rate_micro < 0 || tax_rate_micro > MAX_TAX_RATE_MICRO:
+        return INVALID_RESULT
+    price: f64 = price_micro.f64() / SCALE.f64()
+    tax_rate: f64 = tax_rate_micro.f64() / SCALE.f64()
+    price * (1.0 + tax_rate)
+
+export fn price_plus_tax(values: i64&, length: usize) -> f64 = price_plus_tax_impl

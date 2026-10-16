@@ -13,6 +13,8 @@ Computes the greatest common divisor with Stein's binary algorithm, using traili
 
 The benchmark follows pinned [TheAlgorithms Java `BitwiseGCD.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/bitmanipulation/BitwiseGCD.java), specifically its two-argument `gcd(long, long)` implementation of Stein's algorithm. For nonnegative inputs, the source returns the exact GCD, including `gcd(0,0)=0`, and uses shifts and subtraction rather than Euclid's remainder step. This is distinct from the existing [`gcd`](../../g/gcd/README.md) benchmark, which uses Euclid's algorithm. The source also supports negative values and delegates `Long.MIN_VALUE` cases to BigInteger; the shared workload stays in the nonnegative signed-64 domain, so those branches are not included.
 
+The C# [`BinaryGreatestCommonDivisorFinder.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/GreatestCommonDivisor/BinaryGreatestCommonDivisorFinder.cs) implements the same binary GCD on the shared nonnegative 32-bit subset.
+
 ## Workload and build
 
 [`workload.json`](workload.json) covers zero cases, shared powers of two, unequal odd parts, equal and coprime values, and signed-64 boundaries. Build and record with the binary scalar ABI:

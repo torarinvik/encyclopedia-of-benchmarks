@@ -1,0 +1,101 @@
+const MAX_OPERATIONS: usize = 1024
+const MAX_ELEMENTS: usize = 256
+const HASH_CAPACITY: usize = 512
+const MAX_KEY: i64 = 1000000000
+
+def choiceset_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_OPERATIONS.i64():
+        return -1
+    operation_count: usize = input[0].usize()
+    if length != 1 + 2 * operation_count:
+        return -1
+    output_bytes: usize = operation_count * 8
+
+    elements: mutable i32[MAX_ELEMENTS] = zeroed
+    map_keys: mutable i32[HASH_CAPACITY] = zeroed
+    map_indices: mutable usize[HASH_CAPACITY] = zeroed
+    states: mutable i32[HASH_CAPACITY] = zeroed
+    results: mutable i64[MAX_OPERATIONS] = zeroed
+    element_count: mutable usize = 0
+    for operation_index in 0..<operation_count:
+        operation: i64 = input[1 + 2 * operation_index]
+        argument: i64 = input[2 + 2 * operation_index]
+        if operation >= 1 and operation <= 3:
+            if argument < -MAX_KEY or argument > MAX_KEY:
+                return -1
+            key: i32 = argument.i32()
+            hash_bits: u32 = key.u32()
+            hash_mixed: u64 = hash_bits.u64() * 2654435761.u64()
+            slot: mutable usize = (hash_mixed.u32() >> 23).usize()
+            deleted: mutable usize = HASH_CAPACITY
+            search_ended_empty: mutable bool = false
+            found: mutable bool = states[slot] == 1 and map_keys[slot] == key
+            probes: mutable usize = 0
+            while probes < HASH_CAPACITY and not found and not search_ended_empty:
+                if states[slot] == 0:
+                    search_ended_empty <- true
+                    if deleted < HASH_CAPACITY:
+                        slot <- deleted
+                elif states[slot] == 2:
+                    if deleted == HASH_CAPACITY:
+                        deleted <- slot
+                elif map_keys[slot] == key:
+                    found <- true
+                if not found and not search_ended_empty:
+                    slot <- (slot + 1) % HASH_CAPACITY
+                probes <- probes + 1
+            if not found and not search_ended_empty and deleted < HASH_CAPACITY:
+                slot <- deleted
+            if operation == 1:
+                if found:
+                    results[operation_index] <- 0
+                else:
+                    if element_count == MAX_ELEMENTS or slot >= HASH_CAPACITY:
+                        return -1
+                    elements[element_count] <- key
+                    map_keys[slot] <- key
+                    map_indices[slot] <- element_count
+                    states[slot] <- 1
+                    element_count <- element_count + 1
+                    results[operation_index] <- 1
+            elif operation == 2:
+                if found:
+                    results[operation_index] <- 1
+                else:
+                    results[operation_index] <- 0
+            elif not found:
+                results[operation_index] <- 0
+            else:
+                index: usize = map_indices[slot]
+                last: usize = element_count - 1
+                if index != last:
+                    moved: i32 = elements[last]
+                    moved_hash_bits: u32 = moved.u32()
+                    moved_hash_mixed: u64 = moved_hash_bits.u64() * 2654435761.u64()
+                    moved_slot: mutable usize = (moved_hash_mixed.u32() >> 23).usize()
+                    moved_probes: mutable usize = 0
+                    while moved_probes < HASH_CAPACITY and states[moved_slot] != 0 and map_keys[moved_slot] != moved:
+                        moved_slot <- (moved_slot + 1) % HASH_CAPACITY
+                        moved_probes <- moved_probes + 1
+                    if states[moved_slot] != 1 or map_keys[moved_slot] != moved:
+                        return -1
+                    elements[index] <- moved
+                    map_indices[moved_slot] <- index
+                element_count <- element_count - 1
+                states[slot] <- 2
+                results[operation_index] <- 1
+        elif operation == 4:
+            if argument < 1 or argument > element_count.i64():
+                return -1
+            results[operation_index] <- elements[argument.usize() - 1].i64()
+        else:
+            return -1
+    if capacity < output_bytes or (output_bytes > 0 and output == null):
+        return -2
+    for index in 0..<operation_count:
+        for byte in 0..<8|output, bits:u64 = results[index].u64()|:
+            output[index * 8 + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+    output_bytes.i64()
+
+export fn choiceset(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = choiceset_impl

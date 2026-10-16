@@ -4,4 +4,4 @@ This package benchmarks the fluid calculation in the pinned [TheAlgorithms/Pytho
 
 The `i64_array_float64` ABI accepts exactly two signed integers in this order: `[density, bulk_modulus]`. Density is bounded to 1..1,000 and bulk modulus to 1..1,000,000,000; both ranges satisfy the source's strictly positive guards. Ports divide bulk modulus by density, then raise the quotient to 0.5. Invalid lengths and values return -1e300.
 
-The output is binary64 speed in metres per second. Runtime and auxiliary space are O(1).
+The output is binary64 speed in metres per second, compared with absolute and relative tolerances of `1e-12` to allow for small differences among language math libraries. Runtime and auxiliary space are O(1).

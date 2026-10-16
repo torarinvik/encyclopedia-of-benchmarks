@@ -1,0 +1,114 @@
+# Breadth-first branch-and-bound for bounded 0/1 knapsack.
+def branch_and_bound_knapsack_solver_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    max_items: usize = 8
+    max_nodes: usize = 511
+    if length < 2 or length > 18:
+        return -1
+    count_value: i64 = input[0]
+    capacity: i64 = input[1]
+    if count_value < 0 or count_value > 8 or capacity < 0 or capacity > 8000:
+        return -1
+    count: usize = count_value.usize()
+    if length != 2 + count * 2:
+        return -1
+
+    weights: mutable i64[8] = zeroed
+    item_values: mutable i64[8] = zeroed
+    item_ids: mutable i64[8] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        weight: i64 = input[2 + index * 2]
+        value: i64 = input[3 + index * 2]
+        if weight < 1 or weight > 1000 or value < 1 or value > 1000:
+            return -1
+        position: mutable usize = index
+        while position > 0 and value * weights[position - 1] > item_values[position - 1] * weight:
+            weights[position] <- weights[position - 1]
+            item_values[position] <- item_values[position - 1]
+            item_ids[position] <- item_ids[position - 1]
+            position <- position - 1
+        weights[position] <- weight
+        item_values[position] <- value
+        item_ids[position] <- index.i64()
+        index <- index + 1
+
+    levels: mutable i64[511] = zeroed
+    queued_weights: mutable i64[511] = zeroed
+    queued_values: mutable i64[511] = zeroed
+    masks: mutable i64[511] = zeroed
+    queue_read: mutable usize = 0
+    queue_end: mutable usize = 1
+    levels[0] <- -1
+    best_value: mutable i64 = 0
+    best_mask: mutable i64 = 0
+    while queue_read < queue_end:
+        level: i64 = levels[queue_read]
+        cumulative_weight: i64 = queued_weights[queue_read]
+        cumulative_value: i64 = queued_values[queue_read]
+        mask: i64 = masks[queue_read]
+        queue_read <- queue_read + 1
+        if level == count_value - 1:
+            continue
+        next_level: usize = (level + 1).usize()
+        left_weight: i64 = cumulative_weight + weights[next_level]
+        left_value: i64 = cumulative_value + item_values[next_level]
+        left_mask: i64 = mask | (1 << next_level)
+        right_weight: i64 = cumulative_weight
+        right_value: i64 = cumulative_value
+        if left_weight <= capacity and left_value > best_value:
+            best_value <- left_value
+            best_mask <- left_mask
+
+        left_available: mutable i64 = capacity - left_weight
+        left_bound: mutable f64 = left_value.f64()
+        bound_index: mutable usize = next_level
+        while left_available > 0 and bound_index < count:
+            if weights[bound_index] <= left_available:
+                left_bound <- left_bound + item_values[bound_index].f64()
+                left_available <- left_available - weights[bound_index]
+            else:
+                left_bound <- left_bound + (item_values[bound_index].f64() / weights[bound_index].f64()) * left_available.f64()
+                left_available <- 0
+            bound_index <- bound_index + 1
+        if left_bound > best_value.f64() and left_weight < capacity:
+            levels[queue_end] <- next_level.i64()
+            queued_weights[queue_end] <- left_weight
+            queued_values[queue_end] <- left_value
+            masks[queue_end] <- left_mask
+            queue_end <- queue_end + 1
+        right_available: mutable i64 = capacity - right_weight
+        right_bound: mutable f64 = right_value.f64()
+        bound_index <- next_level
+        while right_available > 0 and bound_index < count:
+            if weights[bound_index] <= right_available:
+                right_bound <- right_bound + item_values[bound_index].f64()
+                right_available <- right_available - weights[bound_index]
+            else:
+                right_bound <- right_bound + (item_values[bound_index].f64() / weights[bound_index].f64()) * right_available.f64()
+                right_available <- 0
+            bound_index <- bound_index + 1
+        if right_bound > best_value.f64():
+            levels[queue_end] <- next_level.i64()
+            queued_weights[queue_end] <- right_weight
+            queued_values[queue_end] <- right_value
+            masks[queue_end] <- mask
+            queue_end <- queue_end + 1
+
+    selected: mutable u8[8] = zeroed
+    selected_count: mutable usize = 0
+    level: mutable i64 = count_value - 1
+    while level >= 0:
+        if (best_mask & (1 << level.usize())) != 0:
+            selected[selected_count] <- item_ids[level.usize()].u8()
+            selected_count <- selected_count + 1
+        level <- level - 1
+    if selected_count > output_capacity:
+        return -2
+    index <- 0
+    while index < selected_count:
+        output[index] <- selected[index]
+        index <- index + 1
+    selected_count.i64()
+
+export fn branch_and_bound_knapsack_solver(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = branch_and_bound_knapsack_solver_impl

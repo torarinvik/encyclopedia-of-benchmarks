@@ -1,0 +1,22 @@
+# Search the source's increasing positive integers by digit histograms.
+def digit_counts(value: i64) -> i64[10]:
+    counts: mutable i64[10] = zeroed
+    remaining: mutable i64 = value
+    while remaining > 0:
+        counts[(remaining % 10).usize()] <- counts[(remaining % 10).usize()] + 1
+        remaining <- remaining / 10
+    counts
+
+def problem52_impl(unused: i64) -> i64:
+    if unused != 0: return -1
+    value: mutable i64 = 1
+    while true:
+        base_counts: i64[10] = digit_counts(value)
+        matches: mutable bool = true
+        for multiplier in 2..7:
+            if digit_counts(value * multiplier) != base_counts: matches <- false
+        if matches: return value
+        value <- value + 1
+    -1
+
+export fn problem52(unused: i64) -> i64 = problem52_impl

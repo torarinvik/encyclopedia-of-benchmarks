@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-8-scalar-v1",
+  "algorithm": "problem8",
+  "function_symbol": "problem8",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "window_range": [1, 13],
+    "meaning": "number of adjacent digits in the fixed 1000-digit source series",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"single_digit","input_value":1,"expected_result":9},
+    {"id":"four_digit_example","input_value":4,"expected_result":5832},
+    {"id":"canonical_thirteen_digit_window","input_value":13,"expected_result":23514624000},
+    {"id":"zero_window","input_value":0,"expected_result":-1},
+    {"id":"negative_window","input_value":-1,"expected_result":-1},
+    {"id":"too_wide_window","input_value":14,"expected_result":-1}
+  ]
+}

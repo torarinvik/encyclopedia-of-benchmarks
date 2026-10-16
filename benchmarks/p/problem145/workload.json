@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-145-reversible-numbers-v1",
+  "algorithm": "problem145",
+  "function_symbol": "problem145",
+  "input": {
+    "kind": "maximum_decimal_digit_length",
+    "minimum": 0,
+    "maximum": 9,
+    "negative_result": 0,
+    "above_maximum_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of positive reversible numbers with fewer than 10^max_power, where n+reverse(n) has only odd decimal digits and neither number has a leading zero."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_empty",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_digit_limit",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "source_example_three",
+      "input_value": 3,
+      "expected_result": 120
+    },
+    {
+      "id": "source_example_six",
+      "input_value": 6,
+      "expected_result": 18720
+    },
+    {
+      "id": "source_example_seven",
+      "input_value": 7,
+      "expected_result": 68720
+    },
+    {
+      "id": "canonical_nine",
+      "input_value": 9,
+      "expected_result": 608720
+    },
+    {
+      "id": "above_supported",
+      "input_value": 10,
+      "expected_result": -1
+    }
+  ]
+}

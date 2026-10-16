@@ -1,0 +1,22 @@
+def problem136_impl(n_limit: i64) -> i64:
+    if n_limit > 100000: return -1
+    if n_limit <= 0: return 0
+    solutions: mutable i64[100000] = zeroed
+    max_delta: i64 = (n_limit + 1) / 4
+    delta: mutable i64 = 1
+    while delta <= max_delta:
+        y: mutable i64 = 4 * delta - 1
+        while y > delta:
+            n: i64 = y * (4 * delta - y)
+            if n >= n_limit: break
+            if solutions[n.usize()] < 2: solutions[n.usize()] <- solutions[n.usize()] + 1
+            y <- y - 1
+        delta <- delta + 1
+    answer: mutable i64 = 0
+    n: mutable i64 = 0
+    while n < n_limit:
+        if solutions[n.usize()] == 1: answer <- answer + 1
+        n <- n + 1
+    answer
+
+export fn problem136(n_limit: i64) -> i64 = problem136_impl

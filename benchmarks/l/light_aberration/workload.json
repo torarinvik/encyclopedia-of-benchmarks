@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "light-aberration-python-i64-array-f64-v1",
+  "algorithm": "light_aberration",
+  "function_symbol": "light_aberration",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "required_length": 2,
+    "layout": ["theta_microrad", "beta_ppm"],
+    "theta_microrad_range": [-3141592, 3141592],
+    "beta_ppm_range": [0, 999999],
+    "rounded_midpoint_guard_scaled_fraction": 1e-7,
+    "rounded_midpoint_guard_radians": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "aberrated angle in radians, rounded to five decimal places using ties-to-even",
+    "formula_order": "beta=beta_ppm/1e6; theta=theta_microrad/1e6; factor=sqrt((1-beta)/(1+beta)); angle=2*atan(factor*tan(theta/2)); round angle to five decimal places",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 5e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"zero-angle","input_values":[0,0],"input_length":2,"expected_result":0.0},
+    {"id":"source-zero-velocity-example","input_values":[785398,0],"input_length":2,"expected_result":0.7854},
+    {"id":"positive-angle-moderate-beta","input_values":[1000000,500000],"input_length":2,"expected_result":0.61106},
+    {"id":"negative-angle-moderate-beta","input_values":[-1000000,500000],"input_length":2,"expected_result":-0.61106},
+    {"id":"near-positive-angle-limit","input_values":[3141592,999999],"input_length":2,"expected_result":3.14067},
+    {"id":"near-negative-angle-limit","input_values":[-3141592,999999],"input_length":2,"expected_result":-3.14067},
+    {"id":"excluded-decimal-midpoint","input_values":[5,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-angle-bound","input_values":[3141593,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-beta-bound","input_values":[100000,1000000],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid-layout","input_values":[100000],"input_length":1,"expected_result":-1e300}
+  ]
+}

@@ -18,6 +18,12 @@ This follows the pinned Java [`UniquePermutation.java`](https://github.com/TheAl
 
 [`workload.json`](workload.json) covers the empty string, a repeated-character example, unsorted distinct characters, all-equal characters, embedded NUL, and invalid packing/domain cases. The shared `i64_array_bytes_output` ABI represents each output string as one fixed-width byte row.
 
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm unique_permutation --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm unique_permutation
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm unique_permutation --languages rust
+```
+
 | Language | Source |
 | --- | --- |
 | C | [`c/u/unique_permutation.c`](../../../c/u/unique_permutation.c) |

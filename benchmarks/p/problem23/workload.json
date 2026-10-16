@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-23-scalar-v1",
+  "algorithm": "problem23",
+  "function_symbol": "problem23",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [
+      0,
+      28123
+    ],
+    "meaning": "inclusive upper limit for positive integers checked",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of positive values through the inclusive limit not expressible as a sum of two positive abundant numbers",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_limit",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "below_first_abundant",
+      "input_value": 11,
+      "expected_result": 66
+    },
+    {
+      "id": "first_abundant",
+      "input_value": 12,
+      "expected_result": 78
+    },
+    {
+      "id": "below_first_representable_sum",
+      "input_value": 23,
+      "expected_result": 276
+    },
+    {
+      "id": "first_abundant_pair_sum",
+      "input_value": 24,
+      "expected_result": 276
+    },
+    {
+      "id": "next_nonrepresentable_value",
+      "input_value": 25,
+      "expected_result": 301
+    },
+    {
+      "id": "small_intermediate_limit",
+      "input_value": 100,
+      "expected_result": 2766
+    },
+    {
+      "id": "greatest_nonrepresentable_value",
+      "input_value": 20161,
+      "expected_result": 4179871
+    },
+    {
+      "id": "canonical_limit",
+      "input_value": 28123,
+      "expected_result": 4179871
+    },
+    {
+      "id": "negative_limit",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_limit",
+      "input_value": 28124,
+      "expected_result": -1
+    }
+  ]
+}

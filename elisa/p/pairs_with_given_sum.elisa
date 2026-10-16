@@ -1,0 +1,24 @@
+# Count every pair of distinct indices whose values sum to the target.
+def pairs_with_given_sum_impl(input: i64&, length: usize) -> i64:
+    if length == 0 or length > 257:
+        return -2
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < -2147483648 or input[index] > 2147483647:
+            return -2
+        index <- index + 1
+
+    target: i64 = input[0]
+    value_count: usize = length - 1
+    pairs: mutable i64 = 0
+    left: mutable usize = 0
+    while left < value_count:
+        right: mutable usize = left + 1
+        while right < value_count:
+            if input[left + 1] + input[right + 1] == target:
+                pairs <- pairs + 1
+            right <- right + 1
+        left <- left + 1
+    pairs
+
+export fn pairs_with_given_sum(input: i64&, length: usize) -> i64 = pairs_with_given_sum_impl

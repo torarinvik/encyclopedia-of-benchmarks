@@ -1,0 +1,12 @@
+# Count right/down paths through a square grid with a central binomial coefficient.
+def problem15_impl(grid_size: i64) -> i64:
+    if grid_size < 0 or grid_size > 20:
+        return -1
+    paths: mutable i64 = 1
+    step: mutable i64 = 1
+    while step <= grid_size:
+        paths <- paths * (grid_size + step) / step
+        step <- step + 1
+    paths
+
+export fn problem15(grid_size: i64) -> i64 = problem15_impl

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-77-prime-partitions-v1",
+  "algorithm": "problem77",
+  "function_symbol": "problem77",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Nonnegative threshold for the number of unordered prime-sum partitions; return the first n below 100 whose count is strictly greater",
+    "minimum": 0,
+    "maximum": 100000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Smallest n in 1..99 whose prime-partition count exceeds the threshold; -1 when none exists"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "threshold_zero",
+      "input_value": 0,
+      "expected_result": 2
+    },
+    {
+      "id": "threshold_one",
+      "input_value": 1,
+      "expected_result": 5
+    },
+    {
+      "id": "statement_example_threshold_four",
+      "input_value": 4,
+      "expected_result": 10
+    },
+    {
+      "id": "five_hundred",
+      "input_value": 500,
+      "expected_result": 45
+    },
+    {
+      "id": "one_thousand",
+      "input_value": 1000,
+      "expected_result": 53
+    },
+    {
+      "id": "canonical_threshold_five_thousand",
+      "input_value": 5000,
+      "expected_result": 71
+    },
+    {
+      "id": "largest_reachable_threshold",
+      "input_value": 38256,
+      "expected_result": 99
+    },
+    {
+      "id": "unreachable_threshold",
+      "input_value": 38257,
+      "expected_result": -1
+    },
+    {
+      "id": "upper_limit_no_result",
+      "input_value": 100000,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_value": 100001,
+      "expected_result": -1
+    }
+  ]
+}

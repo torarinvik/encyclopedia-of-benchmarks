@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "cone-javascript-i64-array-float64-v1",
+  "algorithm": "cone",
+  "function_symbol": "cone",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "required_length": 3,
+    "layout": [
+      "operation",
+      "radius",
+      "height"
+    ],
+    "operation_values": {
+      "0": "volume",
+      "1": "surface area"
+    },
+    "radius_range": [
+      0,
+      1000
+    ],
+    "height_range": [
+      0,
+      1000
+    ],
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected cone volume or total surface area",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-09,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "volume-3-4",
+      "input_values": [
+        0,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 37.69911184307752
+    },
+    {
+      "id": "surface-3-4-5",
+      "input_values": [
+        1,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 75.39822368615503
+    },
+    {
+      "id": "volume-5-12",
+      "input_values": [
+        0,
+        5,
+        12
+      ],
+      "input_length": 3,
+      "expected_result": 314.1592653589793
+    },
+    {
+      "id": "surface-5-12-13",
+      "input_values": [
+        1,
+        5,
+        12
+      ],
+      "input_length": 3,
+      "expected_result": 282.7433388230814
+    },
+    {
+      "id": "volume-unit-cone-zero-height",
+      "input_values": [
+        0,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "surface-unit-cone-zero-height",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 6.283185307179586
+    },
+    {
+      "id": "volume-zero-radius",
+      "input_values": [
+        0,
+        0,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "surface-zero-radius",
+      "input_values": [
+        1,
+        0,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "surface-zero-height",
+      "input_values": [
+        1,
+        3,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 56.548667764616276
+    },
+    {
+      "id": "max-dimensions-volume",
+      "input_values": [
+        0,
+        1000,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 1047197551.1965977
+    },
+    {
+      "id": "max-dimensions-surface",
+      "input_values": [
+        1,
+        1000,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": 7584475.591748159
+    },
+    {
+      "id": "invalid-selector",
+      "input_values": [
+        2,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative-radius",
+      "input_values": [
+        0,
+        -1,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "height-above-bound",
+      "input_values": [
+        1,
+        3,
+        1001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-input",
+      "input_values": [
+        0,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-long-input",
+      "input_values": [
+        1,
+        3,
+        4,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

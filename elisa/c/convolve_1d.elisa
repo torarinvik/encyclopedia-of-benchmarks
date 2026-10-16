@@ -1,0 +1,57 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MAX_SIGNAL_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_SIGNAL_LENGTH
+const MAX_OUTPUT_BYTES: usize = MAX_SIGNAL_LENGTH * 8
+const MAX_FIXED_SAMPLE: i64 = 128
+const SAMPLE_SCALE: f64 = 16.0
+
+def convolve_1d_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def convolve_1d_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_signal_count: i64 = input[0]
+    raw_kernel_count: i64 = input[1]
+    if raw_signal_count < 0 or raw_signal_count > i64(MAX_SIGNAL_LENGTH) or
+            raw_kernel_count < 0 or raw_kernel_count > i64(MAX_SIGNAL_LENGTH):
+        return -1
+    signal_count: usize = raw_signal_count.usize()
+    kernel_count: usize = raw_kernel_count.usize()
+    if length != 2 + signal_count + kernel_count:
+        return -1
+    index: mutable usize = 0
+    while index < signal_count + kernel_count:
+        value: i64 = input[index + 2]
+        if value < -MAX_FIXED_SAMPLE or value > MAX_FIXED_SAMPLE:
+            return -1
+        index <- index + 1
+
+    output_bytes: usize = signal_count * 8
+    if output_capacity < output_bytes or (output_bytes > 0 and output == null):
+        return -2
+    center: usize = kernel_count / 2
+    i: mutable usize = 0
+    while i < signal_count:
+        accumulated: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < kernel_count:
+            signal_index: i64 = i.i64() + j.i64() - center.i64()
+            if signal_index >= 0 and signal_index < signal_count.i64():
+                kernel_value: f64 = input[2 + signal_count + j].f64() / SAMPLE_SCALE
+                signal_value: f64 = input[2 + signal_index.usize()].f64() / SAMPLE_SCALE
+                accumulated <- accumulated + kernel_value * signal_value
+            j <- j + 1
+        convolve_1d_write_f64(output, i * 8, accumulated)
+        i <- i + 1
+    output_bytes.i64()
+
+export fn convolve_1d(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = convolve_1d_impl

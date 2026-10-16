@@ -14,3 +14,9 @@ The result is serialized with the repository's indexed-tree benchmark convention
 This contract is distinct from [`bst_from_preorder`](../../b/bst_from_preorder/README.md), which takes one traversal and reconstructs only a strict BST. The tree-inorder traversal benchmark only visits an already-built tree.
 
 [`workload.json`](workload.json) covers empty input, general trees, balanced and skewed trees, signed boundaries, duplicates, inconsistent traversals, and malformed packing.
+
+The output workspace is 379 bytes, the maximum encoding for a 63-node tree. Verify all ports and the workload with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm create_binary_tree_from_inorder_preorder
+```

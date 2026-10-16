@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-6-scalar-v1",
+  "algorithm": "problem6",
+  "function_symbol": "problem6",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 100],
+    "meaning": "inclusive upper bound for natural numbers starting at one",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"empty_range","input_value":0,"expected_result":0},
+    {"id":"one_value","input_value":1,"expected_result":0},
+    {"id":"two_values","input_value":2,"expected_result":4},
+    {"id":"three_values","input_value":3,"expected_result":22},
+    {"id":"five_values","input_value":5,"expected_result":170},
+    {"id":"ten_value_example","input_value":10,"expected_result":2640},
+    {"id":"canonical_instance","input_value":100,"expected_result":25164150},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":101,"expected_result":-1}
+  ]
+}

@@ -1,0 +1,33 @@
+def boolean_algebra_gates_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 4098:
+        return -1
+    gate: i64 = values[0]
+    count: i64 = values[1]
+    if gate < 0 or gate > 5 or count < 0 or count > 4096:
+        return -1
+    if count.usize() != length - 2:
+        return -1
+    if gate == 2 and count != 1:
+        return -1
+    result: mutable i64 = 0
+    if gate == 0 or gate == 4:
+        result <- 1
+    index: mutable usize = 0
+    while index < count.usize():
+        bit: i64 = values[index + 2]
+        if bit != 0 and bit != 1:
+            return -1
+        if gate == 0 or gate == 4:
+            result <- result & bit
+        elif gate == 1 or gate == 5:
+            result <- result | bit
+        elif gate == 2:
+            result <- 1 - bit
+        else:
+            result <- result ^ bit
+        index <- index + 1
+    if gate == 4 or gate == 5:
+        result <- 1 - result
+    result
+
+export fn boolean_algebra_gates(values: i64&, length: usize) -> i64 = boolean_algebra_gates_impl

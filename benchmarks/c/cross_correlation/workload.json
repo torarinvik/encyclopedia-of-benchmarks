@@ -126,6 +126,19 @@
       "expected_output_hex": "00f05a2b17ffffff"
     },
     {
+      "id": "undersized_output_capacity",
+      "input_values": [
+        1,
+        1,
+        -7,
+        6
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    },
+    {
       "id": "maximum_signal_lengths",
       "input_values": [
         32,

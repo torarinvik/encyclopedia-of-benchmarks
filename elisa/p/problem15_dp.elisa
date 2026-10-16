@@ -1,0 +1,19 @@
+# Count square-grid paths with the pinned two-dimensional dynamic-programming recurrence.
+def problem15_dp_impl(grid_size: i64) -> i64:
+    if grid_size < 0 or grid_size > 20:
+        return -1
+    counts: mutable i64[441] = zeroed
+    index: mutable usize = 0
+    while index < 441:
+        counts[index] <- 1
+        index <- index + 1
+    row: mutable usize = 1
+    while row <= grid_size.usize():
+        column: mutable usize = 1
+        while column <= grid_size.usize():
+            counts[row * 21 + column] <- counts[(row - 1) * 21 + column] + counts[row * 21 + column - 1]
+            column <- column + 1
+        row <- row + 1
+    counts[grid_size.usize() * 21 + grid_size.usize()]
+
+export fn problem15_dp(grid_size: i64) -> i64 = problem15_dp_impl

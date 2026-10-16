@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-203-i64-scalar-v1",
+  "algorithm": "problem203",
+  "function_symbol": "problem203",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Number of rows of Pascal triangle, following pinned source loop semantics",
+    "minimum_depth": "unbounded negative values follow source and return 1",
+    "maximum_depth": 51,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of distinct squarefree coefficients in the first depth rows",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "negative_depth_source_initial_set",
+      "input_value": -1,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_depth_source_initial_set",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "depth_one",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "depth_two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "depth_three",
+      "input_value": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "source_example_depth_eight",
+      "input_value": 8,
+      "expected_result": 105
+    },
+    {
+      "id": "source_example_depth_nine",
+      "input_value": 9,
+      "expected_result": 175
+    },
+    {
+      "id": "canonical_depth_fifty_one",
+      "input_value": 51,
+      "expected_result": 34029210557338
+    },
+    {
+      "id": "first_unsupported_depth",
+      "input_value": 52,
+      "expected_result": -1
+    }
+  ]
+}

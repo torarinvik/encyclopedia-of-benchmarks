@@ -1,0 +1,31 @@
+def celebrity_finder_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or input[0] < 1 or input[0] > 64:
+        return -2
+    n: usize = input[0].usize()
+    if length != 1 + n * n:
+        return -2
+    for i in 1..<length:
+        if input[i] != 0 and input[i] != 1:
+            return -2
+    stack: mutable i64[64] = zeroed
+    top: mutable usize = 0
+    for i in 0..<n:
+        stack[top] <- i.i64()
+        top <- top + 1
+    while top > 1:
+        top <- top - 1
+        person1: usize = stack[top].usize()
+        top <- top - 1
+        person2: usize = stack[top].usize()
+        if input[1 + person1 * n + person2] == 1:
+            stack[top] <- person2.i64()
+        else:
+            stack[top] <- person1.i64()
+        top <- top + 1
+    candidate: usize = stack[0].usize()
+    for i in 0..<n:
+        if i != candidate and (input[1 + candidate * n + i] == 1 or input[1 + i * n + candidate] == 0):
+            return -1
+    candidate.i64()
+
+export fn celebrity_finder(input: i64&, length: usize) i64 = celebrity_finder_impl

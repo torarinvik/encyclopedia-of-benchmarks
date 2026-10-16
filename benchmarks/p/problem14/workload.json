@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-14-scalar-v1",
+  "algorithm": "problem14",
+  "function_symbol": "problem14",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 1000000],
+    "meaning": "inclusive upper bound for Collatz starting values",
+    "chain_length": "number of terms from the start through terminal 1, inclusive",
+    "tie_rule": "smallest starting value",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "starting value with maximum Collatz chain length",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"single_start","input_value":1,"expected_result":1},
+    {"id":"two_starts","input_value":2,"expected_result":2},
+    {"id":"three_starts","input_value":3,"expected_result":3},
+    {"id":"small_range_through_13","input_value":13,"expected_result":9},
+    {"id":"canonical_one_million_limit","input_value":1000000,"expected_result":837799},
+    {"id":"zero_limit","input_value":0,"expected_result":-1},
+    {"id":"negative_limit","input_value":-1,"expected_result":-1},
+    {"id":"above_limit","input_value":1000001,"expected_result":-1}
+  ]
+}

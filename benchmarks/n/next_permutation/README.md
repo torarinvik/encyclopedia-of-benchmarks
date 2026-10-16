@@ -20,6 +20,12 @@ This differs from [`all_permutations`](../../a/all_permutations/README.md), whic
 
 [`workload.json`](workload.json) covers empty/singleton inputs, ordinary and duplicate values, the last permutation, signed values, and malformed inputs. The shared `i64_array_bytes_output` ABI represents the transformed array as little-endian signed 32-bit values.
 
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm next_permutation --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm next_permutation
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm next_permutation --languages rust
+```
+
 | Language | Source |
 | --- | --- |
 | C | [`c/n/next_permutation.c`](../../../c/n/next_permutation.c) |

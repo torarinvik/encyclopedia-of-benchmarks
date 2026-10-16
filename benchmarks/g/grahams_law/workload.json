@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "grahams-law-five-operations-binary64-v1",
+  "algorithm": "grahams_law",
+  "function_symbol": "grahams_law",
+  "input": {
+    "kind": "signed_i64_array_with_binary64_bit_patterns",
+    "operation_codes": {
+      "effusion_ratio": 0,
+      "first_effusion_rate": 1,
+      "second_effusion_rate": 2,
+      "first_molar_mass": 3,
+      "second_molar_mass": 4
+    },
+    "operand_encoding": "Each operand is stored as the signed-i64 representation of its IEEE-754 binary64 bits.",
+    "operand_range": [1e-6, 1e6],
+    "maximum_output": 1e6,
+    "rounding_boundary_guard": 0.001,
+    "rounding_boundary_interval_inclusive": [0.499, 0.501],
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "rounding": "Python round(result, 6), ties to even",
+    "invalid_input_result": -1e300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"effusion-ratio-reference","input_values":[0,4611722047224406868,4616191869854572085],"expected_result":1.408943},
+    {"id":"first-rate-exact-ratio","input_values":[1,4613937818241073152,4607182418800017408,4616189618054758400],"expected_result":6.0},
+    {"id":"second-rate-exact-ratio","input_values":[2,4620693217682128896,4607182418800017408,4616189618054758400],"expected_result":4.0},
+    {"id":"first-molar-mass-reference","input_values":[3,4611686018427387904,4609024134342433181,4604568097230727345],"expected_result":0.507524},
+    {"id":"second-molar-mass-reference","input_values":[4,4611686018427387904,4609024134342433181,4604568097230727345],"expected_result":1.970351},
+    {"id":"invalid-empty","input_values":[],"expected_result":-1e300},
+    {"id":"invalid-shape","input_values":[0,4611686018427387904],"expected_result":-1e300},
+    {"id":"invalid-operation","input_values":[5,4607182418800017408,4616189618054758400],"expected_result":-1e300},
+    {"id":"invalid-zero-operand","input_values":[0,0,4616189618054758400],"expected_result":-1e300},
+    {"id":"invalid-nan-operand","input_values":[0,9221120237041090560,4616189618054758400],"expected_result":-1e300},
+    {"id":"invalid-rounding-boundary","input_values":[1,4523013384356194545,4607182418800017408,4607182418800017408],"expected_result":-1e300},
+    {"id":"rounding-boundary-below-guard","input_values":[1,4522989772523780196,4607182418800017408,4607182418800017408],"expected_result":0.000002},
+    {"id":"rounding-boundary-above-guard","input_values":[1,4523015981657760123,4607182418800017408,4607182418800017408],"expected_result":0.000003},
+    {"id":"invalid-result-over-bound","input_values":[1,4696837146684686336,4517329193108106637,4696837146684686336],"expected_result":-1e300},
+    {"id":"invalid-inclusive-guard-lower-edge","input_values":[1,4517329193108106637,4607182418800017408,4598139226777054471],"expected_result":-1e300}
+  ]
+}

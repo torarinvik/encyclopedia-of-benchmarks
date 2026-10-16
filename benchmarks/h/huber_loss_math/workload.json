@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "id": "rust-huber-loss-math-i64-array-float64-v1",
+  "algorithm": "huber_loss_math",
+  "function_symbol": "huber_loss_math",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[delta_micro,actual_count,predicted_count,actual_values...,predicted_values...]",
+    "scale": 1000000,
+    "delta_range": [
+      0,
+      1000000000
+    ],
+    "sample_range": [
+      -1000000000,
+      1000000000
+    ],
+    "array_length_range": [
+      0,
+      64
+    ],
+    "unequal_lengths": "zip truncation; sum the first min(counts) pairs",
+    "maximum_packed_values": 133,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "sum of pinned source per-pair values using delta*residual-delta/2 in the linear branch",
+    "invalid_result": -1e+300
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        1000000,
+        5,
+        5,
+        1000000,
+        2000000,
+        3000000,
+        4000000,
+        5000000,
+        5000000,
+        7000000,
+        9000000,
+        11000000,
+        13000000
+      ],
+      "input_length": 13,
+      "expected_result": 27.5
+    },
+    {
+      "id": "quadratic_branch_sum",
+      "input_values": [
+        2000000,
+        2,
+        2,
+        1000000,
+        1500000,
+        2000000,
+        2500000
+      ],
+      "input_length": 7,
+      "expected_result": 1.0
+    },
+    {
+      "id": "at_delta_boundary",
+      "input_values": [
+        1000000,
+        1,
+        1,
+        0,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.5
+    },
+    {
+      "id": "source_linear_branch",
+      "input_values": [
+        1000000,
+        1,
+        1,
+        0,
+        2000000
+      ],
+      "input_length": 5,
+      "expected_result": 1.5
+    },
+    {
+      "id": "unequal_actual_longer",
+      "input_values": [
+        1000000,
+        2,
+        1,
+        0,
+        100000000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 0.5
+    },
+    {
+      "id": "unequal_predicted_longer",
+      "input_values": [
+        1000000,
+        1,
+        2,
+        0,
+        1000000,
+        100000000
+      ],
+      "input_length": 6,
+      "expected_result": 0.5
+    },
+    {
+      "id": "both_empty",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "actual_empty",
+      "input_values": [
+        1000000,
+        0,
+        2,
+        0,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "predicted_empty",
+      "input_values": [
+        1000000,
+        2,
+        0,
+        0,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_delta_nonzero_difference",
+      "input_values": [
+        0,
+        1,
+        1,
+        0,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_difference",
+      "input_values": [
+        1000000,
+        1,
+        1,
+        1234567,
+        1234567
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_delta_zero_difference",
+      "input_values": [
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum_delta",
+      "input_values": [
+        1000000000,
+        1,
+        1,
+        0,
+        1000000000
+      ],
+      "input_length": 5,
+      "expected_result": 500000.0
+    },
+    {
+      "id": "negative_samples",
+      "input_values": [
+        1000000,
+        2,
+        2,
+        -1000000,
+        1000000,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 1.0
+    },
+    {
+      "id": "negative_delta_rejected",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "sample_bound_rejected",
+      "input_values": [
+        1000000,
+        1,
+        1,
+        1000000001,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "over_bound_counts_rejected",
+      "input_values": [
+        0,
+        65,
+        65,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 133,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "incomplete_packing_rejected",
+      "input_values": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value_rejected",
+      "input_values": [
+        0,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  }
+}

@@ -1,0 +1,56 @@
+def complex_arithmetic_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def complex_arithmetic_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length != 5:
+        return -1
+    operation: i64 = input[0]
+    ar: i64 = input[1]
+    ai: i64 = input[2]
+    br: i64 = input[3]
+    bi: i64 = input[4]
+    if operation < 0 or operation > 5 or ar < -100000 or ar > 100000 or
+            ai < -100000 or ai > 100000 or br < -100000 or br > 100000 or
+            bi < -100000 or bi > 100000:
+        return -1
+
+    real_result: mutable i64 = 0
+    imaginary_result: mutable i64 = 0
+    if operation == 0:
+        real_result <- ar + br
+        imaginary_result <- ai + bi
+    elif operation == 1:
+        real_result <- ar - br
+        imaginary_result <- ai - bi
+    elif operation == 2:
+        real_result <- ar * br - ai * bi
+        imaginary_result <- ar * bi + ai * br
+    elif operation == 3:
+        denominator: i64 = br * br + bi * bi
+        if denominator == 0:
+            return -1
+        real_numerator: i64 = ar * br + ai * bi
+        imaginary_numerator: i64 = ai * br - ar * bi
+        if real_numerator % denominator != 0 or imaginary_numerator % denominator != 0:
+            return -1
+        real_result <- real_numerator / denominator
+        imaginary_result <- imaginary_numerator / denominator
+    elif operation == 4:
+        real_result <- ar
+        imaginary_result <- -ai
+    else:
+        if ar == br and ai == bi:
+            real_result <- 1
+
+    if output_capacity < 16 or output == null:
+        return -2
+    complex_arithmetic_store_i64(real_result, output, 0)
+    complex_arithmetic_store_i64(imaginary_result, output, 8)
+    return 2
+
+export fn complex_arithmetic(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = complex_arithmetic_impl

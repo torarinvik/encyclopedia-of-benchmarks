@@ -1,0 +1,201 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 128
+
+def heavy_light_path_max_put(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[slot * 8 + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def heavy_light_path_max_value(left: i64, right: i64) -> i64:
+    if left > right:
+        return left
+    right
+
+def heavy_light_path_max_range(tree: i64&, n: usize, left: usize, right: usize) -> i64:
+    l: mutable usize = left + n
+    r: mutable usize = right + n + 1
+    maximum: mutable i64 = -2147483648
+    while l < r:
+        if (l & 1) == 1:
+            maximum <- heavy_light_path_max_value(maximum, tree[l])
+            l <- l + 1
+        if (r & 1) == 1:
+            r <- r - 1
+            maximum <- heavy_light_path_max_value(maximum, tree[r])
+        l <- l / 2
+        r <- r / 2
+    maximum
+
+def heavy_light_path_max_set(tree: mutable i64&, n: usize, position: usize, value: i64) -> void:
+    p: mutable usize = position + n
+    tree[p] <- value
+    while p > 1:
+        p <- p / 2
+        tree[p] <- heavy_light_path_max_value(tree[p * 2], tree[p * 2 + 1])
+
+def heavy_light_path_max_path(tree: i64&, n: usize, parent: i64&, depth: i64&, head: i64&, position: i64&, a_value: usize, b_value: usize) -> i64:
+    a: mutable usize = a_value
+    b: mutable usize = b_value
+    maximum: mutable i64 = -2147483648
+    while head[a].usize() != head[b].usize():
+        if depth[head[a].usize()].usize() < depth[head[b].usize()].usize():
+            temporary: usize = a
+            a <- b
+            b <- temporary
+        chain: usize = head[a].usize()
+        maximum <- heavy_light_path_max_value(maximum, heavy_light_path_max_range(tree, n, position[chain].usize(), position[a].usize()))
+        a <- parent[chain].usize()
+    if depth[a].usize() > depth[b].usize():
+        temporary: usize = a
+        a <- b
+        b <- temporary
+    heavy_light_path_max_value(maximum, heavy_light_path_max_range(tree, n, position[a].usize(), position[b].usize()))
+
+def heavy_light_path_max_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2:
+        return -1
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or q_value < 0 or q_value > 128:
+        return -1
+    n: usize = n_value.usize()
+    q: usize = q_value.usize()
+    if length != 3 * n + 3 * q:
+        return -1
+
+    values: mutable i64[64] = zeroed
+    cursor: mutable usize = 2
+    for v in 0..<n:
+        values[v] <- input[cursor]
+        if values[v] < -2147483648 or values[v] > 2147483647:
+            return -1
+        cursor <- cursor + 1
+
+    adjacency: mutable i64[4096] = zeroed
+    degree: mutable usize[64] = zeroed
+    for edge in 0..<(n - 1):
+        u_value: i64 = input[cursor]
+        v_value: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value:
+            return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        for i in 0..<degree[u]:
+            if adjacency[u * 64 + i] == v_value:
+                return -1
+        adjacency[u * 64 + degree[u]] <- v_value
+        degree[u] <- degree[u] + 1
+        adjacency[v * 64 + degree[v]] <- u_value
+        degree[v] <- degree[v] + 1
+
+    parent: mutable i64[64] = zeroed
+    depth: mutable i64[64] = zeroed
+    order: mutable usize[64] = zeroed
+    stack: mutable usize[64] = zeroed
+    for v in 0..<n:
+        parent[v] <- -2
+    parent[0] <- -1
+    top: mutable usize = 1
+    order_count: mutable usize = 0
+    stack[0] <- 0
+    while top > 0:
+        top <- top - 1
+        u: usize = stack[top]
+        order[order_count] <- u
+        order_count <- order_count + 1
+        i: mutable usize = degree[u]
+        while i > 0:
+            i <- i - 1
+            v: usize = adjacency[u * 64 + i].usize()
+            if parent[u] >= 0 and v.i64() == parent[u]:
+                continue
+            if parent[v] != -2:
+                return -1
+            parent[v] <- u.i64()
+            depth[v] <- depth[u] + 1
+            stack[top] <- v
+            top <- top + 1
+    if order_count != n:
+        return -1
+
+    subtree: mutable usize[64] = zeroed
+    heavy: mutable i64[64] = zeroed
+    for v in 0..<n:
+        subtree[v] <- 1
+        heavy[v] <- -1
+    index: mutable usize = n
+    while index > 1:
+        index <- index - 1
+        v: usize = order[index]
+        p: usize = parent[v].usize()
+        subtree[p] <- subtree[p] + subtree[v]
+        if heavy[p] < 0 or subtree[v] > subtree[heavy[p].usize()]:
+            heavy[p] <- v.i64()
+
+    head: mutable i64[64] = zeroed
+    position: mutable i64[64] = zeroed
+    todo_vertex: mutable usize[64] = zeroed
+    todo_head: mutable usize[64] = zeroed
+    base: mutable i64[64] = zeroed
+    todo: mutable usize = 1
+    timer: mutable usize = 0
+    todo_vertex[0] <- 0
+    todo_head[0] <- 0
+    while todo > 0:
+        todo <- todo - 1
+        u: mutable usize = todo_vertex[todo]
+        chain: usize = todo_head[todo]
+        while u < n:
+            head[u] <- chain.i64()
+            position[u] <- timer.i64()
+            base[timer] <- values[u]
+            timer <- timer + 1
+            for i in 0..<degree[u]:
+                v: usize = adjacency[u * 64 + i].usize()
+                if parent[v] == u.i64() and heavy[u] != v.i64():
+                    todo_vertex[todo] <- v
+                    todo_head[todo] <- v
+                    todo <- todo + 1
+            if heavy[u] < 0:
+                u <- n
+            else:
+                u <- heavy[u].usize()
+
+    segment: mutable i64[128] = zeroed
+    for i in 0..<n:
+        segment[n + i] <- base[i]
+    i: mutable usize = n
+    while i > 1:
+        i <- i - 1
+        segment[i] <- heavy_light_path_max_value(segment[2 * i], segment[2 * i + 1])
+
+    results: mutable i64[128] = zeroed
+    result_count: mutable usize = 0
+    operations: usize = cursor
+    for i in 0..<q:
+        op: i64 = input[operations + 3 * i]
+        av: i64 = input[operations + 3 * i + 1]
+        bv: i64 = input[operations + 3 * i + 2]
+        if op == 0:
+            if av < 0 or av >= n_value or bv < -2147483648 or bv > 2147483647:
+                return -1
+            values[av.usize()] <- bv
+            heavy_light_path_max_set(segment, n, position[av.usize()].usize(), bv)
+        else if op == 1:
+            if av < 0 or av >= n_value or bv < 0 or bv >= n_value:
+                return -1
+            results[result_count] <- heavy_light_path_max_path(segment, n, parent, depth, head, position, av.usize(), bv.usize())
+            result_count <- result_count + 1
+        else:
+            return -1
+
+    output_bytes: usize = result_count * 8
+    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+        return -2
+    for i in 0..<result_count:
+        heavy_light_path_max_put(output, i, results[i])
+    output_bytes.i64()
+
+export fn heavy_light_path_max(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heavy_light_path_max_impl

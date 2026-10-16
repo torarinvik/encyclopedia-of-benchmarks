@@ -1,0 +1,9 @@
+# Reverse the byte order of a signed 32-bit integer.
+def endian_converter_impl(value: i64) -> i64:
+    if value < -2147483648 or value > 2147483647: return -2147483649
+    bits: i64 = value & 4294967295
+    reversed: i64 = ((bits & 255) << 24) | ((bits & 65280) << 8) | ((bits & 16711680) >> 8) | ((bits & 4278190080) >> 24)
+    if reversed >= 2147483648: return reversed - 4294967296
+    reversed
+
+export fn endian_converter(value: i64) -> i64 = endian_converter_impl

@@ -1,0 +1,1026 @@
+{
+  "schema_version": 1,
+  "id": "python-endianness-conversions-v1",
+  "algorithm": "endianness",
+  "function_symbol": "endianness",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "operation-specific; see README contract",
+    "maximum_length": 10
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Numeric UInt64 results and packed byte outputs are transported as signed two's-complement i64 bit patterns; mode 5/6 bytes are packed little-endian."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "swap16_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "swap16_byte",
+      "input_values": [
+        0,
+        255
+      ],
+      "expected_result": 65280
+    },
+    {
+      "id": "swap16_pattern",
+      "input_values": [
+        0,
+        4660
+      ],
+      "expected_result": 13330
+    },
+    {
+      "id": "swap16_max",
+      "input_values": [
+        0,
+        65535
+      ],
+      "expected_result": 65535
+    },
+    {
+      "id": "swap32_zero",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "swap32_pattern",
+      "input_values": [
+        1,
+        305419896
+      ],
+      "expected_result": 2018915346
+    },
+    {
+      "id": "swap32_high",
+      "input_values": [
+        1,
+        3735928559
+      ],
+      "expected_result": 4022250974
+    },
+    {
+      "id": "swap32_max",
+      "input_values": [
+        1,
+        4294967295
+      ],
+      "expected_result": 4294967295
+    },
+    {
+      "id": "swap64_zero",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "swap64_one",
+      "input_values": [
+        2,
+        1
+      ],
+      "expected_result": 72057594037927936
+    },
+    {
+      "id": "swap64_distinct",
+      "input_values": [
+        2,
+        72623859790382856
+      ],
+      "expected_result": 578437695752307201
+    },
+    {
+      "id": "swap64_highbit",
+      "input_values": [
+        2,
+        -9223372036854775808
+      ],
+      "expected_result": 128
+    },
+    {
+      "id": "swap64_max",
+      "input_values": [
+        2,
+        9223372036854775807
+      ],
+      "expected_result": -129
+    },
+    {
+      "id": "bytes_little_one",
+      "input_values": [
+        3,
+        1,
+        255
+      ],
+      "expected_result": 255
+    },
+    {
+      "id": "bytes_little_short",
+      "input_values": [
+        3,
+        3,
+        120,
+        86,
+        52
+      ],
+      "expected_result": 3430008
+    },
+    {
+      "id": "bytes_little_eight",
+      "input_values": [
+        3,
+        8,
+        120,
+        86,
+        52,
+        18,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 305419896
+    },
+    {
+      "id": "bytes_little_highbit",
+      "input_values": [
+        3,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        128
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "bytes_big_one",
+      "input_values": [
+        4,
+        1,
+        255
+      ],
+      "expected_result": 255
+    },
+    {
+      "id": "bytes_big_short",
+      "input_values": [
+        4,
+        3,
+        18,
+        52,
+        86
+      ],
+      "expected_result": 1193046
+    },
+    {
+      "id": "bytes_big_eight",
+      "input_values": [
+        4,
+        8,
+        18,
+        52,
+        86,
+        120,
+        154,
+        188,
+        222,
+        240
+      ],
+      "expected_result": 1311768467463790320
+    },
+    {
+      "id": "bytes_big_highbit",
+      "input_values": [
+        4,
+        8,
+        128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "int_to_little_short",
+      "input_values": [
+        5,
+        513,
+        2
+      ],
+      "expected_result": 513
+    },
+    {
+      "id": "int_to_little_full",
+      "input_values": [
+        5,
+        81985529216486895,
+        8
+      ],
+      "expected_result": 81985529216486895
+    },
+    {
+      "id": "int_to_little_highbit",
+      "input_values": [
+        5,
+        -9223372036854775808,
+        8
+      ],
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "int_to_little_max",
+      "input_values": [
+        5,
+        9223372036854775807,
+        8
+      ],
+      "expected_result": 9223372036854775807
+    },
+    {
+      "id": "int_to_big_short",
+      "input_values": [
+        6,
+        513,
+        2
+      ],
+      "expected_result": 258
+    },
+    {
+      "id": "int_to_big_full",
+      "input_values": [
+        6,
+        81985529216486895,
+        8
+      ],
+      "expected_result": -1167088121787636991
+    },
+    {
+      "id": "int_to_big_highbit",
+      "input_values": [
+        6,
+        -9223372036854775808,
+        8
+      ],
+      "expected_result": 128
+    },
+    {
+      "id": "int_to_big_max",
+      "input_values": [
+        6,
+        9223372036854775807,
+        8
+      ],
+      "expected_result": -129
+    },
+    {
+      "id": "malformed_op",
+      "input_values": [
+        7,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_length16",
+      "input_values": [
+        0,
+        65536
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_short_bytes",
+      "input_values": [
+        3,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_big_bytes",
+      "input_values": [
+        4,
+        2,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_value_width",
+      "input_values": [
+        5,
+        256,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_width",
+      "input_values": [
+        6,
+        1,
+        9
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "seeded_swap_00",
+      "input_values": [
+        0,
+        20196
+      ],
+      "expected_result": 58446
+    },
+    {
+      "id": "seeded_swap_01",
+      "input_values": [
+        1,
+        1148156771
+      ],
+      "expected_result": 1669033796
+    },
+    {
+      "id": "seeded_swap_02",
+      "input_values": [
+        2,
+        -9044280088935969098
+      ],
+      "expected_result": -5310072159836341118
+    },
+    {
+      "id": "seeded_swap_03",
+      "input_values": [
+        0,
+        41293
+      ],
+      "expected_result": 19873
+    },
+    {
+      "id": "seeded_swap_04",
+      "input_values": [
+        1,
+        2210008792
+      ],
+      "expected_result": 3624843907
+    },
+    {
+      "id": "seeded_swap_05",
+      "input_values": [
+        2,
+        226364263574357319
+      ],
+      "expected_result": 5135565032737022979
+    },
+    {
+      "id": "seeded_swap_06",
+      "input_values": [
+        0,
+        59338
+      ],
+      "expected_result": 51943
+    },
+    {
+      "id": "seeded_swap_07",
+      "input_values": [
+        1,
+        2802611665
+      ],
+      "expected_result": 3514109095
+    },
+    {
+      "id": "seeded_swap_08",
+      "input_values": [
+        2,
+        5717268166429632012
+      ],
+      "expected_result": 929622929834071887
+    },
+    {
+      "id": "seeded_swap_09",
+      "input_values": [
+        0,
+        58731
+      ],
+      "expected_result": 27621
+    },
+    {
+      "id": "seeded_swap_10",
+      "input_values": [
+        1,
+        2566711838
+      ],
+      "expected_result": 518716568
+    },
+    {
+      "id": "seeded_swap_11",
+      "input_values": [
+        2,
+        -1580499824796005739
+      ],
+      "expected_result": -7671187624556556054
+    },
+    {
+      "id": "seeded_swap_12",
+      "input_values": [
+        0,
+        51328
+      ],
+      "expected_result": 32968
+    },
+    {
+      "id": "seeded_swap_13",
+      "input_values": [
+        1,
+        1332297679
+      ],
+      "expected_result": 3477039439
+    },
+    {
+      "id": "seeded_swap_14",
+      "input_values": [
+        2,
+        -3647438627244709454
+      ],
+      "expected_result": -5590925660291767859
+    },
+    {
+      "id": "seeded_swap_15",
+      "input_values": [
+        0,
+        25497
+      ],
+      "expected_result": 39267
+    },
+    {
+      "id": "seeded_swap_16",
+      "input_values": [
+        1,
+        2265967156
+      ],
+      "expected_result": 887754631
+    },
+    {
+      "id": "seeded_swap_17",
+      "input_values": [
+        2,
+        2670370397113251955
+      ],
+      "expected_result": 8320584319677435685
+    },
+    {
+      "id": "seeded_swap_18",
+      "input_values": [
+        0,
+        47750
+      ],
+      "expected_result": 34490
+    },
+    {
+      "id": "seeded_swap_19",
+      "input_values": [
+        1,
+        4006200541
+      ],
+      "expected_result": 3720661486
+    },
+    {
+      "id": "seeded_swap_20",
+      "input_values": [
+        2,
+        2944155380364197672
+      ],
+      "expected_result": 2936110814253144872
+    },
+    {
+      "id": "seeded_swap_21",
+      "input_values": [
+        0,
+        62295
+      ],
+      "expected_result": 22515
+    },
+    {
+      "id": "seeded_swap_22",
+      "input_values": [
+        1,
+        2587848858
+      ],
+      "expected_result": 2591047578
+    },
+    {
+      "id": "seeded_swap_23",
+      "input_values": [
+        2,
+        4668321539430330977
+      ],
+      "expected_result": 7039703253754693952
+    },
+    {
+      "id": "seeded_swap_24",
+      "input_values": [
+        0,
+        64348
+      ],
+      "expected_result": 23803
+    },
+    {
+      "id": "seeded_swap_25",
+      "input_values": [
+        1,
+        2432914555
+      ],
+      "expected_result": 2069103505
+    },
+    {
+      "id": "seeded_swap_26",
+      "input_values": [
+        2,
+        6075089479620452334
+      ],
+      "expected_result": -1270158256092917932
+    },
+    {
+      "id": "seeded_swap_27",
+      "input_values": [
+        0,
+        28709
+      ],
+      "expected_result": 9584
+    },
+    {
+      "id": "seeded_swap_28",
+      "input_values": [
+        1,
+        4154233552
+      ],
+      "expected_result": 3499269367
+    },
+    {
+      "id": "seeded_swap_29",
+      "input_values": [
+        2,
+        -6652908914070093857
+      ],
+      "expected_result": -2341921981800207197
+    },
+    {
+      "id": "seeded_swap_30",
+      "input_values": [
+        0,
+        40066
+      ],
+      "expected_result": 33436
+    },
+    {
+      "id": "seeded_swap_31",
+      "input_values": [
+        1,
+        1984660009
+      ],
+      "expected_result": 696404854
+    },
+    {
+      "id": "seeded_swap_32",
+      "input_values": [
+        2,
+        -3459228786260919932
+      ],
+      "expected_result": -8883037837266911537
+    },
+    {
+      "id": "seeded_swap_33",
+      "input_values": [
+        0,
+        39299
+      ],
+      "expected_result": 33689
+    },
+    {
+      "id": "seeded_swap_34",
+      "input_values": [
+        1,
+        3271129686
+      ],
+      "expected_result": 1450899906
+    },
+    {
+      "id": "seeded_swap_35",
+      "input_values": [
+        2,
+        -183369523838014355
+      ],
+      "expected_result": 7902692259547215101
+    },
+    {
+      "id": "seeded_swap_36",
+      "input_values": [
+        0,
+        58232
+      ],
+      "expected_result": 30947
+    },
+    {
+      "id": "seeded_swap_37",
+      "input_values": [
+        1,
+        3166700903
+      ],
+      "expected_result": 1728430268
+    },
+    {
+      "id": "seeded_swap_38",
+      "input_values": [
+        2,
+        8065844077293833578
+      ],
+      "expected_result": 7678014080969535343
+    },
+    {
+      "id": "seeded_swap_39",
+      "input_values": [
+        0,
+        62193
+      ],
+      "expected_result": 61938
+    },
+    {
+      "id": "seeded_swap_40",
+      "input_values": [
+        1,
+        4176659628
+      ],
+      "expected_result": 2898588408
+    },
+    {
+      "id": "seeded_swap_41",
+      "input_values": [
+        2,
+        -430652244619073653
+      ],
+      "expected_result": -8401533613614299398
+    },
+    {
+      "id": "seeded_swap_42",
+      "input_values": [
+        0,
+        43454
+      ],
+      "expected_result": 48809
+    },
+    {
+      "id": "seeded_swap_43",
+      "input_values": [
+        1,
+        1650432437
+      ],
+      "expected_result": 3046727522
+    },
+    {
+      "id": "seeded_swap_44",
+      "input_values": [
+        2,
+        835199795140186400
+      ],
+      "expected_result": 2328871050977842955
+    },
+    {
+      "id": "seeded_swap_45",
+      "input_values": [
+        0,
+        41967
+      ],
+      "expected_result": 61347
+    },
+    {
+      "id": "seeded_swap_46",
+      "input_values": [
+        1,
+        2501763922
+      ],
+      "expected_result": 1390615957
+    },
+    {
+      "id": "seeded_swap_47",
+      "input_values": [
+        2,
+        5166037819510498489
+      ],
+      "expected_result": -5105911375403372217
+    },
+    {
+      "id": "seeded_bytes_00",
+      "input_values": [
+        5,
+        212,
+        1
+      ],
+      "expected_result": 212
+    },
+    {
+      "id": "seeded_bytes_01",
+      "input_values": [
+        6,
+        56979,
+        2
+      ],
+      "expected_result": 37854
+    },
+    {
+      "id": "seeded_bytes_02",
+      "input_values": [
+        5,
+        5738022,
+        3
+      ],
+      "expected_result": 5738022
+    },
+    {
+      "id": "seeded_bytes_03",
+      "input_values": [
+        6,
+        1366185981,
+        4
+      ],
+      "expected_result": 4250365521
+    },
+    {
+      "id": "seeded_bytes_04",
+      "input_values": [
+        5,
+        710141049800,
+        5
+      ],
+      "expected_result": 710141049800
+    },
+    {
+      "id": "seeded_bytes_05",
+      "input_values": [
+        6,
+        75889235819383,
+        6
+      ],
+      "expected_result": 131374213629253
+    },
+    {
+      "id": "seeded_bytes_06",
+      "input_values": [
+        5,
+        28058094644575802,
+        7
+      ],
+      "expected_result": 28058094644575802
+    },
+    {
+      "id": "seeded_bytes_07",
+      "input_values": [
+        6,
+        -5422149936610527359,
+        8
+      ],
+      "expected_result": -9135714273934720844
+    },
+    {
+      "id": "seeded_bytes_08",
+      "input_values": [
+        5,
+        252,
+        1
+      ],
+      "expected_result": 252
+    },
+    {
+      "id": "seeded_bytes_09",
+      "input_values": [
+        6,
+        7835,
+        2
+      ],
+      "expected_result": 39710
+    },
+    {
+      "id": "seeded_bytes_10",
+      "input_values": [
+        5,
+        5556110,
+        3
+      ],
+      "expected_result": 5556110
+    },
+    {
+      "id": "seeded_bytes_11",
+      "input_values": [
+        6,
+        3052668741,
+        4
+      ],
+      "expected_result": 1158149301
+    },
+    {
+      "id": "seeded_bytes_12",
+      "input_values": [
+        5,
+        978079253360,
+        5
+      ],
+      "expected_result": 978079253360
+    },
+    {
+      "id": "seeded_bytes_13",
+      "input_values": [
+        6,
+        194000942902271,
+        6
+      ],
+      "expected_result": 281111135351216
+    },
+    {
+      "id": "seeded_bytes_14",
+      "input_values": [
+        5,
+        51843586967813666,
+        7
+      ],
+      "expected_result": 51843586967813666
+    },
+    {
+      "id": "seeded_bytes_15",
+      "input_values": [
+        6,
+        7421587468752014153,
+        8
+      ],
+      "expected_result": 5281442842685144678
+    },
+    {
+      "id": "seeded_bytes_16",
+      "input_values": [
+        5,
+        36,
+        1
+      ],
+      "expected_result": 36
+    },
+    {
+      "id": "seeded_bytes_17",
+      "input_values": [
+        6,
+        18339,
+        2
+      ],
+      "expected_result": 41799
+    },
+    {
+      "id": "seeded_bytes_18",
+      "input_values": [
+        5,
+        980470,
+        3
+      ],
+      "expected_result": 980470
+    },
+    {
+      "id": "seeded_bytes_19",
+      "input_values": [
+        6,
+        3342583693,
+        4
+      ],
+      "expected_result": 2378644423
+    },
+    {
+      "id": "seeded_bytes_20",
+      "input_values": [
+        5,
+        969152235544,
+        5
+      ],
+      "expected_result": 969152235544
+    },
+    {
+      "id": "seeded_bytes_21",
+      "input_values": [
+        6,
+        391995479431,
+        6
+      ],
+      "expected_result": 148802367675136
+    },
+    {
+      "id": "seeded_bytes_22",
+      "input_values": [
+        5,
+        14536326799393546,
+        7
+      ],
+      "expected_result": 14536326799393546
+    },
+    {
+      "id": "seeded_bytes_23",
+      "input_values": [
+        6,
+        7526744009591324689,
+        8
+      ],
+      "expected_result": 1261286479261168744
+    },
+    {
+      "id": "seeded_bytes_24",
+      "input_values": [
+        5,
+        76,
+        1
+      ],
+      "expected_result": 76
+    },
+    {
+      "id": "seeded_bytes_25",
+      "input_values": [
+        6,
+        31147,
+        2
+      ],
+      "expected_result": 43897
+    },
+    {
+      "id": "seeded_bytes_26",
+      "input_values": [
+        5,
+        8763742,
+        3
+      ],
+      "expected_result": 8763742
+    },
+    {
+      "id": "seeded_bytes_27",
+      "input_values": [
+        6,
+        2895427797,
+        4
+      ],
+      "expected_result": 3585643692
+    },
+    {
+      "id": "seeded_bytes_28",
+      "input_values": [
+        5,
+        248658700736,
+        5
+      ],
+      "expected_result": 248658700736
+    },
+    {
+      "id": "seeded_bytes_29",
+      "input_values": [
+        6,
+        137817665148943,
+        6
+      ],
+      "expected_result": 17149689878653
+    },
+    {
+      "id": "seeded_bytes_30",
+      "input_values": [
+        5,
+        61519168720186610,
+        7
+      ],
+      "expected_result": 61519168720186610
+    },
+    {
+      "id": "seeded_bytes_31",
+      "input_values": [
+        6,
+        -4560787180820564519,
+        8
+      ],
+      "expected_result": -2741275867977829184
+    }
+  ]
+}

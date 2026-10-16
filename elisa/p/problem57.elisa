@@ -1,0 +1,36 @@
+# Add little-endian decimal arrays with a small integer multiplier.
+def add_scaled(a: i64[5000], alen: i64, b: i64[5000], blen: i64, multiplier: i64, out: mutable i64[5000]) -> i64:
+    length: mutable i64 = if alen > blen then alen else blen
+    carry: mutable i64 = 0
+    index: mutable i64 = 0
+    while index < length:
+        value: i64 = (if index < alen then a[index.usize()] else 0) + multiplier * (if index < blen then b[index.usize()] else 0) + carry
+        out[index.usize()] <- value % 10
+        carry <- value / 10
+        index <- index + 1
+    while carry > 0:
+        out[length.usize()] <- carry % 10
+        length <- length + 1
+        carry <- carry / 10
+    length
+
+def problem57_impl(n: i64) -> i64:
+    if n > 10000: return -1
+    if n < 1: return 0
+    prev_n: mutable i64[5000] = zeroed
+    prev_d: mutable i64[5000] = zeroed
+    cur_n: mutable i64[5000] = zeroed
+    cur_d: mutable i64[5000] = zeroed
+    prev_n[0] <- 1; prev_d[0] <- 1
+    nlen: mutable i64 = 1; dlen: mutable i64 = 1; count: mutable i64 = 0
+    iteration: mutable i64 = 0
+    while iteration < n:
+        cn: i64 = add_scaled(prev_n,nlen,prev_d,dlen,2,cur_n)
+        cd: i64 = add_scaled(prev_n,nlen,prev_d,dlen,1,cur_d)
+        if cn > cd: count <- count + 1
+        for i in 0..cn: prev_n[i.usize()] <- cur_n[i.usize()]
+        for i in 0..cd: prev_d[i.usize()] <- cur_d[i.usize()]
+        nlen <- cn; dlen <- cd; iteration <- iteration + 1
+    count
+
+export fn problem57(n: i64) -> i64 = problem57_impl

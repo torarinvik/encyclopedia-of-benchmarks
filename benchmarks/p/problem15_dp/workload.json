@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-15-dp-scalar-v1",
+  "algorithm": "problem15_dp",
+  "function_symbol": "problem15_dp",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "grid_size_range": [
+      0,
+      20
+    ],
+    "meaning": "side length of a square lattice grid",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "zero_grid",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one_by_one_grid",
+      "input_value": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "two_by_two_example",
+      "input_value": 2,
+      "expected_result": 6
+    },
+    {
+      "id": "three_by_three_grid",
+      "input_value": 3,
+      "expected_result": 20
+    },
+    {
+      "id": "ten_by_ten_grid",
+      "input_value": 10,
+      "expected_result": 184756
+    },
+    {
+      "id": "canonical_twenty_by_twenty_grid",
+      "input_value": 20,
+      "expected_result": 137846528820
+    },
+    {
+      "id": "negative_grid_size",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_grid",
+      "input_value": 21,
+      "expected_result": -1
+    }
+  ]
+}

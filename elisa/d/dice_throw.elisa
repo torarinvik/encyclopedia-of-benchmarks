@@ -1,0 +1,24 @@
+def dice_throw_impl(values: i64&, length: usize) -> i64:
+    if values == null or length != 3:
+        return -1
+    faces_value: i64 = values[0]
+    dice_value: i64 = values[1]
+    target_value: i64 = values[2]
+    if faces_value < 1 or faces_value > 8 or dice_value < 1 or dice_value > 8 or target_value < 0 or target_value > 64:
+        return -1
+    faces: usize = faces_value.usize()
+    dice: usize = dice_value.usize()
+    target: usize = target_value.usize()
+    table: mutable i64[9][65] = zeroed
+    for total in 1..<(faces + 1):
+        if total <= target:
+            table[1][total] <- 1
+    for die in 2..<(dice + 1):
+        for total in 1..<(target + 1):
+            for face in 1..<total:
+                if face > faces:
+                    break
+                table[die][total] <- table[die][total] + table[die - 1][total - face]
+    table[dice][target]
+
+export fn dice_throw(values: i64&, length: usize) -> i64 = dice_throw_impl

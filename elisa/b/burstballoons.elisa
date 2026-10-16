@@ -1,0 +1,40 @@
+# Maximum coins from bursting balloons by interval dynamic programming.
+def burstballoons_impl(values: i64&, length: usize) -> i64:
+    if length > 128:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > 1000:
+            return -1
+        index <- index + 1
+    if length == 0:
+        return 0
+
+    padded: mutable i64[130] = zeroed
+    dp: mutable i64[130][130] = zeroed
+    padded[0] <- 1
+    padded[length + 1] <- 1
+    index <- 0
+    while index < length:
+        padded[index + 1] <- values[index]
+        index <- index + 1
+
+    span: mutable usize = 1
+    while span <= length:
+        left: mutable usize = 1
+        while left + span - 1 <= length:
+            right: usize = left + span - 1
+            best: mutable i64 = 0
+            last: mutable usize = left
+            while last <= right:
+                coins: i64 = dp[left][last - 1] + dp[last + 1][right]
+                    + padded[left - 1] * padded[last] * padded[right + 1]
+                if coins > best:
+                    best <- coins
+                last <- last + 1
+            dp[left][right] <- best
+            left <- left + 1
+        span <- span + 1
+    dp[1][length]
+
+export fn burstballoons(values: i64&, length: usize) -> i64 = burstballoons_impl

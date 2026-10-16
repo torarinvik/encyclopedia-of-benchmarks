@@ -1,0 +1,36 @@
+# Exact-equality reciprocal progression predicate for IEEE-754 inputs.
+extern memcpy(destination: mutable f64&, source: i64&, length: usize) -> mutable f64&
+
+const MAX_VALUES: usize = 32
+const INVALID_RESULT: f64 = -1.0e300
+
+def is_harmonic_series_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 2 or length > MAX_VALUES + 1:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > MAX_VALUES.i64() or length != (count_value + 1).usize():
+        return INVALID_RESULT
+
+    count: usize = count_value.usize()
+    reciprocals: mutable f64[MAX_VALUES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        bits: i64 = values[index + 1]
+        value: mutable f64 = 0.0
+        memcpy(&value, &bits, 8)
+        if value == 0.0:
+            return INVALID_RESULT
+        reciprocals[index] <- 1.0 / value
+        index <- index + 1
+    if count == 1:
+        return 1.0
+
+    common_difference: f64 = reciprocals[1] - reciprocals[0]
+    index <- 2
+    while index < count:
+        if reciprocals[index] - reciprocals[index - 1] != common_difference:
+            return 0.0
+        index <- index + 1
+    1.0
+
+export fn is_harmonic_series(values: i64&, length: usize) -> f64 = is_harmonic_series_impl

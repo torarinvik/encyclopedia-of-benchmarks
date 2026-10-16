@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "id": "combination-sum-v1",
+  "algorithm": "combination_sum",
+  "function_symbol": "combination_sum",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[candidate_count, target, candidates...]",
+    "candidate_count_range": [
+      1,
+      8
+    ],
+    "target_range": [
+      0,
+      20
+    ],
+    "candidate_value_range": [
+      1,
+      24
+    ],
+    "candidates_must_be_strictly_ascending": true,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_vector_bytes",
+    "layout": "[combination_count, length_0, values..., length_1, values..., ...]",
+    "integer_encoding": "little-endian signed 64-bit",
+    "combination_order": "depth-first order, trying candidates in ascending order",
+    "zero_target": "one empty combination encoded as [1, 0]",
+    "no_solution": "zero combinations encoded as [0]",
+    "return_value": "number of output bytes"
+  },
+  "workspace": {
+    "bytes": 32768,
+    "meaning": "4,096 signed 64-bit words for the packed combination output"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "description": "Two DFS-ordered combinations reuse candidates as needed.",
+      "input_values": [
+        4,
+        7,
+        2,
+        3,
+        6,
+        7
+      ],
+      "input_length": 6,
+      "expected_result": 56,
+      "expected_output_hex": "0200000000000000030000000000000002000000000000000200000000000000030000000000000001000000000000000700000000000000"
+    },
+    {
+      "id": "single_repeated_candidate",
+      "description": "A single candidate may be reused to reach the target.",
+      "input_values": [
+        1,
+        12,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000004000000000000000300000000000000030000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "zero_target",
+      "description": "Target zero yields one empty combination.",
+      "input_values": [
+        3,
+        0,
+        1,
+        2,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000000000000000000000"
+    },
+    {
+      "id": "unreachable_target",
+      "description": "Positive candidates may have no combination for the target.",
+      "input_values": [
+        2,
+        7,
+        4,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "maximum_candidate_above_target",
+      "description": "Candidate value 24 is valid even when it exceeds the target.",
+      "input_values": [
+        1,
+        20,
+        24
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "candidate_above_target",
+      "description": "Candidates larger than the target are skipped.",
+      "input_values": [
+        3,
+        9,
+        10,
+        12,
+        15
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "duplicate_candidate",
+      "description": "Duplicate candidates are outside the contract.",
+      "input_values": [
+        3,
+        7,
+        2,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsorted_candidates",
+      "description": "Candidates must be strictly ascending.",
+      "input_values": [
+        3,
+        7,
+        2,
+        6,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_candidate",
+      "description": "Zero candidates are invalid because reuse would not make progress.",
+      "input_values": [
+        2,
+        4,
+        0,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_candidate",
+      "description": "Negative candidates are outside the positive-value contract.",
+      "input_values": [
+        2,
+        4,
+        -1,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_packed_length",
+      "description": "Packed input length must match the candidate count.",
+      "input_values": [
+        2,
+        7,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "target_above_bound",
+      "description": "Target is bounded to 20.",
+      "input_values": [
+        1,
+        21,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "candidate_above_bound",
+      "description": "Candidate values are bounded to 24.",
+      "input_values": [
+        1,
+        2,
+        25
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_above_bound",
+      "description": "Candidate count is bounded to eight.",
+      "input_values": [
+        9,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "description": "Capacity must hold the complete packed result.",
+      "input_values": [
+        2,
+        5,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "workspace_bytes": 31,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+const MAX_ORDER: i64 = 35
+const HASH_CAPACITY: usize = 524288
+const HASH_MASK: usize = HASH_CAPACITY - 1
+const BIG_BASE: i64 = 10000
+const BIG_LIMBS: usize = 8
+
+def problem180_gcd(left_input: i64, right_input: i64) -> i64:
+    left: mutable i64 = left_input
+    right: mutable i64 = right_input
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def problem180_integer_sqrt(value: i64) -> i64:
+    if value <= 0:
+        return 0
+    root: mutable i64 = value
+    next: mutable i64 = (root + value / root) / 2
+    while next < root:
+        root <- next
+        next <- (root + value / root) / 2
+    root
+
+def problem180_insert(numerators: mutable i64&, denominators: mutable i64&,
+                      numerator: i64, denominator: i64) -> bool:
+    hash: i64 = ((numerator % HASH_CAPACITY.i64()) * 1009 + denominator % HASH_CAPACITY.i64()) % HASH_CAPACITY.i64()
+    index: mutable usize = hash.usize()
+    while denominators[index] != 0:
+        if numerators[index] == numerator and denominators[index] == denominator:
+            return false
+        index <- (index + 1) & HASH_MASK
+    numerators[index] <- numerator
+    denominators[index] <- denominator
+    true
+
+def problem180_record(numerators: mutable i64&, denominators: mutable i64&,
+                      xn: i64, xd: i64, yn: i64, yd: i64,
+                      zn_input: i64, zd_input: i64, order: i64) -> bool:
+    if zn_input <= 0 or zd_input <= 0:
+        return false
+    divisor: i64 = problem180_gcd(zn_input, zd_input)
+    zn: i64 = zn_input / divisor
+    zd: i64 = zd_input / divisor
+    if zn >= zd or zd > order:
+        return false
+    sum_numerator: i64 = xn * yd * zd + yn * xd * zd + zn * xd * yd
+    sum_denominator: i64 = xd * yd * zd
+    divisor <- problem180_gcd(sum_numerator, sum_denominator)
+    problem180_insert(numerators, denominators,
+                      sum_numerator / divisor, sum_denominator / divisor)
+
+def problem180_impl(order: i64) -> i64:
+    if order < 1 or order > MAX_ORDER:
+        return -1
+    numerators: mutable i64[HASH_CAPACITY] = zeroed
+    denominators: mutable i64[HASH_CAPACITY] = zeroed
+    xn: mutable i64 = 1
+    while xn <= order:
+        xd: mutable i64 = xn + 1
+        while xd <= order:
+            if problem180_gcd(xn, xd) == 1:
+                yn: mutable i64 = 1
+                while yn <= order:
+                    yd: mutable i64 = yn + 1
+                    while yd <= order:
+                        if problem180_gcd(yn, yd) == 1 and xn * yd <= yn * xd:
+                            zn: mutable i64 = xn * yd + xd * yn
+                            zd: mutable i64 = xd * yd
+                            problem180_record(numerators, denominators, xn, xd, yn, yd, zn, zd, order)
+
+                            square_num: mutable i64 = xn * xn * yd * yd + xd * xd * yn * yn
+                            square_den: mutable i64 = xd * xd * yd * yd
+                            root_num: mutable i64 = problem180_integer_sqrt(square_num)
+                            root_den: mutable i64 = problem180_integer_sqrt(square_den)
+                            if root_num * root_num == square_num and root_den * root_den == square_den:
+                                problem180_record(numerators, denominators, xn, xd, yn, yd, root_num, root_den, order)
+
+                            zn <- xn * yn
+                            zd <- xd * yn + xn * yd
+                            problem180_record(numerators, denominators, xn, xd, yn, yd, zn, zd, order)
+
+                            square_num <- xn * xn * yn * yn
+                            square_den <- xd * xd * yn * yn + xn * xn * yd * yd
+                            root_num <- problem180_integer_sqrt(square_num)
+                            root_den <- problem180_integer_sqrt(square_den)
+                            if root_num * root_num == square_num and root_den * root_den == square_den:
+                                problem180_record(numerators, denominators, xn, xd, yn, yd, root_num, root_den, order)
+                        yd <- yd + 1
+                    yn <- yn + 1
+            xd <- xd + 1
+        xn <- xn + 1
+
+    common: mutable i64 = 1
+    factor: mutable i64 = 2
+    while factor <= order:
+        common <- common / problem180_gcd(common, factor) * factor
+        factor <- factor + 1
+    total: mutable i64[BIG_LIMBS] = zeroed
+    index: mutable usize = 0
+    while index < HASH_CAPACITY:
+        if denominators[index] != 0:
+            if common % denominators[index] != 0:
+                return -1
+            carry: mutable i64 = numerators[index] * (common / denominators[index])
+            limb_index: mutable usize = 0
+            while carry > 0:
+                current: i64 = total[limb_index] + carry
+                total[limb_index] <- current % BIG_BASE
+                carry <- current / BIG_BASE
+                limb_index <- limb_index + 1
+        index <- index + 1
+
+    remainder: mutable i64 = 0
+    index <- BIG_LIMBS
+    while index > 0:
+        index <- index - 1
+        remainder <- (remainder * BIG_BASE + total[index]) % common
+    divisor: i64 = problem180_gcd(remainder, common)
+    remainder <- 0
+    index <- BIG_LIMBS
+    while index > 0:
+        index <- index - 1
+        current: i64 = remainder * BIG_BASE + total[index]
+        total[index] <- current / divisor
+        remainder <- current % divisor
+    numerator: mutable i64 = 0
+    index <- BIG_LIMBS
+    while index > 0:
+        index <- index - 1
+        limb: i64 = total[index]
+        if numerator > (9223372036854775807 - limb) / BIG_BASE:
+            return -1
+        numerator <- numerator * BIG_BASE + limb
+    denominator: i64 = common / divisor
+    if numerator > 9223372036854775807 - denominator:
+        return -1
+    numerator + denominator
+
+export fn problem180(order: i64) -> i64 = problem180_impl

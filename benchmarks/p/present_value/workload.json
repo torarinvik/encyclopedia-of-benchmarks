@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "id": "present-value-exact-binary-domain-i64-array-float64-v1",
+  "algorithm": "present_value",
+  "function_symbol": "present_value",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[count, discount_rate_ppm, cash_flow_0_milli, ...]",
+    "discount_rate_scale": 1000000,
+    "cash_flow_scale": 1000,
+    "cash_flow_count_range": [
+      1,
+      8
+    ],
+    "discount_rate_ppm_allowed": [
+      0,
+      1000000
+    ],
+    "cash_flow_milli_range": [
+      -1000000,
+      1000000
+    ],
+    "cash_flow_milli_multiple": 125,
+    "exact_length": "count + 2",
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 11,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "present value rounded to two decimals with ties-to-even",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "source_example_zero_rate",
+      "input_values": [
+        4,
+        0,
+        10000,
+        20000,
+        -25000,
+        30000
+      ],
+      "input_length": 6,
+      "expected_result": 35.0
+    },
+    {
+      "id": "zero_rate_positive_half",
+      "input_values": [
+        1,
+        0,
+        1125
+      ],
+      "input_length": 3,
+      "expected_result": 1.12
+    },
+    {
+      "id": "zero_rate_negative_half",
+      "input_values": [
+        1,
+        0,
+        -1125
+      ],
+      "input_length": 3,
+      "expected_result": -1.12
+    },
+    {
+      "id": "zero_rate_positive_even_half",
+      "input_values": [
+        1,
+        0,
+        1375
+      ],
+      "input_length": 3,
+      "expected_result": 1.38
+    },
+    {
+      "id": "zero_rate_negative_even_half",
+      "input_values": [
+        1,
+        0,
+        -1375
+      ],
+      "input_length": 3,
+      "expected_result": -1.38
+    },
+    {
+      "id": "rate_one_discount",
+      "input_values": [
+        3,
+        1000000,
+        100000,
+        100000,
+        100000
+      ],
+      "input_length": 5,
+      "expected_result": 175.0
+    },
+    {
+      "id": "mixed_positive_negative",
+      "input_values": [
+        4,
+        1000000,
+        -100000,
+        30000,
+        15000,
+        29000
+      ],
+      "input_length": 6,
+      "expected_result": -77.62
+    },
+    {
+      "id": "maximum_discount_rate",
+      "input_values": [
+        2,
+        1000000,
+        1000000,
+        -1000000
+      ],
+      "input_length": 4,
+      "expected_result": 500.0
+    },
+    {
+      "id": "zero_flows",
+      "input_values": [
+        4,
+        1000000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "max_count",
+      "input_values": [
+        8,
+        1000000,
+        1000000,
+        -500000,
+        250000,
+        -125000,
+        62500,
+        -31250,
+        15625,
+        -7875
+      ],
+      "input_length": 10,
+      "expected_result": 799.99
+    },
+    {
+      "id": "empty_invalid",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "rate_not_allowed",
+      "input_values": [
+        1,
+        3000000,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "rate_above_domain",
+      "input_values": [
+        1,
+        2000000,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "flow_not_multiple_of_125",
+      "input_values": [
+        1,
+        0,
+        1001
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "flow_above_range",
+      "input_values": [
+        1,
+        0,
+        1000125
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_shape_mismatch",
+      "input_values": [
+        2,
+        0,
+        1000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        1,
+        0,
+        1000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_above_max",
+      "input_values": [
+        9,
+        0,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "input_length": 11,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "max_parse_length_invalid",
+      "input_values": [
+        8,
+        0,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125
+      ],
+      "input_length": 11,
+      "expected_result": -1e+300
+    }
+  ]
+}

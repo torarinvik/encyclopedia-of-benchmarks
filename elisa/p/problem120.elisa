@@ -1,0 +1,13 @@
+const MAX_LIMIT: i64 = 1000
+
+def problem120_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    total: mutable i64 = 0
+    a: mutable i64 = 3
+    while a <= limit:
+        total <- total + 2 * a * ((a - 1) / 2)
+        a <- a + 1
+    total
+
+export fn problem120(limit: i64) -> i64 = problem120_impl

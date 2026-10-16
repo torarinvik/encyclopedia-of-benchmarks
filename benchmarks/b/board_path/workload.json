@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "board-path-v1",
+  "algorithm": "board_path",
+  "function_symbol": "board_path",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[start,end]",
+    "position_range": [0, 30],
+    "validity": "start must not exceed end",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "number of paths when each move advances by 1 through 6 positions",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "same_start_and_end", "input_values": [0, 0], "expected_result": 1},
+    {"id": "same_position_at_upper_bound", "input_values": [30, 30], "expected_result": 1},
+    {"id": "one_step", "input_values": [0, 1], "expected_result": 1},
+    {"id": "two_steps", "input_values": [0, 2], "expected_result": 2},
+    {"id": "six_steps", "input_values": [0, 6], "expected_result": 32},
+    {"id": "seven_steps", "input_values": [0, 7], "expected_result": 63},
+    {"id": "ten_steps", "input_values": [0, 10], "expected_result": 492},
+    {"id": "mid_board", "input_values": [10, 20], "expected_result": 492},
+    {"id": "last_step", "input_values": [28, 29], "expected_result": 1},
+    {"id": "maximum_distance", "input_values": [0, 30], "expected_result": 437513522},
+    {"id": "reverse_positions", "input_values": [8, 7], "expected_result": -1},
+    {"id": "negative_start", "input_values": [-1, 3], "expected_result": -1},
+    {"id": "end_above_bound", "input_values": [0, 31], "expected_result": -1},
+    {"id": "short_input", "input_values": [0], "expected_result": -1},
+    {"id": "extra_input", "input_values": [0, 1, 2], "expected_result": -1}
+  ]
+}

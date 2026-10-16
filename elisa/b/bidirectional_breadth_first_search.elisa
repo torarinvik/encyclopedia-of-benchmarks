@@ -1,0 +1,121 @@
+const MAX_DIMENSION: usize = 8
+const MAX_CELLS: usize = MAX_DIMENSION * MAX_DIMENSION
+const MAX_INPUT_LENGTH: usize = 5 + MAX_CELLS
+const MAX_OUTPUT_VALUES: usize = 1 + MAX_CELLS
+
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bidirectional_breadth_first_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_INPUT_LENGTH: return -1
+    rows_value: i64 = input[0]
+    cols_value: i64 = input[1]
+    if rows_value < 1 or rows_value > MAX_DIMENSION.i64() or cols_value < 1 or cols_value > MAX_DIMENSION.i64(): return -1
+    rows: usize = rows_value.usize()
+    cols: usize = cols_value.usize()
+    cells: usize = rows * cols
+    start_value: i64 = input[2]
+    goal_value: i64 = input[3]
+    blocked_count_value: i64 = input[4]
+    if start_value < 0 or start_value >= cells.i64() or goal_value < 0 or goal_value >= cells.i64() or blocked_count_value < 0 or blocked_count_value > cells.i64(): return -1
+    blocked_count: usize = blocked_count_value.usize()
+    if length != 5 + blocked_count: return -1
+
+    blocked: mutable bool[MAX_CELLS] = zeroed
+    index: mutable usize = 0
+    while index < blocked_count:
+        value: i64 = input[5 + index]
+        if value < 0 or value >= cells.i64(): return -1
+        cell: usize = value.usize()
+        if blocked[cell]: return -1
+        blocked[cell] <- true
+        index <- index + 1
+    start: usize = start_value.usize()
+    goal: usize = goal_value.usize()
+    if blocked[start] or blocked[goal]: return -1
+
+    distance: mutable i64[2 * MAX_CELLS] = zeroed
+    parent: mutable i64[2 * MAX_CELLS] = zeroed
+    index <- 0
+    while index < 2 * MAX_CELLS:
+        distance[index] <- -1
+        parent[index] <- -1
+        index <- index + 1
+    head: mutable usize[2] = zeroed
+    tail: mutable usize[2] = zeroed
+    queue: mutable usize[2 * MAX_CELLS] = zeroed
+    distance[start] <- 0
+    distance[MAX_CELLS + goal] <- 0
+    queue[0] <- start
+    queue[MAX_CELLS] <- goal
+    tail[0] <- 1
+    tail[1] <- 1
+    meeting: mutable i64 = -1
+    if start == goal: meeting <- start.i64()
+    while meeting < 0 and head[0] < tail[0] and head[1] < tail[1]:
+        side: mutable usize = 0
+        while side < 2:
+            if meeting >= 0: break
+            layer_end: usize = tail[side]
+            while head[side] < layer_end:
+                node: usize = queue[side * MAX_CELLS + head[side]]
+                head[side] <- head[side] + 1
+                row: usize = node / cols
+                col: usize = node % cols
+                direction: mutable usize = 0
+                while direction < 4:
+                    neighbor: mutable i64 = -1
+                    if direction == 0 and row > 0: neighbor <- (node - cols).i64()
+                    else if direction == 1 and col > 0: neighbor <- (node - 1).i64()
+                    else if direction == 2 and row + 1 < rows: neighbor <- (node + cols).i64()
+                    else if direction == 3 and col + 1 < cols: neighbor <- (node + 1).i64()
+                    if neighbor >= 0:
+                        next: usize = neighbor.usize()
+                        if not blocked[next] and distance[side * MAX_CELLS + next] < 0:
+                            distance[side * MAX_CELLS + next] <- distance[side * MAX_CELLS + node] + 1
+                            parent[side * MAX_CELLS + next] <- node.i64()
+                            queue[side * MAX_CELLS + tail[side]] <- next
+                            tail[side] <- tail[side] + 1
+                            if distance[(1 - side) * MAX_CELLS + next] >= 0: meeting <- next.i64()
+                    direction <- direction + 1
+                    if meeting >= 0: break
+                if meeting >= 0: break
+            side <- side + 1
+    encoded: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    value_count: mutable usize = 1
+    if meeting < 0:
+        encoded[0] <- 0
+    else:
+        reverse_path: mutable usize[MAX_CELLS] = zeroed
+        prefix_count: mutable usize = 0
+        path_count: mutable usize = 0
+        current: mutable i64 = meeting
+        while current >= 0:
+            reverse_path[prefix_count] <- current.usize()
+            prefix_count <- prefix_count + 1
+            if current == start.i64(): break
+            current <- parent[current.usize()]
+        index <- 0
+        while index < prefix_count:
+            encoded[1 + path_count] <- reverse_path[prefix_count - 1 - index].i64()
+            path_count <- path_count + 1
+            index <- index + 1
+        current <- parent[MAX_CELLS + meeting.usize()]
+        while current >= 0:
+            encoded[1 + path_count] <- current
+            path_count <- path_count + 1
+            current <- parent[MAX_CELLS + current.usize()]
+        encoded[0] <- path_count.i64()
+        value_count <- value_count + path_count
+    required: usize = value_count * 8
+    if output.is_null() or capacity < required: return -2
+    index <- 0
+    while index < value_count:
+        put_i64(output, index * 8, encoded[index])
+        index <- index + 1
+    required.i64()
+
+export fn bidirectional_breadth_first_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bidirectional_breadth_first_search_impl

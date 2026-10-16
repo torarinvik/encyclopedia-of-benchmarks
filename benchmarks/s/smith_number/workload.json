@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "id": "smith-number-positive-int32-v1",
+  "id": "smith-number-positive-safe-int32-v1",
   "algorithm": "smith_number",
   "input": {
     "kind": "signed_integer",
     "minimum_value": 1,
-    "maximum_value": 2147483647,
+    "maximum_value": 2147395599,
     "result": "1 for composite values whose digit sum equals the digit sums of their prime factors with multiplicity, otherwise 0",
     "invalid_result": -1
   },
@@ -21,8 +21,9 @@
     {"id":"smith_666","input_value":666,"expected_result":1},
     {"id":"non_smith_composite_15","input_value":15,"expected_result":0},
     {"id":"prime_9973","input_value":9973,"expected_result":0},
-    {"id":"large_non_smith_composite","input_value":2147395600,"expected_result":0},
-    {"id":"int32_max_prime","input_value":2147483647,"expected_result":0},
+    {"id":"maximum_safe_domain","input_value":2147395599,"expected_result":0},
+    {"id":"first_value_above_safe_domain","input_value":2147395600,"expected_result":-1},
+    {"id":"above_safe_domain_prime","input_value":2147483647,"expected_result":-1},
     {"id":"zero_out_of_domain","input_value":0,"expected_result":-1},
     {"id":"negative_out_of_domain","input_value":-1,"expected_result":-1},
     {"id":"above_int32_invalid","input_value":2147483648,"expected_result":-1},

@@ -1,0 +1,25 @@
+# Recursively count a finite singly linked chain represented in node order.
+const MAX_NODES: usize = 64
+const MIN_PAYLOAD: i64 = -2147483648
+const MAX_PAYLOAD: i64 = 2147483647
+
+def count_recursive(input: i64&, index: usize, remaining: usize) -> i64:
+    if remaining == 0:
+        return 0
+    payload: i64 = input[index]
+    if payload < MIN_PAYLOAD or payload > MAX_PAYLOAD:
+        return -1
+    tail_count: i64 = count_recursive(input, index + 1, remaining - 1)
+    if tail_count < 0:
+        return -1
+    return 1 + tail_count
+
+def count_singly_linked_list_recursion_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or input[0] < 0 or input[0] > MAX_NODES.i64():
+        return -1
+    count: usize = input[0].usize()
+    if length != count + 1:
+        return -1
+    count_recursive(input, 1, count)
+
+export fn count_singly_linked_list_recursion(input: i64&, length: usize) -> i64 = count_singly_linked_list_recursion_impl

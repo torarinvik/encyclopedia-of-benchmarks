@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "iqr-outlier-indices-i64-array-scalar-v1",
+  "algorithm": "iqr_outlier_indices",
+  "function_symbol": "iqr_outlier_indices",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "length_range": [
+      1,
+      62
+    ],
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "bit i is set exactly when the corresponding 1-based source index i+1 is outside the strict 1.5-IQR fences",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 5000
+  },
+  "cases": [
+    {
+      "id": "outliers_at_both_ends",
+      "input_values": [
+        -100,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        100
+      ],
+      "input_length": 8,
+      "expected_result": 129
+    },
+    {
+      "id": "single_high_outlier",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        100
+      ],
+      "input_length": 7,
+      "expected_result": 64
+    },
+    {
+      "id": "fractional_quartile_interpolation",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "strict_boundary_values",
+      "input_values": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "all_equal",
+      "input_values": [
+        7,
+        7,
+        7,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "single_observation",
+      "input_values": [
+        42
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "input_length": 62,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_too_long",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "input_length": 63,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_out_of_range",
+      "input_values": [
+        0,
+        1000001,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ]
+}

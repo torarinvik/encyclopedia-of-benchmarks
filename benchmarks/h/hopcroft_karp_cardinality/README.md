@@ -21,15 +21,15 @@ python3 benchmarks/run_i64_array_scalar.py --build-manifest build/i64_array_scal
 
 | Language | Source |
 | --- | --- |
-| C | [`c/b/hopcroft_karp_cardinality.c`](../../../c/b/hopcroft_karp_cardinality.c) |
-| C3 | [`c3/b/hopcroft_karp_cardinality.c3`](../../../c3/b/hopcroft_karp_cardinality.c3) |
-| C++ | [`cpp/b/hopcroft_karp_cardinality.cpp`](../../../cpp/b/hopcroft_karp_cardinality.cpp) |
-| Elisa | [`elisa/b/hopcroft_karp_cardinality.elisa`](../../../elisa/b/hopcroft_karp_cardinality.elisa) |
-| Nim | [`nim/b/hopcroft_karp_cardinality.nim`](../../../nim/b/hopcroft_karp_cardinality.nim) |
-| Odin | [`odin/b/hopcroft_karp_cardinality.odin`](../../../odin/b/hopcroft_karp_cardinality.odin) |
-| Rust | [`rust/b/hopcroft_karp_cardinality.rs`](../../../rust/b/hopcroft_karp_cardinality.rs) |
-| V | [`v/b/hopcroft_karp_cardinality.v`](../../../v/b/hopcroft_karp_cardinality.v) |
-| Zig | [`zig/b/hopcroft_karp_cardinality.zig`](../../../zig/b/hopcroft_karp_cardinality.zig) |
+| C | [`c/h/hopcroft_karp_cardinality.c`](../../../c/h/hopcroft_karp_cardinality.c) |
+| C3 | [`c3/h/hopcroft_karp_cardinality.c3`](../../../c3/h/hopcroft_karp_cardinality.c3) |
+| C++ | [`cpp/h/hopcroft_karp_cardinality.cpp`](../../../cpp/h/hopcroft_karp_cardinality.cpp) |
+| Elisa | [`elisa/h/hopcroft_karp_cardinality.elisa`](../../../elisa/h/hopcroft_karp_cardinality.elisa) |
+| Nim | [`nim/h/hopcroft_karp_cardinality.nim`](../../../nim/h/hopcroft_karp_cardinality.nim) |
+| Odin | [`odin/h/hopcroft_karp_cardinality.odin`](../../../odin/h/hopcroft_karp_cardinality.odin) |
+| Rust | [`rust/h/hopcroft_karp_cardinality.rs`](../../../rust/h/hopcroft_karp_cardinality.rs) |
+| V | [`v/h/hopcroft_karp_cardinality.v`](../../../v/h/hopcroft_karp_cardinality.v) |
+| Zig | [`zig/h/hopcroft_karp_cardinality.zig`](../../../zig/h/hopcroft_karp_cardinality.zig) |
 
 ## Pinned source references
 

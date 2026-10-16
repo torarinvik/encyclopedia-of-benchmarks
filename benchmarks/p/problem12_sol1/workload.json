@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-12-sol1-fixed-500-v1",
+  "algorithm": "problem12_sol1",
+  "function_symbol": "problem12_sol1",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "accepted_value": 500,
+    "out_of_contract_result": -1,
+    "meaning": "fixed source threshold: first triangular number with more than 500 positive divisors"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_contract_result": -1
+  },
+  "source_notes": {
+    "python": "The pinned sol1 has no input and uses the strict predicate divisor_count(triangular) > 500.",
+    "c": "The pinned sol1 defaults to threshold 500 but accepts a command-line override. Its loop bound i < sqrtl(n) + 1 visits ceil(sqrt(n)); when that value divides n it counts the complementary factor pair twice. Its else-if square-root correction is unreachable because n % i == 0 already matches. This package follows Python sol1 on their shared fixed-threshold input."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"fixed_500_threshold","input_value":500,"expected_result":76576500},
+    {"id":"below_fixed_threshold","input_value":499,"expected_result":-1},
+    {"id":"above_fixed_threshold","input_value":501,"expected_result":-1},
+    {"id":"zero","input_value":0,"expected_result":-1},
+    {"id":"negative","input_value":-1,"expected_result":-1},
+    {"id":"int64_max","input_value":9223372036854775807,"expected_result":-1}
+  ]
+}

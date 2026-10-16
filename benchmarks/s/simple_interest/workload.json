@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "simple-interest-float64-triple-v1",
+  "algorithm": "simple_interest",
+  "function_symbol": "simple_interest",
+  "input": {
+    "kind": "three_float64_values",
+    "principal_range": [0.0, 1000000.0],
+    "daily_rate_range": [0.0, 1.0],
+    "days_range": [0.0, 3650.0],
+    "validity": "principal and days are strictly positive; daily rate may be zero",
+    "out_of_range_result": -1e300
+  },
+  "output": {
+    "kind": "float64",
+    "out_of_range_result": -1e300,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"canonical_source_example","input_values":[18000.0,0.06,3.0],"expected_result":3240.0},
+    {"id":"fractional_principal","input_values":[0.5,0.06,3.0],"expected_result":0.09},
+    {"id":"one_percent_ten_days","input_values":[18000.0,0.01,10.0],"expected_result":1800.0},
+    {"id":"zero_rate","input_values":[18000.0,0.0,3.0],"expected_result":0.0},
+    {"id":"hundred_day_example","input_values":[5500.0,0.01,100.0],"expected_result":5500.0},
+    {"id":"zero_principal","input_values":[0.0,0.06,3.0],"expected_result":-1e300},
+    {"id":"negative_rate","input_values":[10000.0,-0.06,3.0],"expected_result":-1e300},
+    {"id":"zero_days","input_values":[5500.0,0.01,0.0],"expected_result":-1e300}
+  ]
+}

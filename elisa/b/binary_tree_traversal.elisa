@@ -1,0 +1,210 @@
+const MAX_NODES: usize = 64
+const MAX_FRAMES: usize = 128
+const MAX_INPUT_LENGTH: usize = 3 + 3 * MAX_NODES
+
+def binary_tree_traversal_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    order: i64 = input[0]
+    count_value: i64 = input[1]
+    root_value: i64 = input[2]
+    if order < 0 or order > 6 or count_value < 0 or count_value > 64:
+        return -1
+    n: usize = count_value.usize()
+    if length != 3 + 3 * n or (n == 0 and root_value != -1) or (n > 0 and (root_value < 0 or root_value >= count_value)):
+        return -1
+
+    values: mutable i64[MAX_NODES] = zeroed
+    left: mutable i64[MAX_NODES] = zeroed
+    right: mutable i64[MAX_NODES] = zeroed
+    parents: mutable i64[MAX_NODES] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        values[index] <- input[3 + 3 * index]
+        left[index] <- input[4 + 3 * index]
+        right[index] <- input[5 + 3 * index]
+        if left[index] < -1 or left[index] >= count_value or right[index] < -1 or right[index] >= count_value or left[index] == index.i64() or right[index] == index.i64():
+            return -1
+        if left[index] >= 0:
+            child: usize = left[index].usize()
+            parents[child] <- parents[child] + 1
+            if parents[child] > 1:
+                return -1
+        if right[index] >= 0:
+            child: usize = right[index].usize()
+            parents[child] <- parents[child] + 1
+            if parents[child] > 1:
+                return -1
+        index <- index + 1
+
+    result: mutable i64[MAX_NODES] = zeroed
+    used: mutable usize = 0
+    if n > 0:
+        root: usize = root_value.usize()
+        index <- 0
+        while index < n:
+            expected: mutable i64 = 1
+            if index == root:
+                expected <- 0
+            if parents[index] != expected:
+                return -1
+            index <- index + 1
+
+        seen: mutable i64[MAX_NODES] = zeroed
+        queue: mutable usize[MAX_NODES] = zeroed
+        head: mutable usize = 0
+        queue_end: mutable usize = 1
+        reachable: mutable usize = 0
+        queue[0] <- root
+        while head < queue_end:
+            node: usize = queue[head]
+            head <- head + 1
+            if seen[node] == 0:
+                seen[node] <- 1
+                reachable <- reachable + 1
+                if left[node] >= 0:
+                    queue[queue_end] <- left[node].usize()
+                    queue_end <- queue_end + 1
+                if right[node] >= 0:
+                    queue[queue_end] <- right[node].usize()
+                    queue_end <- queue_end + 1
+        if reachable != n:
+            return -1
+
+        if order == 0:
+            work_stack: mutable usize[MAX_NODES] = zeroed
+            top: mutable usize = 1
+            work_stack[0] <- root
+            while top > 0:
+                top <- top - 1
+                node: usize = work_stack[top]
+                result[used] <- values[node]
+                used <- used + 1
+                if right[node] >= 0:
+                    work_stack[top] <- right[node].usize()
+                    top <- top + 1
+                if left[node] >= 0:
+                    work_stack[top] <- left[node].usize()
+                    top <- top + 1
+        elif order == 1:
+            work_stack: mutable usize[MAX_NODES] = zeroed
+            top: mutable usize = 0
+            current: mutable i64 = root_value
+            while top > 0 or current >= 0:
+                while current >= 0:
+                    node: usize = current.usize()
+                    work_stack[top] <- node
+                    top <- top + 1
+                    current <- left[node]
+                top <- top - 1
+                node: usize = work_stack[top]
+                result[used] <- values[node]
+                used <- used + 1
+                current <- right[node]
+        elif order == 2:
+            nodes: mutable usize[MAX_FRAMES] = zeroed
+            states: mutable u8[MAX_FRAMES] = zeroed
+            top: mutable usize = 1
+            nodes[0] <- root
+            while top > 0:
+                top <- top - 1
+                node: usize = nodes[top]
+                if states[top] == 0:
+                    states[top] <- 1
+                    top <- top + 1
+                    if left[node] >= 0:
+                        nodes[top] <- left[node].usize()
+                        states[top] <- 0
+                        top <- top + 1
+                elif states[top] == 1:
+                    states[top] <- 2
+                    top <- top + 1
+                    if right[node] >= 0:
+                        nodes[top] <- right[node].usize()
+                        states[top] <- 0
+                        top <- top + 1
+                else:
+                    result[used] <- values[node]
+                    used <- used + 1
+        elif order == 5:
+            work_stack: mutable usize[MAX_NODES] = zeroed
+            top: mutable usize = 0
+            current: mutable i64 = root_value
+            while top > 0 or current >= 0:
+                while current >= 0:
+                    node: usize = current.usize()
+                    work_stack[top] <- node
+                    top <- top + 1
+                    current <- right[node]
+                top <- top - 1
+                node: usize = work_stack[top]
+                result[used] <- values[node]
+                used <- used + 1
+                current <- left[node]
+        elif order == 6:
+            head <- 0
+            queue_end <- 1
+            queue[0] <- root
+            level: mutable usize = 0
+            while head < queue_end:
+                level_end: usize = queue_end
+                level_start: usize = used
+                while head < level_end:
+                    node: usize = queue[head]
+                    head <- head + 1
+                    result[used] <- values[node]
+                    used <- used + 1
+                    if left[node] >= 0:
+                        queue[queue_end] <- left[node].usize()
+                        queue_end <- queue_end + 1
+                    if right[node] >= 0:
+                        queue[queue_end] <- right[node].usize()
+                        queue_end <- queue_end + 1
+                if level % 2 == 1:
+                    lo: mutable usize = level_start
+                    hi: mutable usize = used
+                    while lo < hi:
+                        hi <- hi - 1
+                        if lo >= hi:
+                            break
+                        swap_value: mutable i64 = result[lo]
+                        result[lo] <- result[hi]
+                        result[hi] <- swap_value
+                        lo <- lo + 1
+                level <- level + 1
+        else:
+            head <- 0
+            queue_end <- 1
+            queue[0] <- root
+            while head < queue_end:
+                node: usize = queue[head]
+                head <- head + 1
+                result[used] <- values[node]
+                used <- used + 1
+                first_child: mutable i64 = left[node]
+                second_child: mutable i64 = right[node]
+                if order == 4:
+                    first_child <- right[node]
+                    second_child <- left[node]
+                if first_child >= 0:
+                    queue[queue_end] <- first_child.usize()
+                    queue_end <- queue_end + 1
+                if second_child >= 0:
+                    queue[queue_end] <- second_child.usize()
+                    queue_end <- queue_end + 1
+
+    required: usize = used * 8
+    if output == null or capacity < required:
+        return -2
+    index <- 0
+    while index < used:
+        bits: mutable u64 = result[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    required.i64()
+
+export fn binary_tree_traversal(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_tree_traversal_impl

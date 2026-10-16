@@ -1,0 +1,19 @@
+# Count differing byte positions in two equal-length byte strings.
+def hamming_distance_bytes_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 2050:
+        return -1
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 1024 or length != 1 + 2 * count_value.usize():
+        return -1
+    count: usize = count_value.usize()
+    distance: mutable i64 = 0
+    for index in 0..<count:
+        left: i64 = values[1 + index]
+        right: i64 = values[1 + count + index]
+        if left < 0 or left > 255 or right < 0 or right > 255:
+            return -1
+        if left != right:
+            distance <- distance + 1
+    distance
+
+export fn hamming_distance_bytes(values: i64&, length: usize) -> i64 = hamming_distance_bytes_impl

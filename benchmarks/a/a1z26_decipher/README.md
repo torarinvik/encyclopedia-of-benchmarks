@@ -10,7 +10,7 @@ This benchmark maps each one-based alphabet position from 1 through 26 to its lo
 
 ## Workload and verification
 
-[`workload.json`](workload.json) covers the `myname` vector, the full alphabet, invalid values, and the maximum input length. [`benchmarks/verify_a1z26.py`](../../verify_a1z26.py) verifies both directions in all nine target languages.
+[`workload.json`](workload.json) covers the `myname` vector, the full alphabet, invalid values, and the maximum input length. [`benchmarks/verify_a1z26.py`](../../verify_a1z26.py) verifies both directions in all nine target languages. The generic byte-output verifier checks this direction independently with `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm a1z26_decipher`.
 
 ## Reviewed TheAlgorithms sources
 

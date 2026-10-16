@@ -1,0 +1,54 @@
+# Count distinct sums of prime square, cube, and fourth power below the limit.
+def problem87_impl(limit: i64) -> i64:
+    if limit < 24 or limit > 50000000:
+        return -1
+    root_limit: mutable i64 = 0
+    while (root_limit + 1) * (root_limit + 1) <= limit - 24:
+        root_limit <- root_limit + 1
+    if root_limit < 2:
+        root_limit <- 2
+    prime: mutable bool[7072] = zeroed
+    p: mutable i64 = 2
+    while p <= root_limit:
+        prime[p.usize()] <- true
+        p <- p + 1
+    p <- 2
+    while p * p <= root_limit:
+        if prime[p.usize()]:
+            multiple: mutable i64 = p * p
+            while multiple <= root_limit:
+                prime[multiple.usize()] <- false
+                multiple <- multiple + p
+        p <- p + 1
+    seen: mutable u8[6250000] = zeroed
+    byte_count: i64 = (limit + 7) / 8
+    count: mutable i64 = 0
+    p1: mutable i64 = 2
+    while p1 <= root_limit:
+        if prime[p1.usize()]:
+            square: i64 = p1 * p1
+            p2: mutable i64 = 2
+            while p2 <= root_limit:
+                if prime[p2.usize()]:
+                    cube: i64 = p2 * p2 * p2
+                    if square + cube >= limit - 16:
+                        break
+                    p3: mutable i64 = 2
+                    while p3 <= root_limit:
+                        if prime[p3.usize()]:
+                            total: i64 = square + cube + p3 * p3 * p3 * p3
+                            if total >= limit:
+                                break
+                            index: usize = total.usize()
+                            seen[index / 8] <- seen[index / 8] | (1.u8 << (index % 8).i64())
+                        p3 <- p3 + 1
+                p2 <- p2 + 1
+        p1 <- p1 + 1
+    for index in 0..<byte_count.usize():
+        bits: mutable u8 = seen[index]
+        while bits != 0:
+            count <- count + 1
+            bits <- bits & (bits - 1)
+    count
+
+export fn problem87(limit: i64) -> i64 = problem87_impl

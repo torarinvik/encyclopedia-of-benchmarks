@@ -1,0 +1,37 @@
+def problem27_is_prime(value: i64) -> bool:
+    if value < 2:
+        return false
+    if value % 2 == 0:
+        return value == 2
+    if value % 3 == 0:
+        return value == 3
+    factor: mutable i64 = 5
+    while factor <= value / factor:
+        if value % factor == 0 or value % (factor + 2) == 0:
+            return false
+        factor <- factor + 6
+    true
+
+def problem27_impl(limit: i64) -> i64:
+    if limit < 1 or limit > 1000:
+        return -1
+    best_length: mutable i64 = 0
+    best_a: mutable i64 = 0
+    best_b: mutable i64 = 0
+    a: mutable i64 = 1 - limit
+    while a < limit:
+        b: mutable i64 = 2
+        while b < limit:
+            if problem27_is_prime(b):
+                n: mutable i64 = 0
+                while problem27_is_prime(n * n + a * n + b):
+                    n <- n + 1
+                if n > best_length:
+                    best_length <- n
+                    best_a <- a
+                    best_b <- b
+            b <- b + 1
+        a <- a + 1
+    best_a * best_b
+
+export fn problem27(limit: i64) -> i64 = problem27_impl

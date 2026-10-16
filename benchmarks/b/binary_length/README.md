@@ -17,6 +17,8 @@ The pinned [TheAlgorithms Julia `binary_length.jl`](https://github.com/TheAlgori
 
 [`workload.json`](workload.json) covers one-bit values, powers of two and their neighbors, representative examples from the source, the upper bound, and invalid nonpositive or oversized values.
 
+Verify the nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms binary_length`.
+
 ```sh
 python3 benchmarks/build_abi.py --family scalar --algorithm binary_length --language rust
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/b/binary_length/rust/build.json

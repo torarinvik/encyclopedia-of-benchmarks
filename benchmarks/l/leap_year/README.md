@@ -14,7 +14,7 @@ The workload covers the ordinary 4-year rule, century exceptions, 400-year excep
 python3 benchmarks/build_scalar.py --algorithm leap_year --language rust
 ```
 
-The build manifest is written to `build/scalar/l/leap_year/rust/build.json`. Independent runtime verification remains pending.
+The build manifest is written to `build/scalar/l/leap_year/rust/build.json`. Verify all nine ports against the independent oracle with `python3 benchmarks/verify_scalar.py --algorithms leap_year`.
 
 ## Implementations
 

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "logarithm-base2-i64-scalar-v1",
+  "algorithm": "logarithm",
+  "function_symbol": "logarithm",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "input_range": [1, 4294967295],
+    "meaning": "positive uint32 value whose floor base-2 logarithm is returned",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id":"one","input_value":1,"expected_result":0},
+    {"id":"two","input_value":2,"expected_result":1},
+    {"id":"between_powers","input_value":3,"expected_result":1},
+    {"id":"four","input_value":4,"expected_result":2},
+    {"id":"eight","input_value":8,"expected_result":3},
+    {"id":"below_16_bit_boundary","input_value":65535,"expected_result":15},
+    {"id":"16_bit_boundary","input_value":65536,"expected_result":16},
+    {"id":"maximum_uint32","input_value":4294967295,"expected_result":31},
+    {"id":"zero_input","input_value":0,"expected_result":-1},
+    {"id":"negative_input","input_value":-1,"expected_result":-1},
+    {"id":"above_uint32","input_value":4294967296,"expected_result":-1}
+  ]
+}

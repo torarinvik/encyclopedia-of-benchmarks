@@ -1,0 +1,20 @@
+const MAX_LENGTH: usize = 100001
+
+def crc16_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_LENGTH:
+        return -1
+    crc: mutable i64 = 65535
+    for n in 0..<length:
+        byte: i64 = values[n]
+        if byte < 0 or byte > 255:
+            return -1
+        for bit in 0..<8:
+            shift: i64 = 7 - bit.i64()
+            incoming: i64 = (byte >> shift) & 1
+            top: i64 = (crc >> 15) & 1
+            crc <- (crc << 1) & 65535
+            if (top ^ incoming) != 0:
+                crc <- crc ^ 4129
+    crc
+
+export fn crc16(values: i64&, length: usize) -> i64 = crc16_impl

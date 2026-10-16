@@ -1,0 +1,40 @@
+extern sqrt(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def kendall_rank_correlation_coefficient_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 257: return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 2 or count > 128 or length != 1 + 2 * count.usize(): return INVALID_RESULT
+    index: mutable usize = 0
+    while index < 2 * count.usize():
+        value: i64 = values[1 + index]
+        if value < -1000000 or value > 1000000: return INVALID_RESULT
+        index <- index + 1
+
+    concordant: mutable i64 = 0
+    discordant: mutable i64 = 0
+    ties_x: mutable i64 = 0
+    ties_y: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count.usize():
+        j: mutable usize = i + 1
+        while j < count.usize():
+            x_i: i64 = values[1 + i]
+            x_j: i64 = values[1 + j]
+            y_i: i64 = values[1 + count.usize() + i]
+            y_j: i64 = values[1 + count.usize() + j]
+            if x_i == x_j: ties_x <- ties_x + 1
+            if y_i == y_j: ties_y <- ties_y + 1
+            if (x_i < x_j and y_i < y_j) or (x_i > x_j and y_i > y_j):
+                concordant <- concordant + 1
+            elif (x_i < x_j and y_i > y_j) or (x_i > x_j and y_i < y_j):
+                discordant <- discordant + 1
+            j <- j + 1
+        i <- i + 1
+    pairs: f64 = (count * (count - 1) / 2).f64()
+    denominator: f64 = sqrt((pairs - ties_x.f64()) * (pairs - ties_y.f64()))
+    if denominator == 0.0: return INVALID_RESULT
+    (concordant - discordant).f64() / denominator
+
+export fn kendall_rank_correlation_coefficient(values: i64&, length: usize) -> f64 = kendall_rank_correlation_coefficient_impl

@@ -14,3 +14,5 @@ The workload covers the published example, transitive merges, duplicate addresse
 The pinned Java [AccountMerge.java](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/AccountMerge.java) uses union-find to join accounts through shared emails, then sorts emails and merged rows. This is distinct from the generic disjoint-set trace benchmark: it adds email indexing, group aggregation, and deterministic sorted output.
 
 Build with `python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm account_merge --language LANGUAGE` and record with `python3 benchmarks/run_i64_array_bytes_output.py --algorithm account_merge`.
+
+Verify all nine implementations with `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm account_merge`.

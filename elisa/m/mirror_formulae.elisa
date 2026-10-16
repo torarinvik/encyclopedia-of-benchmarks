@@ -1,0 +1,21 @@
+# The source module exposes three mirror-equation rearrangements.
+def valid_distance(value: f64) -> bool:
+    return (value >= -1.0e6 and value <= -1.0e-6) or (value >= 1.0e-6 and value <= 1.0e6)
+
+def mirror_formulae_impl(distance_a: f64, distance_b: f64, operation_code: f64) -> f64:
+    invalid: f64 = -1.0e300
+    if not valid_distance(distance_a) or not valid_distance(distance_b):
+        return invalid
+    if operation_code != 0.0 and operation_code != 1.0 and operation_code != 2.0:
+        return invalid
+
+    denominator: mutable f64 = 0.0
+    if operation_code == 0.0:
+        denominator <- (1.0 / distance_a) + (1.0 / distance_b)
+    else:
+        denominator <- (1.0 / distance_a) - (1.0 / distance_b)
+    if denominator == 0.0:
+        return invalid
+    return 1.0 / denominator
+
+export fn mirror_formulae(distance_a: f64, distance_b: f64, operation_code: f64) -> f64 = mirror_formulae_impl

@@ -17,6 +17,7 @@ Build with:
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm adam --language rust --with-checker
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/a/adam/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm adam --languages rust
 ```
 
 ## Implementations
@@ -36,3 +37,4 @@ python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_arra
 ## Reviewed source
 
 - [Rust `adam.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/optimization/adam.rs)
+- [Python `adam_optimizer.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/optimizers/adam_optimizer.py) maintains moments by parameter-group ID and applies the same bias correction.

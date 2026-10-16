@@ -1,0 +1,48 @@
+def is_ascii_whitespace(value: i64) -> bool:
+    value == 32 or (value >= 9 and value <= 13)
+
+def longest_word_in_sentence_impl(values: i64&, length: usize, output: mutable u8&,
+                                  output_capacity: usize) -> i64:
+    if length < 1 or values[0] < 0 or values[0] > 1024 or length != 1 + values[0].usize():
+        return -1
+    text_length: usize = values[0].usize()
+    valid_text: bool =
+        while index < text_length |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            byte: i64 = values[index + 1]
+            if not is_ascii_whitespace(byte) and (byte < 33 or byte > 126):
+                break false
+            index <- index + 1
+            valid
+    if not valid_text:
+        return -1
+
+    best_state: usize[3] =
+        while state[0] < text_length |state: mutable usize[3] = zeroed| -> state:
+            index: usize = state[0]
+            if is_ascii_whitespace(values[index + 1]):
+                state[0] <- index + 1
+            else:
+                word_end: usize = while scan < text_length |scan: mutable usize = index| -> scan:
+                    if is_ascii_whitespace(values[scan + 1]):
+                        break scan
+                    scan <- scan + 1
+                    scan
+                word_length: usize = word_end - index
+                if word_length > state[2]:
+                    state[1] <- index
+                    state[2] <- word_length
+                state[0] <- word_end
+            state
+
+    best_start: usize = best_state[1]
+    best_length: usize = best_state[2]
+    if best_length > output_capacity:
+        return -2
+    while byte < best_length |byte: mutable usize = 0, output| -> output:
+        output[byte] <- values[1 + best_start + byte].u8()
+        byte <- byte + 1
+        output
+    best_length.i64()
+
+export fn longest_word_in_sentence(values: i64&, length: usize, output: mutable u8&,
+                                   output_capacity: usize) -> i64 = longest_word_in_sentence_impl

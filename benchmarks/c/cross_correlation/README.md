@@ -8,7 +8,9 @@ The `i64_array_bytes_output` ABI packs `[x_count, y_count, x0, ..., y0, ...]`. E
 
 The Java source returns binary64 coefficients. On this integer domain each coefficient is an exact integer with magnitude at most `32,000,000,000,000`, below the binary64 exact-integer limit. The benchmark writes each coefficient as a signed 64-bit integer in little-endian order. Success returns `8 * (x_count + y_count - 1)` bytes. Malformed inputs return `-1`; a null or undersized output buffer returns `-2`.
 
-The workload covers the pinned example, unequal signal lengths, source overlap orientation, signed values, singleton and maximum sample cases, maximum lengths, and invalid input bounds.
+The workload covers the pinned example, unequal signal lengths, source overlap orientation, signed values, singleton and maximum sample cases, maximum lengths, invalid input bounds, and an undersized output buffer.
+
+Verify the nine ports with `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm cross_correlation`.
 
 ## Pinned source and ports
 

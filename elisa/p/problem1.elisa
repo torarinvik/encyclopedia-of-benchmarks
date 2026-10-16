@@ -1,0 +1,12 @@
+# Sum positive integers divisible by 3 or 5 that are strictly below the limit.
+def problem1_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 100000:
+        return -1
+    state: i64[2] =
+        while state[0] < limit |state: mutable i64[2] = [1, 0]| -> state:
+            if state[0] % 3 == 0 or state[0] % 5 == 0:
+                state[1] <- state[1] + state[0]
+            state[0] <- state[0] + 1
+    state[1]
+
+export fn problem1(limit: i64) -> i64 = problem1_impl

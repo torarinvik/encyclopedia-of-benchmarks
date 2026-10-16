@@ -1,0 +1,15 @@
+const N:usize=24;const E:usize=2*N+N*(N-1)/2;const P:usize=N*(N-1)/2;
+const Seg=struct{x1:i64,y1:i64,x2:i64,y2:i64};const Ev=struct{x:i64,y:i64,a:usize,b:usize,t:u8,done:bool=false};
+fn cross(ax:i64,ay:i64,bx:i64,by:i64)i64{return ax*by-ay*bx;}
+fn inter(a:Seg,b:Seg) ?[2]i64{const rx=a.x2-a.x1;const ry=a.y2-a.y1;const sx=b.x2-b.x1;const sy=b.y2-b.y1;var d=cross(rx,ry,sx,sy);if(d==0)return null;var t=cross(b.x1-a.x1,b.y1-a.y1,sx,sy);var u=cross(b.x1-a.x1,b.y1-a.y1,rx,ry);if(d<0){d= -d;t= -t;u= -u;}if(t<=0 or t>=d or u<=0 or u>=d)return null;const xn=a.x1*d+t*rx;const yn=a.y1*d+t*ry;if(@rem(xn,d)!=0 or @rem(yn,d)!=0)return null;return .{ @divTrunc(xn,d),@divTrunc(yn,d) };}
+fn less(s:*[N]Seg,a:usize,b:usize,x:i64)bool{const da=s[a].x2-s[a].x1;const db=s[b].x2-s[b].x1;const na=s[a].y1*da+(x-s[a].x1)*(s[a].y2-s[a].y1);const nb=s[b].y1*db+(x-s[b].x1)*(s[b].y2-s[b].y1);const c=na*db-nb*da;if(c!=0)return c<0;const sl=(s[a].y2-s[a].y1)*db-(s[b].y2-s[b].y1)*da;if(sl!=0)return sl<0;return a<b;}
+fn put(out:[*]u8,slot:usize,v:i64)void{const b:u64=@bitCast(v);for(0..8)|i|out[slot*8+i]=@truncate(b>>@intCast(i*8));}
+export fn bentley_ottmann(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<1)return -1;const nn=input[0];if(nn<0 or nn>N or length!=1+4*@as(usize,@intCast(nn)))return -1;const n:usize=@intCast(nn);var s:[N]Seg=@splat(.{.x1=0,.y1=0,.x2=0,.y2=0});for(0..n)|i|{const x1=input[1+4*i];const y1=input[2+4*i];const x2=input[3+4*i];const y2=input[4+4*i];if(x1< -1000 or x1>1000 or x2< -1000 or x2>1000 or y1< -1000 or y1>1000 or y2< -1000 or y2>1000 or x1==x2)return -1;s[i]=if(x1<x2).{.x1=x1,.y1=y1,.x2=x2,.y2=y2}else.{.x1=x2,.y1=y2,.x2=x1,.y2=y1};}
+ var ev:[E]Ev=undefined;var ec:usize=0;for(0..n)|i|{ev[ec]=.{.x=s[i].x1,.y=s[i].y1,.a=i,.b=0,.t=0};ec+=1;ev[ec]=.{.x=s[i].x2,.y=s[i].y2,.a=i,.b=0,.t=1};ec+=1;}var sched:[N][N]bool=@splat(@splat(false));var active:[N]usize=undefined;var ac:usize=0;var pts:[P][2]i64=undefined;var pc:usize=0;
+ while(true){var ei=ec;for(0..ec)|j|{if(!ev[j].done and (ei==ec or ev[j].x<ev[ei].x or (ev[j].x==ev[ei].x and ev[j].y<ev[ei].y)))ei=j;}if(ei==ec)break;const e=ev[ei];ev[ei].done=true;if(e.t==0){active[ac]=e.a;ac+=1;}else if(e.t==1){for(0..ac)|j|{if(active[j]==e.a){for(j+1..ac)|k|active[k-1]=active[k];ac-=1;break;}}}else{pts[pc]=.{e.x,e.y};pc+=1;}
+ for(1..ac)|i|{const v=active[i];var j=i;while(j>0 and less(&s,v,active[j-1],e.x)){active[j]=active[j-1];j-=1;}active[j]=v;}
+ for(1..ac)|i|{const a=active[i-1];const b=active[i];if(sched[a][b])continue;if(inter(s[a],s[b]))|q|{if(q[0]>e.x){if(ec>=E)return -1;ev[ec]=.{.x=q[0],.y=q[1],.a=a,.b=b,.t=2};ec+=1;sched[a][b]=true;sched[b][a]=true;}}}
+ }
+ for(1..pc)|i|{const v=pts[i];var j=i;while(j>0 and (pts[j-1][0]>v[0] or (pts[j-1][0]==v[0] and pts[j-1][1]>v[1]))){pts[j]=pts[j-1];j-=1;}pts[j]=v;}const bytes=(1+2*pc)*8;if(output==null or capacity<bytes)return -2;put(output,0,@intCast(pc));for(0..pc)|i|{put(output,1+2*i,pts[i][0]);put(output,2+2*i,pts[i][1]);}return @intCast(bytes);
+}

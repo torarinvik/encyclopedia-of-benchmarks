@@ -1,0 +1,18 @@
+# Last ten digits of the self-powers sum for bases 1 through 1000.
+def problem48_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    modulus: i64 = 10000000000
+    total: mutable i64 = 0
+    base: mutable i64 = 1
+    while base <= 1000:
+        term: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < base:
+            term <- (term * base) % modulus
+            exponent <- exponent + 1
+        total <- (total + term) % modulus
+        base <- base + 1
+    total
+
+export fn problem48(ignored: i64) -> i64 = problem48_impl

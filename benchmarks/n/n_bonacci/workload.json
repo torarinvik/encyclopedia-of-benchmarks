@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "n-bonacci-final-term-i64-array-scalar-v1",
+  "algorithm": "n_bonacci",
+  "function_symbol": "n_bonacci",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[order,term_count]",
+    "minimum_length": 2,
+    "maximum_length": 2,
+    "order_range": [
+      1,
+      63
+    ],
+    "term_count_range": [
+      2,
+      64
+    ],
+    "ordering": "order < term_count",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "the N-bonacci sequence term at zero-based index term_count - 1",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one_bonacci",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_prefix_last_term",
+      "input_values": [
+        2,
+        6
+      ],
+      "input_length": 2,
+      "expected_result": 5
+    },
+    {
+      "id": "tribonacci_prefix_last_term",
+      "input_values": [
+        3,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": 7
+    },
+    {
+      "id": "five_bonacci_pinned_case",
+      "input_values": [
+        5,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": 464
+    },
+    {
+      "id": "six_bonacci_pinned_case",
+      "input_values": [
+        6,
+        17
+      ],
+      "input_length": 2,
+      "expected_result": 976
+    },
+    {
+      "id": "one_bonacci_maximum_count",
+      "input_values": [
+        1,
+        64
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_maximum_count",
+      "input_values": [
+        2,
+        64
+      ],
+      "input_length": 2,
+      "expected_result": 6557470319842
+    },
+    {
+      "id": "largest_order",
+      "input_values": [
+        63,
+        64
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_order_invalid",
+      "input_values": [
+        0,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_order_invalid",
+      "input_values": [
+        -1,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "count_not_greater_than_order",
+      "input_values": [
+        4,
+        4
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "count_less_than_order",
+      "input_values": [
+        5,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "count_over_bound",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [
+        2,
+        8,
+        99
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    }
+  ]
+}

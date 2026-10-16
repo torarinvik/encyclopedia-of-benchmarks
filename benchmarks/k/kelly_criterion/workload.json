@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "kelly-criterion-python-fixed-point-i64-array-float64-v1",
+  "algorithm": "kelly_criterion",
+  "function_symbol": "kelly_criterion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[win_probability_micro, win_loss_ratio_micro]",
+    "scale": 1000000,
+    "win_probability_micro_range": [
+      1,
+      999999
+    ],
+    "win_loss_ratio_micro_range": [
+      1000,
+      100000000
+    ],
+    "exact_shape": "2 values",
+    "maximum_parseable_length": 3,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "(p * b - (1 - p)) / b, where p is win probability and b is win/loss ratio",
+    "range": [
+      -1000.0,
+      1.0
+    ],
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "source_example_sixty_percent_two_to_one",
+      "input_values": [
+        600000,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.39999999999999997
+    },
+    {
+      "id": "source_example_fifty_five_percent_even_odds",
+      "input_values": [
+        550000,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.10000000000000009
+    },
+    {
+      "id": "source_example_break_even",
+      "input_values": [
+        500000,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "source_example_seventy_percent_three_to_one",
+      "input_values": [
+        700000,
+        3000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.5999999999999999
+    },
+    {
+      "id": "source_example_negative_fraction",
+      "input_values": [
+        300000,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -0.04999999999999999
+    },
+    {
+      "id": "near_even_odds_positive_edge",
+      "input_values": [
+        500001,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 2.0000000000575113e-06
+    },
+    {
+      "id": "near_even_odds_negative_edge",
+      "input_values": [
+        499999,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": -1.999999999890978e-06
+    },
+    {
+      "id": "fair_probability_for_two_to_one",
+      "input_values": [
+        333333,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -5.000000000143778e-07
+    },
+    {
+      "id": "probability_minimum_with_minimum_ratio",
+      "input_values": [
+        1,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": -999.998999
+    },
+    {
+      "id": "probability_maximum_with_minimum_ratio",
+      "input_values": [
+        999999,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": 0.9989989999999711
+    },
+    {
+      "id": "probability_minimum_with_maximum_ratio",
+      "input_values": [
+        1,
+        100000000
+      ],
+      "input_length": 2,
+      "expected_result": -0.00999899
+    },
+    {
+      "id": "probability_maximum_with_maximum_ratio",
+      "input_values": [
+        999999,
+        100000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.99999899
+    },
+    {
+      "id": "ratio_minimum_mid_probability",
+      "input_values": [
+        500000,
+        1000
+      ],
+      "input_length": 2,
+      "expected_result": -499.5
+    },
+    {
+      "id": "ratio_maximum_mid_probability",
+      "input_values": [
+        500000,
+        100000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.495
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "too_short",
+      "input_values": [
+        600000
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "too_long",
+      "input_values": [
+        600000,
+        2000000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_probability",
+      "input_values": [
+        0,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one_probability",
+      "input_values": [
+        1000000,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_probability",
+      "input_values": [
+        -1,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "probability_above_one",
+      "input_values": [
+        1000001,
+        2000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_ratio",
+      "input_values": [
+        600000,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_ratio",
+      "input_values": [
+        600000,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "ratio_below_bound",
+      "input_values": [
+        600000,
+        999
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "ratio_above_bound",
+      "input_values": [
+        600000,
+        100000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

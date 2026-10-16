@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "endian-converter-java-int32-reverse-bytes-v1",
+  "algorithm": "endian_converter",
+  "function_symbol": "endian_converter",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "supported_range": [
+      -2147483648,
+      2147483647
+    ],
+    "source_type": "Java signed int32",
+    "invalid_result": -2147483649
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "sign-extended signed int32 formed by reversing the four bytes",
+    "valid_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_result": -2147483649
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_value": 1,
+      "expected_result": 16777216
+    },
+    {
+      "id": "low_byte",
+      "input_value": 255,
+      "expected_result": -16777216
+    },
+    {
+      "id": "known_hex_12345678",
+      "input_value": 305419896,
+      "expected_result": 2018915346
+    },
+    {
+      "id": "distinct_bytes",
+      "input_value": 16909060,
+      "expected_result": 67305985
+    },
+    {
+      "id": "negative_one",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_pattern",
+      "input_value": -19088743,
+      "expected_result": -1715806978
+    },
+    {
+      "id": "int32_minimum",
+      "input_value": -2147483648,
+      "expected_result": 128
+    },
+    {
+      "id": "int32_maximum",
+      "input_value": 2147483647,
+      "expected_result": -129
+    },
+    {
+      "id": "below_int32",
+      "input_value": -2147483649,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "above_int32",
+      "input_value": 2147483648,
+      "expected_result": -2147483649
+    }
+  ]
+}

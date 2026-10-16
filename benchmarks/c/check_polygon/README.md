@@ -19,6 +19,8 @@ Build with the `i64_array_bytes_output` ABI family:
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm check_polygon --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm check_polygon
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm check_polygon --languages rust
 ```
 
 ## Upstream reference

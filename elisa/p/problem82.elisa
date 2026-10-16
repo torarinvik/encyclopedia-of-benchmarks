@@ -1,0 +1,55 @@
+const MAX_ROWS: usize = 80
+const MAX_COLUMNS: usize = 80
+const MAX_CELL_VALUE: i64 = 9999
+
+def problem82_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3:
+        return -1
+    row_value: i64 = input[0]
+    column_value: i64 = input[1]
+    if row_value < 1 or row_value > MAX_ROWS.i64() or column_value < 1 or column_value > MAX_COLUMNS.i64():
+        return -1
+    rows: usize = row_value.usize()
+    columns: usize = column_value.usize()
+    if length != 2 + rows * columns:
+        return -1
+    index: mutable usize = 2
+    while index < length:
+        if input[index] < 0 or input[index] > MAX_CELL_VALUE:
+            return -1
+        index <- index + 1
+
+    costs: mutable i64[80] = zeroed
+    row: mutable usize = 0
+    while row < rows:
+        costs[row] <- input[2 + row * columns]
+        row <- row + 1
+    column: mutable usize = 1
+    while column < columns:
+        offset: usize = 2 + column
+        row <- 0
+        while row < rows:
+            costs[row] <- costs[row] + input[offset + row * columns]
+            row <- row + 1
+        row <- 1
+        while row < rows:
+            from_above: i64 = costs[row - 1] + input[offset + row * columns]
+            if from_above < costs[row]:
+                costs[row] <- from_above
+            row <- row + 1
+        row <- rows - 1
+        while row > 0:
+            from_below: i64 = costs[row] + input[offset + (row - 1) * columns]
+            if from_below < costs[row - 1]:
+                costs[row - 1] <- from_below
+            row <- row - 1
+        column <- column + 1
+    best: mutable i64 = costs[0]
+    row <- 1
+    while row < rows:
+        if costs[row] < best:
+            best <- costs[row]
+        row <- row + 1
+    best
+
+export fn problem82(input: i64&, length: usize) -> i64 = problem82_impl

@@ -1,0 +1,60 @@
+const MAX_SIDE: usize = 16
+const MAX_KERNEL_SIDE: usize = 7
+
+def image_convolution_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def image_convolution_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3 or length > 308: return -1
+    side_value: i64 = input[0]
+    kernel_side_value: i64 = input[1]
+    if side_value < 1 or side_value > MAX_SIDE.i64(): return -1
+    if kernel_side_value < 1 or kernel_side_value > MAX_KERNEL_SIDE.i64() or kernel_side_value % 2 == 0: return -1
+    side: usize = side_value.usize()
+    kernel_side: usize = kernel_side_value.usize()
+    pixel_count: usize = side * side
+    kernel_count: usize = kernel_side * kernel_side
+    if length != 2 + pixel_count + kernel_count: return -1
+    index: mutable usize = 0
+    while index < pixel_count:
+        if input[2 + index] < 0 or input[2 + index] > 255: return -1
+        index <- index + 1
+    index <- 0
+    while index < kernel_count:
+        weight: i64 = input[2 + pixel_count + index]
+        if weight < -16 or weight > 16: return -1
+        index <- index + 1
+    output_bytes: usize = pixel_count * 8
+    if output_capacity < output_bytes: return -2
+
+    radius: i64 = (kernel_side / 2).i64()
+    row: mutable usize = 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            total: mutable i64 = 0
+            kernel_row: mutable usize = 0
+            while kernel_row < kernel_side:
+                source_row: mutable i64 = row.i64() + kernel_row.i64() - radius
+                if source_row < 0: source_row <- 0
+                if source_row >= side.i64(): source_row <- side.i64() - 1
+                kernel_column: mutable usize = 0
+                while kernel_column < kernel_side:
+                    source_column: mutable i64 = column.i64() + kernel_column.i64() - radius
+                    if source_column < 0: source_column <- 0
+                    if source_column >= side.i64(): source_column <- side.i64() - 1
+                    pixel: i64 = input[2 + source_row.usize() * side + source_column.usize()]
+                    weight: i64 = input[2 + pixel_count + kernel_row * kernel_side + kernel_column]
+                    total <- total + pixel * weight
+                    kernel_column <- kernel_column + 1
+                kernel_row <- kernel_row + 1
+            image_convolution_store_i64(output, (row * side + column) * 8, total)
+            column <- column + 1
+        row <- row + 1
+    output_bytes.i64()
+
+export fn image_convolution(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = image_convolution_impl

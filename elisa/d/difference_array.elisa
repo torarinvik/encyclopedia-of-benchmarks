@@ -1,0 +1,52 @@
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def difference_array_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2: return -1
+    raw_n: i64 = input[0]
+    raw_q: i64 = input[1]
+    if raw_n < 1 or raw_n > 64 or raw_q < 0 or raw_q > 64: return -1
+    n: usize = raw_n.usize()
+    q: usize = raw_q.usize()
+    if length != 2 + n + 3*q: return -1
+    i: usize = 0
+    while i < n:
+        if input[2+i] < -1000000 or input[2+i] > 1000000: return -1
+        i <- i + 1
+    u: usize = 0
+    while u < q:
+        base: usize = 2+n+3*u
+        if input[base] < 0 or input[base] >= raw_n or input[base+1] < input[base] or input[base+1] >= raw_n or input[base+2] < -1000000 or input[base+2] > 1000000: return -1
+        u <- u + 1
+    bytes: usize = n*8
+    if output.is_null() or capacity < bytes: return -2
+    diff: mutable i64[65] = zeroed
+    diff[0] <- input[2]
+    i <- 1
+    while i < n:
+        diff[i] <- input[2+i] - input[2+i-1]
+        i <- i + 1
+    u <- 0
+    while u < q:
+        base: usize = 2+n+3*u
+        left: usize = input[base].usize()
+        right: usize = input[base+1].usize()
+        delta: i64 = input[base+2]
+        diff[left] <- diff[left] + delta
+        diff[right+1] <- diff[right+1] - delta
+        u <- u + 1
+    current: mutable i64 = diff[0]
+    put_i64_le(current, output, 0)
+    i <- 1
+    while i < n:
+        current <- current + diff[i]
+        put_i64_le(current, output, i*8)
+        i <- i + 1
+    bytes.i64()
+
+export fn difference_array(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = difference_array_impl

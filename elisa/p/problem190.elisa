@@ -1,0 +1,21 @@
+extern pow(base: f64, exponent: f64) -> f64
+const MAX_N: i64 = 15
+
+def problem190_impl(n: i64) -> i64:
+    if n < 0 or n > MAX_N:
+        return -1
+    total: mutable i64 = 0
+    m: mutable i64 = 2
+    while m <= n:
+        x1: f64 = 2.0 / (m + 1).f64()
+        product: mutable f64 = 1.0
+        i: mutable i64 = 1
+        while i <= m:
+            xi: f64 = i.f64() * x1
+            product <- product * pow(xi, i.f64())
+            i <- i + 1
+        total <- total + product.i64()
+        m <- m + 1
+    total
+
+export fn problem190(n: i64) -> i64 = problem190_impl

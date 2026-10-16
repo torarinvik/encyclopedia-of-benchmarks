@@ -1,0 +1,26 @@
+def rgbto_hex_digit(value: i64) -> u8:
+    if value < 10:
+        return (value + 48).u8()
+    return (value + 87).u8()
+
+def rgbto_hex_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 3:
+        return -1
+    if input.is_null():
+        return -1
+    index: mutable usize = 0
+    while index < 3:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+    if capacity < 7 or output.is_null():
+        return -2
+    output[0] <- 35
+    index <- 0
+    while index < 3:
+        output[1 + 2 * index] <- rgbto_hex_digit(input[index] >> 4)
+        output[2 + 2 * index] <- rgbto_hex_digit(input[index] & 15)
+        index <- index + 1
+    7
+
+export fn rgbto_hex(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rgbto_hex_impl

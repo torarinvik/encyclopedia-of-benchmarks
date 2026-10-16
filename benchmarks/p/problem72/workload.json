@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-72-inclusive-totient-sum-v1",
+  "algorithm": "problem72",
+  "function_symbol": "problem72",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Inclusive maximum denominator d in the source range 2 <= d <= limit; 0 and 1 produce an empty sum",
+    "minimum": 0,
+    "maximum": 1000000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of Euler totients phi(d) for 2 <= d <= limit"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_limit_zero",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "empty_limit_one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "first_denominator",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "denominators_through_three",
+      "input_value": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "project_euler_example_eight",
+      "input_value": 8,
+      "expected_result": 21
+    },
+    {
+      "id": "ten",
+      "input_value": 10,
+      "expected_result": 31
+    },
+    {
+      "id": "hundred",
+      "input_value": 100,
+      "expected_result": 3043
+    },
+    {
+      "id": "thousand",
+      "input_value": 1000,
+      "expected_result": 304191
+    },
+    {
+      "id": "canonical_one_million",
+      "input_value": 1000000,
+      "expected_result": 303963552391
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ]
+}

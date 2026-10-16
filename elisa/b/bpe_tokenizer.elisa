@@ -1,0 +1,83 @@
+# Apply bounded byte-pair merges with first-seen tie-breaking.
+def bpe_tokenizer_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 515:
+        return -2
+    merge_count_value: i64 = values[0]
+    byte_count_value: i64 = values[1]
+    if merge_count_value < 0 or merge_count_value > 32 or byte_count_value < 0 or byte_count_value > 512:
+        return -2
+    byte_count: usize = byte_count_value.usize()
+    if length != byte_count + 2:
+        return -2
+
+    tokens: mutable i64[512] = zeroed
+    next_tokens: mutable i64[512] = zeroed
+    index: mutable usize = 0
+    while index < byte_count:
+        byte_value: i64 = values[index + 2]
+        if byte_value < 0 or byte_value > 255:
+            return -2
+        tokens[index] <- byte_value
+        index <- index + 1
+
+    token_count: mutable usize = byte_count
+    step: mutable usize = 0
+    merge_limit: usize = merge_count_value.usize()
+    while step < merge_limit and token_count > 1:
+        pair_left: mutable i64[511] = zeroed
+        pair_right: mutable i64[511] = zeroed
+        pair_frequency: mutable i64[511] = zeroed
+        unique_pairs: mutable usize = 0
+        index <- 0
+        while index + 1 < token_count:
+            pair_index: mutable usize = 0
+            while pair_index < unique_pairs and (pair_left[pair_index] != tokens[index] or pair_right[pair_index] != tokens[index + 1]):
+                pair_index <- pair_index + 1
+            if pair_index == unique_pairs:
+                pair_left[pair_index] <- tokens[index]
+                pair_right[pair_index] <- tokens[index + 1]
+                pair_frequency[pair_index] <- 1
+                unique_pairs <- unique_pairs + 1
+            else:
+                pair_frequency[pair_index] <- pair_frequency[pair_index] + 1
+            index <- index + 1
+        if unique_pairs == 0:
+            break
+        best: mutable usize = 0
+        index <- 1
+        while index < unique_pairs:
+            if pair_frequency[index] > pair_frequency[best]:
+                best <- index
+            index <- index + 1
+        if pair_frequency[best] == 1:
+            break
+
+        next_count: mutable usize = 0
+        index <- 0
+        while index < token_count:
+            if index + 1 < token_count and tokens[index] == pair_left[best] and tokens[index + 1] == pair_right[best]:
+                next_tokens[next_count] <- 256 + step.i64()
+                next_count <- next_count + 1
+                index <- index + 2
+            else:
+                next_tokens[next_count] <- tokens[index]
+                next_count <- next_count + 1
+                index <- index + 1
+        index <- 0
+        while index < next_count:
+            tokens[index] <- next_tokens[index]
+            index <- index + 1
+        token_count <- next_count
+        step <- step + 1
+
+    if token_count * 2 > output_capacity:
+        return -2
+    index <- 0
+    while index < token_count:
+        token: i64 = tokens[index]
+        output[index * 2] <- (token & 255).u8()
+        output[index * 2 + 1] <- ((token >> 8) & 255).u8()
+        index <- index + 1
+    token_count.i64()
+
+export fn bpe_tokenizer(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = bpe_tokenizer_impl

@@ -19,6 +19,7 @@ The C source uses a full two-dimensional table and returns int. The shared ports
 
 - [TheAlgorithms/Java `UniquePaths.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/UniquePaths.java)
 - [TheAlgorithms/JavaScript `UniquePaths.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/UniquePaths.js)
+- [TheAlgorithms/Go `uniquepaths.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/uniquepaths.go) fills a two-dimensional grid from a boundary row and column of ones, then sums paths from above and the left. Its zero result for nonpositive dimensions lies outside this positive-dimension contract, and its Go `int` result has architecture-dependent width. This source is reviewed as an alias of the shared recurrence under the repository's [MIT license](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/LICENSE).
 
 The Java source provides one-dimensional dynamic programming with swapped dimensions and a two-dimensional variant. It uses `int` additions that throw on overflow. JavaScript updates one row of `Number` values and can lose integer precision for larger grids. The shared contract uses a bounded 64-bit result across all target languages.
 

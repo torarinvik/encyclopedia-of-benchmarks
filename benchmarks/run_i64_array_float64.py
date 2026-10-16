@@ -17,6 +17,164 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from complementary_filter_oracle import INVALID_RESULT as COMPLEMENTARY_FILTER_INVALID_RESULT
+from complementary_filter_oracle import expected_result as complementary_filter_expected
+from comp_filt_oracle import INVALID_RESULT as COMP_FILT_INVALID_RESULT
+from comp_filt_oracle import expected_result as comp_filt_expected
+from apparent_power_oracle import INVALID_RESULT as APPARENT_POWER_INVALID_RESULT
+from apparent_power_oracle import expected_result as apparent_power_expected
+from archimedes_principle_of_buoyant_force_oracle import (
+    INVALID_RESULT as ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT,
+    expected_result as archimedes_principle_of_buoyant_force_expected,
+)
+from centripetal_force_oracle import INVALID_RESULT as CENTRIPETAL_FORCE_INVALID_RESULT
+from centripetal_force_oracle import expected_result as centripetal_force_expected
+from cone_oracle import INVALID_RESULT as CONE_INVALID_RESULT
+from cone_oracle import expected_result as cone_expected
+from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
+from cohen_sutherland_oracle import expected_result as cohen_sutherland_expected
+from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
+from kinetic_energy_oracle import expected_result as kinetic_energy_expected
+from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
+from potential_energy_oracle import expected_result as potential_energy_expected
+from sum_of_arithmetic_series_oracle import INVALID_RESULT as SUM_OF_ARITHMETIC_SERIES_INVALID_RESULT
+from sum_of_arithmetic_series_oracle import expected_result as sum_of_arithmetic_series_expected
+from euclidean_distance_oracle import INVALID_RESULT as EUCLIDEAN_DISTANCE_INVALID_RESULT
+from euclidean_distance_oracle import expected_result as euclidean_distance_expected
+from dynamic_time_warping_oracle import INVALID_RESULT as DYNAMIC_TIME_WARPING_INVALID_RESULT
+from dynamic_time_warping_oracle import expected_result as dynamic_time_warping_expected
+from boyles_law_oracle import INVALID_RESULT as BOYLES_LAW_INVALID_RESULT
+from boyles_law_oracle import expected_result as boyles_law_expected
+from harmonic_mean_oracle import INVALID_RESULT as HARMONIC_MEAN_INVALID_RESULT
+from harmonic_mean_oracle import expected_result as harmonic_mean_expected
+from is_harmonic_series_oracle import INVALID_RESULT as IS_HARMONIC_SERIES_INVALID_RESULT
+from is_harmonic_series_oracle import expected_result as is_harmonic_series_expected
+from quadratic_mean_oracle import INVALID_RESULT as QUADRATIC_MEAN_INVALID_RESULT
+from quadratic_mean_oracle import expected_result as quadratic_mean_expected
+from distance_between_two_points_oracle import INVALID_RESULT as DISTANCE_BETWEEN_TWO_POINTS_INVALID_RESULT
+from distance_between_two_points_oracle import expected_result as distance_between_two_points_expected
+from arithmetic_mean_oracle import INVALID_RESULT as ARITHMETIC_MEAN_INVALID_RESULT
+from arithmetic_mean_oracle import expected_result as arithmetic_mean_expected
+from gaussian_oracle import INVALID_RESULT as GAUSSIAN_INVALID_RESULT
+from gaussian_oracle import expected_result as gaussian_expected
+from hubble_parameter_oracle import INVALID_RESULT as HUBBLE_PARAMETER_INVALID_RESULT
+from hubble_parameter_oracle import expected_result as hubble_parameter_expected
+from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
+from light_aberration_oracle import expected_result as light_aberration_expected
+from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
+from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
+from variance_oracle import expected_result as variance_expected
+from dice_coefficient_oracle import INVALID_RESULT as DICE_COEFFICIENT_INVALID_RESULT
+from dice_coefficient_oracle import MAX_INPUT_LENGTH as MAX_DICE_COEFFICIENT_INPUT_LENGTH
+from dice_coefficient_oracle import expected_result as dice_coefficient_expected
+from density_oracle import INVALID_RESULT as DENSITY_INVALID_RESULT
+from density_oracle import MAX_INPUT_LENGTH as MAX_DENSITY_INPUT_LENGTH
+from density_oracle import expected_result as density_expected
+from hinge_loss_oracle import INVALID_RESULT as HINGE_LOSS_INVALID_RESULT
+from hinge_loss_oracle import MAX_INPUT_LENGTH as MAX_HINGE_LOSS_INPUT_LENGTH
+from hinge_loss_oracle import expected_result as hinge_loss_expected
+from collaborative_filtering_oracle import MAX_PEARSON_INPUT_LENGTH
+from collaborative_filtering_oracle import MAX_PREDICTION_INPUT_LENGTH
+from collaborative_filtering_oracle import PEARSON_INVALID_RESULT
+from collaborative_filtering_oracle import PREDICTION_INVALID_RESULT
+from collaborative_filtering_oracle import expected_pearson_similarity
+from collaborative_filtering_oracle import expected_prediction
+from maclaurin_series_oracle import INVALID_RESULT as MACLAURIN_SERIES_INVALID_RESULT
+from maclaurin_series_oracle import expected_result as maclaurin_series_expected
+from automatic_differentiation_oracle import automatic_differentiation
+from butterworth_filter_oracle import expected_result as butterworth_filter_expected
+from charging_capacitor_oracle import expected_result as charging_capacitor_expected
+from charging_inductor_oracle import expected_result as charging_inductor_expected
+from center_of_mass_oracle import expected_result as center_of_mass_expected
+from color_contrast_ratio_oracle import INVALID_RESULT as COLOR_CONTRAST_INVALID_RESULT
+from color_contrast_ratio_oracle import expected_result as color_contrast_ratio_expected
+from grahams_law_oracle import grahams_law as grahams_law_result
+from rainfall_intensity_oracle import rainfall_intensity
+from rotating_calipers_oracle import rotating_calipers
+from standard_deviation_oracle import INVALID_RESULT as STANDARD_DEVIATION_INVALID_RESULT
+from standard_deviation_oracle import expected_result as standard_deviation_expected
+from speed_oracle import expected_result as speed_expected
+from ground_to_ground_projectile_motion_oracle import INVALID_RESULT as GROUND_PROJECTILE_INVALID_RESULT
+from ground_to_ground_projectile_motion_oracle import MAX_INPUT_LENGTH as MAX_GROUND_PROJECTILE_INPUT_LENGTH
+from ground_to_ground_projectile_motion_oracle import expected_result as ground_projectile_expected
+from huber_loss_oracle import INVALID_RESULT as HUBER_LOSS_INVALID_RESULT
+from huber_loss_oracle import MAX_INPUT_LENGTH as MAX_HUBER_LOSS_INPUT_LENGTH
+from huber_loss_oracle import expected_result as huber_loss_expected
+from huber_loss_math_oracle import INVALID_RESULT as HUBER_LOSS_MATH_INVALID_RESULT
+from huber_loss_math_oracle import MAX_INPUT_LENGTH as MAX_HUBER_LOSS_MATH_INPUT_LENGTH
+from huber_loss_math_oracle import expected_result as huber_loss_math_expected
+from exponential_dist_oracle import INVALID_RESULT as EXPONENTIAL_DIST_INVALID_RESULT
+from exponential_dist_oracle import MAX_INPUT_LENGTH as MAX_EXPONENTIAL_DIST_INPUT_LENGTH
+from exponential_dist_oracle import expected_result as exponential_dist_expected
+from expected_shortfall_oracle import INVALID_RESULT as EXPECTED_SHORTFALL_INVALID_RESULT
+from expected_shortfall_oracle import MAX_INPUT_LENGTH as MAX_EXPECTED_SHORTFALL_INPUT_LENGTH
+from expected_shortfall_oracle import expected_result as expected_shortfall_expected
+from time_converter_oracle import INVALID_RESULT as TIME_CONVERTER_INVALID_RESULT
+from time_converter_oracle import MAX_INPUT_LENGTH as MAX_TIME_CONVERTER_INPUT_LENGTH
+from time_converter_oracle import expected_result as time_converter_expected
+from temperature_converter_oracle import INVALID_RESULT as TEMPERATURE_CONVERTER_INVALID_RESULT
+from temperature_converter_oracle import MAX_INPUT_LENGTH as MAX_TEMPERATURE_CONVERTER_INPUT_LENGTH
+from temperature_converter_oracle import expected_result as temperature_converter_expected
+from value_at_risk_oracle import INVALID_RESULT as VALUE_AT_RISK_INVALID_RESULT
+from value_at_risk_oracle import MAX_INPUT_LENGTH as MAX_VALUE_AT_RISK_INPUT_LENGTH
+from value_at_risk_oracle import expected_result as value_at_risk_expected
+from energy_oracle import INVALID_RESULT as ENERGY_INVALID_RESULT
+from energy_oracle import MAX_INPUT_LENGTH as MAX_ENERGY_INPUT_LENGTH
+from energy_oracle import expected_result as energy_expected
+from trapezoidal_integration_oracle import INVALID_RESULT as TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
+from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
+from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_expected
+from cosine_similarity_oracle import INVALID_RESULT as COSINE_SIMILARITY_INVALID_RESULT
+from cosine_similarity_oracle import MAX_INPUT_LENGTH as MAX_COSINE_SIMILARITY_INPUT_LENGTH
+from cosine_similarity_oracle import expected_output as cosine_similarity_expected
+from quadratic_equation_solver_oracle import INVALID_RESULT as QUADRATIC_EQUATION_SOLVER_INVALID_RESULT
+from quadratic_equation_solver_oracle import MAX_INPUT_LENGTH as MAX_QUADRATIC_EQUATION_SOLVER_INPUT_LENGTH
+from quadratic_equation_solver_oracle import expected_result as quadratic_equation_solver_expected
+from linear_regression_cost_oracle import INVALID_RESULT as LINEAR_REGRESSION_COST_INVALID_RESULT
+from linear_regression_cost_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH
+from linear_regression_cost_oracle import expected_result as linear_regression_cost_expected
+from price_plus_tax_oracle import INVALID_RESULT as PRICE_PLUS_TAX_INVALID_RESULT
+from price_plus_tax_oracle import MAX_INPUT_LENGTH as MAX_PRICE_PLUS_TAX_INPUT_LENGTH
+from price_plus_tax_oracle import expected_result as price_plus_tax_expected
+from macaulay_duration_oracle import INVALID_RESULT as MACAULAY_DURATION_INVALID_RESULT
+from macaulay_duration_oracle import MAX_INPUT_LENGTH as MAX_MACAULAY_DURATION_INPUT_LENGTH
+from macaulay_duration_oracle import expected_result as macaulay_duration_expected
+from kelly_criterion_oracle import INVALID_RESULT as KELLY_CRITERION_INVALID_RESULT
+from kelly_criterion_oracle import MAX_INPUT_LENGTH as MAX_KELLY_CRITERION_INPUT_LENGTH
+from kelly_criterion_oracle import expected_result as kelly_criterion_expected
+from present_value_oracle import INVALID_RESULT as PRESENT_VALUE_INVALID_RESULT
+from present_value_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_PRESENT_VALUE_PARSEABLE_INPUT_LENGTH
+from present_value_oracle import expected_result as present_value_expected
+from present_value_rust_oracle import INVALID_RESULT as PRESENT_VALUE_RUST_INVALID_RESULT
+from present_value_rust_oracle import MAX_INPUT_LENGTH as MAX_PRESENT_VALUE_RUST_PARSEABLE_INPUT_LENGTH
+from present_value_rust_oracle import expected_result as present_value_rust_expected
+from resonant_frequency_oracle import INVALID_RESULT as RESONANT_FREQUENCY_INVALID_RESULT
+from resonant_frequency_oracle import MAX_INPUT_LENGTH as MAX_RESONANT_FREQUENCY_INPUT_LENGTH
+from resonant_frequency_oracle import expected_result as resonant_frequency_expected
+from rms_speed_of_molecule_oracle import INVALID_RESULT as RMS_SPEED_OF_MOLECULE_INVALID_RESULT
+from rms_speed_of_molecule_oracle import MAX_INPUT_LENGTH as MAX_RMS_SPEED_OF_MOLECULE_INPUT_LENGTH
+from rms_speed_of_molecule_oracle import expected_result as rms_speed_of_molecule_expected
+from newtons_second_law_of_motion_oracle import INVALID_RESULT as NEWTONS_SECOND_LAW_INVALID_RESULT
+from newtons_second_law_of_motion_oracle import MAX_INPUT_LENGTH as MAX_NEWTONS_SECOND_LAW_INPUT_LENGTH
+from newtons_second_law_of_motion_oracle import expected_result as newtons_second_law_expected
+from speed_of_sound_oracle import INVALID_RESULT as SPEED_OF_SOUND_INVALID_RESULT
+from speed_of_sound_oracle import MAX_INPUT_LENGTH as MAX_SPEED_OF_SOUND_INPUT_LENGTH
+from speed_of_sound_oracle import expected_result as speed_of_sound_expected
+from terminal_velocity_oracle import INVALID_RESULT as TERMINAL_VELOCITY_INVALID_RESULT
+from terminal_velocity_oracle import MAX_INPUT_LENGTH as MAX_TERMINAL_VELOCITY_INPUT_LENGTH
+from terminal_velocity_oracle import expected_result as terminal_velocity_expected
+from newtons_law_of_gravitation_oracle import INVALID_RESULT as NEWTONS_GRAVITATION_INVALID_RESULT
+from newtons_law_of_gravitation_oracle import MAX_INPUT_LENGTH as MAX_NEWTONS_GRAVITATION_INPUT_LENGTH
+from newtons_law_of_gravitation_oracle import expected_result as newtons_gravitation_expected
+from pearson_correlation_oracle import INVALID_RESULT as PEARSON_CORRELATION_INVALID_RESULT
+from pearson_correlation_oracle import MAX_INPUT_LENGTH as MAX_PEARSON_CORRELATION_INPUT_LENGTH
+from pearson_correlation_oracle import expected_result as pearson_correlation_expected
+from kendall_rank_correlation_coefficient_oracle import INVALID_RESULT as KENDALL_RANK_CORRELATION_INVALID_RESULT
+from kendall_rank_correlation_coefficient_oracle import MAX_INPUT_LENGTH as MAX_KENDALL_RANK_CORRELATION_INPUT_LENGTH
+from kendall_rank_correlation_coefficient_oracle import expected_result as kendall_rank_correlation_expected
+from spearman_average_rank_correlation_oracle import INVALID_RESULT as SPEARMAN_AVERAGE_RANK_INVALID_RESULT
+from spearman_average_rank_correlation_oracle import MAX_INPUT_LENGTH as MAX_SPEARMAN_AVERAGE_RANK_INPUT_LENGTH
+from spearman_average_rank_correlation_oracle import expected_result as spearman_average_rank_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
@@ -24,11 +182,459 @@ MAX_INPUT_LENGTH = 4096
 
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    if (not isinstance(values, list) or len(values) > MAX_INPUT_LENGTH
+    max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
+                        MAX_KELLY_CRITERION_INPUT_LENGTH if algorithm == "kelly_criterion" else
+                        MAX_PRESENT_VALUE_PARSEABLE_INPUT_LENGTH if algorithm == "present_value" else
+                        MAX_PRESENT_VALUE_RUST_PARSEABLE_INPUT_LENGTH if algorithm == "present_value_rust" else
+                        MAX_RESONANT_FREQUENCY_INPUT_LENGTH if algorithm == "resonant_frequency" else
+                        MAX_RMS_SPEED_OF_MOLECULE_INPUT_LENGTH if algorithm == "rms_speed_of_molecule" else
+                        MAX_NEWTONS_SECOND_LAW_INPUT_LENGTH if algorithm == "newtons_second_law_of_motion" else
+                        MAX_SPEED_OF_SOUND_INPUT_LENGTH if algorithm == "speed_of_sound" else
+                        MAX_TERMINAL_VELOCITY_INPUT_LENGTH if algorithm == "terminal_velocity" else
+                        MAX_NEWTONS_GRAVITATION_INPUT_LENGTH if algorithm == "newtons_law_of_gravitation" else
+                        MAX_MACAULAY_DURATION_INPUT_LENGTH if algorithm == "macaulay_duration" else
+                        MAX_PRICE_PLUS_TAX_INPUT_LENGTH if algorithm == "price_plus_tax" else
+                        MAX_PEARSON_CORRELATION_INPUT_LENGTH if algorithm == "pearson_correlation" else
+                        MAX_KENDALL_RANK_CORRELATION_INPUT_LENGTH if algorithm == "kendall_rank_correlation_coefficient" else
+                        MAX_SPEARMAN_AVERAGE_RANK_INPUT_LENGTH if algorithm == "spearman_average_rank_correlation" else
+                        MAX_VARIANCE_INPUT_LENGTH if algorithm == "variance" else
+                        MAX_DICE_COEFFICIENT_INPUT_LENGTH if algorithm == "dice_coefficient" else
+                        MAX_DENSITY_INPUT_LENGTH if algorithm == "density" else
+                        MAX_HINGE_LOSS_INPUT_LENGTH if algorithm == "hinge_loss" else
+                        MAX_PREDICTION_INPUT_LENGTH + 1 if algorithm == "collaborative_filtering" else
+                        MAX_PEARSON_INPUT_LENGTH + 1 if algorithm == "collaborative_filtering_pearson_similarity" else
+                        MAX_QUADRATIC_EQUATION_SOLVER_INPUT_LENGTH
+                        if algorithm == "quadratic_equation_solver_complex_roots" else
+                        MAX_GROUND_PROJECTILE_INPUT_LENGTH
+                        if algorithm == "ground_to_ground_projectile_motion" else
+                        MAX_HUBER_LOSS_INPUT_LENGTH
+                        if algorithm == "huber_loss" else
+                        MAX_HUBER_LOSS_MATH_INPUT_LENGTH
+                        if algorithm == "huber_loss_math" else
+                        MAX_EXPONENTIAL_DIST_INPUT_LENGTH
+                        if algorithm == "exponential_dist" else
+                        MAX_EXPECTED_SHORTFALL_INPUT_LENGTH
+                        if algorithm == "expected_shortfall" else
+                        MAX_TIME_CONVERTER_INPUT_LENGTH
+                        if algorithm == "time_converter" else
+                        MAX_TEMPERATURE_CONVERTER_INPUT_LENGTH
+                        if algorithm == "temperature_converter" else
+                        MAX_VALUE_AT_RISK_INPUT_LENGTH
+                        if algorithm == "value_at_risk" else
+                        MAX_ENERGY_INPUT_LENGTH
+                        if algorithm == "energy" else
+                        MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
+                        if algorithm == "trapezoidal_integration" else
+                        MAX_COSINE_SIMILARITY_INPUT_LENGTH
+                        if algorithm == "cosine_similarity" else
+                        MAX_INPUT_LENGTH)
+    if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
-    if algorithm == "treynor_ratio":
+    if algorithm == "charging_capacitor":
+        source_result = charging_capacitor_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid charging_capacitor inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-15, abs_tol=1e-12):
+            raise ValueError("charging_capacitor expected_result must match the rounded RC voltage formula")
+    elif algorithm == "arithmetic_mean":
+        source_result = arithmetic_mean_expected(values)
+        if source_result == ARITHMETIC_MEAN_INVALID_RESULT:
+            if expected != ARITHMETIC_MEAN_INVALID_RESULT:
+                raise ValueError("invalid arithmetic_mean inputs must use the -1e300 result sentinel")
+        elif expected == ARITHMETIC_MEAN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("arithmetic_mean expected_result must equal sum(values) / length")
+    elif algorithm == "gaussian":
+        source_result = gaussian_expected(values)
+        if source_result == GAUSSIAN_INVALID_RESULT:
+            if expected != GAUSSIAN_INVALID_RESULT:
+                raise ValueError("invalid gaussian inputs must use the -1e300 result sentinel")
+        elif expected == GAUSSIAN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("gaussian expected_result must match the source-ordered density formula")
+    elif algorithm == "maclaurin_series":
+        source_result = maclaurin_series_expected(values)
+        if source_result == MACLAURIN_SERIES_INVALID_RESULT:
+            if expected != MACLAURIN_SERIES_INVALID_RESULT:
+                raise ValueError("invalid maclaurin_series inputs must use the -1e300 result sentinel")
+        elif expected == MACLAURIN_SERIES_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("maclaurin_series expected_result must match the source-ordered partial sum")
+    elif algorithm == "hubble_parameter":
+        source_result = hubble_parameter_expected(values)
+        if source_result == HUBBLE_PARAMETER_INVALID_RESULT:
+            if expected != HUBBLE_PARAMETER_INVALID_RESULT:
+                raise ValueError("invalid hubble_parameter inputs must use the -1e300 result sentinel")
+        elif expected == HUBBLE_PARAMETER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("hubble_parameter expected_result must match the source-ordered expansion formula")
+    elif algorithm == "light_aberration":
+        source_result = light_aberration_expected(values)
+        if source_result == LIGHT_ABERRATION_INVALID_RESULT:
+            if expected != LIGHT_ABERRATION_INVALID_RESULT:
+                raise ValueError("invalid light_aberration inputs must use the -1e300 result sentinel")
+        elif expected == LIGHT_ABERRATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=5e-12):
+            raise ValueError("light_aberration expected_result must match the rounded source formula")
+    elif algorithm == "variance":
+        source_result = variance_expected(values)
+        if source_result == VARIANCE_INVALID_RESULT:
+            if expected != VARIANCE_INVALID_RESULT:
+                raise ValueError("invalid variance inputs must use the -1e300 result sentinel")
+        elif expected == VARIANCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("variance expected_result must match the source-ordered sample formula")
+    elif algorithm == "dice_coefficient":
+        source_result = dice_coefficient_expected(values)
+        if source_result == DICE_COEFFICIENT_INVALID_RESULT:
+            if expected != DICE_COEFFICIENT_INVALID_RESULT:
+                raise ValueError("invalid dice_coefficient inputs must use the -1e300 result sentinel")
+        elif expected == DICE_COEFFICIENT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("dice_coefficient expected_result must match the source bigram scan")
+    elif algorithm == "density":
+        source_result = density_expected(values)
+        if source_result == DENSITY_INVALID_RESULT:
+            if expected != DENSITY_INVALID_RESULT:
+                raise ValueError("invalid density inputs must use the -1e300 result sentinel")
+        elif expected == DENSITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("density expected_result must match the source formula")
+    elif algorithm == "hinge_loss":
+        source_result = hinge_loss_expected(values)
+        if source_result == HINGE_LOSS_INVALID_RESULT:
+            if expected != HINGE_LOSS_INVALID_RESULT:
+                raise ValueError("invalid hinge_loss inputs must use the -1e300 result sentinel")
+        elif expected == HINGE_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("hinge_loss expected_result must match the ordered average hinge loss")
+    elif algorithm == "collaborative_filtering":
+        source_result = expected_prediction(values)
+        if source_result == PREDICTION_INVALID_RESULT:
+            if expected != PREDICTION_INVALID_RESULT:
+                raise ValueError("invalid collaborative_filtering inputs must use the -1e300 result sentinel")
+        elif expected == PREDICTION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("collaborative_filtering expected_result must match the injected-similarity prediction")
+    elif algorithm == "collaborative_filtering_pearson_similarity":
+        source_result = expected_pearson_similarity(values)
+        if source_result == PEARSON_INVALID_RESULT:
+            if expected != PEARSON_INVALID_RESULT:
+                raise ValueError("invalid collaborative_filtering_pearson_similarity inputs must use the -2 result sentinel")
+        elif expected == PEARSON_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("collaborative_filtering_pearson_similarity expected_result must match Pearson correlation")
+    elif algorithm == "complementary_filter":
+        source_result = complementary_filter_expected(values)
+        if source_result == COMPLEMENTARY_FILTER_INVALID_RESULT:
+            if expected != COMPLEMENTARY_FILTER_INVALID_RESULT:
+                raise ValueError("invalid complementary_filter inputs must use the -1e300 result sentinel")
+        elif expected == COMPLEMENTARY_FILTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("complementary_filter expected_result must match the seeded source update order")
+    elif algorithm == "comp_filt":
+        source_result = comp_filt_expected(values)
+        if source_result == COMP_FILT_INVALID_RESULT:
+            if expected != COMP_FILT_INVALID_RESULT:
+                raise ValueError("invalid comp_filt inputs must use the -1e300 result sentinel")
+        elif expected == COMP_FILT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("comp_filt expected_result must match the selected scanl trace value")
+    elif algorithm == "standard_deviation":
+        source_result = standard_deviation_expected(values)
+        if source_result == STANDARD_DEVIATION_INVALID_RESULT:
+            if expected != STANDARD_DEVIATION_INVALID_RESULT:
+                raise ValueError("invalid standard_deviation inputs must use the -1e300 result sentinel")
+        elif expected == STANDARD_DEVIATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("standard_deviation expected_result must match the two-pass population formula")
+    elif algorithm == "euclidean_distance":
+        source_result = euclidean_distance_expected(values)
+        if source_result == EUCLIDEAN_DISTANCE_INVALID_RESULT:
+            if expected != EUCLIDEAN_DISTANCE_INVALID_RESULT:
+                raise ValueError("invalid euclidean_distance inputs must use the -1e300 result sentinel")
+        elif expected == EUCLIDEAN_DISTANCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("euclidean_distance expected_result must match sqrt of summed squared differences")
+    elif algorithm == "dynamic_time_warping":
+        source_result = dynamic_time_warping_expected(values)
+        if source_result == DYNAMIC_TIME_WARPING_INVALID_RESULT:
+            if expected != DYNAMIC_TIME_WARPING_INVALID_RESULT:
+                raise ValueError("invalid dynamic_time_warping inputs must use the -1e300 result sentinel")
+        elif expected == DYNAMIC_TIME_WARPING_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("dynamic_time_warping expected_result must match the source banded recurrence")
+    elif algorithm == "apparent_power":
+        source_result = apparent_power_expected(values)
+        if source_result == APPARENT_POWER_INVALID_RESULT:
+            if expected != APPARENT_POWER_INVALID_RESULT:
+                raise ValueError("invalid apparent_power inputs must use the -1e300 result sentinel")
+        elif expected == APPARENT_POWER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("apparent_power expected_result must match the selected phasor product component")
+    elif algorithm == "distance_between_two_points":
+        source_result = distance_between_two_points_expected(values)
+        if source_result == DISTANCE_BETWEEN_TWO_POINTS_INVALID_RESULT:
+            if expected != DISTANCE_BETWEEN_TWO_POINTS_INVALID_RESULT:
+                raise ValueError("invalid distance_between_two_points inputs must use the -1e300 result sentinel")
+        elif expected == DISTANCE_BETWEEN_TWO_POINTS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("distance_between_two_points expected_result must match the 2D Euclidean formula")
+    elif algorithm == "archimedes_principle_of_buoyant_force":
+        source_result = archimedes_principle_of_buoyant_force_expected(values)
+        if source_result == ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT:
+            if expected != ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT:
+                raise ValueError("invalid Archimedes inputs must use the -1e300 result sentinel")
+        elif expected == ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("Archimedes expected_result must match density * default gravity * volume")
+    elif algorithm == "potential_energy":
+        source_result = potential_energy_expected(values)
+        if source_result == POTENTIAL_ENERGY_INVALID_RESULT:
+            if expected != POTENTIAL_ENERGY_INVALID_RESULT:
+                raise ValueError("invalid potential_energy inputs must use the -1e300 result sentinel")
+        elif expected == POTENTIAL_ENERGY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("potential_energy expected_result must match mass * default gravity * height")
+    elif algorithm == "sum_of_arithmetic_series":
+        source_result = sum_of_arithmetic_series_expected(values)
+        if source_result == SUM_OF_ARITHMETIC_SERIES_INVALID_RESULT:
+            if expected != SUM_OF_ARITHMETIC_SERIES_INVALID_RESULT:
+                raise ValueError("invalid sum_of_arithmetic_series inputs must use the -1e300 result sentinel")
+        elif expected == SUM_OF_ARITHMETIC_SERIES_INVALID_RESULT or expected != source_result:
+            raise ValueError("sum_of_arithmetic_series expected_result must match the finite-series formula")
+    elif algorithm == "centripetal_force":
+        source_result = centripetal_force_expected(values)
+        if source_result == CENTRIPETAL_FORCE_INVALID_RESULT:
+            if expected != CENTRIPETAL_FORCE_INVALID_RESULT:
+                raise ValueError("invalid centripetal_force inputs must use the -1e300 result sentinel")
+        elif expected == CENTRIPETAL_FORCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("centripetal_force expected_result must match (mass * velocity^2) / radius")
+    elif algorithm == "cone":
+        source_result = cone_expected(values)
+        if source_result == CONE_INVALID_RESULT:
+            if expected != CONE_INVALID_RESULT:
+                raise ValueError("invalid cone inputs must use the -1e300 result sentinel")
+        elif expected == CONE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("cone expected_result must match the selected source volume or surface-area formula")
+    elif algorithm == "cohen_sutherland":
+        source_result = cohen_sutherland_expected(values)
+        if source_result == COHEN_SUTHERLAND_INVALID_RESULT:
+            if expected != COHEN_SUTHERLAND_INVALID_RESULT:
+                raise ValueError("invalid cohen_sutherland inputs must use the -1e300 result sentinel")
+        elif expected == COHEN_SUTHERLAND_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("cohen_sutherland expected_result must match the selected clipped coordinate or acceptance flag")
+    elif algorithm == "kinetic_energy":
+        source_result = kinetic_energy_expected(values)
+        if source_result == KINETIC_ENERGY_INVALID_RESULT:
+            if expected != KINETIC_ENERGY_INVALID_RESULT:
+                raise ValueError("invalid kinetic_energy inputs must use the -1e300 result sentinel")
+        elif expected == KINETIC_ENERGY_INVALID_RESULT or expected != source_result:
+            raise ValueError("kinetic_energy expected_result must match 0.5 * mass * abs(velocity)^2")
+    elif algorithm == "boyles_law":
+        source_result = boyles_law_expected(values)
+        if source_result == BOYLES_LAW_INVALID_RESULT:
+            if expected != BOYLES_LAW_INVALID_RESULT:
+                raise ValueError("invalid boyles_law inputs must use the -1e300 result sentinel")
+        elif expected == BOYLES_LAW_INVALID_RESULT or expected != source_result:
+            raise ValueError("boyles_law expected_result must match the selected exact-rational ties-to-even result")
+    elif algorithm == "harmonic_mean":
+        source_result = harmonic_mean_expected(values)
+        if source_result == HARMONIC_MEAN_INVALID_RESULT:
+            if expected != HARMONIC_MEAN_INVALID_RESULT:
+                raise ValueError("invalid harmonic_mean inputs must use the -1e300 result sentinel")
+        elif expected == HARMONIC_MEAN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("harmonic_mean expected_result must match the ordered reciprocal-sum formula")
+    elif algorithm == "is_harmonic_series":
+        source_result = is_harmonic_series_expected(values)
+        if source_result == IS_HARMONIC_SERIES_INVALID_RESULT:
+            if expected != IS_HARMONIC_SERIES_INVALID_RESULT:
+                raise ValueError("invalid is_harmonic_series inputs must use the -1e300 result sentinel")
+        elif expected != source_result:
+            raise ValueError("is_harmonic_series expected_result must match the exact reciprocal-difference predicate")
+    elif algorithm == "quadratic_mean":
+        source_result = quadratic_mean_expected(values)
+        if source_result == QUADRATIC_MEAN_INVALID_RESULT:
+            if expected != QUADRATIC_MEAN_INVALID_RESULT:
+                raise ValueError("invalid quadratic_mean inputs must use the -1e300 result sentinel")
+        elif expected == QUADRATIC_MEAN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("quadratic_mean expected_result must match the ordered squared-value mean")
+    elif algorithm == "charging_inductor":
+        source_result = charging_inductor_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid charging_inductor inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-15, abs_tol=1e-12):
+            raise ValueError("charging_inductor expected_result must match the rounded RL current formula")
+    elif algorithm == "speed":
+        source_result = speed_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid speed inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-16, abs_tol=1e-12):
+            raise ValueError("speed expected_result must match the seven-unit Rust conversion and ties-away rounding")
+    elif algorithm == "color_contrast_ratio":
+        source_result = color_contrast_ratio_expected(values)
+        if source_result == COLOR_CONTRAST_INVALID_RESULT:
+            if expected != COLOR_CONTRAST_INVALID_RESULT:
+                raise ValueError("invalid color_contrast_ratio inputs must use the -1e300 result sentinel")
+        elif expected == COLOR_CONTRAST_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("color_contrast_ratio expected_result must match the pinned luminance calculation")
+    elif algorithm == "butterworth_filter":
+        source_result = butterworth_filter_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid butterworth_filter inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("butterworth_filter expected_result must match the selected biquad coefficient")
+    elif algorithm == "center_of_mass":
+        source_result = center_of_mass_expected(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid center_of_mass inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("center_of_mass expected_result must match the selected rounded weighted coordinate")
+    elif algorithm == "automatic_differentiation":
+        source_result = automatic_differentiation(values)
+        if expected == -1e300:
+            if source_result != -1e300:
+                raise ValueError("automatic_differentiation input is valid but workload uses the invalid/disconnected sentinel")
+        elif source_result == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("automatic_differentiation expected_result must match scalar reverse accumulation")
+    elif algorithm == "quadratic_equation_solver_complex_roots":
+        source_result = quadratic_equation_solver_expected(values)
+        if source_result == QUADRATIC_EQUATION_SOLVER_INVALID_RESULT:
+            if expected != QUADRATIC_EQUATION_SOLVER_INVALID_RESULT:
+                raise ValueError("invalid quadratic-equation inputs must use the -1e300 result sentinel")
+        elif expected == QUADRATIC_EQUATION_SOLVER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("quadratic-equation expected_result must match the selected source-ordered root component")
+    elif algorithm == "ground_to_ground_projectile_motion":
+        source_result = ground_projectile_expected(values)
+        if source_result == GROUND_PROJECTILE_INVALID_RESULT:
+            if expected != GROUND_PROJECTILE_INVALID_RESULT:
+                raise ValueError("invalid projectile-motion inputs must use the -1e300 result sentinel")
+        elif expected == GROUND_PROJECTILE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("projectile-motion expected_result must match the selected source formula")
+    elif algorithm == "huber_loss":
+        source_result = huber_loss_expected(values)
+        if source_result == HUBER_LOSS_INVALID_RESULT:
+            if expected != HUBER_LOSS_INVALID_RESULT:
+                raise ValueError("invalid huber_loss inputs must use the -1e300 result sentinel")
+        elif expected == HUBER_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("huber_loss expected_result must match the mean paired Huber loss")
+    elif algorithm == "huber_loss_math":
+        source_result = huber_loss_math_expected(values)
+        if source_result == HUBER_LOSS_MATH_INVALID_RESULT:
+            if expected != HUBER_LOSS_MATH_INVALID_RESULT:
+                raise ValueError("invalid huber_loss_math inputs must use the -1e300 result sentinel")
+        elif expected == HUBER_LOSS_MATH_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("huber_loss_math expected_result must match the source's summed zip loss")
+    elif algorithm == "exponential_dist":
+        source_result = exponential_dist_expected(values)
+        if source_result == EXPONENTIAL_DIST_INVALID_RESULT:
+            if expected != EXPONENTIAL_DIST_INVALID_RESULT:
+                raise ValueError("invalid exponential_dist inputs must use the -1e300 result sentinel")
+        elif expected == EXPONENTIAL_DIST_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("exponential_dist expected_result must match the selected distribution statistic")
+    elif algorithm == "expected_shortfall":
+        source_result = expected_shortfall_expected(values)
+        if source_result == EXPECTED_SHORTFALL_INVALID_RESULT:
+            if expected != EXPECTED_SHORTFALL_INVALID_RESULT:
+                raise ValueError("invalid expected_shortfall inputs must use the -1e300 result sentinel")
+        elif expected == EXPECTED_SHORTFALL_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("expected_shortfall expected_result must match the interpolated lower-tail mean")
+    elif algorithm == "time_converter":
+        source_result = time_converter_expected(values)
+        if source_result == TIME_CONVERTER_INVALID_RESULT:
+            if expected != TIME_CONVERTER_INVALID_RESULT:
+                raise ValueError("invalid time_converter inputs must use the -1e300 result sentinel")
+        elif expected == TIME_CONVERTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("time_converter expected_result must match the selected factors and three-place rounding")
+    elif algorithm == "temperature_converter":
+        source_result = temperature_converter_expected(values)
+        if source_result == TEMPERATURE_CONVERTER_INVALID_RESULT:
+            if expected != TEMPERATURE_CONVERTER_INVALID_RESULT:
+                raise ValueError("invalid temperature_converter inputs must use the -1e300 result sentinel")
+        elif expected == TEMPERATURE_CONVERTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("temperature_converter expected_result must match the selected direct Java expression")
+    elif algorithm == "value_at_risk":
+        source_result = value_at_risk_expected(values)
+        if source_result == VALUE_AT_RISK_INVALID_RESULT:
+            if expected != VALUE_AT_RISK_INVALID_RESULT:
+                raise ValueError("invalid value_at_risk inputs must use the -1e300 result sentinel")
+        elif expected == VALUE_AT_RISK_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("value_at_risk expected_result must match the interpolated negative quantile")
+    elif algorithm == "energy":
+        source_result = energy_expected(values)
+        if source_result == ENERGY_INVALID_RESULT:
+            if expected != ENERGY_INVALID_RESULT:
+                raise ValueError("invalid energy inputs must use the -1e300 result sentinel")
+        elif expected == ENERGY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=0.0):
+            raise ValueError("energy expected_result must match the source-ordered joule conversion")
+    elif algorithm == "trapezoidal_integration":
+        source_result = trapezoidal_integration_expected(values)
+        if source_result == TRAPEZOIDAL_INTEGRATION_INVALID_RESULT:
+            if expected != TRAPEZOIDAL_INTEGRATION_INVALID_RESULT:
+                raise ValueError("invalid trapezoidal_integration inputs must use the -1e300 result sentinel")
+        elif expected == TRAPEZOIDAL_INTEGRATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("trapezoidal_integration expected_result must match the oriented source-order trapezoid sum")
+    elif algorithm == "cosine_similarity":
+        source_result = cosine_similarity_expected(values)
+        if source_result == COSINE_SIMILARITY_INVALID_RESULT:
+            if expected != COSINE_SIMILARITY_INVALID_RESULT:
+                raise ValueError("invalid cosine_similarity inputs must use the -1e300 result sentinel")
+        elif expected == COSINE_SIMILARITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("cosine_similarity expected_result must match the case-folded printable-ASCII frequency cosine")
+    elif algorithm == "interquartile_range":
+        valid = (2 <= len(values) <= 64
+                 and all(-1_000_000 <= value <= 1_000_000 for value in values))
+        source_result = -1e300
+        if valid:
+            ordered = sorted(values)
+            half = len(ordered) // 2
+            upper_start = half + len(ordered) % 2
+
+            def median(part: list[int]) -> float:
+                middle = len(part) // 2
+                if len(part) % 2:
+                    return float(part[middle])
+                return (part[middle - 1] + part[middle]) / 2.0
+
+            source_result = median(ordered[upper_start:]) - median(ordered[:half])
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid interquartile_range inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("interquartile_range expected result must match the source lower/upper-half median rule")
+    elif algorithm == "treynor_ratio":
         valid = (len(values) == 3 and all(-1000 <= value <= 1000 for value in values)
                  and values[2] != 0)
         if not valid:
@@ -40,6 +646,54 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             if expected == -1e300 or not math.isclose(
                     expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
                 raise ValueError("treynor_ratio expected_result must match (portfolio_return - risk_free_rate) / beta")
+    elif algorithm == "logistic_regression_csharp_binary_gd":
+        valid = len(values) >= 4
+        source_result = -1e300
+        if valid:
+            sample_count, feature_count, epochs, rate_q = values[:4]
+            valid = (1 <= sample_count <= 32 and 1 <= feature_count <= 8
+                     and 0 <= epochs <= 128 and 1 <= rate_q <= 100_000
+                     and len(values) == 4 + sample_count * (feature_count + 1) + feature_count)
+        if valid:
+            feature_end = 4 + sample_count * feature_count
+            label_end = feature_end + sample_count
+            raw_features = values[4:feature_end]
+            labels = values[feature_end:label_end]
+            raw_query = values[label_end:]
+            valid = (all(-1_000_000 <= value <= 1_000_000 for value in raw_features)
+                     and all(label in (0, 1) for label in labels)
+                     and len(raw_query) == feature_count
+                     and all(-1_000_000 <= value <= 1_000_000 for value in raw_query))
+        if valid:
+            scale = 1_000_000.0
+            samples = [raw_features[row * feature_count:(row + 1) * feature_count]
+                       for row in range(sample_count)]
+            samples = [[value / scale for value in row] for row in samples]
+            query = [value / scale for value in raw_query]
+            learning_rate = rate_q / scale
+            weights = [0.0] * feature_count
+            bias = 0.0
+            for _ in range(epochs):
+                weight_gradient = [0.0] * feature_count
+                bias_gradient = 0.0
+                for row, label in zip(samples, labels):
+                    linear = sum(feature * weight for feature, weight in zip(row, weights)) + bias
+                    probability = 1.0 / (1.0 + math.exp(-linear))
+                    error = probability - label
+                    for column, feature in enumerate(row):
+                        weight_gradient[column] += error * feature
+                    bias_gradient += error
+                weights = [weight - learning_rate * gradient / sample_count
+                           for weight, gradient in zip(weights, weight_gradient)]
+                bias -= learning_rate * bias_gradient / sample_count
+            query_linear = sum(feature * weight for feature, weight in zip(query, weights)) + bias
+            source_result = 1.0 / (1.0 + math.exp(-query_linear))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid logistic_regression_csharp_binary_gd inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("logistic_regression_csharp_binary_gd expected_result must match the C# batch weight/bias updates and query probability")
     elif algorithm == "cross_entropy_loss":
         valid = (len(values) >= 1 and 1 <= values[0] <= 64
                  and len(values) == 1 + 2 * values[0])
@@ -390,6 +1044,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("geometric expected_result must match the selected source operation")
+    elif algorithm == "linear_regression_cost":
+        source_result = linear_regression_cost_expected(values)
+        if source_result == LINEAR_REGRESSION_COST_INVALID_RESULT:
+            if expected != LINEAR_REGRESSION_COST_INVALID_RESULT:
+                raise ValueError("invalid linear_regression_cost inputs must use the -1e300 result sentinel")
+        elif expected == LINEAR_REGRESSION_COST_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("linear_regression_cost expected_result must match the bounded half-MSE formula")
     elif algorithm == "linear_regression_ols":
         valid = (len(values) >= 1 and 2 <= values[0] <= 128
                  and len(values) == 1 + 2 * values[0])
@@ -445,6 +1107,30 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
             raise ValueError("linear_regression_gradient_descent expected_result must match the source-ordered batch updates")
+    elif algorithm == "kendall_rank_correlation_coefficient":
+        source_result = kendall_rank_correlation_expected(values)
+        if source_result == KENDALL_RANK_CORRELATION_INVALID_RESULT:
+            if expected != KENDALL_RANK_CORRELATION_INVALID_RESULT:
+                raise ValueError("invalid kendall_rank_correlation_coefficient inputs must use the -1e300 result sentinel")
+        elif expected == KENDALL_RANK_CORRELATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("kendall_rank_correlation_coefficient expected_result must match Kendall tau-b")
+    elif algorithm == "spearman_average_rank_correlation":
+        source_result = spearman_average_rank_expected(values)
+        if source_result == SPEARMAN_AVERAGE_RANK_INVALID_RESULT:
+            if expected != SPEARMAN_AVERAGE_RANK_INVALID_RESULT:
+                raise ValueError("invalid spearman_average_rank_correlation inputs must use the -1e300 result sentinel")
+        elif expected == SPEARMAN_AVERAGE_RANK_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("spearman_average_rank_correlation expected_result must match Pearson correlation over average ranks")
+    elif algorithm == "pearson_correlation":
+        source_result = pearson_correlation_expected(values)
+        if source_result == PEARSON_CORRELATION_INVALID_RESULT:
+            if expected != PEARSON_CORRELATION_INVALID_RESULT:
+                raise ValueError("invalid pearson_correlation inputs must use the -1e300 result sentinel")
+        elif expected == PEARSON_CORRELATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("pearson_correlation expected_result must match the centered-sum Pearson coefficient")
     elif algorithm == "correlation":
         valid = (len(values) >= 1 and 1 <= values[0] <= 128
                  and len(values) == 1 + 2 * values[0])
@@ -641,6 +1327,24 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("magnetic_flux expected_result must match the source-ordered rounded flux formula")
+    elif algorithm == "coulombs_law":
+        valid = (len(values) == 3
+                 and all(-1_000_000 <= charge <= 1_000_000 and charge != 0
+                         for charge in values[:2])
+                 and 1 <= values[2] <= 1_000_000)
+        source_result = -1e300
+        if valid:
+            charge1_coulombs = values[0] / 1_000_000.0
+            charge2_coulombs = values[1] / 1_000_000.0
+            distance_meters = values[2] / 1000.0
+            source_result = (8.9875517923e9 * abs(charge1_coulombs * charge2_coulombs)
+                             / (distance_meters * distance_meters))
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid coulombs_law inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("coulombs_law expected_result must match the bounded SI force magnitude")
     elif algorithm == "lens_formulae":
         valid = (len(values) == 3 and values[0] in (0, 1, 2)
                  and all(value != 0 and -1_000_000 <= value <= 1_000_000 for value in values[1:]))
@@ -794,6 +1498,166 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
             raise ValueError("linear_regression_stochastic_gradient_descent expected_result must match ordered per-row updates")
+    elif algorithm == "black_scholes_option_price":
+        valid = (len(values) == 6 and values[0] in (0, 1)
+                 and 10 <= values[1] <= 1_000_000_000
+                 and 10 <= values[2] <= 1_000_000_000
+                 and 1 <= values[3] <= 100_000
+                 and 1 <= values[4] <= 5_000
+                 and -1_000 <= values[5] <= 1_000)
+        source_result = -1e300
+        if valid:
+            option_kind, spot_milli, strike_milli, maturity_milli, volatility_milli, rate_milli = values
+            spot = spot_milli / 1000.0
+            strike = strike_milli / 1000.0
+            maturity = maturity_milli / 1000.0
+            volatility = volatility_milli / 1000.0
+            rate = rate_milli / 1000.0
+            sigma_sqrt_time = volatility * math.sqrt(maturity)
+            d1 = (math.log(spot / strike) + (rate + volatility**2 / 2.0) * maturity) / sigma_sqrt_time
+            d2 = d1 - sigma_sqrt_time
+            discounted_strike = strike * math.exp(-rate * maturity)
+            if option_kind == 0:
+                normal_cdf_d1 = 0.5 * math.erfc(-d1 / math.sqrt(2.0))
+                normal_cdf_d2 = 0.5 * math.erfc(-d2 / math.sqrt(2.0))
+                source_result = spot * normal_cdf_d1 - discounted_strike * normal_cdf_d2
+            else:
+                normal_cdf_neg_d1 = 0.5 * math.erfc(d1 / math.sqrt(2.0))
+                normal_cdf_neg_d2 = 0.5 * math.erfc(d2 / math.sqrt(2.0))
+                source_result = discounted_strike * normal_cdf_neg_d2 - spot * normal_cdf_neg_d1
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid black_scholes_option_price inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("black_scholes_option_price expected_result must match the pinned European call/put formulas")
+    elif algorithm == "reynolds_number":
+        valid = (len(values) == 4
+                 and 1 <= values[0] <= 1_000
+                 and -1_000 <= values[1] <= 1_000
+                 and 1 <= values[2] <= 1_000
+                 and 1 <= values[3] <= 1_000)
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid reynolds_number inputs must use the -1e300 result sentinel")
+        else:
+            density, velocity, diameter, viscosity = values
+            source_result = (density * abs(velocity) * diameter) / viscosity
+            if expected == -1e300 or not math.isclose(
+                    expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("reynolds_number expected_result must match density * abs(velocity) * diameter / viscosity")
+    elif algorithm == "rainfall_intensity":
+        source_result = rainfall_intensity(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid rainfall_intensity inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("rainfall_intensity expected_result must match k * T**a / (D + b)**c")
+    elif algorithm == "rotating_calipers":
+        source_result = rotating_calipers(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid rotating_calipers inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("rotating_calipers expected_result must match the maximum pairwise Euclidean distance")
+    elif algorithm == "grahams_law":
+        source_result = grahams_law_result(values)
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid grahams_law inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("grahams_law expected_result must match the selected pinned formula and six-decimal rounding")
+    elif algorithm == "price_plus_tax":
+        source_result = price_plus_tax_expected(values)
+        if source_result == PRICE_PLUS_TAX_INVALID_RESULT:
+            if expected != PRICE_PLUS_TAX_INVALID_RESULT:
+                raise ValueError("invalid price_plus_tax inputs must use the -1e300 result sentinel")
+        elif expected == PRICE_PLUS_TAX_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("price_plus_tax expected_result must match price * (1 + tax_rate)")
+    elif algorithm == "macaulay_duration":
+        source_result = macaulay_duration_expected(values)
+        if source_result == MACAULAY_DURATION_INVALID_RESULT:
+            if expected != MACAULAY_DURATION_INVALID_RESULT:
+                raise ValueError("invalid macaulay_duration inputs must use the -1e300 result sentinel")
+        elif expected == MACAULAY_DURATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("macaulay_duration expected_result must match the present-value weighted average annual cash-flow time")
+    elif algorithm == "kelly_criterion":
+        source_result = kelly_criterion_expected(values)
+        if source_result == KELLY_CRITERION_INVALID_RESULT:
+            if expected != KELLY_CRITERION_INVALID_RESULT:
+                raise ValueError("invalid kelly_criterion inputs must use the -1e300 result sentinel")
+        elif expected == KELLY_CRITERION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("kelly_criterion expected_result must match the source-ordered Kelly fraction")
+    elif algorithm == "present_value":
+        source_result = present_value_expected(values)
+        if source_result == PRESENT_VALUE_INVALID_RESULT:
+            if expected != PRESENT_VALUE_INVALID_RESULT:
+                raise ValueError("invalid present_value inputs must use the -1e300 result sentinel")
+        elif expected == PRESENT_VALUE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("present_value expected_result must match the source-ordered ties-to-even result")
+    elif algorithm == "present_value_rust":
+        source_result = present_value_rust_expected(values)
+        if source_result == PRESENT_VALUE_RUST_INVALID_RESULT:
+            if expected != PRESENT_VALUE_RUST_INVALID_RESULT:
+                raise ValueError("invalid present_value_rust inputs must use the -1e300 result sentinel")
+        elif expected == PRESENT_VALUE_RUST_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("present_value_rust expected_result must match the source-ordered ties-away result")
+    elif algorithm == "resonant_frequency":
+        source_result = resonant_frequency_expected(values)
+        if source_result == RESONANT_FREQUENCY_INVALID_RESULT:
+            if expected != RESONANT_FREQUENCY_INVALID_RESULT:
+                raise ValueError("invalid resonant_frequency inputs must use the -1e300 result sentinel")
+        elif expected == RESONANT_FREQUENCY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("resonant_frequency expected_result must match 1 / (2 * pi * sqrt(L * C))")
+    elif algorithm == "rms_speed_of_molecule":
+        source_result = rms_speed_of_molecule_expected(values)
+        if source_result == RMS_SPEED_OF_MOLECULE_INVALID_RESULT:
+            if expected != RMS_SPEED_OF_MOLECULE_INVALID_RESULT:
+                raise ValueError("invalid rms_speed_of_molecule inputs must use the -1e300 result sentinel")
+        elif expected == RMS_SPEED_OF_MOLECULE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("rms_speed_of_molecule expected_result must match the source-ordered RMS speed formula")
+    elif algorithm == "newtons_second_law_of_motion":
+        source_result = newtons_second_law_expected(values)
+        if source_result == NEWTONS_SECOND_LAW_INVALID_RESULT:
+            if expected != NEWTONS_SECOND_LAW_INVALID_RESULT:
+                raise ValueError("invalid newtons_second_law_of_motion inputs must use the -1e300 result sentinel")
+        elif expected == NEWTONS_SECOND_LAW_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("newtons_second_law_of_motion expected_result must match mass * acceleration")
+    elif algorithm == "speed_of_sound":
+        source_result = speed_of_sound_expected(values)
+        if source_result == SPEED_OF_SOUND_INVALID_RESULT:
+            if expected != SPEED_OF_SOUND_INVALID_RESULT:
+                raise ValueError("invalid speed_of_sound inputs must use the -1e300 result sentinel")
+        elif expected == SPEED_OF_SOUND_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("speed_of_sound expected_result must match (bulk_modulus / density) ** 0.5")
+    elif algorithm == "terminal_velocity":
+        source_result = terminal_velocity_expected(values)
+        if source_result == TERMINAL_VELOCITY_INVALID_RESULT:
+            if expected != TERMINAL_VELOCITY_INVALID_RESULT:
+                raise ValueError("invalid terminal_velocity inputs must use the -1e300 result sentinel")
+        elif expected == TERMINAL_VELOCITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("terminal_velocity expected_result must match the source-ordered terminal-speed formula")
+    elif algorithm == "newtons_law_of_gravitation":
+        source_result = newtons_gravitation_expected(values)
+        if source_result == NEWTONS_GRAVITATION_INVALID_RESULT:
+            if expected != NEWTONS_GRAVITATION_INVALID_RESULT:
+                raise ValueError("invalid newtons_law_of_gravitation inputs must use the -1e300 result sentinel")
+        elif expected == NEWTONS_GRAVITATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("newtons_law_of_gravitation expected_result must match the selected gravitation formula")
     return values, float(expected)
 
 

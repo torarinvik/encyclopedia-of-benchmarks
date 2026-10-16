@@ -45,4 +45,5 @@ The source paths below were checked at the pinned commits listed in the catalog:
 - [Nim `binary_search.nim`](https://github.com/TheAlgorithms/Nim/blob/63eec16614b46c91078653e8d3c049fe99ad36b3/searches/binary_search.nim)
 - [Rust `binary_search.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/searching/binary_search.rs)
 - [C `other_binary_search.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/searching/other_binary_search.c)
+- [C LeetCode `704.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/704.c)
 - [C# `BinarySearcher.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Search/BinarySearcher.cs)

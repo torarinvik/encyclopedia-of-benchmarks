@@ -7,3 +7,25 @@ The `i64_array_float64` ABI accepts exactly four signed integers: `[missing_vari
 Each supplied value is bounded to 1..1,000. These bounds preserve the source's positive-value guard and keep integer products and the scaled rounding numerator within signed 64-bit range. After computing the quotient, the benchmark applies a normalized exact-rational rounding rule: round to three decimal places using ties-to-even. The nine ports use this same rule. The pinned Python source instead formats the binary64 quotient with `.3f` and parses that string back; for `[3, 1, 80, 1]`, that source formatting yields `0.013`, while this benchmark's exact-rational tie rule yields `0.012`. Invalid length, index, or supplied values return -1e300. The ABI returns only the numeric result; the source's result key and unit suffix are implied by the missing-variable index.
 
 Runtime and auxiliary space are O(1).
+
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_boyles_law.py
+```
+
+## Implementations
+
+| Language | Source |
+| --- | --- |
+| C | [c/b/boyles_law.c](../../../c/b/boyles_law.c) |
+| C3 | [c3/b/boyles_law.c3](../../../c3/b/boyles_law.c3) |
+| C++ | [cpp/b/boyles_law.cpp](../../../cpp/b/boyles_law.cpp) |
+| Elisa | [elisa/b/boyles_law.elisa](../../../elisa/b/boyles_law.elisa) |
+| Nim | [nim/b/boyles_law.nim](../../../nim/b/boyles_law.nim) |
+| Odin | [odin/b/boyles_law.odin](../../../odin/b/boyles_law.odin) |
+| Rust | [rust/b/boyles_law.rs](../../../rust/b/boyles_law.rs) |
+| V | [v/b/boyles_law.v](../../../v/b/boyles_law.v) |
+| Zig | [zig/b/boyles_law.zig](../../../zig/b/boyles_law.zig) |

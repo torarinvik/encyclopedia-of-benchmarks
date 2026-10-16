@@ -1,0 +1,36 @@
+def digit_sum(value: i64) -> i64:
+    sum: mutable i64 = 0
+    current: mutable i64 = value
+    while current > 0:
+        sum <- sum + current % 10
+        current <- current / 10
+    sum
+
+def problem119_impl(index: i64) -> i64:
+    if index < 1 or index > 30: return -1
+    values: mutable i64[10000] = zeroed
+    count: mutable i64 = 0
+    base: mutable i64 = 2
+    while base < 100:
+        value: mutable i64 = base * base
+        exponent: mutable i64 = 2
+        while exponent < 100:
+            if digit_sum(value) == base:
+                values[count.usize()] <- value
+                count <- count + 1
+            if value > 9223372036854775807 / base: break
+            value <- value * base
+            exponent <- exponent + 1
+        base <- base + 1
+    i: mutable i64 = 1
+    while i < count:
+        value: i64 = values[i.usize()]
+        j: mutable i64 = i
+        while j > 0 and values[(j - 1).usize()] > value:
+            values[j.usize()] <- values[(j - 1).usize()]
+            j <- j - 1
+        values[j.usize()] <- value
+        i <- i + 1
+    values[(index - 1).usize()]
+
+export fn problem119(index: i64) -> i64 = problem119_impl

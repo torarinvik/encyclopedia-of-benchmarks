@@ -1,0 +1,20 @@
+extern sqrt(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+const PI: f64 = 3.14159265358979323846264338327950288
+
+def gaussian_impl(values: i64&, length: usize) -> f64:
+    if length != 3:
+        return -1.0e300
+    x: i64 = values[0]
+    mu: i64 = values[1]
+    sigma: i64 = values[2]
+    if x < -100 or x > 100 or mu < -100 or mu > 100 or sigma < 1 or sigma > 100:
+        return -1.0e300
+    difference: i64 = x - mu
+    sigma_squared: i64 = sigma * sigma
+    normalization: f64 = 1.0 / sqrt(2.0 * PI * sigma_squared.f64())
+    exponent: f64 = -(difference * difference).f64() / (2 * sigma_squared).f64()
+    normalization * exp(exponent)
+
+export fn gaussian(values: i64&, length: usize) f64 = gaussian_impl

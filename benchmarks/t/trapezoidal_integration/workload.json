@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "rust-trapezoidal-integration-oriented-i64-array-float64-v1",
+  "algorithm": "trapezoidal_integration",
+  "function_symbol": "trapezoidal_integration",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[start_micro,end_micro,precision,function_id]",
+    "endpoint_micro_range": [
+      -1000000,
+      1000000
+    ],
+    "endpoint_unit": "endpoint = integer / 1,000,000",
+    "precision_range": [
+      1,
+      10000
+    ],
+    "function_id_range": [
+      0,
+      1
+    ],
+    "function_ids": [
+      "x_squared",
+      "x_cubed"
+    ],
+    "maximum_packed_values": 5,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "definition": "left-to-right composite trapezoid sum using source endpoint construction and midpoint operation order",
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "square_unit_one_step",
+      "input_values": [
+        0,
+        1000000,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.5
+    },
+    {
+      "id": "square_unit_ten_steps",
+      "input_values": [
+        0,
+        1000000,
+        10,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.3350000000000001
+    },
+    {
+      "id": "square_unit_max_steps",
+      "input_values": [
+        0,
+        1000000,
+        10000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.33333333500000084
+    },
+    {
+      "id": "square_negative_interval",
+      "input_values": [
+        -1000000,
+        0,
+        100,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.33335
+    },
+    {
+      "id": "square_reversed_bounds_oriented",
+      "input_values": [
+        1000000,
+        0,
+        100,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -0.33335
+    },
+    {
+      "id": "cube_unit_one_step",
+      "input_values": [
+        0,
+        1000000,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.5
+    },
+    {
+      "id": "cube_unit_refined",
+      "input_values": [
+        0,
+        1000000,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.2500002499999998
+    },
+    {
+      "id": "cube_reversed_bounds_negative",
+      "input_values": [
+        1000000,
+        0,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -0.2500002500000003
+    },
+    {
+      "id": "cube_negative_to_zero",
+      "input_values": [
+        -1000000,
+        0,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -0.2500002500000003
+    },
+    {
+      "id": "cube_symmetric_interval",
+      "input_values": [
+        -1000000,
+        1000000,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 6.071532165918825e-17
+    },
+    {
+      "id": "cube_symmetric_reversed",
+      "input_values": [
+        1000000,
+        -1000000,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 6.071532165918825e-17
+    },
+    {
+      "id": "fractional_bounds_cube",
+      "input_values": [
+        -125000,
+        875000,
+        37,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.14662133628560997
+    },
+    {
+      "id": "fractional_bounds_square",
+      "input_values": [
+        -333333,
+        111111,
+        19,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.012843419475736655
+    },
+    {
+      "id": "same_endpoint",
+      "input_values": [
+        123456,
+        123456,
+        73,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "minimum_precision",
+      "input_values": [
+        -1000000,
+        1000000,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum_steps_negative",
+      "input_values": [
+        1000000,
+        -1000000,
+        10000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -0.6666666800000016
+    },
+    {
+      "id": "invalid_short_length",
+      "input_values": [
+        0,
+        100000,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_extra_value",
+      "input_values": [
+        0,
+        100000,
+        1,
+        0,
+        42
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_precision_zero",
+      "input_values": [
+        0,
+        100000,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_precision_over_bound",
+      "input_values": [
+        0,
+        100000,
+        10001,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_function_selector",
+      "input_values": [
+        0,
+        100000,
+        1,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_start_below_bound",
+      "input_values": [
+        -1000001,
+        0,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_end_above_bound",
+      "input_values": [
+        0,
+        1000001,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

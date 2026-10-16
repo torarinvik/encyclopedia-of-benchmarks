@@ -1,0 +1,12 @@
+const N:usize=64;const MAX_ARCS:usize=4096;
+fn put(out:[*]u8,slot:usize,v:i64)void{const b:u64=@bitCast(v);for(0..8)|i|out[slot*8+i]=@truncate(b>>@intCast(i*8));}
+export fn bidirectional_bfs(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<4)return -1;const nv=input[0];const av=input[1];const sv=input[2];const tv=input[3];if(nv<1 or nv>N or av<0 or av>MAX_ARCS or sv<0 or sv>=nv or tv<0 or tv>=nv or length!=4+2*@as(usize,@intCast(av)))return -1;const n:usize=@intCast(nv);const m:usize=@intCast(av);
+ var edge:[N][N]bool=@splat(@splat(false));var adj:[N][N]usize=@splat(@splat(0));var deg:[N]usize=@splat(0);for(0..m)|i|{const u0=input[4+2*i];const v0=input[5+2*i];if(u0<0 or u0>=nv or v0<0 or v0>=nv)return -1;const u:usize=@intCast(u0);const v:usize=@intCast(v0);if(!edge[u][v]){edge[u][v]=true;adj[u][deg[u]]=v;deg[u]+=1;}}for(0..n)|u|{for(0..n)|v|{if(edge[u][v]!=edge[v][u])return -1;}}
+ const start:usize=@intCast(sv);const target:usize=@intCast(tv);var path:[N]usize=@splat(0);var pc:usize=0;if(start==target){path[pc]=start;pc+=1;}else{var seen:[2][N]bool=@splat(@splat(false));var parent:[2][N]i32=@splat(@splat(-1));var q:[2][N]usize=@splat(@splat(0));var head:[2]usize=@splat(0);var tail:[2]usize=@splat(0);seen[0][start]=true;seen[1][target]=true;q[0][0]=start;q[1][0]=target;tail[0]=1;tail[1]=1;var meet:i32= -1;
+  while(head[0]<tail[0] and head[1]<tail[1] and meet<0){var end=tail[0];while(head[0]<end){const u=q[0][head[0]];head[0]+=1;for(0..deg[u])|j|{const v=adj[u][j];if(seen[0][v])continue;seen[0][v]=true;parent[0][v]=@intCast(u);q[0][tail[0]]=v;tail[0]+=1;}}for(0..n)|v|{if(seen[0][v] and seen[1][v]){meet=@intCast(v);break;}}if(meet>=0)break;
+   end=tail[1];while(head[1]<end){const u=q[1][head[1]];head[1]+=1;for(0..deg[u])|j|{const v=adj[u][j];if(seen[1][v])continue;seen[1][v]=true;parent[1][v]=@intCast(u);q[1][tail[1]]=v;tail[1]+=1;}}for(0..n)|v|{if(seen[0][v] and seen[1][v]){meet=@intCast(v);break;}}}
+  if(meet>=0){var rev:[N]usize=@splat(0);var k:usize=0;var v:i32=meet;while(v!= -1){rev[k]=@intCast(v);k+=1;v=parent[0][@intCast(v)];}while(k>0){k-=1;path[pc]=rev[k];pc+=1;}v=parent[1][@intCast(meet)];while(v!= -1){path[pc]=@intCast(v);pc+=1;v=parent[1][@intCast(v)];}}
+ }
+ const bytes=(1+pc)*8;if(output==null or capacity<bytes)return -2;put(output,0,@intCast(pc));for(0..pc)|i|put(output,1+i,@intCast(path[i]));return @intCast(bytes);
+}

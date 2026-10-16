@@ -29,3 +29,6 @@ ABI:
 python3 benchmarks/build_abi.py --family scalar --algorithm clear_lowest_set_bit --language rust
 python3 benchmarks/run_scalar.py --build-manifest build/scalar/c/clear_lowest_set_bit/rust/build.json
 ```
+
+Verify the nine ports against the independent bit-mask oracle with
+`python3 benchmarks/verify_scalar.py --algorithms clear_lowest_set_bit`.

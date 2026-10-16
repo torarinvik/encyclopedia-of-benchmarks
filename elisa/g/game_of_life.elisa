@@ -1,0 +1,51 @@
+# Compute one finite, non-wrapping Conway Game of Life generation.
+const MAX_SIDE: i64 = 32
+
+def game_of_life_impl(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if length == 0:
+        return -1
+    side_value: i64 = input[0]
+    if side_value < 0 or side_value > MAX_SIDE:
+        return -1
+    side: usize = side_value.usize()
+    cell_count: usize = side * side
+    if length != cell_count + 1:
+        return -1
+    index: mutable usize = 0
+    while index < cell_count:
+        if input[index + 1] != 0 and input[index + 1] != 1:
+            return -1
+        index <- index + 1
+    if output_capacity < cell_count:
+        return -2
+
+    row: mutable usize = 0
+    while row < side:
+        column: mutable usize = 0
+        while column < side:
+            neighbors: mutable i64 = 0
+            row_delta: mutable i64 = -1
+            while row_delta <= 1:
+                column_delta: mutable i64 = -1
+                while column_delta <= 1:
+                    if row_delta != 0 or column_delta != 0:
+                        neighbor_row: i64 = row.i64() + row_delta
+                        neighbor_column: i64 = column.i64() + column_delta
+                        if (neighbor_row >= 0 and neighbor_row < side_value and
+                            neighbor_column >= 0 and neighbor_column < side_value):
+                            neighbor_index: usize = 1 + neighbor_row.usize() * side + neighbor_column.usize()
+                            if input[neighbor_index] == 1:
+                                neighbors <- neighbors + 1
+                    column_delta <- column_delta + 1
+                row_delta <- row_delta + 1
+            alive: bool = input[1 + row * side + column] == 1
+            next_alive: bool = ((alive and (neighbors == 2 or neighbors == 3)) or
+                (not alive and neighbors == 3))
+            output[row * side + column] <- next_alive.u8()
+            column <- column + 1
+        row <- row + 1
+    cell_count.i64()
+
+export fn game_of_life(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = game_of_life_impl

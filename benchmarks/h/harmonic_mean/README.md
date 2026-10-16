@@ -12,11 +12,19 @@ Compute the harmonic mean of a nonempty list of positive values, following the p
 
 ## Source
 
-This follows the `harmonic` method in the pinned [TheAlgorithms Java `Means.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Means.java). The source divides the list length by the sum of each reciprocal. The benchmark uses a bounded positive integer subset and maps the source's empty-list exception to the sentinel.
+This follows the `harmonic` method in the pinned [TheAlgorithms Java `Means.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/Means.java), the `harmonicMean` function in the pinned [Haskell `Center.hs`](https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/Statistics/Center.hs), and the `harmonic_mean` function in pinned [TheAlgorithms Python `harmonic.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/series/harmonic.py). They compute the count divided by the sum of the reciprocals. The Python file also defines `is_harmonic_series`, a separate predicate that is not covered by this benchmark. The benchmark uses a bounded positive integer subset from 1 through 1,000 and maps the source's empty-list exception to the sentinel.
 
 ## Workload
 
 [`workload.json`](workload.json) covers singleton, equal values, the source example, reciprocal sums, the upper value and length bounds, and invalid input.
+
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_harmonic_mean.py
+```
 
 ## Implementations
 

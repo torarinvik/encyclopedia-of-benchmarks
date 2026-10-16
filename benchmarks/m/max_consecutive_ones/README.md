@@ -15,7 +15,7 @@ Return the length of the longest contiguous run of ones in a binary array. A sin
 
 ## Reviewed TheAlgorithms sources
 
-The pinned C [LeetCode filename `14.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/14.c) exports `findMaxConsecutiveOnes` and counts contiguous nonzero runs. The JavaScript [`MaxConsecutiveOnes.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/MaxConsecutiveOnes.js) uses a sliding window. Their behavior agrees on the shared binary input domain.
+The pinned C [LeetCode filename `14.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/14.c) exports `findMaxConsecutiveOnes` and counts contiguous nonzero runs. The JavaScript [`MaxConsecutiveOnes.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Dynamic-Programming/Sliding-Window/MaxConsecutiveOnes.js) uses a sliding window. The C LeetCode [`485.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/485.c) counts the same contiguous runs. These sources agree on the shared binary input domain.
 
 ## Implementations
 

@@ -1,0 +1,18 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+extern sqrt(value: f64) -> f64
+extern trunc(value: f64) -> f64
+
+def gamma_recursive_impl(num: f64) -> f64:
+    if num == 0.5:
+        return sqrt(3.14159265358979323846)
+    if num == 1.0:
+        return 1.0
+    (num - 1.0) * gamma_recursive_impl(num - 1.0)
+
+def gamma_recursive_impl_checked(num: f64) -> f64:
+    if not (num >= 0.5 and num <= 20.0) or num * 2.0 != trunc(num * 2.0):
+        return INVALID_RESULT
+    gamma_recursive_impl(num)
+
+export fn gamma_recursive(num: f64) -> f64 = gamma_recursive_impl_checked

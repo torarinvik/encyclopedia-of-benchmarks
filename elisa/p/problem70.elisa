@@ -1,0 +1,94 @@
+const MAX_N: i64 = 10000000
+const PRIME_LIMIT: usize = 3162
+const PRIME_CAPACITY: usize = 500
+const SEGMENT_SIZE: usize = 32768
+
+def same_digits(left: u32, right: u32) -> bool:
+    counts: mutable i64[10] = zeroed
+    number: mutable u32 = left
+    while number != 0:
+        counts[(number % 10).usize()] <- counts[(number % 10).usize()] + 1
+        number <- number / 10
+    number <- right
+    while number != 0:
+        counts[(number % 10).usize()] <- counts[(number % 10).usize()] - 1
+        number <- number / 10
+    digit: mutable usize = 0
+    while digit < 10:
+        if counts[digit] != 0:
+            return false
+        digit <- digit + 1
+    true
+
+def problem70_impl(max_n: i64) -> i64:
+    if max_n < 0 or max_n > MAX_N:
+        return -1
+    limit: u32 = max_n.u32()
+    is_prime: mutable bool[PRIME_LIMIT + 1] = zeroed
+    primes: mutable u32[PRIME_CAPACITY] = zeroed
+    prime_count: mutable usize = 0
+    value: mutable usize = 2
+    while value <= PRIME_LIMIT and value <= limit.usize() / value:
+        is_prime[value] <- true
+        value <- value + 1
+    prime: mutable usize = 2
+    while prime <= PRIME_LIMIT and prime <= limit.usize() / prime:
+        if is_prime[prime]:
+            multiple: mutable usize = prime * prime
+            while multiple <= PRIME_LIMIT and multiple <= limit.usize() / multiple:
+                is_prime[multiple] <- false
+                multiple <- multiple + prime
+        prime <- prime + 1
+    value <- 2
+    while value <= PRIME_LIMIT and value <= limit.usize() / value:
+        if is_prime[value]:
+            primes[prime_count] <- value.u32()
+            prime_count <- prime_count + 1
+        value <- value + 1
+
+    phi: mutable u32[SEGMENT_SIZE] = zeroed
+    remainder: mutable u32[SEGMENT_SIZE] = zeroed
+    best_n: mutable u32 = 1
+    best_phi: mutable u32 = 0
+    low: mutable u32 = 0
+    while low <= limit:
+        high: mutable u32 = low + SEGMENT_SIZE.u32() - 1
+        if high < low or high > limit:
+            high <- limit
+        length: usize = (high - low + 1).usize()
+        offset: mutable usize = 0
+        while offset < length:
+            phi[offset] <- low + offset.u32()
+            remainder[offset] <- low + offset.u32()
+            offset <- offset + 1
+        index: mutable usize = 0
+        while index < prime_count:
+            prime_value: u32 = primes[index]
+            first: mutable u32 = low + (prime_value - low % prime_value) % prime_value
+            if first < prime_value:
+                first <- prime_value
+            multiple: mutable u32 = first
+            while multiple <= high:
+                offset <- (multiple - low).usize()
+                phi[offset] <- phi[offset] - phi[offset] / prime_value
+                while remainder[offset] % prime_value == 0:
+                    remainder[offset] <- remainder[offset] / prime_value
+                if high - multiple < prime_value:
+                    break
+                multiple <- multiple + prime_value
+            index <- index + 1
+        offset <- 0
+        while offset < length:
+            if remainder[offset] > 1:
+                phi[offset] <- phi[offset] - phi[offset] / remainder[offset]
+            number: u32 = low + offset.u32()
+            if number >= 2 and number.u64() * best_phi.u64() < best_n.u64() * phi[offset].u64() and same_digits(number, phi[offset]):
+                best_n <- number
+                best_phi <- phi[offset]
+            offset <- offset + 1
+        if high == limit:
+            break
+        low <- high + 1
+    best_n.i64()
+
+export fn problem70(max_n: i64) -> i64 = problem70_impl

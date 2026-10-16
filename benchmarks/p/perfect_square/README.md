@@ -15,6 +15,8 @@ This benchmark returns whether an integer is a perfect square. The reviewed sour
 
 ## Reviewed TheAlgorithms sources
 
+- [C LeetCode `367.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/367.c) checks whether a nonnegative integer is a perfect square.
+
 - [Rust `perfect_square.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/perfect_square.rs) — floating-point and integer binary-search variants.
 - [Java `PerfectSquare.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PerfectSquare.java) — integer input with a floating-point square root.
 - [Julia `perfect_square.jl`](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/perfect_square.jl) — integer square root.

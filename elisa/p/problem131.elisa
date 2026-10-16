@@ -1,0 +1,26 @@
+const MAX_PRIME: i64 = 1000000
+
+def problem131_is_prime(number: i64) -> bool:
+    if number < 2:
+        return false
+    divisor: mutable i64 = 2
+    while divisor <= number / divisor:
+        if number % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def problem131_impl(max_prime: i64) -> i64:
+    if max_prime < 0 or max_prime > MAX_PRIME:
+        return -1
+    primes_count: mutable i64 = 0
+    cube_index: mutable i64 = 1
+    prime_candidate: mutable i64 = 7
+    while prime_candidate < max_prime:
+        if problem131_is_prime(prime_candidate):
+            primes_count <- primes_count + 1
+        cube_index <- cube_index + 1
+        prime_candidate <- prime_candidate + 6 * cube_index
+    primes_count
+
+export fn problem131(max_prime: i64) -> i64 = problem131_impl

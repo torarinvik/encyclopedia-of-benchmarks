@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-122-addition-chains-v1",
+  "algorithm": "problem122",
+  "function_symbol": "problem122",
+  "input": {
+    "kind": "inclusive_target_maximum",
+    "minimum": 0,
+    "maximum": 200,
+    "definition": "Inclusive upper target for the sum of minimum addition-chain lengths.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of minimum addition-chain lengths for targets 1 through the input maximum.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero-targets", "input_value": 0, "expected_result": 0},
+    {"id": "unit-target", "input_value": 1, "expected_result": 0},
+    {"id": "target-two", "input_value": 2, "expected_result": 1},
+    {"id": "target-three", "input_value": 3, "expected_result": 3},
+    {"id": "source-example-fourteen", "input_value": 14, "expected_result": 45},
+    {"id": "source-example-fifteen", "input_value": 15, "expected_result": 50},
+    {"id": "midrange", "input_value": 50, "expected_result": 269},
+    {"id": "large-prefix", "input_value": 100, "expected_result": 664},
+    {"id": "canonical-two-hundred", "input_value": 200, "expected_result": 1582},
+    {"id": "negative-maximum", "input_value": -1, "expected_result": -1},
+    {"id": "above-supported-maximum", "input_value": 201, "expected_result": -1},
+    {"id": "signed-64-bit-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

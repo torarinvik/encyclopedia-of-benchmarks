@@ -1,0 +1,49 @@
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def graph_rust_weighted_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2: return -1
+    vertex_count_value: i64 = input[0]
+    edge_count_value: i64 = input[1]
+    if vertex_count_value < 0 or vertex_count_value > 64 or edge_count_value < 0 or edge_count_value > 256: return -1
+    vertex_count: usize = vertex_count_value.usize()
+    edge_count: usize = edge_count_value.usize()
+    if length != 2 + 3 * edge_count: return -1
+    for edge in 0..<edge_count:
+        u: i64 = input[2 + 3 * edge]
+        v: i64 = input[3 + 3 * edge]
+        weight: i64 = input[4 + 3 * edge]
+        if u < 0 or u >= vertex_count_value or v < 0 or v >= vertex_count_value: return -1
+        if weight < -2147483648 or weight > 2147483647: return -1
+    required: usize = (1 + vertex_count + 4 * edge_count) * 8
+    if output.is_null() or capacity < required: return -2
+    cursor: mutable usize = 0
+    put_i64(output, cursor * 8, vertex_count_value)
+    cursor <- cursor + 1
+    for vertex in 0..<vertex_count:
+        degree: mutable usize = 0
+        for edge in 0..<edge_count:
+            if input[2 + 3 * edge] == vertex.i64(): degree <- degree + 1
+            if input[3 + 3 * edge] == vertex.i64(): degree <- degree + 1
+        put_i64(output, cursor * 8, degree.i64())
+        cursor <- cursor + 1
+        for edge in 0..<edge_count:
+            u: i64 = input[2 + 3 * edge]
+            v: i64 = input[3 + 3 * edge]
+            weight: i64 = input[4 + 3 * edge]
+            if u == vertex.i64():
+                put_i64(output, cursor * 8, v)
+                cursor <- cursor + 1
+                put_i64(output, cursor * 8, weight)
+                cursor <- cursor + 1
+            if v == vertex.i64():
+                put_i64(output, cursor * 8, u)
+                cursor <- cursor + 1
+                put_i64(output, cursor * 8, weight)
+                cursor <- cursor + 1
+    required.i64()
+
+export fn graph_rust_weighted(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_rust_weighted_impl

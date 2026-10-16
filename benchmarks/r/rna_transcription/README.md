@@ -24,4 +24,5 @@ The similarly named candidates have different mappings and remain separate algor
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm rna_transcription --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/r/rna_transcription/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm rna_transcription --languages rust
 ```

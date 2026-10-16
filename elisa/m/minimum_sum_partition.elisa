@@ -1,0 +1,32 @@
+const MAX_VALID_INPUT_LENGTH: usize = 64
+const MAX_TOTAL_SUM: usize = 4096
+const MAX_TOTAL_SUM_I64: i64 = 4096
+
+def minimum_sum_partition_impl(input: i64&, length: usize) -> i64:
+    if length > MAX_VALID_INPUT_LENGTH or (input.is_null() and length != 0):
+        return -1
+
+    total: mutable i64 = 0
+    for index in 0..<length |input, total|:
+        value: i64 = input[index]
+        if value < 0 or value > MAX_TOTAL_SUM_I64 or total > MAX_TOTAL_SUM_I64 - value:
+            return -1
+        total <- total + value
+
+    target: usize = (total / 2).usize()
+    reachable: mutable u8[MAX_TOTAL_SUM / 2 + 1] = zeroed
+    reachable[0] <- 1
+    closest: mutable usize = 0
+    for index in 0..<length |input, target, reachable, closest|:
+        value: usize = input[index].usize()
+        sum: mutable usize = target
+        while sum > 0 |sum, value, reachable, closest|:
+            if value <= sum and reachable[sum - value] != 0:
+                reachable[sum] <- 1
+            if reachable[sum] != 0 and sum > closest:
+                closest <- sum
+            sum <- sum - 1
+
+    return total - 2 * closest.i64()
+
+export fn minimum_sum_partition(input: i64&, length: usize) -> i64 = minimum_sum_partition_impl

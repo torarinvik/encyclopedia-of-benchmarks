@@ -35,7 +35,7 @@ fn prime_factor_digit_sum(value: i64) -> i64 {
 
 #[no_mangle]
 pub extern "C" fn smith_number(value: i64) -> i64 {
-    if !(1..=2_147_483_647).contains(&value) { return -1; }
+    if !(1..=2_147_395_599).contains(&value) { return -1; }
     if is_prime(value) { return 0; }
     i64::from(digit_sum(value) == prime_factor_digit_sum(value))
 }

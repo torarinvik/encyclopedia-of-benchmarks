@@ -11,6 +11,12 @@ This benchmark follows the pinned Python [`TreeNode.__repr__` and `deserialize`]
 
 This format is distinct from the indexed node-table serialization used by tree trimming and from traversal outputs. For a null root, this benchmark emits `null`; the pinned `repr(None)` would return Python's `None` because no node representation is invoked. The package also rejects trailing tokens after one complete tree, while the source parser ignores them.
 
+The output workspace is 2,200 bytes, covering the largest canonical encoding in the 127-node signed-i32 domain. Verify all ports and the workload with:
+
+```sh
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm serialize_deserialize_binary_tree
+```
+
 | Language | Source |
 | --- | --- |
 | C | [`c/s/serialize_deserialize_binary_tree.c`](../../../c/s/serialize_deserialize_binary_tree/serialize_deserialize_binary_tree.c) |

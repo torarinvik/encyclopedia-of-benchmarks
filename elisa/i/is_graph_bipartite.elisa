@@ -1,0 +1,76 @@
+# BFS two-coloring for a bounded undirected graph.
+const MAX_VERTICES: usize = 64
+const MAX_EDGES: usize = 256
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGES
+const INVALID_RESULT: i64 = -1
+
+def is_graph_bipartite_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    vertex_count_raw: i64 = values[0]
+    edge_count_raw: i64 = values[1]
+    if vertex_count_raw < 0 or vertex_count_raw > MAX_VERTICES.i64() or edge_count_raw < 0 or edge_count_raw > MAX_EDGES.i64():
+        return INVALID_RESULT
+    vertex_count: usize = vertex_count_raw.usize()
+    edge_count: usize = edge_count_raw.usize()
+    if length != 2 + 2 * edge_count:
+        return INVALID_RESULT
+
+    head: mutable i64[MAX_VERTICES] = zeroed
+    arc_to: mutable i64[2 * MAX_EDGES] = zeroed
+    arc_next: mutable i64[2 * MAX_EDGES] = zeroed
+    side: mutable i64[MAX_VERTICES] = zeroed
+    queue: mutable usize[MAX_VERTICES] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        head[vertex] <- -1
+        side[vertex] <- -1
+        vertex <- vertex + 1
+    arc_count: mutable usize = 0
+    edge: mutable usize = 0
+    while edge < edge_count:
+        u_raw: i64 = values[2 + 2 * edge]
+        v_raw: i64 = values[3 + 2 * edge]
+        if u_raw < 1 or u_raw > vertex_count_raw or v_raw < 1 or v_raw > vertex_count_raw:
+            return INVALID_RESULT
+        u: usize = (u_raw - 1).usize()
+        v: usize = (v_raw - 1).usize()
+        arc_to[arc_count] <- v.i64()
+        arc_next[arc_count] <- head[u]
+        head[u] <- arc_count.i64()
+        arc_count <- arc_count + 1
+        arc_to[arc_count] <- u.i64()
+        arc_next[arc_count] <- head[v]
+        head[v] <- arc_count.i64()
+        arc_count <- arc_count + 1
+        edge <- edge + 1
+
+    bipartite: mutable bool = true
+    start: mutable usize = 0
+    while start < vertex_count:
+        if side[start] != -1:
+            start <- start + 1
+            continue
+        queue_head: mutable usize = 0
+        queue_tail: mutable usize = 1
+        queue[0] <- start
+        side[start] <- 0
+        while queue_head < queue_tail:
+            current: usize = queue[queue_head]
+            queue_head <- queue_head + 1
+            arc: mutable i64 = head[current]
+            while arc != -1:
+                neighbor: usize = arc_to[arc.usize()].usize()
+                if side[neighbor] == -1:
+                    side[neighbor] <- side[current] ^ 1
+                    queue[queue_tail] <- neighbor
+                    queue_tail <- queue_tail + 1
+                else if side[neighbor] == side[current]:
+                    bipartite <- false
+                arc <- arc_next[arc.usize()]
+        start <- start + 1
+    if bipartite:
+        return 1
+    0
+
+export fn is_graph_bipartite(values: i64&, length: usize) -> i64 = is_graph_bipartite_impl

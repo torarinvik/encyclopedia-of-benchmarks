@@ -1,0 +1,12 @@
+# Perimeter and area calculations for a bounded circle radius.
+const INVALID_RESULT: f64 = -1.0e300
+const PI: f64 = 3.14159265358979323846
+
+def circle_impl(radius: f64, operation: f64) -> f64:
+    if not (radius >= -1000000.0 and radius <= 1000000.0 and (operation == 0.0 or operation == 1.0)):
+        return INVALID_RESULT
+    if operation == 0.0:
+        return radius * 2.0 * PI
+    radius * radius * PI
+
+export fn circle(radius: f64, operation: f64) -> f64 = circle_impl

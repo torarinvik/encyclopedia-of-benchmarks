@@ -30,6 +30,7 @@ The C++ and Ruby sources use the bit-clearing test; Dart, JavaScript, Python, an
 
 ## TheAlgorithms references
 
+- [C LeetCode `231.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/231.c) checks positivity and applies the standard `n & (n - 1)` predicate.
 - [C++ `power_of_two.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/power_of_two.cpp) and [the additional C++ repository copy](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/power_of_two.cpp)
 - [Dart `power_of_two.dart`](https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/power_of_two.dart)
 - [Ruby `bit_manipulation/power_of_two.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/bit_manipulation/power_of_two.rb) and [Ruby `maths/power_of_two.rb`](https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/maths/power_of_two.rb)

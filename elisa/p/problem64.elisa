@@ -1,0 +1,40 @@
+const MAX_LIMIT: i64 = 10000
+
+def problem64_integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = value + 1
+    while high - low > 1:
+        middle: i64 = low + (high - low) / 2
+        if middle <= value / middle:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def problem64_period_length(value: i64, root: i64) -> i64:
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 1
+    coefficient: mutable i64 = root
+    period: mutable i64 = 0
+    while true:
+        numerator <- denominator * coefficient - numerator
+        denominator <- (value - numerator * numerator) / denominator
+        coefficient <- (root + numerator) / denominator
+        period <- period + 1
+        if coefficient == 2 * root:
+            break
+    period
+
+def problem64_impl(inclusive_limit: i64) -> i64:
+    if inclusive_limit < 0 or inclusive_limit > MAX_LIMIT:
+        return -1
+    count: mutable i64 = 0
+    value: mutable i64 = 2
+    while value <= inclusive_limit:
+        root: i64 = problem64_integer_sqrt(value)
+        if root * root != value and problem64_period_length(value, root) % 2 == 1:
+            count <- count + 1
+        value <- value + 1
+    count
+
+export fn problem64(inclusive_limit: i64) -> i64 = problem64_impl

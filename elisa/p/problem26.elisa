@@ -1,0 +1,27 @@
+# Bounded port of TheAlgorithms/Python Project Euler 26 remainder search.
+def problem26_impl(limit: i64) -> i64:
+    if limit < 0 or limit > 1000:
+        return -1
+    best_denominator: mutable i64 = 1
+    longest_remainder_list: mutable i64 = 0
+    denominator: mutable i64 = 1
+    while denominator <= limit:
+        seen: mutable i64[1001] = zeroed
+        remainder: mutable i64 = 1
+        remainder_count: mutable i64 = 0
+        step: mutable i64 = 0
+        while step < limit:
+            if seen[remainder.usize()] != 0:
+                if remainder_count > longest_remainder_list:
+                    longest_remainder_list <- remainder_count
+                    best_denominator <- denominator
+                step <- limit
+            else:
+                seen[remainder.usize()] <- 1
+                remainder_count <- remainder_count + 1
+                remainder <- (remainder * 10) % denominator
+                step <- step + 1
+        denominator <- denominator + 1
+    best_denominator
+
+export fn problem26(limit: i64) -> i64 = problem26_impl

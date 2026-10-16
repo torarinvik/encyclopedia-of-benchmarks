@@ -14,6 +14,8 @@
   "output": {
     "kind": "binary64",
     "definition": "sqrt((x2 - x1)^2 + (y2 - y1)^2)",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
     "invalid_input_result": -1e300
   },
   "cases": [
@@ -34,6 +36,8 @@
   ],
   "measurement": {
     "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
     "sample_count": 7,
     "warmup_rounds": 2,
     "repetitions_per_sample": 10000

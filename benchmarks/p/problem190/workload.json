@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-190-weighted-product-v1",
+  "algorithm": "problem190",
+  "function_symbol": "problem190",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [0, 15],
+    "meaning": "inclusive upper bound n for the sum of floor(P_m), m=2..n",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of truncated maximum weighted products for m=2 through the inclusive bound"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "zero_bound", "input_value": 0, "expected_result": 0},
+    {"id": "one_bound", "input_value": 1, "expected_result": 0},
+    {"id": "source_example_two", "input_value": 2, "expected_result": 1},
+    {"id": "source_example_three", "input_value": 3, "expected_result": 2},
+    {"id": "source_example_four", "input_value": 4, "expected_result": 4},
+    {"id": "source_example_five", "input_value": 5, "expected_result": 10},
+    {"id": "canonical_fifteen", "input_value": 15, "expected_result": 371048281},
+    {"id": "negative_bound", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_bound", "input_value": 16, "expected_result": -1}
+  ]
+}

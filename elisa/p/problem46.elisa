@@ -1,0 +1,38 @@
+const MAX_ODD_COMPOSITE: i64 = 99999
+
+def problem46_is_prime(number: i64) -> bool:
+    if number < 2:
+        return false
+    if number < 4:
+        return true
+    if number % 2 == 0 or number % 3 == 0:
+        return false
+    divisor: mutable i64 = 5
+    while divisor <= number / divisor:
+        if number % divisor == 0 or number % (divisor + 2) == 0:
+            return false
+        divisor <- divisor + 6
+    true
+
+def problem46_find_first_counterexample() -> i64:
+    candidate: mutable i64 = 3
+    while candidate <= MAX_ODD_COMPOSITE:
+        if not problem46_is_prime(candidate):
+            represented: mutable bool = false
+            square: mutable i64 = 0
+            while 2 * square * square <= candidate:
+                if problem46_is_prime(candidate - 2 * square * square):
+                    represented <- true
+                    break
+                square <- square + 1
+            if not represented:
+                return candidate
+        candidate <- candidate + 2
+    -1
+
+def problem46_impl(placeholder: i64) -> i64:
+    if placeholder != 0:
+        return -1
+    problem46_find_first_counterexample()
+
+export fn problem46(placeholder: i64) -> i64 = problem46_impl

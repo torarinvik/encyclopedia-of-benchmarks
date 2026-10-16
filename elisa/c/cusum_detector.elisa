@@ -1,0 +1,43 @@
+# Two-sided CUSUM detector over a bounded integer-valued input domain.
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset+b] <- (bits & 255).u8()
+        bits <- bits >> 8
+        b <- b + 1
+
+def cusum_detector_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or input[0] < 0 or input[0] > 128: return -1
+    n: usize = input[0].usize()
+    if length != n + 5: return -1
+    target: i64 = input[1]
+    sigma: i64 = input[2]
+    allowance: i64 = input[3]
+    threshold: i64 = input[4]
+    if target < -1000 or target > 1000 or sigma < 1 or sigma > 1000 or allowance < 0 or allowance > 1000 or threshold < 1 or threshold > 1000: return -1
+    i: mutable usize = 0
+    while i < n:
+        if input[5+i] < -1000 or input[5+i] > 1000: return -1
+        i <- i + 1
+    if capacity < n * 8 or (n > 0 and output.is_null()): return -2
+    upper: mutable f64 = 0.0
+    lower: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        z: f64 = (input[5+i].f64() - target.f64()) / sigma.f64()
+        upper <- upper + z - allowance.f64()
+        if upper < 0.0: upper <- 0.0
+        lower <- lower - z - allowance.f64()
+        if lower < 0.0: lower <- 0.0
+        signal: i64 = 0
+        if upper > threshold.f64(): signal <- 1
+        else if lower > threshold.f64(): signal <- -1
+        if signal != 0:
+            upper <- 0.0
+            lower <- 0.0
+        store_i64_le(signal, output, i * 8)
+        i <- i + 1
+    (n * 8).i64()
+
+export fn cusum_detector(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = cusum_detector_impl

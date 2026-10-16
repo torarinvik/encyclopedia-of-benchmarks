@@ -1,0 +1,39 @@
+def problem32_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    digits: mutable i64[9] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    seen: mutable u8[10000] = zeroed
+    sum: mutable i64 = 0
+    done: mutable bool = false
+    while not done:
+        product: i64 = digits[5] * 1000 + digits[6] * 100 + digits[7] * 10 + digits[8]
+        two_digit: i64 = digits[0] * 10 + digits[1]
+        three_digit: i64 = digits[2] * 100 + digits[3] * 10 + digits[4]
+        four_digit: i64 = digits[1] * 1000 + digits[2] * 100 + digits[3] * 10 + digits[4]
+        if two_digit * three_digit == product or digits[0] * four_digit == product:
+            if seen[product.usize()] == 0:
+                seen[product.usize()] <- 1
+                sum <- sum + product
+        pivot: mutable i64 = 7
+        while pivot >= 0 and digits[pivot.usize()] >= digits[(pivot + 1).usize()]:
+            pivot <- pivot - 1
+        if pivot < 0:
+            done <- true
+        else:
+            successor: mutable i64 = 8
+            while digits[successor.usize()] <= digits[pivot.usize()]:
+                successor <- successor - 1
+            temporary: mutable i64 = digits[pivot.usize()]
+            digits[pivot.usize()] <- digits[successor.usize()]
+            digits[successor.usize()] <- temporary
+            left: mutable i64 = pivot + 1
+            right: mutable i64 = 8
+            while left < right:
+                temporary <- digits[left.usize()]
+                digits[left.usize()] <- digits[right.usize()]
+                digits[right.usize()] <- temporary
+                left <- left + 1
+                right <- right - 1
+    sum
+
+export fn problem32(ignored: i64) -> i64 = problem32_impl

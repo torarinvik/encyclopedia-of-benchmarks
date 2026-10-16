@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "sum-multiples-inclusion-exclusion-scalar-v1",
+  "algorithm": "sum_multiples_inclusion_exclusion",
+  "function_symbol": "sum_multiples_inclusion_exclusion",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 100000],
+    "meaning": "sum of positive multiples of 3 or 5 strictly below limit",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id": "below-domain-zero", "input_value": 0, "expected_result": -1},
+    {"id": "first-valid-limit", "input_value": 1, "expected_result": 0},
+    {"id": "before-first-multiple", "input_value": 3, "expected_result": 0},
+    {"id": "first-included-multiple", "input_value": 4, "expected_result": 3},
+    {"id": "five-boundary", "input_value": 5, "expected_result": 3},
+    {"id": "six-boundary", "input_value": 6, "expected_result": 8},
+    {"id": "canonical-limit-ten", "input_value": 10, "expected_result": 23},
+    {"id": "overlap-at-fifteen", "input_value": 16, "expected_result": 60},
+    {"id": "canonical-project-euler-limit", "input_value": 1000, "expected_result": 233168},
+    {"id": "multiple-of-fifteen-limit", "input_value": 99990, "expected_result": 2332816695},
+    {"id": "maximum-limit", "input_value": 100000, "expected_result": 2333316668},
+    {"id": "negative-limit", "input_value": -1, "expected_result": -1},
+    {"id": "above-domain-limit", "input_value": 100001, "expected_result": -1},
+    {"id": "minimum-i64", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "maximum-i64", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

@@ -1,0 +1,29 @@
+def car_pool_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 194: return -1
+    if input[0] < 0 or input[0] > 1000 or input[1] < 0 or input[1] > 64: return -1
+    capacity: i32 = input[0].i32()
+    trip_count: usize = input[1].usize()
+    if length != 2 + 3 * trip_count: return -1
+
+    events: mutable i32[1001] = zeroed
+    trip: mutable usize = 0
+    while trip < trip_count |trip, events, input|:
+        offset: usize = 2 + 3 * trip
+        passengers: i64 = input[offset]
+        origin: i64 = input[offset + 1]
+        destination: i64 = input[offset + 2]
+        if passengers < 1 or passengers > 1000 or origin < 0 or origin >= destination or destination > 1000:
+            return -1
+        events[origin.usize()] <- events[origin.usize()] + passengers.i32()
+        events[destination.usize()] <- events[destination.usize()] - passengers.i32()
+        trip <- trip + 1
+
+    occupants: mutable i32 = 0
+    position: mutable usize = 0
+    while position < 1000 |position, occupants, events, capacity|:
+        occupants <- occupants + events[position]
+        if occupants > capacity: return 0
+        position <- position + 1
+    1
+
+export fn car_pool(input: i64&, length: usize) -> i64 = car_pool_impl

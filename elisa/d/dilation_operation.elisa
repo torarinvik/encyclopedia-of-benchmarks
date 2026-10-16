@@ -1,0 +1,36 @@
+def put_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u32 = value.u32()
+    for byte in 0..<4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def dilation_operation_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 12 or length > 267:
+        return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > 16 or columns_value < 1 or columns_value > 16:
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    if length != 2 + cells + 9:
+        return -1
+    for i in 0..<(cells + 9):
+        if input[2 + i] < 0 or input[2 + i] > 1:
+            return -1
+    if output == null or output_capacity < cells * 4:
+        return -2
+    for y in 0..<rows:
+        for x in 0..<columns:
+            sum: mutable i64 = 0
+            for ky in 0..<3:
+                for kx in 0..<3:
+                    image_y: i64 = y.i64() + ky.i64() - 1
+                    image_x: i64 = x.i64() + kx.i64() - 1
+                    if image_y >= 0 and image_y < rows.i64() and image_x >= 0 and image_x < columns.i64():
+                        sum <- sum + input[2 + image_y.usize() * columns + image_x.usize()] * input[2 + cells + ky * 3 + kx]
+            put_i32_le(output, (y * columns + x) * 4, if sum > 0 then 1 else 0)
+    cells.i64()
+
+export fn dilation_operation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = dilation_operation_impl

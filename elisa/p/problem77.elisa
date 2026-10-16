@@ -1,0 +1,29 @@
+# Find the first value whose prime-partition count exceeds the requested threshold.
+def problem77_impl(threshold: i64) -> i64:
+    if threshold < 0 or threshold > 100000:
+        return -1
+    partitions: mutable i64[100] = zeroed
+    partitions[0] <- 1
+    prime: mutable i64 = 2
+    while prime < 100:
+        is_prime: mutable bool = true
+        divisor: mutable i64 = 2
+        while divisor * divisor <= prime:
+            if prime % divisor == 0:
+                is_prime <- false
+                break
+            divisor <- divisor + 1
+        if is_prime:
+            total: mutable i64 = prime
+            while total < 100:
+                partitions[total.usize()] <- partitions[total.usize()] + partitions[(total - prime).usize()]
+                total <- total + 1
+        prime <- prime + 1
+    value: mutable i64 = 1
+    while value < 100:
+        if partitions[value.usize()] > threshold:
+            return value
+        value <- value + 1
+    -1
+
+export fn problem77(threshold: i64) -> i64 = problem77_impl

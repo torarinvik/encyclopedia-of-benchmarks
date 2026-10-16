@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "id": "parse-integer-java-strict-ascii-i64-array-scalar-v1",
+  "algorithm": "parse_integer",
+  "function_symbol": "parse_integer",
+  "description": "Parse an entire ASCII decimal string with Java int wraparound semantics.",
+  "input": {
+    "kind": "ascii_byte_array",
+    "minimum_length": 1,
+    "maximum_length": 64,
+    "byte_range": [0, 127],
+    "grammar": "optional leading plus or minus followed by zero or more decimal digits; at least one input byte is required",
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "sign_extended_java_int32",
+    "definition": "Whole-string decimal parse with modulo-2^32 accumulation and optional Java int negation.",
+    "invalid_input_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "zero", "input_values": [48], "expected_result": 0},
+    {"id": "positive", "input_values": [49, 50, 51], "expected_result": 123},
+    {"id": "negative", "input_values": [45, 49, 50, 51], "expected_result": -123},
+    {"id": "explicit_plus", "input_values": [43, 52, 50], "expected_result": 42},
+    {"id": "negative_zero", "input_values": [45, 48], "expected_result": 0},
+    {"id": "positive_int32_max", "input_values": [50, 49, 52, 55, 52, 56, 51, 54, 52, 55], "expected_result": 2147483647},
+    {"id": "negative_int32_min", "input_values": [45, 50, 49, 52, 55, 52, 56, 51, 54, 52, 56], "expected_result": -2147483648},
+    {"id": "positive_overflow_wrap", "input_values": [50, 49, 52, 55, 52, 56, 51, 54, 52, 56], "expected_result": -2147483648},
+    {"id": "negative_overflow_wrap", "input_values": [45, 50, 49, 52, 55, 52, 56, 51, 54, 52, 57], "expected_result": 2147483647},
+    {"id": "longer_wrapping_value", "input_values": [57, 57, 57, 57, 57, 57, 57, 57, 57, 57, 57], "expected_result": 1215752191},
+    {"id": "sign_only_plus", "input_values": [43], "expected_result": 0},
+    {"id": "sign_only_minus", "input_values": [45], "expected_result": 0},
+    {"id": "empty_invalid", "input_values": [], "expected_result": -9223372036854775808},
+    {"id": "trailing_space_invalid", "input_values": [49, 50, 32], "expected_result": -9223372036854775808},
+    {"id": "embedded_sign_invalid", "input_values": [49, 45, 50], "expected_result": -9223372036854775808},
+    {"id": "nondigit_invalid", "input_values": [49, 50, 97], "expected_result": -9223372036854775808},
+    {"id": "non_ascii_invalid", "input_values": [49, 50, 195], "expected_result": -9223372036854775808}
+  ]
+}

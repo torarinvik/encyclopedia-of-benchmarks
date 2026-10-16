@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-34-fixed-search-v1",
+  "algorithm": "problem34",
+  "function_symbol": "problem34",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution takes no arguments; the scalar ABI accepts only zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of values from 3 through 7*9! inclusive that equal the sum of the factorials of their decimal digits.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_fixed_search",
+      "input_value": 0,
+      "expected_result": 40730
+    },
+    {
+      "id": "positive_nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_nonzero_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

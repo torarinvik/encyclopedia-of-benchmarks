@@ -1,0 +1,33 @@
+def problem4_is_palindrome(value: i64) -> bool:
+    original: i64 = value
+    remaining: mutable i64 = value
+    reversed: mutable i64 = 0
+    while remaining > 0:
+        reversed <- reversed * 10 + remaining % 10
+        remaining <- remaining / 10
+    reversed == original
+
+def problem4_impl(digits: i64) -> i64:
+    if digits < 1 or digits > 3:
+        return -1
+    minimum: mutable i64 = 100
+    maximum: mutable i64 = 999
+    if digits == 1:
+        minimum <- 1
+        maximum <- 9
+    if digits == 2:
+        minimum <- 10
+        maximum <- 99
+    largest: mutable i64 = 0
+    first: mutable i64 = maximum
+    while first >= minimum and first * maximum > largest:
+        second: mutable i64 = maximum
+        while second >= first and first * second > largest:
+            product: i64 = first * second
+            if problem4_is_palindrome(product):
+                largest <- product
+            second <- second - 1
+        first <- first - 1
+    largest
+
+export fn problem4(digits: i64) -> i64 = problem4_impl

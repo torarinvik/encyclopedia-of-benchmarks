@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "id": "complementary-filter-java-i64-array-f64-v1",
+  "algorithm": "complementary_filter",
+  "function_symbol": "complementary_filter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": [
+      "coefficient_ppm",
+      "sample_count",
+      "rate_micro",
+      "reference_micro",
+      "elapsed_micro",
+      "..."
+    ],
+    "coefficient_ppm_range": [
+      1,
+      999999
+    ],
+    "sample_count_range": [
+      1,
+      32
+    ],
+    "per_sample_layout": [
+      "rate_micro",
+      "reference_micro",
+      "elapsed_micro"
+    ],
+    "rate_and_reference_range_micro": [
+      -1000000,
+      1000000
+    ],
+    "elapsed_range_micro": [
+      1,
+      1000000
+    ],
+    "input_scale": 1000000,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "final complementary-filter estimate after all accepted samples",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "default-coefficient-two-samples",
+      "input_values": [
+        980000,
+        2,
+        400000,
+        200000,
+        100000,
+        1000000,
+        0,
+        500000
+      ],
+      "expected_result": 0.686
+    },
+    {
+      "id": "first-sample-seeds-from-reference",
+      "input_values": [
+        980000,
+        1,
+        1000000,
+        -500000,
+        500000
+      ],
+      "expected_result": -0.5
+    },
+    {
+      "id": "default-coefficient-three-samples",
+      "input_values": [
+        980000,
+        3,
+        400000,
+        200000,
+        100000,
+        1000000,
+        0,
+        500000,
+        -500000,
+        600000,
+        200000
+      ],
+      "expected_result": 0.58628
+    },
+    {
+      "id": "half-coefficient",
+      "input_values": [
+        500000,
+        2,
+        -1000000,
+        500000,
+        500000,
+        200000,
+        -500000,
+        500000
+      ],
+      "expected_result": 0.05
+    },
+    {
+      "id": "coefficient-near-zero",
+      "input_values": [
+        1,
+        2,
+        1000000,
+        1000000,
+        1000000,
+        -1000000,
+        -1000000,
+        1000000
+      ],
+      "expected_result": -0.999999
+    },
+    {
+      "id": "coefficient-near-one",
+      "input_values": [
+        999999,
+        2,
+        -1000000,
+        0,
+        1000000,
+        1000000,
+        -1000000,
+        1000000
+      ],
+      "expected_result": 0.999998
+    },
+    {
+      "id": "coefficient-near-one-zero-prediction",
+      "input_values": [
+        999999,
+        2,
+        0,
+        -1000000,
+        1,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "expected_result": 1e-06
+    },
+    {
+      "id": "alternating-sensor-values",
+      "input_values": [
+        500000,
+        4,
+        1000000,
+        800000,
+        1000000,
+        400000,
+        -600000,
+        500000,
+        -200000,
+        800000,
+        1000000,
+        1000000,
+        0,
+        250000
+      ],
+      "expected_result": 0.325
+    },
+    {
+      "id": "small-positive-elapsed",
+      "input_values": [
+        500000,
+        2,
+        0,
+        500000,
+        1000000,
+        -1000000,
+        -500000,
+        1
+      ],
+      "expected_result": -5e-07
+    },
+    {
+      "id": "large-rate-small-time",
+      "input_values": [
+        750000,
+        2,
+        0,
+        -250000,
+        1000000,
+        1000000,
+        250000,
+        1
+      ],
+      "expected_result": -0.12499925
+    },
+    {
+      "id": "positive-constant-reference",
+      "input_values": [
+        250000,
+        4,
+        1000000,
+        375000,
+        1000000,
+        0,
+        375000,
+        1000000,
+        -1000000,
+        375000,
+        500000,
+        0,
+        375000,
+        1000000
+      ],
+      "expected_result": 0.34375
+    },
+    {
+      "id": "negative-constant-reference",
+      "input_values": [
+        750000,
+        3,
+        0,
+        -625000,
+        500000,
+        0,
+        -625000,
+        1000000,
+        0,
+        -625000,
+        1000000
+      ],
+      "expected_result": -0.625
+    },
+    {
+      "id": "maximum-sample-count",
+      "input_values": [
+        980000,
+        32,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000
+      ],
+      "expected_result": 0.25
+    },
+    {
+      "id": "invalid-short-header",
+      "input_values": [
+        980000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-short-sample-data",
+      "input_values": [
+        980000,
+        2,
+        0,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-extra-sample-data",
+      "input_values": [
+        980000,
+        1,
+        0,
+        0,
+        1000000,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-coefficient",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-unit-coefficient",
+      "input_values": [
+        1000000,
+        1,
+        0,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-sample-count",
+      "input_values": [
+        980000,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-sample-count-above-bound",
+      "input_values": [
+        980000,
+        33
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-rate-above-bound",
+      "input_values": [
+        980000,
+        1,
+        1000001,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-reference-below-bound",
+      "input_values": [
+        980000,
+        1,
+        0,
+        -1000001,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-zero-elapsed",
+      "input_values": [
+        980000,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-elapsed-above-bound",
+      "input_values": [
+        980000,
+        1,
+        0,
+        0,
+        1000001
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

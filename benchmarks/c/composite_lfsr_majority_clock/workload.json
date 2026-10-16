@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "composite-lfsr-majority-clock-i64-array-bytes-v1",
+  "algorithm": "composite_lfsr_majority_clock",
+  "function_symbol": "composite_lfsr_majority_clock",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[state_register_1, state_register_2, state_register_3] as nonnegative bitmasks",
+    "register_lengths": [
+      19,
+      22,
+      23
+    ],
+    "clock_bit_indices": [
+      8,
+      10,
+      10
+    ],
+    "tapping_bit_indices": [
+      [
+        13,
+        16,
+        17,
+        18
+      ],
+      [
+        20,
+        21
+      ],
+      [
+        7,
+        20,
+        21,
+        22
+      ]
+    ],
+    "maximum_length": 3,
+    "state_ranges": [
+      [
+        0,
+        524287
+      ],
+      [
+        0,
+        4194303
+      ],
+      [
+        0,
+        8388607
+      ]
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_i64_vector",
+    "layout": "[output_bit, next_state_1, next_state_2, next_state_3]",
+    "output_bit": "XOR of each register last bit before the clock step",
+    "clock_rule": "clock each register whose clock bit equals the majority of the three current clock bits",
+    "return_value": "output byte length (32)",
+    "maximum_output_bytes": 32,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 32,
+    "meaning": "Four little-endian signed 64-bit output values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "all_zero_states",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "two_true_clock_bits",
+      "input_values": [
+        256,
+        1024,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000200000000000000080000000000000000000000000000"
+    },
+    {
+      "id": "one_true_clock_bit",
+      "input_values": [
+        0,
+        0,
+        1024
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000004000000000000"
+    },
+    {
+      "id": "all_clock_bits_true",
+      "input_values": [
+        256,
+        1024,
+        1024
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 31,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "old_last_bit_contributes_to_output",
+      "input_values": [
+        262144,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "first_register_tap_feedback",
+      "input_values": [
+        8192,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000014000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "second_register_tap_feedback",
+      "input_values": [
+        0,
+        1048576,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000001002000000000000000000000000000"
+    },
+    {
+      "id": "third_register_tap_feedback",
+      "input_values": [
+        0,
+        0,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000000000000000000000000000000000000101000000000000"
+    },
+    {
+      "id": "nonmajority_register_holds_state",
+      "input_values": [
+        256,
+        1024,
+        4194304
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000000200000000000000080000000000000000400000000000"
+    },
+    {
+      "id": "maximum_register_states",
+      "input_values": [
+        524287,
+        4194303,
+        8388607
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000feff070000000000feff3f0000000000feff7f0000000000"
+    },
+    {
+      "id": "negative_register_state",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "state_exceeds_first_register_width",
+      "input_values": [
+        524288,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_with_extra_slot",
+      "input_values": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

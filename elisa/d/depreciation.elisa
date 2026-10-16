@@ -1,0 +1,147 @@
+const MAX_YEARS: usize = 16
+const MAX_VALUE_MICRO: i64 = 1000000000000
+const MAX_RATE_PPM: i64 = 1000000
+const MAX_UNITS: i64 = 1000000000
+extern fabs(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def depreciation_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def depreciation_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_YEARS + 4:
+        return -1
+    method: i64 = input[0]
+    years: mutable usize = 0
+    purchase_scaled: mutable i64 = 0
+    residual_scaled: mutable i64 = 0
+    rate: mutable f64 = 0.0
+    if method == 0 or method == 3 or method == 4:
+        if length != 4 or input[1] < 1 or input[1] > MAX_YEARS.i64():
+            return -1
+        years <- input[1].usize()
+        purchase_scaled <- input[2]
+        residual_scaled <- input[3]
+    else if method == 1:
+        if length != 5 or input[1] < 1 or input[1] > MAX_YEARS.i64() or input[4] < 1 or input[4] > MAX_RATE_PPM:
+            return -1
+        years <- input[1].usize()
+        purchase_scaled <- input[2]
+        residual_scaled <- input[3]
+        rate <- input[4].f64() / 1000000.0
+    else if method == 2:
+        if length < 5:
+            return -1
+        years <- length - 4
+        if years > MAX_YEARS or input[3] < 1 or input[3] > MAX_UNITS:
+            return -1
+        purchase_scaled <- input[1]
+        residual_scaled <- input[2]
+        unit_sum: mutable f64 = 0.0
+        index: mutable usize = 0
+        while index < years:
+            if input[4 + index] < -MAX_UNITS or input[4 + index] > MAX_UNITS:
+                return -1
+            unit_sum <- unit_sum + input[4 + index].f64()
+            index <- index + 1
+        if fabs(unit_sum - input[3].f64()) > 1.0e-6 * input[3].f64():
+            return -1
+    else:
+        return -1
+
+    if purchase_scaled < 0 or purchase_scaled > MAX_VALUE_MICRO or residual_scaled < -MAX_VALUE_MICRO or residual_scaled > purchase_scaled:
+        return -1
+    purchase: f64 = purchase_scaled.f64() / 1000000.0
+    residual: f64 = residual_scaled.f64() / 1000000.0
+    depreciable_cost: f64 = purchase - residual
+    schedule: mutable f64[MAX_YEARS] = zeroed
+
+    if method == 0:
+        annual: f64 = depreciable_cost / years.f64()
+        accumulated: mutable f64 = 0.0
+        period: mutable usize = 0
+        while period < years:
+            if period == years - 1:
+                schedule[period] <- depreciable_cost - accumulated
+            else:
+                accumulated <- accumulated + annual
+                schedule[period] <- annual
+            period <- period + 1
+    else if method == 1:
+        book_value: mutable f64 = purchase
+        period: mutable usize = 0
+        while period < years:
+            if period == years - 1:
+                schedule[period] <- book_value - residual
+            else:
+                expense: f64 = book_value * rate
+                if expense > book_value - residual:
+                    expense <- book_value - residual
+                schedule[period] <- expense
+                book_value <- book_value - expense
+            period <- period + 1
+    else if method == 2:
+        per_unit: f64 = depreciable_cost / input[3].f64()
+        accumulated: mutable f64 = 0.0
+        period: mutable usize = 0
+        while period < years:
+            if period == years - 1:
+                schedule[period] <- depreciable_cost - accumulated
+            else:
+                expense: f64 = input[4 + period].f64() * per_unit
+                accumulated <- accumulated + expense
+                schedule[period] <- expense
+            period <- period + 1
+    else if method == 3:
+        syd: f64 = years.f64() * (years.f64() + 1.0) / 2.0
+        accumulated: mutable f64 = 0.0
+        period: mutable usize = 1
+        while period <= years:
+            if period == years:
+                schedule[period - 1] <- depreciable_cost - accumulated
+            else:
+                expense: f64 = ((years - period + 1).f64() / syd) * depreciable_cost
+                accumulated <- accumulated + expense
+                schedule[period - 1] <- expense
+            period <- period + 1
+    else:
+        ddb_rate: f64 = 2.0 / years.f64()
+        book_value: mutable f64 = purchase
+        accumulated: mutable f64 = 0.0
+        period: mutable usize = 1
+        while period <= years:
+            remaining: f64 = (years - period + 1).f64()
+            ddb: f64 = book_value * ddb_rate
+            if ddb < 0.0:
+                ddb <- 0.0
+            straight_line: f64 = (book_value - residual) / remaining
+            if straight_line < 0.0:
+                straight_line <- 0.0
+            expense: f64 = ddb
+            if straight_line > expense:
+                expense <- straight_line
+            if expense > book_value - residual:
+                expense <- book_value - residual
+            if period == years:
+                schedule[period - 1] <- depreciable_cost - accumulated
+            else:
+                accumulated <- accumulated + expense
+                schedule[period - 1] <- expense
+                book_value <- book_value - expense
+            period <- period + 1
+
+    output_bytes: usize = years * 8
+    if output.is_null() or output_bytes > output_capacity:
+        return -2
+    index: mutable usize = 0
+    while index < years:
+        depreciation_write_f64(output, index * 8, schedule[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn depreciation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = depreciation_impl

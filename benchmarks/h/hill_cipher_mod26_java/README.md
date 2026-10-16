@@ -23,7 +23,7 @@ python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_arra
 
 | Language | Source |
 | --- | --- |
-| C | [`c/h/hill_cipher_mod26_java.c`](../../../c/hill_cipher_mod26_java.c) |
+| C | [`c/h/hill_cipher_mod26_java.c`](../../../c/h/hill_cipher_mod26_java.c) |
 | C3 | [`c3/h/hill_cipher_mod26_java.c3`](../../../c3/h/hill_cipher_mod26_java.c3) |
 | C++ | [`cpp/h/hill_cipher_mod26_java.cpp`](../../../cpp/h/hill_cipher_mod26_java.cpp) |
 | Elisa | [`elisa/h/hill_cipher_mod26_java.elisa`](../../../elisa/h/hill_cipher_mod26_java.elisa) |

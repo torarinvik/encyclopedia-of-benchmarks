@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-33-scalar-v1",
+  "algorithm": "problem33",
+  "function_symbol": "problem33",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "digit_len_range": [0, 5],
+    "meaning": "inclusive numerator digit-length search bound",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_digit_length", "input_value": 0, "expected_result": 1},
+    {"id": "one_digit_length", "input_value": 1, "expected_result": 1},
+    {"id": "two_digit_length", "input_value": 2, "expected_result": 100},
+    {"id": "three_digit_length", "input_value": 3, "expected_result": 100},
+    {"id": "four_digit_length", "input_value": 4, "expected_result": 100},
+    {"id": "five_digit_length", "input_value": 5, "expected_result": 100},
+    {"id": "negative_digit_length", "input_value": -1, "expected_result": -1},
+    {"id": "above_supported_digit_length", "input_value": 6, "expected_result": -1}
+  ]
+}

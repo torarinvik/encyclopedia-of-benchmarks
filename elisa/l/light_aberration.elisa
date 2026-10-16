@@ -1,0 +1,55 @@
+extern sqrt(value: f64) -> f64
+extern tan(value: f64) -> f64
+extern atan(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def round_five_even(value: f64) -> f64:
+    scaled: f64 = value * 100000.0
+    fraction: f64 = scaled - floor(scaled)
+    distance: mutable f64 = fraction - 0.5
+    if distance < 0.0:
+        distance <- -distance
+    if distance <= 1.0e-7:
+        return -1.0e300
+    if value == 0.0:
+        return value
+    negative: bool = value < 0.0
+    normalized: mutable f64 = if negative then -value else value
+    exponent: mutable i64 = 0
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    while normalized >= 2.0:
+        normalized <- normalized * 0.5
+        exponent <- exponent + 1
+    mantissa: u64 = (normalized * 4503599627370496.0).u64()
+    shift: i64 = 52 - exponent
+    if shift > 70:
+        return if negative then -0.0 else 0.0
+    low_product: u64 = (mantissa & 0xffffffff.u64()) * 100000.u64()
+    high_product: u64 = (mantissa >> 32) * 100000.u64()
+    shifted_high: u64 = high_product << 32
+    low: u64 = low_product + shifted_high
+    high: u64 = (high_product >> 32) + (if low < low_product then 1.u64() else 0.u64())
+    quotient: u64 = if shift < 64 then (low >> shift) | (high << (64 - shift)) else high >> (shift - 64)
+    half_bit: u64 = if shift - 1 < 64 then (low >> (shift - 1)) & 1.u64() else (high >> (shift - 65)) & 1.u64()
+    lower_bits: bool = if shift - 1 < 64 then (low & ((1.u64() << (shift - 1)) - 1.u64())) != 0
+        else low != 0 || (high & ((1.u64() << (shift - 65)) - 1.u64())) != 0
+    rounded: u64 = quotient + (if half_bit != 0 && (lower_bits || (quotient & 1.u64()) != 0) then 1.u64() else 0.u64())
+    result: f64 = rounded.f64() / 100000.0
+    if negative then -result else result
+
+def light_aberration_impl(values: i64&, length: usize) -> f64:
+    if values == null or length != 2:
+        return -1.0e300
+    theta_code: i64 = values[0]
+    beta_code: i64 = values[1]
+    if theta_code < -3141592 or theta_code > 3141592 or beta_code < 0 or beta_code > 999999:
+        return -1.0e300
+    theta: f64 = theta_code.f64() / 1000000.0
+    beta: f64 = beta_code.f64() / 1000000.0
+    factor: f64 = sqrt((1.0 - beta) / (1.0 + beta))
+    angle: f64 = 2.0 * atan(factor * tan(theta / 2.0))
+    round_five_even(angle)
+
+export fn light_aberration(values: i64&, length: usize) f64 = light_aberration_impl

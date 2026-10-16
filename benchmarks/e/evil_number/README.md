@@ -42,3 +42,5 @@ python3 benchmarks/run_scalar.py --build-manifest build/scalar/e/evil_number/rus
 
 - [Java `EvilNumber.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/EvilNumber.java)
 - [Python `evil_number.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/special_numbers/evil_number.py)
+
+Verify the nine ports against the independent popcount-parity oracle with `python3 benchmarks/verify_scalar.py --algorithms evil_number`.

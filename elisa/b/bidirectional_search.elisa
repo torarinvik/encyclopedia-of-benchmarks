@@ -1,0 +1,101 @@
+const N: usize = 64
+const MAX_ARCS: usize = N * (N - 1)
+
+def bidirectional_search_put(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[slot * 8 + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bidirectional_search_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or input[0] < 1 or input[0] > N.i64():
+        return -1
+    n: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= n.i64() or input[2] < 0 or input[2] >= n.i64() or input[3] < 0 or input[3] > MAX_ARCS.i64() or length != 4 + 2 * input[3].usize():
+        return -1
+    m: usize = input[3].usize()
+    adj: mutable usize[N * (N - 1)] = zeroed
+    degree: mutable usize[N] = zeroed
+    edges: mutable bool[N * N] = zeroed
+    for i in 0..<m:
+        u: i64 = input[4 + 2 * i]
+        v: i64 = input[5 + 2 * i]
+        if u < 0 or u >= n.i64() or v < 0 or v >= n.i64() or u == v:
+            return -1
+        us: usize = u.usize()
+        vs: usize = v.usize()
+        if edges[us * N + vs]:
+            return -1
+        edges[us * N + vs] <- true
+        adj[us * (N - 1) + degree[us]] <- vs
+        degree[us] <- degree[us] + 1
+    for u in 0..<n:
+        for v in 0..<n:
+            if edges[u * N + v] != edges[v * N + u]:
+                return -1
+    path: mutable usize[N] = zeroed
+    pc: mutable usize = 0
+    start: usize = input[1].usize()
+    goal: usize = input[2].usize()
+    if start == goal:
+        path[pc] <- start
+        pc <- pc + 1
+    else:
+        parent: mutable i64[2 * N] = zeroed
+        for s in 0..<2:
+            for i in 0..<n:
+                parent[s * N + i] <- -2
+        queue: mutable usize[2 * N] = zeroed
+        head: mutable usize[2] = zeroed
+        tail: mutable usize[2] = zeroed
+        parent[start] <- -1
+        parent[N + goal] <- -1
+        queue[start] <- start
+        queue[N + goal] <- goal
+        tail[0] <- 1
+        tail[1] <- 1
+        meet: mutable i64 = -1
+        while head[0] < tail[0] and head[1] < tail[1] and meet < 0:
+            for side in 0..<2:
+                if meet >= 0:
+                    break
+                slot: usize = side * N
+                current: usize = queue[slot + head[side]]
+                head[side] <- head[side] + 1
+                for j in 0..<degree[current]:
+                    neighbor: usize = adj[current * (N - 1) + j]
+                    if parent[slot + neighbor] != -2:
+                        continue
+                    parent[slot + neighbor] <- current.i64()
+                    queue[slot + tail[side]] <- neighbor
+                    tail[side] <- tail[side] + 1
+                    if parent[(1 - side) * N + neighbor] != -2:
+                        meet <- neighbor.i64()
+                        break
+        if meet >= 0:
+            reverse: mutable usize[N] = zeroed
+            count: mutable usize = 0
+            current: mutable i64 = meet
+            while current != -1:
+                reverse[count] <- current.usize()
+                count <- count + 1
+                current <- parent[current.usize()]
+            while count > 0:
+                count <- count - 1
+                path[pc] <- reverse[count]
+                pc <- pc + 1
+            current <- parent[N + meet.usize()]
+            while current != -1:
+                path[pc] <- current.usize()
+                pc <- pc + 1
+                current <- parent[N + current.usize()]
+    bytes: usize = (1 + pc) * 8
+    if output == null or capacity < bytes:
+        return -2
+    bidirectional_search_put(output, 0, pc.i64())
+    for i in 0..<pc:
+        bidirectional_search_put(output, 1 + i, path[i].i64())
+    bytes.i64()
+
+export def bidirectional_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    bidirectional_search_impl(input, length, output, capacity)

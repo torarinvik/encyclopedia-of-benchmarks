@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "id": "chebyshev-iteration-bounded-f64-vector-v1",
+  "algorithm": "chebyshev_iteration",
+  "function_symbol": "chebyshev_iteration",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, row-major matrix n*n in micro-units, b n in micro-units, x0 n in micro-units, minimum eigenvalue, maximum eigenvalue, maximum iterations, tolerance; numeric values are scaled by 1,000,000]",
+    "dimension_range": [
+      1,
+      8
+    ],
+    "maximum_input_length": 85,
+    "matrix_and_vector_range_micro_units": [
+      -1000000000,
+      1000000000
+    ],
+    "spectral_bounds_range_micro_units": [
+      1,
+      1000000000
+    ],
+    "iteration_range": [
+      1,
+      1000
+    ],
+    "tolerance_range_micro_units": [
+      1,
+      1000000000
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "meaning": "best iterate solution vector x",
+    "encoding": "n little-endian IEEE-754 binary64 values",
+    "return_value": "output byte length (8*n)",
+    "max_length": 8,
+    "max_output_bytes": 64,
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-09,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "maximum solution-vector output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "one_by_one_converges",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        5000000,
+        8,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 8,
+      "expected_output": [
+        2.0
+      ]
+    },
+    {
+      "id": "diagonal_two_by_two",
+      "input_length": 13,
+      "input_values": [
+        2,
+        2000000,
+        0,
+        0,
+        8000000,
+        4000000,
+        -16000000,
+        0,
+        0,
+        2000000,
+        8000000,
+        16,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 16,
+      "expected_output": [
+        1.9963186977691856,
+        -2.00773782659131
+      ]
+    },
+    {
+      "id": "dense_spd",
+      "input_length": 13,
+      "input_values": [
+        2,
+        4000000,
+        1000000,
+        1000000,
+        3000000,
+        1000000,
+        2000000,
+        0,
+        0,
+        2000000,
+        6000000,
+        64,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 16,
+      "expected_output": [
+        0.09090909516119638,
+        0.6363637065643403
+      ]
+    },
+    {
+      "id": "one_iteration_iteration_limit",
+      "input_length": 13,
+      "input_values": [
+        2,
+        2000000,
+        0,
+        0,
+        4000000,
+        8000000,
+        4000000,
+        0,
+        0,
+        1000000,
+        5000000,
+        1,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 16,
+      "expected_output": [
+        2.6666666666666665,
+        1.3333333333333333
+      ]
+    },
+    {
+      "id": "already_at_solution",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        2000000,
+        3000000,
+        5000000,
+        10,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 8,
+      "expected_output": [
+        2.0
+      ]
+    },
+    {
+      "id": "large_tolerance_stops_at_initial_guess",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        5000000,
+        10,
+        100000000
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 8,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_dimension",
+      "input_length": 85,
+      "input_values": [
+        8,
+        2000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9000000,
+        1000000,
+        2000000,
+        3000000,
+        4000000,
+        5000000,
+        6000000,
+        7000000,
+        8000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1000000,
+        10000000,
+        64,
+        100
+      ],
+      "workspace_bytes": 64,
+      "expected_result": 64,
+      "expected_output": [
+        -11.805546255432482,
+        78.84219011503316,
+        -37.996409802241196,
+        -101.18826683440128,
+        35.71108350083041,
+        128.51304672366498,
+        133.2671571024975,
+        80.84825885374502
+      ]
+    },
+    {
+      "id": "malformed_empty",
+      "input_length": 0,
+      "input_values": [],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_zero_dimension",
+      "input_length": 1,
+      "input_values": [
+        0
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_wrong_shape",
+      "input_length": 3,
+      "input_values": [
+        1,
+        1,
+        2
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_min_eigenvalue_zero",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        0,
+        5000000,
+        8,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_equal_eigen_bounds",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        3000000,
+        8,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_zero_iterations",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        5000000,
+        0,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_zero_tolerance",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        5000000,
+        8,
+        0
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_matrix_out_of_range",
+      "input_length": 8,
+      "input_values": [
+        1,
+        1000000001,
+        0,
+        0,
+        3000000,
+        5000000,
+        8,
+        1
+      ],
+      "workspace_bytes": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_output_capacity",
+      "input_length": 8,
+      "input_values": [
+        1,
+        4000000,
+        8000000,
+        0,
+        3000000,
+        5000000,
+        8,
+        1
+      ],
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

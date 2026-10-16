@@ -1,0 +1,21 @@
+# Hash a bounded ASCII codepoint array with the Python ELF recurrence.
+const MAX_CODEPOINTS: usize = 8
+
+def elf_hash_impl(input: i64&, length: usize) -> i64:
+    if length > MAX_CODEPOINTS:
+        return -1
+    hash: mutable u64 = 0.u64()
+    index: mutable usize = 0
+    while index < length:
+        codepoint: i64 = input[index]
+        if codepoint < 0 or codepoint > 127:
+            return -1
+        hash <- (hash << 4) + codepoint.u64()
+        high: u64 = hash & 0xF0000000.u64()
+        if high != 0.u64():
+            hash <- hash ^ (high >> 24)
+        hash <- hash ^ high
+        index <- index + 1
+    hash.i64()
+
+export fn elf_hash(input: i64&, length: usize) -> i64 = elf_hash_impl

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-74-binary-scalar-v1",
+  "algorithm": "problem74",
+  "function_symbol": "problem74",
+  "input": {
+    "kind": "two_signed_64_bit_integers",
+    "arguments": ["num_terms", "max_start"],
+    "max_start_upper_bound": 1000000,
+    "max_start_semantics": "exclusive; source scans starts in [1, max_start)",
+    "max_start_above_bound_result": -1,
+    "max_start_at_most_one_result": 0
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of starting values whose source-memoized digit-factorial chain length equals num_terms"
+  },
+  "measurement": {
+    "comparison_model": "binary_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_default",
+      "input_values": [60, 1000000],
+      "expected_result": 402
+    },
+    {
+      "id": "documented_solution_example",
+      "input_values": [10, 1000],
+      "expected_result": 28
+    },
+    {
+      "id": "source_seeded_zero_length_cache_entry",
+      "input_values": [0, 146],
+      "expected_result": 1
+    },
+    {
+      "id": "exclusive_limit_excludes_seed_145",
+      "input_values": [0, 145],
+      "expected_result": 0
+    },
+    {
+      "id": "single_start_one_term",
+      "input_values": [1, 2],
+      "expected_result": 1
+    },
+    {
+      "id": "one_is_an_empty_start_range",
+      "input_values": [60, 1],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_term_target",
+      "input_values": [-1, 100],
+      "expected_result": 0
+    },
+    {
+      "id": "no_match_above_longest_chain",
+      "input_values": [1000, 100],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_start_bound",
+      "input_values": [60, 0],
+      "expected_result": 0
+    },
+    {
+      "id": "negative_start_bound",
+      "input_values": [60, -1],
+      "expected_result": 0
+    },
+    {
+      "id": "max_start_above_supported_bound",
+      "input_values": [60, 1000001],
+      "expected_result": -1
+    }
+  ]
+}

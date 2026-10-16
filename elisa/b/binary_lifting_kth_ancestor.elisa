@@ -1,0 +1,83 @@
+const MAX_NODES: usize = 256
+const MAX_QUERIES: usize = 1024
+const LEVELS: usize = 9
+
+def binary_lifting_kth_ancestor_put(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[slot * 8 + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def binary_lifting_kth_ancestor_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or input[0] < 1 or input[0] > 256:
+        return -1
+    nodes: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= nodes.i64() or input[2] != (nodes - 1).i64() or input[3] < 0 or input[3] > 1024:
+        return -1
+    edges: usize = input[2].usize()
+    queries: usize = input[3].usize()
+    query_offset: usize = 4 + 2 * edges
+    if length != query_offset + 2 * queries:
+        return -1
+    root: usize = input[1].usize()
+    adjacency: mutable bool[MAX_NODES * MAX_NODES] = zeroed
+    for edge in 0..<edges:
+        left: i64 = input[4 + 2 * edge]
+        right: i64 = input[5 + 2 * edge]
+        if left < 0 or left >= nodes.i64() or right < 0 or right >= nodes.i64() or left == right:
+            return -1
+        adjacency[left.usize() * MAX_NODES + right.usize()] <- true
+        adjacency[right.usize() * MAX_NODES + left.usize()] <- true
+    for query in 0..<queries:
+        node: i64 = input[query_offset + 2 * query]
+        k: i64 = input[query_offset + 2 * query + 1]
+        if node < 0 or node >= nodes.i64() or k < 0:
+            return -1
+    parent: mutable i64[MAX_NODES] = zeroed
+    up: mutable i64[LEVELS * MAX_NODES] = zeroed
+    stack: mutable i64[MAX_NODES] = zeroed
+    for node in 0..<nodes:
+        parent[node] <- -1
+    parent[root] <- root.i64()
+    up[root] <- root.i64()
+    top: mutable usize = 0
+    reached: mutable usize = 0
+    stack[top] <- root.i64()
+    top <- top + 1
+    while top > 0:
+        top <- top - 1
+        node: usize = stack[top].usize()
+        reached <- reached + 1
+        for neighbor in 0..<nodes:
+            if adjacency[node * MAX_NODES + neighbor]:
+                if neighbor.i64() == parent[node]:
+                    continue
+                if parent[neighbor] != -1:
+                    return -1
+                parent[neighbor] <- node.i64()
+                up[neighbor] <- node.i64()
+                stack[top] <- neighbor.i64()
+                top <- top + 1
+    if reached != nodes:
+        return -1
+    for level in 1..<LEVELS:
+        for node in 0..<nodes:
+            middle: usize = up[(level - 1) * MAX_NODES + node].usize()
+            up[level * MAX_NODES + node] <- up[(level - 1) * MAX_NODES + middle]
+    bytes: usize = (1 + queries) * 8
+    if output == null or capacity < bytes:
+        return -2
+    binary_lifting_kth_ancestor_put(output, 0, queries.i64())
+    for query in 0..<queries:
+        node: usize = input[query_offset + 2 * query].usize()
+        k: u64 = input[query_offset + 2 * query + 1].u64()
+        if k >= nodes.u64():
+            node <- root
+        else:
+            for bit in 0..<LEVELS:
+                if (k & ((1).u64() << bit)) != 0:
+                    node <- up[bit * MAX_NODES + node].usize()
+        binary_lifting_kth_ancestor_put(output, (1 + query) * 8, node.i64())
+    bytes.i64()
+
+export fn binary_lifting_kth_ancestor(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = binary_lifting_kth_ancestor_impl

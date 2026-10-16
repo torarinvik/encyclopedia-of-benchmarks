@@ -10,7 +10,7 @@ This benchmark maps each ASCII English letter to its one-based alphabet position
 
 ## Workload and verification
 
-[`workload.json`](workload.json) includes the `myname` example, both letter cases, invalid characters, and the maximum input length. [`benchmarks/verify_a1z26.py`](../../verify_a1z26.py) checks both A1Z26 directions against the shared oracle in all nine target languages.
+[`workload.json`](workload.json) includes the `myname` example, both letter cases, invalid characters, and the maximum input length. [`benchmarks/verify_a1z26.py`](../../verify_a1z26.py) checks both A1Z26 directions against the shared oracle in all nine target languages. The generic byte-output verifier also checks this benchmark with an independent oracle: `python3 benchmarks/verify_i64_array_bytes_output.py --algorithm a1z26_cipher`.
 
 ## Reviewed TheAlgorithms sources
 

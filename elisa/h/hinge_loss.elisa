@@ -1,0 +1,21 @@
+def hinge_loss_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 3 or length > 513: return -1.0e300
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256: return -1.0e300
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count: return -1.0e300
+
+    total: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        label: i64 = values[1 + index]
+        score_scaled: i64 = values[1 + count + index]
+        if (label != -1 and label != 1) or score_scaled < -1000000 or score_scaled > 1000000:
+            return -1.0e300
+        prediction: f64 = score_scaled.f64() / 1000000.0
+        loss: f64 = 1.0 - label.f64() * prediction
+        if loss > 0.0: total <- total + loss
+        index <- index + 1
+    total / count.f64()
+
+export fn hinge_loss(values: i64&, length: usize) -> f64 = hinge_loss_impl

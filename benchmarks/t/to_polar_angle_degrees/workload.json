@@ -1,0 +1,280 @@
+{
+  "schema_version": "1.0.0",
+  "id": "to-polar-angle-degrees-matlab-f64-pair-v1",
+  "algorithm": "to_polar_angle_degrees",
+  "function_symbol": "to_polar_angle_degrees",
+  "description": "Match the pinned MATLAB/Octave to_polar theta output in degrees.",
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": [
+      "x",
+      "y"
+    ],
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "origin": "invalid because the source computes 0/0 and returns NaN",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "atan(y/x), plus pi only when x<0, converted to degrees",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "quadrant_i",
+      "input_values": [
+        1.0,
+        1.0
+      ],
+      "expected_result": 45.0
+    },
+    {
+      "id": "quadrant_ii",
+      "input_values": [
+        -1.0,
+        1.0
+      ],
+      "expected_result": 135.0
+    },
+    {
+      "id": "quadrant_iii",
+      "input_values": [
+        -1.0,
+        -1.0
+      ],
+      "expected_result": 225.0
+    },
+    {
+      "id": "quadrant_iv",
+      "input_values": [
+        1.0,
+        -1.0
+      ],
+      "expected_result": -45.0
+    },
+    {
+      "id": "positive_x_axis",
+      "input_values": [
+        1.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative_x_axis",
+      "input_values": [
+        -1.0,
+        0.0
+      ],
+      "expected_result": 180.0
+    },
+    {
+      "id": "positive_y_axis",
+      "input_values": [
+        0.0,
+        1.0
+      ],
+      "expected_result": 90.0
+    },
+    {
+      "id": "negative_y_axis",
+      "input_values": [
+        0.0,
+        -1.0
+      ],
+      "expected_result": -90.0
+    },
+    {
+      "id": "negative_zero_x_positive_y",
+      "input_values": [
+        -0.0,
+        1.0
+      ],
+      "expected_result": -90.0
+    },
+    {
+      "id": "negative_zero_x_negative_y",
+      "input_values": [
+        -0.0,
+        -1.0
+      ],
+      "expected_result": 90.0
+    },
+    {
+      "id": "positive_x_negative_zero_y",
+      "input_values": [
+        1.0,
+        -0.0
+      ],
+      "expected_result": -0.0
+    },
+    {
+      "id": "negative_x_negative_zero_y",
+      "input_values": [
+        -1.0,
+        -0.0
+      ],
+      "expected_result": 180.0
+    },
+    {
+      "id": "three_four_quadrant_i",
+      "input_values": [
+        3.0,
+        4.0
+      ],
+      "expected_result": 53.13010235415598
+    },
+    {
+      "id": "three_four_quadrant_ii",
+      "input_values": [
+        -3.0,
+        4.0
+      ],
+      "expected_result": 126.86989764584402
+    },
+    {
+      "id": "three_four_quadrant_iii",
+      "input_values": [
+        -3.0,
+        -4.0
+      ],
+      "expected_result": 233.13010235415598
+    },
+    {
+      "id": "three_four_quadrant_iv",
+      "input_values": [
+        3.0,
+        -4.0
+      ],
+      "expected_result": -53.13010235415598
+    },
+    {
+      "id": "sixty_degree_positive_x",
+      "input_values": [
+        1.0,
+        1.7320508075688772
+      ],
+      "expected_result": 60.0
+    },
+    {
+      "id": "one_hundred_twenty_degrees",
+      "input_values": [
+        -1.0,
+        1.7320508075688772
+      ],
+      "expected_result": 120.0
+    },
+    {
+      "id": "two_hundred_forty_degrees",
+      "input_values": [
+        -1.0,
+        -1.7320508075688772
+      ],
+      "expected_result": 240.0
+    },
+    {
+      "id": "minus_sixty_degrees",
+      "input_values": [
+        1.0,
+        -1.7320508075688772
+      ],
+      "expected_result": -60.0
+    },
+    {
+      "id": "maximum_positive_corner",
+      "input_values": [
+        1000000.0,
+        1000000.0
+      ],
+      "expected_result": 45.0
+    },
+    {
+      "id": "maximum_negative_x_positive_y",
+      "input_values": [
+        -1000000.0,
+        1000000.0
+      ],
+      "expected_result": 135.0
+    },
+    {
+      "id": "maximum_negative_corner",
+      "input_values": [
+        -1000000.0,
+        -1000000.0
+      ],
+      "expected_result": 225.0
+    },
+    {
+      "id": "maximum_positive_x_negative_y",
+      "input_values": [
+        1000000.0,
+        -1000000.0
+      ],
+      "expected_result": -45.0
+    },
+    {
+      "id": "small_positive_angle",
+      "input_values": [
+        1000000.0,
+        1.0
+      ],
+      "expected_result": 5.729577951308232e-05
+    },
+    {
+      "id": "small_negative_x_angle",
+      "input_values": [
+        -1000000.0,
+        1.0
+      ],
+      "expected_result": 179.9999427042205
+    },
+    {
+      "id": "origin_undefined",
+      "input_values": [
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_above_bound",
+      "input_values": [
+        1000001.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "x_below_bound",
+      "input_values": [
+        -1000001.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "y_above_bound",
+      "input_values": [
+        1.0,
+        1000001.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "y_below_bound",
+      "input_values": [
+        1.0,
+        -1000001.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+extern floor(value: f64) -> f64
+
+const MIN_VALUE: f64 = 1e-6
+const MAX_VALUE: f64 = 1e6
+const FRACTION_SCALE: f64 = 8388608.0
+const FRACTION_MASK: u32 = 8388607
+
+# Decode the rounded positive binary32 fields arithmetically.
+def positive_f32_bits(value: f64) -> u32:
+    rounded: f32 = value.f32()
+    normalized: mutable f64 = rounded.f64()
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u32 = ((normalized - 1.0) * FRACTION_SCALE).u32()
+    ((exponent + 127).u32() << 23) | fraction
+
+def positive_f32_from_bits(bits: u32) -> f32:
+    exponent_bits: i32 = ((bits >> 23) & 255).i32()
+    fraction_bits: u32 = bits & FRACTION_MASK
+    value: mutable f64 = 1.0 + fraction_bits.f64() / FRACTION_SCALE
+    exponent: mutable i32 = exponent_bits - 127
+    while exponent > 0:
+        value <- value * 2.0
+        exponent <- exponent - 1
+    while exponent < 0:
+        value <- value / 2.0
+        exponent <- exponent + 1
+    value.f32()
+
+def newton_step(x2: f32, y: f32) -> f32:
+    product1: f32 = x2 * y
+    product2: f32 = product1 * y
+    correction: f32 = 1.5.f32() - product2
+    y * correction
+
+def sqrt_impl(value: f64) -> f64:
+    if value != value or value < MIN_VALUE or value > MAX_VALUE: return -1.0
+    number: f32 = value.f32()
+    x2: f32 = number * 0.5.f32()
+    bits: u32 = positive_f32_bits(number.f64())
+    seed_bits: u32 = 0x5f3759df - (bits >> 1)
+    inverse_root: f32 = positive_f32_from_bits(seed_bits)
+    inverse_root <- newton_step(x2, inverse_root)
+    inverse_root <- newton_step(x2, inverse_root)
+    root: f32 = 1.0.f32() / inverse_root
+    root.f64()
+
+export fn go_sqrt_f32(value: f64) -> f64 = sqrt_impl

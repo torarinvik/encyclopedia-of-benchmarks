@@ -1,0 +1,51 @@
+const MAX_PEOPLE: usize = 8
+const MAX_TASKS: usize = 12
+const MAX_INPUT: usize = 106
+
+def bitmask_assignment_count_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT or input[0] < 0 or input[0] > 8 or input[1] < 0 or input[1] > 12:
+        return -1
+    people: usize = input[0].usize()
+    tasks: usize = input[1].usize()
+    frequency: mutable i64[MAX_PEOPLE * (MAX_TASKS + 1)] = zeroed
+    position: mutable usize = 2
+    for person in 0..<people:
+        if position >= length:
+            return -1
+        count: i64 = input[position]
+        position <- position + 1
+        if count < 0 or count > MAX_TASKS.i64() or position + count.usize() > length:
+            return -1
+        for _ in 0..<count.usize():
+            task: i64 = input[position]
+            position <- position + 1
+            if task < 1 or task > tasks.i64():
+                return -1
+            slot: usize = task.usize() * MAX_PEOPLE + person
+            frequency[slot] <- frequency[slot] + 1
+    if position != length:
+        return -1
+    states: mutable usize = 1
+    for _ in 0..<people:
+        states <- states * 2
+    full: usize = states - 1
+    stride: usize = MAX_TASKS + 2
+    dp: mutable i64[(1 << MAX_PEOPLE) * (MAX_TASKS + 2)] = zeroed
+    for mask in 0..<states:
+        if mask == full:
+            dp[mask * stride + tasks + 1] <- 1
+    task: mutable i64 = tasks.i64()
+    while task >= 1:
+        for mask in 0..<states:
+            ways: mutable i64 = dp[mask * stride + task.usize() + 1]
+            bit: mutable usize = 1
+            for person in 0..<people:
+                if frequency[task.usize() * MAX_PEOPLE + person] > 0 and (mask & bit) == 0:
+                    next_mask: usize = mask | bit
+                    ways <- ways + frequency[task.usize() * MAX_PEOPLE + person] * dp[next_mask * stride + task.usize() + 1]
+                bit <- bit * 2
+            dp[mask * stride + task.usize()] <- ways
+        task <- task - 1
+    dp[1]
+
+export def bitmask_assignment_count(input: i64&, length: usize) -> i64 = bitmask_assignment_count_impl

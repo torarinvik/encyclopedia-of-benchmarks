@@ -1,0 +1,51 @@
+# Return the perimeter with the most integer right-triangle solutions.
+const MAX_SQRT: i64 = 1415
+
+def integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = MAX_SQRT
+    while high - low > 1:
+        middle: i64 = (low + high) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def problem39_impl(limit: i64) -> i64:
+    if limit < 12 or limit > 1000:
+        return -1
+    counts: mutable i64[1001] = zeroed
+    first_order: mutable i64[1001] = zeroed
+    next_order: mutable i64 = 1
+    base: mutable i64 = 1
+    while base <= limit:
+        perpendicular: mutable i64 = base
+        while perpendicular <= limit:
+            square_sum: i64 = base * base + perpendicular * perpendicular
+            hypotenuse: i64 = integer_sqrt(square_sum)
+            if hypotenuse * hypotenuse == square_sum:
+                perimeter: i64 = base + perpendicular + hypotenuse
+                if perimeter <= limit:
+                    index: usize = perimeter.usize()
+                    if counts[index] == 0:
+                        first_order[index] <- next_order
+                        next_order <- next_order + 1
+                    counts[index] <- counts[index] + 1
+            perpendicular <- perpendicular + 1
+        base <- base + 1
+    best_perimeter: mutable i64 = -1
+    best_count: mutable i64 = 0
+    best_order: mutable i64 = 9223372036854775807
+    perimeter: mutable i64 = 1
+    while perimeter <= limit:
+        index: usize = perimeter.usize()
+        if counts[index] > 0 and (counts[index] > best_count or
+                (counts[index] == best_count and first_order[index] < best_order)):
+            best_perimeter <- perimeter
+            best_count <- counts[index]
+            best_order <- first_order[index]
+        perimeter <- perimeter + 1
+    best_perimeter
+
+export fn problem39(limit: i64) -> i64 = problem39_impl

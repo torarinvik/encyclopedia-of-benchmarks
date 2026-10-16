@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-95-amicable-chain-v1",
+  "algorithm": "problem95",
+  "function_symbol": "problem95",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Inclusive maximum element allowed in an amicable chain",
+    "minimum": 1,
+    "maximum": 1000000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Smallest member among the longest cycles whose elements all stay within the inclusive limit; ties retain the smallest start encountered"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "limit_one",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "limit_two",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "statement_small_limit",
+      "input_value": 10,
+      "expected_result": 6
+    },
+    {
+      "id": "perfect_number_six",
+      "input_value": 6,
+      "expected_result": 6
+    },
+    {
+      "id": "perfect_number_twenty_eight",
+      "input_value": 28,
+      "expected_result": 6
+    },
+    {
+      "id": "amicable_pair_below_220",
+      "input_value": 220,
+      "expected_result": 6
+    },
+    {
+      "id": "amicable_pair_284",
+      "input_value": 284,
+      "expected_result": 220
+    },
+    {
+      "id": "example_chain_12496",
+      "input_value": 200000,
+      "expected_result": 12496
+    },
+    {
+      "id": "canonical_one_million",
+      "input_value": 1000000,
+      "expected_result": 14316
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_value": 1000001,
+      "expected_result": -1
+    }
+  ]
+}

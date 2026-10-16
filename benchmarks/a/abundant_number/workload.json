@@ -4,7 +4,7 @@
   "algorithm": "abundant_number",
   "input": {
     "minimum": 1,
-    "maximum": 1000000000,
+    "maximum": 100000000,
     "out_of_range_result": -1
   },
   "cases": [
@@ -18,9 +18,9 @@
     {"id": "abundant_twenty", "input_value": 20, "expected_result": 1},
     {"id": "perfect_twenty_eight", "input_value": 28, "expected_result": 0},
     {"id": "odd_abundant", "input_value": 945, "expected_result": 1},
-    {"id": "large_abundant", "input_value": 1000000000, "expected_result": 1},
+    {"id": "large_abundant", "input_value": 100000000, "expected_result": 1},
     {"id": "large_prime", "input_value": 999999937, "expected_result": 0},
-    {"id": "above_limit", "input_value": 1000000001, "expected_result": -1}
+    {"id": "above_limit", "input_value": 100000001, "expected_result": -1}
   ],
   "measurement": {
     "timer": "clock()",

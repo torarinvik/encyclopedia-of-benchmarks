@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-36-scalar-v1",
+  "algorithm": "problem36",
+  "function_symbol": "problem36",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "exclusive_limit_range": [0, 1000000],
+    "meaning": "exclusive upper bound for positive candidate integers",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of values below the limit palindromic in base 10 and base 2"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_limit_empty_range", "input_value": 0, "expected_result": 0},
+    {"id": "one_limit_empty_range", "input_value": 1, "expected_result": 0},
+    {"id": "two_limit_includes_one", "input_value": 2, "expected_result": 1},
+    {"id": "ten_limit_source_example", "input_value": 10, "expected_result": 25},
+    {"id": "one_hundred_source_example", "input_value": 100, "expected_result": 157},
+    {"id": "before_585", "input_value": 584, "expected_result": 470},
+    {"id": "includes_585", "input_value": 586, "expected_result": 1055},
+    {"id": "one_thousand_source_example", "input_value": 1000, "expected_result": 1772},
+    {"id": "one_hundred_thousand_source_example", "input_value": 100000, "expected_result": 286602},
+    {"id": "five_hundred_thousand_source_example", "input_value": 500000, "expected_result": 286602},
+    {"id": "canonical_one_million_limit", "input_value": 1000000, "expected_result": 872187},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "above_maximum_limit", "input_value": 1000001, "expected_result": -1}
+  ]
+}

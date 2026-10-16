@@ -7,12 +7,12 @@ pub fn reverse_words(input &i64, length usize, mut output &u8, output_capacity u
 		if input[0] < 0 || input[0] > 256 { return -1 }
 		n := int(input[0])
 		if length != usize(n + 1) { return -1 }
-		if output == nil || output_capacity < usize(n + 1) { return -2 }
 		for i in 0 .. n {
 			b := input[i + 1]
 			if !(b == 32 || (b >= 33 && b <= 126)) { return -1 }
 			if b == 32 && (i == 0 || i + 1 == n || input[i] == 32) { return -1 }
 		}
+		if output == nil || output_capacity < usize(n + 1) { return -2 }
 		mut written := 0
 		mut ending := n
 		for ending > 0 {

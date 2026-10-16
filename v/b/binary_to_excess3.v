@@ -14,7 +14,7 @@ fn is_binary_digit(value i64) bool {
 // Parse an ASCII base-2 integer, add three, and format with minimum width four.
 @[export: 'binary_to_excess3']
 pub fn binary_to_excess3(values &i64, length usize, output &u8, output_capacity usize) i64 {
-	if length == 0 || length > max_text_length { return -1 }
+	if unsafe { values == nil } || length == 0 || length > max_text_length { return -1 }
 	mut start := usize(0)
 	mut end := length
 	for start < end && is_ascii_space(unsafe { values[start] }) { start++ }

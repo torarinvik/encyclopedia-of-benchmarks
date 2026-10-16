@@ -1,0 +1,28 @@
+const MAX_N: usize = 8
+
+def count_from(n: usize, column: usize, rows: mutable bool&, down: mutable bool&, up: mutable bool&) -> i64:
+    if column == n:
+        return 1
+    count: mutable i64 = 0
+    for row in 0..<n:
+        d: usize = row + n - column - 1
+        u: usize = row + column
+        if not rows[row] and not down[d] and not up[u]:
+            rows[row] <- true
+            down[d] <- true
+            up[u] <- true
+            count <- count + count_from(n, column + 1, rows, down, up)
+            rows[row] <- false
+            down[d] <- false
+            up[u] <- false
+    count
+
+def n_queens_solution_count_impl(values: i64&, length: usize) -> i64:
+    if length != 1 or values[0] < 0 or values[0] > 8:
+        return -1
+    rows: mutable bool[MAX_N] = zeroed
+    down: mutable bool[2 * MAX_N] = zeroed
+    up: mutable bool[2 * MAX_N] = zeroed
+    count_from(values[0].usize(), 0, rows, down, up)
+
+export fn n_queens_solution_count(values: i64&, length: usize) -> i64 = n_queens_solution_count_impl

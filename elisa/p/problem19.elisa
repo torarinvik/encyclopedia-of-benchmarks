@@ -1,0 +1,30 @@
+def is_leap_year(year: i64) -> i64:
+    if year % 400 == 0 or (year % 4 == 0 and year % 100 != 0):
+        return 1
+    0
+
+def problem19_impl(ignored: i64) -> i64:
+    if ignored != 0:
+        return -1
+    weekday: mutable i64 = 2
+    count: mutable i64 = 0
+    year: mutable i64 = 1901
+    while year <= 2000:
+        month: mutable i64 = 1
+        while month <= 12:
+            if weekday == 0:
+                count <- count + 1
+            days: mutable i64 = 31
+            if month == 4 or month == 6 or month == 9 or month == 11:
+                days <- 30
+            if month == 2:
+                if is_leap_year(year) == 1:
+                    days <- 29
+                else:
+                    days <- 28
+            weekday <- (weekday + days) % 7
+            month <- month + 1
+        year <- year + 1
+    count
+
+export fn problem19(ignored: i64) -> i64 = problem19_impl

@@ -1,0 +1,56 @@
+# ChaCha20 block function over sixteen 32-bit words.
+const CHACHA_WORDS: usize = 16
+const CHACHA_BYTES: usize = 64
+const WORD_MASK: u64 = 4294967295
+
+def chacha_rotate_left(value: u64, count: u64) -> u64:
+    ((value << count) | (value >> (32 - count))) & WORD_MASK
+
+def chacha_quarter_round(state: mutable u64&, a: usize, b: usize, c: usize, d: usize) -> void:
+    state[a] <- (state[a] + state[b]) & WORD_MASK
+    state[d] <- chacha_rotate_left(state[d] ^ state[a], 16)
+    state[c] <- (state[c] + state[d]) & WORD_MASK
+    state[b] <- chacha_rotate_left(state[b] ^ state[c], 12)
+    state[a] <- (state[a] + state[b]) & WORD_MASK
+    state[d] <- chacha_rotate_left(state[d] ^ state[a], 8)
+    state[c] <- (state[c] + state[d]) & WORD_MASK
+    state[b] <- chacha_rotate_left(state[b] ^ state[c], 7)
+
+def chacha_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length != CHACHA_WORDS: return -1
+    initial: mutable u64[CHACHA_WORDS] = zeroed
+    index: mutable usize = 0
+    while index < CHACHA_WORDS:
+        if input[index] < 0 or input[index] > 4294967295: return -1
+        initial[index] <- input[index].u64()
+        index <- index + 1
+    if output == null or output_capacity < CHACHA_BYTES: return -2
+
+    state: mutable u64[CHACHA_WORDS] = zeroed
+    index <- 0
+    while index < CHACHA_WORDS:
+        state[index] <- initial[index]
+        index <- index + 1
+    round: mutable usize = 0
+    while round < 10:
+        chacha_quarter_round(&state[0], 0, 4, 8, 12)
+        chacha_quarter_round(&state[0], 1, 5, 9, 13)
+        chacha_quarter_round(&state[0], 2, 6, 10, 14)
+        chacha_quarter_round(&state[0], 3, 7, 11, 15)
+        chacha_quarter_round(&state[0], 0, 5, 10, 15)
+        chacha_quarter_round(&state[0], 1, 6, 11, 12)
+        chacha_quarter_round(&state[0], 2, 7, 8, 13)
+        chacha_quarter_round(&state[0], 3, 4, 9, 14)
+        round <- round + 1
+
+    index <- 0
+    while index < CHACHA_WORDS:
+        word: u64 = (state[index] + initial[index]) & WORD_MASK
+        output[index * 4] <- (word & 255).u8()
+        output[index * 4 + 1] <- ((word >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((word >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((word >> 24) & 255).u8()
+        index <- index + 1
+    CHACHA_BYTES.i64()
+
+export fn chacha(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = chacha_impl

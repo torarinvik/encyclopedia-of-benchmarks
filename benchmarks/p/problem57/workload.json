@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-57-scalar-v1",
+  "algorithm": "problem57",
+  "function_symbol": "problem57",
+  "input": {"kind": "signed_64_bit_integer", "maximum": 10000, "meaning": "number of initial sqrt(2) continued-fraction expansions", "nonpositive_result": 0, "invalid_result": -1},
+  "output": {"kind": "signed_64_bit_integer", "definition": "Count of expansions whose numerator has more decimal digits than its denominator"},
+  "measurement": {"comparison_model": "scalar_call", "sample_count": 3, "warmup_rounds": 0, "repetitions_per_sample": 1},
+  "cases": [
+    {"id": "zero_expansions", "input_value": 0, "expected_result": 0},
+    {"id": "negative_empty_range", "input_value": -1, "expected_result": 0},
+    {"id": "first_eight_expansions", "input_value": 8, "expected_result": 1},
+    {"id": "documented_fourteen_expansions", "input_value": 14, "expected_result": 2},
+    {"id": "documented_hundred_expansions", "input_value": 100, "expected_result": 15},
+    {"id": "default_source_limit", "input_value": 1000, "expected_result": 153},
+    {"id": "documented_long_limit", "input_value": 10000, "expected_result": 1508},
+    {"id": "above_bound", "input_value": 10001, "expected_result": -1}
+  ]
+}

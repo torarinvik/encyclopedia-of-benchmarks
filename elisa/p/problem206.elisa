@@ -1,0 +1,27 @@
+const START: i64 = 138902663
+const MINIMUM: i64 = 101010103
+
+def problem206_is_square_form(value_input: i64) -> bool:
+    value: mutable i64 = value_input
+    digit: mutable i64 = 9
+    while value > 0:
+        if value % 10 != digit:
+            return false
+        value <- value / 100
+        digit <- digit - 1
+    true
+
+def problem206_impl(unused: i64) -> i64:
+    if unused != 0:
+        return -1
+    candidate: mutable i64 = START
+    while candidate >= MINIMUM:
+        if problem206_is_square_form(candidate * candidate):
+            return candidate * 10
+        if candidate % 10 == 3:
+            candidate <- candidate - 6
+        else:
+            candidate <- candidate - 4
+    -1
+
+export fn problem206(unused: i64) -> i64 = problem206_impl

@@ -1,0 +1,37 @@
+const LINEAR_REGRESSION_COST_INVALID_RESULT: f64 = -1.0e300
+
+def linear_regression_cost_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 2 or length > 1106:
+        return LINEAR_REGRESSION_COST_INVALID_RESULT
+    observations_value: i64 = values[0]
+    features_value: i64 = values[1]
+    if observations_value < 1 or observations_value > 64 or features_value < 1 or features_value > 16:
+        return LINEAR_REGRESSION_COST_INVALID_RESULT
+    observations: usize = observations_value.usize()
+    features: usize = features_value.usize()
+    matrix_length: usize = observations * features
+    if length != 2 + matrix_length + features + observations:
+        return LINEAR_REGRESSION_COST_INVALID_RESULT
+    index: mutable usize = 2
+    while index < length:
+        if values[index] < -1000 or values[index] > 1000:
+            return LINEAR_REGRESSION_COST_INVALID_RESULT
+        index <- index + 1
+
+    weights_start: usize = 2 + matrix_length
+    targets_start: usize = weights_start + features
+    squared_error_sum: mutable f64 = 0.0
+    row: mutable usize = 0
+    while row < observations:
+        prediction: mutable f64 = 0.0
+        row_start: usize = 2 + row * features
+        column: mutable usize = 0
+        while column < features:
+            prediction <- prediction + values[row_start + column].f64() * values[weights_start + column].f64()
+            column <- column + 1
+        residual: f64 = prediction - values[targets_start + row].f64()
+        squared_error_sum <- squared_error_sum + residual * residual
+        row <- row + 1
+    squared_error_sum / (2.0 * observations.f64())
+
+export fn linear_regression_cost(values: i64&, length: usize) -> f64 = linear_regression_cost_impl

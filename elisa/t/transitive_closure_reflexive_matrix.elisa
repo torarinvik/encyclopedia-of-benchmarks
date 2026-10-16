@@ -1,0 +1,54 @@
+const MAX_VERTICES: usize = 32
+const MAX_EDGES: usize = MAX_VERTICES * (MAX_VERTICES - 1)
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGES
+const MAX_CELLS: usize = MAX_VERTICES * MAX_VERTICES
+
+def transitive_closure_reflexive_matrix_put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def transitive_closure_reflexive_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH or input[0] < 1 or input[0] > MAX_VERTICES.i64(): return -1
+    n: usize = input[0].usize()
+    if input[1] < 0 or input[1] > (n * (n - 1)).i64(): return -1
+    m: usize = input[1].usize()
+    if length != 2 + 2 * m: return -1
+
+    reach: mutable i64[MAX_CELLS] = zeroed
+    index: mutable usize = 0
+    while index < n: reach[index * n + index] <- 1; index <- index + 1
+    edge: mutable usize = 0
+    while edge < m:
+        from_value: i64 = input[2 + 2 * edge]
+        to_value: i64 = input[3 + 2 * edge]
+        if from_value < 0 or from_value >= n.i64() or to_value < 0 or to_value >= n.i64() or from_value == to_value: return -1
+        from: usize = from_value.usize()
+        to: usize = to_value.usize()
+        if reach[from * n + to] != 0: return -1
+        reach[from * n + to] <- 1
+        edge <- edge + 1
+
+    k: mutable usize = 0
+    while k < n:
+        i: mutable usize = 0
+        while i < n:
+            if reach[i * n + k] == 1:
+                j: mutable usize = 0
+                while j < n:
+                    if reach[k * n + j] == 1: reach[i * n + j] <- 1
+                    j <- j + 1
+            i <- i + 1
+        k <- k + 1
+    output_bytes: usize = n * n * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < n * n:
+        transitive_closure_reflexive_matrix_put_i64_le(output, index * 8, reach[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn transitive_closure_reflexive_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = transitive_closure_reflexive_matrix_impl

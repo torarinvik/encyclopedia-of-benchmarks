@@ -1,0 +1,31 @@
+const MAX_TEXT_LENGTH: usize = 64
+
+def validate_credit_card_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > MAX_TEXT_LENGTH + 1:
+        return -1
+    n: i64 = input[0]
+    if n < 0 or n > MAX_TEXT_LENGTH.i64() or length != n.usize() + 1:
+        return -1
+    for index in 0..<n.usize():
+        if input[index + 1] < 0 or input[index + 1] > 127:
+            return -1
+    if n < 13 or n > 16:
+        return 0
+    for index in 0..<n.usize():
+        if input[index + 1] < 48 or input[index + 1] > 57:
+            return 0
+    first: i64 = input[1] - 48
+    second: i64 = input[2] - 48
+    if not (first == 4 or first == 5 or first == 6 or (first == 3 and (second == 4 or second == 5 or second == 7))):
+        return 0
+    sum: mutable i64 = 0
+    for index in 0..<n.usize():
+        digit: mutable i64 = input[index + 1] - 48
+        if index % 2 == 0:
+            digit <- digit * 2
+            if digit > 9:
+                digit <- digit - 9
+        sum <- sum + digit
+    sum % 10 == 0 ? 1 : 0
+
+export fn validate_credit_card(input: i64&, length: usize) -> i64 = validate_credit_card_impl

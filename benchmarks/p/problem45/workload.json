@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-45-scalar-v1",
+  "algorithm": "problem45",
+  "function_symbol": "problem45",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "start_index_range": [
+      0,
+      27693
+    ],
+    "meaning": "inclusive first hexagonal index to check",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "first hexagonal number at or after the start index that is also pentagonal"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero_index_source_behavior",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "first_positive_hexagonal_index",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "start_two_reaches_known_match",
+      "input_value": 2,
+      "expected_result": 40755
+    },
+    {
+      "id": "known_match_index",
+      "input_value": 143,
+      "expected_result": 40755
+    },
+    {
+      "id": "canonical_default_start",
+      "input_value": 144,
+      "expected_result": 1533776805
+    },
+    {
+      "id": "documented_hexagonal_index",
+      "input_value": 165,
+      "expected_result": 1533776805
+    },
+    {
+      "id": "one_before_canonical_index",
+      "input_value": 27692,
+      "expected_result": 1533776805
+    },
+    {
+      "id": "canonical_matching_index",
+      "input_value": 27693,
+      "expected_result": 1533776805
+    },
+    {
+      "id": "negative_start",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "start_above_bounded_search",
+      "input_value": 27694,
+      "expected_result": -1
+    }
+  ]
+}

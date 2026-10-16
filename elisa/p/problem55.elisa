@@ -1,0 +1,55 @@
+const MAX_LIMIT: i64 = 10000
+const MAX_DIGITS: usize = 64
+
+def problem55_reverse_add(digits: mutable u8&, length: usize) -> usize:
+    reverse_length: mutable usize = length
+    while reverse_length > 0 and digits[length - reverse_length] == 0:
+        reverse_length <- reverse_length - 1
+    combined_length: usize = if length > reverse_length then length else reverse_length
+    next: mutable u8[MAX_DIGITS] = zeroed
+    carry: mutable i64 = 0
+    for position in 0..<combined_length:
+        left: i64 = if position < length then digits[position].i64() else 0
+        right: i64 = if position < reverse_length then digits[length - 1 - position].i64() else 0
+        sum: i64 = left + right + carry
+        next[position] <- (sum % 10).u8()
+        carry <- sum / 10
+    next_length: mutable usize = combined_length
+    if carry > 0:
+        next[next_length] <- carry.u8()
+        next_length <- next_length + 1
+    for index in 0..<next_length:
+        digits[index] <- next[index]
+    next_length
+
+def problem55_is_palindrome(digits: u8&, length: usize) -> bool:
+    for left in 0..<length / 2:
+        if digits[left] != digits[length - 1 - left]:
+            return false
+    true
+
+def problem55_impl(limit: i64) -> i64:
+    if limit < 0 or limit > MAX_LIMIT:
+        return -1
+    count: mutable i64 = 0
+    start: mutable i64 = 1
+    while start < limit:
+        digits: mutable u8[MAX_DIGITS] = zeroed
+        length: mutable usize = 0
+        value: mutable i64 = start
+        while value > 0:
+            digits[length] <- (value % 10).u8()
+            length <- length + 1
+            value <- value / 10
+        became_palindrome: mutable bool = false
+        for iteration in 0..<50:
+            length <- problem55_reverse_add(&digits[0], length)
+            if problem55_is_palindrome(digits, length):
+                became_palindrome <- true
+                break
+        if not became_palindrome:
+            count <- count + 1
+        start <- start + 1
+    count
+
+export fn problem55(limit: i64) -> i64 = problem55_impl

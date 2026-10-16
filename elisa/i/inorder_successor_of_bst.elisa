@@ -1,0 +1,82 @@
+const MAX_NODES: usize = 64
+const MAX_INPUT_LENGTH: usize = 67
+
+def inorder_successor_of_bst_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    count_value: i64 = input[0]
+    target: i64 = input[1]
+    if count_value < 0 or count_value > 64 or target < 1 or target > 2147483647:
+        return -1
+    count: usize = count_value.usize()
+    if length != count + 2:
+        return -1
+
+    keys: mutable i64[MAX_NODES] = zeroed
+    left: mutable i64[MAX_NODES] = zeroed
+    right: mutable i64[MAX_NODES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        key: i64 = input[index + 2]
+        if key < 1 or key > 2147483647:
+            return -1
+        for previous in 0..<index:
+            if keys[previous] == key:
+                return -1
+        keys[index] <- key
+        left[index] <- -1
+        right[index] <- -1
+        index <- index + 1
+
+    root: mutable i64 = -1
+    index <- 0
+    while index < count:
+        if root < 0:
+            root <- index.i64()
+        else:
+            current: mutable i64 = root
+            while true:
+                current_index: usize = current.usize()
+                if keys[index] <= keys[current_index]:
+                    if left[current_index] < 0:
+                        left[current_index] <- index.i64()
+                        break
+                    current <- left[current_index]
+                else:
+                    if right[current_index] < 0:
+                        right[current_index] <- index.i64()
+                        break
+                    current <- right[current_index]
+        index <- index + 1
+
+    current: mutable i64 = root
+    while current >= 0 and keys[current.usize()] != target:
+        current_index: usize = current.usize()
+        if target > keys[current_index]:
+            current <- right[current_index]
+        else:
+            current <- left[current_index]
+    if current < 0:
+        return 0
+
+    current_index: usize = current.usize()
+    if right[current_index] >= 0:
+        successor: mutable i64 = right[current_index]
+        while left[successor.usize()] >= 0:
+            successor <- left[successor.usize()]
+        return keys[successor.usize()]
+
+    successor: mutable i64 = -1
+    ancestor: mutable i64 = root
+    while ancestor >= 0 and ancestor != current:
+        ancestor_index: usize = ancestor.usize()
+        if keys[current_index] < keys[ancestor_index]:
+            successor <- ancestor
+            ancestor <- left[ancestor_index]
+        else:
+            ancestor <- right[ancestor_index]
+    if successor < 0:
+        return 0
+    keys[successor.usize()]
+
+export fn inorder_successor_of_bst(input: i64&, length: usize) -> i64 = inorder_successor_of_bst_impl

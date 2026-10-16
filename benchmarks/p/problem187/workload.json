@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-187-semiprime-count-v1",
+  "algorithm": "problem187",
+  "function_symbol": "problem187",
+  "input": {
+    "kind": "exclusive_upper_bound",
+    "minimum": 0,
+    "maximum": 100000000,
+    "definition": "Count source-enumerated prime pairs whose product is strictly below this bound.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count unordered prime pairs p<=q from primes strictly below max_number//2 with p*q<max_number.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero-bound", "input_value": 0, "expected_result": 0},
+    {"id": "one-bound", "input_value": 1, "expected_result": 0},
+    {"id": "empty-source-prime-pool-five", "input_value": 5, "expected_result": 0},
+    {"id": "first-prime-pair-bound", "input_value": 6, "expected_result": 1},
+    {"id": "source-cutoff-edge-seven", "input_value": 7, "expected_result": 1},
+    {"id": "eight-bound", "input_value": 8, "expected_result": 2},
+    {"id": "ten-bound", "input_value": 10, "expected_result": 3},
+    {"id": "source-example-thirty", "input_value": 30, "expected_result": 10},
+    {"id": "odd-bound-thirty-one", "input_value": 31, "expected_result": 10},
+    {"id": "one-hundred", "input_value": 100, "expected_result": 34},
+    {"id": "one-thousand", "input_value": 1000, "expected_result": 299},
+    {"id": "canonical-one-hundred-million", "input_value": 100000000, "expected_result": 17427258},
+    {"id": "negative-bound", "input_value": -1, "expected_result": -1},
+    {"id": "above-supported-bound", "input_value": 100000001, "expected_result": -1},
+    {"id": "signed-64-bit-maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

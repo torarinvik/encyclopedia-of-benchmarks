@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "crc16-i64-array-scalar-v1",
+  "algorithm": "crc16",
+  "function_symbol": "crc16",
+  "input": {
+    "kind": "array_of_unsigned_bytes",
+    "range": [0, 255],
+    "length_range": [0, 100001],
+    "invalid_result": -1,
+    "input_mutation": "none"
+  },
+  "output": "CRC16 checksum as an unsigned 16-bit value represented in signed 64-bit integer storage",
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "empty", "input_values": [], "expected_result": 65535},
+    {"id": "single_zero_byte", "input_values": [0], "expected_result": 57840},
+    {"id": "single_ascii_a", "input_values": [97], "expected_result": 40311},
+    {"id": "ascii_123456789", "input_values": [49, 50, 51, 52, 53, 54, 55, 56, 57], "expected_result": 10673},
+    {"id": "java_example_hello_world", "input_values": [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33], "expected_result": 34858},
+    {"id": "three_zero_bytes", "input_values": [0, 0, 0], "expected_result": 52380},
+    {"id": "invalid_negative_byte", "input_values": [-1], "expected_result": -1},
+    {"id": "invalid_byte_above_range", "input_values": [256], "expected_result": -1}
+  ]
+}

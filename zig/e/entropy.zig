@@ -1,0 +1,10 @@
+const MAX_TEXT: usize=512;const ALPHABET_SIZE:usize=128;
+fn roundEven(value:f64)i32{const lower=@floor(value);const fraction=value-lower;if(fraction<0.5)return @intFromFloat(lower);if(fraction>0.5)return @intFromFloat(lower+1.0);const integer:i32=@intFromFloat(lower);return if(@mod(integer,2)==0)integer else integer+1;}
+fn emitLine(out:[*]u8,pos_input:usize,value_input:i32)usize{var pos=pos_input;var value=value_input;if(value<0){out[pos]='-';pos+=1;value=-value;}if(value>=10){out[pos]=@intCast(48+@divTrunc(value,10));pos+=1;}out[pos]=@intCast(48+@mod(value,10));pos+=1;out[pos]='.';pos+=1;out[pos]='0';pos+=1;out[pos]='\n';pos+=1;return pos;}
+/// Emit the source's rounded single/bigram entropy values and their difference.
+export fn entropy(input:[*c]const i64,length:usize,output:[*c]u8,capacity:usize)i64{
+ if(input==null or length<2 or length>MAX_TEXT+1)return -1;const values=input[0..length];const n=values[0];if(n<1 or n>MAX_TEXT or length!=@as(usize,@intCast(n))+1)return -1;
+ var singles:[ALPHABET_SIZE]u32=@splat(0);var pairs:[ALPHABET_SIZE*ALPHABET_SIZE]u32=@splat(0);for(0..@intCast(n))|i|{const ch=values[i+1];if(ch<0 or ch>=128)return -1;singles[@intCast(ch)]+=1;}pairs[32*ALPHABET_SIZE+@as(usize,@intCast(values[1]))]+=1;for(0..@as(usize,@intCast(n))-1)|i|{pairs[@as(usize,@intCast(values[i+1]))*ALPHABET_SIZE+@as(usize,@intCast(values[i+2]))]+=1;}
+ const alpha=[_]usize{32,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122};var s1:f64=0;var s2:f64=0;for(alpha)|a|{const count=singles[a];if(count>0){const p=@as(f64,@floatFromInt(count))/@as(f64,@floatFromInt(n));s1+=p*@log2(p);}}for(alpha)|a|{for(alpha)|b|{const count=pairs[a*ALPHABET_SIZE+b];if(count>0){const p=@as(f64,@floatFromInt(count))/@as(f64,@floatFromInt(n));s2+=p*@log2(p);}}}
+ var temp:[32]u8=undefined;var written=emitLine(&temp,0,roundEven(-s1));written=emitLine(&temp,written,roundEven(-s2));written=emitLine(&temp,written,roundEven((-s2)-(-s1)));if(output==null or capacity<written)return -2;const out=output[0..capacity];@memcpy(out[0..written],temp[0..written]);return @intCast(written);
+}

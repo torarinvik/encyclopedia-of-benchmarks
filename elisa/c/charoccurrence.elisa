@@ -1,0 +1,58 @@
+# Count an ASCII codepoint array and emit its canonical frequency map.
+def charoccurrence_append_decimal(buffer: mutable u8&, offset: usize, value: usize) -> usize:
+    digits: mutable u8[3] = zeroed
+    count: mutable usize = 0
+    remaining: mutable usize = value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    if count == 0:
+        digits[0] <- 48
+        count <- 1
+    cursor: mutable usize = count
+    position: mutable usize = offset
+    while cursor > 0:
+        cursor <- cursor - 1
+        buffer[position] <- digits[cursor]
+        position <- position + 1
+    position
+
+def charoccurrence_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > 128:
+        return -1
+    if length > 0 and values.is_null():
+        return -1
+    counts: mutable i64[128] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        if values[index] < 0 or values[index] > 127:
+            return -1
+        codepoint: usize = values[index].usize()
+        counts[codepoint] <- counts[codepoint] + 1
+        index <- index + 1
+
+    encoded: mutable u8[1024] = zeroed
+    used: mutable usize = 0
+    codepoint: mutable usize = 0
+    while codepoint < 128:
+        if counts[codepoint].usize() > 0:
+            if used > 0:
+                encoded[used] <- 44
+                used <- used + 1
+            used <- charoccurrence_append_decimal(&encoded[0], used, codepoint)
+            encoded[used] <- 61
+            used <- used + 1
+            used <- charoccurrence_append_decimal(&encoded[0], used, counts[codepoint].usize())
+        codepoint <- codepoint + 1
+    if used > capacity:
+        return -2
+    if used > 0 and output.is_null():
+        return -2
+    index <- 0
+    while index < used:
+        output[index] <- encoded[index]
+        index <- index + 1
+    used.i64()
+
+export fn charoccurrence(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = charoccurrence_impl

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "median-search-distinct-int32-v1",
+  "algorithm": "median_search",
+  "function_symbol": "median_search",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, k, value_0, ..., value_(n-1)]",
+    "element_count_range": [1, 25],
+    "rank_range": "0 <= k < n",
+    "value_range": [0, 2147483647],
+    "distinct_values": true,
+    "result": "value at zero-based sorted rank k",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"single_value","input_values":[1,0,7],"expected_result":7},
+    {"id":"single_zero","input_values":[1,0,0],"expected_result":0},
+    {"id":"source_example_a_rank_three","input_values":[10,3,25,21,98,100,76,22,43,60,89,87],"expected_result":43},
+    {"id":"source_example_b_rank_four","input_values":[6,4,1,2,3,4,5,6],"expected_result":5},
+    {"id":"source_example_c_rank_three","input_values":[9,3,1,2,3,4,5,1000,8,9,99],"expected_result":4},
+    {"id":"minimum_rank","input_values":[5,0,8,2,6,1,4],"expected_result":1},
+    {"id":"maximum_rank","input_values":[5,4,8,2,6,1,4],"expected_result":8},
+    {"id":"odd_middle_rank","input_values":[5,2,11,4,9,2,7],"expected_result":7},
+    {"id":"even_lower_middle","input_values":[4,1,9,2,7,4],"expected_result":4},
+    {"id":"even_upper_middle","input_values":[4,2,9,2,7,4],"expected_result":7},
+    {"id":"five_element_group_boundary","input_values":[5,2,50,10,40,20,30],"expected_result":30},
+    {"id":"six_element_group_boundary","input_values":[6,4,60,10,50,20,40,30],"expected_result":50},
+    {"id":"two_full_groups","input_values":[10,5,10,1,9,2,8,3,7,4,6,5],"expected_result":6},
+    {"id":"maximum_count_reverse_order","input_values":[25,12,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1],"expected_result":13},
+    {"id":"maximum_int32_value","input_values":[3,2,2147483647,0,2147483646],"expected_result":2147483647},
+    {"id":"empty_input","input_values":[],"expected_result":-1},
+    {"id":"missing_values","input_values":[2,0,7],"expected_result":-1},
+    {"id":"extra_value_at_parse_limit","input_values":[1,0,7,8],"expected_result":-1},
+    {"id":"zero_count","input_values":[0,0],"expected_result":-1},
+    {"id":"count_above_bound","input_values":[26,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26],"expected_result":-1},
+    {"id":"negative_rank","input_values":[2,-1,1,2],"expected_result":-1},
+    {"id":"rank_at_count","input_values":[2,2,1,2],"expected_result":-1},
+    {"id":"duplicate_values","input_values":[3,1,8,2,8],"expected_result":-1},
+    {"id":"negative_value","input_values":[2,0,-1,2],"expected_result":-1},
+    {"id":"value_above_int32","input_values":[2,0,1,2147483648],"expected_result":-1}
+  ]
+}

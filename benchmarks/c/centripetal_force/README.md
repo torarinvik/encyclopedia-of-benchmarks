@@ -2,13 +2,21 @@
 
 Ports the formula from the pinned [TheAlgorithms/Python implementation](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/centripetal_force.py): `F = (mass * velocity**2) / radius`.
 
-The `i64_array_float64` ABI takes exactly three signed integer values in the order `[mass, velocity, radius]`. Mass is in 0..1,000, velocity in -1,000..1,000, and radius in 1..1,000. The output is binary64. The Python source accepts floating-point parameters, but this benchmark intentionally covers only an integral subset; its fractional-mass doctest cases (15.5 and 12.25) are not represented. Mass zero is valid, velocity may be negative, and the source rejects negative mass or nonpositive radius. Invalid length or values return -1e300.
+The `i64_array_float64` ABI takes exactly three signed integer values in the order `[mass, velocity, radius]`. Mass is in 0..1,000, velocity in -1,000..1,000, and radius in 1..1,000. The output is binary64 with absolute and relative tolerances of 1e-12. The Python source accepts floating-point parameters, but this benchmark intentionally covers only an integral subset; its fractional-mass doctest cases (15.5 and 12.25) are not represented. Mass zero is valid, velocity may be negative, and the source rejects negative mass or nonpositive radius. Invalid length or values return -1e300.
 
 The bounds keep the largest pre-division product at 1,000,000,000, exactly representable in binary64 and safely within signed 64-bit range. The implementations preserve the source multiplication and division order. Runtime and auxiliary space are O(1).
 
 ## Workload and build
 
 [`workload.json`](workload.json) covers negative velocity, zero mass and velocity, a fractional result, invalid packed input, and out-of-domain values.
+
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_centripetal_force.py
+```
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm centripetal_force --language rust

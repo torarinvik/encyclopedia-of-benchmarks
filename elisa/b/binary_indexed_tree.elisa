@@ -1,0 +1,70 @@
+const MAX_ITEMS: usize = 256
+const MAX_OPERATIONS: usize = 512
+const MAX_INPUT_VALUES: usize = 2 + 3 * MAX_OPERATIONS
+const VALUE_LIMIT: i64 = 1000000
+const QUERY_OFFSET: i64 = 131072000001
+const FINAL_OFFSET: i64 = 512000001
+
+def binary_indexed_tree_lowbit(index: usize) -> usize:
+    index & (~index + 1)
+
+def binary_indexed_tree_prefix(tree: i64&, initial: usize) -> i64:
+    count: mutable usize = initial
+    sum: mutable i64 = 0
+    while count > 0:
+        sum <- sum + tree[count]
+        count <- count - binary_indexed_tree_lowbit(count)
+    sum
+
+def binary_indexed_tree_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = values[0]
+    op_value: i64 = values[1]
+    if n_value < 2 or n_value > 256 or (n_value & (n_value - 1)) != 0 or op_value < 0 or op_value > 512:
+        return -1
+    n: usize = n_value.usize()
+    operations: usize = op_value.usize()
+    if length != 2 + 3 * operations:
+        return -1
+    op: mutable usize = 0
+    while op < operations:
+        at: usize = 2 + 3 * op
+        code: i64 = values[at]
+        first: i64 = values[at + 1]
+        second: i64 = values[at + 2]
+        if code == 0:
+            if first < 0 or first >= n_value or second < -VALUE_LIMIT or second > VALUE_LIMIT:
+                return -1
+        elif code == 1:
+            if first < 0 or second < first or second >= n_value:
+                return -1
+        else:
+            return -1
+        op <- op + 1
+    data: mutable i64[MAX_ITEMS] = zeroed
+    tree: mutable i64[MAX_ITEMS + 2] = zeroed
+    checksum: mutable i64 = 0
+    op <- 0
+    while op < operations:
+        at: usize = 2 + 3 * op
+        code: i64 = values[at]
+        first: usize = values[at + 1].usize()
+        second: i64 = values[at + 2]
+        if code == 0:
+            data[first] <- data[first] + second
+            start: mutable usize = first + 1
+            while start <= n + 1:
+                tree[start] <- tree[start] + second
+                start <- start + binary_indexed_tree_lowbit(start)
+        else:
+            result: i64 = binary_indexed_tree_prefix(tree, second.usize() + 1) - binary_indexed_tree_prefix(tree, first)
+            checksum <- checksum + (op.i64() + 1) * (result + QUERY_OFFSET)
+        op <- op + 1
+    index: mutable usize = 0
+    while index < n:
+        checksum <- checksum + (operations.i64() + index.i64() + 1) * (data[index] + FINAL_OFFSET)
+        index <- index + 1
+    checksum
+
+export fn binary_indexed_tree(values: i64&, length: usize) -> i64 = binary_indexed_tree_impl

@@ -1,0 +1,22 @@
+def in_static_equilibrium_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 5:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > 100 or length != 1 + 4 * n_value.usize():
+        return -1
+    n: usize = n_value.usize()
+    total_moment: mutable i64 = 0
+    for i in 0..<n:
+        fx: i64 = values[1 + i]
+        fy: i64 = values[1 + n + i]
+        lx: i64 = values[1 + 2 * n + i]
+        ly: i64 = values[1 + 3 * n + i]
+        if fx < -1000 or fx > 1000 or fy < -1000 or fy > 1000 or lx < -1000 or lx > 1000 or ly < -1000 or ly > 1000:
+            return -1
+        total_moment <- total_moment + lx * fy - ly * fx
+    if total_moment == 0:
+        1
+    else:
+        0
+
+export fn in_static_equilibrium(values: i64&, length: usize) i64 = in_static_equilibrium_impl

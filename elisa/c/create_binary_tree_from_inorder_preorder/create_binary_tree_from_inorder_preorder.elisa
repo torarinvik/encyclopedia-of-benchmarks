@@ -3,7 +3,7 @@ const MAX_OUTPUT: usize = 6 * MAX_NODES + 1
 
 def create_binary_tree_from_inorder_preorder_impl(values: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if length < 1 or values[0] < 0 or values[0] > MAX_NODES.i64():
+    if values == null or length < 1 or values[0] < 0 or values[0] > MAX_NODES.i64():
         return -1
     count: usize = values[0].usize()
     if length != 1 + 2 * count:
@@ -67,7 +67,7 @@ def create_binary_tree_from_inorder_preorder_impl(values: i64&, length: usize,
             task_size[task_count] <- left_size
             task_count <- task_count + 1
     required: usize = 6 * count + 1
-    if output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     encoded: mutable u8[MAX_OUTPUT] = zeroed
     pending: mutable i64[2 * MAX_NODES + 1] = zeroed

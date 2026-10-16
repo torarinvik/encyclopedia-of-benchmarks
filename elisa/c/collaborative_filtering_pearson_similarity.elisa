@@ -1,0 +1,97 @@
+extern fabs(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const MAX_PROFILE_ITEMS: usize = 32
+const MAX_INPUT_LENGTH: usize = 2 + 4 * MAX_PROFILE_ITEMS
+const MAX_RATING_MILLI: i64 = 1000000000
+const INVALID_RESULT: f64 = -2.0
+
+def collaborative_filtering_pearson_similarity_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    first_count_value: i64 = values[0]
+    if first_count_value < 0 or first_count_value > MAX_PROFILE_ITEMS.i64():
+        return INVALID_RESULT
+    first_count: usize = first_count_value.usize()
+    second_count_position: usize = 1 + 2 * first_count
+    if second_count_position >= length:
+        return INVALID_RESULT
+    second_count_value: i64 = values[second_count_position]
+    if second_count_value < 0 or second_count_value > MAX_PROFILE_ITEMS.i64():
+        return INVALID_RESULT
+    second_count: usize = second_count_value.usize()
+    if length != second_count_position + 1 + 2 * second_count:
+        return INVALID_RESULT
+
+    first_index: mutable usize = 0
+    while first_index < first_count:
+        item_id: i64 = values[1 + 2 * first_index]
+        rating_milli: i64 = values[2 + 2 * first_index]
+        if item_id < 0 or item_id > 127 or rating_milli < -MAX_RATING_MILLI or rating_milli > MAX_RATING_MILLI:
+            return INVALID_RESULT
+        earlier: mutable usize = 0
+        while earlier < first_index:
+            if values[1 + 2 * earlier] == item_id:
+                return INVALID_RESULT
+            earlier <- earlier + 1
+        first_index <- first_index + 1
+
+    second_start: usize = second_count_position + 1
+    second_index: mutable usize = 0
+    while second_index < second_count:
+        item_id: i64 = values[second_start + 2 * second_index]
+        rating_milli: i64 = values[second_start + 2 * second_index + 1]
+        if item_id < 0 or item_id > 127 or rating_milli < -MAX_RATING_MILLI or rating_milli > MAX_RATING_MILLI:
+            return INVALID_RESULT
+        earlier: mutable usize = 0
+        while earlier < second_index:
+            if values[second_start + 2 * earlier] == item_id:
+                return INVALID_RESULT
+            earlier <- earlier + 1
+        second_index <- second_index + 1
+
+    common_first: mutable f64[MAX_PROFILE_ITEMS] = zeroed
+    common_second: mutable f64[MAX_PROFILE_ITEMS] = zeroed
+    common_count: mutable usize = 0
+    first_index <- 0
+    while first_index < first_count:
+        item_id: i64 = values[1 + 2 * first_index]
+        second_index <- 0
+        while second_index < second_count:
+            if values[second_start + 2 * second_index] == item_id:
+                common_first[common_count] <- values[2 + 2 * first_index].f64() / 1000.0
+                common_second[common_count] <- values[second_start + 2 * second_index + 1].f64() / 1000.0
+                common_count <- common_count + 1
+                break
+            second_index <- second_index + 1
+        first_index <- first_index + 1
+    if common_count == 0:
+        return 0.0
+
+    average_first: mutable f64 = 0.0
+    average_second: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < common_count:
+        average_first <- average_first + common_first[index]
+        average_second <- average_second + common_second[index]
+        index <- index + 1
+    average_first <- average_first / common_count.f64()
+    average_second <- average_second / common_count.f64()
+
+    numerator: mutable f64 = 0.0
+    sum_square_first: mutable f64 = 0.0
+    sum_square_second: mutable f64 = 0.0
+    index <- 0
+    while index < common_count:
+        difference_first: f64 = common_first[index] - average_first
+        difference_second: f64 = common_second[index] - average_second
+        numerator <- numerator + difference_first * difference_second
+        sum_square_first <- sum_square_first + difference_first * difference_first
+        sum_square_second <- sum_square_second + difference_second * difference_second
+        index <- index + 1
+    denominator: f64 = sqrt(sum_square_first * sum_square_second)
+    if fabs(denominator) < 1.0e-10:
+        return 0.0
+    numerator / denominator
+
+export fn collaborative_filtering_pearson_similarity(values: i64&, length: usize) -> f64 = collaborative_filtering_pearson_similarity_impl

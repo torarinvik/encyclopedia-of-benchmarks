@@ -16,6 +16,8 @@ The JavaScript `LetterCombination.js` and Java `LetterCombinationsOfPhoneNumber.
 
 ## Workload and verification
 
+The C LeetCode [`17.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/leetcode/src/17.c) emits keypad combinations in the same order on digits 2 through 9.
+
 `workload.json` defines valid and invalid boundary cases, including the maximum six-digit output. The verifier checks every digit sequence of lengths zero through four, deterministic longer sequences, invalid digits, and an overlength input against a Python Cartesian-product oracle.
 
 Build using the `i64_array_bytes_output` ABI family. `benchmarks/run_i64_array_bytes_output.py` records workload measurements, and `benchmarks/verify_i64_array_bytes_output.py` checks the nine language ports and their records.

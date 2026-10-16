@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "id": "subset-sum-nonnegative-exists-i64-array-scalar-v1",
+  "algorithm": "subset_sum_nonnegative_exists",
+  "function_symbol": "subset_sum_nonnegative_exists",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[target, item0, item1, ...]",
+    "minimum_length": 1,
+    "maximum_length": 65,
+    "target_range": [
+      0,
+      4096
+    ],
+    "item_range": [
+      0,
+      4096
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "boolean_as_i64",
+    "true": 1,
+    "false": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_items_target_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_items_positive_target",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "target_zero_with_zero_items",
+      "input_values": [
+        0,
+        0,
+        7,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "single_item_exact_match",
+      "input_values": [
+        5,
+        5
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "single_item_too_large",
+      "input_values": [
+        3,
+        5
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "java_source_example",
+      "input_values": [
+        9,
+        3,
+        34,
+        4,
+        12,
+        5,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "no_matching_subset",
+      "input_values": [
+        30,
+        3,
+        34,
+        4,
+        12,
+        5,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "duplicates_are_distinct_items",
+      "input_values": [
+        8,
+        4,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "duplicate_values_still_insufficient",
+      "input_values": [
+        9,
+        4,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "zeroes_duplicates_and_match",
+      "input_values": [
+        12,
+        0,
+        5,
+        5,
+        2,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "all_items_reach_target",
+      "input_values": [
+        10,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "target_above_total",
+      "input_values": [
+        11,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_target_exact_match",
+      "input_values": [
+        4096,
+        4096
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_item_below_target",
+      "input_values": [
+        4095,
+        4096
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_item_count",
+      "input_values": [
+        64,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 65,
+      "expected_result": 1
+    },
+    {
+      "id": "missing_target",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_target",
+      "input_values": [
+        -1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_item",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "target_above_limit",
+      "input_values": [
+        4097,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "item_above_limit",
+      "input_values": [
+        0,
+        4097
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "too_many_items",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 66,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+const MAX_POSITION: i64 = 678910
+const LOG10_2: f64 = 0.30102999566398114
+const LOWER_LIMIT: f64 = 0.08990511143939792
+const UPPER_LIMIT: f64 = 0.09342168516223506
+const ROUND_SCALE: f64 = 1000000000000000.0
+
+def problem686_difference(exponent: i64) -> f64:
+    logarithm: f64 = LOG10_2 * exponent.f64()
+    integer_part: i64 = logarithm.i64()
+    difference: f64 = logarithm - integer_part.f64()
+    scaled: f64 = difference * ROUND_SCALE
+    rounded: mutable i64 = scaled.i64()
+    remainder: f64 = scaled - rounded.f64()
+    if remainder > 0.5 or (remainder == 0.5 and rounded % 2 != 0):
+        rounded <- rounded + 1
+    rounded.f64() / ROUND_SCALE
+
+def problem686_impl(number: i64) -> i64:
+    if number < 1 or number > MAX_POSITION:
+        return -1
+    power_iterator: mutable i64 = 90
+    position: mutable i64 = 0
+    previous_power: mutable i64 = 0
+    while position < number:
+        difference: f64 = problem686_difference(power_iterator)
+        if difference >= UPPER_LIMIT:
+            power_iterator <- power_iterator + 93
+        else if difference < LOWER_LIMIT:
+            power_iterator <- power_iterator + 196
+        else:
+            previous_power <- power_iterator
+            power_iterator <- power_iterator + 196
+            position <- position + 1
+    previous_power
+
+export fn problem686(number: i64) -> i64 = problem686_impl

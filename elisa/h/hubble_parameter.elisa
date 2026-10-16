@@ -1,0 +1,25 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_DENSITY_PPM: i64 = 1000000
+
+def hubble_parameter_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 5:
+        return -1.0e300
+    h0_x10: i64 = values[0]
+    radiation_ppm: i64 = values[1]
+    matter_ppm: i64 = values[2]
+    dark_energy_ppm: i64 = values[3]
+    redshift_milli: i64 = values[4]
+    if h0_x10 < -2000 or h0_x10 > 2000 or radiation_ppm < 0 or radiation_ppm > MAX_DENSITY_PPM or matter_ppm < 0 or matter_ppm > MAX_DENSITY_PPM or dark_energy_ppm < 0 or dark_energy_ppm > MAX_DENSITY_PPM or radiation_ppm + matter_ppm + dark_energy_ppm > MAX_DENSITY_PPM or redshift_milli < 0 or redshift_milli > 10000:
+        return -1.0e300
+    hubble_constant: f64 = h0_x10.f64() / 10.0
+    radiation_density: f64 = radiation_ppm.f64() / 1000000.0
+    matter_density: f64 = matter_ppm.f64() / 1000000.0
+    dark_energy: f64 = dark_energy_ppm.f64() / 1000000.0
+    redshift: f64 = redshift_milli.f64() / 1000.0
+    curvature: f64 = 1.0 - (matter_density + radiation_density + dark_energy)
+    z1: f64 = redshift + 1.0
+    e2: f64 = radiation_density * pow(z1, 4.0) + matter_density * pow(z1, 3.0) + curvature * pow(z1, 2.0) + dark_energy
+    hubble_constant * pow(e2, 1.0 / 2.0)
+
+export fn hubble_parameter(values: i64&, length: usize) f64 = hubble_parameter_impl

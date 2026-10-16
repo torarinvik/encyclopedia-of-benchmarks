@@ -1,0 +1,27 @@
+# Port of TheAlgorithms/Java IterativeTernarySearch interval updates.
+def iterative_ternary_search_impl(packed: i64&, length: usize) -> i64:
+    if length < 2:
+        return -1
+    target: i64 = packed[0]
+    array: i64& = packed[1]
+    array_length: usize = length - 1
+    if array_length == 1:
+        if array[0] == target:
+            return 0
+        return -1
+    left: mutable usize = 0
+    right: mutable usize = array_length - 1
+    while right > left:
+        if array[left] == target:
+            return left.i64()
+        if array[right] == target:
+            return right.i64()
+        left_third: usize = left + (right - left) / 3 + 1
+        right_third: usize = right - (right - left) / 3 - 1
+        if array[left_third] <= target:
+            left <- left_third
+        else:
+            right <- right_third
+    -1
+
+export fn iterative_ternary_search(packed: i64&, length: usize) -> i64 = iterative_ternary_search_impl

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-111-primes-with-runs-i64-scalar-v1",
+  "algorithm": "problem111",
+  "function_symbol": "problem111",
+  "input": {
+    "kind": "source_width_selector",
+    "minimum": 1000,
+    "maximum": 10000000000,
+    "definition": "The pinned source uses len(str(n))-1 as the candidate digit width; n also determines the prime-sieve bound.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sum of source-selected primes with the maximum repeated-digit runs.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_short_width_sieve_edge",
+      "input_value": 1000,
+      "expected_result": 31283
+    },
+    {
+      "id": "source_example_four_digit_width",
+      "input_value": 10000,
+      "expected_result": 273700
+    },
+    {
+      "id": "canonical_ten_digit_width",
+      "input_value": 10000000000,
+      "expected_result": 612407567715
+    },
+    {
+      "id": "below_supported_source_width",
+      "input_value": 999,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_source_width",
+      "input_value": 10000000001,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-119-digit-power-sum-v1",
+  "algorithm": "problem119",
+  "function_symbol": "problem119",
+  "input": {
+    "kind": "one_based_sequence_index",
+    "minimum": 1,
+    "maximum": 30,
+    "out_of_range_result": -1,
+    "candidate_bases": [
+      2,
+      99
+    ],
+    "candidate_exponents": [
+      2,
+      99
+    ],
+    "candidate_value_domain": "signed_64_bit_integer"
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The requested one-based value from the sorted multiset of numbers equal to an integer power of their digit sum, generated with bases and exponents from 2 through 99 exclusive."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "first",
+      "input_value": 1,
+      "expected_result": 81
+    },
+    {
+      "id": "a2_source_example",
+      "input_value": 2,
+      "expected_result": 512
+    },
+    {
+      "id": "a5_source_example",
+      "input_value": 5,
+      "expected_result": 5832
+    },
+    {
+      "id": "a10_source_example",
+      "input_value": 10,
+      "expected_result": 614656
+    },
+    {
+      "id": "canonical_a30",
+      "input_value": 30,
+      "expected_result": 248155780267521
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported",
+      "input_value": 31,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

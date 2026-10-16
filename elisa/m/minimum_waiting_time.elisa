@@ -1,0 +1,29 @@
+# Schedule shortest queries first and sum the waiting time for every query.
+def minimum_waiting_time_impl(values: i64&, length: usize) -> i64:
+    if length > 64 or (length > 0 and values == null):
+        return -9223372036854775807 - 1
+    durations: mutable i64[64] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = values[index]
+        if value < 0 or value > 1000:
+            return -9223372036854775807 - 1
+        durations[index] <- value
+        index <- index + 1
+    index <- 1
+    while index < length:
+        key: i64 = durations[index]
+        cursor: mutable usize = index
+        while cursor > 0 and durations[cursor - 1] > key:
+            durations[cursor] <- durations[cursor - 1]
+            cursor <- cursor - 1
+        durations[cursor] <- key
+        index <- index + 1
+    total: mutable i64 = 0
+    index <- 0
+    while index < length:
+        total <- total + durations[index] * (length - index - 1).i64()
+        index <- index + 1
+    total
+
+export fn minimum_waiting_time(values: i64&, length: usize) -> i64 = minimum_waiting_time_impl

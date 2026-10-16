@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-104-pandigital-fibonacci-v1",
+  "algorithm": "problem104",
+  "function_symbol": "problem104",
+  "input": {
+    "kind": "fixed_computation_placeholder",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "Zero selects the pinned ascending Fibonacci search for the first index with both pandigital ends.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Least Fibonacci index with 1-to-9 pandigital first and last nine digits.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "pinned-source-search",
+      "input_value": 0,
+      "expected_result": 329468
+    },
+    {
+      "id": "positive-nonzero-placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative-nonzero-placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

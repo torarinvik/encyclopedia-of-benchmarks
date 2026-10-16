@@ -33,6 +33,8 @@ python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_arra
 
 ## Pinned source references
 
+- [Go `avl.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/structure/tree/avl.go) supplies unique-key insertion, lookup, traversal, and deletion.
+- [Java `AVLSimple.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/AVLSimple.java) supplies the four AVL insertion rotations and maps on unique-insertion traces.
 - C: [`avl_tree.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/data_structures/binary_trees/avl_tree.c)
 - C#: [`AVLTree.cs`](https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/AVLTree/AVLTree.cs)
 - Java: [`AVLTree.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/AVLTree.java)

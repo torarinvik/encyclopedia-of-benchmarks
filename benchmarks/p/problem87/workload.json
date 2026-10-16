@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-87-prime-power-sums-v1",
+  "algorithm": "problem87",
+  "function_symbol": "problem87",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Exclusive upper bound for sums of one prime square, one prime cube, and one prime fourth power",
+    "minimum": 24,
+    "maximum": 50000000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Count of distinct sums strictly below the limit"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "minimum_limit",
+      "input_value": 24,
+      "expected_result": 0
+    },
+    {
+      "id": "no_possible_sum",
+      "input_value": 28,
+      "expected_result": 0
+    },
+    {
+      "id": "first_sum",
+      "input_value": 29,
+      "expected_result": 1
+    },
+    {
+      "id": "statement_example",
+      "input_value": 50,
+      "expected_result": 4
+    },
+    {
+      "id": "small_bound",
+      "input_value": 100,
+      "expected_result": 10
+    },
+    {
+      "id": "thousand",
+      "input_value": 1000,
+      "expected_result": 98
+    },
+    {
+      "id": "million",
+      "input_value": 1000000,
+      "expected_result": 33616
+    },
+    {
+      "id": "just_below_canonical",
+      "input_value": 49999999,
+      "expected_result": 1097343
+    },
+    {
+      "id": "canonical_fifty_million",
+      "input_value": 50000000,
+      "expected_result": 1097343
+    },
+    {
+      "id": "below_source_domain_invalid",
+      "input_value": 23,
+      "expected_result": -1
+    },
+    {
+      "id": "above_source_bound_invalid",
+      "input_value": 50000001,
+      "expected_result": -1
+    }
+  ]
+}

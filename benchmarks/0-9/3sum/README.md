@@ -18,3 +18,9 @@ The 257-element benchmark bound keeps the conservative output capacity bound, C(
 The catalog candidate is TheAlgorithms/Ruby data_structures/arrays/3sum.rb, pinned at commit bda11bdfd83b7958e1ca98247e5e43100ca88865. Its implementation sorts a copy, skips duplicate first values, and uses two pointers to find distinct triplets. The ports preserve those semantics, with a portable heap sort for the private copy and an explicit little-endian result encoding.
 
 workload.json covers empty and short arrays, duplicate values, signed boundaries, invalid inputs, and the 257-element bound. The verifier compares all nine ports against a frequency-table oracle that enumerates value pairs independently of the sorted two-pointer implementation.
+
+Run the verifier for all nine languages with:
+
+```sh
+python3 benchmarks/verify_3sum.py
+```

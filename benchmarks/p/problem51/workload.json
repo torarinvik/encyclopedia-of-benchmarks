@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-51-default-search-v1",
+  "algorithm": "problem51",
+  "function_symbol": "problem51",
+  "input": {
+    "kind": "ignored_zero",
+    "minimum": 0,
+    "maximum": 0,
+    "definition": "The pinned solution is benchmarked with its default family length of eight; the scalar ABI uses zero as an ignored placeholder.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Smallest prime in the first source-filtered eight-prime digit-replacement family.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_default_eight_prime_family",
+      "input_value": 0,
+      "expected_result": 121313
+    },
+    {
+      "id": "positive_nonzero_placeholder",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_nonzero_placeholder",
+      "input_value": -1,
+      "expected_result": -1
+    }
+  ]
+}

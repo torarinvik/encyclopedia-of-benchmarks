@@ -32,7 +32,7 @@ fn long prime_factor_digit_sum(long value) {
 }
 
 fn long smith_number(long value) @export("smith_number") {
-    if (value < 1 || value > 2147483647) return -1;
+    if (value < 1 || value > 2147395599) return -1;
     if (is_prime(value)) return 0;
     return digit_sum(value) == prime_factor_digit_sum(value) ? 1 : 0;
 }

@@ -1,0 +1,31 @@
+# Count source-compatible coin-type combinations for amount minus one.
+def coinchange_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 10:
+        return -1
+    amount_value: i64 = values[0]
+    coin_count_value: i64 = values[1]
+    if amount_value < 1 or amount_value > 30 or coin_count_value < 0 or coin_count_value > 8:
+        return -1
+    amount: usize = amount_value.usize()
+    coin_count: usize = coin_count_value.usize()
+    if length != coin_count + 2:
+        return -1
+    coin_index: mutable usize = 0
+    while coin_index < coin_count:
+        if values[coin_index + 2] < 1 or values[coin_index + 2] > 30:
+            return -1
+        coin_index <- coin_index + 1
+
+    combinations: mutable i64[30] = zeroed
+    combinations[0] <- 1
+    coin_index <- 0
+    while coin_index < coin_count:
+        coin: usize = values[coin_index + 2].usize()
+        subtotal: mutable usize = coin
+        while subtotal < amount:
+            combinations[subtotal] <- combinations[subtotal] + combinations[subtotal - coin]
+            subtotal <- subtotal + 1
+        coin_index <- coin_index + 1
+    combinations[amount - 1]
+
+export fn coinchange(values: i64&, length: usize) -> i64 = coinchange_impl

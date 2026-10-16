@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "id": "java-gauss-legendre-pi-float64-unary-v1",
+  "algorithm": "gauss_legendre",
+  "function_symbol": "gauss_legendre",
+  "description": "Compute the pinned Java Gauss-Legendre approximation of pi for a bounded iteration count.",
+  "input": {
+    "kind": "finite_integral_binary64_iteration_count",
+    "minimum": 0,
+    "maximum": 8,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64_pi_approximation",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/others/GaussLegendre.java"
+  },
+  "cases": [
+    {"id": "zero_iterations", "input_values": [0.0], "expected_result": 2.914213562373095},
+    {"id": "source_example_one", "input_values": [1.0], "expected_result": 3.1405792505221686},
+    {"id": "source_example_two", "input_values": [2.0], "expected_result": 3.141592646213543},
+    {"id": "source_example_three", "input_values": [3.0], "expected_result": 3.141592653589794},
+    {"id": "four_iterations", "input_values": [4.0], "expected_result": 3.141592653589793},
+    {"id": "maximum_iterations", "input_values": [8.0], "expected_result": 3.141592653589793},
+    {"id": "negative_invalid", "input_values": [-1.0], "expected_result": -1e300},
+    {"id": "non_integral_invalid", "input_values": [1.5], "expected_result": -1e300},
+    {"id": "above_bound_invalid", "input_values": [9.0], "expected_result": -1e300}
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-39-scalar-v1",
+  "algorithm": "problem39",
+  "function_symbol": "problem39",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [
+      12,
+      1000
+    ],
+    "meaning": "inclusive upper bound for the perimeter of integer right triangles",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "perimeter with the largest number of integer right-triangle solutions; ties follow the first-insertion order of the pinned source"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "minimum_supported_perimeter",
+      "input_value": 12,
+      "expected_result": 12
+    },
+    {
+      "id": "documented_15_limit",
+      "input_value": 15,
+      "expected_result": 12
+    },
+    {
+      "id": "tie_at_24_preserves_first_inserted",
+      "input_value": 24,
+      "expected_result": 12
+    },
+    {
+      "id": "documented_40_limit",
+      "input_value": 40,
+      "expected_result": 12
+    },
+    {
+      "id": "documented_50_limit",
+      "input_value": 50,
+      "expected_result": 12
+    },
+    {
+      "id": "documented_100_limit_with_maximum_tie",
+      "input_value": 100,
+      "expected_result": 90
+    },
+    {
+      "id": "documented_200_limit_with_maximum_tie",
+      "input_value": 200,
+      "expected_result": 180
+    },
+    {
+      "id": "canonical_1000_limit",
+      "input_value": 1000,
+      "expected_result": 840
+    },
+    {
+      "id": "no_solutions_source_error_boundary",
+      "input_value": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "limit_above_problem_bound",
+      "input_value": 1001,
+      "expected_result": -1
+    }
+  ]
+}

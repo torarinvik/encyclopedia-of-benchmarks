@@ -1,0 +1,61 @@
+def write_triplet(result: i64[4], output: mutable u8&, output_capacity: usize) -> void:
+    for position in 0..<24 |written: mutable usize = 0, output|:
+        value: i64 = result[position / 8 + 1]
+        bits: u64 = value.u64()
+        byte: usize = position % 8
+        output[written] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+        written <- written + 1
+
+def triplet_sum_impl(values: i64&, length: usize, output: mutable u8&,
+                     output_capacity: usize) -> i64:
+    MAX_ITEMS: usize = 10
+    if length < 1 or length > MAX_ITEMS + 1:
+        return -1
+    target: i64 = values[0]
+    if target < -3000000 or target > 3000000:
+        return -1
+    item_count: usize = length - 1
+    valid: bool =
+        while index < item_count |index: mutable usize = 0, valid: mutable bool = true| -> valid:
+            value: i64 = values[index + 1]
+            if value < -1000000 or value > 1000000:
+                break false
+            index <- index + 1
+            valid
+    if not valid:
+        return -1
+    if output_capacity < 24:
+        return -2
+
+    search_space: usize = item_count * item_count * item_count
+    result: i64[4] =
+        while rank < search_space |rank: mutable usize = 0, result: mutable i64[4] = zeroed| -> result:
+            first: usize = rank / (item_count * item_count)
+            second: usize = (rank / item_count) % item_count
+            third: usize = rank % item_count
+            if first != second and first != third and second != third and
+                values[first + 1] + values[second + 1] + values[third + 1] == target:
+                result[0] <- 1
+                result[1] <- values[first + 1]
+                result[2] <- values[second + 1]
+                result[3] <- values[third + 1]
+                if result[1] > result[2]:
+                    temporary: i64 = result[1]
+                    result[1] <- result[2]
+                    result[2] <- temporary
+                if result[2] > result[3]:
+                    temporary: i64 = result[2]
+                    result[2] <- result[3]
+                    result[3] <- temporary
+                if result[1] > result[2]:
+                    temporary: i64 = result[1]
+                    result[1] <- result[2]
+                    result[2] <- temporary
+                break result
+            rank <- rank + 1
+            result
+    write_triplet(result, output, output_capacity)
+    3
+
+export fn triplet_sum(values: i64&, length: usize, output: mutable u8&,
+                      output_capacity: usize) -> i64 = triplet_sum_impl

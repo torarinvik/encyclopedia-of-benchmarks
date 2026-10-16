@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "temperature-rust-eight-scales-binary64-v1",
+  "algorithm": "temperature",
+  "function_symbol": "temperature",
+  "input": {
+    "kind": "finite_binary64_temperature_conversion",
+    "value_range": [-1000000.0, 1000000.0],
+    "unit_codes": {
+      "0": "kelvin",
+      "1": "celsius",
+      "2": "fahrenheit",
+      "3": "rankine",
+      "4": "delisle",
+      "5": "newton",
+      "6": "reaumur",
+      "7": "romer"
+    },
+    "conversion_path": "convert source to kelvin, then kelvin to destination",
+    "invalid_result": -1e300,
+    "input_scaled_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id":"celsius-zero-to-kelvin","input_values":[0.0,1.0,0.0],"expected_result":273.15},
+    {"id":"celsius-zero-to-fahrenheit","input_values":[0.0,1.0,2.0],"expected_result":32.0},
+    {"id":"celsius-zero-to-rankine","input_values":[0.0,1.0,3.0],"expected_result":491.67},
+    {"id":"celsius-zero-to-delisle","input_values":[0.0,1.0,4.0],"expected_result":150.0},
+    {"id":"celsius-zero-to-newton","input_values":[0.0,1.0,5.0],"expected_result":0.0},
+    {"id":"celsius-zero-to-reaumur","input_values":[0.0,1.0,6.0],"expected_result":0.0},
+    {"id":"celsius-zero-to-romer","input_values":[0.0,1.0,7.0],"expected_result":7.5},
+    {"id":"fahrenheit-freezing-to-celsius","input_values":[32.0,2.0,1.0],"expected_result":0.0},
+    {"id":"rankine-freezing-to-celsius","input_values":[491.67,3.0,1.0],"expected_result":0.0},
+    {"id":"kelvin-zero-to-celsius","input_values":[0.0,0.0,1.0],"expected_result":-273.15},
+    {"id":"kelvin-zero-to-fahrenheit","input_values":[0.0,0.0,2.0],"expected_result":-459.67},
+    {"id":"delisle-zero-to-celsius","input_values":[0.0,4.0,1.0],"expected_result":100.0},
+    {"id":"newton-boiling-to-celsius","input_values":[33.0,5.0,1.0],"expected_result":100.0},
+    {"id":"reaumur-boiling-to-celsius","input_values":[80.0,6.0,1.0],"expected_result":100.0},
+    {"id":"romer-boiling-to-celsius","input_values":[60.0,7.0,1.0],"expected_result":100.0},
+    {"id":"celsius-forty-below-zero-to-fahrenheit","input_values":[-40.0,1.0,2.0],"expected_result":-40.0},
+    {"id":"valid-negative-one-result","input_values":[272.15,0.0,1.0],"expected_result":-1.0},
+    {"id":"below-absolute-zero-algebraic-input","input_values":[-273.15,0.0,1.0],"expected_result":-546.3},
+    {"id":"same-unit-kelvin","input_values":[42.0,0.0,0.0],"expected_result":42.0},
+    {"id":"upper-value-bound","input_values":[1000000.0,0.0,2.0],"expected_result":1799540.33},
+    {"id":"lower-value-bound","input_values":[-1000000.0,0.0,0.0],"expected_result":-1000000.0},
+    {"id":"fractional-source-code-invalid","input_values":[1.0,1.5,0.0],"expected_result":-1e300},
+    {"id":"unknown-target-code-invalid","input_values":[1.0,0.0,8.0],"expected_result":-1e300},
+    {"id":"value-above-bound-invalid","input_values":[1000000.5,0.0,0.0],"expected_result":-1e300},
+    {"id":"value-below-bound-invalid","input_values":[-1000000.5,0.0,0.0],"expected_result":-1e300}
+  ]
+}

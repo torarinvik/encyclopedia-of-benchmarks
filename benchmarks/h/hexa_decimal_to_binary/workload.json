@@ -1,0 +1,663 @@
+{
+  "schema_version": 1,
+  "id": "java-hexa-decimal-to-binary-i64-array-bytes-output-v1",
+  "algorithm": "hexa_decimal_to_binary",
+  "function_symbol": "hexa_decimal_to_binary",
+  "description": "Convert bounded signed ASCII hexadecimal strings to binary text.",
+  "input": {
+    "kind": "signed_i64_array_ascii_character_codes",
+    "encoding": "one ASCII character code per string character",
+    "valid_ascii_ranges": [
+      [
+        48,
+        57
+      ],
+      [
+        65,
+        70
+      ],
+      [
+        97,
+        102
+      ]
+    ],
+    "minimum_hex_digits": 1,
+    "maximum_hex_digits": 64,
+    "maximum_length": 65,
+    "parseable_malformed_length": 66,
+    "accepted_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "leading_sign": "optional ASCII plus or minus",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII binary byte string; positive values have at least eight bits and negatives use 32-bit two's complement",
+    "zero_output": "00000000",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "maximum_bytes": 32
+  },
+  "workspace": {
+    "bytes": 32,
+    "meaning": "maximum output capacity"
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/conversions/HexaDecimalToBinary.java"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        48
+      ],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303030"
+    },
+    {
+      "id": "zero_with_leading_zeroes",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 12,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303030"
+    },
+    {
+      "id": "negative_zero",
+      "input_values": [
+        45,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303030"
+    },
+    {
+      "id": "one",
+      "input_values": [
+        49
+      ],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303031"
+    },
+    {
+      "id": "explicit_plus_one",
+      "input_values": [
+        43,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303031"
+    },
+    {
+      "id": "negative_one_twos_complement",
+      "input_values": [
+        45,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": 32,
+      "expected_output_hex": "3131313131313131313131313131313131313131313131313131313131313131"
+    },
+    {
+      "id": "negative_hex_digit",
+      "input_values": [
+        45,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": 32,
+      "expected_output_hex": "3131313131313131313131313131313131313131313131313131313130313130"
+    },
+    {
+      "id": "minimum_signed_int",
+      "input_values": [
+        45,
+        56,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 9,
+      "expected_result": 32,
+      "expected_output_hex": "3130303030303030303030303030303030303030303030303030303030303030"
+    },
+    {
+      "id": "single_upper_f",
+      "input_values": [
+        70
+      ],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "3030303031313131"
+    },
+    {
+      "id": "single_lower_a",
+      "input_values": [
+        97
+      ],
+      "input_length": 1,
+      "expected_result": 8,
+      "expected_output_hex": "3030303031303130"
+    },
+    {
+      "id": "source_example_A1",
+      "input_values": [
+        65,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "3130313030303031"
+    },
+    {
+      "id": "source_example_1AC",
+      "input_values": [
+        49,
+        65,
+        67
+      ],
+      "input_length": 3,
+      "expected_result": 9,
+      "expected_output_hex": "313130313031313030"
+    },
+    {
+      "id": "leading_zeroes_to_byte_boundary",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        55,
+        70
+      ],
+      "input_length": 8,
+      "expected_result": 8,
+      "expected_output_hex": "3031313131313131"
+    },
+    {
+      "id": "byte_below_boundary",
+      "input_values": [
+        55,
+        70
+      ],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "3031313131313131"
+    },
+    {
+      "id": "byte_boundary",
+      "input_values": [
+        56,
+        48
+      ],
+      "input_length": 2,
+      "expected_result": 8,
+      "expected_output_hex": "3130303030303030"
+    },
+    {
+      "id": "first_nine_bit_value",
+      "input_values": [
+        49,
+        48,
+        48
+      ],
+      "input_length": 3,
+      "expected_result": 9,
+      "expected_output_hex": "313030303030303030"
+    },
+    {
+      "id": "mixed_case_1234",
+      "input_values": [
+        49,
+        50,
+        51,
+        52
+      ],
+      "input_length": 4,
+      "expected_result": 13,
+      "expected_output_hex": "31303031303030313130313030"
+    },
+    {
+      "id": "lowercase_max_positive_int",
+      "input_values": [
+        55,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102
+      ],
+      "input_length": 8,
+      "expected_result": 31,
+      "expected_output_hex": "31313131313131313131313131313131313131313131313131313131313131"
+    },
+    {
+      "id": "maximum_positive_int",
+      "input_values": [
+        55,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70
+      ],
+      "input_length": 8,
+      "expected_result": 31,
+      "expected_output_hex": "31313131313131313131313131313131313131313131313131313131313131"
+    },
+    {
+      "id": "maximum_length_leading_zeroes",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        49
+      ],
+      "input_length": 64,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303031"
+    },
+    {
+      "id": "maximum_length_signed_zeroes",
+      "input_values": [
+        45,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 65,
+      "expected_result": 8,
+      "expected_output_hex": "3030303030303030"
+    },
+    {
+      "id": "positive_int_overflow",
+      "input_values": [
+        56,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_int_underflow",
+      "input_values": [
+        45,
+        56,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        49
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all_ones_positive_overflow",
+      "input_values": [
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "all_ones_negative_underflow",
+      "input_values": [
+        45,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_digit",
+      "input_values": [
+        71
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_suffix",
+      "input_values": [
+        49,
+        90
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "hex_prefix_not_accepted",
+      "input_values": [
+        48,
+        120,
+        49,
+        48
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sign_without_digits",
+      "input_values": [
+        43
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "double_sign",
+      "input_values": [
+        45,
+        45,
+        49
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlength_input",
+      "input_values": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 66,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity_for_zero",
+      "input_values": [
+        48
+      ],
+      "input_length": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    },
+    {
+      "id": "insufficient_capacity_for_nine_bits",
+      "input_values": [
+        49,
+        48,
+        48
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 8
+    },
+    {
+      "id": "insufficient_capacity_for_negative",
+      "input_values": [
+        45,
+        49
+      ],
+      "input_length": 2,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 31
+    }
+  ]
+}

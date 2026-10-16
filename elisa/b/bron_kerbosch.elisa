@@ -1,0 +1,75 @@
+def bron_kerbosch_population_count(value: u64) -> usize:
+    bits: mutable u64 = value
+    count: mutable usize = 0
+    while bits != 0:
+        if (bits & u64(1)) != 0:
+            count <- count + 1
+        bits <- bits >> 1
+    count
+
+def bron_kerbosch_search(adjacency: u64&, vertex_count: usize,
+                         clique: u64, possible: u64, excluded: u64) -> u64:
+    if possible == 0 and excluded == 0:
+        return u64(1) << clique
+    pivot: mutable i64 = -1
+    greatest_degree: mutable usize = 0
+    pivot_choices: u64 = possible | excluded
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        if (pivot_choices & (u64(1) << vertex)) != 0:
+            degree: usize = bron_kerbosch_population_count(adjacency[vertex])
+            if pivot < 0 or degree > greatest_degree:
+                pivot <- vertex.i64()
+                greatest_degree <- degree
+        vertex <- vertex + 1
+
+    candidates: mutable u64 = possible
+    if pivot >= 0:
+        candidates <- candidates & ~adjacency[pivot.usize()]
+    result: mutable u64 = 0
+    remaining_possible: mutable u64 = possible
+    remaining_excluded: mutable u64 = excluded
+    vertex <- 0
+    while vertex < vertex_count:
+        bit: u64 = u64(1) << vertex
+        if (candidates & bit) != 0:
+            result <- result | bron_kerbosch_search(
+                adjacency, vertex_count, clique | bit,
+                remaining_possible & adjacency[vertex], remaining_excluded & adjacency[vertex]
+            )
+            remaining_possible <- remaining_possible & ~bit
+            remaining_excluded <- remaining_excluded | bit
+        vertex <- vertex + 1
+    result
+
+def bron_kerbosch_impl(input: i64&, length: usize) -> i64:
+    if length < 1 or length > 7:
+        return -1
+    if input[0] < 0 or input[0] > 5:
+        return -1
+    vertex_count: usize = input[0].usize()
+    if length != vertex_count + 1:
+        return -1
+
+    vertex_mask: u64 = (u64(1) << vertex_count) - 1
+    adjacency: mutable u64[5] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        row: i64 = input[vertex + 1]
+        if row < 0 or (row.u64() & ~vertex_mask) != 0:
+            return -1
+        adjacency[vertex] <- row.u64() & ~(u64(1) << vertex)
+        vertex <- vertex + 1
+
+    left: mutable usize = 0
+    while left < vertex_count:
+        right: mutable usize = left + 1
+        while right < vertex_count:
+            if ((adjacency[left] >> right) & u64(1)) != ((adjacency[right] >> left) & u64(1)):
+                return -1
+            right <- right + 1
+        left <- left + 1
+    result: u64 = bron_kerbosch_search(&adjacency[0], vertex_count, 0, vertex_mask, 0)
+    result.i64()
+
+export fn bron_kerbosch(input: i64&, length: usize) -> i64 = bron_kerbosch_impl

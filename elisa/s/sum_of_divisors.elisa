@@ -1,0 +1,22 @@
+# Return the sum of all positive divisors of n by prime factorization.
+def sum_of_divisors_impl(n: i64) -> i64:
+    if n < 1 or n > 1000000:
+        return -1
+    remaining: mutable i64 = n
+    sigma: mutable i64 = 1
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            power: mutable i64 = 1
+            geometric_sum: mutable i64 = 1
+            while remaining % factor == 0:
+                remaining <- remaining / factor
+                power <- power * factor
+                geometric_sum <- geometric_sum + power
+            sigma <- sigma * geometric_sum
+        factor <- factor + 1
+    if remaining > 1:
+        sigma <- sigma * (remaining + 1)
+    sigma
+
+export fn sum_of_divisors(n: i64) -> i64 = sum_of_divisors_impl

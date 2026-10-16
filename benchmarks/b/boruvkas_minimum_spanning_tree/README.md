@@ -19,6 +19,7 @@ The pinned C++ source builds a symmetric adjacency matrix, starts with one compo
 
 ## Pinned sources
 
+- Python [`boruvka.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/boruvka.py) selects each component's cheapest outgoing edge and unions components; it maps on the shared connected simple-graph subset.
 - [C++ `boruvkas_minimum_spanning_tree.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/greedy_algorithms/boruvkas_minimum_spanning_tree.cpp)
 - [Duplicate C++ source in C-Plus-Plus-1](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/greedy_algorithms/boruvkas_minimum_spanning_tree.cpp)
 

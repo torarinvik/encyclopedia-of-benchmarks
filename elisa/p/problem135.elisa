@@ -1,0 +1,30 @@
+# Count values through limit with exactly ten valid arithmetic-progression solutions.
+const MAX_LIMIT: i64 = 1000000
+
+def problem135_impl(limit: i64) -> i64:
+    if limit > MAX_LIMIT:
+        return -1
+    if limit < 0:
+        return 0
+    frequency: mutable u8[1000001] = zeroed
+    first_term: mutable i64 = 1
+    while first_term <= limit:
+        n: mutable i64 = first_term
+        while n <= limit:
+            common_difference: mutable i64 = first_term + n / first_term
+            if common_difference % 4 == 0:
+                common_difference <- common_difference / 4
+                if first_term > common_difference and first_term < 4 * common_difference:
+                    if frequency[n.usize()] < 11.u8():
+                        frequency[n.usize()] <- frequency[n.usize()] + 1.u8()
+            n <- n + first_term
+        first_term <- first_term + 1
+    count: mutable i64 = 0
+    n: mutable i64 = 1
+    while n <= limit:
+        if frequency[n.usize()] == 10.u8():
+            count <- count + 1
+        n <- n + 1
+    count
+
+export fn problem135(limit: i64) -> i64 = problem135_impl

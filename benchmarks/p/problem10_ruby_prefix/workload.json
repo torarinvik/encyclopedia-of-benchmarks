@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-10-ruby-prefix-scalar-v1",
+  "algorithm": "problem10_ruby_prefix",
+  "function_symbol": "problem10_ruby_prefix",
+  "input": {
+    "kind": "strict_cumulative_prime_prefix_bound",
+    "minimum": 0,
+    "maximum": 2000000,
+    "definition": "Bound for the Ruby source scan; return the last cumulative total starting from 1 and adding ascending primes while the total remains strictly below the bound.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Last accepted cumulative total from the source-ordered prime scan, seeded with 1.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "zero_bound_source_seed",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "one_bound_source_seed",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "exclusive_candidate_bound_two",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "first_prime_sum_equals_bound",
+      "input_value": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "first_accepted_prime_sum",
+      "input_value": 4,
+      "expected_result": 3
+    },
+    {
+      "id": "exact_sum_boundary_six",
+      "input_value": 6,
+      "expected_result": 3
+    },
+    {
+      "id": "source_example_below_ten",
+      "input_value": 10,
+      "expected_result": 6
+    },
+    {
+      "id": "exact_sum_boundary_eleven",
+      "input_value": 11,
+      "expected_result": 6
+    },
+    {
+      "id": "first_sum_after_eleven",
+      "input_value": 12,
+      "expected_result": 11
+    },
+    {
+      "id": "exact_sum_boundary_eighteen",
+      "input_value": 18,
+      "expected_result": 11
+    },
+    {
+      "id": "first_sum_after_eighteen",
+      "input_value": 19,
+      "expected_result": 18
+    },
+    {
+      "id": "source_example_bound_one_hundred",
+      "input_value": 100,
+      "expected_result": 78
+    },
+    {
+      "id": "canonical_default_bound",
+      "input_value": 2000000,
+      "expected_result": 1999237
+    },
+    {
+      "id": "negative_bound_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_benchmark_bound_invalid",
+      "input_value": 2000001,
+      "expected_result": -1
+    }
+  ]
+}

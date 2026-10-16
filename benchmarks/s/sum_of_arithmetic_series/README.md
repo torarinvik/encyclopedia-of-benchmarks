@@ -26,6 +26,14 @@ python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm sum_of_ar
 python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/s/sum_of_arithmetic_series/rust/build.json
 ```
 
+## Verification
+
+Run the independent bounded corpus through each available language implementation with:
+
+```sh
+python3 benchmarks/verify_sum_of_arithmetic_series.py
+```
+
 ## Ports
 
 | Language | Source |

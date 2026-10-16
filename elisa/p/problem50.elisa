@@ -1,0 +1,48 @@
+def problem50_impl(ceiling: i64) -> i64:
+    if ceiling < 3 or ceiling > 1000000:
+        return -1
+    is_prime: mutable u8[1000000] = zeroed
+    index: mutable i64 = 0
+    while index < ceiling:
+        is_prime[index.usize()] <- 1
+        index <- index + 1
+    is_prime[0] <- 0
+    is_prime[1] <- 0
+    value: mutable i64 = 2
+    while value <= (ceiling - 1) / value:
+        if is_prime[value.usize()] != 0:
+            multiple: mutable i64 = value * value
+            while multiple < ceiling:
+                is_prime[multiple.usize()] <- 0
+                multiple <- multiple + value
+        value <- value + 1
+    primes: mutable i64[100000] = zeroed
+    prime_count: mutable i64 = 0
+    candidate: mutable i64 = 2
+    while candidate < ceiling:
+        if is_prime[candidate.usize()] != 0:
+            primes[prime_count.usize()] <- candidate
+            prime_count <- prime_count + 1
+        candidate <- candidate + 1
+    longest: mutable i64 = 0
+    largest: mutable i64 = 0
+    start: mutable i64 = 0
+    while start < prime_count:
+        end_start: i64 = start + longest
+        end: mutable i64 = start
+        sum: mutable i64 = 0
+        finish: mutable i64 = end_start
+        while finish < prime_count:
+            while end < finish:
+                sum <- sum + primes[end.usize()]
+                end <- end + 1
+            if sum >= ceiling:
+                break
+            if is_prime[sum.usize()] != 0:
+                longest <- finish - start
+                largest <- sum
+            finish <- finish + 1
+        start <- start + 1
+    largest
+
+export fn problem50(ceiling: i64) -> i64 = problem50_impl

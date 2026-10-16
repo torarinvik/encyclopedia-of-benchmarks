@@ -1,0 +1,46 @@
+extern sqrt(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def spearman_average_rank_correlation_impl(values: i64&, length: usize) -> f64:
+    if length < 5 or length > 257: return INVALID_RESULT
+    count: i64 = values[0]
+    if count < 2 or count > 128 or length != 1 + 2 * count.usize(): return INVALID_RESULT
+    index: mutable usize = 0
+    while index < 2 * count.usize():
+        value: i64 = values[1 + index]
+        if value < -1000000 or value > 1000000: return INVALID_RESULT
+        index <- index + 1
+    mean_rank: f64 = (count.f64() + 1.0) / 2.0
+    covariance: mutable f64 = 0.0
+    variance_x: mutable f64 = 0.0
+    variance_y: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < count.usize():
+        x_value: i64 = values[1 + i]
+        y_value: i64 = values[1 + count.usize() + i]
+        less_x: mutable i64 = 0
+        equal_x: mutable i64 = 0
+        less_y: mutable i64 = 0
+        equal_y: mutable i64 = 0
+        j: mutable usize = 0
+        while j < count.usize():
+            x_other: i64 = values[1 + j]
+            y_other: i64 = values[1 + count.usize() + j]
+            if x_other < x_value: less_x <- less_x + 1
+            if x_other == x_value: equal_x <- equal_x + 1
+            if y_other < y_value: less_y <- less_y + 1
+            if y_other == y_value: equal_y <- equal_y + 1
+            j <- j + 1
+        x_rank: f64 = less_x.f64() + (equal_x.f64() + 1.0) / 2.0
+        y_rank: f64 = less_y.f64() + (equal_y.f64() + 1.0) / 2.0
+        dx: f64 = x_rank - mean_rank
+        dy: f64 = y_rank - mean_rank
+        covariance <- covariance + dx * dy
+        variance_x <- variance_x + dx * dx
+        variance_y <- variance_y + dy * dy
+        i <- i + 1
+    if variance_x == 0.0 or variance_y == 0.0: return INVALID_RESULT
+    covariance / sqrt(variance_x * variance_y)
+
+export fn spearman_average_rank_correlation(values: i64&, length: usize) -> f64 = spearman_average_rank_correlation_impl

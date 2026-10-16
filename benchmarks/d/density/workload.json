@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "graph-density-v1",
+  "algorithm": "density",
+  "function_symbol": "density",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "required_length": 3,
+    "layout": ["node_count", "edge_count", "directed_flag"],
+    "node_count_range": [2, 100000],
+    "directed_flag_values": [0, 1],
+    "edge_count_bounds": {
+      "undirected": "0..node_count*(node_count-1)/2",
+      "directed": "0..node_count*(node_count-1)"
+    },
+    "operation": "factor = directed_flag == 1 ? 1 : 2; return (factor*edge_count)/(node_count*(node_count-1))",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "simple graph edge density",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id":"undirected_empty","input_values":[4,0,0],"input_length":3,"expected_result":0.0},
+    {"id":"undirected_one_edge","input_values":[4,1,0],"input_length":3,"expected_result":0.16666666666666666},
+    {"id":"undirected_complete","input_values":[5,10,0],"input_length":3,"expected_result":1.0},
+    {"id":"directed_one_edge","input_values":[4,1,1],"input_length":3,"expected_result":0.08333333333333333},
+    {"id":"directed_half_dense","input_values":[4,6,1],"input_length":3,"expected_result":0.5},
+    {"id":"directed_complete","input_values":[4,12,1],"input_length":3,"expected_result":1.0},
+    {"id":"invalid_node_count_zero_denominator","input_values":[1,0,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_undirected_edge_bound","input_values":[4,7,0],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_directed_flag","input_values":[4,1,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_length","input_values":[4,1],"input_length":2,"expected_result":-1e300}
+  ]
+}

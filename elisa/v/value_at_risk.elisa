@@ -1,0 +1,61 @@
+const SCALE: i64 = 1000000
+const MAX_RETURNS: usize = 64
+const MAX_PARSED_RETURNS: usize = 65
+const MAX_SAMPLE: i64 = 1000000000
+const MAX_INPUT_LENGTH: usize = 67
+const INVALID_RESULT: f64 = -1.0e300
+
+def sift_down(values: mutable f64&, root_start: usize, end: usize) -> void:
+    root: mutable usize = root_start
+    while root < end / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and values[child] < values[child + 1]:
+            child <- child + 1
+        if values[root] >= values[child]:
+            break
+        temporary: f64 = values[root]
+        values[root] <- values[child]
+        values[child] <- temporary
+        root <- child
+
+def heap_sort(values: mutable f64&, length: usize) -> void:
+    start: mutable usize = length / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(values, start, length)
+    ending: mutable usize = length
+    while ending > 1:
+        ending <- ending - 1
+        temporary: f64 = values[0]
+        values[0] <- values[ending]
+        values[ending] <- temporary
+        sift_down(values, 0, ending)
+
+def value_at_risk_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    confidence_micro: i64 = input[0]
+    count_value: i64 = input[1]
+    if confidence_micro < 1 or confidence_micro >= SCALE or count_value < 1 or count_value > 65:
+        return INVALID_RESULT
+    if length != 2 + count_value.usize() or count_value > 64:
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    returns: mutable f64[MAX_RETURNS] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[2 + index]
+        if value < -MAX_SAMPLE or value > MAX_SAMPLE:
+            return INVALID_RESULT
+        returns[index] <- value.f64() / 1000000.0
+        index <- index + 1
+    heap_sort(&returns[0], count)
+    confidence: f64 = confidence_micro.f64() / 1000000.0
+    quantile: f64 = 1.0 - confidence
+    position: f64 = (count - 1).f64() * quantile
+    lower: usize = position.usize()
+    fraction: f64 = position - lower.f64()
+    threshold: f64 = if lower == count - 1: returns[count - 1] else: returns[lower] * (1.0 - fraction) + returns[lower + 1] * fraction
+    -threshold
+
+export fn value_at_risk(input: i64&, length: usize) -> f64 = value_at_risk_impl

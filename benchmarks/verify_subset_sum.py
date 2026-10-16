@@ -64,7 +64,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add(packed)
 
     for case in workload["cases"]:
-        packed = tuple(encode_case(case))
+        packed = tuple(encode_case(case, algorithm))
         expected = oracle(list(packed), is_count)
         if case["expected_result"] != expected:
             raise ValueError(f"published workload oracle mismatch: {algorithm}/{case['id']}")
@@ -104,7 +104,7 @@ def verify(algorithm: str, language: str, directory: Path,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of workload records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm)
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "javascript-pow-logarithmic-i64-array-scalar-v1",
+  "algorithm": "pow_logarithmic",
+  "function_symbol": "pow_logarithmic",
+  "description": "Compute an exact bounded integer power by recursive exponentiation by squaring.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[base, exponent]",
+    "base_range": [
+      -10,
+      10
+    ],
+    "exponent_range": [
+      0,
+      15
+    ],
+    "exact_packed_length": 2,
+    "maximum_valid_packed_values": 2,
+    "maximum_packed_values": 3,
+    "invalid_input_result": -9223372036854775808
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "base raised to exponent; all valid results are exact JavaScript integers",
+    "invalid_result": -9223372036854775808
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/JavaScript",
+    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+    "path": "Maths/PowLogarithmic.js"
+  },
+  "cases": [
+    {
+      "id": "zero_to_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_positive_exponent",
+      "input_values": [
+        0,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "one_to_maximum_exponent",
+      "input_values": [
+        1,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "minus_one_even_exponent",
+      "input_values": [
+        -1,
+        14
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "minus_one_odd_exponent",
+      "input_values": [
+        -1,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "positive_power",
+      "input_values": [
+        2,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": 32768
+    },
+    {
+      "id": "negative_base_odd_exponent",
+      "input_values": [
+        -2,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": -32768
+    },
+    {
+      "id": "negative_base_even_exponent",
+      "input_values": [
+        -2,
+        14
+      ],
+      "input_length": 2,
+      "expected_result": 16384
+    },
+    {
+      "id": "base_ten_maximum_exponent",
+      "input_values": [
+        10,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": 1000000000000000
+    },
+    {
+      "id": "negative_ten_maximum_exponent",
+      "input_values": [
+        -10,
+        15
+      ],
+      "input_length": 2,
+      "expected_result": -1000000000000000
+    },
+    {
+      "id": "negative_base_zero_exponent",
+      "input_values": [
+        -10,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_base_one_exponent",
+      "input_values": [
+        10,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 10
+    },
+    {
+      "id": "missing_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "missing_exponent",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        2,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "base_above_bound",
+      "input_values": [
+        11,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "base_below_bound",
+      "input_values": [
+        -11,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "negative_exponent",
+      "input_values": [
+        2,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "exponent_above_bound",
+      "input_values": [
+        2,
+        16
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "i64_minimum_base",
+      "input_values": [
+        -9223372036854775808,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    },
+    {
+      "id": "i64_maximum_exponent",
+      "input_values": [
+        0,
+        9223372036854775807
+      ],
+      "input_length": 2,
+      "expected_result": -9223372036854775808
+    }
+  ]
+}

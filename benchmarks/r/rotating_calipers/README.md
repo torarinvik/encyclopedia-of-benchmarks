@@ -8,6 +8,7 @@ Find the maximum Euclidean distance between any two points in a bounded planar p
 - The point count must be from 2 through 1,024, and the packed length must equal `1 + 2 * point_count`.
 - Each coordinate is in `[-1,000,000,000, 1,000,000,000]`. Duplicate points are allowed.
 - Return the diameter as a binary64 Euclidean distance. If all input points are identical, return `0.0`.
+- Compare binary64 results with absolute and relative tolerances of `1e-12`.
 - Invalid input returns `-1e300`.
 - The largest possible squared distance is `8,000,000,000,000,000,000`, which fits signed 64-bit arithmetic. The maximum diameter is its binary64 square root.
 - The algorithm sorts and deduplicates points, builds the extreme-vertex hull with Andrew's monotone chain, then advances antipodal pairs around the hull. Time is `O(n log n)` and auxiliary space is `O(n)`.
@@ -25,6 +26,7 @@ The existing `convex_hull_graham_scan` and `convex_hull_quickhull` benchmarks re
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm rotating_calipers --language rust
 python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/r/rotating_calipers/rust/build.json
+python3 benchmarks/verify_rotating_calipers.py --languages rust
 ```
 
 ## Ports

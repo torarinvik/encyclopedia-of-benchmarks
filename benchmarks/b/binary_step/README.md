@@ -10,7 +10,7 @@ Return a binary activation value for one real input.
 
 ## Source semantics
 
-The pinned [Python `binary_step.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/activation_functions/binary_step.py) applies `np.where(vector >= 0, 1, 0)` elementwise. The unary ABI presents one vector element per call. The unreviewed MATLAB candidate [`threshold_without_inbuilt.m`](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Threshold%28without%20inbuilt%29.m) is a plotting script that sets entries with `x >= 0` to one; it shows the same threshold rule but does not expose a callable API.
+The pinned [Python `binary_step.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/activation_functions/binary_step.py) applies `np.where(vector >= 0, 1, 0)` elementwise. The unary ABI presents one vector element per call. The MATLAB candidate [`threshold_without_inbuilt.m`](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Threshold%28without%20inbuilt%29.m) is a plotting script that sets entries with `x >= 0` to one; it shows the same threshold rule but does not expose a callable API.
 
 ## Workload
 

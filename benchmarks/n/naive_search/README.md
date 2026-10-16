@@ -25,4 +25,5 @@ The existing `rabin_karp` benchmark uses a rolling hash and reports only whether
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm naive_search --language rust
 python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/n/naive_search/rust/build.json
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm naive_search --languages rust
 ```

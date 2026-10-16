@@ -1,0 +1,105 @@
+# Directed one-target Bellman-Ford with last-write handling for parallel edges.
+const BFP_MAX_VERTICES: usize = 64
+const BFP_MAX_INPUT_EDGES: usize = 256
+const BFP_MAX_NORMALIZED_EDGES: usize = 128
+const BFP_MAX_WEIGHT: i64 = 1000
+
+def bellman_ford_pair_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def bellman_ford_pair_write_record(status: i64, target_reachable: i64, distance: i64,
+                                   output: mutable u8&, capacity: usize) -> i64:
+    if output.is_null() or capacity < 24:
+        return -2
+    bellman_ford_pair_store_i64(status, output, 0)
+    bellman_ford_pair_store_i64(target_reachable, output, 8)
+    bellman_ford_pair_store_i64(distance, output, 16)
+    24
+
+def bellman_ford_pair_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4:
+        return -1
+    vertices_value: i64 = input[0]
+    input_edges_value: i64 = input[1]
+    source_value: i64 = input[2]
+    target_value: i64 = input[3]
+    if vertices_value < 1 or vertices_value > 64 or input_edges_value < 0 or input_edges_value > 256:
+        return -1
+    vertices: usize = vertices_value.usize()
+    input_edges: usize = input_edges_value.usize()
+    if source_value < 0 or source_value >= vertices_value or target_value < 0 or target_value >= vertices_value or
+       length != 4 + 3 * input_edges:
+        return -1
+
+    matrix_weights: mutable i64[4096] = zeroed
+    matrix_present: mutable bool[4096] = zeroed
+    normalized_count: mutable usize = 0
+    edge: mutable usize = 0
+    while edge < input_edges:
+        from_value: i64 = input[4 + 3 * edge]
+        to_value: i64 = input[5 + 3 * edge]
+        weight_value: i64 = input[6 + 3 * edge]
+        if from_value < 0 or from_value >= vertices_value or to_value < 0 or to_value >= vertices_value or
+           weight_value < -BFP_MAX_WEIGHT or weight_value > BFP_MAX_WEIGHT:
+            return -1
+        key: usize = from_value.usize() * vertices + to_value.usize()
+        if not matrix_present[key]:
+            matrix_present[key] <- true
+            normalized_count <- normalized_count + 1
+            if normalized_count > BFP_MAX_NORMALIZED_EDGES:
+                return -1
+        matrix_weights[key] <- weight_value
+        edge <- edge + 1
+
+    from: mutable usize[128] = zeroed
+    to: mutable usize[128] = zeroed
+    weight: mutable i64[128] = zeroed
+    edge_count: mutable usize = 0
+    origin: mutable usize = 0
+    while origin < vertices:
+        destination: mutable usize = 0
+        while destination < vertices:
+            key: usize = origin * vertices + destination
+            if matrix_present[key]:
+                from[edge_count] <- origin
+                to[edge_count] <- destination
+                weight[edge_count] <- matrix_weights[key]
+                edge_count <- edge_count + 1
+            destination <- destination + 1
+        origin <- origin + 1
+
+    source: usize = source_value.usize()
+    target: usize = target_value.usize()
+    distance: mutable i64[64] = zeroed
+    reachable: mutable bool[64] = zeroed
+    reachable[source] <- true
+    round: mutable usize = 0
+    while round < vertices:
+        changed: mutable bool = false
+        edge <- 0
+        while edge < edge_count:
+            if reachable[from[edge]]:
+                candidate: i64 = distance[from[edge]] + weight[edge]
+                if not reachable[to[edge]] or candidate < distance[to[edge]]:
+                    distance[to[edge]] <- candidate
+                    reachable[to[edge]] <- true
+                    changed <- true
+            edge <- edge + 1
+        if not changed:
+            break
+        round <- round + 1
+
+    edge <- 0
+    while edge < edge_count:
+        if reachable[from[edge]] and distance[to[edge]] > distance[from[edge]] + weight[edge]:
+            return bellman_ford_pair_write_record(-1, 0, 0, output, capacity)
+        edge <- edge + 1
+    target_reachable: i64 = if reachable[target]: 1 else: 0
+    target_distance: i64 = if reachable[target]: distance[target] else: 0
+    bellman_ford_pair_write_record(0, target_reachable, target_distance, output, capacity)
+
+export fn bellman_ford_pair(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =
+    bellman_ford_pair_impl

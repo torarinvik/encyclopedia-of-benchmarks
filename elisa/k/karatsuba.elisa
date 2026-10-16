@@ -1,0 +1,38 @@
+# Multiply bounded nonnegative operands with a three-product decimal split.
+def karatsuba_power_of_ten(digits: usize) -> i64:
+    result: mutable i64 = 1
+    for index in 0..<digits:
+        result <- result * 10
+    result
+
+def karatsuba_decimal_digits(value: i64) -> usize:
+    digits: mutable usize = 1
+    remaining: mutable i64 = value
+    while remaining >= 10:
+        remaining <- remaining / 10
+        digits <- digits + 1
+    digits
+
+def karatsuba_product(left: i64, right: i64) -> i64:
+    if left < 10 or right < 10:
+        return left * right
+    largest: i64 = if left > right: left else: right
+    digits: usize = karatsuba_decimal_digits(largest)
+    split: i64 = karatsuba_power_of_ten(digits / 2)
+    left_high: i64 = left / split
+    left_low: i64 = left % split
+    right_high: i64 = right / split
+    right_low: i64 = right % split
+    low_product: i64 = karatsuba_product(left_low, right_low)
+    high_product: i64 = karatsuba_product(left_high, right_high)
+    sum_product: i64 = karatsuba_product(left_high + left_low, right_high + right_low)
+    high_product * split * split + (sum_product - high_product - low_product) * split + low_product
+
+def karatsuba_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    if input[0] < 0 or input[0] > 1000000 or input[1] < 0 or input[1] > 1000000:
+        return -1
+    karatsuba_product(input[0], input[1])
+
+export fn karatsuba(input: i64&, length: usize) -> i64 = karatsuba_impl

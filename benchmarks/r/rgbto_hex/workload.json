@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "rgbto-hex-js-ascii-bytes-v1",
+  "algorithm": "rgbto_hex",
+  "function_symbol": "rgbto_hex",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[red, green, blue] integer channels",
+    "exact_length": 3,
+    "channel_range": [
+      0,
+      255
+    ],
+    "first_rejected_length": 4,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "# followed by two lowercase hexadecimal digits for each RGB channel",
+    "length": 7,
+    "successful_result": "number of output bytes written"
+  },
+  "workspace": {
+    "bytes": 7,
+    "meaning": "fixed output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "black",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23303030303030"
+    },
+    {
+      "id": "white",
+      "input_values": [
+        255,
+        255,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23666666666666"
+    },
+    {
+      "id": "source-red-orange-example",
+      "input_values": [
+        255,
+        99,
+        71
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23666636333437"
+    },
+    {
+      "id": "source-light-blue-example",
+      "input_values": [
+        52,
+        152,
+        219
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23333439386462"
+    },
+    {
+      "id": "leading-zeroes",
+      "input_values": [
+        1,
+        15,
+        16
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23303130663130"
+    },
+    {
+      "id": "channel-boundaries",
+      "input_values": [
+        0,
+        127,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23303037663830"
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-two-channels",
+      "input_values": [
+        12,
+        34
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-four-channels",
+      "input_values": [
+        12,
+        34,
+        56,
+        78
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative-channel",
+      "input_values": [
+        12,
+        -1,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-channel-above-255",
+      "input_values": [
+        12,
+        256,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity-too-small",
+      "input_values": [
+        255,
+        99,
+        71
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 6
+    },
+    {
+      "id": "capacity-exact",
+      "input_values": [
+        255,
+        99,
+        71
+      ],
+      "input_length": 3,
+      "expected_result": 7,
+      "expected_output_hex": "23666636333437",
+      "workspace_bytes": 7
+    }
+  ]
+}

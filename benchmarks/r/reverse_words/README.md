@@ -12,7 +12,13 @@ Output is the reversed word sequence as ASCII bytes followed by a NUL byte. The 
 
 The source variants differ outside this domain: Python and JavaScript collapse whitespace runs, F# preserves empty split fields before joining with spaces, and PHP splits only literal spaces after trimming its own edge-whitespace set. This contract keeps the four implementations comparable on their shared behavior.
 
-[`workload.json`](workload.json) covers empty input, one word, multiple words, punctuation, and uneven word lengths.
+[`workload.json`](workload.json) covers empty input, one word, multiple words, punctuation, uneven word lengths, and malformed input with an undersized output buffer.
+
+```sh
+python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm reverse_words --language rust
+python3 benchmarks/run_i64_array_bytes_output.py --algorithm reverse_words
+python3 benchmarks/verify_i64_array_bytes_output.py --algorithm reverse_words --languages rust
+```
 
 | Language | Source |
 | --- | --- |

@@ -1,0 +1,53 @@
+const MAX_TAPS: usize = 63
+const MAX_CLOCKS: usize = 256
+
+def lfsr_feedback(state: u64, input: i64&, tap_count: usize) -> u64:
+    feedback: mutable u64 = 0
+    for i in 0..<tap_count:
+        feedback <- feedback ^ ((state >> input[6 + i].usize()) & 1)
+    feedback
+
+def lfsr_step(state: mutable u64&, width: usize, mask: u64, input: i64&, tap_count: usize) -> u64:
+    output: u64 = (state >> (width - 1)) & 1
+    state <- ((state << 1) | lfsr_feedback(state, input, tap_count)) & mask
+    output
+
+def lfsr_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        output[slot * 8 + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def lfsr_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or input[0] < 1 or input[0] > 63 or input[1] < 0 or input[1] >= input[0] or input[2] < 0 or input[2] > 63 or input[3] < 0 or input[3] > 256 or input[5] < 0 or input[5] > 4194303:
+        return -1
+    width: usize = input[0].usize()
+    tap_count: usize = input[2].usize()
+    clocks: usize = input[3].usize()
+    if length != 6 + tap_count:
+        return -1
+    for i in 0..<tap_count:
+        if input[6 + i] < 0 or input[6 + i] >= width.i64():
+            return -1
+    key: u64 = input[4].u64()
+    frame: u64 = input[5].u64()
+    state: mutable u64 = 0
+    mask: u64 = ((1).u64() << width) - 1
+    for offset in 0..<64:
+        bit: usize = 63 - offset
+        incoming: u64 = ((key >> bit) & 1) ^ lfsr_feedback(state, input, tap_count)
+        state <- ((state << 1) | incoming) & mask
+    for offset in 0..<22:
+        bit: usize = 21 - offset
+        incoming: u64 = ((frame >> bit) & 1) ^ lfsr_feedback(state, input, tap_count)
+        state <- ((state << 1) | incoming) & mask
+    bytes: usize = (clocks + 2) * 8
+    if output == null or capacity < bytes:
+        return -2
+    lfsr_put_i64(output, 0, clocks.i64())
+    for i in 0..<clocks:
+        lfsr_put_i64(output, 1 + i, lfsr_step(state, width, mask, input, tap_count).i64())
+    lfsr_put_i64(output, 1 + clocks, state.i64())
+    bytes.i64()
+
+export fn lfsr(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lfsr_impl

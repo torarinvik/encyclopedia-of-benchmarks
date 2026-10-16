@@ -1,0 +1,50 @@
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def coordinate_compression_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or input == null or input[0] < 0 or input[0] > 128: return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    sorted: mutable i64[128] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        value: i64 = input[i + 1]
+        if value < -2147483648 or value > 2147483647: return -1
+        sorted[i] <- value
+        i <- i + 1
+    if capacity < n * 8 or (n > 0 and output.is_null()): return -2
+    if n == 0: return 0
+    i <- 1
+    while i < n:
+        value: i64 = sorted[i]
+        j: mutable usize = i
+        while j > 0 and sorted[j - 1] > value:
+            sorted[j] <- sorted[j - 1]
+            j <- j - 1
+        sorted[j] <- value
+        i <- i + 1
+    ranks: mutable i64[128] = zeroed
+    rank: mutable i64 = -1
+    i <- 0
+    while i < n:
+        if i == 0 or sorted[i] != sorted[i - 1]: rank <- rank + 1
+        ranks[i] <- rank
+        i <- i + 1
+    i <- 0
+    while i < n:
+        low: mutable usize = 0
+        high: mutable usize = n
+        while low < high:
+            middle: usize = low + (high - low) / 2
+            if sorted[middle] < input[i + 1]: low <- middle + 1
+            else: high <- middle
+        put_i64_le(ranks[low], output, i * 8)
+        i <- i + 1
+    (n * 8).i64()
+
+export fn coordinate_compression(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = coordinate_compression_impl

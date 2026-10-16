@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-144-laser-reflections-v1",
+  "algorithm": "problem144",
+  "function_symbol": "problem144",
+  "input": {
+    "kind": "bounded_binary64_ellipse_impact_point",
+    "argument_order": ["first_x_coord", "first_y_coord"],
+    "bounds": {
+      "first_x_coord": [0.00001, 5.0],
+      "first_y_coord": [-10.0, 0.0]
+    },
+    "ellipse_equation": "4*x*x + y*y = 100",
+    "ellipse_absolute_tolerance": 1e-6,
+    "exit_condition": "abs(x) <= 0.01 and y > 0",
+    "max_reflections": 10000,
+    "invalid_result": -1e300,
+    "verification_relative_tolerance": 1e-12,
+    "verification_absolute_tolerance": 1e-9
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "number of next_point transitions through the exit condition; an exactly representable nonnegative integer",
+    "invalid_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-9,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "source_default_point", "input_values": [1.4, -9.6], "expected_result": 354.0},
+    {"id": "source_opening_example", "input_values": [0.00001, -10.0], "expected_result": 1.0},
+    {"id": "source_five_zero_example", "input_values": [5.0, 0.0], "expected_result": 287.0},
+    {"id": "zero_x_invalid", "input_values": [0.0, -10.0], "expected_result": -1e300},
+    {"id": "off_ellipse_invalid", "input_values": [1.4, -9.5], "expected_result": -1e300},
+    {"id": "outside_supported_quadrant", "input_values": [-1.4, -9.6], "expected_result": -1e300}
+  ]
+}

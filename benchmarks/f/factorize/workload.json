@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "factorize-v1",
+  "algorithm": "factorize",
+  "input": {
+    "minimum": 0,
+    "maximum": 1000005,
+    "out_of_range_result": -1,
+    "encoding": "factorize_pairs_u32le",
+    "meaning": "ascending (factor, exponent) pairs; each pair contains two little-endian u32 values"
+  },
+  "cases": [
+    {"id": "zero_source_edge", "input_value": 0, "expected_result": 8, "expected_output_hex": "0000000001000000"},
+    {"id": "one_source_edge", "input_value": 1, "expected_result": 8, "expected_output_hex": "0100000001000000"},
+    {"id": "prime_two", "input_value": 2, "expected_result": 8, "expected_output_hex": "0200000001000000"},
+    {"id": "prime_power", "input_value": 64, "expected_result": 8, "expected_output_hex": "0200000006000000"},
+    {"id": "mixed_composite", "input_value": 12, "expected_result": 16, "expected_output_hex": "02000000020000000300000001000000"},
+    {"id": "large_prime", "input_value": 999983, "expected_result": 8, "expected_output_hex": "2f420f0001000000"},
+    {"id": "upper_bound", "input_value": 1000005, "expected_result": 32, "expected_output_hex": "03000000010000000500000001000000a3000000010000009901000001000000"},
+    {"id": "insufficient_capacity", "input_value": 12, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "negative", "input_value": -1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "above_bound", "input_value": 1000006, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "int64_min", "input_value": -9223372036854775808, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "int64_max", "input_value": 9223372036854775807, "expected_result": -1, "expected_output_hex": ""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

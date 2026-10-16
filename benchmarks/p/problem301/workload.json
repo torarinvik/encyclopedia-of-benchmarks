@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-301-scalar-v1",
+  "algorithm": "problem301",
+  "function_symbol": "problem301",
+  "input": {
+    "kind": "fibonacci_index_offset_exponent",
+    "minimum": 0,
+    "maximum": 30,
+    "definition": "Count losing Nim positions (n, 2n, 3n) for 1 <= n <= 2^exponent.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Integer conversion of the pinned positive-conjugate Binet expression for Fibonacci(exponent + 2). Odd exponents produce F(exponent + 2) - 1; even exponents produce F(exponent + 2).",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source-example-exponent-zero",
+      "input_value": 0,
+      "expected_result": 1
+    },
+    {
+      "id": "source-example-exponent-two",
+      "input_value": 2,
+      "expected_result": 3
+    },
+    {
+      "id": "odd-exponent-one-source-rounding",
+      "input_value": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "odd-exponent-three-source-rounding",
+      "input_value": 3,
+      "expected_result": 4
+    },
+    {
+      "id": "source-example-exponent-ten",
+      "input_value": 10,
+      "expected_result": 144
+    },
+    {
+      "id": "canonical-exponent-thirty",
+      "input_value": 30,
+      "expected_result": 2178309
+    },
+    {
+      "id": "odd-exponent-twenty-nine-source-rounding",
+      "input_value": 29,
+      "expected_result": 1346268
+    },
+    {
+      "id": "negative-exponent",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-supported-exponent",
+      "input_value": 31,
+      "expected_result": -1
+    }
+  ]
+}

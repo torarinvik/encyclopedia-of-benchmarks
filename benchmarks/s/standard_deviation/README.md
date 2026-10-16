@@ -15,11 +15,19 @@ The pinned [Java `StandardDeviation.java`](https://github.com/TheAlgorithms/Java
 
 ## Workload and build
 
-[`workload.json`](workload.json) covers zero spread, a singleton, integer and fractional means, negative values, and invalid bounds. All nine ports use the shared `i64_array_float64` ABI.
+[`workload.json`](workload.json) covers zero spread, a singleton, integer and fractional means, negative values, and invalid bounds. The dedicated verifier adds pair and triple combinations, repeated and alternating endpoint arrays through length 64, and deterministic random cases. All nine ports use the shared `i64_array_float64` ABI.
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_float64 --algorithm standard_deviation --language rust
 python3 benchmarks/run_i64_array_float64.py --build-manifest build/i64_array_float64/s/standard_deviation/rust/build.json
+```
+
+## Verification
+
+The independent oracle mirrors the Java accumulation order and population denominator:
+
+```sh
+python3 benchmarks/verify_standard_deviation.py
 ```
 
 ## Ports

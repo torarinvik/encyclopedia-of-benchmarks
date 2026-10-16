@@ -1,0 +1,53 @@
+# Return the least tree value greater than or equal to the query.
+const INVALID_RESULT: i64 = -9223372036854775807
+const NO_CEIL_RESULT: i64 = -9223372036854775807 - 1
+const VALUE_MIN: i64 = -1000000
+const VALUE_MAX: i64 = 1000000
+
+def ceil_in_binary_search_tree_impl(input: i64&, length: usize) -> i64:
+    if length < 3 or length > 384:
+        return INVALID_RESULT
+    node_count_value: i64 = input[0]
+    root_index_value: i64 = input[1]
+    key: i64 = input[2]
+    if node_count_value < 0 or node_count_value > 127 or key < VALUE_MIN or key > VALUE_MAX:
+        return INVALID_RESULT
+    node_count: usize = node_count_value.usize()
+    if length != 3 + 3 * node_count:
+        return INVALID_RESULT
+    if node_count == 0:
+        if root_index_value == -1:
+            return NO_CEIL_RESULT
+        return INVALID_RESULT
+    if root_index_value < 0 or root_index_value >= node_count_value:
+        return INVALID_RESULT
+
+    current: mutable usize = root_index_value.usize()
+    best: mutable i64 = NO_CEIL_RESULT
+    steps: mutable usize = 0
+    while current < node_count:
+        if steps >= node_count:
+            return INVALID_RESULT
+        offset: usize = 3 + 3 * current
+        value: i64 = input[offset]
+        left: i64 = input[offset + 1]
+        right: i64 = input[offset + 2]
+        if value < VALUE_MIN or value > VALUE_MAX or left < -1 or right < -1 or left >= node_count_value or right >= node_count_value:
+            return INVALID_RESULT
+        if value == key:
+            return value
+        if value < key:
+            if right == -1:
+                current <- node_count
+            else:
+                current <- right.usize()
+        else:
+            best <- value
+            if left == -1:
+                current <- node_count
+            else:
+                current <- left.usize()
+        steps <- steps + 1
+    best
+
+export fn ceil_in_binary_search_tree(input: i64&, length: usize) -> i64 = ceil_in_binary_search_tree_impl

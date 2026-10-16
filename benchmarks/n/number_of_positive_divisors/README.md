@@ -2,6 +2,8 @@
 
 The two pinned C++ implementations factor the absolute value of one `int` and multiply one plus each prime exponent. Their function returns 1 for zero, even though one source's command-line message describes every nonzero integer as a divisor of zero. This benchmark preserves the function's return value for zero.
 
+The pinned Python `basic_maths.py` also counts divisors by prime exponents. It rejects nonpositive inputs, so it maps to the positive part of this contract; its floating-point division remains exact under the benchmark bound.
+
 ## Contract
 
 - Input is an array containing exactly one signed 64-bit integer `n`.
@@ -19,3 +21,4 @@ The result uses the `i64_array_scalar` ABI. All nine ports use integer factoriza
 
 - [TheAlgorithms/C-Plus-Plus `number_of_positive_divisors.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/number_of_positive_divisors.cpp)
 - [TheAlgorithms/C-Plus-Plus-1 `number_of_positive_divisors.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/number_of_positive_divisors.cpp)
+- [TheAlgorithms/Python `basic_maths.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/basic_maths.py) (`number_of_divisors`)
