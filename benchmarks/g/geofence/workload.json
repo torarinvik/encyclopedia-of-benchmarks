@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "csharp-geofence-haversine-inclusive-v1",
+  "algorithm": "geofence",
+  "function_symbol": "geofence",
+  "input": {
+    "encoding": "[center_lat_microdegrees, center_lon_microdegrees, point_lat_microdegrees, point_lon_microdegrees, radius_millimeters]",
+    "latitude_bounds": [
+      -90000000,
+      90000000
+    ],
+    "longitude_bounds": [
+      -180000000,
+      180000000
+    ],
+    "radius_millimeters_bounds": [
+      -1000000,
+      30000000000
+    ]
+  },
+  "output": {
+    "kind": "i64_boolean",
+    "values": {
+      "inside": 1,
+      "outside": 0
+    },
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "same_point_zero_radius",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "exact_point_positive_radius",
+      "input_values": [
+        37422000,
+        -122084000,
+        37422000,
+        -122084000,
+        5000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "one_microdegree_inside",
+      "input_values": [
+        0,
+        0,
+        0,
+        1000,
+        112
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "one_microdegree_outside",
+      "input_values": [
+        0,
+        0,
+        0,
+        1000,
+        111
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "equatorial_short_distance",
+      "input_values": [
+        0,
+        0,
+        0,
+        1000000,
+        111200000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "high_latitude_short_distance",
+      "input_values": [
+        80000000,
+        0,
+        80000000,
+        1000000,
+        20000000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "antimeridian_crossing",
+      "input_values": [
+        0,
+        179999500,
+        0,
+        -179999500,
+        120000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "negative_radius",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        -1
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_latitude",
+      "input_values": [
+        90000001,
+        0,
+        0,
+        0,
+        1000
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_longitude",
+      "input_values": [
+        0,
+        180000001,
+        0,
+        0,
+        1000
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "oversized_radius",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        30000000001
+      ],
+      "expected_result": -1
+    }
+  ]
+}

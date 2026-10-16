@@ -1,0 +1,57 @@
+const CRITICAL: f64[9] = [0.0, 0.0, 0.0, 1.1543048513440384, 1.48125, 1.715037312343363, 1.887145117783933, 2.0199685076795957, 2.126645087195462]
+
+export fn generalized_esd(values: i64&, length: usize) -> i64:
+    if length < 5 or length > 10: return -1
+    n: i64 = values[0]
+    limit: i64 = values[1]
+    if n < 3 or n > 8 or limit < 1 or limit > 3 or limit > n - 2 or length != (n + 2).usize(): return -1
+    x: mutable f64[8] = zeroed
+    indices: mutable i64[8] = zeroed
+    i: mutable usize = 0
+    while i < n.usize():
+        value: i64 = values[i + 2]
+        if value < -10000 or value > 10000: return -1
+        x[i] <- value.f64()
+        indices[i] <- i.i64()
+        i <- i + 1
+    remaining: mutable usize = n.usize()
+    accepted: mutable usize = 0
+    removed: mutable i64[3] = zeroed
+    step: mutable usize = 1
+    while step <= limit.usize():
+        mean: mutable f64 = 0.0
+        i <- 0
+        while i < remaining:
+            mean <- mean + x[i]
+            i <- i + 1
+        mean <- mean / remaining.f64()
+        ss: mutable f64 = 0.0
+        i <- 0
+        while i < remaining:
+            d: f64 = x[i] - mean
+            ss <- ss + d * d
+            i <- i + 1
+        variance: f64 = ss / (remaining - 1).f64()
+        if variance == 0.0: break
+        worst: mutable usize = 0
+        largest: mutable f64 = -1.0
+        i <- 0
+        while i < remaining:
+            difference: f64 = x[i] - mean
+            d: f64 = difference if difference >= 0.0 else -difference
+            if d > largest:
+                largest <- d
+                worst <- i
+            i <- i + 1
+        removed[step - 1] <- indices[worst]
+        if largest * largest > CRITICAL[remaining] * CRITICAL[remaining] * variance: accepted <- step
+        remaining <- remaining - 1
+        x[worst] <- x[remaining]
+        indices[worst] <- indices[remaining]
+        step <- step + 1
+    mask: mutable i64 = 0
+    i <- 0
+    while i < accepted:
+        mask <- mask | (1 << removed[i].usize())
+        i <- i + 1
+    return mask

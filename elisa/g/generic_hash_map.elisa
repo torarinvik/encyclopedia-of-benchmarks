@@ -1,0 +1,115 @@
+const OFFSET: u64 = 14695981039346656037
+const PRIME: u64 = 1099511628211
+
+def generic_hash_map_hash(h0: u64, value: i64) -> u64:
+    h: mutable u64 = h0
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        h <- (h ^ ((bits >> (8 * i)) & 255)) * PRIME
+        i <- i + 1
+    h
+
+def generic_hash_map_impl(a: i64&, n: usize) -> i64:
+    if a == null or n < 1 or n > 385 or a[0] < 0 or a[0] > 128 or n != (1 + 3 * a[0]).usize(): return -1
+    keys: mutable i64[64] = zeroed
+    vals: mutable i64[64] = zeroed
+    next: mutable i64[64] = zeroed
+    head: mutable i64[128] = zeroed
+    active: mutable bool[64] = zeroed
+    i: mutable usize = 0
+    while i < 64:
+        next[i] <- -1
+        i <- i + 1
+    i <- 0
+    while i < 128:
+        head[i] <- -1
+        i <- i + 1
+    size: mutable usize = 0
+    buckets: mutable usize = 16
+    h: mutable u64 = OFFSET
+    oi: mutable usize = 0
+    while oi < a[0].usize():
+        op: i64 = a[1 + 3 * oi]
+        key: i64 = a[2 + 3 * oi]
+        value: i64 = a[3 + 3 * oi]
+        if key < 0 or key > 1000000: return -1
+        b: mutable usize = (key % buckets.i64()).usize()
+        found: mutable i64 = -1
+        j: mutable i64 = head[b]
+        while j >= 0:
+            if keys[j.usize()] == key:
+                found <- j
+                break
+            j <- next[j.usize()]
+        if op == 0:
+            if value < -1000000 or value > 1000000: return -1
+            if found >= 0:
+                vals[found.usize()] <- value
+            else:
+                if size >= 64: return -1
+                slot: mutable usize = 0
+                while active[slot]: slot <- slot + 1
+                active[slot] <- true
+                keys[slot] <- key
+                vals[slot] <- value
+                next[slot] <- head[b]
+                head[b] <- slot.i64()
+                size <- size + 1
+                if size * 4 > buckets * 3 and buckets < 128:
+                    buckets <- buckets * 2
+                    i <- 0
+                    while i < 128:
+                        head[i] <- -1
+                        i <- i + 1
+                    i <- 0
+                    while i < 64:
+                        if active[i]:
+                            b <- (keys[i] % buckets.i64()).usize()
+                            next[i] <- head[b]
+                            head[b] <- i.i64()
+                        i <- i + 1
+        elif op == 1 or op == 3:
+            if value != 0: return -1
+            observed: mutable i64 = 0
+            if op == 1:
+                observed <- -9223372036854775807 - 1
+                if found >= 0: observed <- vals[found.usize()]
+            elif found >= 0:
+                observed <- 1
+            h <- generic_hash_map_hash(h, observed)
+        elif op == 2:
+            if value != 0: return -1
+            if found >= 0:
+                prev: mutable i64 = -1
+                j <- head[b]
+                while j >= 0:
+                    if j == found:
+                        if prev < 0: head[b] <- next[j.usize()]
+                        else: next[prev.usize()] <- next[j.usize()]
+                        break
+                    prev <- j
+                    j <- next[j.usize()]
+                active[found.usize()] <- false
+                size <- size - 1
+        elif op == 4:
+            if key != 0 or value != 0: return -1
+            h <- generic_hash_map_hash(h, size.i64())
+        else:
+            return -1
+        oi <- oi + 1
+    h <- generic_hash_map_hash(h, size.i64())
+    used: mutable bool[64] = zeroed
+    rank: mutable usize = 0
+    while rank < size:
+        best: mutable i64 = -1
+        i <- 0
+        while i < 64:
+            if active[i] and not used[i] and (best < 0 or keys[i] < keys[best.usize()]): best <- i.i64()
+            i <- i + 1
+        used[best.usize()] <- true
+        h <- generic_hash_map_hash(h, keys[best.usize()])
+        h <- generic_hash_map_hash(h, vals[best.usize()])
+        rank <- rank + 1
+    h.i64()
+export generic_hash_map(a: i64&, n: usize) -> i64 = generic_hash_map_impl

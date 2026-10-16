@@ -1,0 +1,67 @@
+const OFFSET: u64 = 14695981039346656037
+const PRIME: u64 = 1099511628211
+
+def gcounter_hash(h0: u64, value: i64) -> u64:
+    h: mutable u64 = h0
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        h <- (h ^ ((bits >> (8 * i)) & 255)) * PRIME
+        i <- i + 1
+    h
+
+def gcounter_impl(a: i64&, length: usize) -> i64:
+    if a == null or length < 2 or length > 386:
+        return -1
+    if a[0] < 1 or a[0] > 8 or a[1] < 0 or a[1] > 128 or length != (2 + 3 * a[1]).usize():
+        return -1
+    nodes: usize = a[0].usize()
+    state: mutable i64[64] = zeroed
+    h: mutable u64 = OFFSET
+    operation: mutable usize = 0
+    while operation < a[1].usize():
+        op: i64 = a[2 + 3 * operation]
+        aa: i64 = a[3 + 3 * operation]
+        bb: i64 = a[4 + 3 * operation]
+        if aa < 0 or aa >= nodes.i64(): return -1
+        ai: usize = aa.usize()
+        if op == 0:
+            if bb != 0 or state[ai * 8 + ai] >= 1000000: return -1
+            state[ai * 8 + ai] <- state[ai * 8 + ai] + 1
+        elif op == 1:
+            if bb != 0: return -1
+            total: mutable i64 = 0
+            j: mutable usize = 0
+            while j < nodes:
+                total <- total + state[ai * 8 + j]
+                j <- j + 1
+            h <- gcounter_hash(h, total)
+        elif op == 2:
+            if bb < 0 or bb >= nodes.i64(): return -1
+            bi: usize = bb.usize()
+            yes: mutable bool = true
+            j: mutable usize = 0
+            while j < nodes:
+                if state[ai * 8 + j] > state[bi * 8 + j]: yes <- false
+                j <- j + 1
+            if yes: h <- gcounter_hash(h, 1)
+            else: h <- gcounter_hash(h, 0)
+        elif op == 3:
+            if bb < 0 or bb >= nodes.i64(): return -1
+            bi: usize = bb.usize()
+            j: mutable usize = 0
+            while j < nodes:
+                if state[bi * 8 + j] > state[ai * 8 + j]: state[ai * 8 + j] <- state[bi * 8 + j]
+                j <- j + 1
+        else:
+            return -1
+        operation <- operation + 1
+    i: mutable usize = 0
+    while i < nodes:
+        j: mutable usize = 0
+        while j < nodes:
+            h <- gcounter_hash(h, state[i * 8 + j])
+            j <- j + 1
+        i <- i + 1
+    h.i64()
+export gcounter(a: i64&, length: usize) -> i64 = gcounter_impl

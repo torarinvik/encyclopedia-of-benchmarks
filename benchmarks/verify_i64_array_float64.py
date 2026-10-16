@@ -2236,6 +2236,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "peak_signal_to_noise_ratio": 0,
                     "reverse_polish_notation": 1,
                     "symmetric_derivative": 2,
+                    "fractional_differentiation": 4,
                     "gaussian_legendre": 7,
                     "extended_kalman_filter": 0}
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,

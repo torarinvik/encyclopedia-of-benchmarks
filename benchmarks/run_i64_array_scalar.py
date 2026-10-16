@@ -23,6 +23,7 @@ from fractions import Fraction
 from build_abi import ROOT, sha256_file
 from decremental_connectivity_oracle import MAX_INPUT_LENGTH as MAX_DECREMENTAL_CONNECTIVITY_INPUT_LENGTH
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_expected
+from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_expected
 from davis_putnam_logemann_loveland_oracle import MAX_INPUT_LENGTH as MAX_DPLL_INPUT_LENGTH
 from davis_putnam_logemann_loveland_oracle import expected_result as davis_putnam_logemann_loveland_expected
 from deep_clone_graph_oracle import MAX_INPUT_LENGTH as MAX_DEEP_CLONE_GRAPH_INPUT_LENGTH
@@ -122,6 +123,14 @@ from elastic_collision2_d_oracle import MAX_INPUT_LENGTH as MAX_ELASTIC_COLLISIO
 from elastic_collision2_d_oracle import expected_result as elastic_collision2_d_expected
 from flatten_nested_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH
 from flatten_nested_list_oracle import expected_result as flatten_nested_list_expected
+from generic_hash_map_oracle import MAX_INPUT_LENGTH as MAX_GENERIC_HASH_MAP_INPUT_LENGTH
+from generic_hash_map_oracle import expected_result as generic_hash_map_expected
+from gcounter_oracle import MAX_INPUT_LENGTH as MAX_GCOUNTER_INPUT_LENGTH
+from gcounter_oracle import expected_result as gcounter_expected
+from generic_heap_oracle import MAX_INPUT_LENGTH as MAX_GENERIC_HEAP_INPUT_LENGTH
+from generic_heap_oracle import expected_result as generic_heap_expected
+from geofence_oracle import MAX_INPUT_LENGTH as MAX_GEOFENCE_INPUT_LENGTH
+from geofence_oracle import expected_result as geofence_expected
 from monotonic_array_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_ARRAY_INPUT_LENGTH
 from monotonic_array_oracle import expected_result as monotonic_array_expected
 from star_delta_conversions_oracle import MAX_INPUT_LENGTH as MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH
@@ -895,6 +904,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_STAR_DELTA_CONVERSIONS_INPUT_LENGTH if algorithm == "star_delta_conversions"
                         else MAX_MONOTONIC_ARRAY_INPUT_LENGTH if algorithm == "monotonic_array"
                         else MAX_FLATTEN_NESTED_LIST_INPUT_LENGTH if algorithm == "flatten_nested_list"
+                        else MAX_GENERIC_HASH_MAP_INPUT_LENGTH if algorithm == "generic_hash_map"
+                        else MAX_GCOUNTER_INPUT_LENGTH if algorithm == "gcounter"
+                        else MAX_GENERIC_HEAP_INPUT_LENGTH if algorithm == "generic_heap"
+                        else MAX_GEOFENCE_INPUT_LENGTH if algorithm == "geofence"
                         else MAX_ELASTIC_COLLISION2D_INPUT_LENGTH if algorithm == "elastic_collision2_d"
                         else MAX_SPIRAL_MATRIX_INPUT_LENGTH if algorithm == "print_amatrix_in_spiral_order"
                         else MAX_PERMUTATE_STRING_INPUT_LENGTH if algorithm == "permutate_string"
@@ -2830,6 +2843,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("apriori expected_result must match the frequent association-rule count")
+    elif algorithm == "frequent_pattern_growth":
+        expected_from_source = frequent_pattern_growth_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("frequent_pattern_growth expected_result must match the frequent itemset count")
     elif algorithm == "bitmask_assignment_count":
         valid = (2 <= len(values) <= 106 and 0 <= values[0] <= 8
                  and 0 <= values[1] <= 12)
@@ -5538,6 +5555,22 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = flatten_nested_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("flatten_nested_list expected_result must hash the bounded left-to-right flattened leaves")
+    elif algorithm == "generic_hash_map":
+        expected_from_source = generic_hash_map_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("generic_hash_map expected_result must hash the bounded logical map query trace and final state")
+    elif algorithm == "gcounter":
+        expected_from_source = gcounter_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("gcounter expected_result must hash the bounded componentwise CRDT state and query trace")
+    elif algorithm == "generic_heap":
+        expected_from_source = generic_heap_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("generic_heap expected_result must hash the bounded max-heap observation trace")
+    elif algorithm == "geofence":
+        expected_from_source = geofence_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("geofence expected_result must match the bounded inclusive Haversine radius predicate")
     elif algorithm == "elastic_collision2_d":
         expected_from_source = elastic_collision2_d_expected(values)
         if expected != expected_from_source:

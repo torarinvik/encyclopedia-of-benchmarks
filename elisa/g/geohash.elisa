@@ -1,0 +1,41 @@
+const ALPHABET: [32]u8 = "0123456789bcdefghjkmnpqrstuvwxyz"
+
+def geohash_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length != 2: return -1
+    if v[0] < -90000000 or v[0] > 90000000 or v[1] < -180000000 or v[1] > 180000000: return -1
+    lat: f64 = v[0].f64() / 1000000.0
+    lon: f64 = v[1].f64() / 1000000.0
+    latlo: mutable f64 = -90.0
+    lathi: mutable f64 = 90.0
+    lonlo: mutable f64 = -180.0
+    lonhi: mutable f64 = 180.0
+    bit: mutable usize = 0
+    value: mutable usize = 0
+    islon: mutable bool = true
+    buffer: mutable u8[12]
+    p: mutable usize = 0
+    while p < 12:
+        mid: mutable f64 = 0.0
+        if islon:
+            mid <- (lonlo + lonhi) / 2.0
+            if lon > mid:
+                value <- value | (1 << (4 - bit))
+                lonlo <- mid
+            else: lonhi <- mid
+        else:
+            mid <- (latlo + lathi) / 2.0
+            if lat > mid:
+                value <- value | (1 << (4 - bit))
+                latlo <- mid
+            else: lathi <- mid
+        islon <- not islon
+        if bit < 4: bit <- bit + 1
+        else:
+            buffer[p] <- ALPHABET[value]
+            p <- p + 1
+            bit <- 0
+            value <- 0
+    if out.is_null() or capacity < 12: return -2
+    for i in 0..12: out[i] <- buffer[i]
+    12
+export geohash(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = geohash_impl

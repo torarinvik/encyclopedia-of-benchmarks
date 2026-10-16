@@ -1,0 +1,76 @@
+def frequent_pattern_growth_grow(masks: i64&, weights: i64&, length: usize,
+    order: i64&, rank_limit: usize, minimum_support: i64) -> i64:
+    total: i64 = while rank > 0 |rank: mutable usize = rank_limit, total: mutable i64 = 0| -> total:
+        rank <- rank - 1
+        item: usize = order[rank].usize()
+        bit: i64 = 1 << item.i64()
+        support: mutable i64 = 0
+        row: mutable usize = 0
+        while row < length:
+            if (masks[row] & bit) != 0:
+                support <- support + weights[row]
+            row <- row + 1
+        if support >= minimum_support:
+            ancestor_mask: mutable i64 = 0
+            earlier: mutable usize = 0
+            while earlier < rank:
+                ancestor_mask <- ancestor_mask | (1 << order[earlier].i64())
+                earlier <- earlier + 1
+            next_masks: mutable i64[64] = zeroed
+            next_weights: mutable i64[64] = zeroed
+            next_length: mutable usize = 0
+            row <- 0
+            while row < length:
+                if (masks[row] & bit) != 0:
+                    next_masks[next_length] <- masks[row] & ancestor_mask
+                    next_weights[next_length] <- weights[row]
+                    next_length <- next_length + 1
+                row <- row + 1
+            total <- total + 1 + frequent_pattern_growth_grow(&next_masks[0], &next_weights[0], next_length,
+                order, rank, minimum_support)
+    total
+
+def frequent_pattern_growth_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or length > 67:
+        return -1
+    rows: i64 = values[0]
+    items: i64 = values[1]
+    minimum: i64 = values[2]
+    if rows < 1 or rows > 64 or items < 1 or items > 8 or minimum < 1 or minimum > rows or length != (3 + rows).usize():
+        return -1
+    limit: i64 = 1 << items
+    masks: mutable i64[64] = zeroed
+    weights: mutable i64[64] = zeroed
+    singleton_support: mutable i64[8] = zeroed
+    row: mutable usize = 0
+    while row < rows.usize():
+        mask: i64 = values[3 + row]
+        if mask < 0 or mask >= limit:
+            return -1
+        masks[row] <- mask
+        weights[row] <- 1
+        item: mutable usize = 0
+        while item < items.usize():
+            if (mask & (1 << item.i64())) != 0:
+                singleton_support[item] <- singleton_support[item] + 1
+            item <- item + 1
+        row <- row + 1
+    order: mutable i64[8] = zeroed
+    item: mutable usize = 0
+    while item < items.usize():
+        order[item] <- item.i64()
+        item <- item + 1
+    item <- 1
+    while item < items.usize():
+        value: i64 = order[item]
+        j: mutable usize = item
+        while j > 0 and (singleton_support[order[j - 1].usize()] < singleton_support[value.usize()]
+            or (singleton_support[order[j - 1].usize()] == singleton_support[value.usize()]
+                and order[j - 1] > value)):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- value
+        item <- item + 1
+    frequent_pattern_growth_grow(&masks[0], &weights[0], rows.usize(), &order[0], items.usize(), minimum)
+
+export fn frequent_pattern_growth(values: i64&, length: usize) -> i64 = frequent_pattern_growth_impl

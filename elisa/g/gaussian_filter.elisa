@@ -1,0 +1,56 @@
+def gaussian_filter_weight(kernel_size: i64, distance: i64) -> i64:
+    if kernel_size == 3:
+        if distance == 0: return 159154943091895
+        if distance == 1: return 96532352630054
+        return 58549831524319
+    if distance == 0: return 198943678864869
+    if distance == 1: return 91083053297916
+    if distance == 2: return 41700860491808
+    if distance == 4: return 8740975213082
+    if distance == 5: return 4001910066968
+    return 384051647741
+
+def gaussian_filter_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3: return -1
+    height: i64 = values[0]
+    width: i64 = values[1]
+    kernel_size: i64 = values[2]
+    if height < 3 or height > 12 or width < 3 or width > 12: return -1
+    if kernel_size != 3 and kernel_size != 5: return -1
+    if height < kernel_size or width < kernel_size: return -1
+    if length != (3 + height * width).usize(): return -1
+
+    index: mutable usize = 3
+    while index < length:
+        if values[index] < 0 or values[index] > 255: return -1
+        index <- index + 1
+
+    output_height: usize = (height - kernel_size + 1).usize()
+    output_width: usize = (width - kernel_size + 1).usize()
+    output_count: usize = output_height * output_width
+    if capacity < output_count: return -2
+
+    center: i64 = kernel_size / 2
+    row: mutable usize = 0
+    while row < output_height:
+        column: mutable usize = 0
+        while column < output_width:
+            total: mutable i64 = 0
+            kernel_row: mutable i64 = 0
+            while kernel_row < kernel_size:
+                dy: i64 = kernel_row - center
+                kernel_column: mutable i64 = 0
+                while kernel_column < kernel_size:
+                    dx: i64 = kernel_column - center
+                    pixel_index: usize = 3 + (row + kernel_row.usize()) * width.usize()
+                                      + column + kernel_column.usize()
+                    distance: i64 = dx * dx + dy * dy
+                    total <- total + values[pixel_index] * gaussian_filter_weight(kernel_size, distance)
+                    kernel_column <- kernel_column + 1
+                kernel_row <- kernel_row + 1
+            output[row * output_width + column] <- (total / 1000000000000000).u8()
+            column <- column + 1
+        row <- row + 1
+    return output_count.i64()
+
+export fn gaussian_filter(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gaussian_filter_impl

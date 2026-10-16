@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "gauss-optimization-f64-slice-io-v1",
+  "algorithm": "gauss_optimization",
+  "function_symbol": "gauss_optimization",
+  "workspace": {
+    "elements": 2
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[reduction_factor,initial_step,epsilon,x1,x2,target1,target2]",
+    "reduction_factor_values": [2, 3, 4],
+    "initial_step_range": [0.25, 4],
+    "epsilon_range": [0.000001, 2],
+    "coordinate_range": [-8, 8],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "final x1 and x2 coordinates in that order",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "epsilon_skips_search",
+      "input_values": [2, 1, 2, 1, -2, 0, 0],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [1, -2]
+    },
+    {
+      "id": "center_tie_uses_bottom_neighbor",
+      "input_values": [2, 0.25, 0.0625, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [0, -0.25]
+    },
+    {
+      "id": "center_refines_step",
+      "input_values": [2, 0.25, 0.01, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [0, -0.03125]
+    },
+    {
+      "id": "moves_x_toward_target",
+      "input_values": [2, 1, 0.02, 2, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [0.0625, 0]
+    },
+    {
+      "id": "translated_target",
+      "input_values": [2, 0.5, 0.2, 1, -1, 1, -1],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [1, -1.25]
+    },
+    {
+      "id": "invalid_reduction_factor",
+      "input_values": [1, 1, 0.1, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_epsilon",
+      "input_values": [2, 1, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "out_of_range_coordinate",
+      "input_values": [2, 1, 0.1, 9, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_length",
+      "input_values": [2, 1, 0.1, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

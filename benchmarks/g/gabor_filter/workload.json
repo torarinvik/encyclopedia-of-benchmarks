@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "id": "python-gabor-filter-f32-kernel-bytes-v1",
+  "algorithm": "gabor_filter",
+  "function_symbol": "gabor_filter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[requested_ksize, sigma, theta_degrees, wavelength, gamma, phase_radians]",
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "ranges": {
+      "requested_ksize": [
+        1,
+        7
+      ],
+      "sigma": [
+        1,
+        8
+      ],
+      "theta_degrees": [
+        0,
+        359
+      ],
+      "wavelength": [
+        1,
+        8
+      ],
+      "gamma": [
+        0,
+        4
+      ],
+      "phase_radians": [
+        -6,
+        6
+      ]
+    },
+    "even_ksize_behavior": "increment to the next odd size",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "row_major_float32_bytes",
+    "encoding": "IEEE-754 binary32 coefficients in row-major order, little-endian",
+    "maximum_output_bytes": 196,
+    "success_result": "encoded byte length",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 196
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one_by_one",
+      "input_values": [
+        1,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 4,
+      "expected_output_hex": "0000803f"
+    },
+    {
+      "id": "even_two_promotes_to_three",
+      "input_values": [
+        2,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "529c333f0000803f529c333f529c333f0000803f529c333f529c333f0000803f529c333f"
+    },
+    {
+      "id": "source_formula_baseline",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "529c333f0000803f529c333f529c333f0000803f529c333f529c333f0000803f529c333f"
+    },
+    {
+      "id": "even_four_promotes_to_five",
+      "input_values": [
+        4,
+        4,
+        45,
+        3,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 100,
+      "expected_output_hex": "87a33a3fbe3469be52485ebf41289d3d7d5f473fbe3469be559e6cbf1d15b23d607d703f41289d3d52485ebf1d15b23d0000803f1d15b23d52485ebf41289d3d607d703f1d15b23d559e6cbfbe3469be7d5f473f41289d3d52485ebfbe3469be87a33a3f"
+    },
+    {
+      "id": "even_six_promotes_to_seven",
+      "input_values": [
+        6,
+        8,
+        359,
+        8,
+        4,
+        6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 196,
+      "expected_output_hex": "289b7fbe759c96bd2089283e816da13e99f88e3e767e9e3d031c26becba6f3beefaf15be05739a3ef83d163f6512063ff2f21a3e87c095be36d934bfd30e67be2051dc3e07c6593fe6cb433fb1466b3e0f25d2be8f0b51bf83868abe0d96f43eb8cd753f43a65e3fdfc08a3e7080e5bec1273cbf4a0e81be7e4fd33e020b583f9225453f2a527e3e2d0ec3beadde03bfa7e03abe80118e3e00dd133fafed073fca21353e030281beb4ee8fbe9b56d2bde5a6143e9c9b9d3e2af4913ec78cc83da8ca04be"
+    },
+    {
+      "id": "maximum_odd_kernel",
+      "input_values": [
+        7,
+        1,
+        90,
+        1,
+        0,
+        -6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 196,
+      "expected_output_hex": "aac22e3caac22e3caac22e3caac22e3caac22e3caac22e3caac22e3c4810053e4810053e4810053e4810053e4810053e4810053e4810053e6116153f6116153f6116153f6116153f6116153f6116153f6116153fb8cd753fb8cd753fb8cd753fb8cd753fb8cd753fb8cd753fb8cd753f6116153f6116153f6116153f6116153f6116153f6116153f6116153f4810053e4810053e4810053e4810053e4810053e4810053e4810053eaac22e3caac22e3caac22e3caac22e3caac22e3caac22e3caac22e3c"
+    },
+    {
+      "id": "quarter_turn_orientation",
+      "input_values": [
+        5,
+        4,
+        90,
+        5,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 100,
+      "expected_output_hex": "d04b21bf2f2631bfc1c536bf2f2631bfd04b21bf7554873e7ea1943e5159993e7ea1943e7554873e51eb613fab1f783f0000803fab1f783f51eb613f7554873e7ea1943e5159993e7ea1943e7554873ed04b21bf2f2631bfc1c536bf2f2631bfd04b21bf"
+    },
+    {
+      "id": "oblique_orientation",
+      "input_values": [
+        5,
+        4,
+        37,
+        5,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 100,
+      "expected_output_hex": "9ddf223d11723e3f999a473fb4838b3d62161fbfc0311e3fb596693f9e6c9f3ecd9116bf33a959bfd2e9613fc1cf063f3311d5bed1c375bf027012bfe35a203f82fd2dbe10ee65bfb5f843bf2ad3323dafaa503da99630bfe78d52bfe7cd2abe0d09103f"
+    },
+    {
+      "id": "orientation_upper_bound",
+      "input_values": [
+        3,
+        2,
+        359,
+        4,
+        2,
+        1
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "5c90e73e7994a03ee6a2edbea81c3e3f40510a3fb50d3ebfcf7be53e3fe8ae3e667bdfbe"
+    },
+    {
+      "id": "phase_lower_bound",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        4,
+        -6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "487b443fc1eb583fa5ced73e8ea45e3fb8cd753fa68af43e487b443fc1eb583fa5ced73e"
+    },
+    {
+      "id": "phase_upper_bound",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        4,
+        6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "a5ced73ec1eb583f487b443fa68af43eb8cd753f8ea45e3fa5ced73ec1eb583f487b443f"
+    },
+    {
+      "id": "gamma_upper_bound",
+      "input_values": [
+        3,
+        3,
+        17,
+        6,
+        4,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "b319253ed784d73e65e33f3e5f25f33e0000803f5f25f33e65e33f3ed784d73eb319253e"
+    },
+    {
+      "id": "sigma_lower_bound",
+      "input_values": [
+        3,
+        1,
+        0,
+        8,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "c42f853e98451b3fc42f853e6a96db3e0000803f6a96db3ec42f853e98451b3fc42f853e"
+    },
+    {
+      "id": "wavelength_lower_bound",
+      "input_values": [
+        3,
+        8,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 36,
+      "expected_output_hex": "f5077c3fff017e3ff5077c3fff017e3f0000803fff017e3ff5077c3fff017e3ff5077c3f"
+    },
+    {
+      "id": "capacity_one_byte_short",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 35,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity_exact",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 36,
+      "expected_result": 36,
+      "expected_output_hex": "529c333f0000803f529c333f529c333f0000803f529c333f529c333f0000803f529c333f"
+    },
+    {
+      "id": "maximum_capacity_one_byte_short",
+      "input_values": [
+        6,
+        8,
+        359,
+        8,
+        4,
+        6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 195,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_capacity_exact",
+      "input_values": [
+        6,
+        8,
+        359,
+        8,
+        4,
+        6
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": 196,
+      "expected_output_hex": "289b7fbe759c96bd2089283e816da13e99f88e3e767e9e3d031c26becba6f3beefaf15be05739a3ef83d163f6512063ff2f21a3e87c095be36d934bfd30e67be2051dc3e07c6593fe6cb433fb1466b3e0f25d2be8f0b51bf83868abe0d96f43eb8cd753f43a65e3fdfc08a3e7080e5bec1273cbf4a0e81be7e4fd33e020b583f9225453f2a527e3e2d0ec3beadde03bfa7e03abe80118e3e00dd133fafed073fca21353e030281beb4ee8fbe9b56d2bde5a6143e9c9b9d3e2af4913ec78cc83da8ca04be"
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0
+      ],
+      "input_length": 5,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlong_parseable_input",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        0,
+        1
+      ],
+      "input_length": 7,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "kernel_below_range",
+      "input_values": [
+        0,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "kernel_above_range",
+      "input_values": [
+        8,
+        8,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sigma_below_range",
+      "input_values": [
+        3,
+        0,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sigma_above_range",
+      "input_values": [
+        3,
+        9,
+        0,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "theta_below_range",
+      "input_values": [
+        3,
+        8,
+        -1,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "theta_above_range",
+      "input_values": [
+        3,
+        8,
+        360,
+        8,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wavelength_below_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wavelength_above_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        9,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "gamma_below_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        -1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "gamma_above_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        5,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "phase_below_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        -7
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "phase_above_range",
+      "input_values": [
+        3,
+        8,
+        0,
+        8,
+        0,
+        7
+      ],
+      "input_length": 6,
+      "workspace_bytes": 196,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

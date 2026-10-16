@@ -1,0 +1,29 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def fractional_differentiation(values: i64&, length: usize) -> f64:
+    if values == null or length < 4 or length > 18: return INVALID_RESULT
+    degree_units: i64 = values[0]
+    window_value: i64 = values[1]
+    count: usize = length - 2
+    if degree_units < 0 or degree_units > 1000000 or window_value < 1 or window_value > 8: return INVALID_RESULT
+    window: usize = window_value.usize()
+    if count <= window or count > 16: return INVALID_RESULT
+    index: mutable usize = 0
+    while index < count:
+        if values[index + 2] < -1000000 or values[index + 2] > 1000000: return INVALID_RESULT
+        index <- index + 1
+    degree: f64 = degree_units.f64() / 1000000.0
+    weights: mutable f64[8] = zeroed
+    weights[0] <- 1.0
+    k: mutable usize = 1
+    while k < window:
+        weights[k] <- -weights[k - 1] * (degree - k.f64() + 1.0) / k.f64()
+        k <- k + 1
+    result: mutable f64 = 0.0
+    j: mutable usize = 0
+    while j < window:
+        result <- result + weights[j] * (values[2 + count - 1 - j].f64() / 1000.0)
+        j <- j + 1
+    return result
+
+export fn fractional_differentiation(values: i64&, length: usize) -> f64 = fractional_differentiation

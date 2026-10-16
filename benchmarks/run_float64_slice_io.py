@@ -21,6 +21,7 @@ from dimensionality_reduction_pca_oracle import expected_result as dimensionalit
 from dimensionality_reduction_lda_oracle import expected_result as dimensionality_reduction_lda_oracle
 from dimensionality_reduction_tsne_oracle import expected_result as dimensionality_reduction_tsne_oracle
 from fresnel_diffract_oracle import expected_result as fresnel_diffract_oracle
+from gauss_optimization_oracle import expected_result as gauss_optimization_oracle
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -30,6 +31,7 @@ ORACLES = {
     "dimensionality_reduction_lda": dimensionality_reduction_lda_oracle,
     "dimensionality_reduction_tsne": dimensionality_reduction_tsne_oracle,
     "fresnel_diffract": fresnel_diffract_oracle,
+    "gauss_optimization": gauss_optimization_oracle,
 }
 
 

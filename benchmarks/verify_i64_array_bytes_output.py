@@ -24,6 +24,7 @@ from flatten_multilevel_linked_list_oracle import MAX_CHAIN_LENGTH as FLATTEN_MA
 from flatten_multilevel_linked_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_INPUT_LENGTH
 from flatten_multilevel_linked_list_oracle import MAX_LISTS as FLATTEN_MAX_LISTS
 from flatten_multilevel_linked_list_oracle import MAX_OUTPUT_BYTES as FLATTEN_MAX_OUTPUT_BYTES
+from flatten_multilevel_linked_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as FLATTEN_MAX_PARSEABLE_INPUT_LENGTH
 from flatten_multilevel_linked_list_oracle import MAX_VALUE as FLATTEN_MAX_VALUE
 from flatten_multilevel_linked_list_oracle import MIN_VALUE as FLATTEN_MIN_VALUE
 from flatten_multilevel_linked_list_oracle import expected_output as flatten_multilevel_linked_list_oracle
@@ -32,6 +33,17 @@ from from_sequence_oracle import MAX_NODE_COUNT as FROM_SEQUENCE_MAX_NODE_COUNT
 from from_sequence_oracle import MAX_OUTPUT_BYTES as FROM_SEQUENCE_MAX_OUTPUT_BYTES
 from from_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH
 from from_sequence_oracle import expected_output as from_sequence_oracle
+from gabor_filter_oracle import MAX_KERNEL_SIZE as GABOR_FILTER_MAX_KERNEL_SIZE
+from gabor_filter_oracle import MAX_OUTPUT_BYTES as GABOR_FILTER_MAX_OUTPUT_BYTES
+from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as GABOR_FILTER_MAX_PARSEABLE_INPUT_LENGTH
+from gabor_filter_oracle import MAX_VALID_INPUT_LENGTH as GABOR_FILTER_MAX_VALID_INPUT_LENGTH
+from gabor_filter_oracle import expected_output as gabor_filter_oracle
+from maskwords_oracle import MAX_INPUT_LENGTH as MASKWORDS_MAX_INPUT_LENGTH
+from maskwords_oracle import MAX_MASK_BYTES as MASKWORDS_MAX_MASK_BYTES
+from maskwords_oracle import MAX_OUTPUT_BYTES as MASKWORDS_MAX_OUTPUT_BYTES
+from maskwords_oracle import MAX_PARSEABLE_INPUT_LENGTH as MASKWORDS_MAX_PARSEABLE_INPUT_LENGTH
+from maskwords_oracle import MAX_TEXT_BYTES as MASKWORDS_MAX_TEXT_BYTES
+from maskwords_oracle import expected_output as maskwords_oracle
 from lyndon_factorization_oracle import MAX_INPUT_LENGTH as MAX_LYNDON_FACTORIZATION_INPUT_LENGTH
 from lyndon_factorization_oracle import MAX_SEQUENCE_LENGTH as LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH
 from lyndon_factorization_oracle import expected_output as lyndon_factorization_oracle
@@ -473,6 +485,9 @@ from gauss_jordan_oracle import MAX_INPUT_LENGTH as GAUSS_JORDAN_MAX_INPUT_LENGT
 from gauss_jordan_oracle import MAX_OUTPUT_BYTES as GAUSS_JORDAN_MAX_OUTPUT_BYTES
 from gauss_jordan_oracle import MAX_ROWS as GAUSS_JORDAN_MAX_ROWS
 from gauss_jordan_oracle import expected_output as gauss_jordan_oracle
+from gaussian_mixture_model_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_MIXTURE_MODEL_INPUT_LENGTH
+from gaussian_mixture_model_oracle import MAX_OUTPUT_BYTES as GAUSSIAN_MIXTURE_MODEL_MAX_OUTPUT_BYTES
+from gaussian_mixture_model_oracle import expected_output as gaussian_mixture_model_oracle
 from gaussian_elimination_pivoting_oracle import MAX_DIMENSION as GAUSSIAN_PIVOTING_MAX_DIMENSION
 from gaussian_elimination_pivoting_oracle import MAX_INPUT_LENGTH as GAUSSIAN_PIVOTING_MAX_INPUT_LENGTH
 from gaussian_elimination_pivoting_oracle import MAX_OUTPUT_BYTES as GAUSSIAN_PIVOTING_MAX_OUTPUT_BYTES
@@ -631,6 +646,9 @@ ALGORITHMS = (*ALGORITHMS, "mean_threshold")
 ALGORITHMS = (*ALGORITHMS, "top_k_frequent_words")
 ALGORITHMS = (*ALGORITHMS, "fft_bluestein")
 ALGORITHMS = (*ALGORITHMS, "fifocache")
+ALGORITHMS = (*ALGORITHMS, "gaussian_mixture_model")
+ALGORITHMS = (*ALGORITHMS, "gabor_filter")
+ALGORITHMS = (*ALGORITHMS, "maskwords")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -721,10 +739,13 @@ WORKSPACE_ALGORITHMS.add("strip")
 WORKSPACE_ALGORITHMS.add("word_frequency_functions")
 WORKSPACE_ALGORITHMS.add("gaussian_elimination_pivoting")
 WORKSPACE_ALGORITHMS.add("gauss_jordan")
+WORKSPACE_ALGORITHMS.add("gaussian_mixture_model")
 WORKSPACE_ALGORITHMS.add("mean_threshold")
 WORKSPACE_ALGORITHMS.add("evaluate_expression")
 WORKSPACE_ALGORITHMS.add("find_month_calendar")
 WORKSPACE_ALGORITHMS.add("top_k_frequent_words")
+WORKSPACE_ALGORITHMS.add("gabor_filter")
+WORKSPACE_ALGORITHMS.add("maskwords")
 ALGORITHMS = (*ALGORITHMS, "evaluate_expression")
 ALGORITHMS = (*ALGORITHMS, "find_month_calendar")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
@@ -10210,6 +10231,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         default_capacity = workload.get("workspace", {}).get("bytes")
         if default_capacity != FLATTEN_MAX_OUTPUT_BYTES:
             raise ValueError("flatten_multilevel_linked_list workspace must be 512 bytes")
+        if workload.get("input", {}).get("maximum_parseable_input_length") != FLATTEN_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("flatten_multilevel_linked_list parseable input length must be 74")
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
 
         def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
@@ -10234,6 +10257,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         required = len(flatten_multilevel_linked_list_oracle(list(probe))[1])
         for capacity in (0, 1, required - 1, required):
             add(probe, capacity)
+        add((0,), 0)
 
         rng = random.Random(20261016)
         for _ in range(256):
@@ -10250,9 +10274,201 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        (1, 1, 1 << 31), (1, 17, *range(17))):
             add(values)
 
-        null_input_canary = ((1, 1, 0), default_capacity)
+        null_input_canary = ((1, 1, 7), default_capacity)
         cases[null_input_canary] = (-1, b"")
         null_input_cases.add(null_input_canary)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "gabor_filter":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != GABOR_FILTER_MAX_OUTPUT_BYTES:
+            raise ValueError("gabor_filter workspace must be 196 bytes")
+        input_contract = workload.get("input", {})
+        if (input_contract.get("maximum_valid_input_length") != GABOR_FILTER_MAX_VALID_INPUT_LENGTH
+                or input_contract.get("maximum_parseable_input_length") != GABOR_FILTER_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("gabor_filter input length bounds disagree with the oracle")
+        expected_ranges = {
+            "requested_ksize": [1, GABOR_FILTER_MAX_KERNEL_SIZE],
+            "sigma": [1, 8],
+            "theta_degrees": [0, 359],
+            "wavelength": [1, 8],
+            "gamma": [0, 4],
+            "phase_radians": [-6, 6],
+        }
+        if (input_contract.get("kind") != "signed_64_bit_integer_array"
+                or input_contract.get("encoding")
+                   != "[requested_ksize, sigma, theta_degrees, wavelength, gamma, phase_radians]"
+                or input_contract.get("ranges") != expected_ranges
+                or input_contract.get("even_ksize_behavior") != "increment to the next odd size"
+                or input_contract.get("invalid_input_result") != -1):
+            raise ValueError("gabor_filter input contract disagrees with the bounded oracle")
+        output_contract = workload.get("output", {})
+        if (output_contract.get("kind") != "row_major_float32_bytes"
+                or output_contract.get("encoding")
+                   != "IEEE-754 binary32 coefficients in row-major order, little-endian"
+                or output_contract.get("maximum_output_bytes") != GABOR_FILTER_MAX_OUTPUT_BYTES
+                or output_contract.get("success_result") != "encoded byte length"
+                or output_contract.get("invalid_input_result") != -1
+                or output_contract.get("insufficient_output_capacity_result") != -2):
+            raise ValueError("gabor_filter output contract disagrees with the bounded oracle")
+
+        fixture_records: list[tuple[tuple[int, ...], int, bytes, int]] = []
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            cases[(values, capacity)] = gabor_filter_oracle(list(values), capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = gabor_filter_oracle(list(values), capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"gabor_filter workload mismatch: {case['id']}")
+            fixture_records.append((values, result, output, capacity))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            add((rng.randint(1, GABOR_FILTER_MAX_KERNEL_SIZE),
+                 rng.randint(1, 8), rng.randint(0, 359), rng.randint(1, 8),
+                 rng.randint(0, 4), rng.randint(-6, 6)))
+
+        maximum_kernel = (GABOR_FILTER_MAX_KERNEL_SIZE, 1, 90, 1, 0, -6)
+        maximum_result, maximum_output = gabor_filter_oracle(list(maximum_kernel))
+        if maximum_result != GABOR_FILTER_MAX_OUTPUT_BYTES or len(maximum_output) != default_capacity:
+            raise ValueError("gabor_filter maximum kernel must encode to 196 bytes")
+        for capacity in (0, default_capacity - 1, default_capacity):
+            add(maximum_kernel, capacity)
+
+        small_kernel = (1, 8, 0, 8, 0, 0)
+        small_result, _ = gabor_filter_oracle(list(small_kernel))
+        for capacity in (0, small_result - 1, small_result, default_capacity):
+            add(small_kernel, capacity)
+
+        malformed = (
+            (), (1,), (3, 8, 0, 8, 0),
+            (3, 8, 0, 8, 0, 0, 1),
+            (0, 8, 0, 8, 0, 0), (GABOR_FILTER_MAX_KERNEL_SIZE + 1, 8, 0, 8, 0, 0),
+            (3, 0, 0, 8, 0, 0), (3, 9, 0, 8, 0, 0),
+            (3, 8, -1, 8, 0, 0), (3, 8, 360, 8, 0, 0),
+            (3, 8, 0, 0, 0, 0), (3, 8, 0, 9, 0, 0),
+            (3, 8, 0, 8, -1, 0), (3, 8, 0, 8, 5, 0),
+            (3, 8, 0, 8, 0, -7), (3, 8, 0, 8, 0, 7),
+            (-(1 << 63), 8, 0, 8, 0, 0), ((1 << 63) - 1, 8, 0, 8, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+
+        null_values = (1, 8, 1, 8, 0, 0)
+        null_input_canary = (null_values, default_capacity)
+        if null_input_canary in cases:
+            raise ValueError("gabor_filter NULL-input canary must be distinct from workload cases")
+        if any((values, capacity) == null_input_canary
+               for values, _, _, capacity in fixture_records):
+            raise ValueError("gabor_filter NULL-input canary must be distinct from workload fixtures")
+        cases[null_input_canary] = (-1, b"")
+        null_input_cases.add(null_input_canary)
+        records.extend(fixture_records)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "maskwords":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != MASKWORDS_MAX_OUTPUT_BYTES:
+            raise ValueError("maskwords workspace must be 1447 bytes")
+        input_contract = workload.get("input", {})
+        if (input_contract.get("kind") != "signed_i64_array"
+                or input_contract.get("encoding")
+                   != "[text_byte_length, text_ascii_bytes..., mask_byte_length, mask_printable_ascii_bytes...]"
+                or input_contract.get("maximum_text_bytes") != MASKWORDS_MAX_TEXT_BYTES
+                or input_contract.get("text_byte_range") != [1, 127]
+                or input_contract.get("nul_text_byte_is_invalid") is not True
+                or input_contract.get("line_feed_is_removed_after_replacement") is not True
+                or input_contract.get("maximum_mask_bytes") != MASKWORDS_MAX_MASK_BYTES
+                or input_contract.get("mask_byte_range") != [32, 126]
+                or input_contract.get("backslash_mask_byte_is_invalid") is not True
+                or input_contract.get("maximum_input_length") != MASKWORDS_MAX_INPUT_LENGTH
+                or input_contract.get("maximum_parseable_input_length") != MASKWORDS_MAX_PARSEABLE_INPUT_LENGTH
+                or input_contract.get("literal_space_split") is not True):
+            raise ValueError("maskwords input contract disagrees with the bounded oracle")
+        output_contract = workload.get("output", {})
+        if (output_contract.get("kind") != "bytes"
+                or output_contract.get("encoding") != "ASCII result bytes from the pinned maskWords operation"
+                or output_contract.get("return_value") != "output byte length"
+                or output_contract.get("maximum_output_bytes") != MASKWORDS_MAX_OUTPUT_BYTES
+                or output_contract.get("invalid_result") != -1
+                or output_contract.get("insufficient_capacity_result") != -2):
+            raise ValueError("maskwords output contract disagrees with the bounded oracle")
+
+        fixture_records: list[tuple[tuple[int, ...], int, bytes, int]] = []
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MASKWORDS_MAX_OUTPUT_BYTES:
+                raise ValueError("maskwords corpus capacity must fit its maximum output")
+            cases[(values, capacity)] = maskwords_oracle(values, capacity)
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = maskwords_oracle(values, capacity)
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"maskwords workload mismatch: {case['id']}")
+            fixture_records.append((values, result, output, capacity))
+
+        maximum_case = next((case for case in workload["cases"] if case["id"] == "maximum_output"), None)
+        if maximum_case is None:
+            raise ValueError("maskwords workload must include its maximum_output fixture")
+        maximum_values = tuple(maximum_case["input_values"])
+        maximum_result, maximum_output = maskwords_oracle(maximum_values)
+        if (len(maximum_values) != MASKWORDS_MAX_INPUT_LENGTH
+                or maximum_result != MASKWORDS_MAX_OUTPUT_BYTES
+                or len(maximum_output) != MASKWORDS_MAX_OUTPUT_BYTES):
+            raise ValueError("maskwords maximum output fixture does not reach its declared bound")
+        add(maximum_values, MASKWORDS_MAX_OUTPUT_BYTES - 1)
+        add(maximum_values, MASKWORDS_MAX_OUTPUT_BYTES)
+
+        short_values = (5, 98, 105, 114, 100, 115, 4, 77, 65, 83, 75)
+        short_result, _ = maskwords_oracle(short_values)
+        if short_result != 4:
+            raise ValueError("maskwords short-capacity probe must encode four bytes")
+        for capacity in (0, short_result - 1, short_result):
+            add(short_values, capacity)
+
+        rng = random.Random(20261016)
+        valid_mask_alphabet = tuple(value for value in range(32, 127) if value != 92)
+        for _ in range(256):
+            text_length = rng.randint(0, MASKWORDS_MAX_TEXT_BYTES)
+            text = tuple(rng.randint(1, 127) for _ in range(text_length))
+            mask_length = rng.randint(0, MASKWORDS_MAX_MASK_BYTES)
+            mask = tuple(rng.choice(valid_mask_alphabet) for _ in range(mask_length))
+            add((text_length, *text, mask_length, *mask))
+
+        malformed = (
+            (), (0,), (-1, 0), (MASKWORDS_MAX_TEXT_BYTES + 1,),
+            (1, 98), (0, -1), (0, MASKWORDS_MAX_MASK_BYTES + 1),
+            (0, 1, 65), (0, 0, 0),
+            (3, 97, 0, 98, 1, 35), (1, 0, 1, 35),
+            (1, 128, 1, 35), (1, 97, 1, 31), (1, 97, 1, 127),
+            (1, 97, 1, 92), (0, 17, *([65] * 17)),
+            tuple([0] * (MASKWORDS_MAX_PARSEABLE_INPUT_LENGTH + 1)),
+            (-(1 << 63),), ((1 << 63) - 1,),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (1, 120, 1, 35)
+        null_key = (null_values, default_capacity)
+        if maskwords_oracle(null_values, default_capacity) != (1, b"x"):
+            raise ValueError("maskwords NULL-input canary must be a valid packed case")
+        if null_key in cases or any((values, capacity) == null_key
+                                    for values, _, _, capacity in fixture_records):
+            raise ValueError("maskwords NULL-input canary must be distinct from workload and generated cases")
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend(fixture_records)
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "flip_augmentation":
@@ -10809,9 +11025,9 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "lyndon_factorization":
-        default_capacity = workload.get("output", {}).get("maximum_length")
+        default_capacity = workload.get("workspace", {}).get("bytes")
         if default_capacity != 2 * LYNDON_FACTORIZATION_MAX_SEQUENCE_LENGTH:
-            raise ValueError("lyndon_factorization output capacity must be 512 bytes")
+            raise ValueError("lyndon_factorization workspace must be 512 bytes")
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
 
         def add(values: tuple[int, ...], capacity: int) -> None:
@@ -10932,6 +11148,53 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((0,), 0)
 
         null_values = (1, 424_242)
+        null_key = (null_values, default_capacity)
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "gaussian_mixture_model":
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if default_capacity != GAUSSIAN_MIXTURE_MODEL_MAX_OUTPUT_BYTES:
+            raise ValueError("gaussian_mixture_model workspace must be 17 bytes")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("gaussian_mixture_model capacity exceeds the output bounds")
+            result, output = gaussian_mixture_model_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes", default_capacity)
+            result, output = gaussian_mixture_model_oracle(list(values))
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"gaussian_mixture_model workload mismatch: {case['id']}")
+            add(values, capacity)
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            count = 2
+            samples = sorted(rng.randint(-5000, 5000) for _ in range(count))
+            values = (count, 1, 1, *samples)
+            add(values)
+        capacity_probe = (6, 1, 100, -3000, -2000, -1000, 1000, 2000, 3000)
+        for capacity in (0, 1, 6, 7, 17):
+            add(capacity_probe, capacity)
+        for values in ((), (1,), (2, 0, 1), (2, 1, 0),
+                       (17, 1, 100, *([0] * 17)),
+                       (3, 1, 100, 0, 1, -1),
+                       (2, 1, 0, -5001, 5000),
+                       (2, 1, 0, -(1 << 63), 5000)):
+            add(tuple(values))
+        null_values = (2, 1, 100, -1, 1)
         null_key = (null_values, default_capacity)
         cases[null_key] = (-1, b"")
         null_input_cases.add(null_key)

@@ -1,0 +1,48 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern memcpy(destination: mutable u32&, source: f32&, length: usize) -> mutable u32&
+
+def put_f32_le(output: mutable u8&, offset: usize, value: f64) -> void:
+    rounded: f32 = value.f32()
+    bits: mutable u32 = 0
+    memcpy(&bits, &rounded, 4)
+    for byte in 0..4: output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
+
+def gabor_filter_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or length < 1 or length > 7: return -1
+    if length != 6: return -1
+    requested: i64 = v[0]
+    sigma: i64 = v[1]
+    theta: i64 = v[2]
+    wavelength: i64 = v[3]
+    gamma: i64 = v[4]
+    phase: i64 = v[5]
+    if requested < 1 or requested > 7 or sigma < 1 or sigma > 8: return -1
+    if theta < 0 or theta > 359 or wavelength < 1 or wavelength > 8: return -1
+    if gamma < 0 or gamma > 4 or phase < -6 or phase > 6: return -1
+
+    side: i64 = requested
+    if side % 2 == 0: side <- side+1
+    output_bytes: usize = (side*side*4).usize()
+    if output.is_null() or capacity < output_bytes: return -2
+
+    pi: f64 = 3.14159265358979323846264338327950288
+    angle: f64 = (theta.f64()/180.0)*pi
+    cosine: f64 = cos(angle)
+    sine: f64 = sin(angle)
+    center: i64 = side/2
+    offset: mutable usize = 0
+    for y in 0..side:
+        py: f64 = (y-center).f64()
+        for x in 0..side:
+            px: f64 = (x-center).f64()
+            kernel_x: f64 = cosine*px+sine*py
+            kernel_y: f64 = -sine*px+cosine*py
+            exponent: f64 = -(kernel_x*kernel_x+(gamma*gamma).f64()*kernel_y*kernel_y)/(2.0*sigma.f64()*sigma.f64())
+            phase_angle: f64 = 2.0*pi*kernel_x/wavelength.f64()+phase.f64()
+            put_f32_le(output, offset, exp(exponent)*cos(phase_angle))
+            offset <- offset+4
+    output_bytes.i64()
+
+export gabor_filter(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gabor_filter_impl

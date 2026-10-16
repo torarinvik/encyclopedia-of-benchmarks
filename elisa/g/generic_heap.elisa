@@ -1,0 +1,105 @@
+const OFFSET: u64 = 14695981039346656037
+const PRIME: u64 = 1099511628211
+
+def generic_heap_hash(h0: u64, value: i64) -> u64:
+    h: mutable u64 = h0
+    bits: u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        h <- (h ^ ((bits >> (8 * i)) & 255)) * PRIME
+        i <- i + 1
+    h
+
+def generic_heap_impl(a: i64&, length: usize) -> i64:
+    if a == null or length < 1 or length > 769: return -1
+    if a[0] < 0 or a[0] > 256 or length != (1 + 3 * a[0]).usize(): return -1
+    ids: mutable i64[128] = zeroed
+    priorities: mutable i64[128] = zeroed
+    positions: mutable i64[4096] = zeroed
+    z: mutable usize = 0
+    h: mutable u64 = OFFSET
+    init: mutable usize = 0
+    while init < 4096:
+        positions[init] <- -1
+        init <- init + 1
+    k: mutable usize = 0
+    while k < a[0].usize():
+        op: i64 = a[1 + 3 * k]
+        id: i64 = a[2 + 3 * k]
+        value: i64 = a[3 + 3 * k]
+        if op == 0:
+            if id < 0 or id >= 4096 or value < -2147483648 or value > 2147483647 or positions[id.usize()] >= 0 or z >= 128: return -1
+            ids[z] <- id
+            priorities[z] <- value
+            positions[id.usize()] <- z.i64()
+            i: mutable usize = z
+            z <- z + 1
+            while i > 0:
+                parent: usize = (i - 1) / 2
+                if priorities[i] <= priorities[parent]: break
+                tid: i64 = ids[i]
+                ids[i] <- ids[parent]
+                ids[parent] <- tid
+                tv: i64 = priorities[i]
+                priorities[i] <- priorities[parent]
+                priorities[parent] <- tv
+                positions[ids[i].usize()] <- i.i64()
+                positions[ids[parent].usize()] <- parent.i64()
+                i <- parent
+        elif op == 1 or op == 2:
+            if id != 0 or value != 0 or z == 0: return -1
+            ri: i64 = ids[0]
+            rv: i64 = priorities[0]
+            if op == 2:
+                tid: mutable i64 = ids[0]
+                ids[0] <- ids[z - 1]
+                ids[z - 1] <- tid
+                tv: mutable i64 = priorities[0]
+                priorities[0] <- priorities[z - 1]
+                priorities[z - 1] <- tv
+                positions[ids[0].usize()] <- 0
+                positions[ids[z - 1].usize()] <- (z - 1).i64()
+                z <- z - 1
+                positions[ri.usize()] <- -1
+                i: mutable usize = 0
+                while 2 * i + 1 < z:
+                    child: mutable usize = 2 * i + 1
+                    if child + 1 < z and priorities[child + 1] > priorities[child]: child <- child + 1
+                    if priorities[i] >= priorities[child]: break
+                    tid <- ids[i]
+                    ids[i] <- ids[child]
+                    ids[child] <- tid
+                    tv <- priorities[i]
+                    priorities[i] <- priorities[child]
+                    priorities[child] <- tv
+                    positions[ids[i].usize()] <- i.i64()
+                    positions[ids[child].usize()] <- child.i64()
+                    i <- child
+            h <- generic_heap_hash(h, ri)
+            h <- generic_heap_hash(h, rv)
+        elif op == 3:
+            if id < 0 or id >= 4096 or value < -2147483648 or value > 2147483647 or positions[id.usize()] < 0: return -1
+            i: mutable usize = positions[id.usize()].usize()
+            priorities[i] <- value
+            while i > 0:
+                parent: usize = (i - 1) / 2
+                if priorities[i] <= priorities[parent]: break
+                tid: i64 = ids[i]
+                ids[i] <- ids[parent]
+                ids[parent] <- tid
+                tv: i64 = priorities[i]
+                priorities[i] <- priorities[parent]
+                priorities[parent] <- tv
+                positions[ids[i].usize()] <- i.i64()
+                positions[ids[parent].usize()] <- parent.i64()
+                i <- parent
+        elif op == 4 or op == 5:
+            if id != 0 or value != 0: return -1
+            if op == 4: h <- generic_heap_hash(h, z.i64())
+            else:
+                if z == 0: h <- generic_heap_hash(h, 1)
+                else: h <- generic_heap_hash(h, 0)
+        else: return -1
+        k <- k + 1
+    h.i64()
+export generic_heap(a: i64&, length: usize) -> i64 = generic_heap_impl

@@ -8,7 +8,7 @@ Counts ASCII consonant letters in a string using the pinned PHP routine's charac
 - The array length is 1..4096, except the exact one-character string 0 ([48]), which is invalid.
 - Fold ASCII uppercase letters to lowercase, then count only a..z letters that are not a, e, i, o, or u.
 - Ignore digits, spaces, punctuation, and other nonletters.
-- Empty input and the exact string 0 return -1, matching the source's exception cases. Other malformed inputs also return -1.
+- A NULL pointer with positive length, empty input, and the exact string 0 return -1. The latter two match the source's exception cases; other malformed inputs also return -1.
 
 ## Source semantics
 

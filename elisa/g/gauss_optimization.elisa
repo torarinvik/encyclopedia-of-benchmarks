@@ -1,0 +1,67 @@
+def gauss_optimization_objective(x1: f64, x2: f64, target1: f64, target2: f64) -> f64:
+    dx: f64 = x1 - target1
+    dy: f64 = x2 - target2
+    -(dx * dx + dy * dy)
+
+def gauss_optimization_abs(value: f64) -> f64:
+    if value < 0.0:
+        return -value
+    value
+
+def gauss_optimization_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 7: return -1
+    index: mutable usize = 0
+    while index < length:
+        value: f64 = values[index]
+        if value != value or value > 1.0e100 or value < -1.0e100: return -1
+        index <- index + 1
+    if values[0] != 2.0 and values[0] != 3.0 and values[0] != 4.0: return -1
+    if values[1] < 0.25 or values[1] > 4.0 or values[2] < 1.0e-6 or values[2] > 2.0: return -1
+    index <- 3
+    while index < 7:
+        if values[index] < -8.0 or values[index] > 8.0: return -1
+        index <- index + 1
+    if output == null or capacity < 2: return -2
+
+    factor: f64 = values[0]
+    step: mutable f64 = values[1]
+    epsilon: f64 = values[2]
+    x1: mutable f64 = values[3]
+    x2: mutable f64 = values[4]
+    target1: f64 = values[5]
+    target2: f64 = values[6]
+    error: mutable f64 = 1.0
+    iteration: mutable usize = 0
+    while gauss_optimization_abs(error) > epsilon and iteration < 256:
+        current: f64 = gauss_optimization_objective(x1, x2, target1, target2)
+        best: mutable f64 = gauss_optimization_objective(x1, x2 - step, target1, target2)
+        choice: mutable usize = 0
+        candidate: mutable f64 = gauss_optimization_objective(x1, x2 + step, target1, target2)
+        if candidate > best:
+            best <- candidate
+            choice <- 1
+        candidate <- gauss_optimization_objective(x1 - step, x2, target1, target2)
+        if candidate > best:
+            best <- candidate
+            choice <- 2
+        candidate <- gauss_optimization_objective(x1 + step, x2, target1, target2)
+        if candidate > best:
+            best <- candidate
+            choice <- 3
+        error <- best - current
+        if choice == 0:
+            x2 <- x2 - step
+        elif choice == 1:
+            x2 <- x2 + step
+        elif choice == 2:
+            x1 <- x1 - step
+        else:
+            x1 <- x1 + step
+        step <- step / factor
+        iteration <- iteration + 1
+    if gauss_optimization_abs(error) > epsilon: return -1
+    output[0] <- x1
+    output[1] <- x2
+    2
+
+export fn gauss_optimization(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = gauss_optimization_impl

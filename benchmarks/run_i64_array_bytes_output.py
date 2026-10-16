@@ -30,9 +30,16 @@ from external_merge_sorter_oracle import expected_output as external_merge_sorte
 from flip_augmentation_oracle import MAX_INPUT_LENGTH as MAX_FLIP_AUGMENTATION_INPUT_LENGTH
 from flip_augmentation_oracle import expected_output as flip_augmentation_expected_output
 from flatten_multilevel_linked_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_LINKED_LIST_INPUT_LENGTH
+from flatten_multilevel_linked_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_LINKED_LIST_PARSEABLE_INPUT_LENGTH
 from flatten_multilevel_linked_list_oracle import expected_output as flatten_multilevel_linked_list_expected_output
 from from_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH
 from from_sequence_oracle import expected_output as from_sequence_expected_output
+from geohash_oracle import MAX_INPUT_LENGTH as MAX_GEOHASH_INPUT_LENGTH
+from geohash_oracle import expected_output as geohash_expected_output
+from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GABOR_FILTER_PARSEABLE_INPUT_LENGTH
+from gabor_filter_oracle import expected_output as gabor_filter_expected_output
+from maskwords_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MASKWORDS_PARSEABLE_INPUT_LENGTH
+from maskwords_oracle import expected_output as maskwords_expected_output
 from trifid_cipher_oracle import expected_output as trifid_cipher_expected_output
 from fft_bluestein_oracle import expected_output as fft_bluestein_expected_output
 from double_point_crossover_oracle import expected_result as double_point_crossover_expected_output
@@ -630,6 +637,12 @@ from gaussian_elimination_pivoting_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIA
 from gaussian_elimination_pivoting_oracle import expected_output as gaussian_elimination_pivoting_expected_output
 from gauss_jordan_oracle import MAX_INPUT_LENGTH as MAX_GAUSS_JORDAN_INPUT_LENGTH
 from gauss_jordan_oracle import expected_output as gauss_jordan_expected_output
+from gaussian_filter_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_FILTER_INPUT_LENGTH
+from gaussian_filter_oracle import expected_output as gaussian_filter_expected_output
+from gaussian_mixture_model_oracle import MAX_INPUT_LENGTH as MAX_GAUSSIAN_MIXTURE_MODEL_INPUT_LENGTH
+from gaussian_mixture_model_oracle import expected_output as gaussian_mixture_model_expected_output
+from longest_consecutive_characters_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_CONSECUTIVE_CHARACTERS_INPUT_LENGTH
+from longest_consecutive_characters_oracle import expected_output as longest_consecutive_characters_expected_output
 from fraction_oracle import MAX_INPUT_LENGTH as MAX_FRACTION_INPUT_LENGTH
 from fraction_oracle import expected_output as fraction_expected_output
 from flood_fill_oracle import expected_output as flood_fill_expected_output
@@ -1436,15 +1449,26 @@ def round_half_away_from_zero(value: float) -> int:
 
 RECORDER_WORKSPACE_ALGORITHMS.add('from_sequence')
 RECORDER_WORKSPACE_ALGORITHMS.add('lyndon_factorization')
+RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_filter')
+RECORDER_WORKSPACE_ALGORITHMS.add('gaussian_mixture_model')
+RECORDER_WORKSPACE_ALGORITHMS.add('gabor_filter')
+RECORDER_WORKSPACE_ALGORITHMS.add('maskwords')
+RECORDER_WORKSPACE_ALGORITHMS.add('longest_consecutive_characters')
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
     if algorithm == "flip_augmentation":
         return flip_augmentation_expected_output(values)
+    if algorithm == "geohash":
+        return geohash_expected_output(values)
     if algorithm == "from_sequence":
         return from_sequence_expected_output(values)
     if algorithm == "flatten_multilevel_linked_list":
         return flatten_multilevel_linked_list_expected_output(values)
+    if algorithm == "gabor_filter":
+        return gabor_filter_expected_output(values)
+    if algorithm == "maskwords":
+        return maskwords_expected_output(values)
     if algorithm == "external_merge_sorter":
         return external_merge_sorter_expected_output(values)
     if algorithm == "double_point_crossover":
@@ -1694,6 +1718,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return gaussian_elimination_pivoting_expected_output(values)
     if algorithm == "gauss_jordan":
         return gauss_jordan_expected_output(values)
+    if algorithm == "gaussian_filter":
+        return gaussian_filter_expected_output(values)
+    if algorithm == "gaussian_mixture_model":
+        return gaussian_mixture_model_expected_output(values)
+    if algorithm == "longest_consecutive_characters":
+        return longest_consecutive_characters_expected_output(values)
     if algorithm == "fraction":
         return fraction_expected_output(values)
     if algorithm == "naive_bayes":
@@ -12000,8 +12030,11 @@ def main() -> int:
     for case in workload["cases"]:
         values = case.get("input_values")
         max_input_length = (MAX_EXTERNAL_MERGE_SORTER_INPUT_LENGTH if algorithm == "external_merge_sorter" else
+                            MAX_GEOHASH_INPUT_LENGTH if algorithm == "geohash" else
                             MAX_FLIP_AUGMENTATION_INPUT_LENGTH if algorithm == "flip_augmentation" else
-                            MAX_FLATTEN_MULTILEVEL_LINKED_LIST_INPUT_LENGTH if algorithm == "flatten_multilevel_linked_list" else
+                            MAX_FLATTEN_MULTILEVEL_LINKED_LIST_PARSEABLE_INPUT_LENGTH if algorithm == "flatten_multilevel_linked_list" else
+                            MAX_GABOR_FILTER_PARSEABLE_INPUT_LENGTH if algorithm == "gabor_filter" else
+                            MAX_MASKWORDS_PARSEABLE_INPUT_LENGTH if algorithm == "maskwords" else
                             MAX_FROM_SEQUENCE_PARSEABLE_INPUT_LENGTH if algorithm == "from_sequence" else
                             MAX_IIR_FILTER_INPUT_LENGTH if algorithm == "iir_filter" else
                             MAX_RGB_CMYK_CONVERSION_INPUT_LENGTH if algorithm == "rgb_cmyk_conversion" else
@@ -12040,6 +12073,9 @@ def main() -> int:
                             MAX_JACOBI_ITERATION_METHOD_INPUT_LENGTH if algorithm == "jacobi_iteration_method" else
                             MAX_GAUSSIAN_ELIMINATION_PIVOTING_INPUT_LENGTH if algorithm == "gaussian_elimination_pivoting" else
                             MAX_GAUSS_JORDAN_INPUT_LENGTH if algorithm == "gauss_jordan" else
+                            MAX_GAUSSIAN_FILTER_INPUT_LENGTH if algorithm == "gaussian_filter" else
+                            MAX_GAUSSIAN_MIXTURE_MODEL_INPUT_LENGTH if algorithm == "gaussian_mixture_model" else
+                            MAX_LONGEST_CONSECUTIVE_CHARACTERS_INPUT_LENGTH if algorithm == "longest_consecutive_characters" else
                             1 + 3 * UNIFORM_CROSSOVER_MAX_COUNT if algorithm == "uniform_crossover" else
                             MAX_MOVE_TO_FRONT_PARSEABLE_INPUT_LENGTH if algorithm == "move_to_front" else
                             4 if algorithm == "midpoint_integration" else

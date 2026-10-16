@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0.0",
+  "id": "python-gaussian-mixture-model-univariate-em-i64-array-bytes-v1",
+  "algorithm": "gaussian_mixture_model",
+  "function_symbol": "gaussian_mixture_model",
+  "description": "Two-component univariate Gaussian-mixture EM with deterministic endpoint initialization.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[sample_count, max_iterations, tolerance_micro, sorted_samples_milli...]",
+    "maximum_input_length": 19,
+    "sample_count_range": [
+      2,
+      16
+    ],
+    "max_iterations_range": [
+      1,
+      20
+    ],
+    "tolerance_micro_range": [
+      1,
+      1000
+    ],
+    "sample_range": [
+      -5000,
+      5000
+    ],
+    "sample_order": "nondecreasing",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "iteration_count_then_component_label_bytes",
+    "maximum_output_bytes": 17,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 17
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/gaussian_mixture_model.py"
+  },
+  "cases": [
+    {
+      "id": "separated_modes_one_iteration",
+      "input_values": [
+        6,
+        1,
+        100,
+        -3000,
+        -2000,
+        -1000,
+        1000,
+        2000,
+        3000
+      ],
+      "input_length": 9,
+      "expected_result": 7,
+      "expected_output_hex": "01000000010101"
+    },
+    {
+      "id": "identical_samples_converge",
+      "input_values": [
+        4,
+        5,
+        100,
+        750,
+        750,
+        750,
+        750
+      ],
+      "input_length": 7,
+      "expected_result": 5,
+      "expected_output_hex": "0200000000"
+    },
+    {
+      "id": "one_step_soft_assignment",
+      "input_values": [
+        4,
+        1,
+        1,
+        -4569,
+        -2943,
+        -1188,
+        1767
+      ],
+      "input_length": 7,
+      "expected_result": 5,
+      "expected_output_hex": "0100000101"
+    },
+    {
+      "id": "invalid_unsorted_samples",
+      "input_values": [
+        3,
+        1,
+        100,
+        -1000,
+        1000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_tolerance",
+      "input_values": [
+        2,
+        1,
+        1001,
+        -1000,
+        1000
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        4,
+        1,
+        100,
+        -1000,
+        -1000,
+        1000,
+        1000
+      ],
+      "input_length": 7,
+      "workspace_bytes": 4,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

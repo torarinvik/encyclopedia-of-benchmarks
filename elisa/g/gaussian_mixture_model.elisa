@@ -1,0 +1,101 @@
+extern exp(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const MAX_SAMPLES: i64 = 16
+const MAX_INPUT_LENGTH: usize = 19
+const PI: f64 = 3.14159265358979323846264338327950288
+
+def gaussian_mixture_model_pdf(value: f64, mean: f64, variance: f64) -> f64:
+    difference: f64 = value - mean
+    exp(-(difference * difference) / (2.0 * variance)) / sqrt(2.0 * PI * variance)
+
+def gaussian_mixture_model_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    count_value: i64 = values[0]
+    max_iterations_value: i64 = values[1]
+    tolerance_micro: i64 = values[2]
+    if count_value < 2 or count_value > MAX_SAMPLES: return -1
+    if max_iterations_value < 1 or max_iterations_value > 20: return -1
+    if tolerance_micro < 1 or tolerance_micro > 1000: return -1
+    count: usize = count_value.usize()
+    if length != 3 + count: return -1
+
+    data: mutable f64[16] = zeroed
+    previous_sample: mutable i64 = -5001
+    for index in 0..<count:
+        sample: i64 = values[3 + index]
+        if sample < -5000 or sample > 5000 or sample < previous_sample: return -1
+        previous_sample <- sample
+        data[index] <- sample.f64() / 1000.0
+    required: usize = count + 1
+    if output.is_null() or capacity < required: return -2
+
+    data_mean: mutable f64 = 0.0
+    for index in 0..<count: data_mean <- data_mean + data[index]
+    data_mean <- data_mean / count.f64()
+    variance: mutable f64 = 0.0
+    for index in 0..<count:
+        difference: f64 = data[index] - data_mean
+        variance <- variance + difference * difference
+    variance <- variance / (count - 1).f64() + 0.000001
+
+    weights: mutable f64[2] = zeroed
+    means: mutable f64[2] = zeroed
+    variances: mutable f64[2] = zeroed
+    responsibilities: mutable f64[2][16] = zeroed
+    weights[0] <- 0.5
+    weights[1] <- 0.5
+    means[0] <- data[0]
+    means[1] <- data[count - 1]
+    variances[0] <- variance
+    variances[1] <- variance
+    tolerance: f64 = tolerance_micro.f64() / 1000000.0
+    previous_likelihood: mutable f64 = 0.0
+    has_previous_likelihood: mutable bool = false
+    iterations: mutable usize = 0
+
+    for iteration in 0..<max_iterations_value.usize():
+        component_counts: mutable f64[2] = zeroed
+        for index in 0..<count:
+            probability0: f64 = weights[0] * gaussian_mixture_model_pdf(data[index], means[0], variances[0])
+            probability1: f64 = weights[1] * gaussian_mixture_model_pdf(data[index], means[1], variances[1])
+            total: f64 = probability0 + probability1
+            if total == 0.0: return -1
+            responsibilities[0][index] <- probability0 / total
+            responsibilities[1][index] <- probability1 / total
+            component_counts[0] <- component_counts[0] + responsibilities[0][index]
+            component_counts[1] <- component_counts[1] + responsibilities[1][index]
+        if component_counts[0] <= 0.0 or component_counts[1] <= 0.0: return -1
+
+        for component in 0..<2:
+            weights[component] <- component_counts[component] / count.f64()
+            weighted_sum: mutable f64 = 0.0
+            for index in 0..<count:
+                weighted_sum <- weighted_sum + responsibilities[component][index] * data[index]
+            means[component] <- weighted_sum / component_counts[component]
+            covariance: mutable f64 = 0.0
+            for index in 0..<count:
+                difference: f64 = data[index] - means[component]
+                covariance <- covariance + responsibilities[component][index] * difference * difference
+            variances[component] <- covariance / component_counts[component] + 0.000001
+
+        likelihood: mutable f64 = 0.0
+        for index in 0..<count:
+            density: f64 = weights[0] * gaussian_mixture_model_pdf(data[index], means[0], variances[0]) + weights[1] * gaussian_mixture_model_pdf(data[index], means[1], variances[1])
+            likelihood <- likelihood + log(density + 0.000000000001)
+        iterations <- iteration + 1
+        if has_previous_likelihood and fabs(likelihood - previous_likelihood) < tolerance: break
+        previous_likelihood <- likelihood
+        has_previous_likelihood <- true
+
+    output[0] <- iterations.u8()
+    for index in 0..<count:
+        probability0: f64 = weights[0] * gaussian_mixture_model_pdf(data[index], means[0], variances[0])
+        probability1: f64 = weights[1] * gaussian_mixture_model_pdf(data[index], means[1], variances[1])
+        output[index + 1] <- 0u8()
+        if probability0 < probability1: output[index + 1] <- 1u8()
+    return required.i64()
+
+export fn gaussian_mixture_model(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gaussian_mixture_model_impl

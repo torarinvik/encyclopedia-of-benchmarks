@@ -1,0 +1,27 @@
+def longest_consecutive_characters_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > 257: return -1
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 256: return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    for index in 0..<count:
+        if values[index + 1] < 0 or values[index + 1] > 127: return -1
+    if output.is_null() or capacity < 3: return -2
+
+    best_character: i64 = values[1]
+    best_length: mutable usize = 1
+    current_length: mutable usize = 1
+    for index in 1..<count:
+        if values[index + 1] == values[index]:
+            current_length <- current_length + 1
+            if current_length > best_length:
+                best_length <- current_length
+                best_character <- values[index + 1]
+        else:
+            current_length <- 1
+    output[0] <- best_character.u8()
+    output[1] <- (best_length & 255).u8()
+    output[2] <- (best_length >> 8).u8()
+    return 3
+
+export fn longest_consecutive_characters(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = longest_consecutive_characters_impl

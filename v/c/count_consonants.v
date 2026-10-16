@@ -4,7 +4,7 @@ const max_length = 4096
 
 @[export: 'count_consonants']
 pub fn count_consonants(values &i64, length usize) i64 {
-	if length == 0 || length > max_length { return -1 }
+	if unsafe { values == nil } || length == 0 || length > max_length { return -1 }
 	if length == 1 && unsafe { values[0] } == 48 { return -1 }
 	mut count := i64(0)
 	for index in 0 .. int(length) {

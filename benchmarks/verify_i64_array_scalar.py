@@ -20,6 +20,7 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
+from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_oracle
 from wine_problem_recursive_oracle import MAX_ITEMS as WINE_PROBLEM_RECURSIVE_MAX_ITEMS
 from wine_problem_recursive_oracle import MAX_PRICE as WINE_PROBLEM_RECURSIVE_MAX_PRICE
@@ -425,6 +426,7 @@ from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_s
 from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first_search_tic_tac_toe_oracle
 from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_oracle
 from run_i64_array_scalar import encode_case
+from generalized_esd_oracle import expected_result as generalized_esd_oracle
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
 from one_bit_difference_oracle import MAX_INPUT_LENGTH as MAX_ONE_BIT_DIFFERENCE_INPUT_LENGTH
@@ -487,6 +489,7 @@ ALGORITHMS += ("substring_search",)
 ALGORITHMS += ("substring_end",)
 ALGORITHMS += ("substring_minus",)
 ALGORITHMS += ("substring_st_char",)
+ALGORITHMS += ("generalized_esd",)
 ALGORITHMS += ("simplesort",)
 ALGORITHMS += ("improved_simple_sort",)
 ALGORITHMS += ("largest_of_very_large_numbers",)
@@ -507,6 +510,7 @@ ALGORITHMS += ("decisions_convolutions",)
 ALGORITHMS += ("elastic_collision2_d",)
 ALGORITHMS += ("first_fundamental_form",)
 ALGORITHMS += ("erosion_operation", "rgbhsvconversion", "star_delta_conversions")
+ALGORITHMS += ("frequent_pattern_growth",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -943,6 +947,10 @@ def problem107_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "frequent_pattern_growth":
+        return frequent_pattern_growth_oracle(values)
+    if algorithm == "generalized_esd":
+        return generalized_esd_oracle(values)
     if algorithm == "elastic_collision2_d":
         return elastic_collision2_d_oracle(values)
     if algorithm == "first_fundamental_form":
@@ -1525,6 +1533,21 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                                 (case["expected_result"] for case in workload["cases"])):
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
+    if algorithm == "frequent_pattern_growth":
+        rng = random.Random(20261016)
+        for _ in range(256):
+            transaction_count = rng.randint(1, 32)
+            item_count = rng.randint(1, 8)
+            minimum_support = rng.randint(1, transaction_count)
+            masks = [rng.randrange(1 << item_count) for _ in range(transaction_count)]
+            values = (transaction_count, item_count, minimum_support, *masks)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (1,), (1, 1, 1), (0, 1, 1, 0), (1, 0, 1, 0),
+                     (1, 1, 0, 1), (1, 1, 2, 1), (1, 1, 1, -1),
+                     (1, 3, 1, 8), (2, 2, 1, 1), (65, 1, 1, *([1] * 65)),
+                     (1, 9, 1, 1), (I64_MIN, 1, 1, 0), (I64_MAX, 1, 1, 0))
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
     if algorithm in {
         "inorder_successor_of_bst", "frequency_finder", "sort_the_odd",
         "merge_ksorted_arrays", "jort_sort", "substring", "permutation_sort",
@@ -1536,7 +1559,18 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         # special NULL records require a positive length and are rejected at parse time.
         cases[()] = oracle(algorithm, [])
     rng = random.Random(20261014)
-    if algorithm == "first_fundamental_form":
+    if algorithm == "generalized_esd":
+        for _ in range(256):
+            size = rng.randint(3, 8)
+            limit = rng.randint(1, min(3, size - 2))
+            values = (size, limit, *(rng.randint(-10000, 10000) for _ in range(size)))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (3, 1), (3, 1, 0), (9, 1, *([0] * 9),),
+                     (4, 4, 0, 1, 2, 3), (3, 1, 0, 10001, 0),
+                     (3, 1, 0, I64_MIN, 0))
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "first_fundamental_form":
         for _ in range(256):
             values = tuple(rng.randint(-100, 100) for _ in range(MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH))
             cases[values] = oracle(algorithm, list(values))

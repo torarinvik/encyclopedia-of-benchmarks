@@ -1,0 +1,26 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+
+def geofence_impl(a: i64&, length: usize) -> i64:
+    if a == null or length != 5: return -1
+    if a[0] < -90000000 or a[0] > 90000000 or a[2] < -90000000 or a[2] > 90000000: return -1
+    if a[1] < -180000000 or a[1] > 180000000 or a[3] < -180000000 or a[3] > 180000000: return -1
+    if a[4] < -1000000 or a[4] > 30000000000: return -1
+    factor: f64 = PI_VALUE / 180000000.0
+    lat1: f64 = a[0].f64() * factor
+    lon1: f64 = a[1].f64() * factor
+    lat2: f64 = a[2].f64() * factor
+    lon2: f64 = a[3].f64() * factor
+    dlat: f64 = lat2 - lat1
+    dlon: f64 = lon2 - lon1
+    s1: f64 = sin(dlat / 2.0)
+    s2: f64 = sin(dlon / 2.0)
+    hav: mutable f64 = s1 * s1 + cos(lat1) * cos(lat2) * s2 * s2
+    if hav < 0.0: hav = 0.0
+    if hav > 1.0: hav = 1.0
+    distance: f64 = 6371010.0 * (2.0 * atan2(sqrt(hav), sqrt(1.0 - hav)))
+    if distance <= a[4].f64() / 1000.0: 1 else: 0
+export geofence(a: i64&, length: usize) -> i64 = geofence_impl

@@ -1,0 +1,143 @@
+const MAX_TEXT_BYTES: usize = 512
+const MAX_MASK_BYTES: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 531
+const MAX_OUTPUT_BYTES: usize = 1447
+
+def maskwords_is_word(value: u8) -> bool:
+    (value >= 65.u8() and value <= 90.u8()) or
+    (value >= 97.u8() and value <= 122.u8()) or
+    (value >= 48.u8() and value <= 57.u8()) or value == 95.u8()
+
+def maskwords_is_normalized_target(text: u8&, start: usize, finish: usize) -> bool:
+    length: usize = finish - start
+    if length == 5:
+        return (text[start] == 98.u8() and text[start + 1] == 105.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 100.u8() and
+                text[start + 4] == 115.u8()) or
+               (text[start] == 66.u8() and text[start + 1] == 73.u8() and
+                text[start + 2] == 82.u8() and text[start + 3] == 68.u8() and
+                text[start + 4] == 83.u8()) or
+               (text[start] == 66.u8() and text[start + 1] == 105.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 100.u8() and
+                text[start + 4] == 115.u8())
+    if length == 6:
+        return (text[start] == 109.u8() and text[start + 1] == 97.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 107.u8() and
+                text[start + 4] == 101.u8() and text[start + 5] == 116.u8()) or
+               (text[start] == 77.u8() and text[start + 1] == 65.u8() and
+                text[start + 2] == 82.u8() and text[start + 3] == 75.u8() and
+                text[start + 4] == 69.u8() and text[start + 5] == 84.u8()) or
+               (text[start] == 77.u8() and text[start + 1] == 97.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 107.u8() and
+                text[start + 4] == 101.u8() and text[start + 5] == 116.u8()) or
+               (text[start] == 115.u8() and text[start + 1] == 116.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 101.u8() and
+                text[start + 4] == 101.u8() and text[start + 5] == 116.u8()) or
+               (text[start] == 83.u8() and text[start + 1] == 84.u8() and
+                text[start + 2] == 82.u8() and text[start + 3] == 69.u8() and
+                text[start + 4] == 69.u8() and text[start + 5] == 84.u8()) or
+               (text[start] == 83.u8() and text[start + 1] == 116.u8() and
+                text[start + 2] == 114.u8() and text[start + 3] == 101.u8() and
+                text[start + 4] == 101.u8() and text[start + 5] == 116.u8())
+    false
+
+def maskwords_match_length(text: u8&, start: usize, finish: usize, position: usize) -> usize:
+    matched: mutable usize = 0
+    if position + 5 <= finish and text[position] == 98.u8() and text[position + 1] == 105.u8() and
+        text[position + 2] == 114.u8() and text[position + 3] == 100.u8() and text[position + 4] == 115.u8():
+        matched <- 5
+    else if position + 6 <= finish and text[position] == 109.u8() and text[position + 1] == 97.u8() and
+        text[position + 2] == 114.u8() and text[position + 3] == 107.u8() and
+        text[position + 4] == 101.u8() and text[position + 5] == 116.u8():
+        matched <- 6
+    else if position + 6 <= finish and text[position] == 115.u8() and text[position + 1] == 116.u8() and
+        text[position + 2] == 114.u8() and text[position + 3] == 101.u8() and
+        text[position + 4] == 101.u8() and text[position + 5] == 116.u8():
+        matched <- 6
+    if matched == 0: return 0
+    if position > start and maskwords_is_word(text[position - 1]): return 0
+    if position + matched < finish and maskwords_is_word(text[position + matched]): return 0
+    matched
+
+def maskwords_append_token(text: u8&, start: usize, finish: usize, mask: u8&,
+        mask_length: usize, output: mutable u8&, output_start: usize) -> usize:
+    written: mutable usize = output_start
+    if maskwords_is_normalized_target(text, start, finish):
+        index: mutable usize = 0
+        while index < mask_length:
+            output[written] <- mask[index]
+            written <- written + 1
+            index <- index + 1
+        return written
+    position: mutable usize = start
+    while position < finish:
+        matched: usize = maskwords_match_length(text, start, finish, position)
+        if matched != 0:
+            index: mutable usize = 0
+            while index < mask_length:
+                output[written] <- mask[index]
+                written <- written + 1
+                index <- index + 1
+            position <- position + matched
+        else:
+            if text[position] != 10.u8():
+                output[written] <- text[position]
+                written <- written + 1
+            position <- position + 1
+    written
+
+def maskwords_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if values[0] < 0 or values[0] > MAX_TEXT_BYTES.i64(): return -1
+    text_length: usize = values[0].usize()
+    mask_length_index: usize = 1 + text_length
+    if mask_length_index >= length or values[mask_length_index] < 0 or
+        values[mask_length_index] > MAX_MASK_BYTES.i64(): return -1
+    mask_length: usize = values[mask_length_index].usize()
+    if length != mask_length_index + 1 + mask_length: return -1
+
+    text: mutable u8[MAX_TEXT_BYTES] = zeroed
+    mask: mutable u8[MAX_MASK_BYTES] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        value: i64 = values[index + 1]
+        if value < 1 or value > 127: return -1
+        text[index] <- value.u8()
+        index <- index + 1
+    index <- 0
+    while index < mask_length:
+        value: i64 = values[mask_length_index + 1 + index]
+        if value < 32 or value > 126 or value == 92: return -1
+        mask[index] <- value.u8()
+        index <- index + 1
+
+    scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    start: mutable usize = 0
+    have_token: mutable bool = false
+    index <- 0
+    while index < text_length:
+        if text[index] == 32.u8():
+            if have_token:
+                scratch[written] <- 32.u8()
+                written <- written + 1
+            written <- maskwords_append_token(text[0], start, index, mask[0],
+                mask_length, scratch[0], written)
+            have_token <- true
+            start <- index + 1
+        index <- index + 1
+    if start < text_length:
+        if have_token:
+            scratch[written] <- 32.u8()
+            written <- written + 1
+        written <- maskwords_append_token(text[0], start, text_length, mask[0],
+            mask_length, scratch[0], written)
+    if written > MAX_OUTPUT_BYTES: return -1
+    if capacity < written or (written != 0 and output == null): return -2
+    index <- 0
+    while index < written:
+        output[index] <- scratch[index]
+        index <- index + 1
+    written.i64()
+
+export fn maskwords(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = maskwords_impl

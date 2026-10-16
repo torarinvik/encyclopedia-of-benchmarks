@@ -14,19 +14,31 @@ A cross-platform collection for comparing algorithm implementations across progr
 
 The current language folders are `c`, `c3`, `cpp`, `elisa`, `nim`, `odin`, `rust`, `v`, and `zig`. Algorithms are grouped by the first letter of the algorithm name, for example `rust/l/linear_search.rs`; names beginning with a digit go under `0-9/`. Numeric source filenames stay as catalog candidate IDs; a reviewed candidate can use an alphabetic `benchmark_name` for its algorithm folder. Workloads and result files use the same organization, such as `benchmarks/l/linear_search/` and `results/l/linear_search/`.
 
-The latest static coverage audit finds 1,974 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,050 reviewed source candidates, of which 2,736 map to complete benchmark files; 312 sources are excluded from portable benchmark coverage: 31 invalid and 281 non-benchmarkable. The pinned inventory contains 3,856 candidate records, with 808 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
+The latest static coverage audit finds 1,985 complete benchmark algorithms with contracts, matching workloads, and source files in all nine target languages. It records 3,064 reviewed source candidates, of which 2,748 map to complete benchmark files; 314 sources are excluded from portable benchmark coverage: 31 invalid and 283 non-benchmarkable. The pinned inventory contains 3,856 candidate records, with 794 still needing review, mapping, or implementation files. This is a file-presence and review audit, not evidence of runtime correctness. Alias and benchmark-name mappings are documented in [CATALOG.md](CATALOG.md) and [`catalog/algorithm-candidates.json`](catalog/algorithm-candidates.json). See each algorithm guide under [`benchmarks/`](benchmarks/) and the [benchmarking instructions](BENCHMARKING.md).
 
 [External merge sorter](benchmarks/e/external_merge_sorter/README.md) follows the pinned C# bottom-up merge passes over sequential stores, modeled with bounded buffers across all nine target languages.
 
 The Rust `finance_ratios` module maps to four all-language scalar benchmarks: [return on investment](benchmarks/r/return_on_investment/README.md), [debt to equity](benchmarks/d/debt_to_equity/README.md), [gross profit margin](benchmarks/g/gross_profit_margin/README.md), and [earnings per sale](benchmarks/e/earnings_per_sale/README.md).
 
-[Flatten multilevel linked list](benchmarks/f/flatten_multilevel_linked_list/README.md) ports the Java child-column merge to all nine languages over bounded sorted i32 columns.
+[Flatten multilevel linked list](benchmarks/f/flatten_multilevel_linked_list/README.md) ports the Java child-column merge to all nine languages over up to eight sorted chains of eight signed-i64 values; it returns the merged little-endian i64 sequence and its element count.
 
 [Flip augmentation](benchmarks/f/flip_augmentation/README.md) ports the Python horizontal and vertical image transforms and matching normalized box-center reflection to all nine languages.
 
 [Linked list from sequence](benchmarks/f/from_sequence/README.md) preserves the pinned Python constructor's node order and printable linked-list representation.
 
 [Gaussian-Legendre quadrature](benchmarks/g/gaussian_legendre/README.md) ports the Fortran orders 1–5 node and weight tables to all nine languages; it is separate from the Java π iteration.
+
+[Gaussian filter](benchmarks/g/gaussian_filter/README.md) ports the pinned Python valid convolution for its 3×3 and 5×5 demo kernels to all nine languages with fixed-point weights for portable byte results.
+
+[Gaussian Mixture Model](benchmarks/g/gaussian_mixture_model/README.md) ports the pinned Python EM training and prediction core to all nine languages for a deterministic one-dimensional, two-component contract.
+
+[Fresnel diffraction](benchmarks/f/fresnel_diffract/README.md) uses a bounded four-sample complex field and equivalent direct DFT across all nine languages.
+
+[Frequent pattern growth](benchmarks/f/frequent_pattern_growth/README.md) counts frequent itemsets through weighted conditional-pattern growth in all nine languages.
+
+[Gauss optimization](benchmarks/g/gauss_optimization/README.md) ports the pinned C# coordinate search with a fixed, parameterized objective across all nine languages.
+
+[Longest Consecutive Characters](benchmarks/l/longest_consecutive_characters/README.md) ports the pinned C# longest equal-character run scan to all nine languages and preserves the first-run tie rule.
 
 
 [Directed simple cycles](benchmarks/d/directed_simple_cycles/README.md) ports the pinned Java DFS enumerator to all nine languages, preserving directed-cycle contents and source traversal order.
