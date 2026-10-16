@@ -1,0 +1,82 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_double(output: mutable u8&, offset: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    k: mutable usize = 0
+    while k < 8:
+        output[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def n_body_simulation_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 6: return -1
+    count_value: i64 = values[0]
+    steps: i64 = values[1]
+    dt_milli: i64 = values[2]
+    gravity_milli: i64 = values[3]
+    time_factor: i64 = values[4]
+    softening_milli: i64 = values[5]
+    if count_value < 2 or count_value > 4 or steps < 0 or steps > 4: return -1
+    if dt_milli < 1 or dt_milli > 1000 or gravity_milli < 0 or gravity_milli > 1000: return -1
+    if time_factor < 1 or time_factor > 10 or softening_milli < 1 or softening_milli > 3000: return -1
+    count: usize = count_value.usize()
+    if length != 6+5*count: return -1
+    x: mutable [4]f64 = [0.0;4]
+    y: mutable [4]f64 = [0.0;4]
+    vx: mutable [4]f64 = [0.0;4]
+    vy: mutable [4]f64 = [0.0;4]
+    mass: mutable [4]f64 = [0.0;4]
+    i: mutable usize = 0
+    while i < count:
+        a: i64 = values[6+5*i]
+        b: i64 = values[7+5*i]
+        c: i64 = values[8+5*i]
+        d: i64 = values[9+5*i]
+        m: i64 = values[10+5*i]
+        if a < -1000 or a > 1000 or b < -1000 or b > 1000: return -1
+        if c < -100 or c > 100 or d < -100 or d > 100 or m < 1 or m > 1000: return -1
+        x[i] <- a.f64()
+        y[i] <- b.f64()
+        vx[i] <- c.f64()
+        vy[i] <- d.f64()
+        mass[i] <- m.f64()
+        i <- i+1
+    dt: f64 = (dt_milli.f64()/1000.0)*time_factor.f64()
+    gravity: f64 = gravity_milli.f64()/1000.0
+    softening: f64 = softening_milli.f64()/1000.0
+    step: mutable i64 = 0
+    while step < steps:
+        i <- 0
+        while i < count:
+            fx: mutable f64 = 0.0
+            fy: mutable f64 = 0.0
+            j: mutable usize = 0
+            while j < count:
+                if i != j:
+                    dx: f64 = x[j]-x[i]
+                    dy: f64 = y[j]-y[i]
+                    distance: f64 = sqrt(dx*dx+dy*dy+softening)
+                    cube: f64 = distance*distance*distance
+                    fx <- fx+gravity*mass[j]*dx/cube
+                    fy <- fy+gravity*mass[j]*dy/cube
+                j <- j+1
+            vx[i] <- vx[i]+fx*dt
+            vy[i] <- vy[i]+fy*dt
+            i <- i+1
+        i <- 0
+        while i < count:
+            x[i] <- x[i]+vx[i]*dt
+            y[i] <- y[i]+vy[i]*dt
+            i <- i+1
+        step <- step+1
+    byte_count: usize = count*32
+    if capacity < byte_count: return -2
+    i <- 0
+    while i < count:
+        put_double(output,(4*i)*8,x[i])
+        put_double(output,(4*i+1)*8,y[i])
+        put_double(output,(4*i+2)*8,vx[i])
+        put_double(output,(4*i+3)*8,vy[i])
+        i <- i+1
+    return byte_count.i64()
+export fn n_body_simulation(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = n_body_simulation_impl

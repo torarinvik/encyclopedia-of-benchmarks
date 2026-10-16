@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+static bool digits(const std::int64_t*v,std::size_t a,std::size_t b,int&out){int x=0;for(auto i=a;i<b;i++){if(v[i]<'0'||v[i]>'9')return false;x=x*10+int(v[i]-'0');}out=x;return true;}
+extern "C" std::int64_t parse_date(const std::int64_t*v,std::size_t n) noexcept {if(!v||n<9||n>11||v[0]<8||v[0]>10||n!=std::size_t(v[0])+1)return -1;auto len=std::size_t(v[0]);for(std::size_t i=0;i<len;i++)if(v[i+1]<0||v[i+1]>127)return -1;std::size_t s1=0,s2=0;for(std::size_t i=1;i<=len;i++)if(v[i]=='/'){if(!s1)s1=i;else if(!s2)s2=i;else return -1;}if(!s1||!s2||s2<=s1+1||len-s2!=4||s1<2||s1>3||s2-s1<2||s2-s1>3)return -1;int d,m,y;if(!digits(v,1,s1,d)||!digits(v,s1+1,s2,m)||!digits(v,s2+1,len+1,y)||m<1||m>12)return -1;int days[]={31,28,31,30,31,30,31,31,30,31,30,31};if(m==2&&y%4==0&&(y%100!=0||y%400==0))days[1]=29;if(d<1||d>days[m-1])return -1;return std::int64_t(y)*10000+std::int64_t(m)*100+d;}

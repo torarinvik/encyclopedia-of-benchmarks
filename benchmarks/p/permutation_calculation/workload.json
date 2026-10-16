@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "r-permutation-factorial-ratio-v1",
+  "algorithm": "permutation_calculation",
+  "function_symbol": "permutation_calculation",
+  "input": {"kind":"signed_i64_array","encoding":"[n, r]","n_range":[0,15],"r_range":[0,15],"maximum_input_length":2},
+  "output": {"kind":"signed_i64_scalar","meaning":"n!/(n-r)!, the number of ordered selections","invalid_input_result":-1},
+  "source_bound": {"description":"The pinned R helper special-cases 0! as 1 and rejects r>n."},
+  "measurement": {"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases": [
+    {"id":"five_choose_ordered_three","input_values":[5,3],"input_length":2,"expected_result":60},
+    {"id":"ten_permute_two","input_values":[10,2],"input_length":2,"expected_result":90},
+    {"id":"zero_factorial","input_values":[0,0],"input_length":2,"expected_result":1},
+    {"id":"select_none","input_values":[8,0],"input_length":2,"expected_result":1},
+    {"id":"select_all","input_values":[6,6],"input_length":2,"expected_result":720},
+    {"id":"r_exceeds_n","input_values":[3,4],"input_length":2,"expected_result":-1},
+    {"id":"outside_bound","input_values":[16,1],"input_length":2,"expected_result":-1}
+  ]
+}

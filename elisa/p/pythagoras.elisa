@@ -1,0 +1,14 @@
+extern sqrt(value: f64) -> f64
+
+def pythagoras_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 6: return -1.0e300
+    i: usize = 0
+    while i < 6:
+        if input[i] < -1000000 or input[i] > 1000000: return -1.0e300
+        i <- i + 1
+    dx: f64 = (input[3] - input[0]).f64()
+    dy: f64 = (input[4] - input[1]).f64()
+    dz: f64 = (input[5] - input[2]).f64()
+    sqrt(dx * dx + dy * dy + dz * dz)
+
+export fn pythagoras(input: i64&, length: usize) -> f64 = pythagoras_impl

@@ -1,0 +1,41 @@
+const MAX_INPUT_LENGTH: usize = 10
+const PACKED_INPUT_LENGTH: usize = MAX_INPUT_LENGTH + 1
+const OUTPUT_LENGTH: usize = 8
+
+def is_digit(value: i64) -> bool:
+    value >= 48 and value <= 57
+
+def railway_time_conversion_impl(input: i64&, length: usize,
+                                 output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != PACKED_INPUT_LENGTH or input[0] != MAX_INPUT_LENGTH.i64():
+        return -1
+    if input[3] != 58 or input[6] != 58 or
+       not ((input[9] == 65 and input[10] == 77) or
+            (input[9] == 80 and input[10] == 77)) or
+       not is_digit(input[1]) or not is_digit(input[2]) or
+       not is_digit(input[4]) or not is_digit(input[5]) or
+       not is_digit(input[7]) or not is_digit(input[8]):
+        return -1
+
+    hour: i64 = (input[1] - 48) * 10 + input[2] - 48
+    minute: i64 = (input[4] - 48) * 10 + input[5] - 48
+    second: i64 = (input[7] - 48) * 10 + input[8] - 48
+    if hour < 1 or hour > 12 or minute > 59 or second > 59:
+        return -1
+    if output_capacity < OUTPUT_LENGTH or output.is_null():
+        return -2
+
+    hour24: i64 = hour % 12 + (if input[9] == 80 then 12 else 0)
+    output[0] <- (48 + hour24 / 10).u8()
+    output[1] <- (48 + hour24 % 10).u8()
+    output[2] <- 58.u8()
+    output[3] <- input[4].u8()
+    output[4] <- input[5].u8()
+    output[5] <- 58.u8()
+    output[6] <- input[7].u8()
+    output[7] <- input[8].u8()
+    OUTPUT_LENGTH.i64()
+
+export fn railway_time_conversion(input: i64&, length: usize,
+                                  output: mutable u8&, output_capacity: usize) -> i64 =
+    railway_time_conversion_impl

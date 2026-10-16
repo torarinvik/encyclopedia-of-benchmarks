@@ -1,0 +1,4 @@
+unsafe fn put64(out:*mut u8,pos:&mut usize,x:i64){for i in 0..8{*out.add(*pos+i)=(x as u64>>(i*8))as u8}*pos+=8}
+unsafe fn emit(v:&[i64],i:usize,selected:&mut [i64;6],used:usize,out:*mut u8,pos:&mut usize){if i==v.len(){*out.add(*pos)=used as u8;*pos+=1;for &x in &selected[..used]{put64(out,pos,x)}return}emit(v,i+1,selected,used,out,pos);selected[used]=v[i];emit(v,i+1,selected,used+1,out,pos)}
+#[no_mangle]
+pub unsafe extern "C" fn powerset(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{if v.is_null()||n<1||n>7{return -1}let a=std::slice::from_raw_parts(v,n);if !(0..=6).contains(&a[0])||n!=a[0]as usize+1{return -1}let count=a[0]as usize;let subsets=1usize<<count;let need=2+subsets+8*count*(subsets/2);if a[1..].iter().any(|&x|!(-1_000_000..=1_000_000).contains(&x)){return -1}if need>cap||out.is_null(){return -2}*out=subsets as u8;*out.add(1)=(subsets>>8)as u8;let mut selected=[0i64;6];let mut pos=2;emit(&a[1..],0,&mut selected,0,out,&mut pos);need as i64}

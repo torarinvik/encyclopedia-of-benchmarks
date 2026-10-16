@@ -1,0 +1,8 @@
+def kth_element_from_end_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 65: return -1
+    k: i64 = v[0]
+    if k <= 0 or k >= i64(length): return -1
+    for i in 1..length:
+        if v[i] < 0 or v[i] > 100000: return -1
+    v[length - usize(k)]
+export fn kth_element_from_end(v: i64&, length: usize) -> i64 = kth_element_from_end_impl

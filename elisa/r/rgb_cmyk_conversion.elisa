@@ -1,0 +1,39 @@
+extern floor(value: f64) -> f64
+
+const OUTPUT_LENGTH: usize = 4
+
+def rgb_cmyk_conversion_round_even(value: f64) -> i64:
+    lower: f64 = floor(value)
+    fraction: f64 = value - lower
+    base: i64 = lower.i64()
+    if fraction < 0.5: return base
+    if fraction > 0.5: return base + 1
+    if base % 2 == 0: return base
+    base + 1
+
+def rgb_cmyk_conversion_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    for i in 0..3:
+        if input[i] < 0 or input[i] > 255: return -1
+    if output.is_null() or capacity < OUTPUT_LENGTH: return -2
+    red: f64 = input[0].f64() / 255.0
+    green: f64 = input[1].f64() / 255.0
+    blue: f64 = input[2].f64() / 255.0
+    maximum: f64 = red
+    if green > maximum: maximum <- green
+    if blue > maximum: maximum <- blue
+    key: f64 = 1.0 - maximum
+    if key == 1.0:
+        output[0] <- 0
+        output[1] <- 0
+        output[2] <- 0
+        output[3] <- 100
+        return 4
+    denominator: f64 = 1.0 - key
+    output[0] <- rgb_cmyk_conversion_round_even(100.0 * (1.0 - red - key) / denominator).u8()
+    output[1] <- rgb_cmyk_conversion_round_even(100.0 * (1.0 - green - key) / denominator).u8()
+    output[2] <- rgb_cmyk_conversion_round_even(100.0 * (1.0 - blue - key) / denominator).u8()
+    output[3] <- rgb_cmyk_conversion_round_even(100.0 * key).u8()
+    4
+
+export fn rgb_cmyk_conversion(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rgb_cmyk_conversion_impl

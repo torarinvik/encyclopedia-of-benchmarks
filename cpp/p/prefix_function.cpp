@@ -1,0 +1,3 @@
+#include <cstddef>
+#include <cstdint>
+extern "C" std::int64_t prefix_function(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap)noexcept{if(!v||n<1||n>4097||v[0]<0||v[0]>4096||n!=static_cast<std::size_t>(v[0])+1)return -1;auto len=static_cast<std::size_t>(v[0]);for(std::size_t i=0;i<len;i++)if(v[i+1]<0||v[i+1]>127)return -1;auto bytes=4*len;if(bytes>cap||(bytes&&!out))return -2;std::uint32_t pi[4096]={};for(std::size_t i=1;i<len;i++){auto j=static_cast<std::size_t>(pi[i-1]);while(j>0&&v[i+1]!=v[j+1])j=pi[j-1];if(v[i+1]==v[j+1])++j;pi[i]=static_cast<std::uint32_t>(j);}for(std::size_t i=0;i<len;i++){auto x=pi[i];out[4*i]=x;out[4*i+1]=x>>8;out[4*i+2]=x>>16;out[4*i+3]=x>>24;}return static_cast<std::int64_t>(bytes);}

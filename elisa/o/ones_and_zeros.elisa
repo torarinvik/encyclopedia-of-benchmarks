@@ -1,0 +1,24 @@
+def ones_and_zeros_impl(values: i64&, length: usize) -> i64:
+    if length < 3: return -1
+    count: i64 = values[0]
+    zeros_budget: i64 = values[1]
+    ones_budget: i64 = values[2]
+    if count < 0 or count > 32 or zeros_budget < 0 or zeros_budget > 32 or ones_budget < 0 or ones_budget > 32 or length != (3 + 2 * count).usize(): return -1
+    dp: mutable i64[33][33] = zeroed
+    item: mutable usize = 0
+    while item < count.usize():
+        zeros: i64 = values[3 + 2 * item]
+        ones: i64 = values[4 + 2 * item]
+        if zeros < 0 or zeros > 32 or ones < 0 or ones > 32: return -1
+        z: mutable i64 = zeros_budget
+        while z >= zeros:
+            o: mutable i64 = ones_budget
+            while o >= ones:
+                candidate: i64 = dp[(z-zeros).usize()][(o-ones).usize()] + 1
+                if candidate > dp[z.usize()][o.usize()]: dp[z.usize()][o.usize()] <- candidate
+                o <- o - 1
+            z <- z - 1
+        item <- item + 1
+    return dp[zeros_budget.usize()][ones_budget.usize()]
+
+export fn ones_and_zeros(values: i64&, length: usize) -> i64 = ones_and_zeros_impl

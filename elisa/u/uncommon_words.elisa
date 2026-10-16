@@ -1,0 +1,70 @@
+const INVALID_RESULT: i64 = -1
+
+def uncommon_words_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > 1089 or values[0] < 0 or values[0] > 64:
+        return INVALID_RESULT
+    words: mutable u8[1024] = zeroed
+    lens: mutable usize[64] = zeroed
+    counts: mutable usize[64] = zeroed
+    distinct: mutable usize = 0
+    position: mutable usize = 1
+    word_index: mutable usize = 0
+    while word_index < values[0].usize():
+        if position >= length or values[position] < 1 or values[position] > 16:
+            return INVALID_RESULT
+        word_length: usize = values[position].usize()
+        position <- position + 1
+        if word_length > length - position:
+            return INVALID_RESULT
+        offset: mutable usize = 0
+        while offset < word_length:
+            if values[position + offset] < 97 or values[position + offset] > 122:
+                return INVALID_RESULT
+            offset <- offset + 1
+        id: mutable usize = 0
+        while id < distinct:
+            if lens[id] == word_length:
+                offset <- 0
+                while offset < word_length and words[id * 16 + offset].i64() == values[position + offset]:
+                    offset <- offset + 1
+                if offset == word_length:
+                    break
+            id <- id + 1
+        if id == distinct:
+            lens[id] <- word_length
+            offset <- 0
+            while offset < word_length:
+                words[id * 16 + offset] <- values[position + offset].u8()
+                offset <- offset + 1
+            distinct <- distinct + 1
+        counts[id] <- counts[id] + 1
+        position <- position + word_length
+        word_index <- word_index + 1
+    if position != length:
+        return INVALID_RESULT
+    temporary: mutable u8[1089] = zeroed
+    output_length: mutable usize = 0
+    id: mutable usize = 0
+    while id < distinct:
+        if counts[id] == 1:
+            offset <- 0
+            while offset < lens[id]:
+                temporary[output_length] <- words[id * 16 + offset]
+                output_length <- output_length + 1
+                offset <- offset + 1
+            temporary[output_length] <- 10.u8()
+            output_length <- output_length + 1
+        id <- id + 1
+    if output_length > 0:
+        output_length <- output_length - 1
+    temporary[output_length] <- 0.u8()
+    output_length <- output_length + 1
+    if output.is_null() or output_capacity < output_length:
+        return -2
+    offset: mutable usize = 0
+    while offset < output_length:
+        output[offset] <- temporary[offset]
+        offset <- offset + 1
+    output_length.i64()
+
+export fn uncommon_words(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = uncommon_words_impl

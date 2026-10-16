@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+extern "C" int64_t hill_encoder(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<10||n>74||v[0]<0||v[0]>64||n!=10+size_t(v[0]))return -1;size_t len=size_t(v[0]),padded=(len+2)/3*3;int64_t text[66]{},key[9]{},res[66]{};for(size_t i=0;i<len;i++){if(v[1+i]<65||v[1+i]>90)return -1;text[i]=v[1+i];}for(size_t i=len;i<padded;i++)text[i]=32;for(size_t i=0;i<9;i++){key[i]=v[1+len+i];if(key[i]<-2||key[i]>2)return -1;}for(size_t off=0;off<padded;off+=3)for(size_t row=0;row<3;row++){int64_t sum=0;for(size_t col=0;col<3;col++)sum+=key[row*3+col]*text[off+col];if(sum<0||sum>65535)return -1;res[off+row]=sum;}size_t bytes=padded*8;if(!out||cap<bytes)return -2;for(size_t i=0;i<padded;i++){uint64_t b;std::memcpy(&b,&res[i],8);for(size_t k=0;k<8;k++)out[i*8+k]=uint8_t(b>>(8*k));}return int64_t(bytes);}

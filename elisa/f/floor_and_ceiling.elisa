@@ -1,0 +1,46 @@
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def floor_and_ceiling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 384: return -1
+    raw_n: i64 = input[0]
+    root: i64 = input[1]
+    key: i64 = input[2]
+    if raw_n < 0 or raw_n > 127 or key < -1000000 or key > 1000000 or length != 3 + 3 * raw_n.usize(): return -1
+    n: usize = raw_n.usize()
+    if (n == 0 and root != -1) or (n > 0 and (root < 0 or root >= raw_n)): return -1
+    floor: mutable i64 = -9223372036854775808
+    ceiling: mutable i64 = -9223372036854775808
+    current: mutable usize = n
+    if n > 0: current <- root.usize()
+    step: usize = 0
+    while step < n and current < n:
+        base: usize = 3 + 3 * current
+        value: i64 = input[base]
+        left: i64 = input[base + 1]
+        right: i64 = input[base + 2]
+        if value < -1000000 or value > 1000000 or left < -1 or right < -1 or left >= raw_n or right >= raw_n: return -1
+        if value == key:
+            floor <- value
+            ceiling <- value
+            break
+        if key < value:
+            ceiling <- value
+            if left < 0: current <- n
+            else: current <- left.usize()
+        else:
+            floor <- value
+            if right < 0: current <- n
+            else: current <- right.usize()
+        step <- step + 1
+    if output.is_null() or capacity < 16: return -2
+    put_i64_le(floor, output, 0)
+    put_i64_le(ceiling, output, 8)
+    return 16
+
+export fn floor_and_ceiling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = floor_and_ceiling_impl

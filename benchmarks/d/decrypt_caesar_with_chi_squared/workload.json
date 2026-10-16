@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "decrypt-caesar-chi-squared-v1",
+  "algorithm": "decrypt_caesar_with_chi_squared",
+  "input": {
+    "kind": "ASCII ciphertext length followed by ciphertext bytes",
+    "minimum_length": 1,
+    "maximum_length": 129,
+    "byte_range": [
+      0,
+      127
+    ],
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "output_encoding": "little-endian IEEE-754 binary64 chi-square statistic followed by decoded lowercase ASCII plaintext; return value is winning backward shift 0..25"
+  },
+  "scoring": "Input begins with text length 0..128 followed by exactly that many ASCII bytes. For each candidate, iterate a through z. For a letter observed n>0 times, expected=frequency[letter]*n (matching the pinned Python source), then add ((n-expected)^2)/expected. Choose the minimum tuple (score, decoded plaintext bytes, shift). Empty/punctuation-only input chooses shift 0.",
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "simple",
+      "input_values": [
+        12,
+        99,
+        114,
+        121,
+        98,
+        100,
+        32,
+        99,
+        100,
+        98,
+        115,
+        120,
+        113
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "9f0e4f3947b1644073686f727420737472696e67"
+    },
+    {
+      "id": "classic",
+      "input_values": [
+        61,
+        100,
+        111,
+        102,
+        32,
+        112,
+        122,
+        32,
+        97,
+        111,
+        108,
+        32,
+        106,
+        104,
+        108,
+        122,
+        104,
+        121,
+        32,
+        106,
+        112,
+        119,
+        111,
+        108,
+        121,
+        32,
+        122,
+        118,
+        32,
+        119,
+        118,
+        119,
+        98,
+        115,
+        104,
+        121,
+        63,
+        32,
+        112,
+        97,
+        32,
+        112,
+        122,
+        32,
+        97,
+        118,
+        118,
+        32,
+        108,
+        104,
+        122,
+        102,
+        32,
+        97,
+        118,
+        32,
+        106,
+        121,
+        104,
+        106,
+        114,
+        33
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "56a44fa7a4108e4077687920697320746865206361657361722063697068657220736f20706f70756c61723f20697420697320746f6f206561737920746f20637261636b21"
+    },
+    {
+      "id": "case_folded",
+      "input_values": [
+        12,
+        67,
+        114,
+        121,
+        98,
+        100,
+        32,
+        67,
+        100,
+        98,
+        115,
+        120,
+        113
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "9f0e4f3947b1644073686f727420737472696e67"
+    },
+    {
+      "id": "punctuation",
+      "input_values": [
+        7,
+        33,
+        33,
+        33,
+        32,
+        49,
+        50,
+        51
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "000000000000000021212120313233"
+    },
+    {
+      "id": "single_letter",
+      "input_values": [
+        1,
+        65
+      ],
+      "expected_result": 22,
+      "expected_output_hex": "d505963348481c4065"
+    }
+  ],
+  "function_symbol": "decrypt_caesar_with_chi_squared",
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call"
+  }
+}

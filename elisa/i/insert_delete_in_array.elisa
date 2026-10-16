@@ -1,0 +1,19 @@
+def insert_delete_in_array_impl(v: i64&, n: usize, output: u8&, capacity: usize) -> i64:
+    if n < 4 or n > 260: return -1
+    op: i64 = v[0]
+    length: i64 = v[1]
+    pos: i64 = v[2]
+    element: i64 = v[3]
+    if (op != 0 and op != 1) or length < 0 or length > 256 or n != length.usize() + 4 or pos < 0: return -1
+    if (op == 0 and pos > length) or (op == 1 and pos >= length) or (op == 1 and element != 0): return -1
+    for i in 0..<length.usize():
+        if v[i + 4] < -2147483648 or v[i + 4] > 2147483647: return -1
+    if op == 0 and (element < -2147483648 or element > 2147483647): return -1
+    outn: usize = length.usize() + (if op == 0: 1 else: 0)
+    if outn * 4 > capacity: return -2
+    for i in 0..<outn:
+        x: i64 = if op == 0: (if i < pos.usize(): v[i+4] else: (if i == pos.usize(): element else: v[i+3])) else: (if i < pos.usize(): v[i+4] else: v[i+5])
+        word: u32 = x.i32().u32()
+        output[i*4] <- word.u8(); output[i*4+1] <- (word >> 8).u8(); output[i*4+2] <- (word >> 16).u8(); output[i*4+3] <- (word >> 24).u8()
+    (outn * 4).i64()
+export fn insert_delete_in_array(v: i64&, n: usize, output: u8&, capacity: usize) -> i64 = insert_delete_in_array_impl

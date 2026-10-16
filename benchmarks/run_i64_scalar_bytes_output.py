@@ -16,11 +16,14 @@ import struct
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from prime_factorial_oracle import expected_output as prime_factorial_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "prime_factorial_unique_u32le":
+        return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":
         if not -2**63 <= value <= 45:
             return -1, b""

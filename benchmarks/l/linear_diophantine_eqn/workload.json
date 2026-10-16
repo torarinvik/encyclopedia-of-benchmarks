@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "id": "dart-linear-diophantine-solvability-v1",
+  "algorithm": "linear_diophantine_eqn",
+  "function_symbol": "Isposs",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[a, b, c] for a*x+b*y=c",
+    "coefficient_range": [
+      -100000,
+      100000
+    ],
+    "rhs_range": [
+      -1000000,
+      1000000
+    ],
+    "b_range": "nonzero",
+    "maximum_input_length": 3,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "1 if gcd(a,b) divides c, otherwise 0; invalid source domain maps to -1"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Dart",
+    "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+    "path": "maths/LinearDiophantineEqn.dart"
+  },
+  "cases": [
+    {
+      "id": "source_possible",
+      "input_values": [
+        3,
+        6,
+        9
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "source_impossible",
+      "input_values": [
+        3,
+        6,
+        8
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "coprime",
+      "input_values": [
+        5,
+        7,
+        23
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "negative_coefficient",
+      "input_values": [
+        -4,
+        6,
+        7
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "negative_rhs",
+      "input_values": [
+        4,
+        -6,
+        -8
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "zero_a",
+      "input_values": [
+        0,
+        9,
+        18
+      ],
+      "expected_result": 1,
+      "input_length": 3
+    },
+    {
+      "id": "unit_gcd",
+      "input_values": [
+        0,
+        -7,
+        5
+      ],
+      "expected_result": 0,
+      "input_length": 3
+    },
+    {
+      "id": "b_zero",
+      "input_values": [
+        3,
+        0,
+        9
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "both_zero",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": -1,
+      "input_length": 0
+    },
+    {
+      "id": "extra",
+      "input_values": [
+        3,
+        6,
+        9,
+        10
+      ],
+      "expected_result": -1,
+      "input_length": 4
+    }
+  ]
+}

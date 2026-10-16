@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-crossword-solver-v1",
+  "algorithm": "crossword_solver",
+  "function_symbol": "crossword_solver",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[rows, columns, word_count, row-major cells..., (word_length, uppercase ASCII letters...)...]",
+    "rows_range": [
+      1,
+      8
+    ],
+    "columns_range": [
+      1,
+      8
+    ],
+    "word_count_range": [
+      0,
+      8
+    ],
+    "cell_values": "0 is blank; -1 is blocked; 65 through 90 are fixed nonblank cells. The source only places across blank cells.",
+    "word_length_range": [
+      1,
+      8
+    ],
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[solved (0 or 1), row-major cells...]",
+    "search_order": "Find first blank row-major; try remaining words in current list order, vertical then horizontal. Place only if every covered cell is blank. After a failed branch, append the word to the end of the remaining list, matching the pinned Java implementation. No blank cells means solved, even with unused words."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "one_row",
+      "input_values": [
+        1,
+        3,
+        1,
+        0,
+        0,
+        0,
+        3,
+        67,
+        65,
+        84
+      ],
+      "input_length": 10,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000430000000000000041000000000000005400000000000000"
+    },
+    {
+      "id": "two_rows",
+      "input_values": [
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        2,
+        65,
+        66,
+        2,
+        67,
+        68
+      ],
+      "input_length": 13,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000004100000000000000430000000000000042000000000000004400000000000000"
+    },
+    {
+      "id": "fixed_blockers",
+      "input_values": [
+        2,
+        3,
+        1,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        65,
+        66,
+        67
+      ],
+      "input_length": 13,
+      "expected_result": 56,
+      "expected_output_hex": "0000000000000000ffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "impossible",
+      "input_values": [
+        2,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        3,
+        65,
+        66,
+        67
+      ],
+      "input_length": 11,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "pre_filled_blocks",
+      "input_values": [
+        1,
+        3,
+        1,
+        65,
+        0,
+        0,
+        2,
+        66,
+        67
+      ],
+      "input_length": 9,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000410000000000000042000000000000004300000000000000"
+    },
+    {
+      "id": "empty_word_list",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "workspace": {
+    "bytes": 520
+  }
+}

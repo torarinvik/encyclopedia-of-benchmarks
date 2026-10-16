@@ -1,0 +1,27 @@
+def linear_diophantine_equations_solver_impl(v: i64&, length: usize) -> i64:
+    if length != 3: return -1
+    a: i64 = v[0]; b: i64 = v[1]; c: i64 = v[2]
+    if a < -1000 or a > 1000 or b < -1000 or b > 1000 or c < -10000 or c > 10000: return -1
+    if a == 0 and b == 0:
+        if c == 0: return -3
+        return -2
+    if a == 0:
+        if c % b != 0: return -2
+        y: i64 = c / b
+        return 20000003 * 10000001 + y + 10000001
+    if b == 0:
+        if c % a != 0: return -2
+        x: i64 = c / a
+        return (x + 10000001) * 20000003 + 10000001
+    old_r: mutable i64 = a; r: mutable i64 = b
+    old_s: mutable i64 = 1; s: mutable i64 = 0
+    old_t: mutable i64 = 0; t: mutable i64 = 1
+    while r != 0:
+        q: i64 = old_r / r
+        z: i64 = old_r - q * r; old_r <- r; r <- z
+        z <- old_s - q * s; old_s <- s; s <- z
+        z <- old_t - q * t; old_t <- t; t <- z
+    if c % old_r != 0: return -2
+    x: i64 = old_s * (c / old_r); y: i64 = old_t * (c / old_r)
+    (x + 10000001) * 20000003 + (y + 10000001)
+export fn linear_diophantine_equations_solver(v: i64&, length: usize) -> i64 = linear_diophantine_equations_solver_impl

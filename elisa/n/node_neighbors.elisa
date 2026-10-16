@@ -1,0 +1,29 @@
+def node_neighbors_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2: return -1
+    count: i64 = values[0]
+    node: i64 = values[1]
+    if count < 0 or count > 64 or node < 0 or node > 63 or length != (2 + 2 * count).usize(): return -1
+    seen: mutable [64]bool = [false; 64]
+    buffer: mutable [192]u8 = [0; 192]
+    used: mutable usize = 0
+    i: mutable usize = 0
+    while i < count.usize():
+        a: i64 = values[2 + 2*i]
+        b: i64 = values[3 + 2*i]
+        if a < 0 or a > 63 or b < 0 or b > 63: return -1
+        neighbor: mutable i64 = -1
+        if a == node: neighbor <- b
+        elif b == node: neighbor <- a
+        if neighbor >= 0 and not seen[neighbor.usize()]:
+            seen[neighbor.usize()] <- true
+            if used > 0: buffer[used] <- 44u8(); used <- used + 1
+            text: String = neighbor.to_string()
+            j: mutable usize = 0
+            while j < text.len(): buffer[used] <- text.byte_at(j); used <- used + 1; j <- j + 1
+        i <- i + 1
+    if used > capacity: return -2
+    i <- 0
+    while i < used: output[i] <- buffer[i]; i <- i + 1
+    return used.i64()
+
+export fn node_neighbors(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = node_neighbors_impl

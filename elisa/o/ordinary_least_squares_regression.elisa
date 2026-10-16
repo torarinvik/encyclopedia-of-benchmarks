@@ -1,0 +1,48 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def put_double(output: mutable u8&, offset: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    i: mutable usize = 0
+    while i < 8:
+        output[offset+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+        i <- i + 1
+
+def ordinary_least_squares_regression_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 5: return -1
+    count: i64 = values[0]
+    if count < 2 or count > 32 or length != (1 + 2*count).usize(): return -1
+    xs: mutable [32]f64 = [0.0; 32]
+    ys: mutable [32]f64 = [0.0; 32]
+    xm: mutable f64 = 0.0
+    ym: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < count.usize():
+        x: i64 = values[1+2*i]
+        y: i64 = values[2+2*i]
+        if x < -10000 or x > 10000 or y < -10000 or y > 10000: return -1
+        xs[i] <- x.f64()
+        ys[i] <- y.f64()
+        xm <- xm + xs[i]
+        ym <- ym + ys[i]
+        i <- i + 1
+    xm <- xm / count.f64()
+    ym <- ym / count.f64()
+    num: mutable f64 = 0.0
+    den: mutable f64 = 0.0
+    i <- 0
+    while i < count.usize():
+        dx: f64 = xs[i] - xm
+        num <- num + dx * (ys[i] - ym)
+        den <- den + dx * dx
+        i <- i + 1
+    if den == 0.0: return -1
+    slope: f64 = num / den
+    intercept: f64 = ym - slope * xm
+    if capacity < 16: return -2
+    put_double(output, 0, intercept)
+    put_double(output, 8, slope)
+    return 16
+
+export fn ordinary_least_squares_regression(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ordinary_least_squares_regression_impl

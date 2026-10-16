@@ -1,0 +1,37 @@
+def lee_breadth_first_search_impl(v: i64&, length: usize) -> i64:
+    if length < 6 or length > 70: return -2
+    rows: i64 = v[0]
+    cols: i64 = v[1]
+    sr: i64 = v[2]
+    sc: i64 = v[3]
+    dr: i64 = v[4]
+    dc: i64 = v[5]
+    if rows < 1 or rows > 8 or cols < 1 or cols > 8 or length != 6 + usize(rows * cols): return -2
+    if sr < 0 or sr >= rows or dr < 0 or dr >= rows or sc < 0 or sc >= cols or dc < 0 or dc >= cols: return -2
+    cells: mutable [i64;64] = [0;64]
+    dist: mutable [i64;64] = [-1;64]
+    q: mutable [usize;64] = [0;64]
+    for i in 0..usize(rows * cols):
+        cells[i] <- v[6+i]
+        if cells[i] != 0 and cells[i] != 1: return -2
+    start: usize = usize(sr * cols + sc)
+    goal: usize = usize(dr * cols + dc)
+    if cells[start] == 0 or cells[goal] == 0: return -1
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    q[0] <- start
+    dist[start] <- 0
+    while head < tail:
+        u: usize = q[head]
+        head <- head + 1
+        if u == goal: return dist[u]
+        y: i64 = i64(u) / cols
+        x: i64 = i64(u) % cols
+        ys: [i64;4] = [y-1,y,y,y+1]
+        xs: [i64;4] = [x,x-1,x+1,x]
+        for k in 0..4:
+            if ys[k] >= 0 and ys[k] < rows and xs[k] >= 0 and xs[k] < cols:
+                w: usize = usize(ys[k] * cols + xs[k])
+                if cells[w] == 1 and dist[w] < 0: dist[w] <- dist[u] + 1; q[tail] <- w; tail <- tail + 1
+    -1
+export fn lee_breadth_first_search(v: i64&, length: usize) -> i64 = lee_breadth_first_search_impl

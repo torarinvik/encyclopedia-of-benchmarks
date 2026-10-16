@@ -1,0 +1,3 @@
+module parse_nested_brackets;
+fn void scan(uchar* s,usz lo,usz hi,ulong* h){usz depth=0,begin=0;for(usz i=lo;i<hi;i++){if(s[i]=='<'){if(depth==0)begin=i;depth++;}else if(s[i]=='>'){depth--;if(depth==0){for(usz j=begin;j<=i;j++)*h=(*h*257+(ulong)s[j]+1)%1000000007;scan(s,begin+1,i,h);}}}}
+fn long parse_nested_brackets(long* v,usz n) @export("parse_nested_brackets"){if(v==null||n<1||n>129||v[0]<0||v[0]>128||n!=(usz)v[0]+1)return -1;usz len=(usz)v[0];uchar[128] s;long depth=0;for(usz i=0;i<len;i++){long x=v[i+1];if(x<0||x>127)return -1;s[i]=(uchar)x;if(s[i]=='<')depth++;else if(s[i]=='>'){depth--;if(depth<0)return -1;}}if(depth!=0)return -1;ulong h=0;scan(&s,0,len,&h);return (long)h;}

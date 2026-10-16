@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "prefix-function-kmp-border-array-v1",
+  "algorithm": "prefix_function",
+  "function_symbol": "prefix_function",
+  "input": {"kind":"signed_i64_array","encoding":"[text_length, ASCII byte values...]","text_length_range":[0,4096],"alphabet":"ASCII 0 through 127","maximum_input_length":4097},
+  "output": {"kind":"bytes","encoding":"one little-endian signed i32 prefix value per text byte","result_length":"4 * text_length","malformed_input_result":-1,"insufficient_capacity_result":-2},
+  "source_bound":{"description":"Both pinned routines use the KMP prefix-function fallback recurrence and return one border length for each input position.","algorithm":"linear prefix function; this is not pattern search"},
+  "workspace":{"bytes":16384,"meaning":"maximum output capacity for 4096 i32 values"},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"empty_text","input_values":[0],"workspace_bytes":16384,"expected_result":0,"expected_output_hex":""},
+    {"id":"source_example","input_values":[9,97,97,98,99,100,97,97,98,99],"workspace_bytes":16384,"expected_result":36,"expected_output_hex":"000000000100000000000000000000000000000001000000020000000300000004000000"},
+    {"id":"repeated_byte","input_values":[5,120,120,120,120,120],"workspace_bytes":16384,"expected_result":20,"expected_output_hex":"0000000001000000020000000300000004000000"},
+    {"id":"fallback","input_values":[8,97,115,100,97,115,100,97,100],"workspace_bytes":16384,"expected_result":32,"expected_output_hex":"0000000000000000000000000100000002000000030000000400000000000000"},
+    {"id":"capacity_short","input_values":[3,97,97,97],"workspace_bytes":8,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_byte","input_values":[1,128],"workspace_bytes":16384,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed_length","input_values":[2,97],"workspace_bytes":16384,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

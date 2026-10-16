@@ -38,9 +38,11 @@ export fn horizontal_projectile_motion(values: [*c]const i64, length: usize,
     const velocity: f64 = @as(f64, @floatFromInt(velocity_milli)) / 1000.0;
     const angle: f64 = @as(f64, @floatFromInt(angle_millidegrees)) / 1000.0;
     const pi_over_180 = 3.14159265358979323846264338327950288 / 180.0;
-    const distance_raw = velocity * velocity * @sin((2.0 * angle) * pi_over_180) / GRAVITY;
+    const velocity_squared = velocity * velocity;
+    const distance_raw = velocity_squared * @sin((2.0 * angle) * pi_over_180) / GRAVITY;
     const angle_sine = @sin(angle * pi_over_180);
-    const height_raw = velocity * velocity * angle_sine * angle_sine / (2.0 * GRAVITY);
+    const sine_squared = angle_sine * angle_sine;
+    const height_raw = velocity_squared * sine_squared / (2.0 * GRAVITY);
     const time_raw = (2.0 * velocity) * angle_sine / GRAVITY;
     storeF64Le(output, 0, @as(f64, @floatFromInt(roundCents(distance_raw))) / 100.0);
     storeF64Le(output, 8, @as(f64, @floatFromInt(roundCents(height_raw))) / 100.0);

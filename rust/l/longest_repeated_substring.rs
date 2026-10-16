@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn longest_repeated_substring(p:*const i64,n:usize)->i64{if p.is_null()||n<1||n>128{return -1;}let p=unsafe{std::slice::from_raw_parts(p,n)};let z=p[0];if !(0..=127).contains(&z)||n!=z as usize+1||p[1..].iter().any(|&v|!(0..=127).contains(&v)){return -1;}let m=z as usize;let mut dp=[[0i64;128];128];let mut best=0;for i in (0..m).rev(){for j in (i+1..m).rev(){if p[i+1]==p[j+1]{dp[i][j]=1+dp[i+1][j+1];best=best.max(dp[i][j]);}}}best}

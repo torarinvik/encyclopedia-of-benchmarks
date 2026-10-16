@@ -1,0 +1,4 @@
+import math
+fn put_double(mut outp &u8,off int,x f64){mut bits:=u64(math.bits_from_f64(x));for k in 0..8{unsafe{outp[off+k]=u8(bits&255)};bits>>=8}}
+@[export:'nesterov_accelerated_sgd']
+pub fn nesterov_accelerated_sgd(v &i64,n usize,outp &u8,cap usize)i64{if n<4{return -1};wi:=unsafe{v[0]};si:=unsafe{v[1]};lm:=unsafe{v[2]};mm:=unsafe{v[3]};if wi<1||wi>8||si<1||si>8||lm<0||lm>1000||mm<0||mm>1000||n!=usize(4+wi*(si+1)){return -1};w:=int(wi);s:=int(si);for i in 4..int(n){x:=unsafe{v[i]};if x < -10000||x>10000{return -1}};if cap<w*8||isnil(outp){return -2};mut p:=[8]f64{};mut vel:=[8]f64{};lr:=f64(lm)/1000.0;m:=f64(mm)/1000.0;for i in 0..w{p[i]=f64(unsafe{v[4+i]})/1000.0};for t in 0..s{for i in 0..w{prev:=vel[i];g:=f64(unsafe{v[4+w+t*w+i]})/1000.0;vel[i]=m*vel[i]-lr*g;p[i]=p[i]-m*prev+(1.0+m)*vel[i]}};for i in 0..w{put_double(mut outp,i*8,p[i])};return i64(w*8)}

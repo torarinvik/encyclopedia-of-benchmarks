@@ -1,0 +1,57 @@
+def next_rng(state: mutable u32&) -> u32:
+    x: mutable u32 = state
+    x <- x ^ (x << 13)
+    x <- x ^ (x >> 17)
+    x <- x ^ (x << 5)
+    state <- if x == 0: 2_654_435_769 else: x
+    state
+
+def partition(values: mutable i64&, low: usize, high: usize) -> usize:
+    pivot: i64 = values[high]
+    index: mutable usize = low
+    scan: mutable usize = low
+    while scan < high:
+        if values[scan] <= pivot:
+            temp: i64 = values[index]
+            values[index] <- values[scan]
+            values[scan] <- temp
+            index <- index + 1
+        scan <- scan + 1
+    temp: i64 = values[index]
+    values[index] <- values[high]
+    values[high] <- temp
+    index
+
+def select_k(values: mutable i64&, low: usize, high: usize, rank: usize, state: mutable u32&) -> i64:
+    if low == high: return values[low]
+    pivot: usize = low + (next_rng(state).usize() % (high - low + 1))
+    temp: i64 = values[pivot]
+    values[pivot] <- values[high]
+    values[high] <- temp
+    position: usize = partition(values, low, high)
+    pivot_rank: usize = position - low + 1
+    if rank == pivot_rank: return values[position]
+    if rank < pivot_rank: return select_k(values, low, position - 1, rank, state)
+    select_k(values, position + 1, high, rank - pivot_rank, state)
+
+def minimum_element_of_array_impl(input: i64&, length: usize) -> i64:
+    if length < 4: return -1
+    n: i64 = input[0]
+    rank: i64 = input[1]
+    seed: i64 = input[2]
+    if n < 1 or n > 128 or length != n.usize() + 3 or rank < 1 or rank > n or seed < 0 or seed > 2_147_483_647: return -1
+    values: mutable i64[128] = zeroed
+    i: mutable usize = 0
+    while i < n.usize():
+        value: i64 = input[i + 3]
+        if value < -1_000_000 or value > 1_000_000: return -1
+        j: mutable usize = 0
+        while j < i:
+            if values[j] == value: return -1
+            j <- j + 1
+        values[i] <- value
+        i <- i + 1
+    random_state: mutable u32 = if seed == 0: 2_654_435_769 else: seed.u32()
+    select_k(values, 0, n.usize() - 1, rank.usize(), random_state)
+
+export fn minimum_element_of_array(values: i64&, length: usize) -> i64 = minimum_element_of_array_impl

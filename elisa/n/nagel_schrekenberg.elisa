@@ -1,0 +1,48 @@
+def nagel_schrekenberg_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 5: return -1
+    cells0: i64 = values[0]
+    steps0: i64 = values[1]
+    maximum: i64 = values[2]
+    if cells0 < 2 or cells0 > 32 or steps0 < 0 or steps0 > 16 or maximum < 0 or maximum > 5 or length != (cells0 + 3).usize(): return -1
+    cells: usize = cells0.usize()
+    steps: usize = steps0.usize()
+    row: mutable [32]i64 = [-1; 32]
+    i: mutable usize = 0
+    while i < cells:
+        if values[i+3] < -1 or values[i+3] > 5: return -1
+        row[i] <- values[i+3]
+        i <- i + 1
+    need: usize = cells * (steps + 1)
+    if need > capacity: return -2
+    pos: mutable usize = 0
+    i <- 0
+    while i < cells: output[pos] <- (row[i] + 1).u8(); pos <- pos + 1; i <- i + 1
+    t: mutable usize = 0
+    while t < steps:
+        next: mutable [32]i64 = [-1; 32]
+        i <- 0
+        while i < cells:
+            if row[i] != -1:
+                distance: mutable usize = 0
+                j: mutable usize = i + 1
+                while j < cells and row[j] == -1: distance <- distance + 1; j <- j + 1
+                if j == cells:
+                    j <- 0
+                    while row[j] == -1: distance <- distance + 1; j <- j + 1
+                speed: mutable i64 = row[i] + 1
+                if speed > maximum: speed <- maximum
+                if speed > distance.i64() - 1: speed <- distance.i64() - 1
+                next[i] <- speed
+            i <- i + 1
+        moved: mutable [32]i64 = [-1; 32]
+        i <- 0
+        while i < cells:
+            if next[i] != -1: moved[(i + next[i].usize()) % cells] <- next[i]
+            i <- i + 1
+        row <- moved
+        i <- 0
+        while i < cells: output[pos] <- (row[i] + 1).u8(); pos <- pos + 1; i <- i + 1
+        t <- t + 1
+    return pos.i64()
+
+export fn nagel_schrekenberg(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nagel_schrekenberg_impl

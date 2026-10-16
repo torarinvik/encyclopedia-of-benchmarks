@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+static void scan(const unsigned char*s,std::size_t lo,std::size_t hi,std::uint64_t&h){std::size_t depth=0,begin=0;for(std::size_t i=lo;i<hi;i++){if(s[i]=='<'){if(depth==0)begin=i;++depth;}else if(s[i]=='>'){--depth;if(depth==0){for(std::size_t j=begin;j<=i;j++)h=(h*257u+s[j]+1u)%1000000007u;scan(s,begin+1,i,h);}}}}
+extern "C" std::int64_t parse_nested_brackets(const std::int64_t*v,std::size_t n) noexcept {if(!v||n<1||n>129||v[0]<0||v[0]>128||n!=std::size_t(v[0])+1)return -1;unsigned char s[128];auto len=std::size_t(v[0]);std::size_t d=0;for(std::size_t i=0;i<len;i++){if(v[i+1]<0||v[i+1]>127)return -1;s[i]=static_cast<unsigned char>(v[i+1]);if(s[i]=='<')++d;else if(s[i]=='>'){if(d==0)return -1;--d;}}if(d)return -1;std::uint64_t h=0;scan(s,0,len,h);return std::int64_t(h);}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "clojure-matrix-elementwise-add-subtract-i32-v1",
+  "algorithm": "operators",
+  "function_symbol": "operators",
+  "input": {
+    "kind": "packed_i64_array",
+    "layout": "[operation, rows_a, columns_a, A row-major values..., rows_b, columns_b, B row-major values...]",
+    "operation_selector": {"0": "elementwise addition", "1": "elementwise subtraction"},
+    "row_range": [1, 16],
+    "column_range": [0, 16],
+    "maximum_elements_per_matrix": 256,
+    "element_range": [-1000000, 1000000],
+    "maximum_input_values": 517
+  },
+  "output": {
+    "kind": "row_major_little_endian_signed_i32",
+    "description": "elementwise matrix result",
+    "return_value": "element count",
+    "dimension_mismatch_result": -1,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "maximum_output_bytes": 1024
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "addition_2x2", "input_values": [0, 2, 2, 1, 2, 3, 4, 2, 2, 4, 3, 2, 1], "expected_result": 4},
+    {"id": "subtraction_2x3", "input_values": [1, 2, 3, 9, 8, 7, 6, 5, 4, 2, 3, 1, 2, 3, 4, 5, 6], "expected_result": 6},
+    {"id": "zero_columns", "input_values": [0, 3, 0, 3, 0], "expected_result": 0},
+    {"id": "dimension_mismatch", "input_values": [0, 1, 2, 1, 2, 2, 1, 2, 3, 4], "expected_result": -1}
+  ]
+}

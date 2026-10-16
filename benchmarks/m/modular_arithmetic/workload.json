@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "modular-arithmetic-three-ops-v1",
+  "algorithm": "modular_arithmetic",
+  "input": {
+    "kind": "four_element_signed_64_array",
+    "encoding": "[operation, modulus, a, b]",
+    "operation_codes": {
+      "0": "add",
+      "1": "subtract",
+      "2": "multiply"
+    },
+    "modulus_range": [
+      1,
+      1000000
+    ],
+    "residue_range": "0 <= a,b < modulus",
+    "invalid_result": -1
+  },
+  "cases": [
+    {
+      "id": "add_wrap",
+      "input_values": [
+        0,
+        17,
+        15,
+        9
+      ],
+      "input_length": 4,
+      "expected_result": 7
+    },
+    {
+      "id": "subtract_positive",
+      "input_values": [
+        1,
+        17,
+        15,
+        9
+      ],
+      "input_length": 4,
+      "expected_result": 6
+    },
+    {
+      "id": "subtract_negative_residue",
+      "input_values": [
+        1,
+        17,
+        3,
+        12
+      ],
+      "input_length": 4,
+      "expected_result": 8
+    },
+    {
+      "id": "multiply",
+      "input_values": [
+        2,
+        17,
+        15,
+        9
+      ],
+      "input_length": 4,
+      "expected_result": 16
+    },
+    {
+      "id": "modulus_one",
+      "input_values": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "operation_out_of_range",
+      "input_values": [
+        3,
+        7,
+        2,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_modulus",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "noncanonical_operand",
+      "input_values": [
+        2,
+        11,
+        11,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [
+        0,
+        7,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn orbital_transfer_work(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{if v.is_null()||n!=4{return -1}let a=*v;let b=*v.add(1);let r1=*v.add(2);let r2=*v.add(3);if !(-1_000_000_000..=1_000_000_000).contains(&a)||!(-1_000_000..=1_000_000).contains(&b)||!(1..=1_000_000_000).contains(&r1)||!(1..=1_000_000_000).contains(&r2){return -1}if out.is_null()||cap<8{return -2}let w=(6.67430e-11*a as f64*b as f64/2.0)*(1.0/r1 as f64-1.0/r2 as f64);let bytes=w.to_le_bytes();for k in 0..8{*out.add(k)=bytes[k]}8}

@@ -1,0 +1,5 @@
+"""Oracle for pinned Python matrix operation rotate_180."""
+from rotate_matrix_oracle_common import expected_output as _expected_output
+
+def expected_output(values, capacity=None):
+    return _expected_output(values, 'rotate_180', capacity)

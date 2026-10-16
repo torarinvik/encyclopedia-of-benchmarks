@@ -1,0 +1,3 @@
+fn store(x:i64,out:&mut[u8]){out[..8].copy_from_slice(&x.to_le_bytes());}
+#[no_mangle]
+pub unsafe extern "C" fn midpoint_integration(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{if v.is_null()||n!=4{return -1}let a=std::slice::from_raw_parts(v,n);let(f,steps,aa,bb)=(a[0],a[1],a[2],a[3]);if !(0..=2).contains(&f)||!(1..=256).contains(&steps)||!(-1_000_000..=1_000_000).contains(&aa)||bb<aa||bb>1_000_000{return -1}if out.is_null()||cap<8{return -2}let lo=aa as f64/1e6;let hi=bb as f64/1e6;let h=(hi-lo)/steps as f64;let mut sum=0.0;for i in 0..steps{let x=lo+i as f64*h+h/2.0;let y=if f==0{1.0}else if f==1{x}else{x*x};sum+=y}let value=(h*sum*1e9+0.5).floor() as i64;store(value,std::slice::from_raw_parts_mut(out,8));8}

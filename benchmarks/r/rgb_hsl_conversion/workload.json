@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "rgb-hsl-js-bounded-i64-array-bytes-v1",
+  "algorithm": "rgb_hsl_conversion",
+  "function_symbol": "rgb_hsl_conversion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[red, green, blue] integer channels",
+    "exact_length": 3,
+    "channel_range": [
+      0,
+      255
+    ],
+    "first_rejected_length": 4,
+    "invalid_result": -1,
+    "maximum_parseable_array_length": 4
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "hue as unsigned 16-bit little-endian, followed by saturation percent and lightness percent bytes",
+    "length": 4,
+    "successful_result": "number of output bytes written"
+  },
+  "workspace": {
+    "bytes": 4,
+    "meaning": "fixed output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "black",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "white",
+      "input_values": [
+        255,
+        255,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000064"
+    },
+    {
+      "id": "source-example",
+      "input_values": [
+        24,
+        98,
+        118
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "c100421c"
+    },
+    {
+      "id": "red",
+      "input_values": [
+        255,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00006432"
+    },
+    {
+      "id": "lime",
+      "input_values": [
+        0,
+        255,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "78006432"
+    },
+    {
+      "id": "blue",
+      "input_values": [
+        0,
+        0,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "f0006432"
+    },
+    {
+      "id": "yellow-green-tie",
+      "input_values": [
+        255,
+        255,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "3c006432"
+    },
+    {
+      "id": "cyan-green-blue-tie",
+      "input_values": [
+        0,
+        255,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "b4006432"
+    },
+    {
+      "id": "magenta-blue-red-tie",
+      "input_values": [
+        255,
+        0,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "2c016432"
+    },
+    {
+      "id": "half-lightness-rounding",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00006400"
+    },
+    {
+      "id": "hue-wrap-around-red",
+      "input_values": [
+        255,
+        0,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "4a016432"
+    },
+    {
+      "id": "near-gray",
+      "input_values": [
+        127,
+        128,
+        127
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "78000032"
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-two",
+      "input_values": [
+        12,
+        34
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-four",
+      "input_values": [
+        12,
+        34,
+        56,
+        78
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative",
+      "input_values": [
+        12,
+        -1,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-above-255",
+      "input_values": [
+        12,
+        256,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity-too-small",
+      "input_values": [
+        24,
+        98,
+        118
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 3
+    },
+    {
+      "id": "capacity-exact",
+      "input_values": [
+        24,
+        98,
+        118
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "c100421c",
+      "workspace_bytes": 4
+    }
+  ]
+}

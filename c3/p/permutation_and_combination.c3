@@ -1,0 +1,2 @@
+module permutation_and_combination;
+fn long permutation_and_combination(long* v,usz n) @export("permutation_and_combination") {if(v==null||n!=3)return -1;long op=v[0],a=v[1],r=v[2];if(op<0||op>2||a<0||a>18)return -1;if(op!=0&&(r<0||r>a))return -1;long result=1;if(op==0){for(long i=2;i<=a;i++)result*=i;}else if(op==1){for(long i=a-r+1;i<=a;i++)result*=i;}else{if(r>a-r)r=a-r;for(long i=1;i<=r;i++)result=result*(a-r+i)/i;}return result;}

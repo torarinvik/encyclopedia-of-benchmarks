@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn pattern_matching(v:*const i64,n:usize)->i64{if v.is_null()||n<3||n>130{return -1}let a=std::slice::from_raw_parts(v,n);if !(0..=64).contains(&a[0]){return -1}let t=a[0]as usize;let pp=t+1;if n<pp+1||!(1..=64).contains(&a[pp]){return -1}let p=a[pp]as usize;if n!=pp+p+1||p>t||a[1..pp].iter().chain(a[pp+1..].iter()).any(|&x|!(0..=127).contains(&x)){return -1}for i in 0..=t-p{let mut j=0;while j<p&&a[i+1+j]==a[pp+1+j]{j+=1}if j==p{return i as i64}}-1}

@@ -1,0 +1,62 @@
+def append_unsigned(output: mutable u8&, position: mutable usize&, value: usize):
+    digits: mutable [12]u8 = [0; 12]
+    count: mutable usize = 0
+    remaining: mutable usize = value
+    while remaining > 0:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+    if count == 0: output[position] <- 48u8(); position <- position + 1
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+
+def optimal_job_scheduling_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 4 or length > 194: return -1
+    p_raw: i64 = values[0]
+    m_raw: i64 = values[1]
+    if p_raw < 1 or p_raw > 16 or m_raw < 1 or m_raw > 8 or length != (2 + p_raw * m_raw + m_raw * m_raw).usize(): return -1
+    processes: usize = p_raw.usize()
+    machines: usize = m_raw.usize()
+    i: mutable usize = 2
+    while i < length:
+        if values[i] < 0 or values[i] > 1000: return -1
+        i <- i + 1
+    cost: mutable [128]usize = [0; 128]
+    row: mutable usize = 0
+    while row < processes:
+        col: mutable usize = 0
+        while col < machines:
+            run: usize = values[2 + row * machines + col].usize()
+            if row == 0: cost[row * machines + col] <- run
+            else:
+                best: mutable usize = 999999999
+                previous: mutable usize = 0
+                while previous < machines:
+                    transfer: usize = values[2 + processes * machines + previous * machines + col].usize()
+                    candidate: usize = cost[(row - 1) * machines + previous] + transfer + run
+                    if candidate < best: best <- candidate
+                    previous <- previous + 1
+                cost[row * machines + col] <- best
+            col <- col + 1
+        row <- row + 1
+    scratch: mutable [2048]u8 = [0; 2048]
+    used: mutable usize = 0
+    row <- 0
+    while row < processes:
+        col: mutable usize = 0
+        while col < machines:
+            if col > 0: scratch[used] <- 44u8()
+            if col > 0: used <- used + 1
+            append_unsigned(scratch[0]&, used&, cost[row * machines + col])
+            col <- col + 1
+        if row + 1 < processes: scratch[used] <- 10u8()
+        if row + 1 < processes: used <- used + 1
+        row <- row + 1
+    if used > capacity: return -2
+    i <- 0
+    while i < used: output[i] <- scratch[i]; i <- i + 1
+    return used.i64()
+
+export fn optimal_job_scheduling(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = optimal_job_scheduling_impl

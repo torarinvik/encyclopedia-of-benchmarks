@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "solidity-scaled-uint-percentage-v1",
+  "algorithm": "percentage",
+  "function_symbol": "percentage",
+  "input": {"kind":"signed_i64_array","encoding":"[percentage, value, decimal_places]","count_range":[3,3],"percentage_range":[1,100000],"value_range":[1,100000],"decimal_places_range":[1,4],"maximum_input_length":3},
+  "output": {"kind":"signed_i64_scalar","meaning":"floor(a*b*10^dp/100), scaled by 10^dp","invalid_input_result":-1},
+  "source_bound": {"description":"The source rejects zero inputs and reverts when a*b*10^dp is below the denominator 100."},
+  "measurement": {"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases": [
+    {"id":"quarter_of_value_scaled_two_places","input_values":[25,200,2],"input_length":3,"expected_result":5000},
+    {"id":"smallest_permitted_numerator","input_values":[1,10,1],"input_length":3,"expected_result":1},
+    {"id":"integer_quotient","input_values":[3,33,1],"input_length":3,"expected_result":9},
+    {"id":"threshold_revert","input_values":[1,1,1],"input_length":3,"expected_result":-1},
+    {"id":"zero_percentage_revert","input_values":[0,100,2],"input_length":3,"expected_result":-1},
+    {"id":"zero_decimal_places_revert","input_values":[10,20,0],"input_length":3,"expected_result":-1}
+  ]
+}

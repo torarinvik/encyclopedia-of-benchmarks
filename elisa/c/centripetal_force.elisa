@@ -1,6 +1,6 @@
 # Centripetal force: (mass * velocity^2) / radius.
 def centripetal_force_impl(values: i64&, length: usize) -> f64:
-    if length != 3:
+    if values.is_null() or length != 3:
         return -1.0e300
     mass: i64 = values[0]
     velocity: i64 = values[1]

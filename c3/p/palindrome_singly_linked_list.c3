@@ -1,0 +1,2 @@
+module palindrome_singly_linked_list;
+fn long palindrome_singly_linked_list(long* v,usz n) @export("palindrome_singly_linked_list"){if(v==null||n<1||n>65||v[0]<0||v[0]>64||n!=(usz)v[0]+1)return -1;usz len=(usz)v[0];for(usz i=1;i<n;i++)if(v[i]<-2147483648||v[i]>2147483647)return -1;usz slow=0,fast=0;while(fast+1<len){slow++;fast+=2;}usz suffix=len-slow;for(usz i=0;i<suffix;i++)if(v[i+1]!=v[len-i])return 0;return 1;}

@@ -1,0 +1,7 @@
+package median_of_running_array_integer
+import "core:c"
+heap_push :: proc(h:^([256]i64),count:^int,is_max:bool,x:i64){i:=count^;h^[i]=x;count^+=1;for i>0{p:=(i-1)/2;bad:=if is_max{h^[p]<h^[i]}else{h^[p]>h^[i]};if !bad do break;h^[p],h^[i]=h^[i],h^[p];i=p}}
+heap_pop :: proc(h:^([256]i64),count:^int,is_max:bool)->i64{x:=h^[0];count^-=1;h^[0]=h^[count^];i:=0;for{l:=2*i+1;r:=l+1;b:=i;if l<count^{if if is_max{h^[l]>h^[b]}else{h^[l]<h^[b]}{b=l}};if r<count^{if if is_max{h^[r]>h^[b]}else{h^[r]<h^[b]}{b=r}};if b==i do break;h^[i],h^[b]=h^[b],h^[i];i=b};return x}
+store :: proc(out:[^]u8,pos:int,x:i64){u:=transmute(u64)x;for b:=0;b<8;b+=1{out[pos+b]=u8(u>>u64(8*b))}}
+@(export)
+median_of_running_array_integer :: proc "c" (input:[^]i64,length:c.size_t,output:[^]u8,capacity:c.size_t)->i64{if input==nil||length<2 do return -1;n0:=input[0];if n0<1||n0>256||length!=c.size_t(n0+1) do return -1;n:=int(n0);for i:=0;i<n;i+=1{if input[i+1]<-1_000_000||input[i+1]>1_000_000 do return -1};if output==nil||capacity<c.size_t(n*8) do return -2;var lo:[256]i64;var hi:[256]i64;nl:=0;nh:=0;for i:=0;i<n;i+=1{x:=input[i+1];if nh>0&&x<hi[0]{heap_push(&lo,&nl,true,x)}else{heap_push(&hi,&nh,false,x)};if nl>nh+1{heap_push(&hi,&nh,false,heap_pop(&lo,&nl,true))}else if nh>nl+1{heap_push(&lo,&nl,true,heap_pop(&hi,&nh,false))};med:=if nl==nh{(lo[0]+hi[0])/2}else if nl>nh{lo[0]}else{hi[0]};store(output,i*8,med)};return i64(n*8)}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "elementary-rule-30-i64-array-bytes-u8-v1",
+  "algorithm": "elementary",
+  "function_symbol": "elementary",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[cell_count, binary_cells...]",
+    "cell_count_range": [
+      1,
+      128
+    ],
+    "cell_value_range": [
+      0,
+      1
+    ],
+    "first_cell_constraint": 0,
+    "maximum_validation_array_length": 129,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "u8_vector",
+    "encoding": "one byte per cell",
+    "layout": "next Rule 30 generation",
+    "max_length": 128,
+    "max_output_bytes": 128,
+    "valid_result": "cell_count",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "fixed output capacity for one generation"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "rule30-case-1",
+      "input_values": [
+        5,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 5,
+      "expected_output_hex": "0001010100"
+    },
+    {
+      "id": "rule30-case-2",
+      "input_values": [
+        6,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 6,
+      "expected_output_hex": "010100010000"
+    },
+    {
+      "id": "rule30-case-3",
+      "input_values": [
+        3,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output_hex": "000101"
+    }
+  ]
+}

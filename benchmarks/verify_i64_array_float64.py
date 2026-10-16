@@ -211,8 +211,44 @@ from reynolds_number_oracle import reynolds_number as reynolds_number_oracle
 from interquartile_range_oracle import INVALID_RESULT as INTERQUARTILE_RANGE_INVALID_RESULT
 from interquartile_range_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_INTERQUARTILE_RANGE_PARSEABLE_INPUT_LENGTH
 from interquartile_range_oracle import expected_result as interquartile_range_oracle
+from apparent_power_oracle import INVALID_RESULT as APPARENT_POWER_INVALID_RESULT
+from apparent_power_oracle import expected_result as apparent_power_oracle
+from archimedes_principle_of_buoyant_force_oracle import (
+    INVALID_RESULT as ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT,
+    expected_result as archimedes_principle_of_buoyant_force_oracle,
+)
+from automatic_differentiation_oracle import INVALID_RESULT as AUTOMATIC_DIFFERENTIATION_INVALID_RESULT
+from automatic_differentiation_oracle import automatic_differentiation as automatic_differentiation_oracle
+from boyles_law_oracle import INVALID_RESULT as BOYLES_LAW_INVALID_RESULT
+from boyles_law_oracle import expected_result as boyles_law_oracle
+from butterworth_filter_oracle import INVALID_RESULT as BUTTERWORTH_FILTER_INVALID_RESULT
+from butterworth_filter_oracle import MAX_FREQUENCY as BUTTERWORTH_FILTER_MAX_FREQUENCY
+from butterworth_filter_oracle import MAX_GAIN_MILLI_DB as BUTTERWORTH_FILTER_MAX_GAIN_MILLI_DB
+from butterworth_filter_oracle import MAX_Q_MICRO as BUTTERWORTH_FILTER_MAX_Q_MICRO
+from butterworth_filter_oracle import MAX_SAMPLE_RATE as BUTTERWORTH_FILTER_MAX_SAMPLE_RATE
+from butterworth_filter_oracle import expected_result as butterworth_filter_oracle
+from center_of_mass_oracle import INVALID_RESULT as CENTER_OF_MASS_INVALID_RESULT
+from center_of_mass_oracle import MAX_COORDINATE_UNITS as CENTER_OF_MASS_MAX_COORDINATE_UNITS
+from center_of_mass_oracle import MAX_INPUT_LENGTH as MAX_CENTER_OF_MASS_INPUT_LENGTH
+from center_of_mass_oracle import MAX_MASS_UNITS as CENTER_OF_MASS_MAX_MASS_UNITS
+from center_of_mass_oracle import MAX_PARTICLES as CENTER_OF_MASS_MAX_PARTICLES
+from center_of_mass_oracle import expected_result as center_of_mass_oracle
+from centripetal_force_oracle import INVALID_RESULT as CENTRIPETAL_FORCE_INVALID_RESULT
+from centripetal_force_oracle import MAX_ABSOLUTE_VELOCITY as CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY
+from centripetal_force_oracle import MAX_MASS as CENTRIPETAL_FORCE_MAX_MASS
+from centripetal_force_oracle import MAX_RADIUS as CENTRIPETAL_FORCE_MAX_RADIUS
+from centripetal_force_oracle import expected_result as centripetal_force_oracle
+from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
+from cohen_sutherland_oracle import MAX_COORDINATE_MICRO as COHEN_SUTHERLAND_MAX_COORDINATE_MICRO
+from cohen_sutherland_oracle import expected_result as cohen_sutherland_oracle
+from reverse_polish_notation_oracle import INVALID_RESULT as REVERSE_POLISH_NOTATION_INVALID_RESULT
+from reverse_polish_notation_oracle import MAX_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_INPUT_LENGTH
+from reverse_polish_notation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
+from reverse_polish_notation_oracle import MAX_TOKEN_COUNT as REVERSE_POLISH_NOTATION_MAX_TOKEN_COUNT
+from reverse_polish_notation_oracle import expected_result as reverse_polish_notation_oracle
 
-ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range")
+ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
+ALGORITHMS += ("reverse_polish_notation",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
@@ -309,6 +345,24 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return reynolds_number_oracle(values)
     if algorithm == "interquartile_range":
         return interquartile_range_oracle(values)
+    if algorithm == "apparent_power":
+        return apparent_power_oracle(values)
+    if algorithm == "archimedes_principle_of_buoyant_force":
+        return archimedes_principle_of_buoyant_force_oracle(values)
+    if algorithm == "automatic_differentiation":
+        return automatic_differentiation_oracle(values)
+    if algorithm == "boyles_law":
+        return boyles_law_oracle(values)
+    if algorithm == "butterworth_filter":
+        return butterworth_filter_oracle(values)
+    if algorithm == "center_of_mass":
+        return center_of_mass_oracle(values)
+    if algorithm == "centripetal_force":
+        return centripetal_force_oracle(values)
+    if algorithm == "cohen_sutherland":
+        return cohen_sutherland_oracle(values)
+    if algorithm == "reverse_polish_notation":
+        return reverse_polish_notation_oracle(values)
     raise ValueError(f"no oracle for {algorithm}")
 
 
@@ -1341,6 +1395,359 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = INTERQUARTILE_RANGE_INVALID_RESULT
+    elif algorithm == "apparent_power":
+        for selector in (0, 1):
+            for voltage, current in ((0, 0), (0, 1_000), (1_000, 0), (1_000, 1_000)):
+                for voltage_angle, current_angle in (
+                        (-360, -360), (-90, 0), (0, 0), (90, 0), (360, 360)):
+                    values = (selector, voltage, current, voltage_angle, current_angle)
+                    cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randint(0, 1), rng.randint(0, 1_000),
+                      rng.randint(0, 1_000), rng.randint(-360, 360),
+                      rng.randint(-360, 360))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 100, 5, 0), (0, 100, 5, 0, 0, 0),
+            (-1, 100, 5, 0, 0), (2, 100, 5, 0, 0),
+            (I64_MIN, 100, 5, 0, 0), (I64_MAX, 100, 5, 0, 0),
+            (0, -1, 5, 0, 0), (0, 1_001, 5, 0, 0),
+            (0, 100, -1, 0, 0), (0, 100, 1_001, 0, 0),
+            (0, 100, 5, -361, 0), (0, 100, 5, 361, 0),
+            (0, 100, 5, 0, -361), (0, 100, 5, 0, 361),
+            (0, 100, 5, I64_MIN, 0), (0, 100, 5, I64_MAX, 0),
+            (0, 100, 5, 0, I64_MIN), (0, 100, 5, 0, I64_MAX),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = APPARENT_POWER_INVALID_RESULT
+    elif algorithm == "archimedes_principle_of_buoyant_force":
+        cases[(1, 1)] = oracle(algorithm, [1, 1])
+        cases[(1, 1_000)] = oracle(algorithm, [1, 1_000])
+        cases[(1_000, 1)] = oracle(algorithm, [1_000, 1])
+        cases[(1_000, 1_000)] = oracle(algorithm, [1_000, 1_000])
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randint(1, 1_000), rng.randint(1, 1_000))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (1,), (1, 1, 1), (0, 1), (-1, 1), (1_001, 1),
+            (1, 0), (1, -1), (1, 1_001), (I64_MIN, 1), (1, I64_MAX),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT
+    elif algorithm == "automatic_differentiation":
+        # A full-size valid chain reaches the documented leaf and operation caps.
+        leaves = [1] + [0] * 31
+        operations = []
+        left_node = 0
+        for operation_index in range(64):
+            operations.extend((0, left_node, 1))
+            left_node = 32 + operation_index
+        maximum_tape = tuple([32, 64, 95, 0] + leaves + operations)
+        cases[maximum_tape] = oracle(algorithm, list(maximum_tape))
+
+        rng = random.Random(20261016)
+        accepted = 0
+        attempts = 0
+        while accepted < 128 and attempts < 10_000:
+            attempts += 1
+            leaf_count = rng.randint(1, 6)
+            operation_count = rng.randint(1, 16)
+            leaf_values = [rng.randint(-4, 4) for _ in range(leaf_count)]
+            nodes = [float(value) for value in leaf_values]
+            operations = []
+            for operation_index in range(operation_count):
+                output_node = leaf_count + operation_index
+                opcode = rng.choice((0, 1, 2, 3, 5))
+                left = rng.randrange(output_node)
+                if opcode == 5:
+                    right = rng.randint(1, 5)
+                    result = nodes[left] ** right
+                else:
+                    available = [node for node in range(output_node)
+                                 if opcode != 3 or nodes[node] != 0.0]
+                    if not available:
+                        opcode = 0
+                        available = list(range(output_node))
+                    right = rng.choice(available)
+                    if opcode == 0:
+                        result = nodes[left] + nodes[right]
+                    elif opcode == 1:
+                        result = nodes[left] - nodes[right]
+                    elif opcode == 2:
+                        result = nodes[left] * nodes[right]
+                    else:
+                        result = nodes[left] / nodes[right]
+                if not math.isfinite(result) or abs(result) > 10_000_000_000:
+                    break
+                nodes.append(result)
+                operations.extend((opcode, left, right))
+            if len(operations) != 3 * operation_count:
+                continue
+            values = tuple([leaf_count, operation_count, leaf_count + operation_count - 1,
+                            rng.randrange(leaf_count)] + leaf_values + operations)
+            cases[values] = oracle(algorithm, list(values))
+            accepted += 1
+
+        oversized_operation_count = tuple([1, 65, 65, 0, 1] + [0, 0, 0] * 65)
+        oversized_leaf_count = tuple([33, 1, 33, 0] + [0] * 33 + [0, 0, 0])
+        malformed = (
+            (), (1,), (1, 1), (1, 1, 1),
+            (1, 1, 1, 0, 3, 5, 0),
+            (0, 1, 1, 0, 3, 0, 0, 1),
+            (1, 0, 1, 0, 3),
+            (1, 1, 0, 0, 3, 0, 0, 1),
+            (1, 1, 1, 1, 3, 5, 0, 1),
+            (1, 1, 1, 0, 17, 5, 0, 1),
+            (1, 1, 1, 0, 3, 4, 0, 1),
+            (1, 1, 1, 0, 3, 6, 0, 1),
+            (1, 1, 1, 0, 3, 2, 1, 0),
+            (2, 1, 2, 0, 3, 0, 3, 0, 1),
+            (1, 1, 1, 0, 3, 5, 0, 0),
+            (1, 1, 1, 0, 3, 5, 0, 9),
+            (1, 2, 2, 0, 16, 5, 0, 8, 2, 1, 0),
+            (1, 1, 1, 0, I64_MIN, 5, 0, 1),
+            (1, 1, 1, 0, I64_MAX, 5, 0, 1),
+            oversized_leaf_count, oversized_operation_count,
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = AUTOMATIC_DIFFERENTIATION_INVALID_RESULT
+    elif algorithm == "boyles_law":
+        boundary_supplied = ((1, 1, 1), (1_000, 1_000, 1_000),
+                             (1, 1_000, 1), (1_000, 1, 1_000))
+        for missing_index in range(4):
+            for supplied in boundary_supplied:
+                values = (missing_index, *supplied)
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (rng.randrange(4), rng.randint(1, 1_000),
+                      rng.randint(1, 1_000), rng.randint(1, 1_000))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (3,), (3, 100, 120), (3, 100, 120, 150, 1),
+            (-1, 100, 120, 150), (4, 100, 120, 150),
+            (I64_MIN, 100, 120, 150), (I64_MAX, 100, 120, 150),
+            (3, 0, 120, 150), (3, -1, 120, 150),
+            (3, 100, 0, 150), (3, 100, 120, 1_001),
+            (3, I64_MIN, 120, 150), (3, 100, I64_MAX, 150),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = BOYLES_LAW_INVALID_RESULT
+    elif algorithm == "butterworth_filter":
+        rng = random.Random(20261016)
+        for _ in range(128):
+            filter_kind = rng.randrange(9)
+            frequency = rng.randint(1, BUTTERWORTH_FILTER_MAX_FREQUENCY)
+            samplerate = rng.randint(2 * frequency + 1, BUTTERWORTH_FILTER_MAX_SAMPLE_RATE)
+            gain = (rng.randint(-BUTTERWORTH_FILTER_MAX_GAIN_MILLI_DB,
+                                BUTTERWORTH_FILTER_MAX_GAIN_MILLI_DB)
+                    if filter_kind in (4, 5, 6) else 0)
+            q_micro = (-1 if rng.randrange(4) == 0 else
+                       rng.randint(1, BUTTERWORTH_FILTER_MAX_Q_MICRO))
+            values = (filter_kind, rng.randrange(6), frequency, samplerate, gain, q_micro)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 1_000, 48_000, 0, -1, 0),
+            (-1, 0, 1_000, 48_000, 0, -1), (9, 0, 1_000, 48_000, 0, -1),
+            (0, -1, 1_000, 48_000, 0, -1), (0, 6, 1_000, 48_000, 0, -1),
+            (0, 0, 0, 48_000, 0, -1),
+            (0, 0, BUTTERWORTH_FILTER_MAX_FREQUENCY + 1, 192_000, 0, -1),
+            (0, 0, 1_000, 0, 0, -1),
+            (0, 0, 1_000, BUTTERWORTH_FILTER_MAX_SAMPLE_RATE + 1, 0, -1),
+            (0, 0, 24_000, 48_000, 0, -1),
+            (0, 0, 1_000, 2_000, 0, -1),
+            (0, 0, 1_000, 48_000, 0, 0),
+            (0, 0, 1_000, 48_000, 0, -2),
+            (0, 0, 1_000, 48_000, 0, BUTTERWORTH_FILTER_MAX_Q_MICRO + 1),
+            (0, 0, 1_000, 48_000, 1, -1),
+            (4, 0, 1_000, 48_000, -BUTTERWORTH_FILTER_MAX_GAIN_MILLI_DB - 1, 1_000_000),
+            (6, 0, 1_000, 48_000, BUTTERWORTH_FILTER_MAX_GAIN_MILLI_DB + 1, 1_000_000),
+            (I64_MIN, 0, 1_000, 48_000, 0, -1),
+            (0, I64_MAX, 1_000, 48_000, 0, -1),
+            (0, 0, I64_MIN, 48_000, 0, -1),
+            (0, 0, 1_000, I64_MAX, 0, -1),
+            (0, 0, 1_000, 48_000, I64_MIN, -1),
+            (0, 0, 1_000, 48_000, 0, I64_MAX),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = BUTTERWORTH_FILTER_INVALID_RESULT
+    elif algorithm == "center_of_mass":
+        for selector in range(3):
+            values = (selector, 1, 1_125, -1_250, 875, 1_500)
+            cases[values] = oracle(algorithm, list(values))
+            values = (selector, 1, -CENTER_OF_MASS_MAX_COORDINATE_UNITS,
+                      CENTER_OF_MASS_MAX_COORDINATE_UNITS, 0,
+                      CENTER_OF_MASS_MAX_MASS_UNITS)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_records = []
+        for index in range(CENTER_OF_MASS_MAX_PARTICLES):
+            maximum_records.extend((
+                (-1 if index % 2 else 1) * CENTER_OF_MASS_MAX_COORDINATE_UNITS,
+                index * 1_000 // (CENTER_OF_MASS_MAX_PARTICLES - 1),
+                -index * 1_000,
+                1 + (index * 7_919) % CENTER_OF_MASS_MAX_MASS_UNITS,
+            ))
+        maximum_input = (0, CENTER_OF_MASS_MAX_PARTICLES, *maximum_records)
+        assert len(maximum_input) == MAX_CENTER_OF_MASS_INPUT_LENGTH
+        cases[maximum_input] = oracle(algorithm, list(maximum_input))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            particle_count = rng.randint(1, CENTER_OF_MASS_MAX_PARTICLES)
+            values = [rng.randrange(3), particle_count]
+            for _ in range(particle_count):
+                values.extend((
+                    rng.randint(-CENTER_OF_MASS_MAX_COORDINATE_UNITS,
+                                CENTER_OF_MASS_MAX_COORDINATE_UNITS),
+                    rng.randint(-CENTER_OF_MASS_MAX_COORDINATE_UNITS,
+                                CENTER_OF_MASS_MAX_COORDINATE_UNITS),
+                    rng.randint(-CENTER_OF_MASS_MAX_COORDINATE_UNITS,
+                                CENTER_OF_MASS_MAX_COORDINATE_UNITS),
+                    rng.randint(1, CENTER_OF_MASS_MAX_MASS_UNITS),
+                ))
+            packed = tuple(values)
+            cases[packed] = oracle(algorithm, values)
+
+        malformed = (
+            (), (0,), (0, 0), (0, 1),
+            (-1, 1, 0, 0, 0, 1), (3, 1, 0, 0, 0, 1),
+            (0, 0), (0, CENTER_OF_MASS_MAX_PARTICLES + 1),
+            (0, 1, 0, 0, 0), (0, 1, 0, 0, 0, 1, 7),
+            (0, 1, CENTER_OF_MASS_MAX_COORDINATE_UNITS + 1, 0, 0, 1),
+            (0, 1, -CENTER_OF_MASS_MAX_COORDINATE_UNITS - 1, 0, 0, 1),
+            (1, 1, 0, CENTER_OF_MASS_MAX_COORDINATE_UNITS + 1, 0, 1),
+            (2, 1, 0, 0, -CENTER_OF_MASS_MAX_COORDINATE_UNITS - 1, 1),
+            (0, 1, 0, 0, 0, 0),
+            (0, 1, 0, 0, 0, CENTER_OF_MASS_MAX_MASS_UNITS + 1),
+            (0, 1, I64_MIN, 0, 0, 1), (0, 1, I64_MAX, 0, 0, 1),
+            (0, 1, 0, 0, 0, I64_MIN), (0, 1, 0, 0, 0, I64_MAX),
+            (*maximum_input, 0),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = CENTER_OF_MASS_INVALID_RESULT
+    elif algorithm == "centripetal_force":
+        boundary_cases = (
+            (0, 0, 1),
+            (1, 1, 1),
+            (CENTRIPETAL_FORCE_MAX_MASS, CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY, 1),
+            (CENTRIPETAL_FORCE_MAX_MASS, -CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY,
+             CENTRIPETAL_FORCE_MAX_RADIUS),
+            (CENTRIPETAL_FORCE_MAX_MASS, 1, CENTRIPETAL_FORCE_MAX_RADIUS),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = (
+                rng.randint(0, CENTRIPETAL_FORCE_MAX_MASS),
+                rng.randint(-CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY,
+                            CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY),
+                rng.randint(1, CENTRIPETAL_FORCE_MAX_RADIUS),
+            )
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 1, 0),
+            (-1, 0, 1), (CENTRIPETAL_FORCE_MAX_MASS + 1, 0, 1),
+            (0, -CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY - 1, 1),
+            (0, CENTRIPETAL_FORCE_MAX_ABSOLUTE_VELOCITY + 1, 1),
+            (0, 0, 0), (0, 0, -1),
+            (0, 0, CENTRIPETAL_FORCE_MAX_RADIUS + 1),
+            (I64_MIN, 0, 1), (I64_MAX, 0, 1),
+            (0, I64_MIN, 1), (0, I64_MAX, 1),
+            (0, 0, I64_MIN), (0, 0, I64_MAX),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = CENTRIPETAL_FORCE_INVALID_RESULT
+    elif algorithm == "cohen_sutherland":
+        base_line = (-1_000_000, -1_000_000, 1_000_000, 1_000_000,
+                     -2_000_000, 0, 2_000_000, 0)
+        for selector in range(5):
+            values = (selector, *base_line)
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            x_min = rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                                COHEN_SUTHERLAND_MAX_COORDINATE_MICRO - 1)
+            x_max = rng.randint(x_min + 1, COHEN_SUTHERLAND_MAX_COORDINATE_MICRO)
+            y_min = rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                                COHEN_SUTHERLAND_MAX_COORDINATE_MICRO - 1)
+            y_max = rng.randint(y_min + 1, COHEN_SUTHERLAND_MAX_COORDINATE_MICRO)
+            values = (
+                rng.randrange(5), x_min, y_min, x_max, y_max,
+                rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                            COHEN_SUTHERLAND_MAX_COORDINATE_MICRO),
+                rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                            COHEN_SUTHERLAND_MAX_COORDINATE_MICRO),
+                rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                            COHEN_SUTHERLAND_MAX_COORDINATE_MICRO),
+                rng.randint(-COHEN_SUTHERLAND_MAX_COORDINATE_MICRO,
+                            COHEN_SUTHERLAND_MAX_COORDINATE_MICRO),
+            )
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0, 0, 0, 0, 0, 0),
+            (0, *base_line, 0), (-1, *base_line), (5, *base_line),
+            (0, -1_000_000, -1_000_000, -1_000_000, 1_000_000,
+             -2_000_000, 0, 2_000_000, 0),
+            (0, -1_000_000, 1_000_000, 1_000_000, -1_000_000,
+             -2_000_000, 0, 2_000_000, 0),
+            (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
+             COHEN_SUTHERLAND_MAX_COORDINATE_MICRO + 1, 0, 0, 0),
+            (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
+             0, 0, 0, -COHEN_SUTHERLAND_MAX_COORDINATE_MICRO - 1),
+            (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
+             I64_MIN, 0, 0, 0),
+            (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
+             0, 0, 0, I64_MAX),
+            tuple([0] * 4_096),
+        )
+        for values in malformed:
+            cases[values] = COHEN_SUTHERLAND_INVALID_RESULT
+    elif algorithm == "reverse_polish_notation":
+        for expression in (
+            b"42", b"3 4 +", b"5 2 -", b"3 4 *", b"3 4 /",
+            b"1 2 /", b"-3 2 *", b"+3 4 +", b"003 004 +",
+            b"8 2 / 5 +", b"2 3 4 - -",
+        ):
+            values = tuple(expression)
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        operators = (b"+", b"-", b"*")
+        for _ in range(128):
+            operand_count = rng.randint(2, REVERSE_POLISH_NOTATION_MAX_TOKEN_COUNT // 2 + 1)
+            tokens = [str(rng.randint(-100, 100)).encode("ascii")
+                      for _ in range(operand_count)]
+            tokens.extend(rng.choice(operators) for _ in range(operand_count - 1))
+            expression = b" ".join(tokens)
+            if len(expression) <= MAX_REVERSE_POLISH_NOTATION_INPUT_LENGTH:
+                values = tuple(expression)
+                cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), tuple(b"1 2"), tuple(b"1 +"), tuple(b"1 0 /"),
+            tuple(b"1 2 3 +"), tuple(b"1  2 +"), tuple(b"1 2 + "),
+            tuple(b"1 2 q"), tuple(b"1.5 2 +"), tuple(b"1000001"),
+            tuple(b"1 \x80"), (I64_MIN,), (I64_MAX,),
+            tuple([49] * MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH:
+                cases[values] = REVERSE_POLISH_NOTATION_INVALID_RESULT
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -1378,7 +1785,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "newton_raphson_method": 2,
                     "newton_raphson": 2,
                     "reynolds_number": 4,
-                    "interquartile_range": 4}
+                    "interquartile_range": 4,
+                    "apparent_power": 5,
+                    "archimedes_principle_of_buoyant_force": 2,
+                    "automatic_differentiation": 0,
+                    "boyles_law": 4,
+                    "butterworth_filter": 6,
+                    "center_of_mass": 2,
+                    "centripetal_force": 3,
+                    "cohen_sutherland": 9,
+                    "reverse_polish_notation": 1}
     null_lengths["energy"] = 3
     null_length = null_lengths[algorithm]
     null_result = (COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
@@ -1419,9 +1835,26 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    NEWTON_RAPHSON_INVALID_RESULT if algorithm == "newton_raphson" else
                    REYNOLDS_NUMBER_INVALID_RESULT if algorithm == "reynolds_number" else
                    INTERQUARTILE_RANGE_INVALID_RESULT if algorithm == "interquartile_range" else
+                   APPARENT_POWER_INVALID_RESULT if algorithm == "apparent_power" else
+                   ARCHIMEDES_PRINCIPLE_OF_BUOYANT_FORCE_INVALID_RESULT
+                   if algorithm == "archimedes_principle_of_buoyant_force" else
+                   AUTOMATIC_DIFFERENTIATION_INVALID_RESULT
+                   if algorithm == "automatic_differentiation" else
+                   BOYLES_LAW_INVALID_RESULT if algorithm == "boyles_law" else
+                   BUTTERWORTH_FILTER_INVALID_RESULT if algorithm == "butterworth_filter" else
+                   CENTER_OF_MASS_INVALID_RESULT if algorithm == "center_of_mass" else
+                   CENTRIPETAL_FORCE_INVALID_RESULT if algorithm == "centripetal_force" else
+                   COHEN_SUTHERLAND_INVALID_RESULT if algorithm == "cohen_sutherland" else
+                   REVERSE_POLISH_NOTATION_INVALID_RESULT
+                   if algorithm == "reverse_polish_notation" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
                    INVALID_RESULT)
-    null_cases = [((0,) * null_length, null_result)]
+    null_values = (
+        (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
+         -2_000_000, 0, 2_000_000, 0)
+        if algorithm == "cohen_sutherland" else (0,) * null_length
+    )
+    null_cases = [(null_values, null_result)]
     lines = [f"{len(cases) + len(null_cases)}\n"]
     for values, expected in sorted(cases.items()):
         suffix = "" if not values else " " + " ".join(map(str, values))

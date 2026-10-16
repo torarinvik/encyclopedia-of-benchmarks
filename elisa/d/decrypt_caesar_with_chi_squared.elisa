@@ -1,0 +1,103 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def decrypt_caesar_with_chi_squared_frequency(index: usize) -> f64:
+    if index == 0: return 0.08497
+    if index == 1: return 0.01492
+    if index == 2: return 0.02202
+    if index == 3: return 0.04253
+    if index == 4: return 0.11162
+    if index == 5: return 0.02228
+    if index == 6: return 0.02015
+    if index == 7: return 0.06094
+    if index == 8: return 0.07546
+    if index == 9: return 0.00153
+    if index == 10: return 0.01292
+    if index == 11: return 0.04025
+    if index == 12: return 0.02406
+    if index == 13: return 0.06749
+    if index == 14: return 0.07507
+    if index == 15: return 0.01929
+    if index == 16: return 0.00095
+    if index == 17: return 0.07587
+    if index == 18: return 0.06327
+    if index == 19: return 0.09356
+    if index == 20: return 0.02758
+    if index == 21: return 0.00978
+    if index == 22: return 0.02560
+    if index == 23: return 0.00150
+    if index == 24: return 0.01994
+    0.00077
+def decrypt_caesar_with_chi_squared_put_f64(output: mutable u8&, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def decrypt_caesar_with_chi_squared_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 1 or length > 129 or input[0] < 0 or input[0] > 128 or input[0].usize() + 1 != length: return -1
+    text_length: usize = input[0].usize()
+    index: mutable usize = 0
+    while index < text_length:
+        if input[index + 1] < 0 or input[index + 1] > 127: return -1
+        index <- index + 1
+    if capacity < 8 + text_length: return -2
+    best: mutable u8[128]
+    candidate: mutable u8[128]
+    index <- 0
+    while index < 128:
+        best[index] <- 0
+        candidate[index] <- 0
+        index <- index + 1
+    best_score: mutable f64 = 1e300
+    best_shift: mutable i64 = 0
+    shift: mutable usize = 0
+    while shift < 26:
+        counts: mutable i64[26]
+        letter: mutable usize = 0
+        while letter < 26:
+            counts[letter] <- 0
+            letter <- letter + 1
+        index <- 0
+        while index < text_length:
+            value: i64 = input[index + 1]
+            decoded: mutable i64 = value
+            if value >= 65 and value <= 90: decoded <- 97 + (value - 65 - shift.i64() + 2600) % 26
+            elif value >= 97 and value <= 122: decoded <- 97 + (value - 97 - shift.i64() + 2600) % 26
+            candidate[index] <- decoded.u8()
+            if decoded >= 97 and decoded <= 122: counts[(decoded - 97).usize()] <- counts[(decoded - 97).usize()] + 1
+            index <- index + 1
+        score: mutable f64 = 0
+        letter <- 0
+        while letter < 26:
+            occurrences: i64 = counts[letter]
+            if occurrences > 0:
+                expected: f64 = decrypt_caesar_with_chi_squared_frequency(letter) * occurrences.f64()
+                delta: f64 = occurrences.f64() - expected
+                score <- score + (delta * delta) / expected
+            letter <- letter + 1
+        less: mutable bool = score < best_score
+        if score == best_score:
+            index <- 0
+            while index < text_length:
+                if candidate[index] < best[index]:
+                    less <- true
+                    break
+                if candidate[index] > best[index]: break
+                index <- index + 1
+        if less:
+            best_score <- score
+            best_shift <- shift.i64()
+            index <- 0
+            while index < text_length:
+                best[index] <- candidate[index]
+                index <- index + 1
+        shift <- shift + 1
+    decrypt_caesar_with_chi_squared_put_f64(output, best_score)
+    index <- 0
+    while index < text_length:
+        output[index + 8] <- best[index]
+        index <- index + 1
+    best_shift
+
+export fn decrypt_caesar_with_chi_squared(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = decrypt_caesar_with_chi_squared_impl

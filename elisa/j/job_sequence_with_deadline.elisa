@@ -1,0 +1,23 @@
+def job_sequence_with_deadline_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 129: return -1
+    count: i64 = v[0]
+    if count < 0 or count > 64 or length != 1 + 2 * count.usize(): return -1
+    deadlines: mutable i64[64] = zeroed
+    rewards: mutable i64[64] = zeroed
+    order: mutable usize[64] = zeroed
+    i: mutable usize = 0
+    while i < count.usize():
+        deadlines[i] <- v[1 + 2 * i]; rewards[i] <- v[2 + 2 * i]
+        if deadlines[i] < -1 or deadlines[i] > 64 or rewards[i] < -1000000 or rewards[i] > 1000000: return -1
+        order[i] <- i; i <- i + 1
+    i <- 1
+    while i < count.usize():
+        key: usize = order[i]; j: mutable usize = i
+        while j > 0 and rewards[order[j - 1]] < rewards[key]: order[j] <- order[j - 1]; j <- j - 1
+        order[j] <- key; i <- i + 1
+    kept: mutable i64 = 0; i <- 0
+    while i < count.usize():
+        if deadlines[order[i]] >= (i + 1).i64(): kept <- kept + 1
+        i <- i + 1
+    kept
+export fn job_sequence_with_deadline(v: i64&, length: usize) -> i64 = job_sequence_with_deadline_impl

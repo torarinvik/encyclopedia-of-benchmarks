@@ -3,7 +3,7 @@ module centripetal_force
 // Centripetal force: (mass * velocity^2) / radius.
 @[export: 'centripetal_force']
 pub fn centripetal_force(values &i64, length usize) f64 {
-	if length != 3 { return -1.0e300 }
+	if unsafe { values == nil } || length != 3 { return -1.0e300 }
 	mass := unsafe { values[0] }
 	velocity := unsafe { values[1] }
 	radius := unsafe { values[2] }

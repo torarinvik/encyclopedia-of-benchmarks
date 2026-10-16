@@ -55,6 +55,8 @@ def audit() -> dict:
         return any(path.is_file() for path in (
             language_root / f"{algorithm}.{extension}",
             language_root / algorithm / f"{algorithm}.{extension}",
+            ROOT / language / f"{algorithm}.{extension}",
+            ROOT / language / algorithm / f"{algorithm}.{extension}",
         ))
 
     for candidate in candidates:
@@ -79,9 +81,17 @@ def audit() -> dict:
                     or len(set(benchmark_names)) != len(benchmark_names)):
                 raise ValueError(f"invalid benchmark names for candidate {name}")
         benchmark_details = []
-        for algorithm in benchmark_names:
-            letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
-            guide = ROOT / "benchmarks" / letter / algorithm / "README.md"
+        for index, algorithm in enumerate(benchmark_names):
+            contract = target.get("benchmark_contract") if index == 0 else None
+            if (isinstance(contract, str) and contract.startswith("benchmarks/")
+                    and contract.endswith("/README.md")):
+                guide = ROOT / contract
+                package_dir = guide.parent
+                letter = package_dir.parent.name
+            else:
+                letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
+                package_dir = ROOT / "benchmarks" / letter / algorithm
+                guide = package_dir / "README.md"
             workload = guide.with_name("workload.json")
             missing = [language for language, extension in LANGUAGES.items()
                        if not has_implementation(language, letter, algorithm, extension)]

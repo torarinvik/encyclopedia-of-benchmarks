@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "fsharp-rust-perfect-number-divisor-sum-v1",
+  "algorithm": "perfect_numbers",
+  "function_symbol": "perfect_numbers",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n]",
+    "value_range": [
+      0,
+      1000000000
+    ],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 if n equals the sum of its positive proper divisors; otherwise 0",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Uses the pinned F# positive-divisor-pair test, bounded to nonnegative n. The Rust list wrapper applies the same predicate for each positive candidate."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "prime",
+      "input_values": [
+        13
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "nonperfect-composite",
+      "input_values": [
+        12
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "first-perfect",
+      "input_values": [
+        6
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "second-perfect",
+      "input_values": [
+        28
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "third-perfect",
+      "input_values": [
+        496
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "fourth-perfect",
+      "input_values": [
+        8128
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "negative-out-of-domain",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "above-bound",
+      "input_values": [
+        1000000001
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

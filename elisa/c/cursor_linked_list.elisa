@@ -1,0 +1,154 @@
+def cursor_linked_list_find(elements: i64&, occupied: bool&, next: i64&, head: i64, value: i64,
+                            previous: mutable i64&, found: mutable i64&) -> bool:
+    previous <- -1
+    found <- head
+    while found != -1 and (not occupied[found.usize()] or elements[found.usize()] != value):
+        previous <- found
+        found <- next[found.usize()]
+    found != -1
+
+def cursor_linked_list_free(elements: mutable i64&, occupied: mutable bool&, next: mutable i64&, index: usize) -> void:
+    old_free_head: i64 = next[0]
+    occupied[index] <- false
+    elements[index] <- 0
+    next[index] <- old_free_head
+    next[0] <- index.i64()
+
+def cursor_linked_list_remove(elements: mutable i64&, occupied: mutable bool&, next: mutable i64&,
+                              head: mutable i64&, count: mutable i64&, value: i64) -> bool:
+    if head == -1:
+        return false
+    previous: mutable i64 = -1
+    current: mutable i64 = head
+    if not cursor_linked_list_find(&elements[0], &occupied[0], &next[0], head, value, &previous, &current):
+        return false
+    successor: i64 = next[current.usize()]
+    if previous == -1:
+        cursor_linked_list_free(&elements[0], &occupied[0], &next[0], current.usize())
+        head <- successor
+    else:
+        next[previous.usize()] <- successor
+        cursor_linked_list_free(&elements[0], &occupied[0], &next[0], current.usize())
+    count <- count - 1
+    true
+
+def cursor_linked_list_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def cursor_linked_list_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1:
+        return -1
+    if values[0] < 0 or values[0] > 64:
+        return -1
+    operation_count: usize = values[0].usize()
+    if length != 1 + 2 * operation_count:
+        return -1
+
+    elements: mutable i64[100] = zeroed
+    next: mutable i64[100] = zeroed
+    occupied: mutable bool[100] = zeroed
+    i: mutable usize = 0
+    while i < 100:
+        next[i] <- i.i64() + 1
+        i <- i + 1
+    next[99] <- 0
+    head: mutable i64 = -1
+    count: mutable i64 = 0
+    query_found: mutable i64[64] = zeroed
+    query_values: mutable i64[64] = zeroed
+    query_count: mutable usize = 0
+
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        operation: i64 = values[1 + 2 * operation_index]
+        argument: i64 = values[2 + 2 * operation_index]
+        if operation < 0 or operation > 4 or argument < -2147483648 or argument > 2147483647:
+            return -1
+        if operation == 0:
+            available: usize = next[0].usize()
+            if available == 0:
+                return -1
+            next[0] <- next[available]
+            next[available] <- -1
+            elements[available] <- argument
+            occupied[available] <- true
+            if head == -1:
+                head <- available.i64()
+            else:
+                tail: mutable i64 = head
+                while next[tail.usize()] != -1:
+                    tail <- next[tail.usize()]
+                next[tail.usize()] <- available.i64()
+            next[available] <- -1
+            count <- count + 1
+        else if operation == 1:
+            if not cursor_linked_list_remove(&elements[0], &occupied[0], &next[0], &head, &count, argument):
+                return -1
+        else if operation == 2:
+            if argument < 0 or argument >= count:
+                return -1
+            cursor: mutable i64 = head
+            logical_index: mutable i64 = 0
+            while logical_index < argument:
+                cursor <- next[cursor.usize()]
+                logical_index <- logical_index + 1
+            value: i64 = elements[cursor.usize()]
+            if not cursor_linked_list_remove(&elements[0], &occupied[0], &next[0], &head, &count, value):
+                return -1
+        else if operation == 3:
+            if argument >= 0 and argument < count:
+                cursor: mutable i64 = head
+                logical_index: mutable i64 = 0
+                while logical_index < argument:
+                    cursor <- next[cursor.usize()]
+                    logical_index <- logical_index + 1
+                query_found[query_count] <- 1
+                query_values[query_count] <- elements[cursor.usize()]
+            query_count <- query_count + 1
+        else:
+            previous: mutable i64 = -1
+            found: mutable i64 = -1
+            if cursor_linked_list_find(&elements[0], &occupied[0], &next[0], head, argument, &previous, &found):
+                logical_index: mutable i64 = 0
+                cursor: mutable i64 = head
+                while cursor != found:
+                    cursor <- next[cursor.usize()]
+                    logical_index <- logical_index + 1
+                query_found[query_count] <- 1
+                query_values[query_count] <- logical_index
+            query_count <- query_count + 1
+        operation_index <- operation_index + 1
+
+    required: usize = (1 + 2 * query_count + 2 + 3 * 100) * 8
+    if output.is_null() or output_capacity < required:
+        return -2
+    field: mutable usize = 0
+    cursor_linked_list_put_i64(&output[0], field * 8, query_count.i64())
+    field <- field + 1
+    i <- 0
+    while i < query_count:
+        cursor_linked_list_put_i64(&output[0], field * 8, query_found[i])
+        field <- field + 1
+        cursor_linked_list_put_i64(&output[0], field * 8, query_values[i])
+        field <- field + 1
+        i <- i + 1
+    cursor_linked_list_put_i64(&output[0], field * 8, head)
+    field <- field + 1
+    cursor_linked_list_put_i64(&output[0], field * 8, count)
+    field <- field + 1
+    i <- 0
+    while i < 100:
+        cursor_linked_list_put_i64(&output[0], field * 8, if occupied[i]: 1 else: 0)
+        field <- field + 1
+        cursor_linked_list_put_i64(&output[0], field * 8, elements[i])
+        field <- field + 1
+        cursor_linked_list_put_i64(&output[0], field * 8, next[i])
+        field <- field + 1
+        i <- i + 1
+    required.i64()
+
+export fn cursor_linked_list(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = cursor_linked_list_impl

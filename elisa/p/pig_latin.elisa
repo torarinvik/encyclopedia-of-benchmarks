@@ -1,0 +1,26 @@
+def pig_latin_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65 or input[0] < 0 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    if count == 0: return 0
+    if count + 3 > capacity or output.is_null(): return -2
+    pivot: mutable usize = count
+    i: mutable usize = 0
+    while i < count:
+        x: mutable i64 = input[i + 1]
+        if x >= 65 and x <= 90: x <- x + 32
+        if x < 97 or x > 122: return -1
+        output[i] <- x.u8()
+        if pivot == count and (x == 97 or x == 101 or x == 105 or x == 111 or x == 117): pivot <- i
+        i <- i + 1
+    if pivot == count: return -1
+    if pivot == 0:
+        output[count] <- 119.u8(); output[count + 1] <- 97.u8(); output[count + 2] <- 121.u8()
+        return (count + 3).i64()
+    i <- 0
+    while i < pivot: output[count + i] <- output[i]; i <- i + 1
+    i <- 0
+    while i < count - pivot: output[i] <- output[pivot + i]; i <- i + 1
+    output[count] <- 97.u8(); output[count + 1] <- 121.u8()
+    (count + 2).i64()
+
+export fn pig_latin(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = pig_latin_impl

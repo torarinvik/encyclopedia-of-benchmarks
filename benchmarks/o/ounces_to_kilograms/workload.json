@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "ounces-to-kilograms-binary64-v1",
+  "algorithm": "ounces_to_kilograms",
+  "function_symbol": "ounces_to_kilograms",
+  "input": {
+    "kind": "finite_binary64_ounces",
+    "minimum": -1000000.0,
+    "maximum": 1000000.0,
+    "formula": "(ounces * 28.3498) / 1000.0",
+    "invalid_result": -1e300,
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero", "input_values": [0.0], "expected_result": 0.0},
+    {"id": "one_ounce", "input_values": [1.0], "expected_result": 0.0283498},
+    {"id": "sixteen_ounces", "input_values": [16.0], "expected_result": 0.4535968},
+    {"id": "fractional_ounce", "input_values": [2.5], "expected_result": 0.0708745},
+    {"id": "negative_ounce", "input_values": [-4.0], "expected_result": -0.1133992},
+    {"id": "source_example", "input_values": [35.0], "expected_result": 0.992243},
+    {"id": "maximum_bound", "input_values": [1000000.0], "expected_result": 28349.8},
+    {"id": "minimum_bound", "input_values": [-1000000.0], "expected_result": -28349.8},
+    {"id": "above_bound", "input_values": [1000000.5], "expected_result": -1e300},
+    {"id": "below_bound", "input_values": [-1000000.5], "expected_result": -1e300}
+  ]
+}

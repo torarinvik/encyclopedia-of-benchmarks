@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "id": "java-longest-repeated-substring-i64-array-scalar-v1",
+  "algorithm": "longest_repeated_substring",
+  "function_symbol": "longest_repeated_substring",
+  "description": "Return the length of the longest repeated substring in one ASCII sequence.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, ascii_values...]",
+    "array_length_range": [
+      0,
+      127
+    ],
+    "ascii_range": [
+      0,
+      127
+    ],
+    "exact_packed_length": "n + 1",
+    "maximum_packed_values": 128,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "longest repeated substring length",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/strings/LongestRepeatedSubstring.java"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "input_length": 1
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        97
+      ],
+      "expected_result": 0,
+      "input_length": 2
+    },
+    {
+      "id": "no_repeat",
+      "input_values": [
+        4,
+        97,
+        98,
+        99,
+        100
+      ],
+      "expected_result": 0,
+      "input_length": 5
+    },
+    {
+      "id": "banana",
+      "input_values": [
+        6,
+        98,
+        97,
+        110,
+        97,
+        110,
+        97
+      ],
+      "expected_result": 3,
+      "input_length": 7
+    },
+    {
+      "id": "overlap",
+      "input_values": [
+        4,
+        97,
+        97,
+        97,
+        97
+      ],
+      "expected_result": 3,
+      "input_length": 5
+    },
+    {
+      "id": "nonoverlap",
+      "input_values": [
+        5,
+        97,
+        98,
+        99,
+        97,
+        98
+      ],
+      "expected_result": 2,
+      "input_length": 6
+    },
+    {
+      "id": "tie",
+      "input_values": [
+        6,
+        97,
+        98,
+        97,
+        99,
+        97,
+        98
+      ],
+      "expected_result": 2,
+      "input_length": 7
+    },
+    {
+      "id": "ascii_edges",
+      "input_values": [
+        4,
+        0,
+        127,
+        0,
+        127
+      ],
+      "expected_result": 2,
+      "input_length": 5
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        127,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74
+      ],
+      "expected_result": 114,
+      "input_length": 128
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "javascript-parse-date-dd-mm-yyyy-gregorian-v1",
+  "algorithm": "parse_date",
+  "function_symbol": "parse_date",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[ASCII byte length, ASCII date bytes...]",
+    "format": "d/m/yyyy, with 1-2 digits for day and month and exactly 4 year digits",
+    "text_length_range": [
+      8,
+      10
+    ],
+    "maximum_input_length": 11
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "parsed date encoded as year*10000 + month*100 + day",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned TypeScript parser applies /^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/ and validates day against getMonthDays; the benchmark restricts to ASCII and returns -1 for source exceptions."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "single-digit-fields",
+      "input_values": [
+        8,
+        49,
+        47,
+        50,
+        47,
+        50,
+        48,
+        50,
+        52
+      ],
+      "input_length": 9,
+      "expected_result": 20240201
+    },
+    {
+      "id": "valid-leap-day",
+      "input_values": [
+        10,
+        50,
+        57,
+        47,
+        48,
+        50,
+        47,
+        50,
+        48,
+        48,
+        48
+      ],
+      "input_length": 11,
+      "expected_result": 20000229
+    },
+    {
+      "id": "leap-century-zero",
+      "input_values": [
+        10,
+        50,
+        57,
+        47,
+        48,
+        50,
+        47,
+        48,
+        48,
+        48,
+        48
+      ],
+      "input_length": 11,
+      "expected_result": 229
+    },
+    {
+      "id": "non-leap-century",
+      "input_values": [
+        10,
+        50,
+        57,
+        47,
+        48,
+        50,
+        47,
+        49,
+        57,
+        48,
+        48
+      ],
+      "input_length": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "end-of-year",
+      "input_values": [
+        10,
+        51,
+        49,
+        47,
+        49,
+        50,
+        47,
+        57,
+        57,
+        57,
+        57
+      ],
+      "input_length": 11,
+      "expected_result": 99991231
+    },
+    {
+      "id": "invalid-day",
+      "input_values": [
+        10,
+        51,
+        49,
+        47,
+        48,
+        52,
+        47,
+        50,
+        48,
+        50,
+        52
+      ],
+      "input_length": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-month",
+      "input_values": [
+        9,
+        49,
+        47,
+        49,
+        51,
+        47,
+        50,
+        48,
+        50,
+        52
+      ],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "format-extra-zero",
+      "input_values": [
+        11,
+        48,
+        48,
+        49,
+        47,
+        48,
+        50,
+        47,
+        50,
+        48,
+        50,
+        52
+      ],
+      "input_length": 12,
+      "expected_result": -1
+    },
+    {
+      "id": "missing-year-digit",
+      "input_values": [
+        7,
+        49,
+        47,
+        50,
+        47,
+        48,
+        50,
+        52
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "non-digit",
+      "input_values": [
+        8,
+        97,
+        47,
+        50,
+        47,
+        50,
+        48,
+        50,
+        52
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    }
+  ]
+}

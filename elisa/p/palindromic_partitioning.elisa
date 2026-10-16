@@ -1,0 +1,25 @@
+export fn palindromic_partitioning(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 65 or input[0] < 1 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    palindrome: mutable bool[64][64]
+    cuts: mutable i64[64]
+    end: mutable usize = 0
+    while end < count:
+        x: i64 = input[end + 1]
+        if x < 0 or x > 127: return -1
+        start: mutable usize = 0
+        while start <= end:
+            palindrome[start][end] <- input[start + 1] == x and (end - start < 2 or palindrome[start + 1][end - 1])
+            start <- start + 1
+        end <- end + 1
+    end <- 0
+    while end < count:
+        if palindrome[0][end]: cuts[end] <- 0
+        else:
+            cuts[end] <- 64
+            start <- 1
+            while start <= end:
+                if palindrome[start][end] and cuts[start - 1] + 1 < cuts[end]: cuts[end] <- cuts[start - 1] + 1
+                start <- start + 1
+        end <- end + 1
+    cuts[count - 1]

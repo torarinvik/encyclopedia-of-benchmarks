@@ -1,0 +1,35 @@
+export fn jaro_similarity(v: i64&, n: usize) -> f64:
+    if v.is_null() or n < 2 or n > 66: return -1.0e300
+    if v[0] < 0 or v[0] > 32: return -1.0e300
+    n1: usize = v[0].usize()
+    if 1+n1 >= n: return -1.0e300
+    p: usize = 1+n1
+    if v[p] < 0 or v[p] > 32 or n1 < v[p].usize() or n != p+1+v[p].usize(): return -1.0e300
+    n2: usize = v[p].usize()
+    for i in 0..n1: if v[1+i] < 0 or v[1+i] > 127: return -1.0e300
+    for i in 0..n2: if v[p+1+i] < 0 or v[p+1+i] > 127: return -1.0e300
+    equal: mutable bool = n1 == n2
+    for i in 0..n1: if v[1+i] != v[p+1+i]: equal <- false
+    if equal: return 1.0
+    if n2 == 0: return 0.0
+    radius: mutable i64 = v[0] / 2 - 1
+    if radius < 0: radius <- 0
+    m1: mutable bool[32] = zeroed; m2: mutable bool[32] = zeroed
+    matches: mutable usize = 0
+    for i in 0..n1:
+        start: usize = if i.i64() > radius: i-radius.usize() else: 0
+        end: mutable usize = i+radius.usize()
+        if end >= n2: end <- n2-1
+        if start <= end:
+            for j in start..(end+1):
+                if v[1+i] == v[p+1+j] and not m2[j]:
+                    matches <- matches+1; m1[i] <- true; m2[j] <- true; break
+    if matches == 0: return 0.0
+    trans: mutable usize = 0; j: mutable usize = 0
+    for i in 0..n1:
+        if m1[i]:
+            while not m2[j]: j <- j+1
+            if v[1+i] != v[p+1+j]: trans <- trans+1
+            j <- j+1
+    trans <- trans/2
+    return ((matches.f64()/n1.f64())+(matches.f64()/n2.f64())+((matches-trans).f64()/matches.f64()))/3.0

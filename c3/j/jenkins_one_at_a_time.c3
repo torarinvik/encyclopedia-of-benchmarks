@@ -1,0 +1,2 @@
+module jenkins_one_at_a_time;
+fn long jenkins_one_at_a_time(long* v,usz n) @export("jenkins_one_at_a_time"){if(v==null||n<1||n>65)return -1;long count=v[0];if(count<0||count>64||n!=(usz)count+1)return -1;long h=0;for(usz i=0;i<(usz)count;i++){long b=v[i+1];if(b<0||b>127)return -1;h=(h+b)&0xFFFFFFFF;h=(h+(h<<10))&0xFFFFFFFF;h=(h^(h>>6))&0xFFFFFFFF;}h=(h+(h<<3))&0xFFFFFFFF;h=(h^(h>>11))&0xFFFFFFFF;h=(h+(h<<15))&0xFFFFFFFF;return h;}

@@ -1,0 +1,24 @@
+def largest_square_area_in_matrix_impl(v: i64&, length: usize) -> i64:
+    if length < 2 or length > 66: return -2
+    rows: i64 = v[0]; cols: i64 = v[1]
+    if rows < 1 or rows > 8 or cols < 1 or cols > 8 or length != usize(2 + rows * cols): return -2
+    cells: mutable [i64;64] = [0;64]
+    for i in 0..usize(rows*cols):
+        cells[i] <- v[2+i]
+        if cells[i] != 0 and cells[i] != 1: return -2
+    dp: mutable [i64;81] = [0;81]
+    best: mutable i64 = 0
+    for ii in 0..rows:
+        i: i64 = rows - 1 - ii
+        for jj in 0..cols:
+            j: i64 = cols - 1 - jj
+            if cells[usize(i*cols+j)] == 1:
+                at: usize = usize(i*9+j)
+                a: i64 = dp[at+9]; b: i64 = dp[at+1]; c: i64 = dp[at+10]
+                m: i64 = a
+                if b < m: m <- b
+                if c < m: m <- c
+                dp[at] <- 1 + m
+                if dp[at] > best: best <- dp[at]
+    best
+export fn largest_square_area_in_matrix(v: i64&, length: usize) -> i64 = largest_square_area_in_matrix_impl

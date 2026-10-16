@@ -1,0 +1,12 @@
+def linear_diophantine_eqn_impl(v: i64&, length: usize) -> i64:
+    if length != 3: return -1
+    a: mutable i64 = v[0]; b: mutable i64 = v[1]; c: i64 = v[2]
+    if a < -100000 or a > 100000 or b == 0 or b < -100000 or b > 100000 or c < -1000000 or c > 1000000: return -1
+    if a < 0: a <- -a
+    if b < 0: b <- -b
+    while b != 0:
+        r: i64 = a % b
+        a <- b; b <- r
+    if c % a == 0: return 1
+    0
+export fn linear_diophantine_eqn(v: i64&, length: usize) -> i64 = linear_diophantine_eqn_impl

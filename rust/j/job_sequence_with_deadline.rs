@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn job_sequence_with_deadline(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>129{return -1;}let v=unsafe{std::slice::from_raw_parts(v,n)};let count=v[0];if !(0..=64).contains(&count)||n!=1+2*count as usize{return -1;}let mut jobs=Vec::new();for i in 0..count as usize{let d=v[1+2*i];let r=v[2+2*i];if !(-1..=64).contains(&d)||!(-1_000_000..=1_000_000).contains(&r){return -1;}jobs.push((i,d,r));}jobs.sort_by(|a,b|b.2.cmp(&a.2));jobs.iter().enumerate().filter(|(rank,job)|job.1>=(*rank as i64)+1).count() as i64}

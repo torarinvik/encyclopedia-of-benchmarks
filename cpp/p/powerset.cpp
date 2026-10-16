@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+static void put64(std::uint8_t*out,std::size_t pos,std::int64_t x){auto u=std::uint64_t(x);for(int i=0;i<8;i++)out[pos+i]=std::uint8_t(u>>(8*i));}
+static void emit(const std::int64_t*v,std::size_t n,std::size_t i,std::int64_t*sel,std::size_t used,std::uint8_t*out,std::size_t&cursor){if(i==n){out[cursor++]=std::uint8_t(used);for(std::size_t j=0;j<used;j++){put64(out,cursor,sel[j]);cursor+=8;}return;}emit(v,n,i+1,sel,used,out,cursor);sel[used]=v[i];emit(v,n,i+1,sel,used+1,out,cursor);}
+extern "C" std::int64_t powerset(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap) noexcept {if(!v||n<1||n>7||v[0]<0||v[0]>6||n!=std::size_t(v[0])+1)return -1;auto count=std::size_t(v[0]),subsets=std::size_t(1)<<count,need=2+subsets+8*count*(subsets/2);for(std::size_t i=1;i<n;i++)if(v[i]<-1000000||v[i]>1000000)return -1;if(need>cap||!out)return -2;out[0]=std::uint8_t(subsets);out[1]=std::uint8_t(subsets>>8);std::int64_t selected[6]{};std::size_t cursor=2;emit(v+1,count,0,selected,0,out,cursor);return std::int64_t(need);}

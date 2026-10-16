@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "multiply-digit-bounded-i64-array-scalar-v1",
+  "algorithm": "multiply_digit",
+  "function_symbol": "multiply_digit",
+  "input": {
+    "kind": "two_signed_i64_operands",
+    "encoding": "[first, second]",
+    "valid_input_length": 2,
+    "minimum_operand": -1000000000,
+    "maximum_operand": 1000000000,
+    "output": "signed 64-bit product as the scalar return value",
+    "invalid_result": -9223372036854775808,
+    "overflow": "impossible for valid operands; product magnitude is at most 10^18"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "positive_product", "input_values": [6, 7], "input_length": 2, "expected_result": 42},
+    {"id": "negative_first", "input_values": [-6, 7], "input_length": 2, "expected_result": -42},
+    {"id": "negative_second", "input_values": [6, -7], "input_length": 2, "expected_result": -42},
+    {"id": "both_negative", "input_values": [-6, -7], "input_length": 2, "expected_result": 42},
+    {"id": "zero_first", "input_values": [0, -1000000000], "input_length": 2, "expected_result": 0},
+    {"id": "zero_second", "input_values": [1000000000, 0], "input_length": 2, "expected_result": 0},
+    {"id": "maximum_positive_product", "input_values": [1000000000, 1000000000], "input_length": 2, "expected_result": 1000000000000000000},
+    {"id": "maximum_negative_product", "input_values": [-1000000000, 1000000000], "input_length": 2, "expected_result": -1000000000000000000},
+    {"id": "minimum_magnitude_product", "input_values": [-1000000000, -1000000000], "input_length": 2, "expected_result": 1000000000000000000},
+    {"id": "empty_input", "input_values": [], "input_length": 0, "expected_result": -9223372036854775808},
+    {"id": "one_operand", "input_values": [8], "input_length": 1, "expected_result": -9223372036854775808},
+    {"id": "extra_operand", "input_values": [2, 3, 4], "input_length": 3, "expected_result": -9223372036854775808},
+    {"id": "first_operand_below_domain", "input_values": [-1000000001, 1], "input_length": 2, "expected_result": -9223372036854775808},
+    {"id": "second_operand_above_domain", "input_values": [1, 1000000001], "input_length": 2, "expected_result": -9223372036854775808},
+    {"id": "i64_minimum_operand", "input_values": [-9223372036854775808, 1], "input_length": 2, "expected_result": -9223372036854775808},
+    {"id": "i64_maximum_operand", "input_values": [1, 9223372036854775807], "input_length": 2, "expected_result": -9223372036854775808}
+  ]
+}

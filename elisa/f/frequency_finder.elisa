@@ -1,0 +1,62 @@
+def frequency_finder_impl(input: i64&, length: usize) -> i64:
+    if input.is_null():
+        if length == 0:
+            return 0
+        return -1
+    if length > 1024:
+        return -1
+    counts: mutable i64[26] = zeroed
+    index: usize = 0
+    while index < length:
+        byte: mutable i64 = input[index]
+        if byte < 0 or byte > 127:
+            return -1
+        if byte >= 97 and byte <= 122:
+            byte <- byte - 32
+        if byte >= 65 and byte <= 90:
+            slot: usize = (byte - 65).usize()
+            counts[slot] <- counts[slot] + 1
+        index <- index + 1
+    etaoin: str = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+    order: mutable i64[26] = zeroed
+    index <- 0
+    while index < 26:
+        order[index] <- index.i64()
+        index <- index + 1
+    index <- 1
+    while index < 26:
+        key: i64 = order[index]
+        key_rank: usize = 0
+        while etaoin[key_rank] != (65 + key).u8():
+            key_rank <- key_rank + 1
+        j: usize = index
+        while j > 0:
+            previous: i64 = order[j - 1]
+            previous_rank: usize = 0
+            while etaoin[previous_rank] != (65 + previous).u8():
+                previous_rank <- previous_rank + 1
+            if counts[previous.usize()] > counts[key.usize()] or (counts[previous.usize()] == counts[key.usize()] and previous_rank > key_rank):
+                break
+            order[j] <- previous
+            j <- j - 1
+        order[j] <- key
+        index <- index + 1
+    score: mutable i64 = 0
+    index <- 0
+    while index < 6:
+        j: usize = 0
+        while j < 6:
+            if (65 + order[index]).u8() == etaoin[j]:
+                score <- score + 1
+                break
+            j <- j + 1
+        j <- 20
+        while j < 26:
+            if (65 + order[20 + index]).u8() == etaoin[j]:
+                score <- score + 1
+                break
+            j <- j + 1
+        index <- index + 1
+    score
+
+export fn frequency_finder(input: i64&, length: usize) -> i64 = frequency_finder_impl

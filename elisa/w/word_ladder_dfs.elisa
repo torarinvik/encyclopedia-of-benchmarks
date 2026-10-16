@@ -1,0 +1,131 @@
+const MAX_WORDS: usize = 8
+const MAX_PATH_WORDS: usize = MAX_WORDS + 1
+const MAX_INPUT_LENGTH: usize = 4 + MAX_WORDS
+const MAX_OUTPUT_FIELDS: usize = MAX_PATH_WORDS + MAX_WORDS + 2
+
+def word_ladder_dfs_power_of_26(exponent: usize) -> i64:
+    result: mutable i64 = 1
+    index: mutable usize = 0
+    while index < exponent:
+        result <- result * 26
+        index <- index + 1
+    result
+
+def word_ladder_dfs_find_active_word(words: i64&, active: u8&, count: usize, candidate: i64) -> usize:
+    index: mutable usize = 0
+    while index < count:
+        if active[index] != 0 and words[index] == candidate:
+            return index
+        index <- index + 1
+    count
+
+def word_ladder_dfs_backtrack(current: i64, target: i64, width: usize,
+                              words: i64&, count: usize, active: mutable u8&,
+                              path: mutable i64&, path_length: mutable usize&) -> bool:
+    if current == target:
+        return true
+    position: mutable usize = 0
+    while position < width:
+        factor: i64 = word_ladder_dfs_power_of_26(width - position - 1)
+        digit: i64 = (current / factor) % 26
+        replacement: mutable i64 = 0
+        while replacement < 26:
+            candidate: i64 = current + (replacement - digit) * factor
+            word_index: usize = word_ladder_dfs_find_active_word(words, active, count, candidate)
+            if word_index < count:
+                active[word_index] <- 0.u8()
+                path[path_length] <- candidate
+                path_length <- path_length + 1
+                if word_ladder_dfs_backtrack(candidate, target, width, words, count,
+                                              active, path, path_length):
+                    return true
+                path_length <- path_length - 1
+                active[word_index] <- 1.u8()
+            replacement <- replacement + 1
+        position <- position + 1
+    false
+
+def word_ladder_dfs_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def word_ladder_dfs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    width_value: i64 = input[0]
+    begin: i64 = input[1]
+    ending: i64 = input[2]
+    count_value: i64 = input[3]
+    if width_value < 1 or width_value > 5 or count_value < 0 or count_value > 8:
+        return -1
+    width: usize = width_value.usize()
+    count: usize = count_value.usize()
+    if length != 4 + count:
+        return -1
+    limit: mutable i64 = 1
+    index: mutable usize = 0
+    while index < width:
+        limit <- limit * 26
+        index <- index + 1
+    if begin < 0 or begin >= limit or ending < 0 or ending >= limit:
+        return -1
+    words: i64& = input[4]
+    index <- 0
+    while index < count:
+        if words[index] < 0 or words[index] >= limit or
+           (index > 0 and words[index - 1] >= words[index]):
+            return -1
+        index <- index + 1
+
+    active: mutable u8[MAX_WORDS] = zeroed
+    index <- 0
+    while index < count:
+        active[index] <- 1.u8()
+        index <- index + 1
+    path: mutable i64[MAX_PATH_WORDS] = zeroed
+    path[0] <- begin
+    path_length: mutable usize = 1
+    if word_ladder_dfs_find_active_word(words, &active[0], count, ending) < count:
+        if not word_ladder_dfs_backtrack(begin, ending, width, words, count,
+                                         &active[0], &path[0], &path_length):
+            path_length <- 0
+    else:
+        path_length <- 0
+
+    fields: mutable i64[MAX_OUTPUT_FIELDS] = zeroed
+    field_count: mutable usize = 0
+    fields[field_count] <- path_length.i64()
+    field_count <- field_count + 1
+    index <- 0
+    while index < path_length:
+        fields[field_count] <- path[index]
+        field_count <- field_count + 1
+        index <- index + 1
+    remaining_count: mutable usize = 0
+    index <- 0
+    while index < count:
+        if active[index] != 0.u8():
+            remaining_count <- remaining_count + 1
+        index <- index + 1
+    fields[field_count] <- remaining_count.i64()
+    field_count <- field_count + 1
+    index <- 0
+    while index < count:
+        if active[index] != 0.u8():
+            fields[field_count] <- words[index]
+            field_count <- field_count + 1
+        index <- index + 1
+
+    required: usize = field_count * 8
+    if output.is_null() or capacity < required:
+        return -2
+    index <- 0
+    while index < field_count:
+        word_ladder_dfs_write_i64_le(output, index * 8, fields[index])
+        index <- index + 1
+    required.i64()
+
+export fn word_ladder_dfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_ladder_dfs_impl

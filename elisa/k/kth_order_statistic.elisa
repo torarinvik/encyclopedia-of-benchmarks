@@ -1,0 +1,25 @@
+def kth_order_statistic_impl(v: i64&, length: usize) -> i64:
+    if length < 2 or length > 65: return -1
+    k: i64 = v[0]
+    if k < 1 or k > i64(length - 1): return -1
+    a: mutable [i64; 64] = [0; 64]
+    for i in 1..length:
+        if v[i] < -10000 or v[i] > 10000: return -1
+        for j in 1..i:
+            if v[i] == v[j]: return -1
+        a[i - 1] <- v[i]
+    select(a, length - 1, k)
+fn select(a: i64&, n: usize, k: i64) -> i64:
+    if n == 1: return a[0]
+    p: i64 = a[0]
+    small: mutable [i64; 64] = [0;64]
+    big: mutable [i64; 64] = [0;64]
+    ns: mutable usize = 0
+    nb: mutable usize = 0
+    for i in 1..n:
+        if a[i] < p: small[ns] <- a[i]; ns <- ns + 1
+        else if a[i] > p: big[nb] <- a[i]; nb <- nb + 1
+    if k == ns + 1: return p
+    if k <= ns: return select(small, ns, k)
+    select(big, nb, k - ns - 1)
+export fn kth_order_statistic(v: i64&, length: usize) -> i64 = kth_order_statistic_impl

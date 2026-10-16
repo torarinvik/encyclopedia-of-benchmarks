@@ -1,0 +1,1 @@
+export fn parenthesis(v:[*c]const i64,n:usize)i64{if(v==null or n<1 or n>129 or v[0]<0 or v[0]>128 or n!=@as(usize,@intCast(v[0]))+1)return -1;var balance:i64=0;for(1..n)|i|{if(v[i]<0 or v[i]>127)return -1;if(v[i]==40)balance+=1 else if(v[i]==41){balance-=1;if(balance<0)return 0;}}return @intFromBool(balance==0);}

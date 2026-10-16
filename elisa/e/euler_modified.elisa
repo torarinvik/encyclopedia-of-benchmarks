@@ -1,0 +1,23 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put64(out: mutable u8&, slot: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for b in 0..8:
+        out[slot * 8 + b] <- ((bits >> (8 * b)) & 255).u8()
+def euler_modified_impl(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or n != 2: return -1
+    steps: i64 = v[0]; y0: i64 = v[1]
+    if steps < 1 or steps > 8 or y0 < 1 or y0 > 4: return -1
+    bytes: usize = (steps.usize() + 1) * 8
+    if out.is_null() or capacity < bytes: return -2
+    h: f64 = 0.25; x: mutable f64 = 0.0; y: mutable f64 = y0.f64()
+    put64(out, 0, y)
+    for i in 0..<steps.usize():
+        f0: f64 = -2.0 * x * y * y
+        predictor: f64 = y + h * f0
+        f1: f64 = -2.0 * (x + h) * predictor * predictor
+        y <- y + (h / 2.0) * (f0 + f1)
+        x <- x + h
+        put64(out, i + 1, y)
+    bytes.i64()
+export fn euler_modified(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64 = euler_modified_impl

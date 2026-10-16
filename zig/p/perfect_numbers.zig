@@ -1,0 +1,1 @@
+export fn perfect_numbers(v:[*c]const i64,n:usize)i64{if(v==null or n!=1 or v[0]<0 or v[0]>1000000000)return -1;const x=v[0];if(x<=1)return 0;var sum:i64=1;var d:i64=2;while(d<=@divTrunc(x,d)):(d+=1){if(@mod(x,d)==0){sum+=d;const q=@divTrunc(x,d);if(d!=q)sum+=q;}}return @intFromBool(sum==x);}

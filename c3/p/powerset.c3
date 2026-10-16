@@ -1,0 +1,4 @@
+module powerset;
+fn void put64(char* out,usz pos,long x){ulong u=(ulong)x;for(usz i=0;i<8;i++)out[pos+i]=(char)(u>>(i*8));}
+fn void emit(long* v,usz n,usz i,long* selected,usz used,char* out,usz* pos){if(i==n){out[*pos]=(char)used;*pos+=1;for(usz j=0;j<used;j++){put64(out,*pos,selected[j]);*pos+=8;}return;}emit(v,n,i+1,selected,used,out,pos);selected[used]=v[i];emit(v,n,i+1,selected,used+1,out,pos);}
+fn long powerset(long* v,usz n,char* out,usz cap) @export("powerset"){if(v==null||n<1||n>7||v[0]<0||v[0]>6||n!=(usz)v[0]+1)return -1;usz count=(usz)v[0],subsets=(usz)1<<count,need=2+subsets+8*count*(subsets/2);for(usz i=1;i<n;i++)if(v[i]<-1000000||v[i]>1000000)return -1;if(need>cap||out==null)return -2;out[0]=(char)subsets;out[1]=(char)(subsets>>8);long[6] selected;usz pos=2;emit(v+1,count,0,selected,0,out,&pos);return (long)need;}

@@ -1,0 +1,45 @@
+def multiply(a: i64[4], b: i64[4]) -> i64[4]:
+    result: mutable i64[4] = zeroed
+    row: mutable usize = 0
+    while row < 2:
+        column: mutable usize = 0
+        while column < 2:
+            inner: mutable usize = 0
+            while inner < 2:
+                result[row * 2 + column] <- result[row * 2 + column] + a[row * 2 + inner] * b[inner * 2 + column]
+                inner <- inner + 1
+            column <- column + 1
+        row <- row + 1
+    result
+
+def power(matrix: i64[4], exponent: i64) -> i64[4]:
+    if exponent == 0: return [1, 0, 0, 1]
+    if exponent % 2 == 1: return multiply(power(matrix, exponent - 1), matrix)
+    half: i64[4] = power(matrix, exponent / 2)
+    multiply(half, half)
+
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def matrix_exponentiation_recursive_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length != 5: return -2
+    exponent: i64 = input[0]
+    if exponent < 0 or exponent > 30: return -2
+    index: mutable usize = 1
+    while index < 5:
+        if input[index] < -1 or input[index] > 1: return -2
+        index <- index + 1
+    if output_capacity < 32: return -3
+    matrix: i64[4] = [input[1], input[2], input[3], input[4]]
+    result: i64[4] = power(matrix, exponent)
+    index <- 0
+    while index < 4:
+        store_i64_le(result[index], output, index * 8)
+        index <- index + 1
+    4
+
+export fn matrix_exponentiation_recursive(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = matrix_exponentiation_recursive_impl

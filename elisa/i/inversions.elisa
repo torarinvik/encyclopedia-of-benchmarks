@@ -1,0 +1,10 @@
+def inversions_impl(values: i64&, length: usize) -> i64:
+    if length > 1024: return -1
+    for i in 0..<length:
+        if values[i] < -2147483648 or values[i] > 2147483647: return -1
+    count: mutable i64 = 0
+    for i in 0..<length:
+        for j in (i + 1)..<length:
+            if values[i] > values[j]: count <- count + 1
+    count
+export fn inversions(values: i64&, length: usize) -> i64 = inversions_impl

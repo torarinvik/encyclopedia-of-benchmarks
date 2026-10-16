@@ -1,0 +1,5 @@
+fn next_rng(s:&mut u32)->u32{let mut x=*s;x^=x<<13;x^=x>>17;x^=x<<5;*s=if x==0{0x9e3779b9}else{x};*s}
+fn part(a:&mut [i64],lo:usize,hi:usize)->usize{let pivot=a[hi];let mut i=lo;for j in lo..hi{if a[j]<=pivot{a.swap(i,j);i+=1}}a.swap(i,hi);i}
+fn select(a:&mut [i64],lo:usize,hi:usize,k:usize,s:&mut u32)->i64{if lo==hi{return a[lo]}let p=lo+(next_rng(s) as usize)%(hi-lo+1);a.swap(p,hi);let p=part(a,lo,hi);let rank=p-lo+1;if k==rank{return a[p]}if k<rank{select(a,lo,p-1,k,s)}else{select(a,p+1,hi,k-rank,s)}}
+#[no_mangle]
+pub unsafe extern "C" fn minimum_element_of_array(input:*const i64,length:usize)->i64{if input.is_null()||length<4{return -1}let v=std::slice::from_raw_parts(input,length);let n=v[0];let k=v[1];let seed=v[2];if !(1..=128).contains(&n)||length!=n as usize+3||k<1||k>n||!(0..=2_147_483_647).contains(&seed){return -1}let mut a=v[3..].to_vec();if a.iter().any(|x|!(-1_000_000..=1_000_000).contains(x)){return -1}let mut sorted=a.clone();sorted.sort();sorted.dedup();if sorted.len()!=a.len(){return -1}let mut state=if seed==0{0x9e3779b9}else{seed as u32};select(&mut a,0,a.len()-1,k as usize,&mut state)}

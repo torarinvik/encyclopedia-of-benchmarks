@@ -1,0 +1,74 @@
+def postfix_is_letter(token: i64) -> bool:
+    (token >= 65 and token <= 90) or (token >= 97 and token <= 122)
+
+def postfix_is_operator(token: i64) -> bool:
+    token == 43 or token == 45 or token == 42 or token == 47 or token == 94
+
+def postfix_read16(output: u8&, position: usize) -> usize:
+    output[position].usize() + output[position + 1].usize() * 256
+
+def postfix_write16(output: mutable u8&, position: usize, value: usize):
+    output[position] <- value.u8()
+    output[position + 1] <- (value >> 8).u8()
+
+def postfix_to_infix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65 or input[0] < 0 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+    if output.is_null() or capacity < 8192: return -2
+    count: usize = input[0].usize()
+    if count == 0: return 0
+    if count == 1:
+        if not postfix_is_letter(input[1]): return -1
+        output[0] <- input[1].u8()
+        return 1
+    stack: mutable usize = 0
+    scratch: mutable usize = 256
+    i: mutable usize = 0
+    while i < count:
+        token: i64 = input[i + 1]
+        if postfix_is_operator(token):
+            if stack < 2: return -1
+            left_slot: usize = stack - 2
+            right_slot: usize = stack - 1
+            left_start: usize = postfix_read16(output, left_slot * 4)
+            left_length: usize = postfix_read16(output, left_slot * 4 + 2)
+            right_start: usize = postfix_read16(output, right_slot * 4)
+            right_length: usize = postfix_read16(output, right_slot * 4 + 2)
+            start: usize = scratch
+            output[scratch] <- 40.u8()
+            scratch <- scratch + 1
+            j: mutable usize = 0
+            while j < left_length:
+                output[scratch] <- output[left_start + j]
+                scratch <- scratch + 1
+                j <- j + 1
+            output[scratch] <- token.u8()
+            scratch <- scratch + 1
+            j <- 0
+            while j < right_length:
+                output[scratch] <- output[right_start + j]
+                scratch <- scratch + 1
+                j <- j + 1
+            output[scratch] <- 41.u8()
+            scratch <- scratch + 1
+            postfix_write16(output, left_slot * 4, start)
+            postfix_write16(output, left_slot * 4 + 2, scratch - start)
+            stack <- stack - 1
+        else:
+            if not postfix_is_letter(token): return -1
+            postfix_write16(output, stack * 4, scratch)
+            postfix_write16(output, stack * 4 + 2, 1)
+            output[scratch] <- token.u8()
+            scratch <- scratch + 1
+            stack <- stack + 1
+        if scratch > capacity: return -2
+        i <- i + 1
+    if stack != 1: return -1
+    start: usize = postfix_read16(output, 0)
+    size: usize = postfix_read16(output, 2)
+    i <- 0
+    while i < size:
+        output[i] <- output[start + i]
+        i <- i + 1
+    size.i64()
+
+export fn postfix_to_infix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = postfix_to_infix_impl

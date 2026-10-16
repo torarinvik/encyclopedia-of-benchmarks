@@ -1,0 +1,27 @@
+def move_hash_to_end_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > 258:
+        return -1
+    text_length: i64 = values[0]
+    if text_length < 0 or text_length > 256 or length != text_length.usize() + 1:
+        return -1
+    index: mutable usize = 0
+    while index < text_length.usize():
+        if values[index + 1] < 0 or values[index + 1] > 127:
+            return -1
+        index <- index + 1
+    if capacity < text_length.usize() or (text_length > 0 and output.is_null()):
+        return -2
+    position: mutable usize = 0
+    index <- 0
+    while index < text_length.usize():
+        byte: i64 = values[index + 1]
+        if byte != 35:
+            output[position] <- byte.u8()
+            position <- position + 1
+        index <- index + 1
+    while position < text_length.usize():
+        output[position] <- 35
+        position <- position + 1
+    text_length
+
+export fn move_hash_to_end(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = move_hash_to_end_impl

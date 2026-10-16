@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "word-ladder-java-i64-v1",
+  "algorithm": "word_ladder",
+  "function_symbol": "word_ladder",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[word_length, begin_code, end_code, dictionary_count, dictionary_codes...]",
+    "word_encoding": "lowercase ASCII a..z digits in base 26, leftmost character least significant",
+    "word_length_range": [
+      1,
+      5
+    ],
+    "dictionary_count_range": [
+      0,
+      32
+    ],
+    "maximum_dictionary_code": "26^word_length-1",
+    "unreachable_result": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[ladder_length]",
+    "meaning": "number of words in a shortest transformation sequence including begin and end, or 0 if none exists"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "classic_shortest_path",
+      "input_values": [
+        3,
+        13059,
+        4422,
+        6,
+        13215,
+        13211,
+        4423,
+        13219,
+        4431,
+        4422
+      ],
+      "input_length": 10,
+      "expected_result": 8,
+      "expected_output_hex": "0500000000000000",
+      "expected_ladder_length": 5
+    },
+    {
+      "id": "end_missing",
+      "input_values": [
+        3,
+        13059,
+        4422,
+        5,
+        13215,
+        13211,
+        4423,
+        13219,
+        4431
+      ],
+      "input_length": 9,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000",
+      "expected_ladder_length": 0
+    },
+    {
+      "id": "unreachable",
+      "input_values": [
+        3,
+        13059,
+        4422,
+        2,
+        13215,
+        17575
+      ],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000",
+      "expected_ladder_length": 0
+    },
+    {
+      "id": "one_letter",
+      "input_values": [
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000",
+      "expected_ladder_length": 2
+    },
+    {
+      "id": "same_begin_and_end",
+      "input_values": [
+        1,
+        0,
+        0,
+        2,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000",
+      "expected_ladder_length": 3
+    },
+    {
+      "id": "empty_dictionary",
+      "input_values": [
+        2,
+        0,
+        26,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000",
+      "expected_ladder_length": 0
+    },
+    {
+      "id": "invalid_code",
+      "input_values": [
+        1,
+        0,
+        26,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_ladder_length": -1
+    },
+    {
+      "id": "trailing_word",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_ladder_length": -1
+    }
+  ],
+  "workspace": {
+    "bytes": 8
+  }
+}

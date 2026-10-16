@@ -1,0 +1,24 @@
+const MAX_NUMBER: i64 = 4096
+const STACK_CAPACITY: usize = 4112
+
+def lexicographical_numbers_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 1 or values[0] < 0 or values[0] > MAX_NUMBER: return -1
+    stack: mutable i64[STACK_CAPACITY] = zeroed
+    top: mutable usize = 1
+    stack[0] <- 1
+    index: mutable i64 = 0
+    checksum: mutable i64 = 0
+    while top > 0:
+        top <- top - 1
+        number: i64 = stack[top]
+        if number <= values[0]:
+            index <- index + 1
+            checksum <- checksum + index * number
+            if number % 10 != 9:
+                stack[top] <- number + 1
+                top <- top + 1
+            stack[top] <- number * 10
+            top <- top + 1
+    checksum
+
+export fn lexicographical_numbers(values: i64&, length: usize) -> i64 = lexicographical_numbers_impl

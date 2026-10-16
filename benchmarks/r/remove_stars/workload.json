@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "remove-stars-ascii-stack-v1",
+  "algorithm": "remove_stars",
+  "function_symbol": "remove_stars",
+  "input": {"kind":"signed_i64_array","layout":"[text_length, ASCII byte values...]","text_length_range":[0,4096],"alphabet":"ASCII 0 through 127","exact_length":"1 + text_length","invalid_input_result":-1},
+  "output": {"kind":"ASCII_bytes","meaning":"each '*' deletes the nearest remaining byte to its left; leading stars with nothing to delete are ignored","maximum_length":4096,"insufficient_output_capacity_result":-2},
+  "source_bound":{"description":"The pinned Java method scans left to right and deletes the last accumulated character for each star when one exists.","benchmark_domain":"ASCII 0..127; UTF-16 behavior outside ASCII is not included."},
+  "workspace":{"bytes":4096,"meaning":"maximum output buffer capacity"},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"empty","input_values":[0],"workspace_bytes":4096,"expected_result":0,"expected_output_hex":""},
+    {"id":"source_example","input_values":[11,108,101,101,116,42,42,99,111,100,42,101],"workspace_bytes":4096,"expected_result":5,"expected_output_hex":"6c65636f65"},
+    {"id":"leading_stars_ignored","input_values":[4,42,42,97,42],"workspace_bytes":4096,"expected_result":0,"expected_output_hex":""},
+    {"id":"stars_remove_nearest_left","input_values":[7,97,98,42,99,100,42,101],"workspace_bytes":4096,"expected_result":3,"expected_output_hex":"616365"},
+    {"id":"no_stars","input_values":[3,65,0,127],"workspace_bytes":4096,"expected_result":3,"expected_output_hex":"41007f"},
+    {"id":"capacity_short","input_values":[3,97,98,99],"workspace_bytes":2,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_byte","input_values":[1,128],"workspace_bytes":4096,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed_length","input_values":[2,97],"workspace_bytes":4096,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

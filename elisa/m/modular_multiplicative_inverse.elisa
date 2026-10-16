@@ -1,0 +1,21 @@
+def modular_multiplicative_inverse_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    a: i64 = input[0]
+    m: i64 = input[1]
+    if m < 2 or m > 1000000 or a < 0 or a >= m: return -1
+    r0: mutable i64 = a
+    r1: mutable i64 = m
+    s0: mutable i64 = 1
+    s1: mutable i64 = 0
+    while r1 != 0:
+        q: i64 = r0 / r1
+        t: i64 = r0 - q * r1
+        r0 <- r1
+        r1 <- t
+        u: i64 = s0 - q * s1
+        s0 <- s1
+        s1 <- u
+    if r0 == 1: return (s0 % m + m) % m
+    -1
+
+export fn modular_multiplicative_inverse(input: i64&, length: usize) -> i64 = modular_multiplicative_inverse_impl

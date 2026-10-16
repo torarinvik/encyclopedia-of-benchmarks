@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "top-k-frequent-words-java-sort-v1",
+  "algorithm": "top_kfrequent_words",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[k, word_count, (word_length, lowercase ASCII byte codes...)*]",
+    "k_range": [
+      0,
+      64
+    ],
+    "word_count_range": [
+      0,
+      64
+    ],
+    "word_length_range": [
+      1,
+      16
+    ],
+    "alphabet": "lowercase ASCII a..z",
+    "maximum_input_values": 1090,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "NUL_terminated_newline_separated_ASCII_bytes",
+    "encoding": "ranked words, each followed by LF, followed by NUL; empty result is one NUL byte",
+    "successful_result": "number of output bytes written including final NUL",
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "pinned_java_comparator_example",
+      "input_values": [
+        3,
+        6,
+        1,
+        97,
+        1,
+        98,
+        1,
+        99,
+        1,
+        97,
+        1,
+        99,
+        1,
+        99
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "630a610a620a00"
+    },
+    {
+      "id": "equal_frequency_lexicographic_order",
+      "input_values": [
+        3,
+        3,
+        1,
+        99,
+        1,
+        97,
+        1,
+        98
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "610a620a630a00"
+    },
+    {
+      "id": "equal_frequency_partial_k",
+      "input_values": [
+        2,
+        5,
+        1,
+        98,
+        1,
+        97,
+        1,
+        98,
+        1,
+        97,
+        1,
+        99
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "610a620a00"
+    },
+    {
+      "id": "zero_k",
+      "input_values": [
+        0,
+        2,
+        1,
+        97,
+        1,
+        98
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "k_clamped_to_distinct_count",
+      "input_values": [
+        8,
+        2,
+        1,
+        97,
+        1,
+        97
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "610a00"
+    },
+    {
+      "id": "empty_word_list",
+      "input_values": [
+        5,
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "invalid_non_lowercase_byte",
+      "input_values": [
+        1,
+        1,
+        1,
+        65
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_packing",
+      "input_values": [
+        1,
+        1,
+        2,
+        97
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

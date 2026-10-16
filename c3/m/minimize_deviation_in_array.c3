@@ -1,0 +1,4 @@
+module minimize_deviation_in_array;
+fn void push(long* h,usz* size,long x){usz i=*size;(*size)++;while(i>0&&h[(i-1)/2]<x){h[i]=h[(i-1)/2];i=(i-1)/2;}h[i]=x;}
+fn long pop(long* h,usz* size){long top=h[0],x=h[*size-1];(*size)--;usz i=0;while(2*i+1<*size){usz c=2*i+1;if(c+1<*size&&h[c+1]>h[c])c++;if(h[c]<=x)break;h[i]=h[c];i=c;}if(*size>0)h[i]=x;return top;}
+fn long minimize_deviation_in_array(long* v,usz n) @export("minimize_deviation_in_array"){if(v==null||n<2||n>65||v[0]<1||v[0]>64||n!=(usz)v[0]+1)return -1;usz count=(usz)v[0],size=0;long h[64],low=9223372036854775807;for(usz i=0;i<count;i++){long x=v[i+1];if(x<1||x>1000000)return -1;if(x%2==1)x*=2;if(x<low)low=x;push(h,&size,x);}long best=h[0]-low;while(h[0]%2==0){long x=pop(h,&size)/2;if(x<low)low=x;push(h,&size,x);long d=h[0]-low;if(d<best)best=d;}return best;}

@@ -1,0 +1,113 @@
+# Port the pinned Java morseToText direction.
+const MAX_INPUT_LENGTH: usize = 512
+const MAX_OUTPUT_BYTES: usize = 512
+
+def morse_word(index: usize) -> i64:
+    if index == 0: return 514
+    if index == 1: return 1031
+    if index == 2: return 1029
+    if index == 3: return 771
+    if index == 4: return 257
+    if index == 5: return 1037
+    if index == 6: return 769
+    if index == 7: return 1039
+    if index == 8: return 515
+    if index == 9: return 1032
+    if index == 10: return 770
+    if index == 11: return 1035
+    if index == 12: return 512
+    if index == 13: return 513
+    if index == 14: return 768
+    if index == 15: return 1033
+    if index == 16: return 1026
+    if index == 17: return 773
+    if index == 18: return 775
+    if index == 19: return 256
+    if index == 20: return 774
+    if index == 21: return 1038
+    if index == 22: return 772
+    if index == 23: return 1030
+    if index == 24: return 1028
+    if index == 25: return 1027
+    return 0
+
+def is_separator(input: i64&, position: usize, finish: usize) -> bool:
+    position + 2 < finish and input[position] == 32 and input[position + 1] == 124 and input[position + 2] == 32
+
+def decode_token(input: i64&, start: usize, finish: usize) -> u8:
+    letter: mutable usize = 0
+    while letter < 26:
+        word: i64 = morse_word(letter)
+        code_length: usize = ((word / 256) % 8).usize()
+        if finish - start == code_length:
+            mask: i64 = word % 32
+            bit: mutable usize = 0
+            matches: mutable bool = true
+            while bit < code_length:
+                shift: usize = code_length - bit - 1
+                expected: i64 = 45
+                if ((mask >> shift) & 1) != 0: expected <- 46
+                if input[start + bit] != expected: matches <- false
+                bit <- bit + 1
+            if matches: return (65 + letter.i64()).u8()
+        letter <- letter + 1
+    63.u8()
+
+def append_word(input: i64&, start: usize, finish_value: usize, scratch: mutable u8&, written: mutable usize&) -> void:
+    if start == finish_value:
+        scratch[written] <- 63
+        written <- written + 1
+        return
+    finish: mutable usize = finish_value
+    while finish > start and input[finish - 1] == 32: finish <- finish - 1
+    if start == finish: return
+    token_start: mutable usize = start
+    position: mutable usize = start
+    while position <= finish:
+        if position == finish:
+            scratch[written] <- decode_token(input, token_start, position)
+            written <- written + 1
+        else if input[position] == 32:
+            scratch[written] <- decode_token(input, token_start, position)
+            written <- written + 1
+            token_start <- position + 1
+        position <- position + 1
+
+def decode(input: i64&, length: usize, scratch: mutable u8&) -> usize:
+    if length == 0:
+        scratch[0] <- 63
+        return 1
+    finish: mutable usize = length
+    while finish >= 3 and is_separator(input, finish - 3, finish): finish <- finish - 3
+    if finish == 0: return 0
+    written: mutable usize = 0
+    start: mutable usize = 0
+    position: mutable usize = 0
+    while position + 2 < finish:
+        if is_separator(input, position, finish):
+            append_word(input, start, position, scratch, written)
+            scratch[written] <- 32
+            written <- written + 1
+            position <- position + 3
+            start <- position
+        else:
+            position <- position + 1
+    append_word(input, start, finish, scratch, written)
+    written
+
+def morse_code_converter_decode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if (input.is_null() and length > 0) or length > MAX_INPUT_LENGTH: return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 127: return -1
+        index <- index + 1
+    scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: usize = decode(input, length, scratch)
+    if output.is_null() or capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- scratch[index]
+        index <- index + 1
+    written.i64()
+
+export fn morse_code_converter_decode(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = morse_code_converter_decode_impl

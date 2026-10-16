@@ -1,0 +1,39 @@
+def put_i32(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u32 = value.i32().u32()
+    k: mutable usize = 0
+    while k < 4:
+        output[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def operators_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 5: return -1
+    operation: i64 = values[0]
+    rows_a: i64 = values[1]
+    cols_a: i64 = values[2]
+    if (operation != 0 and operation != 1) or rows_a < 1 or rows_a > 16 or cols_a < 0 or cols_a > 16 or rows_a*cols_a > 256: return -1
+    count: usize = (rows_a*cols_a).usize()
+    pos_b: usize = 3+count
+    if length < pos_b+2: return -1
+    rows_b: i64 = values[pos_b]
+    cols_b: i64 = values[pos_b+1]
+    if rows_b < 1 or rows_b > 16 or cols_b < 0 or cols_b > 16 or rows_b*cols_b > 256 or length != pos_b+2+(rows_b*cols_b).usize(): return -1
+    i: mutable usize = 0
+    while i < count:
+        if values[3+i] < -1000000 or values[3+i] > 1000000: return -1
+        i <- i+1
+    i <- 0
+    while i < (rows_b*cols_b).usize():
+        if values[pos_b+2+i] < -1000000 or values[pos_b+2+i] > 1000000: return -1
+        i <- i+1
+    if rows_a != rows_b or cols_a != cols_b: return -1
+    if capacity < count*4: return -2
+    i <- 0
+    while i < count:
+        a: i64 = values[3+i]
+        b: i64 = values[pos_b+2+i]
+        value: i64 = a+b
+        if operation == 1: value <- a-b
+        put_i32(output,i*4,value)
+        i <- i+1
+    return count.i64()
+export fn operators(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = operators_impl

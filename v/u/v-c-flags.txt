@@ -1,0 +1,15 @@
+-arch
+arm64
+-fwrapv
+-Wno-incompatible-function-pointer-types
+-Wno-typedef-redefinition
+-O3
+-flto
+-DNDEBUG
+-DNO_DEBUGGING
+-c
+-o '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/v/u/implementation.o'
+-x objective-c
+"/tmp/v_501/implementation.o.01M51WMVBEX33TK9K48H0JVVEP.tmp.c"
+-std=c99
+-D_DEFAULT_SOURCE

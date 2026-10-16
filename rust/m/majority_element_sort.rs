@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn majority_element_sort(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>128{return -1}let a=std::slice::from_raw_parts(v,n);if a.iter().any(|&x|x<i32::MIN as i64||x>i32::MAX as i64){return -1}let mut x:Vec<i32>=a.iter().map(|&z|z as i32).collect();x.sort_unstable();let mut run=1;for i in 1..n{run=if x[i]==x[i-1]{run+1}else{1};if run>n/2{return x[i] as i64}}-1}

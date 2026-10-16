@@ -41,9 +41,11 @@ fn long horizontal_projectile_motion(long* values, usz length, char* output, usz
     double velocity = (double)velocity_milli / 1000.0;
     double angle = (double)angle_millidegrees / 1000.0;
     double pi_over_180 = 3.14159265358979323846264338327950288 / 180.0;
-    double distance_raw = velocity * velocity * sin((2.0 * angle) * pi_over_180) / GRAVITY;
+    double velocity_squared = velocity * velocity;
+    double distance_raw = velocity_squared * sin((2.0 * angle) * pi_over_180) / GRAVITY;
     double angle_sine = sin(angle * pi_over_180);
-    double height_raw = velocity * velocity * angle_sine * angle_sine / (2.0 * GRAVITY);
+    double sine_squared = angle_sine * angle_sine;
+    double height_raw = velocity_squared * sine_squared / (2.0 * GRAVITY);
     double time_raw = (2.0 * velocity) * angle_sine / GRAVITY;
     store_f64_le(output, 0, (double)round_cents(distance_raw) / 100.0);
     store_f64_le(output, 8, (double)round_cents(height_raw) / 100.0);

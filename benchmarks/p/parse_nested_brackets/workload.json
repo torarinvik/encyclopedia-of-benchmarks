@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "typescript-nested-angle-bracket-depth-first-v1",
+  "algorithm": "parse_nested_brackets",
+  "function_symbol": "parse_nested_brackets",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[ASCII text length, ASCII bytes...]",
+    "text_length_range": [
+      0,
+      128
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "brackets": "fixed < and > delimiters; all brackets must be properly nested and matched",
+    "maximum_input_length": 129
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "polynomial hash modulo 1,000,000,007 over emitted tags in source traversal order; for each tag, h=(257*h+byte+1) mod modulus, initial h=0",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Follows parseNestedBrackets defaults and depth-first order: emit each matched outer tag, then recursively emit tags inside its content. Text outside tags is ignored."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 8,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single-tag",
+      "input_values": [
+        6,
+        60,
+        109,
+        97,
+        105,
+        110,
+        62
+      ],
+      "input_length": 7,
+      "expected_result": 990278388
+    },
+    {
+      "id": "siblings",
+      "input_values": [
+        16,
+        60,
+        97,
+        62,
+        120,
+        60,
+        47,
+        97,
+        62,
+        60,
+        98,
+        62,
+        121,
+        60,
+        47,
+        98,
+        62
+      ],
+      "input_length": 17,
+      "expected_result": 583705097
+    },
+    {
+      "id": "nested",
+      "input_values": [
+        44,
+        60,
+        109,
+        97,
+        105,
+        110,
+        62,
+        111,
+        110,
+        101,
+        60,
+        105,
+        116,
+        101,
+        109,
+        62,
+        120,
+        60,
+        97,
+        98,
+        98,
+        114,
+        62,
+        121,
+        60,
+        47,
+        97,
+        98,
+        98,
+        114,
+        62,
+        60,
+        47,
+        105,
+        116,
+        101,
+        109,
+        62,
+        60,
+        47,
+        109,
+        97,
+        105,
+        110,
+        62
+      ],
+      "input_length": 45,
+      "expected_result": 623393806
+    },
+    {
+      "id": "text-around",
+      "input_values": [
+        22,
+        98,
+        101,
+        102,
+        111,
+        114,
+        101,
+        60,
+        97,
+        62,
+        98,
+        111,
+        100,
+        121,
+        60,
+        47,
+        97,
+        62,
+        97,
+        102,
+        116,
+        101,
+        114
+      ],
+      "input_length": 23,
+      "expected_result": 188449754
+    },
+    {
+      "id": "deep",
+      "input_values": [
+        29,
+        60,
+        97,
+        62,
+        60,
+        98,
+        62,
+        60,
+        99,
+        62,
+        60,
+        100,
+        62,
+        122,
+        60,
+        47,
+        100,
+        62,
+        60,
+        47,
+        99,
+        62,
+        60,
+        47,
+        98,
+        62,
+        60,
+        47,
+        97,
+        62
+      ],
+      "input_length": 30,
+      "expected_result": 175978801
+    },
+    {
+      "id": "unmatched-close",
+      "input_values": [
+        4,
+        60,
+        47,
+        97,
+        62
+      ],
+      "input_length": 5,
+      "expected_result": 38645767
+    },
+    {
+      "id": "unclosed",
+      "input_values": [
+        3,
+        60,
+        97,
+        62
+      ],
+      "input_length": 4,
+      "expected_result": 4054238
+    }
+  ]
+}

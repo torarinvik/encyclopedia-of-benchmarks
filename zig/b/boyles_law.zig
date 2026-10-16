@@ -7,8 +7,8 @@ fn roundedMilli(numerator: i64, denominator: i64) i64 {
     return quotient;
 }
 
-export fn boyles_law(values: [*]const i64, length: usize) f64 {
-    if (length != 4) return -1.0e300;
+export fn boyles_law(values: [*c]const i64, length: usize) f64 {
+    if (values == null or length != 4) return -1.0e300;
     const target = values[0];
     const a = values[1];
     const b = values[2];

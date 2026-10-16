@@ -1,0 +1,37 @@
+def needleman_wunsch_impl(v: i64&, n: usize) -> i64:
+    invalid: i64 = -9223372036854775808
+    if v.is_null() or n < 5 or n > 261: return invalid
+    a: i64 = v[0]
+    b: i64 = v[1]
+    match_score: i64 = v[2]
+    mismatch: i64 = v[3]
+    gap: i64 = v[4]
+    if a < 0 or a > 128 or b < 0 or b > 128 or match_score < 0 or match_score > 10 or mismatch < -10 or mismatch > 0 or gap < -10 or gap > 0 or n != 5 + a.usize() + b.usize(): return invalid
+    i: usize = 0
+    while i < a.usize() + b.usize():
+        if v[i + 5] < 65 or v[i + 5] > 90: return invalid
+        i <- i + 1
+    dp: mutable i64[129] = zeroed
+    j: usize = 0
+    while j <= b.usize(): dp[j] <- j.i64() * gap; j <- j + 1
+    i <- 1
+    while i <= a.usize():
+        diagonal: mutable i64 = dp[0]
+        dp[0] <- i.i64() * gap
+        j <- 1
+        while j <= b.usize():
+            old: i64 = dp[j]
+            score: i64 = mismatch
+            if v[5 + i - 1] == v[5 + a.usize() + j - 1]: score <- match_score
+            x: i64 = diagonal + score
+            y: i64 = old + gap
+            z: i64 = dp[j - 1] + gap
+            if x >= y and x >= z: dp[j] <- x
+            elif y >= z: dp[j] <- y
+            else: dp[j] <- z
+            diagonal <- old
+            j <- j + 1
+        i <- i + 1
+    return dp[b.usize()]
+
+export fn needleman_wunsch(v: i64&, n: usize) -> i64 = needleman_wunsch_impl

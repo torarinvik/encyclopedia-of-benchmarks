@@ -1,0 +1,17 @@
+fn can_partition(values: i64&, count: usize, index: usize, target: i64, half: i64) -> bool:
+    if target == half: return true
+    if index >= count or target > half: return false
+    can_partition(values, count, index + 1, target + values[index + 1], half) or can_partition(values, count, index + 1, target, half)
+export fn partition(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 17 or input[0] < 0 or input[0] > 16.i64() or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    sum: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count:
+        value: i64 = input[i + 1]
+        if value < 0 or value > 1000: return -1
+        sum <- sum + value
+        i <- i + 1
+    if sum % 2 != 0: return 0
+    (can_partition(input, count, 0, 0, sum / 2)).i64()
+

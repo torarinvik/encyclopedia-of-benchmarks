@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn jenkins_one_at_a_time(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>65{return -1;}let v=unsafe{std::slice::from_raw_parts(v,n)};let count=v[0];if !(0..=64).contains(&count)||n!=count as usize+1{return -1;}let mut h=0i64;for &b in &v[1..]{if !(0..=127).contains(&b){return -1;}h=(h+b)&0xFFFF_FFFF;h=(h+(h<<10))&0xFFFF_FFFF;h=(h^(h>>6))&0xFFFF_FFFF;}h=(h+(h<<3))&0xFFFF_FFFF;h=(h^(h>>11))&0xFFFF_FFFF;(h+(h<<15))&0xFFFF_FFFF}

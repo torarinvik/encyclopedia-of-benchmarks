@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "scaled-exponential-linear-unit-python-v1",
+  "algorithm": "scaled_exponential_linear_unit",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[count,alpha_micro,lambda_micro,x_micro...]",
+    "count_range": [
+      0,
+      256
+    ],
+    "parameter_range": "alpha and lambda in [-10,10], scaled by 1,000,000",
+    "element_range": "x in [-20,20], scaled by 1,000,000",
+    "maximum_input_values": 259,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_scaled_i64_vector",
+    "encoding": "each SELU result rounded to a signed integer at scale 1,000,000,000",
+    "successful_result": "number of output bytes written",
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "pinned_positive_vector",
+      "input_values": [
+        3,
+        1673200,
+        1050700,
+        1300000,
+        3700000,
+        2400000
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "f0216a510000000070eab7e70000000080c84d9600000000"
+    },
+    {
+      "id": "negative_zero_positive",
+      "input_values": [
+        5,
+        1673200,
+        1050700,
+        -2000000,
+        -1000000,
+        0,
+        1000000,
+        2000000
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "c0ff64a5ffffffff7618c3bdffffffff0000000000000000e068a03e00000000c0d1407d00000000"
+    },
+    {
+      "id": "custom_alpha_lambda",
+      "input_values": [
+        3,
+        2000000,
+        500000,
+        -1000000,
+        0,
+        1000000
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "119b52daffffffff00000000000000000065cd1d00000000"
+    },
+    {
+      "id": "empty_vector",
+      "input_values": [
+        0,
+        1673200,
+        1050700
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_vector_value",
+      "input_values": [
+        1,
+        1673200,
+        1050700,
+        21000000
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [
+        2,
+        1673200,
+        1050700,
+        1000000
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

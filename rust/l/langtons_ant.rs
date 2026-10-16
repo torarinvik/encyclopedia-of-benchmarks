@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn langtons_ant(v:*const i64,n:usize)->i64{if v.is_null()||n!=1{return -1;}let steps=unsafe{*v};if !(0..=6).contains(&steps){return -1;}let mut b=[true;25];let(mut x,mut y,mut d)=(2i64,2i64,3i64);let dx=[-1,0,1,0];let dy=[0,1,0,-1];for _ in 0..steps{let old=(x*5+y)as usize;d=if b[old]{(d+1)%4}else{(d+3)%4};x+=dx[d as usize];y+=dy[d as usize];b[old]=!b[old];}let mut mask=0i64;for i in 0..25{if !b[i]{mask|=1i64<<i;}}mask|((x*5+y)<<25)|(d<<30)}

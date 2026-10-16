@@ -1,0 +1,7 @@
+def last_item_in_a_list_impl(v: i64&, length: usize) -> i64:
+    if length > 64: return -1
+    for i in 0..length:
+        if v[i] < 0 or v[i] > 100000: return -1
+    if length == 0: return -1
+    v[length - 1]
+export fn last_item_in_a_list(v: i64&, length: usize) -> i64 = last_item_in_a_list_impl

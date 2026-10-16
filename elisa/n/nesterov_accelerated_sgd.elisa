@@ -1,0 +1,45 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_double(output: mutable u8&, offset: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    k: mutable usize = 0
+    while k < 8:
+        output[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def nesterov_accelerated_sgd_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 4: return -1
+    width: i64 = values[0]; steps: i64 = values[1]; lr_milli: i64 = values[2]; momentum_milli: i64 = values[3]
+    if width < 1 or width > 8 or steps < 1 or steps > 8 or lr_milli < 0 or lr_milli > 1000 or momentum_milli < 0 or momentum_milli > 1000 or length != (4+width*(steps+1)).usize(): return -1
+    i: mutable usize = 4
+    while i < length:
+        if values[i] < -10000 or values[i] > 10000: return -1
+        i <- i+1
+    w: usize = width.usize()
+    if capacity < w*8: return -2
+    params: [8]f64
+    velocity: [8]f64
+    lr: f64 = lr_milli.f64()/1000.0
+    momentum: f64 = momentum_milli.f64()/1000.0
+    i <- 0
+    while i < w:
+        params[i] <- values[4+i].f64()/1000.0
+        velocity[i] <- 0.0
+        i <- i+1
+    t: mutable usize = 0
+    while t < steps.usize():
+        i <- 0
+        while i < w:
+            prev: f64 = velocity[i]
+            grad: f64 = values[4+w+t*w+i].f64()/1000.0
+            velocity[i] <- momentum*velocity[i]-lr*grad
+            params[i] <- params[i]-momentum*prev+(1.0+momentum)*velocity[i]
+            i <- i+1
+        t <- t+1
+    i <- 0
+    while i < w:
+        put_double(output,i*8,params[i])
+        i <- i+1
+    (w*8).i64()
+export nesterov_accelerated_sgd(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nesterov_accelerated_sgd_impl
+

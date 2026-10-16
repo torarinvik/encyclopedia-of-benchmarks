@@ -1,0 +1,42 @@
+def store_le(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- ((bits >> (b * 8)) & 255).u8()
+        b <- b + 1
+
+def rotate_matrix_90_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 1027: return -1
+    rows_i: i64 = values[0]
+    cols_i: i64 = values[1]
+    if rows_i < 1 or rows_i > 32 or cols_i < 1 or cols_i > 32 or length != 2 + (rows_i * cols_i).usize(): return -1
+    rows: usize = rows_i.usize()
+    cols: usize = cols_i.usize()
+    matrix: mutable i64[1024] = zeroed
+    result: mutable i64[1024] = zeroed
+    i: mutable usize = 0
+    while i < rows * cols:
+        matrix[i] <- values[2 + i]
+        i <- i + 1
+    out_rows: usize = cols
+    out_cols: usize = rows
+    i <- 0
+    while i < rows:
+        j: mutable usize = 0
+        while j < cols:
+            rr: usize = cols-1-j
+            cc: usize = i
+            result[rr * out_cols + cc] <- matrix[i * cols + j]
+            j <- j + 1
+        i <- i + 1
+    bytes: usize = 8 * (2 + out_rows * out_cols)
+    if output.is_null() or capacity < bytes: return -2
+    store_le(output, 0, out_rows.i64())
+    store_le(output, 8, out_cols.i64())
+    i <- 0
+    while i < out_rows * out_cols:
+        store_le(output, 16 + 8 * i, result[i])
+        i <- i + 1
+    bytes.i64()
+
+export fn rotate_matrix_90(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rotate_matrix_90_impl

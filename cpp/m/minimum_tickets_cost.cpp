@@ -1,0 +1,3 @@
+#include <cstddef>
+#include <cstdint>
+extern "C" std::int64_t minimum_tickets_cost(const std::int64_t*v,std::size_t n)noexcept{if(!v||n<4||n>369||v[0]<0||v[0]>365)return -1;auto d=static_cast<std::size_t>(v[0]);if(n!=d+4)return -1;bool travel[366]={};for(std::size_t i=0;i<d;i++){auto x=v[i+1];if(x<1||x>365||travel[x])return -1;travel[x]=true;}std::int64_t c[3];for(int i=0;i<3;i++){c[i]=v[d+1+i];if(c[i]<0||c[i]>1000000)return -1;}std::int64_t dp[397]={};for(int day=365;day>=1;--day){dp[day]=dp[day+1];if(travel[day]){auto a=c[0]+dp[day+1],b=c[1]+dp[day+7],z=c[2]+dp[day+30];dp[day]=a<b?a:b;if(z<dp[day])dp[day]=z;}}return dp[1];}

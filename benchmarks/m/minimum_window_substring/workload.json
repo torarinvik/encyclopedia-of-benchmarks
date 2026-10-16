@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "minimum-window-substring-ascii-v1",
+  "algorithm": "minimum_window_substring",
+  "function_symbol": "minimum_window_substring",
+  "input": {"kind":"signed_i64_array","layout":"[search_length, search_ascii_bytes..., target_length, target_ascii_bytes...]","search_and_target_length_range":[0,128],"target_length_minimum":1,"alphabet":"ASCII 0 through 127","maximum_input_length":258},
+  "output": {"kind":"ASCII_bytes","meaning":"shortest search substring containing each target byte with multiplicity; earliest window wins ties","maximum_length":128,"no_match_result":0,"malformed_input_result":-1,"insufficient_output_capacity_result":-2},
+  "source_bound":{"description":"Both pinned implementations use a sliding window with target frequency counts; the Python implementation is equivalent on ASCII inputs.","benchmark_domain":"ASCII bytes only; empty target excluded due to Java source behavior."},
+  "workspace":{"bytes":128,"meaning":"maximum output buffer capacity"},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"classic_window","input_values":[13,65,68,79,66,69,67,79,68,69,66,65,78,67,3,65,66,67],"workspace_bytes":128,"expected_result":4,"expected_output_hex":"42414e43"},
+    {"id":"multiplicity","input_values":[7,97,97,97,98,99,98,99,3,97,98,99],"workspace_bytes":128,"expected_result":3,"expected_output_hex":"616263"},
+    {"id":"earliest_equal_windows","input_values":[6,97,98,120,120,97,98,2,97,98],"workspace_bytes":128,"expected_result":2,"expected_output_hex":"6162"},
+    {"id":"target_absent","input_values":[4,97,98,99,100,2,120,121],"workspace_bytes":128,"expected_result":0,"expected_output_hex":""},
+    {"id":"search_shorter_than_target","input_values":[2,97,98,3,97,98,99],"workspace_bytes":128,"expected_result":0,"expected_output_hex":""},
+    {"id":"capacity_short","input_values":[3,97,98,99,2,97,99],"workspace_bytes":2,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""},
+    {"id":"invalid_byte","input_values":[1,128,1,128],"workspace_bytes":128,"expected_result":-1,"expected_output_hex":""},
+    {"id":"malformed_length","input_values":[2,97,98,1,97,99],"workspace_bytes":128,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

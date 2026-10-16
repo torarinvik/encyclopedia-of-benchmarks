@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn paranthesis_matching(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>100{return -1}let a=std::slice::from_raw_parts(v,n);let count=a[0];if !(1..=99).contains(&count)||n!=count as usize+1{return -1}let mut st=[0i64;99];let mut sp=0usize;for &x in &a[1..]{if !(33..=126).contains(&x){return -1}if x==40||x==123||x==91||x==60{st[sp]=x;sp+=1}else if x==41||x==125||x==93||x==62{let want=if x==41{40}else if x==125{123}else if x==93{91}else{60};if sp==0{return 0}sp-=1;if st[sp]!=want{return 0}}else{return 0}}if sp==0{1}else{0}}

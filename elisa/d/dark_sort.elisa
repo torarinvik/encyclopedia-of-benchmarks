@@ -1,0 +1,25 @@
+# Dark sort: counting sort for nonnegative keys in [0, 128].
+def dark_sort_impl(values: mutable i64&, length: usize) -> void:
+    if length < 2:
+        return
+    maximum: mutable i64 = values[0]
+    index: mutable usize = 1
+    while index < length:
+        if values[index] > maximum:
+            maximum <- values[index]
+        index <- index + 1
+    counts: mutable i64[129] = zeroed
+    index <- 0
+    while index < length:
+        counts[values[index].usize()] <- counts[values[index].usize()] + 1
+        index <- index + 1
+    output: mutable usize = 0
+    value: mutable i64 = 0
+    while value <= maximum:
+        while counts[value.usize()] > 0:
+            values[output] <- value
+            output <- output + 1
+            counts[value.usize()] <- counts[value.usize()] - 1
+        value <- value + 1
+
+export fn dark_sort(values: mutable i64&, length: usize) -> void = dark_sort_impl

@@ -1,0 +1,4 @@
+#include <stddef.h>
+#include <stdint.h>
+static void put_i32(uint8_t*out,size_t off,int64_t x){uint32_t b=(uint32_t)(int32_t)x;for(size_t k=0;k<4;k++)out[off+k]=(uint8_t)(b>>(8*k));}
+int64_t operators(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<5)return -1;int64_t op=v[0],ra=v[1],ca=v[2];if((op!=0&&op!=1)||ra<1||ra>16||ca<0||ca>16||ra*ca>256)return -1;size_t count=(size_t)(ra*ca),pb=3+count;if(n<pb+2)return -1;int64_t rb=v[pb],cb=v[pb+1];if(rb<1||rb>16||cb<0||cb>16||rb*cb>256||n!=pb+2+(size_t)(rb*cb))return -1;for(size_t i=0;i<count;i++)if(v[3+i]<-1000000||v[3+i]>1000000)return -1;for(size_t i=0;i<(size_t)(rb*cb);i++)if(v[pb+2+i]<-1000000||v[pb+2+i]>1000000)return -1;if(ra!=rb||ca!=cb)return -1;size_t bytes=count*4;if(cap<bytes||(bytes&&!out))return -2;for(size_t i=0;i<count;i++){int64_t a=v[3+i],b=v[pb+2+i];put_i32(out,i*4,op==0?a+b:a-b);}return (int64_t)count;}

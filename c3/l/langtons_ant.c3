@@ -1,0 +1,2 @@
+module langtons_ant;
+fn long langtons_ant(long*v,usz n) @export("langtons_ant"){if(v==null||n!=1||v[0]<0||v[0]>6)return -1;bool b[25];for(usz i=0;i<25;i++)b[i]=true;long x=2;long y=2;long d=3;long dx[4]={-1,0,1,0};long dy[4]={0,1,0,-1};for(long s=0;s<v[0];s++){long old=x*5+y;if(b[old])d=(d+1)%4;else d=(d+3)%4;x+=dx[d];y+=dy[d];b[old]=!b[old];}long mask=0;for(long i=0;i<25;i++)if(!b[i])mask|=1<<i;return mask|((x*5+y)<<25)|(d<<30);}

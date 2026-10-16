@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "pascals-triangle-typescript-final-row-v1",
+  "algorithm": "pascals_triangle",
+  "function_symbol": "pascals_triangle",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[row_count]",
+    "count_range": [
+      1,
+      1
+    ],
+    "row_count_range": [
+      1,
+      31
+    ],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "base-31 hash of the final row modulo 1,000,000,007",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned TypeScript builds n rows and returns arr[arr.length - 1]. Its coefficients remain exactly representable for n\u226431."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "first-row",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "row-two",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 1024
+    },
+    {
+      "id": "row-five",
+      "input_values": [
+        6
+      ],
+      "input_length": 1,
+      "expected_result": 33554432
+    },
+    {
+      "id": "maximum-row",
+      "input_values": [
+        31
+      ],
+      "input_length": 1,
+      "expected_result": 769740174
+    },
+    {
+      "id": "zero-rows",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

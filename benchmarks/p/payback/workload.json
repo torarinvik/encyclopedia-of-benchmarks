@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "rust-payback-first-nonnegative-cumulative-flow-v1",
+  "algorithm": "payback",
+  "function_symbol": "payback",
+  "input": {"kind":"signed_i64_array","encoding":"[count, cash_flow...]","count_range":[0,128],"element_range":[-1000000,1000000],"maximum_input_length":129},
+  "output": {"kind":"signed_i64_scalar","meaning":"zero-based first index with nonnegative cumulative cash flow","no_payback_result":-1,"invalid_input_result":-2},
+  "source_bound": {"description":"The pinned Rust routine returns the first enumerated index after cumulative cash flow reaches >=0, or None."},
+  "measurement": {"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases": [
+    {"id":"initial_investment_recovers","input_values":[4,-1000,300,400,500],"input_length":5,"expected_result":3},
+    {"id":"already_nonnegative_at_first_flow","input_values":[2,10,-4],"input_length":3,"expected_result":0},
+    {"id":"never_recovers","input_values":[3,-1000,100,100],"input_length":4,"expected_result":-1},
+    {"id":"empty_flows","input_values":[0],"input_length":1,"expected_result":-1},
+    {"id":"length_mismatch","input_values":[2,-3],"input_length":2,"expected_result":-2}
+  ]
+}

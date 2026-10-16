@@ -1,0 +1,58 @@
+const MAX_ARRAY_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_ARRAY_LENGTH
+const MAX_PARSEABLE_INPUT_LENGTH: usize = MAX_INPUT_LENGTH + 1
+const MIN_VALUE: i64 = -1000000
+const MAX_VALUE: i64 = 1000000
+const CHECKSUM_OFFSET: i64 = 1000001
+
+def merge_sorted_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > MAX_ARRAY_LENGTH.i64() or
+       input[1] < 0 or input[1] > MAX_ARRAY_LENGTH.i64():
+        return -1
+
+    left_count: usize = input[0].usize()
+    right_count: usize = input[1].usize()
+    if length != 2 + left_count + right_count:
+        return -1
+    right_start: usize = 2 + left_count
+
+    for index in 0..<left_count:
+        value: i64 = input[2 + index]
+        if value < MIN_VALUE or value > MAX_VALUE or
+           (index > 0 and input[2 + index - 1] > value):
+            return -1
+    for index in 0..<right_count:
+        value: i64 = input[right_start + index]
+        if value < MIN_VALUE or value > MAX_VALUE or
+           (index > 0 and input[right_start + index - 1] > value):
+            return -1
+
+    left_index: mutable usize = 0
+    right_index: mutable usize = 0
+    output_index: mutable i64 = 0
+    checksum: mutable i64 = 0
+    while left_index < left_count and right_index < right_count:
+        value: i64 = 0
+        if input[2 + left_index] <= input[right_start + right_index]:
+            value = input[2 + left_index]
+            left_index <- left_index + 1
+        else:
+            value = input[right_start + right_index]
+            right_index <- right_index + 1
+        checksum <- checksum + (output_index + 1) * (value + CHECKSUM_OFFSET)
+        output_index <- output_index + 1
+    while left_index < left_count:
+        value: i64 = input[2 + left_index]
+        checksum <- checksum + (output_index + 1) * (value + CHECKSUM_OFFSET)
+        left_index <- left_index + 1
+        output_index <- output_index + 1
+    while right_index < right_count:
+        value: i64 = input[right_start + right_index]
+        checksum <- checksum + (output_index + 1) * (value + CHECKSUM_OFFSET)
+        right_index <- right_index + 1
+        output_index <- output_index + 1
+    checksum
+
+export fn merge_sorted(input: i64&, length: usize) -> i64 = merge_sorted_impl

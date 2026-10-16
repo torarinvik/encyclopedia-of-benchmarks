@@ -1,0 +1,24 @@
+const MAX_TEXT_LENGTH: usize = 128
+const MAX_REQUESTED_COUNT: i64 = 64
+const CHECKSUM_BASE: i64 = 300000
+
+def substring_st_char_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_TEXT_LENGTH + 2: return -1
+    target: i64 = values[0]
+    requested: i64 = values[1]
+    text_length: usize = length - 2
+    if target < 1 or target > 127 or requested < 0 or requested > MAX_REQUESTED_COUNT: return -1
+    for i in 0..text_length:
+        if values[i + 2] < 1 or values[i + 2] > 127: return -1
+    start: mutable usize = 0
+    while start < text_length and values[start + 2] != target: start <- start + 1
+    if start == text_length: return -1
+    remaining: usize = text_length - start
+    count: mutable usize = usize(requested)
+    if count == 0: count <- 1
+    if count > remaining: count <- remaining
+    checksum: mutable i64 = 0
+    for i in 0..count: checksum <- checksum + i64(i + 1) * values[start + i + 2]
+    i64(count) * CHECKSUM_BASE + checksum
+
+export fn substring_st_char(values: i64&, length: usize) -> i64 = substring_st_char_impl

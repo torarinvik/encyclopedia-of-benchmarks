@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "product-sum-nested-array-depth-weighted-v1",
+  "algorithm": "product_sum",
+  "function_symbol": "product_sum",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[token_count, tokens...] where LIST_BEGIN=2001 starts a nested list and LIST_END=2002 closes it; the root list is implicit",
+    "count_range": [1, 129],
+    "element_range": [-1000, 2002],
+    "maximum_input_length": 129
+  },
+  "output": {"kind": "signed_i64_scalar", "meaning": "sum of each integer leaf multiplied by its list depth, with root depth 1", "invalid_input_result": -1},
+  "source_bound": {"description": "Pinned Python product_sum_array calls recursive product_sum at root depth 1; each nested list's recursively weighted sum is added to its parent. The source also defines an iterative variant."},
+  "measurement": {"comparison_model": "scalar_call", "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 10000},
+  "cases": [
+    {"id":"flat", "input_values":[3,1,2,3], "input_length":4, "expected_result":6},
+    {"id":"one_nested_list", "input_values":[5,1,2001,2,3,2002], "input_length":6, "expected_result":11},
+    {"id":"two_nested_levels", "input_values":[8,1,2001,2,2001,3,4,2002,2002], "input_length":9, "expected_result":47},
+    {"id":"negative_leaves", "input_values":[15,5,2,2001,-7,1,2002,3,2001,6,2001,-13,8,2002,4,2002], "input_length":16, "expected_result":-12},
+    {"id":"empty_child", "input_values":[4,1,2001,2002,2], "input_length":5, "expected_result":3},
+    {"id":"empty_root", "input_values":[0], "input_length":1, "expected_result":0}
+  ]
+}

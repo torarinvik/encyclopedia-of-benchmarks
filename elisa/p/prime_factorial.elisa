@@ -1,0 +1,44 @@
+const MAX_INPUT: i64 = 4096
+const MAX_DISTINCT_FACTORS: usize = 5
+
+def is_prime_by_source_trial_division(candidate: i64) -> bool:
+    if candidate == 2:
+        return true
+    half_candidate: i64 = candidate / 2 + 1
+    divisor: mutable i64 = 2
+    while divisor <= half_candidate:
+        if candidate % divisor == 0:
+            return false
+        if divisor == half_candidate:
+            return true
+        divisor <- divisor + 1
+    false
+
+def prime_factorial_impl(value: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if value < 2 or value > MAX_INPUT:
+        return -1
+    factors: mutable u32[MAX_DISTINCT_FACTORS]
+    count: mutable usize = 0
+    candidate: mutable i64 = 2
+    while candidate <= value:
+        if is_prime_by_source_trial_division(candidate) and value % candidate == 0:
+            factors[count] <- candidate.u32()
+            count <- count + 1
+        candidate <- candidate + 1
+    required: usize = count * 4
+    if output_capacity < required:
+        return -2
+    position: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        factor: mutable u32 = factors[index]
+        byte_index: mutable usize = 0
+        while byte_index < 4:
+            output[position] <- (factor % 256).u8()
+            factor <- factor / 256
+            position <- position + 1
+            byte_index <- byte_index + 1
+        index <- index + 1
+    position.i64()
+
+export fn prime_factorial(value: i64, output: mutable u8&, output_capacity: usize) -> i64 = prime_factorial_impl

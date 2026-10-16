@@ -1,0 +1,11 @@
+def iterating_through_submasks_impl(v: i64&, length: usize) -> i64:
+    if length != 1: return -1
+    mask: i64 = v[0]
+    if mask < 1 or mask > 4095: return -1
+    submask: mutable i64 = mask
+    count: mutable i64 = 0
+    while submask != 0:
+        count <- count + 1
+        submask <- (submask - 1) & mask
+    count
+export fn iterating_through_submasks(v: i64&, length: usize) -> i64 = iterating_through_submasks_impl

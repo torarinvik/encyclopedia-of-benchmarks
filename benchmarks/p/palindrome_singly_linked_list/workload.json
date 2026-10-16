@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "java-singly-linked-list-optimized-palindrome-int32-v1",
+  "algorithm": "palindrome_singly_linked_list",
+  "function_symbol": "palindrome_singly_linked_list",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[node_count, signed 32-bit node values...]",
+    "count_range": [
+      0,
+      64
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "maximum_input_length": 65
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 if linked-list values read forward equal values read backward, else 0",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Benchmarks the pinned Java isPalindromeOptimised Node method: slow/fast pointers locate the midpoint, the suffix from the midpoint is reversed in place, and integer values are compared from both ends. Array positions model linked-list traversal."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "single",
+      "input_values": [
+        1,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "even-palindrome",
+      "input_values": [
+        4,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "odd-palindrome",
+      "input_values": [
+        5,
+        1,
+        2,
+        3,
+        2,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "non-palindrome",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "negative-values",
+      "input_values": [
+        3,
+        -3,
+        8,
+        -3
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "equal-elements",
+      "input_values": [
+        4,
+        5,
+        5,
+        5,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "bad-count",
+      "input_values": [
+        3,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "outside-int32",
+      "input_values": [
+        1,
+        2147483648
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

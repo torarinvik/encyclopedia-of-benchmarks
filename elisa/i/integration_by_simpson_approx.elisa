@@ -1,0 +1,20 @@
+def round_even(x: f64, precision: usize) -> f64:
+    scale: mutable f64 = 1.0
+    for i in 0..precision: scale <- scale * 10.0
+    y: f64 = x * scale
+    lower: mutable i64 = y.i64()
+    fraction: f64 = y - lower.f64()
+    if fraction > 0.5 or (fraction == 0.5 and lower % 2 != 0): lower <- lower + 1
+    return lower.f64() / scale
+export fn integration_by_simpson_approx(v: i64&, n: usize) -> f64:
+    if v.is_null() or n != 3: return -1.0e300
+    a: i64 = v[0]; b: i64 = v[1]; p: i64 = v[2]
+    if a < -10 or a > 10 or b < -10 or b > 10 or a >= b or p < 0 or p > 4: return -1.0e300
+    h: f64 = (b - a).f64() / 1000.0
+    total: mutable f64 = (a * a).f64() + (b * b).f64()
+    for i in 1..1000:
+        x: f64 = a.f64() + h * i.f64()
+        weight: f64 = if i % 2 == 1: 4.0 else: 2.0
+        total <- total + x * x * weight
+    total <- total * h / 3.0
+    return round_even(total, p.usize())

@@ -1,0 +1,3 @@
+module kth_order_statistic;
+fn long kth_order_statistic(long*v,usz n) @export("kth_order_statistic"){if(v==null||n<2||n>65)return -1;long k=v[0];if(k<1||k>long(n-1))return -1;long a[64];for(usz i=1;i<n;i++){if(v[i]<-10000||v[i]>10000)return -1;for(usz j=1;j<i;j++)if(v[i]==v[j])return -1;a[i-1]=v[i];}return quickselect(a,n-1,k);}
+fn long quickselect(long*a,usz n,long k){if(n==1)return a[0];long p=a[0];long small[64];long big[64];usz ns=0;usz nb=0;for(usz i=1;i<n;i++){if(a[i]<p){small[ns]=a[i];ns++;}else if(a[i]>p){big[nb]=a[i];nb++;}}if(k==ns+1)return p;if(k<=ns)return quickselect(small,ns,k);return quickselect(big,nb,k-ns-1);}

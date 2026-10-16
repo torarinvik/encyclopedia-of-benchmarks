@@ -1,0 +1,4 @@
+#include <stddef.h>
+#include <stdint.h>
+static void put(uint8_t*out,size_t i,int32_t x){uint32_t b=(uint32_t)x;for(int k=0;k<4;k++)out[i*4+k]=(uint8_t)(b>>(8*k));}
+int64_t non_preemptive_priority_scheduling(const int64_t*v,size_t n,uint8_t*out,size_t cap){if(!v||n<4||v[0]<1||v[0]>10||n!=1+3*(size_t)v[0])return -1;int count=(int)v[0],arr[10],burst[10],pri[10],done[10]={0};for(int i=0;i<count;i++){int64_t a=v[1+3*i],b=v[2+3*i],p=v[3+3*i];if(a<0||a>20||b<1||b>10||p<0||p>10)return -1;arr[i]=(int)a;burst[i]=(int)b;pri[i]=(int)p;for(int j=0;j<i;j++)if(pri[j]==pri[i])return -1;}if(!out||cap<(size_t)count*4)return -2;int now=0;for(int z=0;z<count;z++){int pick=-1;for(int i=0;i<count;i++)if(!done[i]&&arr[i]<=now&&(pick<0||pri[i]<pri[pick]||(pri[i]==pri[pick]&&arr[i]<arr[pick])))pick=i;if(pick<0){for(int i=0;i<count;i++)if(!done[i]&&(pick<0||arr[i]<arr[pick]))pick=i;now=arr[pick];z--;continue;}done[pick]=1;put(out,z,pick);now+=burst[pick];}return count*4;}

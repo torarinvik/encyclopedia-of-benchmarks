@@ -1,0 +1,80 @@
+# Bounded Edmonds–Karp maximum flow over an integral capacity matrix.
+const MAX_VERTICES: usize = 16
+const MAX_CAPACITY: i64 = 1000000
+
+export def edmonds_karp(input: i64&, length: usize) -> i64:
+    if length < 3:
+        return -1
+    n64: i64 = input[0]
+    source64: i64 = input[1]
+    sink64: i64 = input[2]
+    if n64 < 1 or n64 > 16 or source64 < 0 or source64 >= n64 or sink64 < 0 or sink64 >= n64:
+        return -1
+    n: usize = n64.usize()
+    if length != (3 + n64 * n64).usize():
+        return -1
+
+    residual: mutable i64[256] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            capacity: i64 = input[3 + row * n + column]
+            if capacity < 0 or capacity > MAX_CAPACITY or (row == column and capacity != 0):
+                return -1
+            residual[row * n + column] <- capacity
+            column <- column + 1
+        row <- row + 1
+    left: mutable usize = 0
+    while left < n:
+        right: mutable usize = left + 1
+        while right < n:
+            if residual[left * n + right] > 0 and residual[right * n + left] > 0:
+                return -1
+            right <- right + 1
+        left <- left + 1
+
+    source: usize = source64.usize()
+    sink: usize = sink64.usize()
+    if source == sink:
+        return 0
+    total_flow: mutable i64 = 0
+    while true:
+        parent: mutable i64[16] = zeroed
+        queue: mutable usize[16] = zeroed
+        vertex: mutable usize = 0
+        while vertex < n:
+            parent[vertex] <- -1
+            vertex <- vertex + 1
+        parent[source] <- source.i64()
+        head: mutable usize = 0
+        tail: mutable usize = 1
+        queue[0] <- source
+        while head < tail and parent[sink] == -1:
+            node: usize = queue[head]
+            head <- head + 1
+            neighbor: mutable usize = 0
+            while neighbor < n:
+                if residual[node * n + neighbor] > 0 and parent[neighbor] == -1:
+                    parent[neighbor] <- node.i64()
+                    if neighbor == sink:
+                        break
+                    queue[tail] <- neighbor
+                    tail <- tail + 1
+                neighbor <- neighbor + 1
+        if parent[sink] == -1:
+            return total_flow
+        path_flow: mutable i64 = MAX_CAPACITY
+        node: mutable usize = sink
+        while node != source:
+            previous: usize = parent[node].usize()
+            if residual[previous * n + node] < path_flow:
+                path_flow <- residual[previous * n + node]
+            node <- previous
+        node <- sink
+        while node != source:
+            previous: usize = parent[node].usize()
+            residual[previous * n + node] <- residual[previous * n + node] - path_flow
+            residual[node * n + previous] <- residual[node * n + previous] + path_flow
+            node <- previous
+        total_flow <- total_flow + path_flow

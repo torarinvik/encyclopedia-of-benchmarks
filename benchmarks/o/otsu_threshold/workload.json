@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "otsu-threshold-grayscale-u8-v1",
+  "algorithm": "otsu_threshold",
+  "function_symbol": "otsu_threshold",
+  "input": {
+    "kind": "flattened_grayscale_u8_pixels",
+    "layout": "[pixel_count, pixel_0, pixel_1, ...]",
+    "pixel_count_range": [1, 32],
+    "intensity_range": [0, 255],
+    "maximum_input_values": 33
+  },
+  "output": {
+    "kind": "raw_thresholded_grayscale_u8_pixels",
+    "return_value": "bytes written",
+    "pixel_rule": "255 if intensity > selected threshold, otherwise 0",
+    "maximum_output_bytes": 32,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "two_classes", "input_values": [8, 0, 0, 0, 0, 255, 255, 255, 255]},
+    {"id": "three_levels", "input_values": [9, 10, 10, 20, 20, 20, 200, 200, 255, 255]},
+    {"id": "single_zero", "input_values": [1, 0]},
+    {"id": "single_nonzero_level", "input_values": [4, 100, 100, 100, 100]}
+  ]
+}

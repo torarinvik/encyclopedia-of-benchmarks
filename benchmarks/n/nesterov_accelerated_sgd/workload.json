@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "nesterov-accelerated-sgd-stateful-updates-v1",
+  "algorithm": "nesterov_accelerated_sgd",
+  "function_symbol": "nesterov_accelerated_sgd",
+  "input": {
+    "kind": "scaled_integer_parameter_vector_and_gradient_sequence",
+    "layout": "[width, step_count, learning_rate_milli, momentum_milli, initial_parameters_milli..., gradients_by_step_milli...]",
+    "width_range": [1, 8],
+    "step_count_range": [1, 8],
+    "learning_rate_milli_range": [0, 1000],
+    "momentum_milli_range": [0, 1000],
+    "parameter_and_gradient_milli_range": [-10000, 10000],
+    "maximum_input_values": 76
+  },
+  "output": {
+    "kind": "float64_vector",
+    "values": "final updated parameters in input order",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 64,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_step_vector", "input_values": [2, 1, 100, 900, 1000, 2000, 100, 200], "expected_result": 16, "expected_output": [0.981, 1.962]},
+    {"id": "second_step_uses_velocity_state", "input_values": [1, 2, 1000, 0, 2000, 1000, 0], "expected_result": 8, "expected_output": [1.0]},
+    {"id": "zero_learning_rate", "input_values": [2, 2, 0, 900, -1000, 2000, 500, -500, 300, 100], "expected_result": 16, "expected_output": [-1.0, 2.0]},
+    {"id": "invalid_width", "input_values": [0, 1, 100, 900], "expected_result": -1, "expected_output": []}
+  ]
+}

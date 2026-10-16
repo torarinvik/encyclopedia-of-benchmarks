@@ -1,0 +1,4 @@
+fn push(h:[*]i64,size:*usize,x:i64)void{var i=size.*;size.*+=1;while(i>0 and h[(i-1)/2]<x){h[i]=h[(i-1)/2];i=(i-1)/2;}h[i]=x;}
+fn pop(h:[*]i64,size:*usize)i64{const top=h[0];size.*-=1;const x=h[size.*];var i:usize=0;while(2*i+1<size.*){var c=2*i+1;if(c+1<size.* and h[c+1]>h[c])c+=1;if(h[c]<=x)break;h[i]=h[c];i=c;}if(size.*>0)h[i]=x;return top;}
+export fn minimize_deviation_in_array(v:[*c]const i64,n:usize)i64{if(v==null or n<2 or n>65 or v[0]<1 or v[0]>64 or n!=@as(usize,@intCast(v[0]))+1)return -1;const count:usize=@intCast(v[0]);var h=[_]i64{0}**64;var size:usize=0;var low:i64=std.math.maxInt(i64);for(0..count)|i|{var x=v[i+1];if(x<1 or x>1000000)return -1;if(@mod(x,2)==1)x*=2;low=@min(low,x);push(&h,&size,x);}var best=h[0]-low;while(@mod(h[0],2)==0){var x=pop(&h,&size)/2;low=@min(low,x);push(&h,&size,x);best=@min(best,h[0]-low);}return best;}
+const std=@import("std");

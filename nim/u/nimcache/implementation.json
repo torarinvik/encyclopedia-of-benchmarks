@@ -1,0 +1,27 @@
+{
+  "cacheVersion": "D20240927T193831",
+  "outputFile": "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/implementation.a",
+  "outputLastModificationTime": "",
+  "compile": [],
+  "link": [
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem@sexceptions.nim.c.o",
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@pstd@sprivate@sdigitsutils.nim.c.o",
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem@sdollars.nim.c.o",
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@pstd@stypedthreads.nim.c.o",
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem.nim.c.o",
+    "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@munrolled_linked_list.nim.c.o"
+  ],
+  "linkcmd": "ar rcs '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/implementation.a' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem@sexceptions.nim.c.o' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@pstd@sprivate@sdigitsutils.nim.c.o' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem@sdollars.nim.c.o' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@pstd@stypedthreads.nim.c.o' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@psystem.nim.c.o' '/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks/nim/u/nimcache/@munrolled_linked_list.nim.c.o'",
+  "extraCmds": [],
+  "configFiles": [
+    "/opt/homebrew/Cellar/nim/2.2.12_1/nim/config/nim.cfg",
+    "/opt/homebrew/Cellar/nim/2.2.12_1/nim/config/config.nims"
+  ],
+  "stdinInput": false,
+  "projectIsCmd": false,
+  "cmdInput": "",
+  "currentDir": "/Users/torarinvikbjarko/Documents/Coding Projects/Elisa Projects/encyclopedia-of-benchmarks",
+  "cmdline": "",
+  "depfiles": [],
+  "nimexe": ""
+}

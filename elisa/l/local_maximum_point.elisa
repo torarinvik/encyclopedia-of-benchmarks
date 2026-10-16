@@ -1,0 +1,12 @@
+def local_maximum_point_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 64: return -1
+    for i in 0..length:
+        if v[i] < -1000000 or v[i] > 1000000: return -1
+    s: mutable usize = 0
+    e: mutable usize = length - 1
+    while true:
+        m: usize = s + (e - s) / 2
+        if (m == 0 or v[m-1] <= v[m]) and (m == length-1 or v[m+1] <= v[m]): return i64(m)
+        if m > 0 and v[m-1] > v[m]: e <- m - 1
+        else: s <- m + 1
+export fn local_maximum_point(v: i64&, length: usize) -> i64 = local_maximum_point_impl

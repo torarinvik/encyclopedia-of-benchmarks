@@ -1,0 +1,79 @@
+# Enumerate directed simple cycles in source DFS order.
+const MAX_VERTICES: usize = 6
+const MAX_EDGES: usize = MAX_VERTICES * MAX_VERTICES
+const MAX_OUTPUT_BYTES: usize = 2786
+
+def directed_simple_cycles_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or input[0] < 0 or input[0] > MAX_VERTICES.i64() or input[1] < 0 or input[1] > MAX_EDGES.i64():
+        return -1
+    vertices: usize = input[0].usize()
+    edges: usize = input[1].usize()
+    if length != 2 + 2 * edges:
+        return -1
+
+    adjacency: mutable u8[MAX_VERTICES * MAX_VERTICES] = zeroed
+    edge: mutable usize = 0
+    while edge < edges:
+        source_value: i64 = input[2 + 2 * edge]
+        destination_value: i64 = input[3 + 2 * edge]
+        if source_value < 0 or source_value >= vertices.i64() or destination_value < 0 or destination_value >= vertices.i64():
+            return -1
+        source: usize = source_value.usize()
+        destination: usize = destination_value.usize()
+        adjacency[source * MAX_VERTICES + destination] <- 1
+        edge <- edge + 1
+
+    scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    output_length: mutable usize = 0
+    start: mutable usize = 0
+    while start < vertices:
+        path: mutable usize[MAX_VERTICES] = zeroed
+        next_neighbor: mutable usize[MAX_VERTICES] = zeroed
+        visited: mutable bool[MAX_VERTICES] = zeroed
+        depth: mutable usize = 0
+        path[0] <- start
+        visited[start] <- true
+        while true:
+            current: usize = path[depth]
+            if next_neighbor[depth] == vertices:
+                visited[current] <- false
+                if depth == 0:
+                    break
+                depth <- depth - 1
+                continue
+            neighbor: usize = next_neighbor[depth]
+            next_neighbor[depth] <- next_neighbor[depth] + 1
+            if adjacency[current * MAX_VERTICES + neighbor] == 0:
+                continue
+            if neighbor == start:
+                index: mutable usize = 0
+                while index <= depth:
+                    scratch[output_length] <- path[index].u8()
+                    output_length <- output_length + 1
+                    index <- index + 1
+                scratch[output_length] <- start.u8()
+                output_length <- output_length + 1
+                scratch[output_length] <- 255
+                output_length <- output_length + 1
+            elif not visited[neighbor]:
+                depth <- depth + 1
+                path[depth] <- neighbor
+                next_neighbor[depth] <- 0
+                visited[neighbor] <- true
+        vertex: mutable usize = 0
+        while vertex < vertices:
+            adjacency[start * MAX_VERTICES + vertex] <- 0
+            adjacency[vertex * MAX_VERTICES + start] <- 0
+            vertex <- vertex + 1
+        start <- start + 1
+    if output_length == 0:
+        return 0
+    if output == null or capacity < output_length:
+        return -2
+    index: mutable usize = 0
+    while index < output_length:
+        output[index] <- scratch[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn directed_simple_cycles(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = directed_simple_cycles_impl

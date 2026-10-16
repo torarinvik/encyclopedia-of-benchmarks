@@ -1,0 +1,13 @@
+const MAX_TEXT_LENGTH: usize = 128
+const CHECKSUM_BASE: i64 = 1100000
+
+def substring_minus_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_TEXT_LENGTH: return -1
+    for i in 0..length:
+        if values[i] < 1 or values[i] > 127: return -1
+    count: usize = length - 1
+    checksum: mutable i64 = 0
+    for i in 0..count: checksum <- checksum + i64(i + 1) * values[i]
+    i64(count) * CHECKSUM_BASE + checksum
+
+export fn substring_minus(values: i64&, length: usize) -> i64 = substring_minus_impl

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "peak-element-dart-recursive-bisection-v1",
+  "algorithm": "peak_element",
+  "function_symbol": "peak_element",
+  "input": {"kind":"signed_i64_array","encoding":"[count, values...]","count_range":[1,128],"element_range":[-2147483648,2147483647],"maximum_input_length":129},
+  "output": {"kind":"signed_i64_scalar","meaning":"index of the midpoint peak selected by recursive bisection","invalid_input_result":-1},
+  "source_bound":{"description":"The pinned Dart routine checks both adjacent values using <=, then recursively searches toward the larger neighbor.","tie_rule":"A midpoint with equal adjacent values may qualify immediately."},
+  "measurement":{"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases":[
+    {"id":"source_example","input_values":[6,1,3,20,6,1,2],"input_length":7,"expected_result":2},
+    {"id":"later_peak","input_values":[6,1,3,20,32,1,2],"input_length":7,"expected_result":3},
+    {"id":"increasing","input_values":[5,1,2,3,4,5],"input_length":6,"expected_result":4},
+    {"id":"decreasing","input_values":[5,5,4,3,2,1],"input_length":6,"expected_result":0},
+    {"id":"flat_peak_tie","input_values":[4,1,3,3,2],"input_length":5,"expected_result":1},
+    {"id":"singleton","input_values":[1,7],"input_length":2,"expected_result":0},
+    {"id":"outside_i32","input_values":[2,2147483648,0],"input_length":3,"expected_result":-1}
+  ]
+}

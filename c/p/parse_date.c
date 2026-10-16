@@ -1,0 +1,4 @@
+#include <stddef.h>
+#include <stdint.h>
+static int digits(const int64_t*v,size_t a,size_t b,int*out){int x=0;for(size_t i=a;i<b;i++){if(v[i]<'0'||v[i]>'9')return 0;x=x*10+(int)(v[i]-'0');}*out=x;return 1;}
+int64_t parse_date(const int64_t*v,size_t n){if(!v||n<9||n>11||v[0]<8||v[0]>10||n!=(size_t)v[0]+1)return -1;size_t len=(size_t)v[0];for(size_t i=0;i<len;i++)if(v[i+1]<0||v[i+1]>127)return -1;size_t slash1=0,slash2=0;for(size_t i=1;i<=len;i++)if(v[i]=='/'){if(!slash1)slash1=i;else if(!slash2)slash2=i;else return -1;}if(!slash1||!slash2||slash2<=slash1+1||len-slash2!=4||slash1<2||slash1>3||slash2-slash1<2||slash2-slash1>3)return -1;int d,m,y;if(!digits(v,1,slash1,&d)||!digits(v,slash1+1,slash2,&m)||!digits(v,slash2+1,len+1,&y))return -1;if(m<1||m>12)return -1;int days[]={31,28,31,30,31,30,31,31,30,31,30,31};int leap=(y%4==0&&(y%100!=0||y%400==0));if(m==2&&leap)days[1]=29;if(d<1||d>days[m-1])return -1;return (int64_t)y*10000+(int64_t)m*100+d;}

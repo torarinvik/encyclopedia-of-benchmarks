@@ -1,0 +1,2 @@
+module longest_increasing_subsequence_iterative;
+fn long longest_increasing_subsequence_iterative(long*v,usz n) @export("longest_increasing_subsequence_iterative"){if(v==null||n<1||n>65)return -1;long count=v[0];if(count<0||count>64||n!=(usz)count+1)return -1;long[64] a;long[64] dp;for(usz i=0;i<(usz)count;i++){a[i]=v[i+1];if(a[i]<-1000000||a[i]>1000000)return -1;dp[i]=1;}for(usz i=0;i<(usz)count;i++)for(usz j=0;j<i;j++)if(a[j]<=a[i]&&dp[j]+1>dp[i])dp[i]=dp[j]+1;long best=0;for(usz i=0;i<(usz)count;i++)if(dp[i]>best)best=dp[i];return best;}

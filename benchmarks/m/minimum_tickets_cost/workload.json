@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "minimum-tickets-cost-python-dp-v1",
+  "algorithm": "minimum_tickets_cost",
+  "function_symbol": "minimum_tickets_cost",
+  "input": {"kind":"signed_i64_array","layout":"[day_count, unique_travel_days..., one_day_cost, seven_day_cost, thirty_day_cost]","day_count_range":[0,365],"travel_day_range":[1,365],"cost_range":[0,1000000],"maximum_input_length":369},
+  "output": {"kind":"signed_i64_scalar","meaning":"minimum pass cost to cover all travel days","invalid_input_result":-1,"empty_schedule_result":0},
+  "source_bound":{"description":"The pinned Python solution memoizes a recurrence over calendar days; on travel days it minimizes the three pass choices, otherwise it advances one day.","pass_durations_days":[1,7,30]},
+  "measurement":{"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases":[
+    {"id":"source_example","input_values":[6,1,4,6,7,8,20,2,7,15],"input_length":10,"expected_result":11},
+    {"id":"daily_week_pass","input_values":[7,1,2,3,4,5,6,7,5,7,20],"input_length":11,"expected_result":7},
+    {"id":"empty_schedule","input_values":[0,2,7,15],"input_length":4,"expected_result":0},
+    {"id":"single_day","input_values":[1,2,2,90,150],"input_length":5,"expected_result":2},
+    {"id":"duplicate_day","input_values":[2,5,5,2,7,15],"input_length":6,"expected_result":-1},
+    {"id":"day_out_of_range","input_values":[1,366,2,7,15],"input_length":5,"expected_result":-1},
+    {"id":"malformed_length","input_values":[1,5,2,7],"input_length":4,"expected_result":-1}
+  ]
+}

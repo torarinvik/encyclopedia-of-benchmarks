@@ -1,0 +1,29 @@
+const MAX_ITEMS: usize = 64
+const MAX_PRICE: i64 = 1000000
+
+def wine_problem_tabulated_impl(prices: i64&, length: usize) -> i64:
+    if prices.is_null() or length == 0 or length > MAX_ITEMS: return -1
+    table: mutable i64[MAX_ITEMS * MAX_ITEMS] = zeroed
+    first: mutable usize = 0
+    while first < length:
+        if prices[first] < 0 or prices[first] > MAX_PRICE: return -1
+        first <- first + 1
+    width: mutable usize = 1
+    while width <= length:
+        year: i64 = (length - width + 1).i64()
+        first <- 0
+        while first + width <= length:
+            last: usize = first + width - 1
+            slot: usize = first * MAX_ITEMS + last
+            if first == last:
+                table[slot] <- prices[first] * year
+            else:
+                sell_first: i64 = prices[first] * year + table[(first + 1) * MAX_ITEMS + last]
+                sell_last: i64 = prices[last] * year + table[first * MAX_ITEMS + last - 1]
+                if sell_first > sell_last: table[slot] <- sell_first
+                else: table[slot] <- sell_last
+            first <- first + 1
+        width <- width + 1
+    table[length - 1]
+
+export fn wine_problem_tabulated(prices: i64&, length: usize) -> i64 = wine_problem_tabulated_impl

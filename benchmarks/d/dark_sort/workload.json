@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "dark_sort-v1",
+  "algorithm": "dark_sort",
+  "abi": "mutable_i64",
+  "input": {
+    "domain": { "minimum": 0, "maximum": 128 },
+    "lengths": [0, 16, 256, 1024],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 73,
+      "modulus": 129,
+      "offset": 0,
+      "formula": "values[index] = ((index * 73) mod 129)"
+    }
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

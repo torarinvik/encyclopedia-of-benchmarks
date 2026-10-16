@@ -1,0 +1,1 @@
+export fn kth_element_from_end(v:[*]const i64,n:usize)i64{if(n<1 or n>65)return -1;const k=v[0];if(k<=0 or k>=@as(i64,@intCast(n)))return -1;for(1..n)|i|{if(v[i]<0 or v[i]>100000)return -1;}return v[n-@as(usize,@intCast(k))];}

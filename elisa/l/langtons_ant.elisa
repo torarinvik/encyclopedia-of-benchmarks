@@ -1,0 +1,18 @@
+def langtons_ant_impl(v: i64&, length: usize) -> i64:
+    if length != 1: return -1
+    steps: i64 = v[0]
+    if steps < 0 or steps > 6: return -1
+    board: mutable [bool;25] = [true;25]
+    x: mutable i64 = 2; y: mutable i64 = 2; d: mutable i64 = 3
+    dx: [i64;4] = [-1,0,1,0]; dy: [i64;4] = [0,1,0,-1]
+    for s in 0..steps:
+        old: usize = usize(x*5+y)
+        if board[old]: d <- (d+1)%4
+        else: d <- (d+3)%4
+        x <- x + dx[d]; y <- y + dy[d]
+        board[old] <- not board[old]
+    mask: mutable i64 = 0
+    for i in 0..25:
+        if not board[i]: mask <- mask | (1 << i)
+    mask | ((x*5+y)<<25) | (d<<30)
+export fn langtons_ant(v: i64&, length: usize) -> i64 = langtons_ant_impl

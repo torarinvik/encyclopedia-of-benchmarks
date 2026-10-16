@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "algorithm": "dark_sort",
+  "input_domain": { "minimum": 0, "maximum": 128 },
+  "expected_behavior": "Mutate the input into ascending order and preserve every value and the sequence length.",
+  "cases": [
+    { "length": 0, "result": [] },
+    { "length": 1, "result": [0] },
+    { "length": 16, "result": "ascending permutation of modular_affine input" },
+    { "length": 256, "result": "ascending permutation of modular_affine input" },
+    { "length": 1024, "result": "ascending permutation of modular_affine input" }
+  ],
+  "generation": "values[i] = ((i * 73) mod 129)"
+}

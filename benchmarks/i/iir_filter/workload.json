@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "iir-filter-scaled-coefficients-f64-stream-v1",
+  "algorithm": "iir_filter",
+  "function_symbol": "iir_filter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[order, sample_count, a0..aN, b0..bN, samples...] (coefficients and samples scaled by 1000)",
+    "order_range": [
+      1,
+      3
+    ],
+    "sample_count_range": [
+      1,
+      16
+    ],
+    "a0_range_scaled": [
+      500,
+      2000
+    ],
+    "remaining_a_coefficients_range_scaled": [
+      -500,
+      2000
+    ],
+    "b_coefficients_range_scaled": [
+      -500,
+      500
+    ],
+    "sample_range_scaled": [
+      -1000,
+      1000
+    ],
+    "maximum_input_length": 26,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "little-endian IEEE-754 binary64",
+    "layout": "one filtered output per input sample",
+    "max_length": 16,
+    "max_output_bytes": 128,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "output capacity for 16 binary64 samples"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "first-order-step",
+      "input_values": [
+        1,
+        4,
+        1000,
+        -500,
+        500,
+        500,
+        1000,
+        0,
+        0,
+        -1000
+      ],
+      "input_length": 10,
+      "expected_result": 32,
+      "expected_output": [
+        0.5,
+        0.75,
+        0.375,
+        -0.3125
+      ]
+    },
+    {
+      "id": "second-order-impulse",
+      "input_values": [
+        2,
+        5,
+        1000,
+        -500,
+        250,
+        250,
+        500,
+        250,
+        1000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 13,
+      "expected_result": 40,
+      "expected_output": [
+        0.25,
+        0.625,
+        0.5,
+        0.09375,
+        -0.078125
+      ]
+    },
+    {
+      "id": "third-order-single-sample",
+      "input_values": [
+        3,
+        1,
+        1000,
+        -250,
+        125,
+        -50,
+        250,
+        125,
+        0,
+        0,
+        -1000
+      ],
+      "input_length": 11,
+      "expected_result": 8,
+      "expected_output": [-0.25]
+    },
+    {
+      "id": "capacity-short",
+      "input_values": [
+        1,
+        4,
+        1000,
+        -500,
+        500,
+        500,
+        1000,
+        0,
+        0,
+        -1000
+      ],
+      "input_length": 10,
+      "workspace_bytes": 31,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-order",
+      "input_values": [
+        0,
+        1,
+        1000,
+        500,
+        500,
+        500,
+        1000
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-sample-range",
+      "input_values": [
+        1,
+        1,
+        1000,
+        0,
+        500,
+        0,
+        1001
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

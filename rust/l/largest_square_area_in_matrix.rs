@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn largest_square_area_in_matrix(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>66{return -2;}let x=unsafe{std::slice::from_raw_parts(v,n)};let(r,c)=(x[0],x[1]);if !(1..=8).contains(&r)||!(1..=8).contains(&c)||n!=2+(r*c)as usize{return -2;}let a=&x[2..];if a.iter().any(|&z|z!=0&&z!=1){return -2;}let mut d=[[0i64;9];9];let mut best=0;for i in (0..r as usize).rev(){for j in (0..c as usize).rev(){if a[i*c as usize+j]==1{d[i][j]=1+d[i+1][j].min(d[i][j+1]).min(d[i+1][j+1]);best=best.max(d[i][j]);}}}best}

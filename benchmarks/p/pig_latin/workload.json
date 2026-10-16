@@ -1,0 +1,73 @@
+{
+  "id": "pig-latin-ascii-word-v1",
+  "algorithm": "pig_latin",
+  "function_symbol": "pig_latin",
+  "input_encoding": "i64-array",
+  "output_encoding": "bytes",
+  "cases": [
+    {
+      "name": "empty",
+      "input": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 67
+    },
+    {
+      "name": "consonant-prefix",
+      "input": [
+        3,
+        112,
+        105,
+        103
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "6967706179",
+      "output_capacity": 67
+    },
+    {
+      "name": "initial-vowel",
+      "input": [
+        3,
+        69,
+        65,
+        84
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "656174776179",
+      "output_capacity": 67
+    },
+    {
+      "name": "long-prefix",
+      "input": [
+        6,
+        115,
+        116,
+        114,
+        105,
+        110,
+        103
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "696e677374726179",
+      "output_capacity": 67
+    },
+    {
+      "name": "no-vowel",
+      "input": [
+        3,
+        98,
+        99,
+        100
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 67
+    }
+  ],
+  "contract": {
+    "max_input_length": 65,
+    "max_word_bytes": 64
+  }
+}

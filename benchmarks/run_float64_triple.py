@@ -15,10 +15,13 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 from coordinate_converter_oracle import expected_result as coordinate_converter_expected
+from rectangular_to_polar_oracle import expected_result as rectangular_to_polar_expected
 from standard_score_oracle import INVALID_RESULT as STANDARD_SCORE_INVALID_RESULT
 from standard_score_oracle import expected_result as standard_score_expected
+from dual_number_automatic_differentiation_oracle import INVALID_RESULT as DUAL_NUMBER_AD_INVALID_RESULT
+from dual_number_automatic_differentiation_oracle import expected_result as dual_number_ad_expected
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "coordinate_converter", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "weight_conversion", "weight", "prefix_conversions", "time_conversions", "mirror_formulae", "simple_interest", "temperature", "line_length", "energy_conversions", "binomial_dist", "orbital_capture_radii", "standard_score"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "coordinate_converter", "rectangular_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "weight_conversion", "weight", "prefix_conversions", "time_conversions", "mirror_formulae", "simple_interest", "temperature", "line_length", "energy_conversions", "binomial_dist", "orbital_capture_radii", "standard_score", "dual_number_automatic_differentiation"}
 ENERGY_CONVERSION_FACTORS = (1.0, 1000.0, 1000000.0, 1000000000.0, 1.0,
                              3600.0, 3600000.0, 1.0, 4186.8, 4186800.0,
                              1.602176634e-19, 1055.05585, 1.355818)
@@ -261,6 +264,14 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
             if expected == -1e300 or abs(expected - source_result) > tolerance * max(
                     1.0, abs(start), abs(end)):
                 raise ValueError("coordinate_converter expected result must match the selected Java conversion")
+    elif algorithm == "rectangular_to_polar":
+        source_result = rectangular_to_polar_expected([start, end, t])
+        if source_result == -1e300:
+            if expected != -1e300:
+                raise ValueError("invalid rectangular_to_polar inputs must use the -1e300 result sentinel")
+        elif (expected == -1e300 or expected != source_result
+              or (expected == 0.0 and math.copysign(1.0, expected) != math.copysign(1.0, source_result))):
+            raise ValueError("rectangular_to_polar expected result must match Rust's two-decimal, ties-away conversion")
     elif algorithm == "ohms_law":
         valid = (start.is_integer() and end.is_integer() and t.is_integer()
                  and -1000.0 <= start <= 1000.0 and -1000.0 <= end <= 1000.0
@@ -512,6 +523,16 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
         elif expected == STANDARD_SCORE_INVALID_RESULT or abs(expected - source_result) > tolerance * max(
                 1.0, abs(start), abs(end)):
             raise ValueError("standard_score expected result must match (value - mean) / stdDev")
+    elif algorithm == "dual_number_automatic_differentiation":
+        valid = (-1.0 <= start <= 1.0 and end.is_integer() and 0.0 <= end <= 8.0
+                 and t.is_integer() and 0.0 <= t <= end)
+        source_result = dual_number_ad_expected(start, end, t)
+        if not valid:
+            if expected != DUAL_NUMBER_AD_INVALID_RESULT:
+                raise ValueError("invalid dual-number inputs must use the -1e300 result sentinel")
+        elif expected == DUAL_NUMBER_AD_INVALID_RESULT or abs(expected - source_result) > tolerance * max(
+                1.0, abs(start), abs(end)):
+            raise ValueError("dual-number expected result must match the bounded power derivative")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

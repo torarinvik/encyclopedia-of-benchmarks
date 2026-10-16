@@ -1,0 +1,20 @@
+def two_pointer_impl(input: i64&, length: usize) -> i64:
+    if length < 2 or length > 258: return -2
+    n: i64 = input[0]
+    target: i64 = input[1]
+    if n < 0 or n > 256 or length != n.usize() + 2 or target < -2147483648 or target > 2147483647: return -2
+    index: mutable usize = 0
+    while index < n.usize():
+        if input[index + 2] < -2147483648 or input[index + 2] > 2147483647: return -2
+        if index > 0 and input[index + 1] > input[index + 2]: return -2
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = n.usize()
+    if right > 0: right <- right - 1
+    while left < right:
+        total: i64 = input[left + 2] + input[right + 2]
+        if total == target: return (left.i64() * 256) + right.i64()
+        if total < target: left <- left + 1 else: right <- right - 1
+    -1
+
+export fn two_pointer(input: i64&, length: usize) -> i64 = two_pointer_impl

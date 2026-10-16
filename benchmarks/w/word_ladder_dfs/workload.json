@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "id": "word-ladder-python-dfs-first-path-and-set-state-v1",
+  "algorithm": "word_ladder_dfs",
+  "function_symbol": "word_ladder_dfs",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[word_length, begin_code, end_code, dictionary_count, sorted unique dictionary_codes...]",
+    "word_encoding": "fixed-width lowercase ASCII base-26 code; leftmost character is most significant; numeric code order is lexicographic word order",
+    "word_length_range": [
+      1,
+      5
+    ],
+    "dictionary_count_range": [
+      0,
+      8
+    ],
+    "maximum_valid_array_length": 12,
+    "maximum_parseable_array_length": 13,
+    "dictionary_codes": "strictly increasing and unique",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[path_count, path_codes..., remaining_set_count, remaining_set_codes...]",
+    "path_semantics": "first path selected by depth-first position-left-to-right then replacement-a-through-z search; path includes begin and end when found",
+    "mutation_semantics": "remaining set after source backtracking; path words stay removed on success, failed branches are restored, and begin may appear twice in the path if initially in the set",
+    "successful_result": "number of output bytes written",
+    "maximum_output_bytes": 152,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 152,
+    "meaning": "maximum bounded path and remaining-set vector"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "classic_dfs_first_path",
+      "input_values": [
+        3,
+        4959,
+        1722,
+        6,
+        1722,
+        2398,
+        2411,
+        5115,
+        7806,
+        7819
+      ],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output_hex": "06000000000000005f13000000000000fb130000000000006b090000000000008b1e0000000000007e1e000000000000ba0600000000000001000000000000005e09000000000000",
+      "expected_path_words": [
+        "hit",
+        "hot",
+        "dot",
+        "lot",
+        "log",
+        "cog"
+      ],
+      "expected_remaining_words": [
+        "dog"
+      ]
+    },
+    {
+      "id": "first_path_is_longer_than_shortest",
+      "input_values": [
+        3,
+        0,
+        16900,
+        2,
+        676,
+        16900
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000000000000000000a40200000000000004420000000000000000000000000000",
+      "expected_path_words": [
+        "aaa",
+        "baa",
+        "zaa"
+      ],
+      "expected_remaining_words": []
+    },
+    {
+      "id": "failed_branch_restored_before_success",
+      "input_values": [
+        3,
+        0,
+        17575,
+        5,
+        1,
+        676,
+        16901,
+        17551,
+        17575
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "05000000000000000000000000000000010000000000000005420000000000008f44000000000000a7440000000000000100000000000000a402000000000000",
+      "expected_path_words": [
+        "aaa",
+        "aab",
+        "zab",
+        "zzb",
+        "zzz"
+      ],
+      "expected_remaining_words": [
+        "baa"
+      ]
+    },
+    {
+      "id": "begin_word_in_set_can_repeat",
+      "input_values": [
+        4,
+        196043,
+        115209,
+        5,
+        114923,
+        115209,
+        196043,
+        202803,
+        203245
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "0500000000000000cbfd020000000000cbfd0200000000003318030000000000ebc001000000000009c20100000000000100000000000000ed19030000000000",
+      "expected_path_words": [
+        "lead",
+        "lead",
+        "load",
+        "goad",
+        "gold"
+      ],
+      "expected_remaining_words": [
+        "lord"
+      ]
+    },
+    {
+      "id": "game_source_example",
+      "input_values": [
+        4,
+        105772,
+        44698,
+        5,
+        35234,
+        35312,
+        35468,
+        44698,
+        106006
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "04000000000000002c9d0100000000008c8a000000000000a2890000000000009aae0000000000000200000000000000f089000000000000169e010000000000",
+      "expected_path_words": [
+        "game",
+        "came",
+        "cade",
+        "code"
+      ],
+      "expected_remaining_words": [
+        "cage",
+        "gave"
+      ]
+    },
+    {
+      "id": "end_missing_preserves_set",
+      "input_values": [
+        3,
+        4959,
+        1722,
+        5,
+        2398,
+        2411,
+        5115,
+        7806,
+        7819
+      ],
+      "input_length": 9,
+      "expected_result": 56,
+      "expected_output_hex": "000000000000000005000000000000005e090000000000006b09000000000000fb130000000000007e1e0000000000008b1e000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": [
+        "dog",
+        "dot",
+        "hot",
+        "log",
+        "lot"
+      ]
+    },
+    {
+      "id": "unreachable_target_preserves_set",
+      "input_values": [
+        2,
+        0,
+        675,
+        4,
+        1,
+        26,
+        27,
+        675
+      ],
+      "input_length": 8,
+      "expected_result": 48,
+      "expected_output_hex": "0000000000000000040000000000000001000000000000001a000000000000001b00000000000000a302000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": [
+        "ab",
+        "ba",
+        "bb",
+        "zz"
+      ]
+    },
+    {
+      "id": "same_begin_end_present_returns_initial_path",
+      "input_values": [
+        3,
+        1371,
+        1371,
+        2,
+        695,
+        1371
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "01000000000000005b050000000000000200000000000000b7020000000000005b05000000000000",
+      "expected_path_words": [
+        "cat"
+      ],
+      "expected_remaining_words": [
+        "bat",
+        "cat"
+      ]
+    },
+    {
+      "id": "same_begin_end_absent_returns_empty",
+      "input_values": [
+        3,
+        1371,
+        1371,
+        2,
+        695,
+        1735
+      ],
+      "input_length": 6,
+      "expected_result": 32,
+      "expected_output_hex": "00000000000000000200000000000000b702000000000000c706000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": [
+        "bat",
+        "cot"
+      ]
+    },
+    {
+      "id": "one_character_chain",
+      "input_values": [
+        1,
+        0,
+        3,
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 48,
+      "expected_output_hex": "040000000000000000000000000000000100000000000000020000000000000003000000000000000000000000000000",
+      "expected_path_words": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "expected_remaining_words": []
+    },
+    {
+      "id": "empty_dictionary",
+      "input_values": [
+        2,
+        0,
+        675,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": []
+    },
+    {
+      "id": "maximum_dictionary_count_missing_end",
+      "input_values": [
+        2,
+        0,
+        675,
+        8,
+        0,
+        1,
+        2,
+        3,
+        26,
+        27,
+        28,
+        29
+      ],
+      "input_length": 12,
+      "expected_result": 80,
+      "expected_output_hex": "0000000000000000080000000000000000000000000000000100000000000000020000000000000003000000000000001a000000000000001b000000000000001c000000000000001d00000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": [
+        "aa",
+        "ab",
+        "ac",
+        "ad",
+        "ba",
+        "bb",
+        "bc",
+        "bd"
+      ]
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_truncated",
+      "input_values": [
+        3,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_unsorted_dictionary",
+      "input_values": [
+        2,
+        0,
+        675,
+        2,
+        26,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_duplicate_dictionary",
+      "input_values": [
+        2,
+        0,
+        675,
+        2,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_code_outside_width",
+      "input_values": [
+        1,
+        0,
+        26,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_word_length",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_count_above_bound",
+      "input_values": [
+        2,
+        0,
+        1,
+        9,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity_too_small",
+      "input_values": [
+        3,
+        0,
+        16900,
+        2,
+        676,
+        16900
+      ],
+      "input_length": 6,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "expected_path_words": [
+        "aaa",
+        "baa",
+        "zaa"
+      ],
+      "expected_remaining_words": [],
+      "workspace_bytes": 39,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "capacity_exact",
+      "input_values": [
+        3,
+        0,
+        16900,
+        2,
+        676,
+        16900
+      ],
+      "input_length": 6,
+      "expected_result": 40,
+      "expected_output_hex": "03000000000000000000000000000000a40200000000000004420000000000000000000000000000",
+      "expected_path_words": [
+        "aaa",
+        "baa",
+        "zaa"
+      ],
+      "expected_remaining_words": [],
+      "workspace_bytes": 40,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "empty_path_capacity_exact",
+      "input_values": [
+        2,
+        0,
+        675,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000",
+      "expected_path_words": [],
+      "expected_remaining_words": [],
+      "workspace_bytes": 16,
+      "capacity_error_result": -2
+    }
+  ]
+}

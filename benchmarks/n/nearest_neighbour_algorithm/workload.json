@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "greedy-nearest-unvisited-graph-walk-v1",
+  "algorithm": "nearest_neighbour_algorithm",
+  "function_symbol": "nearest_neighbour_algorithm",
+  "input": {
+    "kind": "count_then_flattened_adjacency_matrix",
+    "layout": "[node_count, row-major nonnegative edge weights...]",
+    "node_count_range": [
+      1,
+      16
+    ],
+    "edge_weight_range": [
+      0,
+      1000000
+    ],
+    "maximum_input_values": 257,
+    "start_node": 0,
+    "tie_break": "first unvisited node in insertion/index order"
+  },
+  "output": {
+    "kind": "comma_separated_zero_based_node_indices",
+    "return_value": "bytes written",
+    "maximum_output_bytes": 47,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_example",
+      "input_values": [
+        5,
+        0,
+        12,
+        4,
+        54,
+        100,
+        3,
+        0,
+        5,
+        1,
+        1,
+        300,
+        20,
+        0,
+        433,
+        123,
+        32,
+        31,
+        54,
+        0,
+        3,
+        2,
+        65,
+        12,
+        32,
+        0
+      ],
+      "expected_result": 9,
+      "expected_output_hex": "302c322c312c332c34"
+    },
+    {
+      "id": "ties_choose_lowest_index",
+      "input_values": [
+        4,
+        0,
+        1,
+        1,
+        1,
+        4,
+        0,
+        1,
+        2,
+        5,
+        3,
+        0,
+        3,
+        5,
+        2,
+        1,
+        0
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "302c312c322c33"
+    },
+    {
+      "id": "single_node",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "two_nodes",
+      "input_values": [
+        2,
+        0,
+        9,
+        4,
+        0
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "302c31"
+    }
+  ]
+}

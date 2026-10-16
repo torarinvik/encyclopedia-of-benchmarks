@@ -1,0 +1,46 @@
+const DR: [8]i64 = [1, -1, 1, -1, 2, 2, -2, -2]
+const DC: [8]i64 = [2, 2, -2, -2, 1, -1, 1, -1]
+def search(board: mutable [25]i64, n: i64, row: i64, col: i64, step: i64) -> bool:
+    if step == n*n: return true
+    move: mutable i64 = 0
+    while move < 8:
+        next_row: i64 = row + DR[move]
+        next_col: i64 = col + DC[move]
+        if next_row >= 0 and next_row < n and next_col >= 0 and next_col < n:
+            index: i64 = next_row*n + next_col
+            if board[index] == 0:
+                board[index] <- step+1
+                if search(board,n,next_row,next_col,step+1): return true
+                board[index] <- 0
+        move <- move+1
+    false
+def put_i32(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u32 = value.i32().u32()
+    k: mutable usize = 0
+    while k < 4:
+        output[offset+k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def open_knight_tour_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 1: return -1
+    n: i64 = values[0]
+    if n < 1 or n > 5: return -1
+    bytes: usize = (n*n*4).usize()
+    if capacity < bytes: return -2
+    board: mutable [25]i64 = [0; 25]
+    row: mutable i64 = 0
+    found: mutable bool = false
+    while row < n and not found:
+        col: mutable i64 = 0
+        while col < n and not found:
+            board[row*n+col] <- 1
+            if search(board,n,row,col,1): found <- true
+            else: board[row*n+col] <- 0
+            col <- col+1
+        row <- row+1
+    i: mutable usize = 0
+    while i < (n*n).usize():
+        put_i32(output,i*4,board[i.i64()])
+        i <- i+1
+    bytes.i64()
+export open_knight_tour(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = open_knight_tour_impl

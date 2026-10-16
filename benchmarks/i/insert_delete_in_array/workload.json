@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "insert-delete-in-array-java-i32-v1",
+  "algorithm": "insert_delete_in_array",
+  "function_symbol": "insert_delete_in_array",
+  "input": {
+    "kind": "i64_array",
+    "encoding": "[operation, array_length, position, element, array values...]",
+    "operation_codes": {
+      "0": "insert element at 0-based position",
+      "1": "delete element at 0-based position; element field must be zero"
+    },
+    "maximum_array_length": 256,
+    "array_and_element_range": [
+      -2147483648,
+      2147483647
+    ],
+    "output_encoding": "little-endian signed 32-bit array elements"
+  },
+  "output": {
+    "kind": "byte_array",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "insert_empty",
+      "input_values": [
+        0,
+        0,
+        0,
+        42
+      ],
+      "expected_result": 4,
+      "input_length": 4
+    },
+    {
+      "id": "insert_at_start",
+      "input_values": [
+        0,
+        3,
+        0,
+        -1,
+        10,
+        20,
+        30
+      ],
+      "expected_result": 16,
+      "input_length": 7
+    },
+    {
+      "id": "insert_middle",
+      "input_values": [
+        0,
+        3,
+        1,
+        99,
+        10,
+        20,
+        30
+      ],
+      "expected_result": 16,
+      "input_length": 7
+    },
+    {
+      "id": "insert_at_end",
+      "input_values": [
+        0,
+        2,
+        2,
+        7,
+        -4,
+        5
+      ],
+      "expected_result": 12,
+      "input_length": 6
+    },
+    {
+      "id": "delete_single_element",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        55
+      ],
+      "expected_result": 0,
+      "input_length": 5
+    },
+    {
+      "id": "delete_middle",
+      "input_values": [
+        1,
+        4,
+        2,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "expected_result": 12,
+      "input_length": 8
+    },
+    {
+      "id": "invalid_insert_position",
+      "input_values": [
+        0,
+        2,
+        3,
+        9,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 6
+    },
+    {
+      "id": "invalid_delete_position",
+      "input_values": [
+        1,
+        2,
+        2,
+        0,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 6
+    },
+    {
+      "id": "delete_nonzero_placeholder",
+      "input_values": [
+        1,
+        2,
+        0,
+        4,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 6
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        0,
+        3,
+        1,
+        99,
+        10,
+        20,
+        30
+      ],
+      "expected_result": -2,
+      "output_capacity": 15,
+      "input_length": 7
+    }
+  ]
+}

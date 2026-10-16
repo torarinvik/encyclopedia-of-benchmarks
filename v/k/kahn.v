@@ -1,0 +1,3 @@
+module kahn
+@[export: 'kahn']
+pub fn kahn(v &i64,n usize)i64{if n<2||n>258{return -2};nv:=unsafe{v[0]};ne:=unsafe{v[1]};if nv<0||nv>32||ne<0||ne>128||n!=usize(2+2*ne){return -2};mut adj:=[32][32]bool{};mut ind:=[32]int{};mut q:=[32]int{};mut head:=0;mut tail:=0;for i in 0..int(ne){a:=unsafe{v[2+2*i]};b:=unsafe{v[3+2*i]};if a<0||a>=nv||b<0||b>=nv{return -2};if !adj[int(a)][int(b)]{adj[int(a)][int(b)]=true;ind[int(b)]++}};for i in 0..int(nv){if ind[i]==0{q[tail]=i;tail++}};for head<tail{x:=q[head];head++;for y in 0..int(nv){if adj[x][y]{ind[y]--;if ind[y]==0{q[tail]=y;tail++}}}};if tail==int(nv){return nv};return -1}

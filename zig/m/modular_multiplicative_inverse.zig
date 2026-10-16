@@ -1,0 +1,1 @@
+export fn modular_multiplicative_inverse(v:[*c]const i64,n:usize)i64{if(v==null or n!=2)return -1;const a=v[0];const m=v[1];if(m<2 or m>1000000 or a<0 or a>=m)return -1;var r0=a;var r1=m;var s0:i64=1;var s1:i64=0;while(r1!=0){const q=@divTrunc(r0,r1);const t=r0-q*r1;r0=r1;r1=t;const u=s0-q*s1;s0=s1;s1=u;}if(r0==1)return @mod(@mod(s0,m)+m,m);return -1;}

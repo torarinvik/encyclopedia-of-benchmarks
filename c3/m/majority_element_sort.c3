@@ -1,0 +1,2 @@
+module majority_element_sort;
+fn long majority_element_sort(long* v,usz n) @export("majority_element_sort"){if(v==null||n<2||n>128)return -1;int a[128];for(usz i=0;i<n;i++){if(v[i]<-2147483648||v[i]>2147483647)return -1;a[i]=(int)v[i];}for(usz i=1;i<n;i++){int x=a[i];usz j=i;while(j>0&&a[j-1]>x){a[j]=a[j-1];j--;}a[j]=x;}usz run=1;for(usz i=1;i<n;i++){if(a[i]==a[i-1])run++;else run=1;if(run>n/2)return (long)a[i];}return -1;}

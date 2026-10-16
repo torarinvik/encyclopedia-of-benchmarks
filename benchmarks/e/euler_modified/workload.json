@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "euler-modified-heun-fixed-ode-f64-vector-v1",
+  "algorithm": "euler_modified",
+  "function_symbol": "euler_modified",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[steps, y0] for y prime = -2*x*y^2, with x0=0 and h=0.25",
+    "exact_length": 2,
+    "steps_range": [
+      1,
+      8
+    ],
+    "initial_y_range": [
+      1,
+      4
+    ],
+    "maximum_input_length": 2,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "little-endian IEEE-754 binary64",
+    "layout": "initial y followed by every modified-Euler step",
+    "max_length": 9,
+    "max_output_bytes": 72,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "fixed capacity for up to nine binary64 trajectory values"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one-step-y1",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 16,
+      "expected_output": [
+        1.0,
+        0.9375
+      ]
+    },
+    {
+      "id": "four-steps-y2",
+      "input_values": [
+        4,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": 40,
+      "expected_output": [
+        2.0,
+        1.75,
+        1.3249435424804688,
+        0.9582975502451855,
+        0.6918847634586824
+      ]
+    },
+    {
+      "id": "eight-steps-y4",
+      "input_values": [
+        8,
+        4
+      ],
+      "input_length": 2,
+      "expected_result": 72,
+      "expected_output": [
+        4.0,
+        3.0,
+        1.998046875,
+        1.31152331829054,
+        0.8779541436154841,
+        0.6094383143085632,
+        0.43998677033136796,
+        0.32937046636301875,
+        0.2544258162657761
+      ]
+    },
+    {
+      "id": "short-capacity",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "workspace_bytes": 15,
+      "capacity_error_result": -2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "zero-steps",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "too-large-y0",
+      "input_values": [
+        1,
+        5
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

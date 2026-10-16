@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "postfix-evaluator-java-stack-v1",
+  "algorithm": "postfix_evaluator",
+  "function_symbol": "postfix_evaluator",
+  "input": {"kind":"signed_i64_array","encoding":"[token_count, tokens...]","count_range":[1,128],"element_range":"signed i32 operands or operator sentinels -9000000000000000001 through -9000000000000000004","maximum_input_length":129},
+  "output": {"kind":"signed_i64_scalar","meaning":"evaluated postfix expression as Java signed int","invalid_input_result":-1},
+  "source_bound": {"description":"Whitespace-tokenized Java stack evaluator; binary operators consume right then left operands. Arithmetic matches Java int wraparound and truncating division."},
+  "measurement": {"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases": [
+    {"id":"precedence_encoded_by_postfix","input_values":[5,2,3,-9000000000000000001,4,-9000000000000000003],"input_length":6,"expected_result":20},
+    {"id":"truncating_division","input_values":[3,7,2,-9000000000000000004],"input_length":4,"expected_result":3},
+    {"id":"negative_truncating_division","input_values":[3,-7,2,-9000000000000000004],"input_length":4,"expected_result":-3},
+    {"id":"java_int_overflow","input_values":[3,2147483647,1,-9000000000000000001],"input_length":4,"expected_result":-2147483648},
+    {"id":"operator_underflow","input_values":[2,9,-9000000000000000001],"input_length":3,"expected_result":-1},
+    {"id":"leftover_values","input_values":[2,9,10],"input_length":3,"expected_result":-1},
+    {"id":"division_by_zero","input_values":[3,9,0,-9000000000000000004],"input_length":4,"expected_result":-1}
+  ]
+}

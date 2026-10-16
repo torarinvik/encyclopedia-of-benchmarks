@@ -1,0 +1,4 @@
+module rotate_matrix_270;
+const usz MAX_CELLS=1024;
+fn void store_le(char* out,usz off,long value){ulong u=(ulong)value;for(usz b=0;b<8;b++)out[off+b]=(char)((u>>(8*b))&255);}
+fn long rotate_matrix_270(long* v,usz n,char* output,usz capacity) @export("rotate_matrix_270"){if(v==null||n<2||n>1027)return -1;long r=v[0],c=v[1];if(r<1||r>32||c<1||c>32||n!=2+(usz)(r*c))return -1;usz rows=(usz)r,cols=(usz)c;long[MAX_CELLS] matrix;long[MAX_CELLS] result;for(usz i=0;i<rows*cols;i++)matrix[i]=v[2+i];usz orows=(usz)(cols),ocols=(usz)(rows);for(usz i=0;i<rows;i++)for(usz j=0;j<cols;j++){usz rr=(usz)(j),cc=(usz)(rows-1-i);result[rr*ocols+cc]=matrix[i*cols+j];}usz bytes=8*(2+orows*ocols);if(output==null||capacity<bytes)return -2;store_le(output,0,(long)orows);store_le(output,8,(long)ocols);for(usz i=0;i<orows*ocols;i++)store_le(output,16+8*i,result[i]);return (long)bytes;}

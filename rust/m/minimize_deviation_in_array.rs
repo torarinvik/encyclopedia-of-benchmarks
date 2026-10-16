@@ -1,0 +1,3 @@
+use std::collections::BinaryHeap;
+#[no_mangle]
+pub unsafe extern "C" fn minimize_deviation_in_array(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>65{return -1}let a=std::slice::from_raw_parts(v,n);let k=a[0];if !(1..=64).contains(&k)||n!=k as usize+1||a[1..].iter().any(|&x|!(1..=1_000_000).contains(&x)){return -1}let mut heap=BinaryHeap::new();let mut low=i64::MAX;for &raw in &a[1..]{let x=if raw%2==1{raw*2}else{raw};low=low.min(x);heap.push(x)}let mut best=*heap.peek().unwrap()-low;while heap.peek().unwrap()%2==0{let x=heap.pop().unwrap()/2;low=low.min(x);heap.push(x);best=best.min(*heap.peek().unwrap()-low)}best}

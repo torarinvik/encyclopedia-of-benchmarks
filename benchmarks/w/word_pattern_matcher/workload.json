@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "word-pattern-matcher-ascii-v1",
+  "algorithm": "word_pattern_matcher",
+  "function_symbol": "word_pattern_matcher",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[pattern_length, pattern ASCII bytes..., text_length, text ASCII bytes...]",
+    "pattern_length_range": [
+      0,
+      8
+    ],
+    "text_length_range": [
+      0,
+      32
+    ],
+    "byte_range": [
+      32,
+      126
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "scalar_boolean",
+    "encoding": "Return 1 for match and 0 otherwise; output buffer is unused."
+  },
+  "workspace": {
+    "bytes": 1,
+    "meaning": "No output bytes are produced."
+  },
+  "cases": [
+    {
+      "id": "empty_both",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source_example",
+      "input_values": [
+        4,
+        97,
+        98,
+        97,
+        98,
+        20,
+        74,
+        97,
+        118,
+        97,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110,
+        74,
+        97,
+        118,
+        97,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110
+      ],
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source_nonmatch",
+      "input_values": [
+        4,
+        97,
+        97,
+        98,
+        98,
+        20,
+        74,
+        97,
+        118,
+        97,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110,
+        74,
+        97,
+        118,
+        97
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "repeated_symbol",
+      "input_values": [
+        4,
+        97,
+        97,
+        97,
+        97,
+        16,
+        74,
+        97,
+        118,
+        97,
+        74,
+        97,
+        118,
+        97,
+        74,
+        97,
+        118,
+        97,
+        74,
+        97,
+        118,
+        97
+      ],
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "symbols_must_be_distinct",
+      "input_values": [
+        2,
+        97,
+        98,
+        2,
+        120,
+        120
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "different_substrings",
+      "input_values": [
+        2,
+        97,
+        98,
+        2,
+        120,
+        121
+      ],
+      "expected_result": 1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_text_nonempty_pattern",
+      "input_values": [
+        1,
+        97,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        2,
+        97,
+        98,
+        2,
+        120
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non_printable",
+      "input_values": [
+        1,
+        10,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

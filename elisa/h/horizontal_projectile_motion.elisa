@@ -1,0 +1,59 @@
+extern sin(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def round_cents(value: f64) -> i64:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    exponent: i64 = ((bits >> 52) & 2047).i64()
+    if exponent == 0:
+        return 0
+    mantissa: u64 = (1.u64() << 52) | (bits & 4503599627370495.u64())
+    product: u64 = mantissa * 25.u64()
+    right_shift: i64 = 1073 - exponent
+    if right_shift >= 59:
+        return 0
+    rounded: mutable u64 = product >> right_shift.usize()
+    divisor: u64 = 1.u64() << right_shift.usize()
+    remainder: u64 = product & (divisor - 1.u64())
+    halfway: u64 = divisor >> 1
+    if remainder > halfway or (remainder == halfway and (rounded & 1.u64()) != 0):
+        rounded <- rounded + 1.u64()
+    if (bits >> 63) != 0:
+        return -rounded.i64()
+    rounded.i64()
+
+def store_f64_le(output: mutable u8&, position: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[position + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+
+def horizontal_projectile_motion_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length != 2:
+        return -1
+    velocity_milli: i64 = values[0]
+    angle_millidegrees: i64 = values[1]
+    if velocity_milli < 0 or velocity_milli > 100000 or
+            angle_millidegrees < 1000 or angle_millidegrees > 90000:
+        return -1
+    if output.is_null() or output_capacity < 24:
+        return -2
+
+    velocity: f64 = velocity_milli.f64() / 1000.0
+    angle: f64 = angle_millidegrees.f64() / 1000.0
+    pi_over_180: f64 = 3.14159265358979323846264338327950288 / 180.0
+    velocity_squared: f64 = velocity * velocity
+    distance_raw: f64 = velocity_squared * sin((2.0 * angle) * pi_over_180) / 9.80665
+    angle_sine: f64 = sin(angle * pi_over_180)
+    sine_squared: f64 = angle_sine * angle_sine
+    height_raw: f64 = velocity_squared * sine_squared / (2.0 * 9.80665)
+    time_raw: f64 = (2.0 * velocity) * angle_sine / 9.80665
+    store_f64_le(output, 0, round_cents(distance_raw).f64() / 100.0)
+    store_f64_le(output, 8, round_cents(height_raw).f64() / 100.0)
+    store_f64_le(output, 16, round_cents(time_raw).f64() / 100.0)
+    24.i64()
+
+export fn horizontal_projectile_motion(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = horizontal_projectile_motion_impl

@@ -1,0 +1,3 @@
+module minimize_deviation_in_array
+@[export: 'minimize_deviation_in_array']
+pub fn minimize_deviation_in_array(v &i64,n usize)i64{unsafe{if v==nil||n<2||n>65||v[0]<1||v[0]>64||n!=usize(v[0]+1){return -1};count:=int(v[0]);mut h:=[64]i64{};mut size:=0;mut low:=i64(9223372036854775807);for k in 0..count{mut x:=v[k+1];if x<1||x>1000000{return -1};if x%2==1{x*=2};if x<low{low=x};mut i:=size;size++;for i>0&&h[(i-1)/2]<x{h[i]=h[(i-1)/2];i=(i-1)/2};h[i]=x};mut best:=h[0]-low;for h[0]%2==0{top:=h[0];size--;mut x:=h[size];mut i:=0;for 2*i+1<size{mut c:=2*i+1;if c+1<size&&h[c+1]>h[c]{c++};if h[c]<=x{break};h[i]=h[c];i=c};if size>0{h[i]=x};x=top/2;if x<low{low=x};i=size;size++;for i>0&&h[(i-1)/2]<x{h[i]=h[(i-1)/2];i=(i-1)/2};h[i]=x;if h[0]-low<best{best=h[0]-low}};return best}}

@@ -1,0 +1,264 @@
+const WAVELET_MAX_N: usize = 64
+const WAVELET_MAX_Q: usize = 128
+const WAVELET_MAX_NODES: usize = 768
+const WAVELET_TASK_CAPACITY: usize = 16
+
+struct WaveletNode:
+    low: i64
+    high: i64
+    left: i64
+    right: i64
+    prefix: u8[65]
+
+struct WaveletTask:
+    node_id: usize
+    count: usize
+    values: i64[64]
+
+def wavelet_rank_prefix(nodes: WaveletNode&, root: i64, value: i64, count: usize) -> i64:
+    node_id: mutable i64 = root
+    remaining: mutable usize = count
+    while node_id >= 0:
+        node: WaveletNode = nodes[node_id.usize()]
+        if node.low == node.high:
+            if node.low == value: return remaining.i64()
+            return 0
+        mid: i64 = node.low + (node.high - node.low) / 2
+        left_count: usize = node.prefix[remaining].usize()
+        if value <= mid:
+            node_id <- node.left
+            remaining <- left_count
+        else:
+            node_id <- node.right
+            remaining <- remaining - left_count
+    0
+
+def wavelet_quantile(nodes: WaveletNode&, root: i64, left: usize, right: usize, k: usize) -> i64:
+    node_id: mutable i64 = root
+    first: mutable usize = left
+    last: mutable usize = right
+    order: mutable usize = k
+    while node_id >= 0:
+        node: WaveletNode = nodes[node_id.usize()]
+        if node.low == node.high: return node.low
+        left_before: usize = node.prefix[first].usize()
+        left_after: usize = node.prefix[last].usize()
+        in_left: usize = left_after - left_before
+        if order < in_left:
+            node_id <- node.left
+            first <- left_before
+            last <- left_after
+        else:
+            node_id <- node.right
+            first <- first - left_before
+            last <- last - left_after
+            order <- order - in_left
+    -1
+
+def wavelet_count_le(nodes: WaveletNode&, root: i64, left: usize, right: usize, value: i64) -> i64:
+    node_id: mutable i64 = root
+    first: mutable usize = left
+    last: mutable usize = right
+    result: mutable i64 = 0
+    while node_id >= 0 and first < last:
+        node: WaveletNode = nodes[node_id.usize()]
+        if value < node.low: return result
+        if node.high <= value:
+            result <- result + (last - first).i64()
+            return result
+        if node.low == node.high: return result
+        left_before: usize = node.prefix[first].usize()
+        left_after: usize = node.prefix[last].usize()
+        mid: i64 = node.low + (node.high - node.low) / 2
+        if value <= mid:
+            node_id <- node.left
+            first <- left_before
+            last <- left_after
+        else:
+            result <- result + (left_after - left_before).i64()
+            node_id <- node.right
+            first <- first - left_before
+            last <- last - left_after
+    result
+
+def wavelet_tree_benchmark_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > 706 or values[0] < 1 or values[0] > 64: return -1
+    n: usize = values[0].usize()
+    if length < n + 2: return -1
+    data: mutable i64[64] = zeroed
+    low: mutable i64 = values[1]
+    high: mutable i64 = values[1]
+    for i in 0..<n:
+        data[i] <- values[i + 1]
+        if data[i] < -1000 or data[i] > 1000: return -1
+        if data[i] < low: low <- data[i]
+        if data[i] > high: high <- data[i]
+    q_value: i64 = values[n + 1]
+    if q_value < 0 or q_value > 128 or length != n + 2 + 5 * q_value.usize(): return -1
+    q: usize = q_value.usize()
+    nodes: mutable WaveletNode[WAVELET_MAX_NODES] = zeroed
+    nodes[0].low <- low
+    nodes[0].high <- high
+    nodes[0].left <- -1
+    nodes[0].right <- -1
+    tasks: mutable WaveletTask[WAVELET_TASK_CAPACITY] = zeroed
+    tasks[0].node_id <- 0
+    tasks[0].count <- n
+    for i in 0..<n:
+        tasks[0].values[i] <- data[i]
+    task_count: mutable usize = 1
+    used: mutable usize = 1
+    while task_count > 0:
+        task_count <- task_count - 1
+        task_index: usize = task_count
+        node_id: usize = tasks[task_index].node_id
+        count: usize = tasks[task_index].count
+        node_low: i64 = nodes[node_id].low
+        node_high: i64 = nodes[node_id].high
+        if node_low != node_high and count > 0:
+            mid: i64 = node_low + (node_high - node_low) / 2
+            left_values: mutable i64[64] = zeroed
+            right_values: mutable i64[64] = zeroed
+            left_count: mutable usize = 0
+            right_count: mutable usize = 0
+            nodes[node_id].prefix[0] <- 0.u8()
+            for i in 0..<count:
+                value: i64 = tasks[task_index].values[i]
+                if value <= mid:
+                    left_values[left_count] <- value
+                    left_count <- left_count + 1
+                else:
+                    right_values[right_count] <- value
+                    right_count <- right_count + 1
+                nodes[node_id].prefix[i + 1] <- left_count.u8()
+            if left_count > 0:
+                child_id: usize = used
+                used <- used + 1
+                nodes[node_id].left <- child_id.i64()
+                nodes[child_id].low <- node_low
+                nodes[child_id].high <- mid
+                nodes[child_id].left <- -1
+                nodes[child_id].right <- -1
+                tasks[task_count].node_id <- child_id
+                tasks[task_count].count <- left_count
+                for i in 0..<left_count:
+                    tasks[task_count].values[i] <- left_values[i]
+                task_count <- task_count + 1
+            if right_count > 0:
+                child_id: usize = used
+                used <- used + 1
+                nodes[node_id].right <- child_id.i64()
+                nodes[child_id].low <- mid + 1
+                nodes[child_id].high <- node_high
+                nodes[child_id].left <- -1
+                nodes[child_id].right <- -1
+                tasks[task_count].node_id <- child_id
+                tasks[task_count].count <- right_count
+                for i in 0..<right_count:
+                    tasks[task_count].values[i] <- right_values[i]
+                task_count <- task_count + 1
+    root: i64 = 0
+    total: mutable i64 = 0
+    for j in 0..<q:
+        p: usize = n + 2 + 5 * j
+        op: i64 = values[p]
+        a: i64 = values[p + 1]
+        b: i64 = values[p + 2]
+        c: i64 = values[p + 3]
+        d: i64 = values[p + 4]
+        answer: mutable i64 = 0
+        if op == 0:
+            if a < -1000 or a > 1000 or b < -1 or b >= n.i64(): return -1
+            node_id: mutable i64 = root
+            remaining: mutable usize = (b + 1).usize()
+            while node_id >= 0:
+                node: WaveletNode = nodes[node_id.usize()]
+                if node.low == node.high:
+                    if node.low == a: answer <- remaining.i64()
+                    break
+                mid: i64 = node.low + (node.high - node.low) / 2
+                left_count: usize = node.prefix[remaining].usize()
+                if a <= mid:
+                    node_id <- node.left
+                    remaining <- left_count
+                else:
+                    node_id <- node.right
+                    remaining <- remaining - left_count
+        elif op == 1:
+            if a < 0 or b < a or b >= n.i64() or c < 0 or c > b - a: return -1
+            node_id: mutable i64 = root
+            first: mutable usize = a.usize()
+            last: mutable usize = (b + 1).usize()
+            order: mutable usize = c.usize()
+            while node_id >= 0:
+                node: WaveletNode = nodes[node_id.usize()]
+                if node.low == node.high:
+                    answer <- node.low
+                    break
+                left_before: usize = node.prefix[first].usize()
+                left_after: usize = node.prefix[last].usize()
+                in_left: usize = left_after - left_before
+                if order < in_left:
+                    node_id <- node.left
+                    first <- left_before
+                    last <- left_after
+                else:
+                    node_id <- node.right
+                    first <- first - left_before
+                    last <- last - left_after
+                    order <- order - in_left
+        elif op == 2:
+            if a < 0 or b < a or b >= n.i64() or c > d or c < -1000 or d > 1000: return -1
+            count_high: mutable i64 = 0
+            node_id: mutable i64 = root
+            first: mutable usize = a.usize()
+            last: mutable usize = (b + 1).usize()
+            while node_id >= 0 and first < last:
+                node: WaveletNode = nodes[node_id.usize()]
+                if d < node.low: break
+                if node.high <= d:
+                    count_high <- count_high + (last - first).i64()
+                    break
+                if node.low == node.high: break
+                left_before: usize = node.prefix[first].usize()
+                left_after: usize = node.prefix[last].usize()
+                mid: i64 = node.low + (node.high - node.low) / 2
+                if d <= mid:
+                    node_id <- node.left
+                    first <- left_before
+                    last <- left_after
+                else:
+                    count_high <- count_high + (left_after - left_before).i64()
+                    node_id <- node.right
+                    first <- first - left_before
+                    last <- last - left_after
+            count_low: mutable i64 = 0
+            node_id <- root
+            first <- a.usize()
+            last <- (b + 1).usize()
+            low_limit: i64 = c - 1
+            while node_id >= 0 and first < last:
+                node: WaveletNode = nodes[node_id.usize()]
+                if low_limit < node.low: break
+                if node.high <= low_limit:
+                    count_low <- count_low + (last - first).i64()
+                    break
+                if node.low == node.high: break
+                left_before: usize = node.prefix[first].usize()
+                left_after: usize = node.prefix[last].usize()
+                mid: i64 = node.low + (node.high - node.low) / 2
+                if low_limit <= mid:
+                    node_id <- node.left
+                    first <- left_before
+                    last <- left_after
+                else:
+                    count_low <- count_low + (left_after - left_before).i64()
+                    node_id <- node.right
+                    first <- first - left_before
+                    last <- last - left_after
+            answer <- count_high - count_low
+        else: return -1
+        total <- total + (j + 1).i64() * (answer + 1000001)
+    total
+
+export fn wavelet_tree_benchmark(values: i64&, length: usize) -> i64 = wavelet_tree_benchmark_impl

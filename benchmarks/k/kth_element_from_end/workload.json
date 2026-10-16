@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "python-kth-element-from-end-v1",
+  "algorithm": "kth_element_from_end",
+  "function_symbol": "kth_element_from_end",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[one_based_position_from_end, traversal_values...]",
+    "value_range": [
+      0,
+      100000
+    ],
+    "maximum_input_length": 65,
+    "maximum_value_count": 64,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "value of the one-based position-from-end node; -1 when source returns None or input is invalid"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/linked_list/kth_element_from_end.py"
+  },
+  "cases": [
+    {
+      "id": "source_k2",
+      "input_values": [
+        2,
+        3,
+        2,
+        4,
+        1,
+        5
+      ],
+      "expected_result": 1,
+      "input_length": 6
+    },
+    {
+      "id": "source_k5",
+      "input_values": [
+        5,
+        3,
+        2,
+        4,
+        1,
+        5
+      ],
+      "expected_result": 3,
+      "input_length": 6
+    },
+    {
+      "id": "source_k3",
+      "input_values": [
+        3,
+        3,
+        2,
+        4,
+        1,
+        5
+      ],
+      "expected_result": 4,
+      "input_length": 6
+    },
+    {
+      "id": "last",
+      "input_values": [
+        1,
+        8,
+        9,
+        10
+      ],
+      "expected_result": 10,
+      "input_length": 4
+    },
+    {
+      "id": "first",
+      "input_values": [
+        3,
+        8,
+        9,
+        10
+      ],
+      "expected_result": 8,
+      "input_length": 4
+    },
+    {
+      "id": "empty",
+      "input_values": [
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "zero_k",
+      "input_values": [
+        0,
+        1,
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    },
+    {
+      "id": "too_large_k",
+      "input_values": [
+        4,
+        1,
+        2,
+        3
+      ],
+      "expected_result": -1,
+      "input_length": 4
+    },
+    {
+      "id": "too_many",
+      "input_values": [
+        1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "expected_result": -1,
+      "input_length": 66
+    },
+    {
+      "id": "negative_value",
+      "input_values": [
+        1,
+        -1,
+        2
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+def prime_domain(p: i64) -> bool:
+    p == 3 or p == 5 or p == 7 or p == 11 or p == 13 or p == 17 or p == 19 or p == 23 or p == 29 or p == 31 or p == 37 or p == 41 or p == 43 or p == 47 or p == 53
+
+def quadratic_residue_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 2:
+        return -1
+    a: i64 = input[0]
+    p: i64 = input[1]
+    if not prime_domain(p) or a < 0 or a >= p:
+        return -1
+    if a == 0:
+        return 0
+    while exponent > 0 |exponent: mutable i64 = (p - 1) / 2, base: mutable i64 = a, result: mutable i64 = 1| -> result:
+        if exponent % 2 == 1:
+            result <- (result * base) % p
+        base <- (base * base) % p
+        exponent <- exponent / 2
+    if result == 1:
+        return 1
+    return -1
+
+export fn quadratic_residue(input: i64&, length: usize) -> i64 = quadratic_residue_impl

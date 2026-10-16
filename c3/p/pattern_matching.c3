@@ -1,0 +1,2 @@
+module pattern_matching;
+fn long pattern_matching(long* v,usz n) @export("pattern_matching"){if(v==null||n<3||n>130||v[0]<0||v[0]>64)return -1;usz t=(usz)v[0],pp=t+1;if(n<pp+1||v[pp]<1||v[pp]>64)return -1;usz p=(usz)v[pp];if(n!=pp+p+1||p>t)return -1;for(usz i=1;i<pp;i++)if(v[i]<0||v[i]>127)return -1;for(usz i=pp+1;i<n;i++)if(v[i]<0||v[i]>127)return -1;for(usz i=0;i<=t-p;i++){usz j=0;for(;j<p;j++)if(v[i+1+j]!=v[pp+1+j])break;if(j==p)return (long)i;}return -1;}

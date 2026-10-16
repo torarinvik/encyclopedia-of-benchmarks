@@ -1,0 +1,27 @@
+export fn hill_encoder(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or n < 10 or n > 74: return -1
+    if v[0] < 0 or v[0] > 64 or n != 10 + v[0].usize(): return -1
+    length: usize = v[0].usize()
+    padded: usize = ((length + 2) / 3) * 3
+    text: mutable i64[66] = zeroed
+    key: mutable i64[9] = zeroed
+    result: mutable i64[66] = zeroed
+    for i in 0..length:
+        if v[1+i] < 65 or v[1+i] > 90: return -1
+        text[i] <- v[1+i]
+    for i in length..padded: text[i] <- 32
+    for i in 0..9:
+        key[i] <- v[1+length+i]
+        if key[i] < -2 or key[i] > 2: return -1
+    for off in 0..(padded / 3):
+        for row in 0..3:
+            sum: mutable i64 = 0
+            for col in 0..3: sum <- sum + key[row*3+col] * text[off*3+col]
+            if sum < 0 or sum > 65535: return -1
+            result[off*3+row] <- sum
+    bytes: usize = padded * 8
+    if out.is_null() or capacity < bytes: return -2
+    for i in 0..padded:
+        bits: u64 = result[i].u64()
+        for k in 0..8: out[i*8+k] <- ((bits >> (8*k)) & 255).u8()
+    return bytes.i64()

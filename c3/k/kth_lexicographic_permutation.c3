@@ -1,0 +1,2 @@
+module kth_lexicographic_permutation;
+fn long kth_lexicographic_permutation(long*v,usz n) @export("kth_lexicographic_permutation"){if(v==null||n!=2)return -1;long k=v[0];long m=v[1];if(m<2||m>9||k<0)return -1;long fact=1;for(long i=2;i<=m;i++)fact*=i;if(k>=fact)return -1;long a[9];long code=m;for(long i=0;i<m;i++)a[i]=i;for(long block=m-1;block>=1;block--){long f=1;for(long j=2;j<=block;j++)f*=j;long idx=k/f;k%=f;code=code*10+a[idx]+1;for(long j=idx;j<block;j++)a[j]=a[j+1];}return code*10+a[0]+1;}

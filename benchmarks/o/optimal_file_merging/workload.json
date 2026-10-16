@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "optimal-file-merging-i64-array-scalar-v1",
+  "algorithm": "optimal_file_merging",
+  "function_symbol": "optimal_file_merging",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[count,size0,...]",
+    "count_range": [0, 32],
+    "file_size_range": [0, 1000000],
+    "maximum_packed_values": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "sum of the pairwise sums produced by repeatedly merging the two smallest file sizes",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "pinned_java_example", "input_values": [4, 4, 3, 2, 6], "expected_result": 29},
+    {"id": "equal_sizes", "input_values": [5, 8, 8, 8, 8, 8], "expected_result": 96},
+    {"id": "four_unit_files", "input_values": [4, 1, 1, 1, 1], "expected_result": 8},
+    {"id": "zero_sized_files", "input_values": [3, 0, 0, 5], "expected_result": 5},
+    {"id": "empty", "input_values": [0], "expected_result": 0},
+    {"id": "singleton", "input_values": [1, 500], "expected_result": 0},
+    {"id": "malformed_length", "input_values": [2, 1], "expected_result": -1},
+    {"id": "negative_size", "input_values": [2, 1, -1], "expected_result": -1},
+    {"id": "too_many_files", "input_values": [33], "expected_result": -1},
+    {"id": "maximum_size", "input_values": [2, 1000000, 1000000], "expected_result": 2000000}
+  ]
+}

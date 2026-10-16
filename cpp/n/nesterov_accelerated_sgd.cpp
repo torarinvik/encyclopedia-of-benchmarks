@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+static void put_double(std::uint8_t*out,std::size_t off,double x){std::uint64_t b;std::memcpy(&b,&x,8);for(std::size_t k=0;k<8;k++)out[off+k]=static_cast<std::uint8_t>(b>>(8*k));}
+extern "C" std::int64_t nesterov_accelerated_sgd(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<4)return -1;auto wi=v[0],si=v[1],lm=v[2],mm=v[3];if(wi<1||wi>8||si<1||si>8||lm<0||lm>1000||mm<0||mm>1000||n!=4+static_cast<std::size_t>(wi)*(static_cast<std::size_t>(si)+1))return -1;auto w=static_cast<std::size_t>(wi),s=static_cast<std::size_t>(si);for(std::size_t i=4;i<n;i++)if(v[i]<-10000||v[i]>10000)return -1;if(!out||cap<w*8)return -2;double p[8],vel[8]={0},lr=static_cast<double>(lm)/1000.0,m=static_cast<double>(mm)/1000.0;for(std::size_t i=0;i<w;i++)p[i]=static_cast<double>(v[4+i])/1000.0;for(std::size_t t=0;t<s;t++)for(std::size_t i=0;i<w;i++){double prev=vel[i],g=static_cast<double>(v[4+w+t*w+i])/1000.0;vel[i]=m*vel[i]-lr*g;p[i]=p[i]-m*prev+(1.0+m)*vel[i];}for(std::size_t i=0;i<w;i++)put_double(out,i*8,p[i]);return static_cast<std::int64_t>(w*8);}

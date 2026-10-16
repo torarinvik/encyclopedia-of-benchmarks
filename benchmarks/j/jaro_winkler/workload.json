@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "id": "python-jaro-winkler-ascii-v1",
+  "algorithm": "jaro_winkler",
+  "function_symbol": "jaro_winkler",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[s1_length, s1_codepoints..., s2_length, s2_codepoints...]",
+    "string_length_range": [
+      0,
+      32
+    ],
+    "codepoint_range": [
+      0,
+      127
+    ],
+    "maximum_input_length": 66,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 16,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "strings/jaro_winkler.py"
+  },
+  "cases": [
+    {
+      "id": "both-empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0.0,
+      "input_length": 2
+    },
+    {
+      "id": "empty-left",
+      "input_values": [
+        0,
+        3,
+        97,
+        98,
+        99
+      ],
+      "expected_result": 0.0,
+      "input_length": 5
+    },
+    {
+      "id": "empty-right",
+      "input_values": [
+        3,
+        97,
+        98,
+        99,
+        0
+      ],
+      "expected_result": 0.0,
+      "input_length": 5
+    },
+    {
+      "id": "equal",
+      "input_values": [
+        4,
+        116,
+        101,
+        115,
+        116,
+        4,
+        116,
+        101,
+        115,
+        116
+      ],
+      "expected_result": 1.0,
+      "input_length": 10
+    },
+    {
+      "id": "martha-marhta",
+      "input_values": [
+        6,
+        109,
+        97,
+        114,
+        116,
+        104,
+        97,
+        6,
+        109,
+        97,
+        114,
+        104,
+        116,
+        97
+      ],
+      "expected_result": 0.9611111111111111,
+      "input_length": 14
+    },
+    {
+      "id": "crate-trace",
+      "input_values": [
+        5,
+        67,
+        82,
+        65,
+        84,
+        69,
+        5,
+        84,
+        82,
+        65,
+        67,
+        69
+      ],
+      "expected_result": 0.7333333333333334,
+      "input_length": 12
+    },
+    {
+      "id": "unrelated",
+      "input_values": [
+        4,
+        116,
+        101,
+        115,
+        116,
+        8,
+        100,
+        98,
+        100,
+        98,
+        100,
+        98,
+        100,
+        98
+      ],
+      "expected_result": 0.0,
+      "input_length": 14
+    },
+    {
+      "id": "prefix-boost",
+      "input_values": [
+        6,
+        100,
+        119,
+        97,
+        121,
+        110,
+        101,
+        5,
+        100,
+        117,
+        97,
+        110,
+        101
+      ],
+      "expected_result": 0.8400000000000001,
+      "input_length": 13
+    },
+    {
+      "id": "prefix-four",
+      "input_values": [
+        6,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        6,
+        97,
+        98,
+        99,
+        120,
+        101,
+        102
+      ],
+      "expected_result": 0.9222222222222223,
+      "input_length": 14
+    },
+    {
+      "id": "repeated",
+      "input_values": [
+        4,
+        97,
+        97,
+        98,
+        98,
+        3,
+        98,
+        97,
+        98
+      ],
+      "expected_result": 0.7222222222222222,
+      "input_length": 9
+    },
+    {
+      "id": "window",
+      "input_values": [
+        3,
+        97,
+        97,
+        32,
+        2,
+        97,
+        97
+      ],
+      "expected_result": 0.9111111111111111,
+      "input_length": 7
+    },
+    {
+      "id": "max-length",
+      "input_values": [
+        32,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        32,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        98
+      ],
+      "expected_result": 0.9874999999999999,
+      "input_length": 66
+    },
+    {
+      "id": "ascii-boundaries",
+      "input_values": [
+        2,
+        0,
+        127,
+        2,
+        0,
+        65
+      ],
+      "expected_result": 0.7,
+      "input_length": 6
+    },
+    {
+      "id": "negative-length",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1e+300,
+      "input_length": 2
+    },
+    {
+      "id": "bad-codepoint",
+      "input_values": [
+        1,
+        128,
+        1,
+        65
+      ],
+      "expected_result": -1e+300,
+      "input_length": 4
+    },
+    {
+      "id": "trailing-value",
+      "input_values": [
+        1,
+        65,
+        1,
+        65,
+        99
+      ],
+      "expected_result": -1e+300,
+      "input_length": 5
+    }
+  ]
+}

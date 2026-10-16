@@ -1,0 +1,24 @@
+#include <stddef.h>
+#include <stdint.h>
+
+#define MAX_TEXT_LENGTH 128
+#define MAX_REQUESTED_COUNT 64
+#define CHECKSUM_BASE INT64_C(300000)
+
+int64_t substring_st_char(const int64_t *values, size_t length) {
+    if (values == NULL || length < 2 || length > MAX_TEXT_LENGTH + 2) return -1;
+    const int64_t target = values[0], requested = values[1];
+    const size_t text_length = length - 2;
+    if (target < 1 || target > 127 || requested < 0 || requested > MAX_REQUESTED_COUNT) return -1;
+    for (size_t i = 0; i < text_length; ++i) if (values[i + 2] < 1 || values[i + 2] > 127) return -1;
+    size_t start = 0;
+    while (start < text_length && values[start + 2] != target) ++start;
+    if (start == text_length) return -1;
+    const size_t remaining = text_length - start;
+    size_t count = (size_t)requested;
+    if (count == 0) count = 1;
+    if (count > remaining) count = remaining;
+    int64_t checksum = 0;
+    for (size_t i = 0; i < count; ++i) checksum += (int64_t)(i + 1) * values[start + i + 2];
+    return (int64_t)count * CHECKSUM_BASE + checksum;
+}

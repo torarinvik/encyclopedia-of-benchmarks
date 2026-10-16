@@ -20,9 +20,17 @@ from fast_inverse_sqrt_cpp_oracle import MIN_VALUE as FAST_INVERSE_SQRT_CPP_MIN_
 from fast_inverse_sqrt_cpp_oracle import expected_result as fast_inverse_sqrt_cpp_oracle
 from gauss_legendre_oracle import MAX_ITERATIONS as MAX_GAUSS_LEGENDRE_ITERATIONS
 from gauss_legendre_oracle import expected_result as gauss_legendre_oracle
+from liters_to_usgallons_oracle import MAX_VALUE as LITERS_TO_USGALLONS_MAX_VALUE
+from liters_to_usgallons_oracle import MIN_VALUE as LITERS_TO_USGALLONS_MIN_VALUE
+from liters_to_usgallons_oracle import expected_result as liters_to_usgallons_oracle
+from liters_to_imperial_gallons_oracle import MAX_VALUE as LITERS_TO_IMPERIAL_GALLONS_MAX_VALUE
+from liters_to_imperial_gallons_oracle import MIN_VALUE as LITERS_TO_IMPERIAL_GALLONS_MIN_VALUE
+from liters_to_imperial_gallons_oracle import expected_result as liters_to_imperial_gallons_oracle
 from run_float64_unary import encode_case
 
 ALGORITHMS = ("problem58", "problem207", "problem587", "gamma", "gauss_legendre", "fast_inverse_sqrt_cpp", "newton_raphson_root")
+ALGORITHMS += ("liters_to_usgallons",)
+ALGORITHMS += ("liters_to_imperial_gallons",)
 
 
 def is_prime(value: int) -> bool:
@@ -139,6 +147,10 @@ def oracle(algorithm: str, value: float) -> float:
         return gauss_legendre_oracle([value])
     if algorithm == "fast_inverse_sqrt_cpp":
         return fast_inverse_sqrt_cpp_oracle(value)
+    if algorithm == "liters_to_usgallons":
+        return liters_to_usgallons_oracle(value)
+    if algorithm == "liters_to_imperial_gallons":
+        return liters_to_imperial_gallons_oracle(value)
     raise ValueError(f"no oracle for {algorithm}")
 
 
@@ -189,6 +201,30 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         ))
         values.update(rng.uniform(FAST_INVERSE_SQRT_CPP_MIN_VALUE,
                                   FAST_INVERSE_SQRT_CPP_MAX_VALUE)
+                      for _ in range(16))
+    elif algorithm == "liters_to_usgallons":
+        values.update((
+            LITERS_TO_USGALLONS_MIN_VALUE,
+            math.nextafter(LITERS_TO_USGALLONS_MIN_VALUE, -math.inf),
+            math.nextafter(LITERS_TO_USGALLONS_MIN_VALUE, math.inf),
+            LITERS_TO_USGALLONS_MAX_VALUE,
+            math.nextafter(LITERS_TO_USGALLONS_MAX_VALUE, math.inf),
+            math.nextafter(LITERS_TO_USGALLONS_MAX_VALUE, -math.inf),
+        ))
+        values.update(rng.uniform(LITERS_TO_USGALLONS_MIN_VALUE,
+                                  LITERS_TO_USGALLONS_MAX_VALUE)
+                      for _ in range(16))
+    elif algorithm == "liters_to_imperial_gallons":
+        values.update((
+            LITERS_TO_IMPERIAL_GALLONS_MIN_VALUE,
+            math.nextafter(LITERS_TO_IMPERIAL_GALLONS_MIN_VALUE, -math.inf),
+            math.nextafter(LITERS_TO_IMPERIAL_GALLONS_MIN_VALUE, math.inf),
+            LITERS_TO_IMPERIAL_GALLONS_MAX_VALUE,
+            math.nextafter(LITERS_TO_IMPERIAL_GALLONS_MAX_VALUE, math.inf),
+            math.nextafter(LITERS_TO_IMPERIAL_GALLONS_MAX_VALUE, -math.inf),
+        ))
+        values.update(rng.uniform(LITERS_TO_IMPERIAL_GALLONS_MIN_VALUE,
+                                  LITERS_TO_IMPERIAL_GALLONS_MAX_VALUE)
                       for _ in range(16))
     else:
         raise ValueError(f"no corpus for {algorithm}")

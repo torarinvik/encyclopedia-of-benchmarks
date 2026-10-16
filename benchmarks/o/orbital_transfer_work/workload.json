@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "orbital-transfer-work-f64-v1",
+  "algorithm": "orbital_transfer_work",
+  "function_symbol": "orbital_transfer_work",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[central_mass, object_mass, initial_radius, final_radius]",
+    "maximum_input_values": 4
+  },
+  "output": {
+    "kind": "float64_vector",
+    "values": "numeric work in joules",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 8,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 4,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "outward_transfer",
+      "input_values": [
+        1000000,
+        1000,
+        1000,
+        2000
+      ],
+      "expected_result": 8,
+      "expected_output": [
+        1.668575e-05
+      ]
+    },
+    {
+      "id": "inward_transfer",
+      "input_values": [
+        1000000,
+        500,
+        2000,
+        1000
+      ],
+      "expected_result": 8,
+      "expected_output": [
+        -8.342875e-06
+      ]
+    },
+    {
+      "id": "equal_orbits",
+      "input_values": [
+        1000000,
+        500,
+        1000,
+        1000
+      ],
+      "expected_result": 8,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "invalid_radius",
+      "input_values": [
+        1000,
+        10,
+        0,
+        20
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

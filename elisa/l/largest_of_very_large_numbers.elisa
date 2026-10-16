@@ -1,0 +1,31 @@
+extern log10(value: f64) -> f64
+
+const MAX_VALUE: i64 = 1000000000000
+
+def largest_of_very_large_numbers_score(base: i64, exponent: i64) -> f64:
+    if base == 0:
+        return 0.0
+    if exponent == 0:
+        return 1.0
+    exponent.f64() * log10(base.f64())
+
+def largest_of_very_large_numbers_domain(base_a: i64, exponent_a: i64, base_b: i64, exponent_b: i64) -> bool:
+    exponent_a == exponent_b or (base_a == base_b and (base_a == 0 or ((exponent_a == 0) == (exponent_b == 0))))
+
+def largest_of_very_large_numbers_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 4:
+        return -2
+    index: usize = 0
+    while index < 4:
+        if values[index] < 0 or values[index] > MAX_VALUE:
+            return -2
+        index <- index + 1
+    if not largest_of_very_large_numbers_domain(values[0], values[1], values[2], values[3]):
+        return -2
+    score_a: f64 = largest_of_very_large_numbers_score(values[0], values[1])
+    score_b: f64 = largest_of_very_large_numbers_score(values[2], values[3])
+    if score_a > score_b: return 1
+    if score_a < score_b: return -1
+    0
+
+export fn largest_of_very_large_numbers(values: i64&, length: usize) -> i64 = largest_of_very_large_numbers_impl

@@ -1,0 +1,94 @@
+# Port the pinned Java textToMorse direction.
+const MAX_INPUT_LENGTH: usize = 512
+const MAX_OUTPUT_BYTES: usize = 2560
+
+def morse_word(index: usize) -> i64:
+    if index == 0: return 514
+    if index == 1: return 1031
+    if index == 2: return 1029
+    if index == 3: return 771
+    if index == 4: return 257
+    if index == 5: return 1037
+    if index == 6: return 769
+    if index == 7: return 1039
+    if index == 8: return 515
+    if index == 9: return 1032
+    if index == 10: return 770
+    if index == 11: return 1035
+    if index == 12: return 512
+    if index == 13: return 513
+    if index == 14: return 768
+    if index == 15: return 1033
+    if index == 16: return 1026
+    if index == 17: return 773
+    if index == 18: return 775
+    if index == 19: return 256
+    if index == 20: return 774
+    if index == 21: return 1038
+    if index == 22: return 772
+    if index == 23: return 1030
+    if index == 24: return 1028
+    if index == 25: return 1027
+    return 0
+
+def letter_index(value: i64) -> i64:
+    if value >= 65 and value <= 90: return value - 65
+    if value >= 97 and value <= 122: return value - 97
+    return -1
+
+def append_word(input: i64&, start: usize, finish: usize, scratch: mutable u8&, written: mutable usize&) -> void:
+    position: mutable usize = start
+    while position < finish:
+        letter: i64 = letter_index(input[position])
+        if letter >= 0:
+            word: i64 = morse_word(letter.usize())
+            code_length: usize = ((word / 256) % 8).usize()
+            mask: i64 = word % 32
+            bit: mutable usize = 0
+            while bit < code_length:
+                shift: usize = code_length - bit - 1
+                symbol: u8 = 45
+                if ((mask >> shift) & 1) != 0: symbol <- 46
+                scratch[written] <- symbol
+                written <- written + 1
+                bit <- bit + 1
+        scratch[written] <- 32
+        written <- written + 1
+        position <- position + 1
+
+def encode(input: i64&, length: usize, scratch: mutable u8&) -> usize:
+    finish: mutable usize = length
+    while finish > 0 and input[finish - 1] == 32: finish <- finish - 1
+    if finish == 0: return 0
+    written: mutable usize = 0
+    start: mutable usize = 0
+    position: mutable usize = 0
+    while position <= finish:
+        if position == finish:
+            append_word(input, start, position, scratch, written)
+        else if input[position] == 32:
+            append_word(input, start, position, scratch, written)
+            scratch[written] <- 124
+            scratch[written + 1] <- 32
+            written <- written + 2
+            start <- position + 1
+        position <- position + 1
+    while written > 0 and scratch[written - 1] == 32: written <- written - 1
+    written
+
+def morse_code_converter_encode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if (input.is_null() and length > 0) or length > MAX_INPUT_LENGTH: return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 127: return -1
+        index <- index + 1
+    scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: usize = encode(input, length, scratch)
+    if output.is_null() or capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- scratch[index]
+        index <- index + 1
+    written.i64()
+
+export fn morse_code_converter_encode(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = morse_code_converter_encode_impl

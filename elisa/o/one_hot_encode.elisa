@@ -1,0 +1,31 @@
+def one_hot_encode_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 33: return -1
+    rows_i: i64 = values[0]
+    if rows_i < 1 or rows_i > 32 or length != (rows_i + 1).usize(): return -1
+    rows: usize = rows_i.usize()
+    present: mutable [26]bool = [false; 26]
+    i: mutable usize = 0
+    while i < rows:
+        value: i64 = values[i + 1]
+        if value < 0 or value > 25: return -1
+        present[value.usize()] <- true
+        i <- i + 1
+    map: mutable [26]usize = [0; 26]
+    cols: mutable usize = 0
+    i <- 0
+    while i < 26:
+        if present[i]: map[i] <- cols; cols <- cols + 1
+        i <- i + 1
+    required: usize = rows * cols
+    if required > capacity: return -2
+    r: mutable usize = 0
+    while r < rows:
+        c: mutable usize = 0
+        while c < cols:
+            if map[values[r + 1].usize()] == c: output[r * cols + c] <- 1u8()
+            else: output[r * cols + c] <- 0u8()
+            c <- c + 1
+        r <- r + 1
+    return required.i64()
+
+export fn one_hot_encode(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = one_hot_encode_impl

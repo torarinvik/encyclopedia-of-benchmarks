@@ -1,5 +1,5 @@
 def edmonds_blossom_algorithm_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2:
+    if length < 2:
         return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
@@ -55,7 +55,7 @@ def edmonds_blossom_algorithm_impl(input: i64&, length: usize) -> i64:
                             path: mutable bool[20] = zeroed
                             x: mutable usize = v
                             y: mutable usize = u
-                            loop:
+                            while true:
                                 x <- base[x]
                                 path[x] <- true
                                 if mate[x] == -1:

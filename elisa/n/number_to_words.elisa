@@ -1,0 +1,70 @@
+const WORD_OFFSETS: usize[35] = [0, 4, 7, 10, 15, 19, 23, 26, 31, 36, 40, 43, 49, 55, 63, 71, 78, 85, 94, 102, 110, 116, 122, 127, 132, 137, 144, 150, 156, 163, 171, 178, 185, 193, 198]
+const WORD_LENGTHS: usize[35] = [4, 3, 3, 5, 4, 4, 3, 5, 5, 4, 3, 6, 6, 8, 8, 7, 7, 9, 8, 8, 6, 6, 5, 5, 5, 7, 6, 6, 7, 8, 7, 7, 8, 5, 8]
+const WORD_BYTES: u8[206] = [90, 101, 114, 111, 79, 110, 101, 84, 119, 111, 84, 104, 114, 101, 101, 70, 111, 117, 114, 70, 105, 118, 101, 83, 105, 120, 83, 101, 118, 101, 110, 69, 105, 103, 104, 116, 78, 105, 110, 101, 84, 101, 110, 69, 108, 101, 118, 101, 110, 84, 119, 101, 108, 118, 101, 84, 104, 105, 114, 116, 101, 101, 110, 70, 111, 117, 114, 116, 101, 101, 110, 70, 105, 102, 116, 101, 101, 110, 83, 105, 120, 116, 101, 101, 110, 83, 101, 118, 101, 110, 116, 101, 101, 110, 69, 105, 103, 104, 116, 101, 101, 110, 78, 105, 110, 101, 116, 101, 101, 110, 84, 119, 101, 110, 116, 121, 84, 104, 105, 114, 116, 121, 70, 111, 114, 116, 121, 70, 105, 102, 116, 121, 83, 105, 120, 116, 121, 83, 101, 118, 101, 110, 116, 121, 69, 105, 103, 104, 116, 121, 78, 105, 110, 101, 116, 121, 72, 117, 110, 100, 114, 101, 100, 84, 104, 111, 117, 115, 97, 110, 100, 77, 105, 108, 108, 105, 111, 110, 66, 105, 108, 108, 105, 111, 110, 84, 114, 105, 108, 108, 105, 111, 110, 80, 111, 105, 110, 116, 78, 101, 103, 97, 116, 105, 118, 101]
+
+def word_byte(code: usize, index: usize) -> u8 = WORD_BYTES[WORD_OFFSETS[code] + index]
+def emit_word(scratch: mutable u8&, position: mutable usize&, code: usize):
+    if position > 0: scratch[position] <- 32u8(); position <- position + 1
+    i: mutable usize = 0
+    while i < WORD_LENGTHS[code]:
+        scratch[position] <- word_byte(code, i)
+        position <- position + 1
+        i <- i + 1
+def emit_chunk(scratch: mutable u8&, position: mutable usize&, value: usize):
+    x: mutable usize = value
+    if x >= 100: emit_word(scratch, position&, x / 100); emit_word(scratch, position&, 28); x <- x % 100
+    if x >= 20: emit_word(scratch, position&, 18 + x / 10); x <- x % 10
+    if x > 0 and x < 20: emit_word(scratch, position&, x)
+
+def number_to_words_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or length > 9: return -1
+    sign: i64 = values[0]
+    whole: i64 = values[1]
+    fraction_count: i64 = values[2]
+    if sign < -1 or sign > 1 or whole < 0 or whole > 999999999999999 or fraction_count < 0 or fraction_count > 6 or length != (fraction_count + 3).usize(): return -1
+    nonzero: mutable bool = whole != 0
+    i: mutable usize = 3
+    while i < length:
+        digit: i64 = values[i]
+        if digit < 0 or digit > 9: return -1
+        if digit != 0: nonzero <- true
+        i <- i + 1
+    if (nonzero and sign == 0) or (not nonzero and sign != 0): return -1
+    scratch: mutable [256]u8 = [0; 256]
+    position: mutable usize = 0
+    if sign < 0: emit_word(scratch, position&, 34)
+    groups: mutable [5]usize = [0; 5]
+    remain: mutable usize = whole.usize()
+    i <- 0
+    while i < 5: groups[i] <- remain % 1000; remain <- remain / 1000; i <- i + 1
+    any: mutable bool = false
+    i <- 5
+    while i > 0:
+        i <- i - 1
+        if groups[i] != 0:
+            emit_chunk(scratch, position&, groups[i])
+            if i == 1: emit_word(scratch, position&, 29)
+            else if i == 2: emit_word(scratch, position&, 30)
+            else if i == 3: emit_word(scratch, position&, 31)
+            else if i == 4: emit_word(scratch, position&, 32)
+            any <- true
+    if not any: emit_word(scratch, position&, 0)
+    fraction_nonzero: mutable bool = false
+    i <- 3
+    while i < length:
+        if values[i] != 0: fraction_nonzero <- true
+        i <- i + 1
+    if fraction_nonzero:
+        emit_word(scratch, position&, 33)
+        i <- 3
+        while i < length:
+            emit_word(scratch, position&, values[i].usize())
+            i <- i + 1
+    if position > capacity: return -2
+    i <- 0
+    while i < position:
+        output[i] <- scratch[i]
+        i <- i + 1
+    return position.i64()
+
+export fn number_to_words(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = number_to_words_impl

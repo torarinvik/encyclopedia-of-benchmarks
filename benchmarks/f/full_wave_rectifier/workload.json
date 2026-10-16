@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "id": "full-wave-rectifier-i64-array-bytes-f64-vector-v1",
+  "algorithm": "full_wave_rectifier",
+  "function_symbol": "full_wave_rectifier",
+  "input": {
+    "kind": "signed_i64_array",
+    "exact_length": 5,
+    "layout": [
+      "rf",
+      "rs",
+      "rl",
+      "vm",
+      "im"
+    ],
+    "resistance_ranges": {
+      "rf": [
+        0,
+        1000000
+      ],
+      "rs": [
+        0,
+        1000000
+      ],
+      "rl": [
+        1,
+        1000000
+      ]
+    },
+    "signal_ranges": {
+      "vm": [
+        -1000000,
+        1000000
+      ],
+      "im": [
+        -1000000,
+        1000000
+      ]
+    },
+    "first_rejected_length": 6,
+    "maximum_validation_array_length": 6,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "little-endian IEEE-754 binary64",
+    "layout": "[max_load_current, dc_current, dc_voltage, max_current, rms_current, rms_voltage]",
+    "max_length": 6,
+    "max_output_bytes": 48,
+    "valid_result": 48,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 48,
+    "meaning": "fixed capacity for six little-endian binary64 outputs"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned-example",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        1.25,
+        1.272,
+        9.540000000000001,
+        2.5,
+        1.414,
+        10.604999999999999
+      ]
+    },
+    {
+      "id": "all-zero-signals",
+      "input_values": [
+        10,
+        20,
+        30,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "negative-voltage-current",
+      "input_values": [
+        2,
+        4,
+        6,
+        -15,
+        -2
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        -1.25,
+        -1.272,
+        -9.540000000000001,
+        -2.5,
+        -1.414,
+        -10.604999999999999
+      ]
+    },
+    {
+      "id": "minimum-resistance-and-signal",
+      "input_values": [
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        1.0,
+        0.636,
+        0.636,
+        1.0,
+        0.707,
+        0.707
+      ]
+    },
+    {
+      "id": "maximum-resistances",
+      "input_values": [
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        -1000000
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        0.3333333333333333,
+        -636000.0,
+        636000.0,
+        1.0,
+        -707000.0,
+        707000.0
+      ]
+    },
+    {
+      "id": "unit-total-resistance",
+      "input_values": [
+        0,
+        0,
+        1,
+        1000000,
+        -1000000
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        1000000.0,
+        -636000.0,
+        636000.0,
+        1000000.0,
+        -707000.0,
+        707000.0
+      ]
+    },
+    {
+      "id": "vm-only-positive",
+      "input_values": [
+        3,
+        2,
+        7,
+        123456,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        10288.0,
+        0.0,
+        78518.016,
+        17636.571428571428,
+        0.0,
+        87283.39199999999
+      ]
+    },
+    {
+      "id": "im-only-negative",
+      "input_values": [
+        5,
+        6,
+        10,
+        0,
+        -654321
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        0.0,
+        -416148.156,
+        0.0,
+        0.0,
+        -462604.947,
+        0.0
+      ]
+    },
+    {
+      "id": "empty-input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "four-inputs",
+      "input_values": [
+        2,
+        4,
+        6,
+        15
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra-input",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        2,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative-forward-resistance",
+      "input_values": [
+        -1,
+        4,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative-secondary-resistance",
+      "input_values": [
+        2,
+        -1,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero-load-resistance",
+      "input_values": [
+        2,
+        4,
+        0,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "all-zero-resistances",
+      "input_values": [
+        0,
+        0,
+        0,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "forward-resistance-too-large",
+      "input_values": [
+        1000001,
+        4,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "secondary-resistance-too-large",
+      "input_values": [
+        2,
+        1000001,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "load-resistance-too-large",
+      "input_values": [
+        2,
+        4,
+        1000001,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "voltage-too-large",
+      "input_values": [
+        2,
+        4,
+        6,
+        1000001,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "voltage-too-small",
+      "input_values": [
+        2,
+        4,
+        6,
+        -1000001,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "current-too-small",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        -1000001
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "current-too-large",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        1000001
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "i64-minimum-voltage",
+      "input_values": [
+        2,
+        4,
+        6,
+        -9223372036854775808,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "i64-maximum-current",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        9223372036854775807
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "capacity-too-small",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output": [],
+      "workspace_bytes": 47,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "capacity-exact",
+      "input_values": [
+        2,
+        4,
+        6,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output": [
+        1.25,
+        1.272,
+        9.540000000000001,
+        2.5,
+        1.414,
+        10.604999999999999
+      ],
+      "workspace_bytes": 48
+    },
+    {
+      "id": "invalid-input-before-capacity",
+      "input_values": [
+        2,
+        4,
+        0,
+        15,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": [],
+      "workspace_bytes": 47,
+      "capacity_error_result": -2
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+const MAX_COUNT: usize = 64
+
+def lower_ascii(value: i64) -> i64:
+    if value >= 65 and value <= 90: return value + 32
+    return value
+
+def natural_less(values: i64&, offsets: usize&, lengths: usize&, prefixes: usize&, a: usize, b: usize) -> bool:
+    limit: usize = prefixes[a]
+    if prefixes[b] < limit: limit <- prefixes[b]
+    i: mutable usize = 0
+    while i < limit:
+        x: i64 = lower_ascii(values[offsets[a] + i])
+        y: i64 = lower_ascii(values[offsets[b] + i])
+        if x != y: return x < y
+        i <- i + 1
+    if prefixes[a] != prefixes[b]: return prefixes[a] < prefixes[b]
+    sa: usize = lengths[a] - prefixes[a]
+    sb: usize = lengths[b] - prefixes[b]
+    if sa == 0 or sb == 0: return sa < sb
+    za: mutable usize = 0
+    zb: mutable usize = 0
+    while za < sa and values[offsets[a] + prefixes[a] + za] == 48: za <- za + 1
+    while zb < sb and values[offsets[b] + prefixes[b] + zb] == 48: zb <- zb + 1
+    na: usize = sa - za
+    nb: usize = sb - zb
+    if na != nb: return na < nb
+    i <- 0
+    while i < na:
+        x: i64 = values[offsets[a] + prefixes[a] + za + i]
+        y: i64 = values[offsets[b] + prefixes[b] + zb + i]
+        if x != y: return x < y
+        i <- i + 1
+    return false
+
+def natural_sort_impl(values: i64&, n: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or n < 1 or n > 4161 or values[0] < 0 or values[0] > 64: return -1
+    count: usize = values[0].usize()
+    offsets: mutable usize[64] = zeroed
+    lengths: mutable usize[64] = zeroed
+    prefixes: mutable usize[64] = zeroed
+    order: mutable usize[64] = zeroed
+    cursor: mutable usize = 1
+    total: mutable usize = 0
+    i: usize = 0
+    while i < count:
+        if cursor >= n or values[cursor] < 0 or values[cursor] > 64: return -1
+        lengths[i] <- values[cursor].usize()
+        cursor <- cursor + 1
+        offsets[i] <- cursor
+        prefixes[i] <- lengths[i]
+        digit: mutable bool = false
+        j: usize = 0
+        while j < lengths[i]:
+            c: i64 = values[cursor + j]
+            if c >= 48 and c <= 57:
+                if j == 0: return -1
+                if not digit: prefixes[i] <- j; digit <- true
+            elif not ((c >= 65 and c <= 90) or (c >= 97 and c <= 122)) or digit: return -1
+            j <- j + 1
+        cursor <- cursor + lengths[i]
+        total <- total + lengths[i]
+        order[i] <- i
+        i <- i + 1
+    if cursor != n: return -1
+    i <- 1
+    while i < count:
+        item: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and natural_less(values, offsets, lengths, prefixes, item, order[j - 1]):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- item
+        i <- i + 1
+    bytes: usize = total
+    if count > 0: bytes <- bytes + count - 1
+    if bytes > capacity or (bytes > 0 and output.is_null()): return -2
+    w: mutable usize = 0
+    i <- 0
+    while i < count:
+        if i > 0: output[w] <- 10u8(); w <- w + 1
+        k: usize = order[i]
+        j <- 0
+        while j < lengths[k]: output[w] <- values[offsets[k] + j].u8(); w <- w + 1; j <- j + 1
+        i <- i + 1
+    return w.i64()
+
+export fn natural_sort(values: i64&, n: usize, output: mutable u8&, capacity: usize) -> i64 = natural_sort_impl

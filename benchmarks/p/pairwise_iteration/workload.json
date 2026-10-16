@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "pairwise-iteration-adjacent-integer-pairs-v1",
+  "algorithm": "pairwise_iteration",
+  "function_symbol": "pairwise_iteration",
+  "input": {"kind":"signed_i64_array", "encoding":"[item_count, item0, ...]", "count_range":[0,128], "element_range":[-1000000,1000000], "maximum_input_length":129},
+  "output": {"kind":"little_endian_i64_sequence", "return_value":"bytes written", "meaning":"flattened adjacent pairs (a0,a1),(a1,a2),...", "maximum_output_bytes":2032, "invalid_result":-1, "insufficient_output_capacity_result":-2},
+  "source_bound": {"description":"The pinned Python pairwise_iteration_tee duplicates the iterable with itertools.tee, advances one iterator once, and zips them; the comprehension variant with its default step=1 yields the same adjacent pairs. The benchmark fixes integer input and compares the flattened pair sequence."},
+  "measurement": {"comparison_model":"i64_array_bytes_output_call", "sample_count":7, "warmup_rounds":2, "repetitions_per_sample":1000},
+  "cases": [
+    {"id":"empty", "input_values":[0], "expected_result":0, "expected_output_hex":""},
+    {"id":"singleton", "input_values":[1,7], "expected_result":0, "expected_output_hex":""},
+    {"id":"three_values", "input_values":[3,1,2,3], "expected_result":32, "expected_output_hex":"0100000000000000020000000000000002000000000000000300000000000000"},
+    {"id":"negative_values", "input_values":[3,-2,5,1], "expected_result":32, "expected_output_hex":"feffffffffffffff050000000000000005000000000000000100000000000000"},
+    {"id":"two_values", "input_values":[2,1000000,-1000000], "expected_result":16, "expected_output_hex":"40420f0000000000c0bdf0ffffffff"}
+  ]
+}

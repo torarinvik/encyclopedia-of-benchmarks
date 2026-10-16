@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "id": "rust-lee-grid-bfs-distance-v1",
+  "algorithm": "lee_breadth_first_search",
+  "function_symbol": "lee_breadth_first_search",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[rows, cols, source_row, source_col, destination_row, destination_col, row_major_cells...]",
+    "dimension_range": [
+      1,
+      8
+    ],
+    "cell_values": [
+      0,
+      1
+    ],
+    "maximum_input_length": 70,
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "shortest four-neighbor path length through cells equal to 1, or -1 if endpoint blocked or no path; malformed input returns -2"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/graph/lee_breadth_first_search.rs"
+  },
+  "cases": [
+    {
+      "id": "open_grid",
+      "input_values": [
+        3,
+        3,
+        0,
+        0,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": 4,
+      "input_length": 15
+    },
+    {
+      "id": "source_example",
+      "input_values": [
+        5,
+        5,
+        0,
+        0,
+        2,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected_result": 3,
+      "input_length": 31
+    },
+    {
+      "id": "source_equals_destination",
+      "input_values": [
+        3,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": 0,
+      "input_length": 15
+    },
+    {
+      "id": "blocked_start",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 10
+    },
+    {
+      "id": "blocked_destination",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "input_length": 10
+    },
+    {
+      "id": "unreachable",
+      "input_values": [
+        3,
+        3,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 15
+    },
+    {
+      "id": "corridor",
+      "input_values": [
+        1,
+        5,
+        0,
+        0,
+        0,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": 4,
+      "input_length": 11
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": -2,
+      "input_length": 0
+    },
+    {
+      "id": "invalid_dims",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -2,
+      "input_length": 6
+    },
+    {
+      "id": "short_payload",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": -2,
+      "input_length": 8
+    },
+    {
+      "id": "bad_cell",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      "expected_result": -2,
+      "input_length": 7
+    },
+    {
+      "id": "bad_coord",
+      "input_values": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -2,
+      "input_length": 7
+    }
+  ]
+}

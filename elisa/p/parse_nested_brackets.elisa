@@ -1,0 +1,37 @@
+fn scan(text: u8&, lo: usize, hi: usize, hash: u64&):
+    depth: mutable usize = 0
+    begin: mutable usize = 0
+    i: mutable usize = lo
+    while i < hi:
+        if text[i] == 60.u8():
+            if depth == 0: begin <- i
+            depth <- depth + 1
+        elif text[i] == 62.u8():
+            depth <- depth - 1
+            if depth == 0:
+                j: mutable usize = begin
+                while j <= i:
+                    hash <- (hash * 257 + text[j].u64() + 1) % 1000000007
+                    j <- j + 1
+                scan(text, begin + 1, i, hash)
+        i <- i + 1
+export fn parse_nested_brackets(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129 or input[0] < 0 or input[0] > 128.i64() or length != input[0].usize() + 1: return -1
+    text: mutable u8[128]
+    depth: mutable i64 = 0
+    i: mutable usize = 0
+    size: usize = input[0].usize()
+    while i < size:
+        x: i64 = input[i + 1]
+        if x < 0 or x > 127: return -1
+        text[i] <- x.u8()
+        if x == 60: depth <- depth + 1
+        elif x == 62:
+            depth <- depth - 1
+            if depth < 0: return -1
+        i <- i + 1
+    if depth != 0: return -1
+    hash: mutable u64 = 0
+    scan(text, 0, size, hash)
+    hash.i64()
+

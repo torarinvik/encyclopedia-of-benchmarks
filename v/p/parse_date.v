@@ -1,0 +1,3 @@
+@[export: 'parse_date']
+pub fn parse_date(v &i64,n usize)i64{unsafe{if v==nil||n<9||n>11||v[0]<8||v[0]>10||n!=usize(v[0]+1){return -1};len:=int(v[0]);mut s1:=0;mut s2:=0;for i in 1..len+1{x:=v[i];if x<0||x>127{return -1};if x==47{if s1==0{s1=i}else if s2==0{s2=i}else{return -1}}};if s1<2||s1>3||s2<=s1+1||s2-s1<2||s2-s1>3||len-s2!=4{return -1};mut d:=i64(0);mut m:=i64(0);mut y:=i64(0);for i in 1..s1{x:=v[i];if x<48||x>57{return -1};d=d*10+x-48};for i in s1+1..s2{x:=v[i];if x<48||x>57{return -1};m=m*10+x-48};for i in s2+1..len+1{x:=v[i];if x<48||x>57{return -1};y=y*10+x-48};if m<1||m>12{return -1};mut days:=[12]i64{31,28,31,30,31,30,31,31,30,31,30,31};if m==2&&y%4==0&&(y%100!=0||y%400==0){days[1]=29};if d<1||d>days[int(m-1)]{return -1};return y*10000+m*100+d}}
+

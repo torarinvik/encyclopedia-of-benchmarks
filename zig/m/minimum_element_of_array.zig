@@ -1,0 +1,5 @@
+fn next_rng(s:*u32)u32{var x=s.*;x^=x<<13;x^=x>>17;x^=x<<5;s.*=if(x==0)0x9e3779b9 else x;return s.*;}
+fn part(a:[]i64,lo:usize,hi:usize)usize{const pivot=a[hi];var i=lo;for(lo..hi)|j|{if(a[j]<=pivot){std.mem.swap(i64,&a[i],&a[j]);i+=1;}}std.mem.swap(i64,&a[i],&a[hi]);return i;}
+fn select(a:[]i64,lo:usize,hi:usize,k:usize,s:*u32)i64{if(lo==hi)return a[lo];const p=lo+@as(usize,@intCast(next_rng(s)))%(hi-lo+1);std.mem.swap(i64,&a[p],&a[hi]);const q=part(a,lo,hi);const rank=q-lo+1;if(k==rank)return a[q];if(k<rank)return select(a,lo,q-1,k,s);return select(a,q+1,hi,k-rank,s);}
+const std=@import("std");
+export fn minimum_element_of_array(input:?[*]const i64,length:usize)i64{if(input==null or length<4)return -1;const v=input.?[0..length];const n=v[0];const k=v[1];const seed=v[2];if(n<1 or n>128 or length!=@as(usize,@intCast(n))+3 or k<1 or k>n or seed<0 or seed>2147483647)return -1;var a:[128]i64=undefined;for(0..@intCast(n))|i|{a[i]=v[i+3];if(a[i]<-1_000_000 or a[i]>1_000_000)return -1;for(0..i)|j|{if(a[i]==a[j])return -1;}}var state:u32=if(seed==0)0x9e3779b9 else @intCast(seed);return select(a[0..@intCast(n)],0,@intCast(n-1),@intCast(k),&state);}

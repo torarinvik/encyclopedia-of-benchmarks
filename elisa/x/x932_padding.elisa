@@ -1,0 +1,15 @@
+def x932_padding_impl(values: i64&, length: usize, output: u8&, capacity: usize) -> i64:
+    if length < 1 or length > 257: return -1
+    if values[0] < 1 or values[0] > 64: return -1
+    block: usize = values[0].usize()
+    n: usize = length - 1
+    for i in 1..<length:
+        if values[i] < 0 or values[i] > 255: return -1
+    pad: usize = block - n % block
+    total: usize = n + pad
+    if total > capacity: return -2
+    for i in 0..<n: output[i] <- values[i + 1].u8()
+    for i in n..<(total - 1): output[i] <- 0.u8()
+    output[total - 1] <- pad.u8()
+    total.i64()
+export fn x932_padding(values: i64&, length: usize, output: u8&, capacity: usize) -> i64 = x932_padding_impl

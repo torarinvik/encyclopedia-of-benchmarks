@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn kth_smallest_heap(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>65{return -1;}let x=unsafe{std::slice::from_raw_parts(v,n)};let k=x[0];if k<1||k as usize>=n{return -1;}let mut h=std::collections::BinaryHeap::new();for &z in &x[1..=k as usize]{if !(-100000..=100000).contains(&z){return -1;}h.push(z);}for &z in &x[k as usize+1..]{if !(-100000..=100000).contains(&z){return -1;}if z<=*h.peek().unwrap(){h.pop();h.push(z);}}*h.peek().unwrap()}

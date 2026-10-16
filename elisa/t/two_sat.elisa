@@ -1,0 +1,86 @@
+const TWO_SAT_MAX_LITS: usize = 80
+
+def two_sat_visit_order(graph: u8&, n: usize, vertex: usize, seen: mutable u8&, order: mutable usize&, count: mutable usize&) -> void:
+    seen[vertex] <- 1.u8()
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if graph[vertex * TWO_SAT_MAX_LITS + neighbor] != 0.u8() and seen[neighbor] == 0.u8():
+            two_sat_visit_order(graph, n, neighbor, seen, order, count)
+        neighbor <- neighbor + 1
+    order[count] <- vertex
+    count <- count + 1
+
+def two_sat_visit_component(graph: u8&, n: usize, vertex: usize, component: mutable i32&, id: i32) -> void:
+    component[vertex] <- id
+    neighbor: mutable usize = 0
+    while neighbor < n:
+        if graph[vertex * TWO_SAT_MAX_LITS + neighbor] != 0.u8() and component[neighbor] < 0:
+            two_sat_visit_component(graph, n, neighbor, component, id)
+        neighbor <- neighbor + 1
+
+def two_sat_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 4096 or input[0] < 0 or input[0] > 40 or input[1] < 0 or input[1] > 2047: return -1
+    variables: usize = input[0].usize()
+    clauses: usize = input[1].usize()
+    if length != 2 + 2 * clauses: return -1
+    n: usize = 2 * variables
+    graph: mutable u8[6400] = zeroed
+    transpose: mutable u8[6400] = zeroed
+    clause: mutable usize = 0
+    while clause < clauses:
+        a: i64 = input[2 + 2 * clause]
+        b: i64 = input[3 + 2 * clause]
+        if a == 0 or b == 0 or a < -(variables.i64()) or a > variables.i64() or b < -(variables.i64()) or b > variables.i64(): return -1
+        aa: mutable i64 = a
+        bb: mutable i64 = b
+        if aa < 0: aa <- -aa
+        if bb < 0: bb <- -bb
+        x: mutable usize = 2 * (aa.usize() - 1)
+        y: mutable usize = 2 * (bb.usize() - 1)
+        if a < 0: x <- x + 1
+        if b < 0: y <- y + 1
+        u1: usize = x ^ 1
+        u2: usize = y ^ 1
+        graph[u1 * TWO_SAT_MAX_LITS + y] <- 1.u8()
+        transpose[y * TWO_SAT_MAX_LITS + u1] <- 1.u8()
+        graph[u2 * TWO_SAT_MAX_LITS + x] <- 1.u8()
+        transpose[x * TWO_SAT_MAX_LITS + u2] <- 1.u8()
+        clause <- clause + 1
+    seen: mutable u8[80] = zeroed
+    order: mutable usize[80] = zeroed
+    count: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < n:
+        if seen[vertex] == 0.u8(): two_sat_visit_order(&graph[0], n, vertex, &seen[0], &order[0], count)
+        vertex <- vertex + 1
+    component: mutable i32[80] = zeroed
+    vertex <- 0
+    while vertex < n:
+        component[vertex] <- -1
+        vertex <- vertex + 1
+    id: mutable i32 = 0
+    while count > 0:
+        count <- count - 1
+        vertex <- order[count]
+        if component[vertex] < 0:
+            two_sat_visit_component(&transpose[0], n, vertex, &component[0], id)
+            id <- id + 1
+    satisfiable: mutable bool = true
+    index: mutable usize = 0
+    while index < variables:
+        if component[2 * index] == component[2 * index + 1]: satisfiable <- false
+        index <- index + 1
+    output_length: mutable usize = 1
+    if satisfiable: output_length <- variables + 1
+    if capacity < output_length: return -2
+    output[0] <- 0.u8()
+    if satisfiable: output[0] <- 1.u8()
+    if satisfiable:
+        index <- 0
+        while index < variables:
+            output[index + 1] <- 0.u8()
+            if component[2 * index] > component[2 * index + 1]: output[index + 1] <- 1.u8()
+            index <- index + 1
+    output_length.i64()
+
+export fn two_sat(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_sat_impl

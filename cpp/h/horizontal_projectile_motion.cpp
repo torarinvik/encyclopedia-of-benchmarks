@@ -49,9 +49,11 @@ extern "C" std::int64_t horizontal_projectile_motion(const std::int64_t *values,
     const double velocity = static_cast<double>(velocity_milli) / 1000.0;
     const double angle = static_cast<double>(angle_millidegrees) / 1000.0;
     constexpr double pi_over_180 = 3.14159265358979323846264338327950288 / 180.0;
-    const double distance_raw = velocity * velocity * std::sin((2.0 * angle) * pi_over_180) / GRAVITY;
+    const double velocity_squared = velocity * velocity;
+    const double distance_raw = velocity_squared * std::sin((2.0 * angle) * pi_over_180) / GRAVITY;
     const double angle_sine = std::sin(angle * pi_over_180);
-    const double height_raw = velocity * velocity * angle_sine * angle_sine / (2.0 * GRAVITY);
+    const double sine_squared = angle_sine * angle_sine;
+    const double height_raw = velocity_squared * sine_squared / (2.0 * GRAVITY);
     const double time_raw = (2.0 * velocity) * angle_sine / GRAVITY;
     const double distance = static_cast<double>(round_cents(distance_raw)) / 100.0;
     const double height = static_cast<double>(round_cents(height_raw)) / 100.0;

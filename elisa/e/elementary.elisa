@@ -1,0 +1,16 @@
+def elementary_impl(v: i64&, n: usize, out: u8&, capacity: usize) -> i64:
+    if n < 2 or n > 129: return -1
+    count: i64 = v[0]
+    if count < 1 or count > 128 or n != (count + 1).usize() or v[1] != 0: return -1
+    for i in 1..<n:
+        if v[i] != 0 and v[i] != 1: return -1
+    if capacity < count.usize(): return -2
+    for i in 0..<count.usize():
+        left: u32 = 0
+        if i > 0: left <- v[i].u32()
+        center: u32 = v[i + 1].u32()
+        right: u32 = 0
+        if i + 1 < count.usize(): right <- v[i + 2].u32()
+        out[i] <- ((30 >> (left * 4 + center * 2 + right)) & 1).u8()
+    count
+export fn elementary(v: i64&, n: usize, out: u8&, capacity: usize) -> i64 = elementary_impl

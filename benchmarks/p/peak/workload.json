@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "python-divide-and-conquer-strict-unimodal-peak-v1",
+  "algorithm": "peak",
+  "function_symbol": "peak",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[count, signed 32-bit values...]",
+    "count_range": [
+      3,
+      64
+    ],
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "maximum_input_length": 65
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "peak value at the unique interior maximum",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Python function examines the middle three values and recursively slices toward the rising side when the left neighbor is smaller than the right; otherwise it searches left. The contract requires a strictly unimodal list with an interior peak."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 11,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "five-middle-peak",
+      "input_values": [
+        9,
+        1,
+        2,
+        3,
+        4,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 5
+    },
+    {
+      "id": "peak-near-left",
+      "input_values": [
+        4,
+        1,
+        9,
+        8,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 9
+    },
+    {
+      "id": "peak-near-right",
+      "input_values": [
+        8,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "negative-values",
+      "input_values": [
+        5,
+        -9,
+        -4,
+        0,
+        -2,
+        -7
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "two-sided-monotone",
+      "input_values": [
+        6,
+        0,
+        2,
+        4,
+        6,
+        5,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 6
+    },
+    {
+      "id": "single-peak-minimal",
+      "input_values": [
+        3,
+        1,
+        3,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "increasing-only",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "decreasing-only",
+      "input_values": [
+        4,
+        4,
+        3,
+        2,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "too-short",
+      "input_values": [
+        2,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "bad-length",
+      "input_values": [
+        4,
+        1,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [
+        3,
+        1000001,
+        1000002,
+        1000000
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ]
+}

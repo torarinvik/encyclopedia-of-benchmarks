@@ -1,0 +1,33 @@
+def optimal_binary_search_tree_impl(values: i64&, length: usize) -> i64:
+    if length < 2 or length > 33: return -1
+    count: i64 = values[0]
+    if count < 1 or count > 32 or length != (count + 1).usize(): return -1
+    prefix: mutable i64[33] = zeroed
+    dp: mutable i64[32][32] = zeroed
+    i: mutable usize = 0
+    while i < count.usize():
+        frequency: i64 = values[i+1]
+        if frequency < 0 or frequency > 1000: return -1
+        prefix[i+1] <- prefix[i] + frequency
+        dp[i][i] <- frequency
+        i <- i + 1
+    width: mutable usize = 2
+    while width <= count.usize():
+        start: mutable usize = 0
+        while start + width <= count.usize():
+            end: usize = start + width - 1
+            total: i64 = prefix[end+1] - prefix[start]
+            best: mutable i64 = 1000000000
+            root: mutable usize = start
+            while root <= end:
+                cost: mutable i64 = total
+                if root > start: cost <- cost + dp[start][root-1]
+                if root < end: cost <- cost + dp[root+1][end]
+                if cost < best: best <- cost
+                root <- root + 1
+            dp[start][end] <- best
+            start <- start + 1
+        width <- width + 1
+    return dp[0][count.usize()-1]
+
+export fn optimal_binary_search_tree(values: i64&, length: usize) -> i64 = optimal_binary_search_tree_impl

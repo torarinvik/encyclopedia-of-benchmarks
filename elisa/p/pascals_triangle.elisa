@@ -1,0 +1,19 @@
+export fn pascals_triangle(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1 or input[0] < 1 or input[0] > 31: return -1
+    rows: usize = input[0].usize()
+    values: mutable i64[31]
+    values[0] <- 1
+    row: mutable usize = 1
+    while row < rows:
+        values[row] <- 1
+        j: mutable usize = row
+        while j > 1:
+            j <- j - 1
+            values[j] <- values[j] + values[j - 1]
+        row <- row + 1
+    hash: mutable i64 = 0
+    i: mutable usize = 0
+    while i < rows:
+        hash <- (hash * 31 + values[i]) % 1000000007
+        i <- i + 1
+    hash

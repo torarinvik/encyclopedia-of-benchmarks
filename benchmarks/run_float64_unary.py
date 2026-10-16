@@ -17,6 +17,10 @@ import subprocess
 from build_abi import ROOT, sha256_file
 from gauss_legendre_oracle import INVALID_RESULT as GAUSS_LEGENDRE_INVALID_RESULT
 from gauss_legendre_oracle import expected_result as gauss_legendre_expected
+from liters_to_usgallons_oracle import INVALID_RESULT as LITERS_TO_USGALLONS_INVALID_RESULT
+from liters_to_usgallons_oracle import expected_result as liters_to_usgallons_expected
+from liters_to_imperial_gallons_oracle import INVALID_RESULT as LITERS_TO_IMPERIAL_GALLONS_INVALID_RESULT
+from liters_to_imperial_gallons_oracle import expected_result as liters_to_imperial_gallons_expected
 from fast_inverse_sqrt_cpp_oracle import INVALID_RESULT as FAST_INVERSE_SQRT_CPP_INVALID_RESULT
 from fast_inverse_sqrt_cpp_oracle import expected_result as fast_inverse_sqrt_cpp_expected
 
@@ -92,6 +96,15 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             source_result = value / (180.0 / math.pi)
             if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
                 raise ValueError("radians expected result must preserve degree / (180 / pi)")
+    elif algorithm == "ounces_to_kilograms":
+        valid = -1_000_000.0 <= value <= 1_000_000.0
+        if not valid:
+            if expected_value != -1e300:
+                raise ValueError("invalid ounces_to_kilograms inputs must use the -1e300 result sentinel")
+        else:
+            source_result = (value * 28.3498) / 1000.0
+            if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
+                raise ValueError("ounces_to_kilograms expected result must preserve the pinned multiplication and division order")
     elif algorithm == "relu":
         valid = (value.is_integer() and -16_777_216.0 <= value <= 16_777_216.0)
         if not valid:
@@ -247,6 +260,24 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             source_result = float(round(math.pi * value * value, 0))
             if abs(expected_value - source_result) > absolute_tolerance + relative_tolerance * abs(source_result):
                 raise ValueError("orbital_capture_area expected result must match the pinned circular-area formula")
+    elif algorithm == "liters_to_usgallons":
+        source_result = liters_to_usgallons_expected(value)
+        if source_result == LITERS_TO_USGALLONS_INVALID_RESULT:
+            if expected_value != LITERS_TO_USGALLONS_INVALID_RESULT:
+                raise ValueError("invalid liters_to_usgallons inputs must use the -1e300 result sentinel")
+        elif (expected_value == LITERS_TO_USGALLONS_INVALID_RESULT
+              or abs(expected_value - source_result)
+              > absolute_tolerance + relative_tolerance * abs(source_result)):
+            raise ValueError("liters_to_usgallons expected result must match liters / 3.785411784")
+    elif algorithm == "liters_to_imperial_gallons":
+        source_result = liters_to_imperial_gallons_expected(value)
+        if source_result == LITERS_TO_IMPERIAL_GALLONS_INVALID_RESULT:
+            if expected_value != LITERS_TO_IMPERIAL_GALLONS_INVALID_RESULT:
+                raise ValueError("invalid liters_to_imperial_gallons inputs must use the -1e300 result sentinel")
+        elif (expected_value == LITERS_TO_IMPERIAL_GALLONS_INVALID_RESULT
+              or abs(expected_value - source_result)
+              > absolute_tolerance + relative_tolerance * abs(source_result)):
+            raise ValueError("liters_to_imperial_gallons expected result must match liters / 4.54609")
     elif algorithm == "problem58":
         valid = 0.1 <= value <= 0.6
         if not valid:

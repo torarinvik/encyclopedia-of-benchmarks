@@ -186,6 +186,99 @@ from hamming_distance_bytes_oracle import expected_result as hamming_distance_by
 from hamming_distance_strings_oracle import MAX_INPUT_LENGTH as MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH
 from hamming_distance_strings_oracle import MAX_STRING_LENGTH as MAX_HAMMING_DISTANCE_STRINGS_LENGTH
 from hamming_distance_strings_oracle import expected_result as hamming_distance_strings_oracle
+from frequency_finder_oracle import MAX_INPUT_LENGTH as MAX_FREQUENCY_FINDER_INPUT_LENGTH
+from frequency_finder_oracle import MAX_TEXT_LENGTH as MAX_FREQUENCY_FINDER_TEXT_LENGTH
+from frequency_finder_oracle import expected_result as frequency_finder_oracle
+from multiply_digit_oracle import INVALID_RESULT as MULTIPLY_DIGIT_INVALID_RESULT
+from multiply_digit_oracle import MAX_INPUT_LENGTH as MAX_MULTIPLY_DIGIT_INPUT_LENGTH
+from multiply_digit_oracle import MAX_OPERAND as MAX_MULTIPLY_DIGIT_OPERAND
+from multiply_digit_oracle import MIN_OPERAND as MIN_MULTIPLY_DIGIT_OPERAND
+from multiply_digit_oracle import expected_result as multiply_digit_oracle
+from sort_the_odd_oracle import INVALID_RESULT as SORT_THE_ODD_INVALID_RESULT
+from sort_the_odd_oracle import MAX_INPUT_LENGTH as MAX_SORT_THE_ODD_INPUT_LENGTH
+from sort_the_odd_oracle import MAX_LENGTH as SORT_THE_ODD_MAX_LENGTH
+from sort_the_odd_oracle import MAX_VALUE as SORT_THE_ODD_MAX_VALUE
+from sort_the_odd_oracle import MIN_VALUE as SORT_THE_ODD_MIN_VALUE
+from sort_the_odd_oracle import expected_result as sort_the_odd_oracle
+from merge_sorted_oracle import CHECKSUM_OFFSET as MERGE_SORTED_CHECKSUM_OFFSET
+from merge_sorted_oracle import INVALID_RESULT as MERGE_SORTED_INVALID_RESULT
+from merge_sorted_oracle import MAX_ARRAY_LENGTH as MERGE_SORTED_MAX_ARRAY_LENGTH
+from merge_sorted_oracle import MAX_INPUT_LENGTH as MAX_MERGE_SORTED_INPUT_LENGTH
+from merge_sorted_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MERGE_SORTED_PARSEABLE_INPUT_LENGTH
+from merge_sorted_oracle import MAX_VALUE as MERGE_SORTED_MAX_VALUE
+from merge_sorted_oracle import MIN_VALUE as MERGE_SORTED_MIN_VALUE
+from merge_sorted_oracle import expected_result as merge_sorted_oracle
+from merge_ksorted_arrays_oracle import CHECKSUM_OFFSET as MERGE_KSORTED_ARRAYS_CHECKSUM_OFFSET
+from merge_ksorted_arrays_oracle import INVALID_RESULT as MERGE_KSORTED_ARRAYS_INVALID_RESULT
+from merge_ksorted_arrays_oracle import MAX_ARRAYS as MERGE_KSORTED_ARRAYS_MAX_ARRAYS
+from merge_ksorted_arrays_oracle import MAX_INPUT_LENGTH as MAX_MERGE_KSORTED_ARRAYS_INPUT_LENGTH
+from merge_ksorted_arrays_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MERGE_KSORTED_ARRAYS_PARSEABLE_INPUT_LENGTH
+from merge_ksorted_arrays_oracle import MAX_TOTAL_VALUES as MERGE_KSORTED_ARRAYS_MAX_TOTAL_VALUES
+from merge_ksorted_arrays_oracle import MAX_VALUE as MERGE_KSORTED_ARRAYS_MAX_VALUE
+from merge_ksorted_arrays_oracle import MIN_VALUE as MERGE_KSORTED_ARRAYS_MIN_VALUE
+from merge_ksorted_arrays_oracle import expected_result as merge_ksorted_arrays_oracle
+from jort_sort_oracle import INVALID_RESULT as JORT_SORT_INVALID_RESULT
+from jort_sort_oracle import MAX_INPUT_LENGTH as MAX_JORT_SORT_INPUT_LENGTH
+from jort_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_JORT_SORT_PARSEABLE_INPUT_LENGTH
+from jort_sort_oracle import expected_result as jort_sort_oracle
+from substring_oracle import CHECKSUM_BASE as SUBSTRING_CHECKSUM_BASE
+from substring_oracle import INVALID_RESULT as SUBSTRING_INVALID_RESULT
+from substring_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_INPUT_LENGTH
+from substring_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_PARSEABLE_INPUT_LENGTH
+from substring_oracle import MAX_REQUESTED_COUNT as SUBSTRING_MAX_REQUESTED_COUNT
+from substring_oracle import MAX_TEXT_LENGTH as SUBSTRING_MAX_TEXT_LENGTH
+from substring_oracle import expected_result as substring_oracle
+from permutation_sort_oracle import INVALID_RESULT as PERMUTATION_SORT_INVALID_RESULT
+from permutation_sort_oracle import MAX_LENGTH as PERMUTATION_SORT_MAX_LENGTH
+from permutation_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_PERMUTATION_SORT_PARSEABLE_INPUT_LENGTH
+from permutation_sort_oracle import expected_result as permutation_sort_oracle
+from substring_search_oracle import INVALID_RESULT as SUBSTRING_SEARCH_INVALID_RESULT
+from substring_search_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_SEARCH_INPUT_LENGTH
+from substring_search_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH
+from substring_search_oracle import MAX_PATTERN_LENGTH as SUBSTRING_SEARCH_MAX_PATTERN_LENGTH
+from substring_search_oracle import MAX_TEXT_LENGTH as SUBSTRING_SEARCH_MAX_TEXT_LENGTH
+from substring_search_oracle import NOT_FOUND_RESULT as SUBSTRING_SEARCH_NOT_FOUND_RESULT
+from substring_search_oracle import expected_result as substring_search_oracle
+from substring_end_oracle import CHECKSUM_BASE as SUBSTRING_END_CHECKSUM_BASE
+from substring_end_oracle import INVALID_RESULT as SUBSTRING_END_INVALID_RESULT
+from substring_end_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_END_INPUT_LENGTH
+from substring_end_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH
+from substring_end_oracle import MAX_TEXT_LENGTH as SUBSTRING_END_MAX_TEXT_LENGTH
+from substring_end_oracle import expected_result as substring_end_oracle
+from substring_minus_oracle import CHECKSUM_BASE as SUBSTRING_MINUS_CHECKSUM_BASE
+from substring_minus_oracle import INVALID_RESULT as SUBSTRING_MINUS_INVALID_RESULT
+from substring_minus_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_MINUS_INPUT_LENGTH
+from substring_minus_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH
+from substring_minus_oracle import expected_result as substring_minus_oracle
+from substring_st_char_oracle import CHECKSUM_BASE as SUBSTRING_ST_CHAR_CHECKSUM_BASE
+from substring_st_char_oracle import INVALID_RESULT as SUBSTRING_ST_CHAR_INVALID_RESULT
+from substring_st_char_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_ST_CHAR_INPUT_LENGTH
+from substring_st_char_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_ST_CHAR_PARSEABLE_INPUT_LENGTH
+from substring_st_char_oracle import MAX_REQUESTED_COUNT as SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT
+from substring_st_char_oracle import MAX_TEXT_LENGTH as SUBSTRING_ST_CHAR_MAX_TEXT_LENGTH
+from substring_st_char_oracle import expected_result as substring_st_char_oracle
+from simplesort_oracle import CHECKSUM_OFFSET as SIMPLESORT_CHECKSUM_OFFSET
+from simplesort_oracle import INVALID_RESULT as SIMPLESORT_INVALID_RESULT
+from simplesort_oracle import MAX_LENGTH as SIMPLESORT_MAX_LENGTH
+from simplesort_oracle import MAX_VALUE as SIMPLESORT_MAX_VALUE
+from simplesort_oracle import MIN_VALUE as SIMPLESORT_MIN_VALUE
+from simplesort_oracle import expected_result as simplesort_oracle
+from improved_simple_sort_oracle import CHECKSUM_OFFSET as IMPROVED_SIMPLE_SORT_CHECKSUM_OFFSET
+from improved_simple_sort_oracle import INVALID_RESULT as IMPROVED_SIMPLE_SORT_INVALID_RESULT
+from improved_simple_sort_oracle import MAX_LENGTH as IMPROVED_SIMPLE_SORT_MAX_LENGTH
+from improved_simple_sort_oracle import MAX_VALUE as IMPROVED_SIMPLE_SORT_MAX_VALUE
+from improved_simple_sort_oracle import MIN_VALUE as IMPROVED_SIMPLE_SORT_MIN_VALUE
+from improved_simple_sort_oracle import expected_result as improved_simple_sort_oracle
+from largest_of_very_large_numbers_oracle import INVALID_RESULT as LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT
+from largest_of_very_large_numbers_oracle import MAX_BASE as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE
+from largest_of_very_large_numbers_oracle import MAX_EXPONENT as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT
+from largest_of_very_large_numbers_oracle import MAX_INPUT_LENGTH as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH
+from largest_of_very_large_numbers_oracle import expected_result as largest_of_very_large_numbers_oracle
+from lexicographical_numbers_oracle import INVALID_RESULT as LEXICOGRAPHICAL_NUMBERS_INVALID_RESULT
+from lexicographical_numbers_oracle import MAX_NUMBER as LEXICOGRAPHICAL_NUMBERS_MAX_NUMBER
+from lexicographical_numbers_oracle import MAX_INPUT_LENGTH as MAX_LEXICOGRAPHICAL_NUMBERS_INPUT_LENGTH
+from lexicographical_numbers_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_LEXICOGRAPHICAL_NUMBERS_PARSEABLE_INPUT_LENGTH
+from lexicographical_numbers_oracle import expected_result as lexicographical_numbers_oracle
 from djb2_oracle import MAX_INPUT_LENGTH as MAX_DJB2_INPUT_LENGTH
 from djb2_oracle import MAX_STRING_LENGTH as MAX_DJB2_STRING_LENGTH
 from djb2_oracle import expected_result as djb2_oracle
@@ -311,8 +404,31 @@ from edmonds_blossom_algorithm_oracle import MAX_EDGES as MAX_EDMONDS_BLOSSOM_ED
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import MAX_VERTICES as MAX_EDMONDS_BLOSSOM_VERTICES
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_oracle
+from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
+from edmonds_karp_oracle import MAX_VERTICES as MAX_EDMONDS_KARP_VERTICES
+from edmonds_karp_oracle import MAX_CAPACITY as MAX_EDMONDS_KARP_CAPACITY
+from edmonds_karp_oracle import expected_result as edmonds_karp_oracle
+from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGTH
+from push_relabel_oracle import MAX_VERTICES as MAX_PUSH_RELABEL_VERTICES
+from push_relabel_oracle import MAX_CAPACITY as MAX_PUSH_RELABEL_CAPACITY
+from push_relabel_oracle import expected_result as push_relabel_oracle
 
-ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
+ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
+ALGORITHMS += ("sort_the_odd",)
+ALGORITHMS += ("merge_sorted",)
+ALGORITHMS += ("merge_ksorted_arrays",)
+ALGORITHMS += ("jort_sort",)
+ALGORITHMS += ("substring",)
+ALGORITHMS += ("permutation_sort",)
+ALGORITHMS += ("substring_search",)
+ALGORITHMS += ("substring_end",)
+ALGORITHMS += ("substring_minus",)
+ALGORITHMS += ("substring_st_char",)
+ALGORITHMS += ("simplesort",)
+ALGORITHMS += ("improved_simple_sort",)
+ALGORITHMS += ("largest_of_very_large_numbers",)
+ALGORITHMS += ("lexicographical_numbers",)
+ALGORITHMS += ("push_relabel",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 
@@ -751,6 +867,10 @@ def problem107_oracle(values: list[int]) -> int:
 def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "edmonds_blossom_algorithm":
         return edmonds_blossom_oracle(values)
+    if algorithm == "edmonds_karp":
+        return edmonds_karp_oracle(values)
+    if algorithm == "push_relabel":
+        return push_relabel_oracle(values)
     if algorithm == "primitive_root":
         return primitive_root_oracle(values)
     if algorithm == "dijkstras_two_stack_algorithm":
@@ -949,6 +1069,38 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return hamming_distance_bytes_oracle(values)
     if algorithm == "hamming_distance_strings":
         return hamming_distance_strings_oracle(values)
+    if algorithm == "frequency_finder":
+        return frequency_finder_oracle(values)
+    if algorithm == "multiply_digit":
+        return multiply_digit_oracle(values)
+    if algorithm == "sort_the_odd":
+        return sort_the_odd_oracle(values)
+    if algorithm == "merge_sorted":
+        return merge_sorted_oracle(values)
+    if algorithm == "merge_ksorted_arrays":
+        return merge_ksorted_arrays_oracle(values)
+    if algorithm == "jort_sort":
+        return jort_sort_oracle(values)
+    if algorithm == "substring":
+        return substring_oracle(values)
+    if algorithm == "permutation_sort":
+        return permutation_sort_oracle(values)
+    if algorithm == "substring_search":
+        return substring_search_oracle(values)
+    if algorithm == "substring_end":
+        return substring_end_oracle(values)
+    if algorithm == "substring_minus":
+        return substring_minus_oracle(values)
+    if algorithm == "substring_st_char":
+        return substring_st_char_oracle(values)
+    if algorithm == "simplesort":
+        return simplesort_oracle(values)
+    if algorithm == "improved_simple_sort":
+        return improved_simple_sort_oracle(values)
+    if algorithm == "largest_of_very_large_numbers":
+        return largest_of_very_large_numbers_oracle(values)
+    if algorithm == "lexicographical_numbers":
+        return lexicographical_numbers_oracle(values)
     if algorithm == "hexa_decimal_to_decimal":
         return hexa_decimal_to_decimal_oracle(values)
     if algorithm == "djb2":
@@ -1210,8 +1362,48 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                                 (case["expected_result"] for case in workload["cases"])):
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
+    if algorithm in {
+        "inorder_successor_of_bst", "frequency_finder", "sort_the_odd",
+        "merge_ksorted_arrays", "jort_sort", "substring", "permutation_sort",
+        "substring_search", "substring_end", "substring_minus", "substring_st_char",
+        "simplesort", "improved_simple_sort", "lexicographical_numbers",
+        "largest_of_very_large_numbers",
+    }:
+        # The checker represents a zero-length array as a NULL pointer itself;
+        # special NULL records require a positive length and are rejected at parse time.
+        cases[()] = oracle(algorithm, [])
     rng = random.Random(20261014)
-    if algorithm == "edmonds_blossom_algorithm":
+    if algorithm == "push_relabel":
+        for _ in range(256):
+            vertex_count = rng.randint(2, min(10, MAX_PUSH_RELABEL_VERTICES))
+            terminal_order = list(range(vertex_count))
+            rng.shuffle(terminal_order)
+            source_count = rng.randint(1, vertex_count - 1)
+            sink_count = rng.randint(1, vertex_count - source_count)
+            sources = terminal_order[:source_count]
+            sinks = terminal_order[source_count:source_count + sink_count]
+            matrix = [0] * (vertex_count * vertex_count)
+            for left in range(vertex_count):
+                for right in range(vertex_count):
+                    if left != right and rng.random() < 0.45:
+                        matrix[left * vertex_count + right] = rng.randint(0, MAX_PUSH_RELABEL_CAPACITY)
+            values = (vertex_count, source_count, *sources, sink_count, *sinks, *matrix)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (2,), (2, 0), (2, 1), (2, 1, -1, 1, 0, 0, 0),
+            (2, 1, 0, 1, 2, 0, 0, 0, 0),
+            (2, 1, 0, 1, 0, 0, 0, 0),
+            (2, 2, 0, 0, 1, 1, 0, 0, 0, 0),
+            (2, 1, I64_MAX, 1, 0, 0, 0, 0),
+            (2, 1, 0, I64_MAX, 0, 0, 0, 0),
+            (MAX_PUSH_RELABEL_VERTICES + 1, 1, 0, 1, 1),
+        )
+        for values in malformed:
+            if len(values) <= MAX_PUSH_RELABEL_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "edmonds_blossom_algorithm":
         from itertools import combinations
 
         for vertex_count in range(6):
@@ -1234,6 +1426,53 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in malformed:
             if len(values) <= MAX_EDMONDS_BLOSSOM_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "edmonds_karp":
+        from itertools import product as cartesian_product
+
+        # Exhaust every simple directed graph through four vertices. Each
+        # unordered pair is absent or has one of its two permitted directions.
+        for vertex_count in range(2, 5):
+            pairs = [(left, right) for left in range(vertex_count) for right in range(left + 1, vertex_count)]
+            for choices in cartesian_product(range(3), repeat=len(pairs)):
+                matrix = [0] * (vertex_count * vertex_count)
+                for (left, right), direction in zip(pairs, choices):
+                    if direction == 1:
+                        matrix[left * vertex_count + right] = 1
+                    elif direction == 2:
+                        matrix[right * vertex_count + left] = 1
+                values = (vertex_count, 0, vertex_count - 1, *matrix)
+                cases[values] = oracle(algorithm, list(values))
+
+        # Random weighted directed graphs extend the coverage to larger sizes.
+        for _ in range(256):
+            vertex_count = rng.randint(1, min(8, MAX_EDMONDS_KARP_VERTICES))
+            matrix = [0] * (vertex_count * vertex_count)
+            for left in range(vertex_count):
+                for right in range(left + 1, vertex_count):
+                    direction = rng.randrange(3)
+                    if direction:
+                        capacity = rng.randint(1, MAX_EDMONDS_KARP_CAPACITY)
+                        if direction == 1:
+                            matrix[left * vertex_count + right] = capacity
+                        else:
+                            matrix[right * vertex_count + left] = capacity
+            source = rng.randrange(vertex_count)
+            sink = rng.randrange(vertex_count)
+            values = (vertex_count, source, sink, *matrix)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0, 0), (MAX_EDMONDS_KARP_VERTICES + 1, 0, 1),
+            (2, -1, 1, 0, 1, 0, 0), (2, 0, 2, 0, 1, 0, 0),
+            (2, 0, 1, 0, -1, 0, 0),
+            (2, 0, 1, 0, MAX_EDMONDS_KARP_CAPACITY + 1, 0, 0),
+            (2, 0, 1, 0, 1, 1, 0), (2, 0, 1, 1, 0, 0, 0),
+            (2, 0, 1, 0, 1, 0), (1, 0, 0, 1),
+        )
+        for values in malformed:
+            if len(values) <= MAX_EDMONDS_KARP_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
     elif algorithm == "dijkstras_two_stack_algorithm":
@@ -1330,7 +1569,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
-        special_records.append("NULL 0 -1\n")
     elif algorithm == "linear_recurrence_matrix":
         rng = random.Random(20261016)
         for dimension in range(1, 5):
@@ -2737,6 +2975,628 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "frequency_finder":
+        rng = random.Random(20261016)
+        fixed_texts = (
+            (),
+            tuple(b"Hello World"),
+            tuple(b"The quick brown fox jumps over the lazy dog."),
+            tuple(b"aaaAAAzzzZZZ"),
+            tuple(b"ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+            tuple(b"1234 !? @#$%^&*()"),
+            tuple([0, 9, 10, 32, 33, 47, 58, 64, 91, 96, 123, 127]),
+            tuple(b"ABCD"),
+            tuple(b"z"),
+            tuple(65 + i % 26 for i in range(MAX_FREQUENCY_FINDER_TEXT_LENGTH)),
+        )
+        for text in fixed_texts:
+            cases[text] = oracle(algorithm, list(text))
+        for _ in range(256):
+            text_length = rng.randint(0, MAX_FREQUENCY_FINDER_TEXT_LENGTH)
+            values = tuple(rng.randrange(128) for _ in range(text_length))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((-1,), (128,), (I64_MAX,), (I64_MIN,),
+                     tuple([0] * MAX_FREQUENCY_FINDER_INPUT_LENGTH))
+        for values in malformed:
+            if len(values) <= MAX_FREQUENCY_FINDER_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "multiply_digit":
+        boundary_pairs = (
+            (MIN_MULTIPLY_DIGIT_OPERAND, MIN_MULTIPLY_DIGIT_OPERAND),
+            (MIN_MULTIPLY_DIGIT_OPERAND, MAX_MULTIPLY_DIGIT_OPERAND),
+            (MAX_MULTIPLY_DIGIT_OPERAND, MAX_MULTIPLY_DIGIT_OPERAND),
+            (0, MIN_MULTIPLY_DIGIT_OPERAND), (MAX_MULTIPLY_DIGIT_OPERAND, 0),
+        )
+        for values in boundary_pairs:
+            cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randint(MIN_MULTIPLY_DIGIT_OPERAND, MAX_MULTIPLY_DIGIT_OPERAND),
+                      rng.randint(MIN_MULTIPLY_DIGIT_OPERAND, MAX_MULTIPLY_DIGIT_OPERAND))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 0, 0),
+            (MIN_MULTIPLY_DIGIT_OPERAND - 1, 1),
+            (MAX_MULTIPLY_DIGIT_OPERAND + 1, 1),
+            (1, MIN_MULTIPLY_DIGIT_OPERAND - 1),
+            (1, MAX_MULTIPLY_DIGIT_OPERAND + 1),
+            (I64_MIN, 1), (1, I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MULTIPLY_DIGIT_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {MULTIPLY_DIGIT_INVALID_RESULT}\n")
+    elif algorithm == "sort_the_odd":
+        boundary_arrays = (
+            (), (0,), (SORT_THE_ODD_MIN_VALUE, SORT_THE_ODD_MAX_VALUE,
+                       SORT_THE_ODD_MIN_VALUE + 1, SORT_THE_ODD_MAX_VALUE - 1),
+            (1, -1, 1, -1, 0, 0),
+            tuple((SORT_THE_ODD_MIN_VALUE + 1) if index % 2 == 0 else
+                  SORT_THE_ODD_MAX_VALUE - 1
+                  for index in range(SORT_THE_ODD_MAX_LENGTH)),
+            tuple((-SORT_THE_ODD_MAX_VALUE + 1) if index % 2 == 0 else 0
+                  for index in range(SORT_THE_ODD_MAX_LENGTH)),
+        )
+        for values in boundary_arrays:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = tuple(rng.randint(SORT_THE_ODD_MIN_VALUE,
+                                       SORT_THE_ODD_MAX_VALUE)
+                           for _ in range(rng.randint(0, SORT_THE_ODD_MAX_LENGTH)))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            tuple([0] * MAX_SORT_THE_ODD_INPUT_LENGTH),
+            (SORT_THE_ODD_MIN_VALUE - 1,),
+            (SORT_THE_ODD_MAX_VALUE + 1,),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[values] = SORT_THE_ODD_INVALID_RESULT
+        special_records.append(f"NULL 1 {SORT_THE_ODD_INVALID_RESULT}\n")
+    elif algorithm == "merge_sorted":
+        boundary_pairs = (
+            ((), ()),
+            ((MERGE_SORTED_MIN_VALUE,), ()),
+            ((), (MERGE_SORTED_MAX_VALUE,)),
+            ((MERGE_SORTED_MIN_VALUE, 0, MERGE_SORTED_MAX_VALUE),
+             (MERGE_SORTED_MIN_VALUE, 0, MERGE_SORTED_MAX_VALUE)),
+            ((-1, -1, 0, 0), (-1, 0, 0, 1)),
+        )
+        for left, right in boundary_pairs:
+            values = (len(left), len(right), *left, *right)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_input = (
+            MERGE_SORTED_MAX_ARRAY_LENGTH,
+            MERGE_SORTED_MAX_ARRAY_LENGTH,
+            *range(-MERGE_SORTED_MAX_ARRAY_LENGTH, 0),
+            *range(-MERGE_SORTED_MAX_ARRAY_LENGTH + 1, 1),
+        )
+        if len(maximum_input) != MAX_MERGE_SORTED_INPUT_LENGTH:
+            raise ValueError("merge_sorted maximum-length input does not match its contract")
+        maximum_result_bound = (
+            (2 * MERGE_SORTED_MAX_ARRAY_LENGTH)
+            * (2 * MERGE_SORTED_MAX_ARRAY_LENGTH + 1)
+            // 2
+            * (MERGE_SORTED_MAX_VALUE + MERGE_SORTED_CHECKSUM_OFFSET)
+        )
+        if maximum_result_bound > I64_MAX:
+            raise ValueError("merge_sorted checksum bound exceeds signed 64-bit output")
+        cases[maximum_input] = oracle(algorithm, list(maximum_input))
+        maximum_values = (
+            MERGE_SORTED_MAX_ARRAY_LENGTH,
+            MERGE_SORTED_MAX_ARRAY_LENGTH,
+            *([MERGE_SORTED_MAX_VALUE] * MERGE_SORTED_MAX_ARRAY_LENGTH),
+            *([MERGE_SORTED_MAX_VALUE] * MERGE_SORTED_MAX_ARRAY_LENGTH),
+        )
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            left = tuple(sorted(rng.randint(MERGE_SORTED_MIN_VALUE,
+                                            MERGE_SORTED_MAX_VALUE)
+                                for _ in range(rng.randint(0, MERGE_SORTED_MAX_ARRAY_LENGTH))))
+            right = tuple(sorted(rng.randint(MERGE_SORTED_MIN_VALUE,
+                                             MERGE_SORTED_MAX_VALUE)
+                                 for _ in range(rng.randint(0, MERGE_SORTED_MAX_ARRAY_LENGTH))))
+            values = (len(left), len(right), *left, *right)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0),
+            (-1, 0), (MERGE_SORTED_MAX_ARRAY_LENGTH + 1, 0),
+            (0, MERGE_SORTED_MAX_ARRAY_LENGTH + 1),
+            (2, 2, 1, 2, 3), (1, 0, 4, 99),
+            (2, 0, 2, 1), (0, 2, 2, 1),
+            (1, 0, MERGE_SORTED_MIN_VALUE - 1),
+            (0, 1, MERGE_SORTED_MAX_VALUE + 1),
+            (1, 0, I64_MIN), (0, 1, I64_MAX),
+            tuple([0] * MAX_MERGE_SORTED_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MERGE_SORTED_PARSEABLE_INPUT_LENGTH:
+                cases[values] = MERGE_SORTED_INVALID_RESULT
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "merge_ksorted_arrays":
+        maximum_checksum_bound = (
+            MERGE_KSORTED_ARRAYS_MAX_TOTAL_VALUES
+            * (MERGE_KSORTED_ARRAYS_MAX_TOTAL_VALUES + 1)
+            // 2
+            * (MERGE_KSORTED_ARRAYS_MAX_VALUE + MERGE_KSORTED_ARRAYS_CHECKSUM_OFFSET)
+        )
+        if maximum_checksum_bound > I64_MAX:
+            raise ValueError("merge_ksorted_arrays checksum bound exceeds signed 64-bit output")
+        if not any(len(case["input_values"]) == MAX_MERGE_KSORTED_ARRAYS_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("merge_ksorted_arrays workload is missing its maximum-length input")
+
+        for values in (
+            (1, 128, *([MERGE_KSORTED_ARRAYS_MIN_VALUE] * 128)),
+            (1, 128, *([MERGE_KSORTED_ARRAYS_MAX_VALUE] * 128)),
+        ):
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        generated: set[tuple[int, ...]] = set()
+        attempts = 0
+        while len(generated) < 19 and attempts < 1_000:
+            attempts += 1
+            array_count = rng.randint(1, MERGE_KSORTED_ARRAYS_MAX_ARRAYS)
+            remaining_values = rng.randint(0, MERGE_KSORTED_ARRAYS_MAX_TOTAL_VALUES)
+            arrays = []
+            for array_index in range(array_count):
+                if array_index == array_count - 1:
+                    array_length = remaining_values
+                else:
+                    array_length = rng.randint(0, remaining_values)
+                remaining_values -= array_length
+                array = tuple(sorted(
+                    rng.randint(MERGE_KSORTED_ARRAYS_MIN_VALUE,
+                                MERGE_KSORTED_ARRAYS_MAX_VALUE)
+                    for _ in range(array_length)
+                ))
+                arrays.append(array)
+            values_list = [array_count]
+            for array in arrays:
+                values_list.extend((len(array), *array))
+            values = tuple(values_list)
+            if values not in cases and values not in generated:
+                generated.add(values)
+                cases[values] = oracle(algorithm, list(values))
+        if len(generated) != 19:
+            raise ValueError("merge_ksorted_arrays did not generate 19 distinct deterministic valid inputs")
+
+        too_many_total_values = [MERGE_KSORTED_ARRAYS_MAX_ARRAYS]
+        for array_index in range(MERGE_KSORTED_ARRAYS_MAX_ARRAYS):
+            array_length = 9 if array_index == MERGE_KSORTED_ARRAYS_MAX_ARRAYS - 1 else 8
+            too_many_total_values.extend((array_length, *([array_index] * array_length)))
+        malformed = (
+            (), (0,), (MERGE_KSORTED_ARRAYS_MAX_ARRAYS + 1,), (-1,),
+            (1,), (1, -1), (1, MERGE_KSORTED_ARRAYS_MAX_TOTAL_VALUES + 1),
+            (2, 2, 1, 2, 1), (1, 1, 7, 8),
+            (1, 3, 1, 0, 2),
+            (1, 1, MERGE_KSORTED_ARRAYS_MIN_VALUE - 1),
+            (1, 1, MERGE_KSORTED_ARRAYS_MAX_VALUE + 1),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            tuple(too_many_total_values),
+            tuple([0] * MAX_MERGE_KSORTED_ARRAYS_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MERGE_KSORTED_ARRAYS_PARSEABLE_INPUT_LENGTH:
+                cases[values] = MERGE_KSORTED_ARRAYS_INVALID_RESULT
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "jort_sort":
+        boundary_arrays = (
+            (), (I64_MIN,), (I64_MAX,), tuple(range(MAX_JORT_SORT_INPUT_LENGTH)),
+            (I64_MAX, *range(MAX_JORT_SORT_INPUT_LENGTH - 1)),
+            (0, *range(MAX_JORT_SORT_INPUT_LENGTH - 1, 0, -1)),
+        )
+        for values in boundary_arrays:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            values = tuple(rng.randint(I64_MIN, I64_MAX)
+                           for _ in range(rng.randint(0, MAX_JORT_SORT_INPUT_LENGTH)))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (tuple([0] * MAX_JORT_SORT_PARSEABLE_INPUT_LENGTH),)
+        for values in malformed:
+            cases[values] = JORT_SORT_INVALID_RESULT
+        special_records.append(f"NULL 1 {JORT_SORT_INVALID_RESULT}\n")
+    elif algorithm == "substring":
+        checksum_bound = (SUBSTRING_MAX_REQUESTED_COUNT
+                          * (SUBSTRING_MAX_REQUESTED_COUNT + 1) // 2 * 127)
+        if checksum_bound >= SUBSTRING_CHECKSUM_BASE:
+            raise ValueError("substring checksum does not fit below its length encoding base")
+        if not any(len(case["input_values"]) == MAX_SUBSTRING_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("substring workload is missing its maximum valid input length")
+        for values in (
+            (0, SUBSTRING_MAX_REQUESTED_COUNT,
+             *([127] * SUBSTRING_MAX_TEXT_LENGTH)),
+            (0, SUBSTRING_MAX_REQUESTED_COUNT,
+             *([1] * SUBSTRING_MAX_TEXT_LENGTH)),
+            (SUBSTRING_MAX_TEXT_LENGTH, 0, *([1] * SUBSTRING_MAX_TEXT_LENGTH)),
+        ):
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            text_length = rng.randint(0, SUBSTRING_MAX_TEXT_LENGTH)
+            text = tuple(rng.randint(1, 127) for _ in range(text_length))
+            start = rng.randint(0, text_length)
+            requested_count = rng.randint(0, SUBSTRING_MAX_REQUESTED_COUNT)
+            values = (start, requested_count, *text)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, 0, 0), (4, 1, 97, 98, 99), (-1, 0, 97),
+            (0, -1, 97), (0, SUBSTRING_MAX_REQUESTED_COUNT + 1, 97),
+            (0, 1, 0), (0, 1, 128),
+            (I64_MIN, 0), (I64_MAX, 0), (0, I64_MIN), (0, I64_MAX),
+            (0, 1, I64_MIN), (0, 1, I64_MAX),
+            tuple([0, 1] + [65] * (SUBSTRING_MAX_TEXT_LENGTH + 1)),
+            tuple([0] * MAX_SUBSTRING_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SUBSTRING_PARSEABLE_INPUT_LENGTH:
+                cases[values] = SUBSTRING_INVALID_RESULT
+        special_records.append(f"NULL 2 {SUBSTRING_INVALID_RESULT}\n")
+    elif algorithm == "permutation_sort":
+        if workload["output"].get("maximum_result") != math.factorial(PERMUTATION_SORT_MAX_LENGTH):
+            raise ValueError("permutation_sort workload maximum must match the bounded factorial search")
+        rng = random.Random(20261016)
+        for _ in range(19):
+            length = rng.randint(1, min(PERMUTATION_SORT_MAX_LENGTH, 6))
+            values = tuple(rng.randint(I64_MIN, I64_MAX) for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), tuple([0] * MAX_PERMUTATION_SORT_PARSEABLE_INPUT_LENGTH),
+            tuple(range(MAX_PERMUTATION_SORT_PARSEABLE_INPUT_LENGTH)),
+        )
+        for values in malformed:
+            cases[values] = PERMUTATION_SORT_INVALID_RESULT
+        special_records.append(f"NULL 1 {PERMUTATION_SORT_INVALID_RESULT}\n")
+    elif algorithm == "substring_search":
+        if not any(len(case["input_values"]) == MAX_SUBSTRING_SEARCH_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("substring_search workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == SUBSTRING_SEARCH_NOT_FOUND_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("substring_search workload is missing a valid not-found result")
+        if not any(case["expected_result"] == SUBSTRING_SEARCH_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("substring_search workload is missing invalid-input coverage")
+
+        rng = random.Random(20261016)
+        for case_index in range(128):
+            text_length = rng.randint(0, SUBSTRING_SEARCH_MAX_TEXT_LENGTH)
+            text = tuple(rng.randint(1, 127) for _ in range(text_length))
+            if case_index % 2 == 0 and text_length:
+                pattern_length = rng.randint(1, min(SUBSTRING_SEARCH_MAX_PATTERN_LENGTH, text_length))
+                pattern_start = rng.randint(0, text_length - pattern_length)
+                pattern = text[pattern_start:pattern_start + pattern_length]
+            else:
+                pattern_length = rng.randint(0, SUBSTRING_SEARCH_MAX_PATTERN_LENGTH)
+                pattern = tuple(rng.randint(1, 127) for _ in range(pattern_length))
+            values = (text_length, len(pattern), *text, *pattern)
+            cases[values] = oracle(algorithm, list(values))
+
+        overlong_text = (SUBSTRING_SEARCH_MAX_TEXT_LENGTH + 1, 0,
+                         *([1] * (SUBSTRING_SEARCH_MAX_TEXT_LENGTH + 1)))
+        malformed = (
+            (), (0,), (2, 1, 97), (1, 1, 97, 97, 99),
+            (-1, 0), (0, -1),
+            (SUBSTRING_SEARCH_MAX_TEXT_LENGTH + 1, 0,
+             *([1] * (SUBSTRING_SEARCH_MAX_TEXT_LENGTH + 1))),
+            (0, SUBSTRING_SEARCH_MAX_PATTERN_LENGTH + 1),
+            (1, 0, 0), (0, 1, 128),
+            (I64_MIN, 0), (I64_MAX, 0), (0, I64_MIN), (0, I64_MAX),
+            (1, 1, I64_MIN, 97), (1, 1, 97, I64_MAX),
+            tuple([0] * MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH),
+            overlong_text,
+        )
+        for values in malformed:
+            if len(values) <= MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH:
+                cases[values] = SUBSTRING_SEARCH_INVALID_RESULT
+        special_records.append(f"NULL 2 {SUBSTRING_SEARCH_INVALID_RESULT}\n")
+    elif algorithm == "substring_end":
+        if not any(len(case["input_values"]) == MAX_SUBSTRING_END_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("substring_end workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == SUBSTRING_END_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("substring_end workload is missing invalid-input coverage")
+        maximum_checksum = SUBSTRING_END_MAX_TEXT_LENGTH * (SUBSTRING_END_MAX_TEXT_LENGTH + 1) // 2 * 127
+        if maximum_checksum >= SUBSTRING_END_CHECKSUM_BASE:
+            raise ValueError("substring_end checksum base must exceed the maximum positional byte checksum")
+
+        cases[(0,)] = oracle(algorithm, [0])
+        cases[(SUBSTRING_END_MAX_TEXT_LENGTH, *(127,) * SUBSTRING_END_MAX_TEXT_LENGTH)] = oracle(
+            algorithm,
+            [SUBSTRING_END_MAX_TEXT_LENGTH, *([127] * SUBSTRING_END_MAX_TEXT_LENGTH)],
+        )
+        cases[(0, *(127,) * SUBSTRING_END_MAX_TEXT_LENGTH)] = oracle(
+            algorithm,
+            [0, *([127] * SUBSTRING_END_MAX_TEXT_LENGTH)],
+        )
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            text_length = rng.randint(0, SUBSTRING_END_MAX_TEXT_LENGTH)
+            text = tuple(rng.randint(1, 127) for _ in range(text_length))
+            start = rng.randint(0, text_length)
+            values = (start, *text)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (-1,), (1,), (I64_MIN,), (I64_MAX,),
+            (0, 0), (0, 128), (0, I64_MIN), (0, I64_MAX),
+            (4, 97, 98, 99),
+            (0, *([1] * (SUBSTRING_END_MAX_TEXT_LENGTH + 1))),
+            (0, *([1] * MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH:
+                cases[values] = SUBSTRING_END_INVALID_RESULT
+        special_records.append(f"NULL 1 {SUBSTRING_END_INVALID_RESULT}\n")
+    elif algorithm == "substring_minus":
+        if not any(len(case["input_values"]) == MAX_SUBSTRING_MINUS_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("substring_minus workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == SUBSTRING_MINUS_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("substring_minus workload is missing invalid-input coverage")
+        max_selected_length = MAX_SUBSTRING_MINUS_INPUT_LENGTH - 1
+        maximum_checksum = max_selected_length * (max_selected_length + 1) // 2 * 127
+        if maximum_checksum >= SUBSTRING_MINUS_CHECKSUM_BASE:
+            raise ValueError("substring_minus checksum base must exceed the maximum positional byte checksum")
+
+        boundary_values = (
+            (1,), (127,), (1, 1), (127, 127),
+            (1,) * MAX_SUBSTRING_MINUS_INPUT_LENGTH,
+            (127,) * MAX_SUBSTRING_MINUS_INPUT_LENGTH,
+        )
+        for values in boundary_values:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            length = rng.randint(1, MAX_SUBSTRING_MINUS_INPUT_LENGTH)
+            values = tuple(rng.randint(1, 127) for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (128,), (-1,), (I64_MIN,), (I64_MAX,),
+            (1,) * MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH,
+        )
+        for values in malformed:
+            if len(values) <= MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH:
+                cases[values] = SUBSTRING_MINUS_INVALID_RESULT
+        special_records.append(f"NULL 1 {SUBSTRING_MINUS_INVALID_RESULT}\n")
+    elif algorithm == "substring_st_char":
+        if not any(len(case["input_values"]) == MAX_SUBSTRING_ST_CHAR_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("substring_st_char workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == SUBSTRING_ST_CHAR_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("substring_st_char workload is missing invalid-input coverage")
+        maximum_checksum = (SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT
+                            * (SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT + 1) // 2 * 127)
+        if maximum_checksum >= SUBSTRING_ST_CHAR_CHECKSUM_BASE:
+            raise ValueError("substring_st_char checksum base must exceed the maximum positional byte checksum")
+
+        boundary_cases = (
+            (97, 0, 97),
+            (127, SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT, *(127,) * SUBSTRING_ST_CHAR_MAX_TEXT_LENGTH),
+            (1, SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT, *(1,) * SUBSTRING_ST_CHAR_MAX_TEXT_LENGTH),
+            (97, SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT, 97),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for case_index in range(128):
+            text_length = rng.randint(0, SUBSTRING_ST_CHAR_MAX_TEXT_LENGTH)
+            target = rng.randint(1, 127)
+            requested = rng.randint(0, SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT)
+            text = [rng.randint(1, 127) for _ in range(text_length)]
+            if text_length and case_index % 2 == 0:
+                text[rng.randrange(text_length)] = target
+            values = (target, requested, *text)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (97,), (0, 1), (128, 1), (97, -1),
+            (97, SUBSTRING_ST_CHAR_MAX_REQUESTED_COUNT + 1),
+            (97, 1, 0), (97, 1, 128),
+            (I64_MIN, 0), (I64_MAX, 0), (97, I64_MIN), (97, I64_MAX),
+            (97, 1, I64_MIN), (97, 1, I64_MAX),
+            (97, 1, *([1] * (SUBSTRING_ST_CHAR_MAX_TEXT_LENGTH + 1))),
+            tuple([0] * MAX_SUBSTRING_ST_CHAR_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SUBSTRING_ST_CHAR_PARSEABLE_INPUT_LENGTH:
+                cases[values] = SUBSTRING_ST_CHAR_INVALID_RESULT
+        special_records.append(f"NULL 2 {SUBSTRING_ST_CHAR_INVALID_RESULT}\n")
+    elif algorithm == "simplesort":
+        if not any(len(case["input_values"]) == SIMPLESORT_MAX_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("simplesort workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == SIMPLESORT_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("simplesort workload is missing invalid-input coverage")
+        maximum_result = (SIMPLESORT_MAX_LENGTH * (SIMPLESORT_MAX_LENGTH + 1) // 2
+                          * (SIMPLESORT_MAX_VALUE + SIMPLESORT_CHECKSUM_OFFSET))
+        if workload["output"].get("maximum_result") != maximum_result:
+            raise ValueError("simplesort workload maximum must match the weighted checksum bound")
+        if maximum_result > I64_MAX:
+            raise ValueError("simplesort maximum checksum must fit signed 64-bit arithmetic")
+
+        boundary_cases = (
+            (), (0,), (SIMPLESORT_MIN_VALUE,), (SIMPLESORT_MAX_VALUE,),
+            (SIMPLESORT_MIN_VALUE, SIMPLESORT_MAX_VALUE, 0),
+            (0, 1, 2, 3, 4), (4, 3, 2, 1, 0),
+            (7, 7, 7, 7), (-1, 1, -1, 1, 0),
+            tuple([SIMPLESORT_MAX_VALUE] * SIMPLESORT_MAX_LENGTH),
+            tuple([SIMPLESORT_MIN_VALUE] * SIMPLESORT_MAX_LENGTH),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(96):
+            length = rng.randint(0, SIMPLESORT_MAX_LENGTH)
+            values = tuple(rng.randint(SIMPLESORT_MIN_VALUE, SIMPLESORT_MAX_VALUE)
+                           for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (SIMPLESORT_MIN_VALUE - 1,), (SIMPLESORT_MAX_VALUE + 1,),
+            (I64_MIN,), (I64_MAX,), tuple(range(SIMPLESORT_MAX_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= SIMPLESORT_MAX_LENGTH + 1:
+                cases[values] = SIMPLESORT_INVALID_RESULT
+        special_records.append(f"NULL 1 {SIMPLESORT_INVALID_RESULT}\n")
+    elif algorithm == "improved_simple_sort":
+        if not any(len(case["input_values"]) == IMPROVED_SIMPLE_SORT_MAX_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("improved_simple_sort workload is missing its maximum valid input length")
+        if not any(case["expected_result"] == IMPROVED_SIMPLE_SORT_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("improved_simple_sort workload is missing invalid-input coverage")
+        maximum_result = (IMPROVED_SIMPLE_SORT_MAX_LENGTH * (IMPROVED_SIMPLE_SORT_MAX_LENGTH + 1) // 2
+                          * (IMPROVED_SIMPLE_SORT_MAX_VALUE + IMPROVED_SIMPLE_SORT_CHECKSUM_OFFSET))
+        if workload["output"].get("maximum_result") != maximum_result:
+            raise ValueError("improved_simple_sort workload maximum must match the weighted checksum bound")
+        if maximum_result > I64_MAX:
+            raise ValueError("improved_simple_sort maximum checksum must fit signed 64-bit arithmetic")
+
+        boundary_cases = (
+            (), (0,), (IMPROVED_SIMPLE_SORT_MIN_VALUE,), (IMPROVED_SIMPLE_SORT_MAX_VALUE,),
+            (IMPROVED_SIMPLE_SORT_MIN_VALUE, IMPROVED_SIMPLE_SORT_MAX_VALUE, 0),
+            (0, 1, 2, 3, 4), (4, 3, 2, 1, 0), (1, 2, 3, 0),
+            (7, 7, 7, 7), (-1, 1, -1, 1, 0),
+            tuple([IMPROVED_SIMPLE_SORT_MAX_VALUE] * IMPROVED_SIMPLE_SORT_MAX_LENGTH),
+            tuple([IMPROVED_SIMPLE_SORT_MIN_VALUE] * IMPROVED_SIMPLE_SORT_MAX_LENGTH),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(96):
+            length = rng.randint(0, IMPROVED_SIMPLE_SORT_MAX_LENGTH)
+            values = tuple(rng.randint(IMPROVED_SIMPLE_SORT_MIN_VALUE,
+                                       IMPROVED_SIMPLE_SORT_MAX_VALUE)
+                           for _ in range(length))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (IMPROVED_SIMPLE_SORT_MIN_VALUE - 1,), (IMPROVED_SIMPLE_SORT_MAX_VALUE + 1,),
+            (I64_MIN,), (I64_MAX,), tuple(range(IMPROVED_SIMPLE_SORT_MAX_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= IMPROVED_SIMPLE_SORT_MAX_LENGTH + 1:
+                cases[values] = IMPROVED_SIMPLE_SORT_INVALID_RESULT
+        special_records.append(f"NULL 1 {IMPROVED_SIMPLE_SORT_INVALID_RESULT}\n")
+    elif algorithm == "largest_of_very_large_numbers":
+        if not any(len(case["input_values"]) == LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("largest_of_very_large_numbers workload is missing its exact valid input length")
+        if not any(case["expected_result"] == LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("largest_of_very_large_numbers workload is missing invalid-input coverage")
+        if workload["input"].get("maximum_parseable_array_length") != (
+                LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH + 1):
+            raise ValueError("largest_of_very_large_numbers workload parseable cap must be five")
+        if workload["input"].get("base_range") != [0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE]:
+            raise ValueError("largest_of_very_large_numbers base bound must match its oracle")
+        if workload["input"].get("exponent_range") != [0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT]:
+            raise ValueError("largest_of_very_large_numbers exponent bound must match its oracle")
+        if workload["input"].get("comparison_domain") != (
+                "exponents equal, or bases equal and both exponents are on the same zero/nonzero branch; "
+                "equal zero bases permit any exponents"):
+            raise ValueError("largest_of_very_large_numbers workload must declare the portable log-score comparison domain")
+
+        boundary_cases = (
+            (7, 7, 5, 7), (5, 7, 7, 7), (7, 5, 7, 5),
+            (0, 0, 0, 1), (0, 1, 0, 2), (0, 0, 10, 0),
+            (1, 2, 0, 2), (1, 1, 1, 2), (1, 0, 1, 0),
+            (10, 6, 10, 2), (2, 2, 2, 5),
+            (999_999_999_999, 1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE, 1),
+            (LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE - 1,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT),
+            (LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE,
+             LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT - 1),
+        )
+        for values in boundary_cases:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            exponent = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+            values = (rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE), exponent,
+                      rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE), exponent)
+            cases[values] = oracle(algorithm, list(values))
+        for _ in range(128):
+            base = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE)
+            if base == 0:
+                exponent_a = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+                exponent_b = rng.randint(0, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+            elif rng.randrange(2) == 0:
+                exponent_a = exponent_b = 0
+            else:
+                exponent_a = rng.randint(1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+                exponent_b = rng.randint(1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT)
+            values = (base, exponent_a, base, exponent_b)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1, 2, 3), (1, 2, 3, 4, 5),
+            (2, 10, 4, 5), (10, 0, 10, 1), (1, 0, 2, 1),
+            (0, 0, 1, 1),
+            (-1, 1, 1, 1), (1, -1, 1, 1),
+            (LARGEST_OF_VERY_LARGE_NUMBERS_MAX_BASE + 1, 1, 1, 1),
+            (1, LARGEST_OF_VERY_LARGE_NUMBERS_MAX_EXPONENT + 1, 1, 1),
+            (I64_MIN, 1, 1, 1), (1, I64_MAX, 1, 1),
+            (1, 1, I64_MIN, 1), (1, 1, 1, I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH + 1:
+                cases[values] = LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT
+        special_records.append(f"NULL 1 {LARGEST_OF_VERY_LARGE_NUMBERS_INVALID_RESULT}\n")
+    elif algorithm == "lexicographical_numbers":
+        boundary_values = (
+            (0,), (1,), (2,), (9,), (10,), (11,), (19,), (20,), (25,),
+            (99,), (100,), (101,), (999,), (1000,), (4095,),
+            (LEXICOGRAPHICAL_NUMBERS_MAX_NUMBER,),
+        )
+        for values in boundary_values:
+            cases[values] = oracle(algorithm, list(values))
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randint(0, LEXICOGRAPHICAL_NUMBERS_MAX_NUMBER),)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (LEXICOGRAPHICAL_NUMBERS_MAX_NUMBER + 1,), (-1,),
+            (I64_MIN,), (I64_MAX,), (0, 0),
+        )
+        for values in malformed:
+            if len(values) <= MAX_LEXICOGRAPHICAL_NUMBERS_PARSEABLE_INPUT_LENGTH:
+                cases[values] = LEXICOGRAPHICAL_NUMBERS_INVALID_RESULT
+        special_records.append(f"NULL 1 {LEXICOGRAPHICAL_NUMBERS_INVALID_RESULT}\n")
     elif algorithm == "hexa_decimal_to_decimal":
         rng = random.Random(20261016)
         hex_codes = (*range(48, 58), *range(65, 71), *range(97, 103))

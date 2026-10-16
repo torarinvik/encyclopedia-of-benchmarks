@@ -1,0 +1,35 @@
+def reverse_points(out: mutable i64&, start: usize, count: usize):
+    for i in 0..(count / 2):
+        a: usize = start + 2 * i
+        b: usize = start + 2 * (count - 1 - i)
+        x: i64 = out[a]; y: i64 = out[a + 1]
+        out[a] <- out[b]; out[a + 1] <- out[b + 1]
+        out[b] <- x; out[b + 1] <- y
+def curve(x: i64, y: i64, side: i64, level: usize, angle: i64, out: mutable i64&, off: usize) -> usize:
+    q: i64 = side / 4
+    p: mutable i64[8] = [x+q,y+q,x-q,y+q,x-q,y-q,x+q,y-q]
+    a: i64 = ((angle % 4) + 4) % 4
+    r: mutable i64[8] = zeroed
+    for i in 0..4:
+        j: usize = ((i.i64() + a) % 4).usize()
+        r[i*2] <- p[j*2]; r[i*2+1] <- p[j*2+1]
+    if level == 1:
+        for i in 0..4: out[off+2*i] <- r[2*i]; out[off+2*i+1] <- r[2*i+1]
+        return 4
+    h: i64 = side / 2
+    n: usize = curve(r[0],r[1],h,level-1,a+1,out,off); reverse_points(out,off,n)
+    n1: usize = curve(r[2],r[3],h,level-1,a,out,off+2*n)
+    n2: usize = curve(r[4],r[5],h,level-1,a,out,off+2*(n+n1))
+    n3: usize = curve(r[6],r[7],h,level-1,a-1,out,off+2*(n+n1+n2)); reverse_points(out,off+2*(n+n1+n2),n3)
+    return n+n1+n2+n3
+export fn hilbert_curve(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or n != 2: return -1
+    if v[0] < 1 or v[0] > 6 or v[1] < 0 or v[1] > 3: return -1
+    level: usize = v[0].usize(); points: usize = 1 << (2*level); bytes: usize = points*16
+    if out.is_null() or capacity < bytes: return -2
+    coords: mutable i64[8192] = zeroed
+    curve(0,0,1.i64() << (level+1),level,v[1],coords[0]&,0)
+    for i in 0..(points*2):
+        bits: u64 = coords[i].u64()
+        for k in 0..8: out[i*8+k] <- ((bits >> (8*k)) & 255).u8()
+    return bytes.i64()

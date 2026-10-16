@@ -1,0 +1,3 @@
+module longestpalindrome
+@[export: 'longestpalindrome']
+pub fn longestpalindrome(v &i64,n usize)i64{if n<1||n>65{return -1};count:=unsafe{v[0]};if count<0||count>64||n!=usize(count+1){return -1};mut a:=[64]i64{};mut m:=0;for i in 0..int(count){x:=unsafe{v[1+i]};if x<32||x>126||x==35{return -1};if x!=32{a[m]=x;m++}};z:=2*m+1;mut t:=[129]i64{};for i in 0..z{if i%2==0{t[i]= -1}else{t[i]=a[i/2]}};mut p:=[129]int{};mut center:=0;mut right:=0;mut best:=0;for i in 0..z{if i<right{p[i]=min(p[2*center-i],right-i)};for i>=p[i]+1&&i+p[i]+1<z&&t[i-p[i]-1]==t[i+p[i]+1]{p[i]++};best=max(best,p[i]);if i+p[i]>right{center=i;right=i+p[i]}};return best}

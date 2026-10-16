@@ -1,0 +1,1 @@
+export fn iterating_through_submasks(v:[*]const i64,n:usize)i64{if(n!=1)return -1;const mask=v[0];if(mask<1 or mask>4095)return -1;var submask=mask;var count:i64=0;while(submask!=0){count+=1;submask=(submask-1)&mask;}return count;}

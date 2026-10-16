@@ -1,0 +1,28 @@
+def longest_repeated_substring_impl(input_values: i64&, length: usize) -> i64:
+    if length < 1 or length > 128:
+        return -1
+    size_value: i64 = input_values[0]
+    if size_value < 0 or size_value > 127:
+        return -1
+    size: usize = size_value.usize()
+    if length != size + 1:
+        return -1
+    k: mutable usize = 0
+    while k < size:
+        if input_values[k + 1] < 0 or input_values[k + 1] > 127:
+            return -1
+        k <- k + 1
+    result: i64 =
+        while outer < size |outer: usize = 0, dp: mutable i64[128][128] = zeroed, best: mutable i64 = 0| -> best:
+            i: usize = size - outer - 1
+            inner: mutable usize = 0
+            while inner < size - i - 1:
+                j: usize = size - 1 - inner
+                if input_values[i + 1] == input_values[j + 1]:
+                    dp[i][j] <- 1 + dp[i + 1][j + 1]
+                    if dp[i][j] > best:
+                        best <- dp[i][j]
+                inner <- inner + 1
+            outer <- outer + 1
+    result
+export fn longest_repeated_substring(input_values: i64&, length: usize) -> i64 = longest_repeated_substring_impl

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "euler-degree-parity-i64-array-scalar-v1",
+  "algorithm": "euler",
+  "function_symbol": "euler",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[vertex_count, start, end, edge_count, undirected_edge_pairs...]",
+    "vertex_count_range": [
+      1,
+      32
+    ],
+    "edge_count_range": [
+      0,
+      256
+    ],
+    "simple_graph": true,
+    "maximum_input_length": 516,
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "1 if the pinned degree-parity condition holds; otherwise 0",
+    "invalid_input_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "cycle_closed_trail",
+      "input_values": [
+        3,
+        0,
+        0,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "path_endpoints",
+      "input_values": [
+        4,
+        0,
+        3,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "three_odd_leaves",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3
+      ],
+      "input_length": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "disconnected_even_component",
+      "input_values": [
+        4,
+        0,
+        0,
+        3,
+        0,
+        1,
+        1,
+        2,
+        2,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "bad_loop",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -2
+    }
+  ]
+}

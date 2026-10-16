@@ -1,0 +1,13 @@
+export fn parenthesis(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129 or input[0] < 0 or input[0] > 128.i64() or length != input[0].usize() + 1: return -1
+    balance: mutable i64 = 0
+    i: mutable usize = 1
+    while i < length:
+        x: i64 = input[i]
+        if x < 0 or x > 127: return -1
+        if x == 40: balance <- balance + 1
+        elif x == 41:
+            balance <- balance - 1
+            if balance < 0: return 0
+        i <- i + 1
+    (balance == 0).i64()

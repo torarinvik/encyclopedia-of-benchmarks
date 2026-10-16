@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "id": "rgb-to-cmyk-python-ties-even-i64-array-bytes-v1",
+  "algorithm": "rgb_cmyk_conversion",
+  "function_symbol": "rgb_cmyk_conversion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[red, green, blue] integer channels",
+    "exact_length": 3,
+    "channel_range": [
+      0,
+      255
+    ],
+    "first_rejected_length": 4,
+    "invalid_result": -1,
+    "maximum_parseable_array_length": 4
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "four CMYK integer percentage bytes in C,M,Y,K order",
+    "length": 4,
+    "successful_result": "number of output bytes written"
+  },
+  "workspace": {
+    "bytes": 4,
+    "meaning": "fixed output capacity"
+  },
+  "source_bound": {
+    "description": "The pinned Python rgb_to_cmyk function validates three integer channels, scales them to 0..1, special-cases pure black, and rounds C/M/Y/K percentages with Python ties-to-even semantics.",
+    "benchmark_domain": "RGB integer channels in 0..255; the Rust source's truncating cast is a documented divergent implementation and is not the contract for this package."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "black",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000064"
+    },
+    {
+      "id": "white",
+      "input_values": [
+        255,
+        255,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "gray_128_python_round",
+      "input_values": [
+        128,
+        128,
+        128
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000032"
+    },
+    {
+      "id": "red",
+      "input_values": [
+        255,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00646400"
+    },
+    {
+      "id": "green",
+      "input_values": [
+        0,
+        255,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "64006400"
+    },
+    {
+      "id": "blue",
+      "input_values": [
+        0,
+        0,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "64640000"
+    },
+    {
+      "id": "yellow",
+      "input_values": [
+        255,
+        255,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00006400"
+    },
+    {
+      "id": "cyan",
+      "input_values": [
+        0,
+        255,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "64000000"
+    },
+    {
+      "id": "magenta",
+      "input_values": [
+        255,
+        0,
+        255
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00640000"
+    },
+    {
+      "id": "tied_max_channels",
+      "input_values": [
+        128,
+        128,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00006432"
+    },
+    {
+      "id": "python_ties_even_up_97_5",
+      "input_values": [
+        40,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00626454"
+    },
+    {
+      "id": "python_ties_even_down_62_5",
+      "input_values": [
+        64,
+        24,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "003e644b"
+    },
+    {
+      "id": "near_black",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00000064"
+    },
+    {
+      "id": "source_rgb_example",
+      "input_values": [
+        255,
+        200,
+        100
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00163d00"
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_two",
+      "input_values": [
+        12,
+        34
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_four",
+      "input_values": [
+        12,
+        34,
+        56,
+        78
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_negative",
+      "input_values": [
+        12,
+        -1,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_above_255",
+      "input_values": [
+        12,
+        256,
+        34
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity_too_small",
+      "input_values": [
+        40,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 3
+    },
+    {
+      "id": "capacity_exact",
+      "input_values": [
+        40,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "00626454",
+      "workspace_bytes": 4
+    }
+  ]
+}

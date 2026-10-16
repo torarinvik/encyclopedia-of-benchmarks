@@ -1,0 +1,38 @@
+export fn permutation_cipher(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 74 or input[0] < 0 or input[0] > 64.i64(): return -1
+    text_len: usize = input[0].usize()
+    if length < text_len + 2: return -1
+    kp: usize = text_len + 1
+    if input[kp] < 1 or input[kp] > 8: return -1
+    key_len: usize = input[kp].usize()
+    if length != kp + key_len + 1: return -1
+    seen: mutable bool[8]
+    i: mutable usize = 0
+    while i < key_len:
+        x: i64 = input[kp + 1 + i]
+        if x < 1 or x > key_len.i64() or seen[x.usize() - 1]: return -1
+        seen[x.usize() - 1] <- true
+        i <- i + 1
+    text: mutable u8[128]
+    m: mutable usize = 0
+    i <- 0
+    while i < text_len:
+        x: i64 = input[i + 1]
+        if x < 0 or x > 127: return -1
+        c: mutable i64 = x
+        if c == 32 or (c >= 9 and c <= 13): i <- i + 1; continue
+        if c >= 97 and c <= 122: c <- c - 32
+        text[m] <- c.u8()
+        m <- m + 1
+        i <- i + 1
+    while m % key_len != 0: text[m] <- 88.u8(); m <- m + 1
+    h: mutable u64 = 0
+    b: mutable usize = 0
+    while b < m:
+        j: mutable usize = 0
+        while j < key_len:
+            h <- (h * 257 + text[b + (input[kp + 1 + j] - 1).usize()].u64()) % 1000000007
+            j <- j + 1
+        b <- b + key_len
+    h.i64()
+

@@ -1,0 +1,3 @@
+module job_sequencing_with_deadline
+@[export: 'job_sequencing_with_deadline']
+pub fn job_sequencing_with_deadline(v &i64,n usize)i64{if n<1||n>65{return -1};count:=unsafe{v[0]};if count<1||count>32||n!=usize(1+2*count){return -1};mut d:=[32]i64{};mut p:=[32]i64{};mut order:=[32]int{};for i in 0..int(count){d[i]=unsafe{v[1+2*i]};p[i]=unsafe{v[2+2*i]};if d[i]<0||d[i]>32||p[i]<0||p[i]>1000000{return -1};order[i]=i};for i in 1..int(count){key:=order[i];mut j:=i;for j>0&&p[order[j-1]]<p[key]{order[j]=order[j-1];j--};order[j]=key};mut slots:=[33]bool{};mut chosen:=i64(0);mut profit:=i64(0);for k in 0..int(count){for s:=int(d[order[k]]);s>0;s--{if !slots[s]{slots[s]=true;chosen++;profit+=p[order[k]];break}}};return chosen*32000001+profit}

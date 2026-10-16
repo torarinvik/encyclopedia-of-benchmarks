@@ -1,0 +1,17 @@
+def polybius_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65 or input[0] < 0 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+    count: usize = input[0].usize()
+    if count * 2 > capacity or (count > 0 and output.is_null()): return -2
+    i: mutable usize = 0
+    while i < count:
+        x: mutable i64 = input[i + 1]
+        if x >= 97 and x <= 122: x <- x - 32
+        if x < 65 or x > 90 or x == 74: return -1
+        index: mutable i64 = x - 65
+        if x > 74: index <- index - 1
+        output[i * 2] <- (65 + index / 5).u8()
+        output[i * 2 + 1] <- (65 + index % 5).u8()
+        i <- i + 1
+    (count * 2).i64()
+
+export fn polybius(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = polybius_impl

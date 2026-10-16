@@ -1,0 +1,39 @@
+def put64(out: u8&, slot: usize, value: i64):
+    bits: u64 = value.u64()
+    for b in 0..8:
+        out[slot * 8 + b] <- (bits & 255).u8()
+        bits = bits >> 8
+def highest_response_ratio_next_impl(v: i64&, n: usize, out: u8&, capacity: usize) -> i64:
+    if n < 3 or n > 129: return -1
+    count: i64 = v[0]
+    if count < 1 or count > 64 or n != (1 + 2 * count).usize(): return -1
+    a: i64[64]; b: i64[64]; tat: i64[64]; done: bool[64]
+    for i in 0..<64: done[i] <- false
+    for i in 0..<count.usize():
+        a[i] <- v[1 + 2*i]; b[i] <- v[2 + 2*i]
+        if a[i] < 0 or a[i] > 100000 or b[i] < 1 or b[i] > 1000: return -1
+    for i in 1..<count.usize():
+        j: mutable usize = i
+        while j > 0 and a[j] < a[j-1]:
+            t: i64 = a[j]; a[j] <- a[j-1]; a[j-1] <- t
+            t <- b[j]; b[j] <- b[j-1]; b[j-1] <- t
+            j <- j - 1
+    if count.usize()*8 > capacity: return -2
+    now: mutable i64 = 0
+    finished: mutable usize = 0
+    while finished < count.usize():
+        best: mutable i64 = -1; best_num: mutable i64 = 0
+        for i in 0..<count.usize():
+            if not done[i] and a[i] <= now:
+                candidate: i64 = now - a[i] + b[i]
+                if best < 0 or candidate * b[best.usize()] > best_num * b[i]:
+                    best <- i.i64(); best_num <- candidate
+        if best < 0:
+            for i in 0..<count.usize():
+                if not done[i] and (best < 0 or a[i] < a[best.usize()]): best <- i.i64()
+            now <- a[best.usize()]
+        else:
+            k: usize = best.usize(); tat[k] <- now + b[k] - a[k]; now <- now + b[k]; done[k] <- true; finished <- finished + 1
+    for i in 0..<count.usize(): put64(out, i, tat[i])
+    (count.usize()*8).i64()
+export fn highest_response_ratio_next(v: i64&, n: usize, out: u8&, capacity: usize) -> i64 = highest_response_ratio_next_impl

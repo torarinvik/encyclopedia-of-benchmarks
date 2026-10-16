@@ -1,0 +1,18 @@
+def jenkins_one_at_a_time_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 65: return -1
+    count: i64 = v[0]
+    if count < 0 or count > 64 or length != count.usize() + 1: return -1
+    h: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count.usize():
+        b: i64 = v[i + 1]
+        if b < 0 or b > 127: return -1
+        h <- (h + b) & 0xFFFFFFFF
+        h <- (h + (h << 10)) & 0xFFFFFFFF
+        h <- (h ^ (h >> 6)) & 0xFFFFFFFF
+        i <- i + 1
+    h <- (h + (h << 3)) & 0xFFFFFFFF
+    h <- (h ^ (h >> 11)) & 0xFFFFFFFF
+    h <- (h + (h << 15)) & 0xFFFFFFFF
+    h
+export fn jenkins_one_at_a_time(v: i64&, length: usize) -> i64 = jenkins_one_at_a_time_impl

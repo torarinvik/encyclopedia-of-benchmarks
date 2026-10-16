@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "lexicographical-numbers-bounded-4096-scalar-v1",
+  "algorithm": "lexicographical_numbers",
+  "function_symbol": "lexicographical_numbers",
+  "input": {
+    "kind": "single_signed_i64_maximum",
+    "length": [
+      1,
+      1
+    ],
+    "minimum": 0,
+    "maximum": 4096,
+    "maximum_parseable_array_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "sum((one_based_lexical_position) * number) over lexical_order(N)",
+    "invalid_input_result": -1,
+    "maximum_absolute_result": 34368126976
+  },
+  "source_bound": {
+    "description": "The pinned iterator traverses a decimal-prefix tree with a LIFO stack, emitting 1 through N in lexical order. It pushes number+1 before number*10 so the child is visited first.",
+    "benchmark_domain": "Integer N in 0..4096. N=0 produces the empty sequence and checksum 0."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_number",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_13",
+      "input_values": [
+        13
+      ],
+      "input_length": 1,
+      "expected_result": 627
+    },
+    {
+      "id": "source_example_20",
+      "input_values": [
+        20
+      ],
+      "input_length": 1,
+      "expected_result": 2052
+    },
+    {
+      "id": "source_example_25",
+      "input_values": [
+        25
+      ],
+      "input_length": 1,
+      "expected_result": 4112
+    },
+    {
+      "id": "decimal_prefix_boundary_9",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "expected_result": 285
+    },
+    {
+      "id": "decimal_prefix_boundary_10",
+      "input_values": [
+        10
+      ],
+      "input_length": 1,
+      "expected_result": 349
+    },
+    {
+      "id": "two_digit_range_99",
+      "input_values": [
+        99
+      ],
+      "input_length": 1,
+      "expected_result": 317130
+    },
+    {
+      "id": "three_digit_boundary_100",
+      "input_values": [
+        100
+      ],
+      "input_length": 1,
+      "expected_result": 322369
+    },
+    {
+      "id": "four_digit_boundary_1000",
+      "input_values": [
+        1000
+      ],
+      "input_length": 1,
+      "expected_result": 318828394
+    },
+    {
+      "id": "maximum_bound",
+      "input_values": [
+        4096
+      ],
+      "input_length": 1,
+      "expected_result": 18108312382
+    },
+    {
+      "id": "invalid_negative",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_above_bound",
+      "input_values": [
+        4097
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_i64_minimum",
+      "input_values": [
+        -9223372036854775808
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_i64_maximum",
+      "input_values": [
+        9223372036854775807
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_extra_input",
+      "input_values": [
+        13,
+        25
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

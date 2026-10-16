@@ -1,6 +1,6 @@
 /// Centripetal force: (mass * velocity^2) / radius.
-export fn centripetal_force(values: [*]const i64, length: usize) f64 {
-    if (length != 3) return -1.0e300;
+export fn centripetal_force(values: [*c]const i64, length: usize) f64 {
+    if (values == null or length != 3) return -1.0e300;
     const mass = values[0];
     const velocity = values[1];
     const radius = values[2];

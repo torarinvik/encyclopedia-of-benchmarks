@@ -1,0 +1,92 @@
+# Trifid substitution over caller-supplied alphabet, processed in periodic blocks.
+def trifid_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 31:
+        return -1
+    mode: i64 = input[0]
+    period_value: i64 = input[1]
+    n_value: i64 = input[2]
+    if (mode != 0 and mode != 1) or period_value < 1 or period_value > 256 or n_value < 0 or n_value > 256 or input[3] != 27 or length != 31 + n_value.usize():
+        return -1
+    alphabet: mutable u8[27] = zeroed
+    text: mutable u8[256] = zeroed
+    transformed: mutable u8[256] = zeroed
+    alen: mutable usize = 0
+    tlen: mutable usize = 0
+    for i in 0..<27:
+        raw: i64 = input[4 + n_value.usize() + i].i64()
+        if raw < 0 or raw > 127:
+            return -1
+        c: mutable u8 = raw.u8()
+        if c >= 97.u8() and c <= 122.u8():
+            c <- c - 32.u8()
+        if c == 32.u8():
+            continue
+        for j in 0..<alen:
+            if alphabet[j] == c:
+                return -1
+        alphabet[alen] <- c
+        alen <- alen + 1
+    if alen != 27:
+        return -1
+    for i in 0..<n_value.usize():
+        raw: i64 = input[4 + i].i64()
+        if raw < 0 or raw > 127:
+            return -1
+        c: mutable u8 = raw.u8()
+        if c >= 97.u8() and c <= 122.u8():
+            c <- c - 32.u8()
+        if c == 32.u8():
+            continue
+        found: mutable bool = false
+        for j in 0..<27:
+            if alphabet[j] == c:
+                found <- true
+        if not found:
+            return -1
+        text[tlen] <- c
+        tlen <- tlen + 1
+    period: usize = period_value.usize()
+    start: mutable usize = 0
+    while start < tlen:
+        k: mutable usize = period
+        if k > tlen - start:
+            k <- tlen - start
+        digits: mutable u8[768] = zeroed
+        if mode == 0:
+            m: mutable usize = 0
+            for axis in 0..<3:
+                for i in 0..<k:
+                    index: mutable usize = 0
+                    while alphabet[index] != text[start + i]:
+                        index <- index + 1
+                    divisor: mutable usize = 1
+                    if axis == 0:
+                        divisor <- 9
+                    elif axis == 1:
+                        divisor <- 3
+                    digits[m] <- ((index / divisor) % 3).u8()
+                    m <- m + 1
+            i: mutable usize = 0
+            while i < m:
+                index: usize = digits[i].usize() * 9 + digits[i + 1].usize() * 3 + digits[i + 2].usize()
+                transformed[start + i / 3] <- alphabet[index]
+                i <- i + 3
+        else:
+            for i in 0..<k:
+                index: mutable usize = 0
+                while alphabet[index] != text[start + i]:
+                    index <- index + 1
+                digits[3 * i] <- ((index / 9) % 3).u8()
+                digits[3 * i + 1] <- ((index / 3) % 3).u8()
+                digits[3 * i + 2] <- (index % 3).u8()
+            for i in 0..<k:
+                index: usize = digits[i].usize() * 9 + digits[k + i].usize() * 3 + digits[2 * k + i].usize()
+                transformed[start + i] <- alphabet[index]
+        start <- start + k
+    if output_capacity < tlen:
+        return -2
+    for i in 0..<tlen:
+        output[i] <- transformed[i]
+    tlen.i64()
+
+export fn trifid_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = trifid_cipher_impl

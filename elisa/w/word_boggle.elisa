@@ -1,0 +1,162 @@
+def word_boggle_letter(code: i64) -> i64:
+    if code >= 65 and code <= 90: return code - 65
+    if code >= 97 and code <= 122: return code - 97 + 26
+    -1
+
+def word_boggle_visit(board: i64&, rows: i64, cols: i64, pos: i64, node: i64,
+                      children: i64[25012]&, terminal: i64[481]&,
+                      visited: mutable bool[36]&, found: mutable bool[32]&) -> void:
+    visited[pos.usize()] <- true
+    if terminal[node.usize()] >= 0:
+        found[terminal[node.usize()].usize()] <- true
+    row: i64 = pos / cols
+    col: i64 = pos % cols
+    dr: mutable i64 = -1
+    while dr <= 1:
+        dc: mutable i64 = -1
+        while dc <= 1:
+            if dr != 0 or dc != 0:
+                nr: i64 = row + dr
+                nc: i64 = col + dc
+                if nr >= 0 and nr < rows and nc >= 0 and nc < cols:
+                    next_pos: i64 = nr * cols + nc
+                    if not visited[next_pos.usize()]:
+                        letter: i64 = word_boggle_letter(board[(next_pos + 2).usize()])
+                        child: i64 = children[(node * 52 + letter).usize()]
+                        if child >= 0:
+                            word_boggle_visit(board, rows, cols, next_pos, child, children, terminal, visited, found)
+            dc <- dc + 1
+        dr <- dr + 1
+    visited[pos.usize()] <- false
+
+def word_boggle_less(words: i64[480], lengths: i64[32], a: i64, b: i64) -> bool:
+    n: mutable i64 = lengths[a.usize()]
+    if lengths[b.usize()] < n: n <- lengths[b.usize()]
+    i: mutable i64 = 0
+    while i < n:
+        x: i64 = words[(a * 15 + i).usize()]
+        y: i64 = words[(b * 15 + i).usize()]
+        if x != y: return x < y
+        i <- i + 1
+    lengths[a.usize()] < lengths[b.usize()]
+
+def word_boggle_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 551: return -1
+    if input[0] < 1 or input[0] > 6 or input[1] < 1 or input[1] > 6: return -1
+    rows: i64 = input[0]
+    cols: i64 = input[1]
+    cells: i64 = rows * cols
+    dict_at: usize = (2 + cells).usize()
+    if length <= dict_at or input[dict_at] < 0 or input[dict_at] > 32: return -1
+    count: i64 = input[dict_at]
+    p: mutable usize = 2
+    while p < dict_at:
+        if word_boggle_letter(input[p]) < 0: return -1
+        p <- p + 1
+    words: mutable i64[480] = zeroed
+    lengths: mutable i64[32] = zeroed
+    unique: mutable i64 = 0
+    at: mutable usize = dict_at + 1
+    w: mutable i64 = 0
+    j: mutable i64 = 0
+    while w < count:
+        if at >= length or input[at] < 1 or input[at] > 15: return -1
+        n: i64 = input[at]
+        at <- at + 1
+        if length - at < n.usize(): return -1
+        j <- 0
+        while j < n:
+            if word_boggle_letter(input[at + j.usize()]) < 0: return -1
+            j <- j + 1
+        duplicate: mutable bool = false
+        q: mutable i64 = 0
+        while q < unique:
+            if lengths[q.usize()] == n:
+                same: mutable bool = true
+                j <- 0
+                while j < n:
+                    if words[(q * 15 + j).usize()] != input[at + j.usize()]: same <- false
+                    j <- j + 1
+                if same: duplicate <- true
+            q <- q + 1
+        if not duplicate:
+            lengths[unique.usize()] <- n
+            j <- 0
+            while j < n:
+                words[(unique * 15 + j).usize()] <- input[at + j.usize()]
+                j <- j + 1
+            unique <- unique + 1
+        at <- at + n.usize()
+        w <- w + 1
+    if at != length: return -1
+
+    children: mutable i64[25012] = zeroed
+    terminal: mutable i64[481] = zeroed
+    i: mutable i64 = 0
+    while i < 25012:
+        children[i.usize()] <- -1
+        i <- i + 1
+    i <- 0
+    while i < 481:
+        terminal[i.usize()] <- -1
+        i <- i + 1
+    nodes: mutable i64 = 1
+    w <- 0
+    while w < unique:
+        node: mutable i64 = 0
+        j <- 0
+        while j < lengths[w.usize()]:
+            letter: i64 = word_boggle_letter(words[(w * 15 + j).usize()])
+            slot: usize = (node * 52 + letter).usize()
+            if children[slot] < 0:
+                children[slot] <- nodes
+                nodes <- nodes + 1
+            node <- children[slot]
+            j <- j + 1
+        terminal[node.usize()] <- w
+        w <- w + 1
+    visited: mutable bool[36] = zeroed
+    found: mutable bool[32] = zeroed
+    i <- 0
+    while i < cells:
+        letter: i64 = word_boggle_letter(input[(2 + i).usize()])
+        child: i64 = children[letter.usize()]
+        if child >= 0:
+            word_boggle_visit(input, rows, cols, i, child, children, terminal, visited, found)
+        i <- i + 1
+    order: mutable i64[32] = zeroed
+    found_count: mutable i64 = 0
+    output_size: mutable usize = 0
+    w <- 0
+    while w < unique:
+        if found[w.usize()]:
+            order[found_count.usize()] <- w
+            found_count <- found_count + 1
+            output_size <- output_size + lengths[w.usize()].usize() + 1
+        w <- w + 1
+    i <- 1
+    while i < found_count:
+        value: i64 = order[i.usize()]
+        j: mutable i64 = i
+        while j > 0 and word_boggle_less(words, lengths, value, order[(j - 1).usize()]):
+            order[j.usize()] <- order[(j - 1).usize()]
+            j <- j - 1
+        order[j.usize()] <- value
+        i <- i + 1
+    if output_size > capacity: return -2
+    if output_size > 0 and output == null: return -2
+    pos: mutable usize = 0
+    i <- 0
+    while i < found_count:
+        w <- order[i.usize()]
+        j <- 0
+        while j < lengths[w.usize()]:
+            output[pos] <- words[(w * 15 + j).usize()].u8()
+            pos <- pos + 1
+            j <- j + 1
+        output[pos] <- 0
+        pos <- pos + 1
+        i <- i + 1
+    output_size.i64()
+
+export fn word_boggle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_boggle_impl

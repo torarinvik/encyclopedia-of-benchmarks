@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "highest-response-ratio-next-i64-array-bytes-i64-v1",
+  "algorithm": "highest_response_ratio_next",
+  "function_symbol": "highest_response_ratio_next",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[process_count, arrival_0, burst_0, ...]",
+    "process_count_range": [
+      1,
+      64
+    ],
+    "arrival_range": [
+      0,
+      100000
+    ],
+    "burst_range": [
+      1,
+      1000
+    ],
+    "arrival_constraint": "all arrivals are distinct",
+    "maximum_validation_array_length": 129,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "i64_vector",
+    "encoding": "little-endian signed 64-bit",
+    "layout": "turnaround times in ascending arrival order",
+    "max_length": 64,
+    "max_output_bytes": 512,
+    "valid_result": "8 * process_count",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 1536,
+    "meaning": "fixed local storage for up to 64 processes and turnaround outputs"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "bounded-case-1",
+      "input_values": [
+        4,
+        0,
+        3,
+        1,
+        6,
+        2,
+        4,
+        3,
+        5
+      ],
+      "input_length": 9,
+      "expected_result": 32,
+      "expected_output_hex": "030000000000000008000000000000000b000000000000000b00000000000000"
+    },
+    {
+      "id": "bounded-case-2",
+      "input_values": [
+        3,
+        0,
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 24,
+      "expected_output_hex": "050000000000000006000000000000000700000000000000"
+    },
+    {
+      "id": "bounded-case-3",
+      "input_values": [
+        1,
+        17,
+        9
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "0900000000000000"
+    }
+  ]
+}

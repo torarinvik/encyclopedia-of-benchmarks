@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+static std::size_t append_num(std::uint8_t*b,std::size_t p,std::int64_t x){std::uint8_t d[3];std::size_t n=0;do{d[n++]=static_cast<std::uint8_t>('0'+x%10);x/=10;}while(x);while(n)b[p++]=d[--n];return p;}
+extern "C" std::int64_t node_neighbors(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<2||v[0]<0||v[0]>64||v[1]<0||v[1]>63||n!=2+2*static_cast<std::size_t>(v[0]))return -1;bool seen[64]={};std::uint8_t b[192];std::size_t used=0;for(std::size_t i=0;i<static_cast<std::size_t>(v[0]);i++){auto a=v[2+2*i],c=v[3+2*i];if(a<0||a>63||c<0||c>63)return -1;auto x=a==v[1]?c:c==v[1]?a:-1;if(x>=0&&!seen[x]){seen[x]=true;if(used)b[used++]=',';used=append_num(b,used,x);}}if(used>cap||(used&&!out))return -2;for(std::size_t i=0;i<used;i++)out[i]=b[i];return static_cast<std::int64_t>(used);}

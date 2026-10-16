@@ -1,0 +1,5 @@
+# IIR filter
+
+This benchmark ports the pinned Python N-order IIR filter as a single bounded stream call. Input is `[order, sample_count, a0..aN, b0..bN, samples...]`; each coefficient and sample is an integer scaled by 1000. It supports orders 1–3, 1–16 samples, `a0` from 0.5 through 2.0, remaining `a` coefficients from -0.5 through 2.0, `b` coefficients from -0.5 through 0.5, and samples from -1 through 1.
+
+The filter starts with zero input/output history and applies the source recurrence in its original order: accumulate `b[i]*x[n-i] - a[i]*y[n-i]` for `i=1..order`, then add `b0*x[n]` and divide by `a0`. It returns each output sample as little-endian IEEE-754 binary64. Invalid input returns -1 and insufficient output capacity returns -2. The single-call stream wrapper provides a deterministic way to measure the pinned class's stateful `process` recurrence. See the [pinned Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/audio_filters/iir_filter.py).

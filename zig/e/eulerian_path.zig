@@ -7,18 +7,20 @@ fn put_i64(output: [*]u8, byte_offset: usize, value: i64) void {
     for (0..8) |byte| output[byte_offset + byte] = @truncate(bits >> @intCast(byte * 8));
 }
 
-export fn eulerian_path(input: [*]const i64, length: usize, output: [*]u8, capacity: usize) i64 {
-    if (length < 2 or input[0] < 0 or input[0] > 32 or input[1] < 0 or input[1] > 256) return -1;
-    const vertices: usize = @intCast(input[0]);
-    const edges: usize = @intCast(input[1]);
+export fn eulerian_path(input: ?[*]const i64, length: usize, output: ?[*]u8, capacity: usize) i64 {
+    if (input == null or length < 2) return -1;
+    const input_values = input.?;
+    if (input_values[0] < 0 or input_values[0] > 32 or input_values[1] < 0 or input_values[1] > 256) return -1;
+    const vertices: usize = @intCast(input_values[0]);
+    const edges: usize = @intCast(input_values[1]);
     if (length != 2 + 2 * edges) return -1;
 
     var adjacency: [MAX_VERTICES][MAX_EDGES]u8 = undefined;
     var in_degree: [MAX_VERTICES]usize = @splat(0);
     var out_degree: [MAX_VERTICES]usize = @splat(0);
     for (0..edges) |edge| {
-        const source = input[2 + 2 * edge];
-        const destination = input[3 + 2 * edge];
+        const source = input_values[2 + 2 * edge];
+        const destination = input_values[3 + 2 * edge];
         if (source < 0 or source >= @as(i64, @intCast(vertices)) or
             destination < 0 or destination >= @as(i64, @intCast(vertices))) return -1;
         const source_index: usize = @intCast(source);
@@ -67,7 +69,8 @@ export fn eulerian_path(input: [*]const i64, length: usize, output: [*]u8, capac
     }
     if (path_count != edges + 1) return 0;
     const bytes = path_count * 8;
-    if (capacity < bytes) return -2;
-    for (0..path_count) |index| put_i64(output, index * 8, @intCast(reverse_path[path_count - index - 1]));
+    if (output == null or capacity < bytes) return -2;
+    const output_bytes = output.?;
+    for (0..path_count) |index| put_i64(output_bytes, index * 8, @intCast(reverse_path[path_count - index - 1]));
     return @intCast(bytes);
 }

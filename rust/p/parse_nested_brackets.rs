@@ -1,0 +1,3 @@
+fn scan(s:&[u8],lo:usize,hi:usize,h:&mut u64){let(mut depth,mut begin)=(0usize,0usize);for i in lo..hi{if s[i]==b'<'{if depth==0{begin=i}depth+=1}else if s[i]==b'>'{depth-=1;if depth==0{for &c in &s[begin..=i]{*h=(*h*257+c as u64+1)%1_000_000_007}scan(s,begin+1,i,h)}}}}
+#[no_mangle]
+pub unsafe extern "C" fn parse_nested_brackets(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>129{return -1}let a=std::slice::from_raw_parts(v,n);if !(0..=128).contains(&a[0])||n!=a[0]as usize+1{return -1}let mut s=[0u8;128];let mut d=0i32;for i in 0..a[0]as usize{if !(0..=127).contains(&a[i+1]){return -1}s[i]=a[i+1]as u8;if s[i]==b'<'{d+=1}else if s[i]==b'>'{d-=1;if d<0{return -1}}}if d!=0{return -1}let mut h=0u64;scan(&s[..a[0]as usize],0,a[0]as usize,&mut h);h as i64}

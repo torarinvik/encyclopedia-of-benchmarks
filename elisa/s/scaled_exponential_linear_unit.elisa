@@ -1,0 +1,36 @@
+extern exp(value: f64) -> f64
+extern floor(value: f64) -> f64
+const INVALID_RESULT: i64 = -1
+
+def scaled_exponential_linear_unit_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > 259:
+        return INVALID_RESULT
+    count_value: i64 = values[0]
+    if count_value < 0 or count_value > 256 or length != count_value.usize() + 3 or values[1] < -10000000 or values[1] > 10000000 or values[2] < -10000000 or values[2] > 10000000:
+        return INVALID_RESULT
+    count: usize = count_value.usize()
+    index: mutable usize = 0
+    while index < count:
+        if values[index + 3] < -20000000 or values[index + 3] > 20000000:
+            return INVALID_RESULT
+        index <- index + 1
+    byte_count: usize = count * 8
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    alpha: f64 = values[1].f64() / 1000000.0
+    lambda: f64 = values[2].f64() / 1000000.0
+    index <- 0
+    while index < count:
+        x: f64 = values[index + 3].f64() / 1000000.0
+        inner: f64 = if x > 0.0: x else: alpha * (exp(x) - 1.0)
+        result: f64 = lambda * inner
+        quantized: i64 = floor(result * 1000000000.0 + 0.5).i64()
+        bits: mutable u64 = quantized.u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    byte_count.i64()
+
+export fn scaled_exponential_linear_unit(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = scaled_exponential_linear_unit_impl

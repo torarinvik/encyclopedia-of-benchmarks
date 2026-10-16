@@ -1,0 +1,13 @@
+def modular_arithmetic_impl(values: i64&, length: usize) -> i64:
+    if length != 4: return -1
+    operation: i64 = values[0]
+    modulus: i64 = values[1]
+    first: i64 = values[2]
+    second: i64 = values[3]
+    if operation < 0 or operation > 2 or modulus < 1 or modulus > 1_000_000: return -1
+    if first < 0 or first >= modulus or second < 0 or second >= modulus: return -1
+    if operation == 0: return ((first % modulus) + (second % modulus)) % modulus
+    if operation == 1: return ((first % modulus) - (second % modulus) + modulus) % modulus
+    ((first % modulus) * (second % modulus)) % modulus
+
+export fn modular_arithmetic(values: i64&, length: usize) -> i64 = modular_arithmetic_impl

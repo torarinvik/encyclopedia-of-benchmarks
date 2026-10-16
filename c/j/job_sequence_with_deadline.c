@@ -1,0 +1,3 @@
+#include <stddef.h>
+#include <stdint.h>
+int64_t job_sequence_with_deadline(const int64_t*v,size_t n){if(!v||n<1||n>129)return -1;int64_t count=v[0];if(count<0||count>64||n!=1+2*(size_t)count)return -1;int64_t d[64],r[64];size_t order[64];for(size_t i=0;i<(size_t)count;i++){d[i]=v[1+2*i];r[i]=v[2+2*i];if(d[i]<-1||d[i]>64||r[i]<-1000000||r[i]>1000000)return -1;order[i]=i;}for(size_t i=1;i<(size_t)count;i++){size_t key=order[i],j=i;while(j>0&&r[order[j-1]]<r[key]){order[j]=order[j-1];j--;}order[j]=key;}int64_t kept=0;for(size_t i=0;i<(size_t)count;i++)if(d[order[i]]>=(int64_t)(i+1))kept++;return kept;}

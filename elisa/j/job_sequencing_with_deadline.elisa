@@ -1,0 +1,25 @@
+def job_sequencing_with_deadline_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 65: return -1
+    count: i64 = v[0]
+    if count < 1 or count > 32 or length != 1 + 2 * count.usize(): return -1
+    d: mutable i64[32] = zeroed; p: mutable i64[32] = zeroed; order: mutable usize[32] = zeroed
+    i: mutable usize = 0
+    while i < count.usize():
+        d[i] <- v[1 + 2 * i]; p[i] <- v[2 + 2 * i]
+        if d[i] < 0 or d[i] > 32 or p[i] < 0 or p[i] > 1000000: return -1
+        order[i] <- i; i <- i + 1
+    i <- 1
+    while i < count.usize():
+        key: usize = order[i]; j: mutable usize = i
+        while j > 0 and p[order[j - 1]] < p[key]: order[j] <- order[j - 1]; j <- j - 1
+        order[j] <- key; i <- i + 1
+    slots: mutable bool[33] = zeroed; chosen: mutable i64 = 0; profit: mutable i64 = 0
+    i <- 0
+    while i < count.usize():
+        slot: mutable i64 = d[order[i]]
+        while slot > 0:
+            if not slots[slot.usize()]: slots[slot.usize()] <- true; chosen <- chosen + 1; profit <- profit + p[order[i]]; break
+            slot <- slot - 1
+        i <- i + 1
+    chosen * 32000001 + profit
+export fn job_sequencing_with_deadline(v: i64&, length: usize) -> i64 = job_sequencing_with_deadline_impl

@@ -1,0 +1,18 @@
+export fn palindrome_with_stack(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129 or input[0] < 0 or input[0] > 128.i64() or length != input[0].usize() + 1: return -1
+    size: usize = input[0].usize()
+    stack: mutable u8[128]
+    i: mutable usize = 0
+    while i < size:
+        x: i64 = input[i + 1]
+        if x < 0 or x > 127: return -1
+        c: mutable i64 = x
+        if c >= 65 and c <= 90: c <- c + 32
+        stack[i] <- c.u8()
+        i <- i + 1
+    i <- 0
+    while i < size:
+        if stack[i] != stack[size - 1 - i]: return 0
+        i <- i + 1
+    return 1
+

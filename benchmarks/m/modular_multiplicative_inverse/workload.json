@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "modular-multiplicative-inverse-extended-euclid-v1",
+  "algorithm": "modular_multiplicative_inverse",
+  "function_symbol": "modular_multiplicative_inverse",
+  "input": {"kind":"two_element_signed_64_array","encoding":"[a, modulus]","modulus_range":[2,1000000],"operand_range":"0 <= a < modulus"},
+  "output": {"kind":"signed_i64_scalar","meaning":"inverse x in [0,modulus) satisfying a*x ≡ 1 modulo modulus","invalid_or_non_coprime_result":-1},
+  "source_bound":{"description":"The pinned C# implementation uses extended Euclid and throws when gcd(a,modulus) is not one; the benchmark maps that exception case to -1.","source_algorithm":"extended Euclidean algorithm"},
+  "measurement":{"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases":[
+    {"id":"small_inverse","input_values":[3,11],"input_length":2,"expected_result":4},
+    {"id":"normalized_negative_bezout","input_values":[10,17],"input_length":2,"expected_result":12},
+    {"id":"large_prime_modulus","input_values":[2,999983],"input_length":2,"expected_result":499992},
+    {"id":"not_coprime","input_values":[6,15],"input_length":2,"expected_result":-1},
+    {"id":"zero_operand","input_values":[0,7],"input_length":2,"expected_result":-1},
+    {"id":"invalid_modulus","input_values":[1,1],"input_length":2,"expected_result":-1},
+    {"id":"operand_out_of_range","input_values":[7,7],"input_length":2,"expected_result":-1},
+    {"id":"malformed_length","input_values":[3],"input_length":1,"expected_result":-1}
+  ]
+}

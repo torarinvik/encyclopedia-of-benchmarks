@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "rectangular-to-polar-rust-rounding-f64-triple-v1",
+  "algorithm": "rectangular_to_polar",
+  "function_symbol": "rectangular_to_polar",
+  "input": {
+    "kind": "bounded_binary64_triple",
+    "argument_order": [
+      "real",
+      "imag",
+      "component"
+    ],
+    "coordinate_bounds": [
+      -1000000.0,
+      1000000.0
+    ],
+    "component_mapping": {
+      "0": "radius, rounded to 2 decimals",
+      "1": "atan2 angle in degrees, rounded to 2 decimals"
+    },
+    "valid_selectors": [
+      0.0,
+      1.0
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Selected radius or degree angle rounded to 2 decimals using nearest ties away from zero",
+    "invalid_result": -1e+300
+  },
+  "source_bound": {
+    "description": "The Python and Rust sources compute magnitude and atan2 angle in degrees, then round both to two decimals. Rust explicit ties-away rounding is canonical; Python round-to-even can differ at exact decimal midpoints.",
+    "benchmark_domain": "Finite coordinates in [-1,000,000,1,000,000], selector exactly 0 or 1."
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {
+      "id": "source-5-negative-5-radius",
+      "input_values": [
+        5.0,
+        -5.0,
+        0.0
+      ],
+      "expected_result": 7.07
+    },
+    {
+      "id": "source-5-negative-5-angle",
+      "input_values": [
+        5.0,
+        -5.0,
+        1.0
+      ],
+      "expected_result": -45.0
+    },
+    {
+      "id": "source-negative-one-positive-one-radius",
+      "input_values": [
+        -1.0,
+        1.0,
+        0.0
+      ],
+      "expected_result": 1.41
+    },
+    {
+      "id": "source-negative-one-positive-one-angle",
+      "input_values": [
+        -1.0,
+        1.0,
+        1.0
+      ],
+      "expected_result": 135.0
+    },
+    {
+      "id": "source-negative-one-negative-one-radius",
+      "input_values": [
+        -1.0,
+        -1.0,
+        0.0
+      ],
+      "expected_result": 1.41
+    },
+    {
+      "id": "source-negative-one-negative-one-angle",
+      "input_values": [
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      "expected_result": -135.0
+    },
+    {
+      "id": "source-tiny-positive-radius",
+      "input_values": [
+        1e-10,
+        1e-10,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "source-tiny-positive-angle",
+      "input_values": [
+        1e-10,
+        1e-10,
+        1.0
+      ],
+      "expected_result": 45.0
+    },
+    {
+      "id": "source-tiny-negative-x-angle",
+      "input_values": [
+        -1e-10,
+        1e-10,
+        1.0
+      ],
+      "expected_result": 135.0
+    },
+    {
+      "id": "source-decimal-radius",
+      "input_values": [
+        9.75,
+        5.93,
+        0.0
+      ],
+      "expected_result": 11.41
+    },
+    {
+      "id": "source-decimal-angle",
+      "input_values": [
+        9.75,
+        5.93,
+        1.0
+      ],
+      "expected_result": 31.31
+    },
+    {
+      "id": "source-large-radius",
+      "input_values": [
+        10000.0,
+        99999.0,
+        0.0
+      ],
+      "expected_result": 100497.76
+    },
+    {
+      "id": "source-large-angle",
+      "input_values": [
+        10000.0,
+        99999.0,
+        1.0
+      ],
+      "expected_result": 84.29
+    },
+    {
+      "id": "positive-x-axis",
+      "input_values": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-x-axis",
+      "input_values": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 180.0
+    },
+    {
+      "id": "positive-y-axis",
+      "input_values": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "expected_result": 90.0
+    },
+    {
+      "id": "negative-y-axis",
+      "input_values": [
+        0.0,
+        -1.0,
+        1.0
+      ],
+      "expected_result": -90.0
+    },
+    {
+      "id": "origin-radius",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "origin-angle",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "negative-zero-angle",
+      "input_values": [
+        1.0,
+        -0.0,
+        1.0
+      ],
+      "expected_result": -0.0
+    },
+    {
+      "id": "negative-zero-origin-angle",
+      "input_values": [
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "expected_result": -180.0
+    },
+    {
+      "id": "maximum-radius",
+      "input_values": [
+        1000000.0,
+        -1000000.0,
+        0.0
+      ],
+      "expected_result": 1414213.56
+    },
+    {
+      "id": "invalid-selector",
+      "input_values": [
+        1.0,
+        1.0,
+        2.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-fractional-selector",
+      "input_values": [
+        1.0,
+        1.0,
+        0.5
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-coordinate-low",
+      "input_values": [
+        -1000001.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-coordinate-high",
+      "input_values": [
+        0.0,
+        1000001.0,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "rust-rounding-midpoint",
+      "input_values": [
+        2.675,
+        0.0,
+        0.0
+      ],
+      "expected_result": 2.68
+    }
+  ]
+}

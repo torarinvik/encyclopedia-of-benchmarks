@@ -1,0 +1,6 @@
+package hilbert_curve
+import "core:c"
+reverse_points :: proc(o: [^]i64, start, count: int) { for i in 0..<count/2 { a:=start+2*i; b:=start+2*(count-1-i); x,y:=o[a],o[a+1]; o[a]=o[b];o[a+1]=o[b+1];o[b]=x;o[b+1]=y } }
+curve :: proc(x,y,side:i64,level,angle:int,o:[^]i64,off:int)->int { q:=side/4; p:=[4][2]i64.{{x+q,y+q},{x-q,y+q},{x-q,y-q},{x+q,y-q}}; a:=((angle%4)+4)%4; var r:[4][2]i64; for i in 0..<4 {r[i]=p[(i+a)%4]}; if level==1 {for i in 0..<4{o[off+2*i]=r[i][0];o[off+2*i+1]=r[i][1]};return 4}; h:=side/2; n:=curve(r[0][0],r[0][1],h,level-1,a+1,o,off);reverse_points(o,off,n);n1:=curve(r[1][0],r[1][1],h,level-1,a,o,off+2*n);n2:=curve(r[2][0],r[2][1],h,level-1,a,o,off+2*(n+n1));n3:=curve(r[3][0],r[3][1],h,level-1,a-1,o,off+2*(n+n1+n2));reverse_points(o,off+2*(n+n1+n2),n3);return n+n1+n2+n3 }
+@(export)
+hilbert_curve :: proc "c" (v:[^]i64,n:c.size_t,out:[^]u8,cap:c.size_t)->i64 { if v==nil||n!=2 do return -1; if v[0]<1||v[0]>6||v[1]<0||v[1]>3 do return -1; l:=int(v[0]);points:=1<<(2*l);bytes:=points*16;if cap<c.size_t(bytes) do return -2;var coords:[8192]i64;_=curve(0,0,i64(1)<<(l+1),l,int(v[1]),&coords[0],0);for i in 0..<points*2{b:=transmute(u64)coords[i];for k in 0..<8{out[i*8+k]=u8(b>>(8*k))}};return i64(bytes) }

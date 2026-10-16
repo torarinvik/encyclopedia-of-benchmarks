@@ -1,0 +1,3 @@
+module job_sequence_with_deadline
+@[export: 'job_sequence_with_deadline']
+pub fn job_sequence_with_deadline(v &i64,n usize)i64{if n<1||n>129{return -1};count:=unsafe{v[0]};if count<0||count>64||n!=usize(1+2*count){return -1};mut d:=[64]i64{};mut r:=[64]i64{};mut order:=[64]int{};for i in 0..int(count){d[i]=unsafe{v[1+2*i]};r[i]=unsafe{v[2+2*i]};if d[i]< -1||d[i]>64||r[i]< -1000000||r[i]>1000000{return -1};order[i]=i};for i in 1..int(count){key:=order[i];mut j:=i;for j>0&&r[order[j-1]]<r[key]{order[j]=order[j-1];j--};order[j]=key};mut kept:=i64(0);for i in 0..int(count){if d[order[i]]>=i64(i+1){kept++}};return kept}

@@ -1,0 +1,44 @@
+const MAX_INPUT_LENGTH: usize = 128
+
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u32 = value.u32()
+    output[position] <- (bits & 255).u8()
+    output[position + 1] <- ((bits >> 8) & 255).u8()
+    output[position + 2] <- ((bits >> 16) & 255).u8()
+    output[position + 3] <- ((bits >> 24) & 255).u8()
+
+def stalin_sort_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_INPUT_LENGTH or (length != 0 and values.is_null()):
+        return -1
+    index: usize = 0
+    while index < length:
+        if values[index] < -2147483648 or values[index] > 2147483647:
+            return -1
+        index <- index + 1
+
+    kept: mutable usize = 0
+    last: mutable i64 = 0
+    index <- 0
+    while index < length:
+        if kept == 0 or values[index] >= last:
+            kept <- kept + 1
+            last <- values[index]
+        index <- index + 1
+    output_bytes: usize = kept * 4
+    if output.is_null() or output_capacity < output_bytes:
+        return -2
+
+    output_index: mutable usize = 0
+    last <- 0
+    index <- 0
+    while index < length:
+        if output_index == 0 or values[index] >= last:
+            store_i32_le(values[index], output, output_index * 4)
+            output_index <- output_index + 1
+            last <- values[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn stalin_sort(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = stalin_sort_impl

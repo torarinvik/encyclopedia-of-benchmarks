@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "palindromic-partitioning-ascii-v1",
+  "algorithm": "palindromic_partitioning",
+  "function_symbol": "palindromic_partitioning",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_byte_count, ASCII bytes...]",
+    "count_range": [
+      1,
+      64
+    ],
+    "element_range": [
+      0,
+      127
+    ],
+    "maximum_input_length": 65
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "minimum number of cuts into palindromic substrings",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned Java method fills an O(n^2) palindrome table, then computes the minimum cuts for every prefix. Empty strings are outside the valid domain because the source indexes the last array slot."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "single",
+      "input_values": [
+        1,
+        120
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "whole-palindrome",
+      "input_values": [
+        5,
+        114,
+        97,
+        100,
+        97,
+        114
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "published-example",
+      "input_values": [
+        5,
+        110,
+        105,
+        116,
+        105,
+        107
+      ],
+      "input_length": 6,
+      "expected_result": 2
+    },
+    {
+      "id": "alternating",
+      "input_values": [
+        4,
+        97,
+        98,
+        97,
+        98
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "empty-invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

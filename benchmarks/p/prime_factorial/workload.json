@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "prime-factorial-matlab-unique-prime-divisors-v1",
+  "algorithm": "prime_factorial",
+  "function_symbol": "prime_factorial",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 2,
+    "maximum": 4096,
+    "encoding": "prime_factorial_unique_u32le",
+    "meaning": "distinct prime divisors in ascending order"
+  },
+  "output": {
+    "kind": "u32_little_endian_vector",
+    "successful_result": "number of output bytes written",
+    "invalid_result": -1,
+    "capacity_error_result": -2,
+    "maximum_bytes": 20
+  },
+  "cases": [
+    {"id": "smallest_prime", "input_value": 2, "expected_result": 4, "expected_output_hex": "02000000"},
+    {"id": "small_prime", "input_value": 3, "expected_result": 4, "expected_output_hex": "03000000"},
+    {"id": "prime_square_unique", "input_value": 4, "expected_result": 4, "expected_output_hex": "02000000"},
+    {"id": "mixed_composite", "input_value": 12, "expected_result": 8, "expected_output_hex": "0200000003000000"},
+    {"id": "three_distinct_factors", "input_value": 30, "expected_result": 12, "expected_output_hex": "020000000300000005000000"},
+    {"id": "four_distinct_factors", "input_value": 210, "expected_result": 16, "expected_output_hex": "02000000030000000500000007000000"},
+    {"id": "maximum_five_distinct_factors", "input_value": 2310, "expected_result": 20, "expected_output_hex": "020000000300000005000000070000000b000000"},
+    {"id": "large_prime", "input_value": 4093, "expected_result": 4, "expected_output_hex": "fd0f0000"},
+    {"id": "upper_bound_power", "input_value": 4096, "expected_result": 4, "expected_output_hex": "02000000"},
+    {"id": "capacity_too_small", "input_value": 2310, "workspace_bytes": 19, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "one_is_invalid", "input_value": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero_is_invalid", "input_value": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "negative_is_invalid", "input_value": -1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "above_upper_bound", "input_value": 4097, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output_hex": ""}
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

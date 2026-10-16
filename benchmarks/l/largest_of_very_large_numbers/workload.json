@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "id": "largest-of-very-large-numbers-log10-comparison-v1",
+  "algorithm": "largest_of_very_large_numbers",
+  "function_symbol": "largest_of_very_large_numbers",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[base_a, exponent_a, base_b, exponent_b]",
+    "exact_length": 4,
+    "base_range": [
+      0,
+      1000000000000
+    ],
+    "exponent_range": [
+      0,
+      1000000000000
+    ],
+    "maximum_valid_array_length": 4,
+    "maximum_parseable_array_length": 5,
+    "invalid_input_result": -2,
+    "comparison_domain": "exponents equal, or bases equal and both exponents are on the same zero/nonzero branch; equal zero bases permit any exponents"
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 if score A is larger, -1 if score B is larger, 0 if scores compare equal",
+    "valid_result_range": [
+      -1,
+      1
+    ],
+    "invalid_input_result": -2
+  },
+  "source_bound": {
+    "description": "For nonzero base and exponent, score is exponent * log10(base); source helper returns 0 for base 0 and 1 when only exponent is zero.",
+    "benchmark_domain": "Two nonnegative bounded base/exponent pairs satisfying exponent_a == exponent_b or (base_a == base_b and (base_a == 0 or both exponents are simultaneously zero/nonzero)); comparisons use direct floating-point score ordering."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "same-exponent-first-wins",
+      "input_values": [
+        7,
+        7,
+        5,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "same-exponent-second-wins",
+      "input_values": [
+        5,
+        7,
+        7,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "same-exponent-tie",
+      "input_values": [
+        7,
+        5,
+        7,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "adjacent-upper-bases-exponent-one",
+      "input_values": [
+        999999999999,
+        1,
+        1000000000000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "adjacent-upper-bases-max-exponent",
+      "input_values": [
+        1000000000000,
+        1000000000000,
+        999999999999,
+        1000000000000
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "equal-upper-base-and-exponent",
+      "input_values": [
+        1000000000000,
+        1000000000000,
+        1000000000000,
+        1000000000000
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "same-base-positive-exponents-first-wins",
+      "input_values": [
+        10,
+        6,
+        10,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "same-base-positive-exponents-second-wins",
+      "input_values": [
+        2,
+        2,
+        2,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "same-base-upper-exponent",
+      "input_values": [
+        1000000000000,
+        1000000000000,
+        1000000000000,
+        999999999999
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "same-base-both-zero-exponents",
+      "input_values": [
+        1000000000000,
+        0,
+        1000000000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "same-zero-base-any-exponents",
+      "input_values": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "zero-exponent-zero-base-versus-positive-base",
+      "input_values": [
+        0,
+        0,
+        10,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "base-one-and-zero-equal-positive-exponent",
+      "input_values": [
+        1,
+        2,
+        0,
+        2
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid-unrelated-cross-powers",
+      "input_values": [
+        2,
+        10,
+        4,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-same-base-zero-branch-mismatch",
+      "input_values": [
+        10,
+        0,
+        10,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-short-input",
+      "input_values": [
+        2,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-long-input",
+      "input_values": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "input_length": 5,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-negative-base",
+      "input_values": [
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-base-over-maximum",
+      "input_values": [
+        1000000000001,
+        1,
+        1000000000001,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-exponent-over-maximum",
+      "input_values": [
+        2,
+        1000000000001,
+        2,
+        1000000000001
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid-negative-exponent",
+      "input_values": [
+        2,
+        -1,
+        2,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": -2
+    }
+  ]
+}

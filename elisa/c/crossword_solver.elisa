@@ -1,0 +1,193 @@
+def crossword_solver_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 3:
+        return -1
+    rows_value: i64 = values[0]
+    cols_value: i64 = values[1]
+    count_value: i64 = values[2]
+    if rows_value < 1 or rows_value > 8 or cols_value < 1 or cols_value > 8 or count_value < 0 or count_value > 8:
+        return -1
+    rows: usize = rows_value.usize()
+    cols: usize = cols_value.usize()
+    word_count: usize = count_value.usize()
+    if length < 3 + rows * cols:
+        return -1
+
+    grid: mutable i64[64] = zeroed
+    words: mutable i64[64] = zeroed
+    word_lengths: mutable i64[8] = zeroed
+    pos: mutable usize = 3 + rows * cols
+    idx: mutable usize = 0
+    while idx < rows * cols:
+        cell_value: i64 = values[3 + idx]
+        if cell_value != 0 and cell_value != -1 and (cell_value < 65 or cell_value > 90):
+            return -1
+        grid[idx] <- cell_value
+        idx <- idx + 1
+    word: mutable usize = 0
+    while word < word_count:
+        if pos >= length or values[pos] < 1 or values[pos] > 8:
+            return -1
+        word_len: usize = values[pos].usize()
+        word_lengths[word] <- word_len.i64()
+        pos <- pos + 1
+        if word_len > length - pos:
+            return -1
+        idx <- 0
+        while idx < word_len:
+            letter: i64 = values[pos]
+            if letter < 65 or letter > 90:
+                return -1
+            words[word * 8 + idx] <- letter
+            pos <- pos + 1
+            idx <- idx + 1
+        prior: mutable usize = 0
+        while prior < word:
+            if word_lengths[prior] == word_len.i64():
+                same: mutable bool = true
+                idx <- 0
+                while idx < word_len:
+                    if words[prior * 8 + idx] != words[word * 8 + idx]:
+                        same <- false
+                    idx <- idx + 1
+                if same:
+                    return -1
+            prior <- prior + 1
+        word <- word + 1
+    if pos != length:
+        return -1
+
+    remaining: mutable i64[72] = zeroed
+    choices: mutable i64[72] = zeroed
+    remaining_counts: mutable i64[9] = zeroed
+    choice_indexes: mutable i64[9] = zeroed
+    directions: mutable i64[9] = zeroed
+    picked_words: mutable i64[9] = zeroed
+    picked_starts: mutable i64[9] = zeroed
+    picked_lengths: mutable i64[9] = zeroed
+    picked_vertical: mutable i64[9] = zeroed
+    depth: mutable usize = 0
+    idx <- 0
+    while idx < word_count:
+        remaining[idx] <- idx.i64()
+        idx <- idx + 1
+    remaining_counts[0] <- word_count.i64()
+    choices_ready: mutable bool[9] = zeroed
+    solved: mutable bool = false
+    finished: mutable bool = false
+    cell: mutable usize = 0
+
+    while not finished:
+        if not choices_ready[depth]:
+            idx <- 0
+            while idx < rows * cols and grid[idx] != 0:
+                idx <- idx + 1
+            if idx == rows * cols:
+                solved <- true
+                finished <- true
+            else:
+                choice_indexes[depth] <- 0
+                directions[depth] <- 0
+                idx <- 0
+                while idx < remaining_counts[depth].usize():
+                    choices[depth * 8 + idx] <- remaining[depth * 8 + idx]
+                    idx <- idx + 1
+                choices_ready[depth] <- true
+        else:
+            if choice_indexes[depth] >= remaining_counts[depth]:
+                choices_ready[depth] <- false
+                if depth == 0:
+                    finished <- true
+                else:
+                    depth <- depth - 1
+                    picked_len: usize = picked_lengths[depth].usize()
+                    idx <- 0
+                    while idx < picked_len:
+                        row: usize = picked_starts[depth].usize() / cols
+                        col: usize = picked_starts[depth].usize() % cols
+                        cell <- row * cols + col + idx
+                        if picked_vertical[depth] == 1:
+                            cell <- (row + idx) * cols + col
+                        grid[cell] <- 0
+                        idx <- idx + 1
+                    remaining_counts[depth] <- remaining_counts[depth] + 1
+                    remaining[depth * 8 + remaining_counts[depth].usize() - 1] <- picked_words[depth]
+                    directions[depth] <- directions[depth] + 1
+            else:
+                if directions[depth] >= 2:
+                    directions[depth] <- 0
+                    choice_indexes[depth] <- choice_indexes[depth] + 1
+                else:
+                    word_index: usize = choices[depth * 8 + choice_indexes[depth].usize()].usize()
+                    word_len: usize = word_lengths[word_index].usize()
+                    idx <- 0
+                    while idx < rows * cols and grid[idx] != 0:
+                        idx <- idx + 1
+                    row: usize = idx / cols
+                    col: usize = idx % cols
+                    vertical: bool = directions[depth] == 0
+                    fits: bool = (vertical and row + word_len <= rows) or (not vertical and col + word_len <= cols)
+                    valid: mutable bool = fits
+                    if fits:
+                        idx <- 0
+                        while idx < word_len:
+                            cell <- row * cols + col + idx
+                            if vertical:
+                                cell <- (row + idx) * cols + col
+                            if grid[cell] != 0:
+                                valid <- false
+                            idx <- idx + 1
+                    if valid:
+                        idx <- 0
+                        while idx < word_len:
+                            cell <- row * cols + col + idx
+                            if vertical:
+                                cell <- (row + idx) * cols + col
+                            grid[cell] <- words[word_index * 8 + idx]
+                            idx <- idx + 1
+                        picked_words[depth] <- word_index.i64()
+                        picked_starts[depth] <- (row * cols + col).i64()
+                        picked_lengths[depth] <- word_len.i64()
+                        picked_vertical[depth] <- 0
+                        if vertical:
+                            picked_vertical[depth] <- 1
+                        idx <- 0
+                        while idx < remaining_counts[depth].usize() and remaining[depth * 8 + idx] != word_index.i64():
+                            idx <- idx + 1
+                        if idx < remaining_counts[depth].usize():
+                            prior <- idx
+                            while prior + 1 < remaining_counts[depth].usize():
+                                remaining[depth * 8 + prior] <- remaining[depth * 8 + prior + 1]
+                                prior <- prior + 1
+                            remaining_counts[depth] <- remaining_counts[depth] - 1
+                        remaining_counts[depth + 1] <- 0
+                        idx <- 0
+                        while idx < remaining_counts[depth].usize():
+                            candidate: i64 = remaining[depth * 8 + idx]
+                            remaining[(depth + 1) * 8 + remaining_counts[depth + 1].usize()] <- candidate
+                            remaining_counts[depth + 1] <- remaining_counts[depth + 1] + 1
+                            idx <- idx + 1
+                        depth <- depth + 1
+                        choices_ready[depth] <- false
+                    else:
+                        directions[depth] <- directions[depth] + 1
+
+    required: usize = (1 + rows * cols) * 8
+    if output_capacity < required:
+        return -2
+    idx <- 0
+    while idx < 1 + rows * cols:
+        value: mutable i64 = 0
+        if idx == 0:
+            if solved:
+                value <- 1
+        else:
+            value <- grid[idx - 1]
+        bits: u64 = value.u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[idx * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        idx <- idx + 1
+    required.i64()
+
+export fn crossword_solver(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = crossword_solver_impl

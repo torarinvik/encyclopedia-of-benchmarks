@@ -1,0 +1,44 @@
+const MAX_LENGTH: usize = 8
+const INVALID_RESULT: i64 = -1
+
+def permutation_sort_is_sorted(values: i64&, length: usize) -> bool:
+    index: mutable usize = 1
+    while index < length:
+        if values[index - 1] > values[index]:
+            return false
+        index <- index + 1
+    true
+
+def permutation_sort_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length == 0 or length > MAX_LENGTH:
+        return INVALID_RESULT
+
+    working: mutable i64[MAX_LENGTH] = zeroed
+    counters: mutable usize[MAX_LENGTH] = zeroed
+    for index in 0..<length:
+        working[index] <- input[index]
+
+    checked: mutable i64 = 1
+    if permutation_sort_is_sorted(&working[0], length):
+        return checked
+
+    index: mutable usize = 0
+    while index < length:
+        if counters[index] < index:
+            swap_index: usize = 0
+            if index % 2 != 0:
+                swap_index = counters[index]
+            temporary: i64 = working[swap_index]
+            working[swap_index] <- working[index]
+            working[index] <- temporary
+            counters[index] <- counters[index] + 1
+            checked <- checked + 1
+            if permutation_sort_is_sorted(&working[0], length):
+                return checked
+            index <- 0
+        else:
+            counters[index] <- 0
+            index <- index + 1
+    INVALID_RESULT
+
+export fn permutation_sort(input: i64&, length: usize) -> i64 = permutation_sort_impl

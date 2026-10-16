@@ -1,0 +1,4 @@
+#[no_mangle]
+pub extern "C" fn insert_delete_in_array(v:*const i64,n:usize,output:*mut u8,capacity:usize)->i64{
+ if v.is_null()||n<4||n>260{return -1;}let a=unsafe{std::slice::from_raw_parts(v,n)};let(op,len,pos,element)=(a[0],a[1],a[2],a[3]);if(op!=0&&op!=1)||len<0||len>256||n!=len as usize+4||pos<0{return -1;}if(op==0&&pos>len)||(op==1&&pos>=len)||(op==1&&element!=0){return -1;}if a[4..].iter().any(|&x|x<i32::MIN as i64||x>i32::MAX as i64)||(op==0&&(element<i32::MIN as i64||element>i32::MAX as i64)){return -1;}let outn=len as usize+usize::from(op==0);if outn*4>capacity||(outn>0&&output.is_null()){return -2;}let out=unsafe{std::slice::from_raw_parts_mut(output,outn*4)};for i in 0..outn{let x=if op==0{if i<pos as usize{a[i+4]}else if i==pos as usize{element}else{a[i+3]}}else if i<pos as usize{a[i+4]}else{a[i+5]};let w=x as i32 as u32;out[i*4..i*4+4].copy_from_slice(&w.to_le_bytes());} (outn*4)as i64
+}

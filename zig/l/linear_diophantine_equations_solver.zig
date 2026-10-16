@@ -1,0 +1,3 @@
+fn eg(a:i64,b:i64) struct{g:i64,x:i64,y:i64}{if(b==0)return .{.g=a,.x=1,.y=0};const r=eg(b,@rem(a,b));return .{.g=r.g,.x=r.y,.y=r.x-@divTrunc(a,b)*r.y};}
+fn pack(x:i64,y:i64)i64{return (x+10000001)*20000003+(y+10000001);}
+export fn linear_diophantine_equations_solver(v:[*]const i64,n:usize)i64{if(n!=3)return -1;const a=v[0];const b=v[1];const c=v[2];if(a< -1000 or a>1000 or b< -1000 or b>1000 or c< -10000 or c>10000)return -1;if(a==0 and b==0)return if(c==0)-3 else -2;if(a==0)return if(@rem(c,b)==0)pack(0,@divTrunc(c,b)) else -2;if(b==0)return if(@rem(c,a)==0)pack(@divTrunc(c,a),0) else -2;const r=eg(a,b);if(@rem(c,r.g)!=0)return -2;return pack(r.x*@divTrunc(c,r.g),r.y*@divTrunc(c,r.g));}

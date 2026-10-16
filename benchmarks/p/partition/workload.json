@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "javascript-recursive-equal-sum-partition-nonnegative-v1",
+  "algorithm": "partition",
+  "function_symbol": "partition",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[count, nonnegative signed 32-bit values...]",
+    "count_range": [
+      0,
+      16
+    ],
+    "value_range": [
+      0,
+      1000
+    ],
+    "maximum_input_length": 17
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 if the values can be divided into two subsets with equal sum, else 0",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned JavaScript recursion checks target==sum/2, then tries including the current value before excluding it, and prunes once target exceeds half. The benchmark restricts values to nonnegative integers so this prune is valid."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 1
+    },
+    {
+      "id": "zero-values",
+      "input_values": [
+        3,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "two-equal-halves",
+      "input_values": [
+        4,
+        1,
+        5,
+        11,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "subset-exists",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "odd-total",
+      "input_values": [
+        3,
+        1,
+        2,
+        6
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "no-partition",
+      "input_values": [
+        3,
+        1,
+        2,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "one-value",
+      "input_values": [
+        1,
+        8
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid-value",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-count",
+      "input_values": [
+        2,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

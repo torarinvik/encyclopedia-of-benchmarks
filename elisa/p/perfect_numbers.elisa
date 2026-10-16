@@ -1,0 +1,14 @@
+export fn perfect_numbers(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1 or input[0] < 0 or input[0] > 1000000000.i64(): return -1
+    x: i64 = input[0]
+    if x <= 1: return 0
+    total: mutable i64 = 1
+    d: mutable i64 = 2
+    while d <= x / d:
+        if x % d == 0:
+            total <- total + d
+            q: i64 = x / d
+            if d != q: total <- total + q
+        d <- d + 1
+    (total == x).i64()
+

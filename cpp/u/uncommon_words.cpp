@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+#include <algorithm>
+extern "C" std::int64_t uncommon_words(const std::int64_t*v,std::size_t n,std::uint8_t*out,std::size_t cap){if(!v||n<1||n>1089||v[0]<0||v[0]>64)return -1;int lens[64]={},counts[64]={};std::uint8_t words[64][16]={};int d=0;std::size_t p=1;for(int w=0;w<v[0];w++){if(p>=n||v[p]<1||v[p]>16||v[p]>n-p-1)return -1;int l=int(v[p++]);for(int j=0;j<l;j++)if(v[p+j]<'a'||v[p+j]>'z')return -1;int id=0;for(;id<d;id++)if(lens[id]==l){int j=0;while(j<l&&words[id][j]==v[p+j])++j;if(j==l)break;}if(id==d){lens[d]=l;for(int j=0;j<l;j++)words[d][j]=std::uint8_t(v[p+j]);d++;}counts[id]++;p+=l;}if(p!=n)return -1;std::uint8_t temp[1089];std::size_t at=0;for(int id=0;id<d;id++)if(counts[id]==1){for(int j=0;j<lens[id];j++)temp[at++]=words[id][j];temp[at++]='\n';}if(at)at--;temp[at++]=0;if(!out||cap<at)return -2;for(std::size_t i=0;i<at;i++)out[i]=temp[i];return std::int64_t(at);}

@@ -1,0 +1,2 @@
+fn solve(v:[*]const i64,n:usize,i:usize,target:i64,half:i64)bool{if(target==half)return true;if(i>=n or target>half)return false;return solve(v,n,i+1,target+v[i],half) or solve(v,n,i+1,target,half);}
+export fn partition(v:[*c]const i64,n:usize)i64{if(v==null or n<1 or n>17 or v[0]<0 or v[0]>16 or n!=@as(usize,@intCast(v[0]))+1)return -1;const count:usize=@intCast(v[0]);var sum:i64=0;for(1..n)|i|{if(v[i]<0 or v[i]>1000)return -1;sum+=v[i];}if(@mod(sum,2)!=0)return 0;return @intFromBool(solve(v+1,count,0,0,@divTrunc(sum,2)));}

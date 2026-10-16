@@ -1,0 +1,28 @@
+def kth_smallest_heap_impl(v: i64&, length: usize) -> i64:
+    if length < 2 or length > 65: return -1
+    k: i64 = v[0]
+    if k < 1 or k >= i64(length): return -1
+    h: mutable [i64; 64] = [0;64]
+    m: usize = usize(k)
+    for i in 0..m:
+        if v[i+1] < -100000 or v[i+1] > 100000: return -1
+        h[i] <- v[i+1]
+    for i in 0..m:
+        j: mutable usize = i
+        while j > 0:
+            p: usize = (j-1)/2
+            if h[p] >= h[j]: break
+            t: i64 = h[p]; h[p] <- h[j]; h[j] <- t; j <- p
+    for i in m+1..length:
+        x: i64 = v[i]
+        if x < -100000 or x > 100000: return -1
+        if x <= h[0]:
+            h[0] <- x
+            j: mutable usize = 0
+            while 2*j+1 < m:
+                c: mutable usize = 2*j+1
+                if c+1 < m and h[c+1] > h[c]: c <- c+1
+                if h[j] >= h[c]: break
+                t: i64 = h[j]; h[j] <- h[c]; h[c] <- t; j <- c
+    h[0]
+export fn kth_smallest_heap(v: i64&, length: usize) -> i64 = kth_smallest_heap_impl

@@ -17,10 +17,13 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from coordinate_converter_oracle import expected_result as coordinate_converter_oracle
+from rectangular_to_polar_oracle import expected_result as rectangular_to_polar_oracle
 from run_float64_triple import encode_case, matches
 from standard_score_oracle import expected_result as standard_score_oracle
+from dual_number_automatic_differentiation_oracle import expected_result as dual_number_ad_oracle
 
-ALGORITHMS = ("lerp", "standard_score", "coordinate_converter")
+ALGORITHMS = ("lerp", "standard_score", "coordinate_converter", "rectangular_to_polar",
+              "dual_number_automatic_differentiation")
 
 
 def oracle(start: float, end: float, t: float) -> float:
@@ -46,6 +49,15 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             exact = coordinate_converter_oracle([start, end, t])
             if not matches(expected, exact, tolerance, start, end):
                 raise ValueError(f"published workload disagrees with the coordinate oracle: {case['id']}")
+        elif algorithm == "rectangular_to_polar":
+            exact = rectangular_to_polar_oracle([start, end, t])
+            if (expected != exact
+                    or (expected == 0.0 and math.copysign(1.0, expected) != math.copysign(1.0, exact))):
+                raise ValueError(f"published workload disagrees with the Rust-rounded polar oracle: {case['id']}")
+        elif algorithm == "dual_number_automatic_differentiation":
+            exact = dual_number_ad_oracle(start, end, t)
+            if not matches(expected, exact, tolerance, start, end):
+                raise ValueError(f"published workload disagrees with the dual-number oracle: {case['id']}")
         triples.add((start, end, t))
 
     if algorithm == "lerp":
@@ -87,17 +99,55 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         (-0.1, 2.0), (1_000_001.0, 3.0)))
         triples.update((1.0, angle, selector) for angle, selector in
                        ((-36_001.0, 2.0), (36_001.0, 3.0)))
+    elif algorithm == "rectangular_to_polar":
+        coordinate_bounds = (-1_000_000.0, -1.0, 0.0, 1.0, 1_000_000.0)
+        triples.update((real, imag, selector)
+                       for selector in (0.0, 1.0)
+                       for real in coordinate_bounds for imag in coordinate_bounds)
+        rng = random.Random(20261016)
+        for _ in range(256):
+            triples.add((rng.uniform(-1_000_000.0, 1_000_000.0),
+                         rng.uniform(-1_000_000.0, 1_000_000.0),
+                         float(rng.randrange(2))))
+        triples.update((real, imag, selector) for real, imag, selector in (
+            (1_000_001.0, 0.0, 0.0), (-1_000_001.0, 0.0, 1.0),
+            (0.0, 1_000_001.0, 0.0), (0.0, -1_000_001.0, 1.0),
+            (1.0, 0.0, -1.0), (1.0, 0.0, 1.5), (1.0, 0.0, 2.0),
+        ))
+    elif algorithm == "dual_number_automatic_differentiation":
+        positions = (-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0)
+        triples.update((position, float(power), float(order))
+                       for position in positions for power in range(9) for order in range(power + 1))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            power = rng.randrange(9)
+            triples.add((rng.uniform(-1.0, 1.0), float(power), float(rng.randrange(power + 1))))
+        triples.update(((1.5, 2.0, 1.0), (0.5, 3.5, 1.0), (0.5, 3.0, 4.0), (0.5, 3.0, -1.0)))
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
 
-    lines = [str(len(triples)) + "\n"]
+    # A Python set merges +0.0 and -0.0, so keep signed-zero probes as explicit
+    # rows for this source, whose atan2 behavior distinguishes their signs.
+    signed_zero_cases = (
+        (1.0, -0.0, 1.0),
+        (-0.0, 0.0, 1.0),
+        (0.0, -0.0, 1.0),
+        (-0.0, -0.0, 1.0),
+    ) if algorithm == "rectangular_to_polar" else ()
+    lines = [str(len(triples) + len(signed_zero_cases)) + "\n"]
     for start, end, t in sorted(triples):
         expected = (oracle(start, end, t) if algorithm == "lerp" else
                     standard_score_oracle(start, end, t) if algorithm == "standard_score" else
-                    coordinate_converter_oracle([start, end, t]))
+                    coordinate_converter_oracle([start, end, t]) if algorithm == "coordinate_converter" else
+                    rectangular_to_polar_oracle([start, end, t]) if algorithm == "rectangular_to_polar" else
+                    dual_number_ad_oracle(start, end, t))
         lines.append(" ".join(format(value, ".17g") for value in
                               (start, end, t, expected, tolerance)) + "\n")
-    return "".join(lines), len(triples)
+    for start, end, t in signed_zero_cases:
+        expected = rectangular_to_polar_oracle([start, end, t])
+        lines.append(" ".join(format(value, ".17g") for value in
+                              (start, end, t, expected, tolerance)) + "\n")
+    return "".join(lines), len(triples) + len(signed_zero_cases)
 
 
 def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str | None,

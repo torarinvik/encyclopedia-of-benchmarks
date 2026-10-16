@@ -1,0 +1,40 @@
+const MAX_WIDTH: i64 = 64
+const MAX_GENERATIONS: i64 = 64
+
+def generate_rule_30_grid_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    width_value: i64 = input[0]
+    generations_value: i64 = input[1]
+    if width_value < 1 or width_value > MAX_WIDTH or generations_value < 1 or generations_value > MAX_GENERATIONS:
+        return -1
+    width: usize = width_value.usize()
+    generations: usize = generations_value.usize()
+    output_count: usize = width * generations
+    if output_capacity < output_count or output.is_null():
+        return -2
+    current: mutable i64[64] = zeroed
+    next: mutable i64[64] = zeroed
+    current[width / 2] <- 1
+    column: mutable usize = 0
+    while column < width:
+        output[column] <- current[column].u8()
+        column <- column + 1
+    generation: mutable usize = 1
+    while generation < generations:
+        column <- 0
+        while column < width:
+            left: i64 = if column > 0 then current[column - 1] else 0
+            right: i64 = if column + 1 < width then current[column + 1] else 0
+            pattern: i64 = left * 4 + current[column] * 2 + right
+            next[column] <- (30 >> pattern) & 1
+            column <- column + 1
+        column <- 0
+        while column < width:
+            current[column] <- next[column]
+            output[generation * width + column] <- next[column].u8()
+            column <- column + 1
+        generation <- generation + 1
+    output_count.i64()
+
+export fn generate_rule_30_grid(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = generate_rule_30_grid_impl

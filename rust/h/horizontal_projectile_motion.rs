@@ -37,9 +37,11 @@ pub unsafe extern "C" fn horizontal_projectile_motion(values: *const i64, length
     let velocity = velocity_milli as f64 / 1000.0;
     let angle = angle_millidegrees as f64 / 1000.0;
     let pi_over_180 = 3.14159265358979323846264338327950288_f64 / 180.0;
-    let distance_raw = velocity * velocity * ((2.0 * angle) * pi_over_180).sin() / GRAVITY;
+    let velocity_squared = velocity * velocity;
+    let distance_raw = velocity_squared * ((2.0 * angle) * pi_over_180).sin() / GRAVITY;
     let angle_sine = (angle * pi_over_180).sin();
-    let height_raw = velocity * velocity * angle_sine * angle_sine / (2.0 * GRAVITY);
+    let sine_squared = angle_sine * angle_sine;
+    let height_raw = velocity_squared * sine_squared / (2.0 * GRAVITY);
     let time_raw = (2.0 * velocity) * angle_sine / GRAVITY;
     let output_slice = std::slice::from_raw_parts_mut(output, OUTPUT_BYTES as usize);
     store_f64_le(output_slice, 0, round_cents(distance_raw) as f64 / 100.0);

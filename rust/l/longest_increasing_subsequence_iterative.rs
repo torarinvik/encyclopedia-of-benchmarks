@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn longest_increasing_subsequence_iterative(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>65{return -1;}let v=unsafe{std::slice::from_raw_parts(v,n)};let count=v[0];if !(0..=64).contains(&count)||n!=count as usize+1{return -1;}let a=&v[1..];if a.iter().any(|&x|!(-1_000_000..=1_000_000).contains(&x)){return -1;}let mut dp=vec![1i64;a.len()];for i in 0..a.len(){for j in 0..i{if a[j]<=a[i]&&dp[j]+1>dp[i]{dp[i]=dp[j]+1;}}}dp.into_iter().max().unwrap_or(0)}

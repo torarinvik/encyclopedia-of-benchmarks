@@ -21,16 +21,31 @@ from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from nimply_gate_oracle import expected_result as nimply_gate_expected
+from naive_knapsack_solver_oracle import expected_result as naive_knapsack_solver_expected
+from ones_and_zeros_oracle import MAX_INPUT_LENGTH as MAX_ONES_AND_ZEROS_INPUT_LENGTH
+from ones_and_zeros_oracle import expected_result as ones_and_zeros_expected
+from optimal_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_OPTIMAL_BINARY_SEARCH_TREE_INPUT_LENGTH
+from optimal_binary_search_tree_oracle import expected_result as optimal_binary_search_tree_expected
+from optimal_file_merging_oracle import expected_result as optimal_file_merging_expected
+from needleman_wunsch_oracle import MAX_INPUT_LENGTH as MAX_NEEDLEMAN_WUNSCH_INPUT_LENGTH
+from needleman_wunsch_oracle import expected_result as needleman_wunsch_expected
 from linear_recurrence_matrix_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH
 from linear_recurrence_matrix_oracle import expected_result as linear_recurrence_matrix_expected
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
+from edmonds_karp_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_KARP_INPUT_LENGTH
+from edmonds_karp_oracle import expected_result as edmonds_karp_expected
+from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGTH
+from push_relabel_oracle import expected_result as push_relabel_expected
 from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
 from recursive_linear_search_oracle import expected_result as recursive_linear_search_expected
 from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_INPUT_LENGTH
 from wildcard_matching_oracle import expected_result as wildcard_matching_expected
 from primitive_root_oracle import MAX_INPUT_LENGTH as MAX_PRIMITIVE_ROOT_INPUT_LENGTH
 from primitive_root_oracle import expected_result as primitive_root_expected
+from quadratic_residue_oracle import MAX_INPUT_LENGTH as MAX_QUADRATIC_RESIDUE_INPUT_LENGTH
+from quadratic_residue_oracle import expected_result as quadratic_residue_expected
 from dijkstras_two_stack_algorithm_oracle import MAX_INPUT_LENGTH as MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH
 from dijkstras_two_stack_algorithm_oracle import expected_result as dijkstras_two_stack_expected
 from naive_pattern_search_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH
@@ -39,6 +54,34 @@ from unbias_01_oracle import MAX_INPUT_LENGTH as MAX_UNBIAS_01_INPUT_LENGTH
 from unbias_01_oracle import expected_result as unbias_01_expected
 from tilingproblem_oracle import MAX_INPUT_LENGTH as MAX_TILINGPROBLEM_INPUT_LENGTH
 from tilingproblem_oracle import expected_result as tilingproblem_expected
+from palindromic_partitioning_oracle import MAX_INPUT_LENGTH as MAX_PALINDROMIC_PARTITIONING_INPUT_LENGTH
+from palindromic_partitioning_oracle import expected_output as palindromic_partitioning_expected
+from permutation_and_combination_oracle import MAX_INPUT_LENGTH as MAX_PERMUTATION_AND_COMBINATION_INPUT_LENGTH
+from permutation_and_combination_oracle import expected_result as permutation_and_combination_expected
+from pascals_triangle_oracle import MAX_INPUT_LENGTH as MAX_PASCALS_TRIANGLE_INPUT_LENGTH
+from pascals_triangle_oracle import expected_result as pascals_triangle_expected
+from parenthesis_oracle import MAX_INPUT_LENGTH as MAX_PARENTHESIS_INPUT_LENGTH
+from parenthesis_oracle import expected_result as parenthesis_expected
+from permutation_cipher_oracle import MAX_INPUT_LENGTH as MAX_PERMUTATION_CIPHER_INPUT_LENGTH
+from permutation_cipher_oracle import expected_result as permutation_cipher_expected
+from perfect_numbers_oracle import MAX_INPUT_LENGTH as MAX_PERFECT_NUMBERS_INPUT_LENGTH
+from perfect_numbers_oracle import expected_result as perfect_numbers_expected
+from palindrome_with_stack_oracle import MAX_INPUT_LENGTH as MAX_PALINDROME_WITH_STACK_INPUT_LENGTH
+from palindrome_with_stack_oracle import expected_result as palindrome_with_stack_expected
+from parse_nested_brackets_oracle import MAX_INPUT_LENGTH as MAX_PARSE_NESTED_BRACKETS_INPUT_LENGTH
+from parse_nested_brackets_oracle import expected_result as parse_nested_brackets_expected
+from partition_oracle import MAX_INPUT_LENGTH as MAX_PARTITION_INPUT_LENGTH
+from partition_oracle import expected_result as partition_expected
+from peak_oracle import MAX_INPUT_LENGTH as MAX_PEAK_INPUT_LENGTH
+from peak_oracle import expected_result as peak_expected
+from parse_date_oracle import MAX_INPUT_LENGTH as MAX_PARSE_DATE_INPUT_LENGTH
+from parse_date_oracle import expected_result as parse_date_expected
+from palindrome_singly_linked_list_oracle import MAX_INPUT_LENGTH as MAX_PALINDROME_SINGLY_LINKED_LIST_INPUT_LENGTH
+from palindrome_singly_linked_list_oracle import expected_result as palindrome_singly_linked_list_expected
+from pattern_matching_oracle import MAX_INPUT_LENGTH as MAX_PATTERN_MATCHING_INPUT_LENGTH
+from pattern_matching_oracle import expected_result as pattern_matching_expected
+from two_pointer_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTER_INPUT_LENGTH
+from two_pointer_oracle import expected_result as two_pointer_expected
 from ceil_in_binary_search_tree_oracle import MAX_INPUT_LENGTH as MAX_CEIL_IN_BST_INPUT_LENGTH
 from ceil_in_binary_search_tree_oracle import expected_result as ceil_in_bst_expected
 from inorder_successor_of_bst_oracle import MAX_INPUT_LENGTH as MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH
@@ -51,6 +94,8 @@ from count_homogenous_oracle import MAX_INPUT_LENGTH as MAX_COUNT_HOMOGENOUS_INP
 from count_homogenous_oracle import expected_result as count_homogenous_expected
 from count_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
 from count_singly_linked_list_recursion_oracle import expected_result as count_singly_linked_list_expected
+from unrolled_linked_list_oracle import MAX_ITEMS as MAX_UNROLLED_LINKED_LIST_ITEMS
+from unrolled_linked_list_oracle import expected_result as unrolled_linked_list_expected
 from dice_throw_oracle import expected_result as dice_throw_expected
 from depth_first_search_iterative_oracle import MAX_INPUT_LENGTH as MAX_DEPTH_FIRST_SEARCH_ITERATIVE_VALID_INPUT_LENGTH
 from depth_first_search_iterative_oracle import expected_result as depth_first_search_iterative_expected
@@ -134,6 +179,38 @@ from hamming_distance_bytes_oracle import MAX_INPUT_LENGTH as MAX_HAMMING_DISTAN
 from hamming_distance_bytes_oracle import expected_result as hamming_distance_bytes_expected
 from hamming_distance_strings_oracle import MAX_INPUT_LENGTH as MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH
 from hamming_distance_strings_oracle import expected_result as hamming_distance_strings_expected
+from frequency_finder_oracle import MAX_INPUT_LENGTH as MAX_FREQUENCY_FINDER_INPUT_LENGTH
+from frequency_finder_oracle import expected_result as frequency_finder_expected
+from multiply_digit_oracle import MAX_INPUT_LENGTH as MAX_MULTIPLY_DIGIT_INPUT_LENGTH
+from multiply_digit_oracle import expected_result as multiply_digit_expected
+from sort_the_odd_oracle import MAX_INPUT_LENGTH as MAX_SORT_THE_ODD_INPUT_LENGTH
+from sort_the_odd_oracle import expected_result as sort_the_odd_expected
+from merge_sorted_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MERGE_SORTED_PARSEABLE_INPUT_LENGTH
+from merge_sorted_oracle import expected_result as merge_sorted_expected
+from merge_ksorted_arrays_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MERGE_KSORTED_ARRAYS_PARSEABLE_INPUT_LENGTH
+from merge_ksorted_arrays_oracle import expected_result as merge_ksorted_arrays_expected
+from jort_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_JORT_SORT_PARSEABLE_INPUT_LENGTH
+from jort_sort_oracle import expected_result as jort_sort_expected
+from substring_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_PARSEABLE_INPUT_LENGTH
+from substring_oracle import expected_result as substring_expected
+from permutation_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_PERMUTATION_SORT_PARSEABLE_INPUT_LENGTH
+from permutation_sort_oracle import expected_result as permutation_sort_expected
+from substring_search_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH
+from substring_search_oracle import expected_result as substring_search_expected
+from substring_end_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH
+from substring_end_oracle import expected_result as substring_end_expected
+from substring_minus_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH
+from substring_minus_oracle import expected_result as substring_minus_expected
+from substring_st_char_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_ST_CHAR_PARSEABLE_INPUT_LENGTH
+from substring_st_char_oracle import expected_result as substring_st_char_expected
+from simplesort_oracle import MAX_LENGTH as SIMPLESORT_MAX_LENGTH
+from simplesort_oracle import expected_result as simplesort_expected
+from improved_simple_sort_oracle import MAX_LENGTH as IMPROVED_SIMPLE_SORT_MAX_LENGTH
+from improved_simple_sort_oracle import expected_result as improved_simple_sort_expected
+from largest_of_very_large_numbers_oracle import MAX_INPUT_LENGTH as LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH
+from largest_of_very_large_numbers_oracle import expected_result as largest_of_very_large_numbers_expected
+from lexicographical_numbers_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_LEXICOGRAPHICAL_NUMBERS_PARSEABLE_INPUT_LENGTH
+from lexicographical_numbers_oracle import expected_result as lexicographical_numbers_expected
 from hexa_decimal_to_decimal_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_HEXA_DECIMAL_PARSEABLE_INPUT_LENGTH
 from hexa_decimal_to_decimal_oracle import expected_result as hexa_decimal_to_decimal_expected
 from djb2_oracle import MAX_INPUT_LENGTH as MAX_DJB2_INPUT_LENGTH
@@ -142,6 +219,50 @@ from hash_djb2_oracle import MAX_INPUT_LENGTH as MAX_HASH_DJB2_INPUT_LENGTH
 from hash_djb2_oracle import expected_result as hash_djb2_expected
 from hash_xor8_oracle import MAX_INPUT_LENGTH as MAX_HASH_XOR8_INPUT_LENGTH
 from hash_xor8_oracle import expected_result as hash_xor8_expected
+from jenkins_one_at_a_time_oracle import MAX_INPUT_LENGTH as MAX_JENKINS_ONE_AT_A_TIME_INPUT_LENGTH
+from jenkins_one_at_a_time_oracle import expected_result as jenkins_one_at_a_time_expected
+from longest_increasing_subsequence_iterative_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_INCREASING_SUBSEQUENCE_ITERATIVE_INPUT_LENGTH
+from longest_increasing_subsequence_iterative_oracle import expected_result as longest_increasing_subsequence_iterative_expected
+from longestpalindrome_oracle import MAX_INPUT_LENGTH as MAX_LONGESTPALINDROME_INPUT_LENGTH
+from longestpalindrome_oracle import expected_result as longestpalindrome_expected
+from job_sequence_with_deadline_oracle import MAX_INPUT_LENGTH as MAX_JOB_SEQUENCE_WITH_DEADLINE_INPUT_LENGTH
+from job_sequence_with_deadline_oracle import expected_result as job_sequence_with_deadline_expected
+from job_sequencing_with_deadline_oracle import MAX_INPUT_LENGTH as MAX_JOB_SEQUENCING_WITH_DEADLINE_INPUT_LENGTH
+from job_sequencing_with_deadline_oracle import expected_result as job_sequencing_with_deadline_expected
+from iterating_through_submasks_oracle import MAX_INPUT_LENGTH as MAX_ITERATING_THROUGH_SUBMASKS_INPUT_LENGTH
+from iterating_through_submasks_oracle import expected_result as iterating_through_submasks_expected
+from kth_lexicographic_permutation_oracle import MAX_INPUT_LENGTH as MAX_KTH_LEXICOGRAPHIC_PERMUTATION_INPUT_LENGTH
+from kth_lexicographic_permutation_oracle import expected_result as kth_lexicographic_permutation_expected
+from kth_order_statistic_oracle import MAX_INPUT_LENGTH as MAX_KTH_ORDER_STATISTIC_INPUT_LENGTH
+from kth_order_statistic_oracle import expected_result as kth_order_statistic_expected
+from kth_smallest_heap_oracle import MAX_INPUT_LENGTH as MAX_KTH_SMALLEST_HEAP_INPUT_LENGTH
+from kth_smallest_heap_oracle import expected_result as kth_smallest_heap_expected
+from log_two_oracle import MAX_INPUT_LENGTH as MAX_LOG_TWO_INPUT_LENGTH
+from log_two_oracle import expected_result as log_two_expected
+from long_division_oracle import MAX_INPUT_LENGTH as MAX_LONG_DIVISION_INPUT_LENGTH
+from long_division_oracle import expected_result as long_division_expected
+from lee_breadth_first_search_oracle import MAX_INPUT_LENGTH as MAX_LEE_BREADTH_FIRST_SEARCH_INPUT_LENGTH
+from lee_breadth_first_search_oracle import expected_result as lee_breadth_first_search_expected
+from last_item_in_a_list_oracle import MAX_INPUT_LENGTH as MAX_LAST_ITEM_IN_A_LIST_INPUT_LENGTH
+from last_item_in_a_list_oracle import expected_result as last_item_in_a_list_expected
+from length_of_list_oracle import MAX_INPUT_LENGTH as MAX_LENGTH_OF_LIST_INPUT_LENGTH
+from length_of_list_oracle import expected_result as length_of_list_expected
+from langtons_ant_oracle import MAX_INPUT_LENGTH as MAX_LANGTONS_ANT_INPUT_LENGTH
+from langtons_ant_oracle import expected_result as langtons_ant_expected
+from largest_square_area_in_matrix_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_SQUARE_AREA_IN_MATRIX_INPUT_LENGTH
+from largest_square_area_in_matrix_oracle import expected_result as largest_square_area_in_matrix_expected
+from linear_diophantine_eqn_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_DIOPHANTINE_EQN_INPUT_LENGTH
+from linear_diophantine_eqn_oracle import expected_result as linear_diophantine_eqn_expected
+from local_maximum_point_oracle import MAX_INPUT_LENGTH as MAX_LOCAL_MAXIMUM_POINT_INPUT_LENGTH
+from local_maximum_point_oracle import expected_result as local_maximum_point_expected
+from linear_diophantine_equations_solver_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH
+from linear_diophantine_equations_solver_oracle import expected_result as linear_diophantine_equations_solver_expected
+from kth_element_from_end_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_FROM_END_INPUT_LENGTH
+from kth_element_from_end_oracle import expected_result as kth_element_from_end_expected
+from largest_divisible_subset_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_DIVISIBLE_SUBSET_INPUT_LENGTH
+from largest_divisible_subset_oracle import expected_result as largest_divisible_subset_expected
+from kahn_oracle import MAX_INPUT_LENGTH as MAX_KAHN_INPUT_LENGTH
+from kahn_oracle import expected_result as kahn_expected
 from hex_to_oct_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH
 from hex_to_oct_oracle import expected_result as hex_to_oct_expected
 from grid_get_oracle import MAX_INPUT_LENGTH as MAX_GRID_GET_INPUT_LENGTH
@@ -176,6 +297,10 @@ from longest_subarray_with_sum_at_most_oracle import MAX_INPUT_LENGTH as MAX_LON
 from longest_subarray_with_sum_at_most_oracle import expected_result as longest_subarray_with_sum_at_most_expected
 from longest_subarray_with_sum_less_or_equal_to_k_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_SUBARRAY_LEQ_K_INPUT_LENGTH
 from longest_subarray_with_sum_less_or_equal_to_k_oracle import expected_result as longest_subarray_with_sum_less_or_equal_to_k_expected
+from longest_repeating_subsequence_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_REPEATING_SUBSEQUENCE_INPUT_LENGTH
+from longest_repeating_subsequence_oracle import expected_result as longest_repeating_subsequence_expected
+from longest_repeated_substring_oracle import MAX_INPUT_LENGTH as MAX_LONGEST_REPEATED_SUBSTRING_INPUT_LENGTH
+from longest_repeated_substring_oracle import expected_result as longest_repeated_substring_expected
 from pow_logarithmic_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_POW_LOGARITHMIC_PARSEABLE_INPUT_LENGTH
 from pow_logarithmic_oracle import expected_result as pow_logarithmic_expected
 from length_of_last_word_oracle import MAX_INPUT_LENGTH as MAX_LENGTH_OF_LAST_WORD_INPUT_LENGTH
@@ -187,6 +312,32 @@ from digit_dp_oracle import MAX_INPUT_LENGTH as MAX_DIGIT_DP_INPUT_LENGTH
 from digit_dp_oracle import expected_result as digit_dp_expected
 from modular_exponentiation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH
 from modular_exponentiation_oracle import expected_result as modular_exponentiation_expected
+from modular_arithmetic_oracle import expected_result as modular_arithmetic_expected
+from modular_multiplicative_inverse_oracle import expected_result as modular_multiplicative_inverse_expected
+from majority_element_sort_oracle import expected_result as majority_element_sort_expected
+from modular_binary_exponentiation_recursive_oracle import expected_result as modular_binary_exponentiation_recursive_expected
+from minimum_tickets_cost_oracle import MAX_INPUT_LENGTH as MINIMUM_TICKETS_COST_MAX_INPUT_LENGTH
+from minimum_tickets_cost_oracle import expected_result as minimum_tickets_cost_expected
+from minimize_deviation_in_array_oracle import MAX_INPUT_LENGTH as MINIMIZE_DEVIATION_MAX_INPUT_LENGTH
+from minimize_deviation_in_array_oracle import expected_result as minimize_deviation_in_array_expected
+from peak_element_oracle import MAX_INPUT_LENGTH as PEAK_ELEMENT_MAX_INPUT_LENGTH
+from peak_element_oracle import expected_result as peak_element_expected
+from prefix_evaluator_oracle import MAX_INPUT_LENGTH as PREFIX_EVALUATOR_MAX_INPUT_LENGTH
+from prefix_evaluator_oracle import expected_result as prefix_evaluator_expected
+from paranthesis_matching_oracle import MAX_INPUT_LENGTH as PARANTHESIS_MATCHING_MAX_INPUT_LENGTH
+from paranthesis_matching_oracle import expected_result as paranthesis_matching_expected
+from payback_oracle import MAX_INPUT_LENGTH as PAYBACK_MAX_INPUT_LENGTH
+from payback_oracle import expected_result as payback_expected
+from percentage_oracle import MAX_INPUT_LENGTH as PERCENTAGE_MAX_INPUT_LENGTH
+from percentage_oracle import expected_result as percentage_expected
+from permutation_calculation_oracle import MAX_INPUT_LENGTH as PERMUTATION_CALCULATION_MAX_INPUT_LENGTH
+from permutation_calculation_oracle import expected_result as permutation_calculation_expected
+from product_sum_oracle import MAX_INPUT_LENGTH as PRODUCT_SUM_MAX_INPUT_LENGTH
+from product_sum_oracle import expected_result as product_sum_expected
+from postfix_evaluator_oracle import MAX_INPUT_LENGTH as POSTFIX_EVALUATOR_MAX_INPUT_LENGTH
+from postfix_evaluator_oracle import expected_result as postfix_evaluator_expected
+from minimum_element_of_array_oracle import MAX_INPUT_LENGTH as MAXIMUM_ELEMENT_OF_ARRAY_INPUT_LENGTH
+from minimum_element_of_array_oracle import expected_result as minimum_element_of_array_expected
 from modpow_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MODPOW_INPUT_LENGTH
 from modpow_oracle import expected_result as modpow_expected
 from divisors_oracle import MAX_INPUT_LENGTH as MAX_DIVISORS_INPUT_LENGTH
@@ -598,7 +749,9 @@ def problem54_player_one_wins(values: list[int]) -> int:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
+    max_input_length = (MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
+                        MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
+                        MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
                         MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
                         if algorithm == "count_singly_linked_list_recursion"
@@ -610,14 +763,32 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_CHAINING_INPUT_LENGTH if algorithm == "chaining"
                         else MAX_CEIL_IN_BST_INPUT_LENGTH if algorithm == "ceil_in_binary_search_tree"
                         else MAX_INORDER_SUCCESSOR_OF_BST_INPUT_LENGTH if algorithm == "inorder_successor_of_bst"
+                        else MAX_NEEDLEMAN_WUNSCH_INPUT_LENGTH if algorithm == "needleman_wunsch"
+                        else MAX_ONES_AND_ZEROS_INPUT_LENGTH if algorithm == "ones_and_zeros"
+                        else MAX_OPTIMAL_BINARY_SEARCH_TREE_INPUT_LENGTH if algorithm == "optimal_binary_search_tree"
                         else MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH if algorithm == "linear_recurrence_matrix"
                         else MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH if algorithm == "recursive_linear_search"
                         else MAX_WILDCARD_MATCHING_INPUT_LENGTH if algorithm == "wildcard_matching"
                         else MAX_PRIMITIVE_ROOT_INPUT_LENGTH if algorithm == "primitive_root"
+                        else MAX_QUADRATIC_RESIDUE_INPUT_LENGTH if algorithm == "quadratic_residue"
                         else MAX_DIJKSTRAS_TWO_STACK_INPUT_LENGTH if algorithm == "dijkstras_two_stack_algorithm"
                         else MAX_NAIVE_PATTERN_SEARCH_INPUT_LENGTH if algorithm == "naive_pattern_search"
                         else MAX_UNBIAS_01_INPUT_LENGTH if algorithm == "unbias_01"
                         else MAX_TILINGPROBLEM_INPUT_LENGTH if algorithm == "tilingproblem"
+                        else MAX_TWO_POINTER_INPUT_LENGTH if algorithm == "two_pointer"
+                        else MAX_PALINDROMIC_PARTITIONING_INPUT_LENGTH if algorithm == "palindromic_partitioning"
+                        else MAX_PERMUTATION_AND_COMBINATION_INPUT_LENGTH if algorithm == "permutation_and_combination"
+                        else MAX_PASCALS_TRIANGLE_INPUT_LENGTH if algorithm == "pascals_triangle"
+                        else MAX_PARENTHESIS_INPUT_LENGTH if algorithm == "parenthesis"
+                        else MAX_PERMUTATION_CIPHER_INPUT_LENGTH if algorithm == "permutation_cipher"
+                        else MAX_PERFECT_NUMBERS_INPUT_LENGTH if algorithm == "perfect_numbers"
+                        else MAX_PALINDROME_WITH_STACK_INPUT_LENGTH if algorithm == "palindrome_with_stack"
+                        else MAX_PARSE_NESTED_BRACKETS_INPUT_LENGTH if algorithm == "parse_nested_brackets"
+                        else MAX_PARTITION_INPUT_LENGTH if algorithm == "partition"
+                        else MAX_PEAK_INPUT_LENGTH if algorithm == "peak"
+                        else MAX_PARSE_DATE_INPUT_LENGTH if algorithm == "parse_date"
+                        else MAX_PALINDROME_SINGLY_LINKED_LIST_INPUT_LENGTH if algorithm == "palindrome_singly_linked_list"
+                        else MAX_PATTERN_MATCHING_INPUT_LENGTH if algorithm == "pattern_matching"
                         else MAX_CAR_POOL_INPUT_LENGTH if algorithm == "car_pool"
                         else MAX_BLOB_DETECTION_INPUT_LENGTH
                         if algorithm == "blob_detection"
@@ -677,11 +848,69 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "hamming_distance_bytes"
                         else MAX_HAMMING_DISTANCE_STRINGS_INPUT_LENGTH
                         if algorithm == "hamming_distance_strings"
+                        else MAX_FREQUENCY_FINDER_INPUT_LENGTH
+                        if algorithm == "frequency_finder"
+                        else MAX_MULTIPLY_DIGIT_INPUT_LENGTH
+                        if algorithm == "multiply_digit"
+                        else MAX_SORT_THE_ODD_INPUT_LENGTH
+                        if algorithm == "sort_the_odd"
+                        else MAX_MERGE_SORTED_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "merge_sorted"
+                        else MAX_MERGE_KSORTED_ARRAYS_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "merge_ksorted_arrays"
+                        else MAX_JORT_SORT_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "jort_sort"
+                        else MAX_SUBSTRING_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "substring"
+                        else MAX_PERMUTATION_SORT_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "permutation_sort"
+                        else MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "substring_search"
+                        else MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "substring_end"
+                        else MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "substring_minus"
+                        else MAX_SUBSTRING_ST_CHAR_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "substring_st_char"
+                        else SIMPLESORT_MAX_LENGTH + 1
+                        if algorithm == "simplesort"
+                        else IMPROVED_SIMPLE_SORT_MAX_LENGTH + 1
+                        if algorithm == "improved_simple_sort"
+                        else LARGEST_OF_VERY_LARGE_NUMBERS_MAX_INPUT_LENGTH + 1
+                        if algorithm == "largest_of_very_large_numbers"
+                        else MAX_LEXICOGRAPHICAL_NUMBERS_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "lexicographical_numbers"
                         else MAX_HEXA_DECIMAL_PARSEABLE_INPUT_LENGTH
                         if algorithm == "hexa_decimal_to_decimal"
                         else MAX_DJB2_INPUT_LENGTH if algorithm == "djb2"
                         else MAX_HASH_DJB2_INPUT_LENGTH if algorithm == "hash_djb2"
                         else MAX_HASH_XOR8_INPUT_LENGTH + 1 if algorithm == "hash_xor8"
+                        else MAX_JENKINS_ONE_AT_A_TIME_INPUT_LENGTH if algorithm == "jenkins_one_at_a_time"
+                        else MAX_LONGEST_INCREASING_SUBSEQUENCE_ITERATIVE_INPUT_LENGTH
+                        if algorithm == "longest_increasing_subsequence_iterative"
+                        else MAX_LONGESTPALINDROME_INPUT_LENGTH if algorithm == "longestpalindrome"
+                        else MAX_JOB_SEQUENCE_WITH_DEADLINE_INPUT_LENGTH
+                        if algorithm == "job_sequence_with_deadline"
+                        else MAX_JOB_SEQUENCING_WITH_DEADLINE_INPUT_LENGTH
+                        if algorithm == "job_sequencing_with_deadline"
+                        else MAX_ITERATING_THROUGH_SUBMASKS_INPUT_LENGTH
+                        if algorithm == "iterating_through_submasks"
+                        else MAX_LARGEST_DIVISIBLE_SUBSET_INPUT_LENGTH if algorithm == "largest_divisible_subset"
+                        else MAX_KTH_LEXICOGRAPHIC_PERMUTATION_INPUT_LENGTH if algorithm == "kth_lexicographic_permutation"
+                        else MAX_KTH_ORDER_STATISTIC_INPUT_LENGTH if algorithm == "kth_order_statistic"
+                        else MAX_KTH_SMALLEST_HEAP_INPUT_LENGTH if algorithm == "kth_smallest_heap"
+                        else MAX_LOG_TWO_INPUT_LENGTH if algorithm == "log_two"
+                        else MAX_KTH_ELEMENT_FROM_END_INPUT_LENGTH if algorithm == "kth_element_from_end"
+                        else MAX_LONG_DIVISION_INPUT_LENGTH if algorithm == "long_division"
+                        else MAX_LEE_BREADTH_FIRST_SEARCH_INPUT_LENGTH if algorithm == "lee_breadth_first_search"
+                        else MAX_LAST_ITEM_IN_A_LIST_INPUT_LENGTH if algorithm == "last_item_in_a_list"
+                        else MAX_LENGTH_OF_LIST_INPUT_LENGTH if algorithm == "length_of_list"
+                        else MAX_LANGTONS_ANT_INPUT_LENGTH if algorithm == "langtons_ant"
+                        else MAX_LARGEST_SQUARE_AREA_IN_MATRIX_INPUT_LENGTH if algorithm == "largest_square_area_in_matrix"
+                        else MAX_LINEAR_DIOPHANTINE_EQN_INPUT_LENGTH if algorithm == "linear_diophantine_eqn"
+                        else MAX_LOCAL_MAXIMUM_POINT_INPUT_LENGTH if algorithm == "local_maximum_point"
+                        else MAX_LINEAR_DIOPHANTINE_EQUATIONS_SOLVER_INPUT_LENGTH if algorithm == "linear_diophantine_equations_solver"
+                        else MAX_KAHN_INPUT_LENGTH if algorithm == "kahn"
                         else MAX_HEX_TO_OCT_PARSEABLE_INPUT_LENGTH if algorithm == "hex_to_oct"
                         else MAX_GRID_GET_INPUT_LENGTH if algorithm == "grid_get"
                         else MAX_ODD_SUM_SUBARRAY_INPUT_LENGTH + 1
@@ -714,6 +943,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "longest_subarray_with_sum_at_most"
                         else MAX_LONGEST_SUBARRAY_LEQ_K_INPUT_LENGTH
                         if algorithm == "longest_subarray_with_sum_less_or_equal_to_k"
+                        else MAX_LONGEST_REPEATING_SUBSEQUENCE_INPUT_LENGTH
+                        if algorithm == "longest_repeating_subsequence"
+                        else MAX_LONGEST_REPEATED_SUBSTRING_INPUT_LENGTH
+                        if algorithm == "longest_repeated_substring"
                         else MAX_POW_LOGARITHMIC_PARSEABLE_INPUT_LENGTH
                         if algorithm == "pow_logarithmic"
                         else MAX_LENGTH_OF_LAST_WORD_INPUT_LENGTH
@@ -730,6 +963,28 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "how_many_times_rotated"
                         else MAX_MODULAR_EXPONENTIATION_INPUT_LENGTH
                         if algorithm == "modular_exponentiation"
+                        else MAXIMUM_ELEMENT_OF_ARRAY_INPUT_LENGTH
+                        if algorithm == "minimum_element_of_array"
+                        else MINIMUM_TICKETS_COST_MAX_INPUT_LENGTH
+                        if algorithm == "minimum_tickets_cost"
+                        else MINIMIZE_DEVIATION_MAX_INPUT_LENGTH
+                        if algorithm == "minimize_deviation_in_array"
+                        else PEAK_ELEMENT_MAX_INPUT_LENGTH
+                        if algorithm == "peak_element"
+                        else PREFIX_EVALUATOR_MAX_INPUT_LENGTH
+                        if algorithm == "prefix_evaluator"
+                        else PARANTHESIS_MATCHING_MAX_INPUT_LENGTH
+                        if algorithm == "paranthesis_matching"
+                        else PAYBACK_MAX_INPUT_LENGTH
+                        if algorithm == "payback"
+                        else PERCENTAGE_MAX_INPUT_LENGTH
+                        if algorithm == "percentage"
+                        else PERMUTATION_CALCULATION_MAX_INPUT_LENGTH
+                        if algorithm == "permutation_calculation"
+                        else PRODUCT_SUM_MAX_INPUT_LENGTH
+                        if algorithm == "product_sum"
+                        else POSTFIX_EVALUATOR_MAX_INPUT_LENGTH
+                        if algorithm == "postfix_evaluator"
                         else MAX_MODPOW_INPUT_LENGTH if algorithm == "modpow"
                         else MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
                         if algorithm == "string_prefix_suffix"
@@ -763,15 +1018,57 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_ONE_BIT_DIFFERENCE_INPUT_LENGTH if algorithm == "one_bit_difference"
                         else MAX_PARSE_INTEGER_INPUT_LENGTH if algorithm == "parse_integer"
                         else MAX_SADDLEBACK_SEARCH_INPUT_LENGTH if algorithm == "saddleback_search"
-                        else MAX_PARTITION_PROBLEM_ITEMS + 1 if algorithm == "partition_problem" else 100001)
+                        else MAX_PARTITION_PROBLEM_ITEMS + 1 if algorithm == "partition_problem"
+                        else 516 if algorithm == "euler" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "edmonds_blossom_algorithm":
+    if algorithm == "euler":
+        if len(values) < 4:
+            expected_from_source = -2
+        else:
+            vertices, source, destination, edge_count = values[:4]
+            if (not 1 <= vertices <= 32 or not 0 <= source < vertices
+                    or not 0 <= destination < vertices or not 0 <= edge_count <= 256
+                    or len(values) != 4 + 2 * edge_count):
+                expected_from_source = -2
+            else:
+                degree = [0] * vertices
+                edges = set()
+                expected_from_source = 1
+                for index in range(4, len(values), 2):
+                    u, v = values[index:index + 2]
+                    edge = tuple(sorted((u, v)))
+                    if not 0 <= u < vertices or not 0 <= v < vertices or u == v or edge in edges:
+                        expected_from_source = -2
+                        break
+                    edges.add(edge)
+                    degree[u] += 1
+                    degree[v] += 1
+                if expected_from_source != -2:
+                    expected_from_source = int(all(
+                        (degree[i] % 2 == 0) if source == destination else
+                        ((degree[i] % 2 == 1) if i in (source, destination) else degree[i] % 2 == 0)
+                        for i in range(vertices)))
+        if expected != expected_from_source:
+            raise ValueError("euler expected_result must match the pinned degree-parity helper")
+    elif algorithm == "edmonds_blossom_algorithm":
         expected_from_source = edmonds_blossom_expected(values)
         if expected != expected_from_source:
             raise ValueError("edmonds_blossom_algorithm expected_result must match general-graph maximum matching")
+    elif algorithm == "edmonds_karp":
+        expected_from_source = edmonds_karp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("edmonds_karp expected_result must match the bounded maximum-flow contract")
+    elif algorithm == "push_relabel":
+        expected_from_source = push_relabel_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("push_relabel expected_result must match the bounded multi-terminal maximum-flow contract")
+    elif algorithm == "quadratic_residue":
+        expected_from_source = quadratic_residue_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("quadratic_residue workload must match the bounded Legendre-symbol contract")
     elif algorithm == "primitive_root":
         expected_from_source = primitive_root_expected(values)
         if expected != expected_from_source:
@@ -788,6 +1085,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = count_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("count_singly_linked_list_recursion expected_result must match the packed node count")
+    elif algorithm == "unrolled_linked_list":
+        expected_from_source = unrolled_linked_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("unrolled_linked_list expected_result must match chunk splitting and flattened order")
     elif algorithm == "check_cycle":
         expected_from_source = check_cycle_expected(values)
         if expected != expected_from_source:
@@ -820,6 +1121,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = inorder_successor_of_bst_expected(values)
         if expected != expected_from_source:
             raise ValueError("inorder_successor_of_bst expected_result must match the bounded BST successor")
+    elif algorithm == "needleman_wunsch":
+        expected_from_source = needleman_wunsch_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("needleman_wunsch expected_result must match bounded global alignment scoring")
     elif algorithm == "linear_recurrence_matrix":
         expected_from_source = linear_recurrence_matrix_expected(values)
         if expected != expected_from_source:
@@ -863,6 +1168,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = tilingproblem_expected(values)
         if expected != expected_from_source:
             raise ValueError("tilingproblem expected_result must match the 2-by-n domino recurrence")
+    elif algorithm == "two_pointer":
+        expected_from_source = two_pointer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_pointer expected_result must match the sorted-array inward scan")
     elif algorithm == "zblock_substring_search":
         if (len(values) < 2 or values[0] < 0 or values[0] > 256
                 or values[1] < 1 or values[1] > 64
@@ -927,6 +1236,70 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = hamming_distance_strings_expected(values)
         if expected != expected_from_source:
             raise ValueError("hamming_distance_strings expected_result must match Go's equal-length byte comparison")
+    elif algorithm == "frequency_finder":
+        expected_from_source = frequency_finder_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("frequency_finder expected_result must match the source English frequency match score")
+    elif algorithm == "multiply_digit":
+        expected_from_source = multiply_digit_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("multiply_digit expected_result must match the bounded signed product")
+    elif algorithm == "sort_the_odd":
+        expected_from_source = sort_the_odd_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("sort_the_odd expected_result must match the sorted-odd weighted checksum")
+    elif algorithm == "merge_sorted":
+        expected_from_source = merge_sorted_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("merge_sorted expected_result must match the bounded two-pointer merged-array checksum")
+    elif algorithm == "merge_ksorted_arrays":
+        expected_from_source = merge_ksorted_arrays_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("merge_ksorted_arrays expected_result must match the bounded min-heap merged-array checksum")
+    elif algorithm == "jort_sort":
+        expected_from_source = jort_sort_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("jort_sort expected_result must match the pinned copy and suffix-insertion comparison")
+    elif algorithm == "substring":
+        expected_from_source = substring_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("substring expected_result must match the bounded byte-copy checksum")
+    elif algorithm == "permutation_sort":
+        expected_from_source = permutation_sort_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("permutation_sort expected_result must match the pinned iterative Heap candidate count")
+    elif algorithm == "substring_search":
+        expected_from_source = substring_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("substring_search expected_result must match the pinned byte-search helper")
+    elif algorithm == "substring_end":
+        expected_from_source = substring_end_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("substring_end expected_result must match the bounded suffix-copy checksum")
+    elif algorithm == "substring_minus":
+        expected_from_source = substring_minus_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("substring_minus expected_result must match the bounded prefix-copy checksum")
+    elif algorithm == "substring_st_char":
+        expected_from_source = substring_st_char_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("substring_st_char expected_result must match the first-target bounded copy checksum")
+    elif algorithm == "simplesort":
+        expected_from_source = simplesort_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("simplesort expected_result must match the bounded all-pairs exchange checksum")
+    elif algorithm == "improved_simple_sort":
+        expected_from_source = improved_simple_sort_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("improved_simple_sort expected_result must match the bounded forward-scan checksum")
+    elif algorithm == "largest_of_very_large_numbers":
+        expected_from_source = largest_of_very_large_numbers_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_of_very_large_numbers expected_result must match the bounded logarithmic comparison")
+    elif algorithm == "lexicographical_numbers":
+        expected_from_source = lexicographical_numbers_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lexicographical_numbers expected_result must match the bounded lexical-order checksum")
     elif algorithm == "hexa_decimal_to_decimal":
         expected_from_source = hexa_decimal_to_decimal_expected(values)
         if expected != expected_from_source:
@@ -939,6 +1312,94 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = hash_djb2_expected(values)
         if expected != expected_from_source:
             raise ValueError("hash_djb2 expected_result must match the bounded 64-bit NUL-terminated byte hash")
+    elif algorithm == "largest_divisible_subset":
+        expected_from_source = largest_divisible_subset_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_divisible_subset expected_result must match the bounded Python divisible-chain dynamic program")
+    elif algorithm == "kth_lexicographic_permutation":
+        expected_from_source = kth_lexicographic_permutation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kth_lexicographic_permutation expected_result must match the bounded Python factoradic permutation selection")
+    elif algorithm == "kth_order_statistic":
+        expected_from_source = kth_order_statistic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kth_order_statistic expected_result must match the bounded unique-value Python quickselect")
+    elif algorithm == "kth_smallest_heap":
+        expected_from_source = kth_smallest_heap_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kth_smallest_heap expected_result must match the bounded Rust max-heap selection")
+    elif algorithm == "log_two":
+        expected_from_source = log_two_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("log_two expected_result must match the bounded JavaScript signed-shift loop")
+    elif algorithm == "kth_element_from_end":
+        expected_from_source = kth_element_from_end_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kth_element_from_end expected_result must match the bounded Python two-pointer lookup")
+    elif algorithm == "long_division":
+        expected_from_source = long_division_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("long_division expected_result must match the bounded Java decimal digit division")
+    elif algorithm == "lee_breadth_first_search":
+        expected_from_source = lee_breadth_first_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lee_breadth_first_search expected_result must match the bounded Rust four-neighbor BFS")
+    elif algorithm == "last_item_in_a_list":
+        expected_from_source = last_item_in_a_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("last_item_in_a_list expected_result must match the bounded Clojure recursive last-item lookup")
+    elif algorithm == "length_of_list":
+        expected_from_source = length_of_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("length_of_list expected_result must match the bounded Clojure sequence count")
+    elif algorithm == "langtons_ant":
+        expected_from_source = langtons_ant_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("langtons_ant expected_result must match the bounded Python ant state transitions")
+    elif algorithm == "largest_square_area_in_matrix":
+        expected_from_source = largest_square_area_in_matrix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_square_area_in_matrix expected_result must match the bounded Python maximum all-ones square side length")
+    elif algorithm == "linear_diophantine_eqn":
+        expected_from_source = linear_diophantine_eqn_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("linear_diophantine_eqn expected_result must match the bounded Dart gcd divisibility check")
+    elif algorithm == "linear_diophantine_equations_solver":
+        expected_from_source = linear_diophantine_equations_solver_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("linear_diophantine_equations_solver expected_result must match the bounded Java extended-Euclidean solution branch")
+    elif algorithm == "local_maximum_point":
+        expected_from_source = local_maximum_point_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("local_maximum_point expected_result must match the bounded JavaScript peak-search branch semantics")
+    elif algorithm == "kahn":
+        expected_from_source = kahn_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kahn expected_result must match the bounded Kahn processed-vertex count")
+    elif algorithm == "iterating_through_submasks":
+        expected_from_source = iterating_through_submasks_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("iterating_through_submasks expected_result must match the pinned descending submask loop count")
+    elif algorithm == "job_sequencing_with_deadline":
+        expected_from_source = job_sequencing_with_deadline_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("job_sequencing_with_deadline expected_result must match the pinned latest-free-slot profit scheduler")
+    elif algorithm == "job_sequence_with_deadline":
+        expected_from_source = job_sequence_with_deadline_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("job_sequence_with_deadline expected_result must match the pinned stable reward-rank filter")
+    elif algorithm == "longestpalindrome":
+        expected_from_source = longestpalindrome_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longestpalindrome expected_result must match the bounded Go Manacher palindrome length")
+    elif algorithm == "longest_increasing_subsequence_iterative":
+        expected_from_source = longest_increasing_subsequence_iterative_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longest_increasing_subsequence_iterative expected_result must match the source's non-decreasing DP length")
+    elif algorithm == "jenkins_one_at_a_time":
+        expected_from_source = jenkins_one_at_a_time_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("jenkins_one_at_a_time expected_result must match the pinned 32-bit byte hash")
     elif algorithm == "hash_xor8":
         expected_from_source = hash_xor8_expected(values)
         if expected != expected_from_source:
@@ -1011,6 +1472,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = longest_subarray_with_sum_less_or_equal_to_k_expected(values)
         if expected != expected_from_source:
             raise ValueError("longest_subarray_with_sum_less_or_equal_to_k expected_result must match the bounded signed-int sliding window")
+    elif algorithm == "longest_repeating_subsequence":
+        expected_from_source = longest_repeating_subsequence_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longest_repeating_subsequence expected_result must match the bounded LCS-on-self recurrence")
+    elif algorithm == "longest_repeated_substring":
+        expected_from_source = longest_repeated_substring_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("longest_repeated_substring expected_result must match bounded distinct-suffix LCP lengths")
     elif algorithm == "pow_logarithmic":
         expected_from_source = pow_logarithmic_expected(values)
         if expected != expected_from_source:
@@ -1039,6 +1508,66 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = modular_exponentiation_expected(values)
         if expected != expected_from_source:
             raise ValueError("modular_exponentiation expected_result must match Python's signed-i32 modular power")
+    elif algorithm == "modular_arithmetic":
+        expected_from_source = modular_arithmetic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_arithmetic expected_result must match the bounded ModRing add/subtract/multiply operation")
+    elif algorithm == "modular_multiplicative_inverse":
+        expected_from_source = modular_multiplicative_inverse_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_multiplicative_inverse expected_result must match the bounded extended-Euclidean inverse")
+    elif algorithm == "majority_element_sort":
+        expected_from_source = majority_element_sort_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("majority_element_sort expected_result must match the bounded sort-and-count strict-majority routine")
+    elif algorithm == "modular_binary_exponentiation_recursive":
+        expected_from_source = modular_binary_exponentiation_recursive_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modular_binary_exponentiation_recursive expected_result must match recursive exponentiation by squaring")
+    elif algorithm == "minimum_tickets_cost":
+        expected_from_source = minimum_tickets_cost_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimum_tickets_cost expected_result must match the bounded 1/7/30-day dynamic program")
+    elif algorithm == "minimize_deviation_in_array":
+        expected_from_source = minimize_deviation_in_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimize_deviation_in_array expected_result must match the source max-heap reduction loop")
+    elif algorithm == "peak_element":
+        expected_from_source = peak_element_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("peak_element expected_result must match the pinned recursive midpoint peak search")
+    elif algorithm == "prefix_evaluator":
+        expected_from_source = prefix_evaluator_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prefix_evaluator expected_result must match bounded Java int prefix evaluation")
+    elif algorithm == "paranthesis_matching":
+        expected_from_source = paranthesis_matching_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("paranthesis_matching expected_result must match the four-pair stack matcher")
+    elif algorithm == "payback":
+        expected_from_source = payback_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("payback expected_result must match the cumulative cash-flow scan")
+    elif algorithm == "percentage":
+        expected_from_source = percentage_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("percentage expected_result must match bounded Solidity uint256Percentage")
+    elif algorithm == "permutation_calculation":
+        expected_from_source = permutation_calculation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("permutation_calculation expected_result must match the bounded factorial ratio")
+    elif algorithm == "product_sum":
+        expected_from_source = product_sum_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("product_sum expected_result must match depth-weighted recursive nested-list summation")
+    elif algorithm == "postfix_evaluator":
+        expected_from_source = postfix_evaluator_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("postfix_evaluator expected_result must match bounded Java int postfix evaluation")
+    elif algorithm == "minimum_element_of_array":
+        expected_from_source = minimum_element_of_array_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimum_element_of_array expected_result must match seeded recursive quickselect")
     elif algorithm == "modpow":
         expected_from_source = modpow_expected(values)
         if expected != expected_from_source:
@@ -2489,6 +3018,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 expected_from_source = -1
         if expected != expected_from_source:
             raise ValueError("parity_outlier expected_result must match the unique parity singleton")
+    elif algorithm == "inversions":
+        valid = len(values) <= 1024 and all(-(2**31) <= value <= 2**31 - 1 for value in values)
+        if not valid:
+            expected_from_source = -1
+        else:
+            expected_from_source = sum(values[i] > values[j] for i in range(len(values)) for j in range(i + 1, len(values)))
+        if expected != expected_from_source:
+            raise ValueError("inversions expected_result must count strict inversions in the bounded array")
     elif algorithm == "is_contains_unique_chars":
         valid = len(values) <= 4096 and all(0 <= value <= 127 for value in values)
         if not valid:
@@ -4358,6 +4895,30 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                     break
         if expected != expected_from_source:
             raise ValueError("celebrity_finder expected_result must match stack elimination and candidate verification")
+    elif algorithm == "nimply_gate":
+        expected_from_source = nimply_gate_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("nimply_gate expected_result must match the NIMPLY truth table")
+    elif algorithm == "nimply_gate":
+        expected_from_source = nimply_gate_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("nimply_gate expected_result must match the NIMPLY truth table")
+    elif algorithm == "naive_knapsack_solver":
+        expected_from_source = naive_knapsack_solver_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("naive_knapsack_solver expected_result must match the bounded input-order greedy selection")
+    elif algorithm == "ones_and_zeros":
+        expected_from_source = ones_and_zeros_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ones_and_zeros expected_result must match the two-budget 0/1 knapsack recurrence")
+    elif algorithm == "optimal_binary_search_tree":
+        expected_from_source = optimal_binary_search_tree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("optimal_binary_search_tree expected_result must match the minimum weighted search-cost recurrence")
+    elif algorithm == "optimal_file_merging":
+        expected_from_source = optimal_file_merging_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("optimal_file_merging expected_result must match repeatedly merging the two smallest files")
     elif algorithm == "boolean_algebra_gates":
         valid = (len(values) >= 2 and 0 <= values[0] <= 5 and 0 <= values[1] <= 4096
                  and len(values) == values[1] + 2
@@ -4637,6 +5198,58 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = iqr_outlier_indices_expected(values)
         if expected != expected_from_source:
             raise ValueError("iqr_outlier_indices expected_result must encode strict R type-7 IQR outlier positions")
+    elif algorithm == "palindromic_partitioning":
+        expected_from_source = palindromic_partitioning_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("palindromic_partitioning expected_result must match Java's bounded minimum-cut DP")
+    elif algorithm == "permutation_and_combination":
+        expected_from_source = permutation_and_combination_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("permutation_and_combination expected_result must match the pinned factorial formulas")
+    elif algorithm == "pascals_triangle":
+        expected_from_source = pascals_triangle_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pascals_triangle expected_result must hash the pinned TypeScript final row")
+    elif algorithm == "parenthesis":
+        expected_from_source = parenthesis_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parenthesis expected_result must match the pinned Go counter semantics")
+    elif algorithm == "permutation_cipher":
+        expected_from_source = permutation_cipher_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("permutation_cipher expected_result must match Java's bounded encryption behavior")
+    elif algorithm == "perfect_numbers":
+        expected_from_source = perfect_numbers_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("perfect_numbers expected_result must match the bounded perfect-number predicate")
+    elif algorithm == "palindrome_with_stack":
+        expected_from_source = palindrome_with_stack_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("palindrome_with_stack expected_result must match Java's lowercase stack comparison")
+    elif algorithm == "parse_nested_brackets":
+        expected_from_source = parse_nested_brackets_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parse_nested_brackets expected_result must match the bounded depth-first tag traversal")
+    elif algorithm == "partition":
+        expected_from_source = partition_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("partition expected_result must match the bounded recursive subset search")
+    elif algorithm == "peak":
+        expected_from_source = peak_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("peak expected_result must match the bounded middle-three recursive search")
+    elif algorithm == "parse_date":
+        expected_from_source = parse_date_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parse_date expected_result must match the bounded dd/mm/yyyy parser")
+    elif algorithm == "palindrome_singly_linked_list":
+        expected_from_source = palindrome_singly_linked_list_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("palindrome_singly_linked_list expected_result must match Java's optimized integer-node comparison")
+    elif algorithm == "pattern_matching":
+        expected_from_source = pattern_matching_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pattern_matching expected_result must match the bounded case-sensitive first-match search")
     return values
 
 

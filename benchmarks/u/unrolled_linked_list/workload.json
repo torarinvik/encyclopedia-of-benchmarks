@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "unrolled-linked-list-i64-append-v1",
+  "algorithm": "unrolled_linked_list",
+  "function_symbol": "unrolled_linked_list_benchmark",
+  "input": {
+    "kind": "i64_array",
+    "description": "Values are appended in order to a linked list of fixed arrays. Each chunk has four usable slots; when full, the tail is split, retaining floor(count/2)+1 entries and moving the suffix plus new value to a new tail chunk.",
+    "chunk_size": 4,
+    "maximum_items": 1024,
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_result": -1,
+    "result": "weighted checksum of flattened GetRolledItems order"
+  },
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "one",
+      "input_values": [
+        7
+      ],
+      "input_length": 1,
+      "expected_result": 1000007
+    },
+    {
+      "id": "initial_chunk",
+      "input_values": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": 10000030
+    },
+    {
+      "id": "first_split",
+      "input_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "input_length": 5,
+      "expected_result": 15000055
+    },
+    {
+      "id": "multiple_splits",
+      "input_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "input_length": 17,
+      "expected_result": 153001632
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        -10,
+        0,
+        10
+      ],
+      "input_length": 3,
+      "expected_result": 6000020
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  }
+}

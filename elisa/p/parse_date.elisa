@@ -1,0 +1,34 @@
+export fn parse_date(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 9 or length > 11 or input[0] < 8 or input[0] > 10.i64() or length != input[0].usize() + 1: return -1
+    size: usize = input[0].usize()
+    slash1: mutable usize = 0
+    slash2: mutable usize = 0
+    i: mutable usize = 1
+    while i <= size:
+        if input[i] < 0 or input[i] > 127: return -1
+        if input[i] == 47:
+            if slash1 == 0: slash1 <- i
+            elif slash2 == 0: slash2 <- i
+            else: return -1
+        i <- i + 1
+    if slash1 < 2 or slash1 > 3 or slash2 <= slash1 + 1 or slash2 - slash1 < 2 or slash2 - slash1 > 3 or size - slash2 != 4: return -1
+    day: mutable i64 = 0; month: mutable i64 = 0; year: mutable i64 = 0
+    i <- 1
+    while i < slash1:
+        x: i64 = input[i]; if x < 48 or x > 57: return -1
+        day <- day * 10 + x - 48; i <- i + 1
+    i <- slash1 + 1
+    while i < slash2:
+        x: i64 = input[i]; if x < 48 or x > 57: return -1
+        month <- month * 10 + x - 48; i <- i + 1
+    i <- slash2 + 1
+    while i <= size:
+        x: i64 = input[i]; if x < 48 or x > 57: return -1
+        year <- year * 10 + x - 48; i <- i + 1
+    if month < 1 or month > 12: return -1
+    days: mutable i64[12] = [31,28,31,30,31,30,31,31,30,31,30,31]
+    if month == 2 and year % 4 == 0 and (year % 100 != 0 or year % 400 == 0): days[1] <- 29
+    max_day: i64 = days[(month - 1).usize()]
+    if day < 1 or day > max_day: return -1
+    year * 10000 + month * 100 + day
+

@@ -1,0 +1,153 @@
+const MAX_TEXT_LENGTH: i64 = 41
+const MAX_PARSEABLE_LENGTH: usize = 43
+
+def matches_color(values: i64&, start: usize, finish: usize, name: string) -> bool:
+    if finish - start != name.len():
+        return false
+    index: usize = 0
+    while index < name.len():
+        if values[start + index + 1] != name.byte_at(index).i64():
+            return false
+        index <- index + 1
+    true
+
+def color_code(values: i64&, start: usize, finish: usize) -> i64:
+    if matches_color(values, start, finish, "Black"): return 0
+    if matches_color(values, start, finish, "Brown"): return 1
+    if matches_color(values, start, finish, "Red"): return 2
+    if matches_color(values, start, finish, "Orange"): return 3
+    if matches_color(values, start, finish, "Yellow"): return 4
+    if matches_color(values, start, finish, "Green"): return 5
+    if matches_color(values, start, finish, "Blue"): return 6
+    if matches_color(values, start, finish, "Violet"): return 7
+    if matches_color(values, start, finish, "Grey"): return 8
+    if matches_color(values, start, finish, "White"): return 9
+    if matches_color(values, start, finish, "Gold"): return 10
+    if matches_color(values, start, finish, "Silver"): return 11
+    -1
+
+def append_byte(buffer: mutable u8&, position: mutable usize&, value: u8):
+    buffer[position] <- value
+    position <- position + 1
+
+def append_text(buffer: mutable u8&, position: mutable usize&, value: string):
+    index: usize = 0
+    while index < value.len():
+        append_byte(buffer, position, value.byte_at(index))
+        index <- index + 1
+
+def append_uint(buffer: mutable u8&, position: mutable usize&, value: u64):
+    digits: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    remaining: mutable u64 = value
+    while true:
+        digits[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0: break
+    while count > 0:
+        count <- count - 1
+        append_byte(buffer, position, digits[count])
+
+def resistor_color_code_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH:
+        return -1
+    text_length: i64 = values[0]
+    if text_length < 1 or text_length > MAX_TEXT_LENGTH or length != text_length.usize() + 1:
+        return -1
+    index: usize = 0
+    while index < text_length.usize():
+        if values[index + 1] < 0 or values[index + 1] > 127: return -1
+        index <- index + 1
+
+    colors: mutable i64[6] = zeroed
+    color_count: mutable usize = 0
+    start: mutable usize = 0
+    index <- 0
+    while index <= text_length.usize():
+        if index == text_length.usize() or values[index + 1] == 44:
+            if color_count == 6 or index == start: return -1
+            color: i64 = color_code(values, start, index)
+            if color < 0: return -1
+            colors[color_count] <- color
+            color_count <- color_count + 1
+            start <- index + 1
+        index <- index + 1
+    if color_count < 3 or color_count > 6: return -1
+
+    significant_count: usize = 2
+    if color_count > 4: significant_count <- 3
+    significant: mutable u64 = 0
+    index <- 0
+    while index < significant_count:
+        if colors[index] > 9: return -1
+        significant <- significant * 10 + colors[index].u64()
+        index <- index + 1
+    multiplier: i64 = colors[significant_count]
+    tolerance_color: i64 = -1
+    if color_count >= 4: tolerance_color <- colors[significant_count + 1]
+    temperature_color: i64 = -1
+    if color_count == 6: temperature_color <- colors[5]
+    if tolerance_color >= 0 and not ((tolerance_color >= 1 and tolerance_color <= 8) or tolerance_color == 10 or tolerance_color == 11): return -1
+    if temperature_color > 8: return -1
+
+    buffer: mutable u8[64] = zeroed
+    out_length: mutable usize = 0
+    if multiplier <= 9:
+        resistance: mutable u64 = significant
+        repeat: mutable i64 = 0
+        while repeat < multiplier:
+            resistance <- resistance * 10
+            repeat <- repeat + 1
+        append_uint(buffer[0], out_length, resistance)
+    else if multiplier == 10:
+        append_uint(buffer[0], out_length, significant / 10)
+        append_byte(buffer[0], out_length, 46u8)
+        append_byte(buffer[0], out_length, (48 + significant % 10).u8())
+    else:
+        whole: u64 = significant / 100
+        fraction: u64 = significant % 100
+        append_uint(buffer[0], out_length, whole)
+        append_byte(buffer[0], out_length, 46u8)
+        if fraction == 0: append_byte(buffer[0], out_length, 48u8)
+        else if fraction % 10 == 0: append_byte(buffer[0], out_length, (48 + fraction / 10).u8())
+        else:
+            append_byte(buffer[0], out_length, (48 + fraction / 10).u8())
+            append_byte(buffer[0], out_length, (48 + fraction % 10).u8())
+    append_byte(buffer[0], out_length, 0xCEu8)
+    append_byte(buffer[0], out_length, 0xA9u8)
+    append_byte(buffer[0], out_length, 32u8)
+    append_byte(buffer[0], out_length, 0xC2u8)
+    append_byte(buffer[0], out_length, 0xB1u8)
+    if tolerance_color < 0: append_text(buffer[0], out_length, "20")
+    else if tolerance_color == 1: append_text(buffer[0], out_length, "1")
+    else if tolerance_color == 2: append_text(buffer[0], out_length, "2")
+    else if tolerance_color == 3: append_text(buffer[0], out_length, "0.05")
+    else if tolerance_color == 4: append_text(buffer[0], out_length, "0.02")
+    else if tolerance_color == 5: append_text(buffer[0], out_length, "0.5")
+    else if tolerance_color == 6: append_text(buffer[0], out_length, "0.25")
+    else if tolerance_color == 7: append_text(buffer[0], out_length, "0.1")
+    else if tolerance_color == 8: append_text(buffer[0], out_length, "0.01")
+    else if tolerance_color == 10: append_text(buffer[0], out_length, "5")
+    else: append_text(buffer[0], out_length, "10")
+    append_text(buffer[0], out_length, "% ")
+    if temperature_color >= 0:
+        temperature: u64 = 1
+        if temperature_color == 0: temperature <- 250
+        else if temperature_color == 1: temperature <- 100
+        else if temperature_color == 2: temperature <- 50
+        else if temperature_color == 3: temperature <- 15
+        else if temperature_color == 4: temperature <- 25
+        else if temperature_color == 5: temperature <- 20
+        else if temperature_color == 6: temperature <- 10
+        else if temperature_color == 7: temperature <- 5
+        append_uint(buffer[0], out_length, temperature)
+        append_text(buffer[0], out_length, " ppm/K")
+    if capacity < out_length or (out_length > 0 and output.is_null()): return -2
+    index <- 0
+    while index < out_length:
+        output[index] <- buffer[index]
+        index <- index + 1
+    out_length.i64()
+
+export fn resistor_color_code(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = resistor_color_code_impl

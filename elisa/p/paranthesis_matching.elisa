@@ -1,0 +1,24 @@
+def paranthesis_matching_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 100: return -1
+    count: i64 = input[0]
+    if count < 1 or count > 99 or length != count.usize() + 1: return -1
+    stack: i64[99]
+    sp: usize = 0
+    i: usize = 1
+    while i < length:
+        ch: i64 = input[i]
+        if ch < 33 or ch > 126: return -1
+        if ch == 40 or ch == 123 or ch == 91 or ch == 60:
+            stack[sp] <- ch
+            sp <- sp + 1
+        elif ch == 41 or ch == 125 or ch == 93 or ch == 62:
+            want: i64 = if ch == 41: 40 elif ch == 125: 123 elif ch == 93: 91 else: 60
+            if sp == 0: return 0
+            sp <- sp - 1
+            if stack[sp] != want: return 0
+        else: return 0
+        i <- i + 1
+    if sp == 0: return 1
+    0
+
+export fn paranthesis_matching(input: i64&, length: usize) -> i64 = paranthesis_matching_impl

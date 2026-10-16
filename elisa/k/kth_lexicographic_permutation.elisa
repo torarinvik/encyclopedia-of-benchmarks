@@ -1,0 +1,20 @@
+def kth_lexicographic_permutation_impl(v: i64&, length: usize) -> i64:
+    if length != 2: return -1
+    k: mutable i64 = v[0]
+    n: i64 = v[1]
+    if n < 2 or n > 9 or k < 0: return -1
+    fact: mutable i64 = 1
+    for i in 2..n + 1: fact <- fact * i
+    if k >= fact: return -1
+    a: mutable [i64; 9] = [0; 9]
+    for i in 0..n: a[i] <- i
+    code: mutable i64 = n
+    for block in 1..n:
+        f: mutable i64 = 1
+        for j in 2..block + 1: f <- f * j
+        idx: i64 = k / f
+        k <- k % f
+        code <- code * 10 + a[idx] + 1
+        for j in idx..block: a[j] <- a[j + 1]
+    code * 10 + a[0] + 1
+export fn kth_lexicographic_permutation(v: i64&, length: usize) -> i64 = kth_lexicographic_permutation_impl

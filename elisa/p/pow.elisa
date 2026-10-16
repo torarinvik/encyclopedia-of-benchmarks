@@ -1,0 +1,10 @@
+def pow_algorithm_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 2 or input[0] < -1000 or input[0] > 1000 or input[1] < -8 or input[1] > 12: return -1.0e300
+    result: f64 = 1.0
+    i: i64 = 1
+    while i <= input[1]:
+        result <- result * input[0].f64()
+        i <- i + 1
+    result
+
+export fn pow_algorithm(input: i64&, length: usize) -> f64 = pow_algorithm_impl

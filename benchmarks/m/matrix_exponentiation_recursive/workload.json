@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0.0",
+  "id": "matrix-exponentiation-recursive-2x2-i64-v1",
+  "algorithm": "matrix_exponentiation_recursive",
+  "function_symbol": "matrix_exponentiation_recursive",
+  "input": {
+    "kind": "packed_i64_array",
+    "encoding": "[exponent, a00, a01, a10, a11]",
+    "exponent_range": [
+      0,
+      30
+    ],
+    "matrix_entry_range": [
+      -1,
+      1
+    ]
+  },
+  "output": {
+    "kind": "row_major_little_endian_signed_i64",
+    "description": "four cells of the powered 2x2 matrix",
+    "successful_result": "4",
+    "invalid_result": -2,
+    "insufficient_capacity_result": -3
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero_power_identity",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "identity_power",
+      "input_values": [
+        12,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "fibonacci_matrix_power",
+      "input_values": [
+        5,
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0800000000000000050000000000000005000000000000000300000000000000"
+    },
+    {
+      "id": "negative_entries",
+      "input_values": [
+        4,
+        0,
+        1,
+        -1,
+        1
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0000000000000000ffffffffffffffff0100000000000000ffffffffffffffff"
+    },
+    {
+      "id": "maximum_exponent",
+      "input_values": [
+        30,
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "dd8a14000000000028b20c000000000028b20c0000000000b5d8070000000000"
+    },
+    {
+      "id": "negative_exponent",
+      "input_values": [
+        -1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "entry_out_of_range",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "malformed_length",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -3,
+      "expected_output_hex": "",
+      "workspace_bytes": 8,
+      "capacity_error_result": -3
+    }
+  ]
+}

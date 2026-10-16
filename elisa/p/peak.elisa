@@ -1,0 +1,29 @@
+fn find_peak(values: i64&, offset: usize, length: usize) -> i64:
+    middle: usize = length / 2
+    left: i64 = values[offset + middle - 1]
+    center: i64 = values[offset + middle]
+    right: i64 = values[offset + middle + 1]
+    if center > left and center > right: return center
+    if left < right:
+        start: usize = middle
+        if middle == 2: start <- start - 1
+        return find_peak(values, offset + start, length - start)
+    finish: usize = middle
+    if middle == 2: finish <- finish + 1
+    find_peak(values, offset, finish)
+export fn peak(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 65 or input[0] < 3 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+    size: usize = input[0].usize()
+    i: mutable usize = 0
+    while i < size:
+        if input[i + 1] < -1000000 or input[i + 1] > 1000000: return -1
+        i <- i + 1
+    p: mutable usize = 1
+    while p < size - 1 and input[p + 2] > input[p + 1]: p <- p + 1
+    if p == 1 or p >= size - 1: return -1
+    i <- p
+    while i < size - 1:
+        if input[i + 2] >= input[i + 1]: return -1
+        i <- i + 1
+    find_peak(input, 1, size)
+

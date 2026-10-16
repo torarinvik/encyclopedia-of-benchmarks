@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "python-kth-lexicographic-permutation-encoding-v1",
+  "algorithm": "kth_lexicographic_permutation",
+  "function_symbol": "kth_lexicographic_permutation",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[zero_based_k, n]",
+    "k_range": "0 <= k < n!",
+    "n_range": [
+      2,
+      9
+    ],
+    "maximum_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "decimal concatenation of n followed by each returned permutation element plus 1, preserving the full permutation including length",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/kth_lexicographic_permutation.py"
+  },
+  "cases": [
+    {
+      "id": "n2_first",
+      "input_values": [
+        0,
+        2
+      ],
+      "expected_result": 212,
+      "input_length": 2
+    },
+    {
+      "id": "n2_last",
+      "input_values": [
+        1,
+        2
+      ],
+      "expected_result": 221,
+      "input_length": 2
+    },
+    {
+      "id": "n3_first",
+      "input_values": [
+        0,
+        3
+      ],
+      "expected_result": 3123,
+      "input_length": 2
+    },
+    {
+      "id": "n3_last",
+      "input_values": [
+        5,
+        3
+      ],
+      "expected_result": 3321,
+      "input_length": 2
+    },
+    {
+      "id": "upstream_example",
+      "input_values": [
+        10,
+        4
+      ],
+      "expected_result": 42413,
+      "input_length": 2
+    },
+    {
+      "id": "n5_mid",
+      "input_values": [
+        42,
+        5
+      ],
+      "expected_result": 525134,
+      "input_length": 2
+    },
+    {
+      "id": "n9_first",
+      "input_values": [
+        0,
+        9
+      ],
+      "expected_result": 9123456789,
+      "input_length": 2
+    },
+    {
+      "id": "n9_last",
+      "input_values": [
+        362879,
+        9
+      ],
+      "expected_result": 9987654321,
+      "input_length": 2
+    },
+    {
+      "id": "negative_k",
+      "input_values": [
+        -1,
+        4
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "k_at_limit",
+      "input_values": [
+        24,
+        4
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "n_one",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "n_ten",
+      "input_values": [
+        0,
+        10
+      ],
+      "expected_result": -1,
+      "input_length": 2
+    },
+    {
+      "id": "extra_values",
+      "input_values": [
+        0,
+        4,
+        7
+      ],
+      "expected_result": -1,
+      "input_length": 3
+    }
+  ]
+}

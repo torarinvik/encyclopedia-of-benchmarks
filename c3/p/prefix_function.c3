@@ -1,0 +1,3 @@
+module prefix_function;
+const usz MAX_TEXT=4096;
+fn long prefix_function(long* v,usz n,char* out,usz cap) @export("prefix_function"){if(v==null||n<1||n>MAX_TEXT+1||v[0]<0||v[0]>(long)MAX_TEXT||n!=(usz)v[0]+1)return -1;usz len=(usz)v[0];for(usz i=0;i<len;i++)if(v[i+1]<0||v[i+1]>127)return -1;usz bytes=4*len;if(bytes>cap||(bytes>0&&out==null))return -2;usz pi[MAX_TEXT]={};for(usz i=1;i<len;i++){usz j=pi[i-1];while(j>0&&v[i+1]!=v[j+1])j=pi[j-1];if(v[i+1]==v[j+1])j++;pi[i]=j;}for(usz i=0;i<len;i++){uint x=(uint)pi[i];out[4*i]=(char)(x&255);out[4*i+1]=(char)((x>>8)&255);out[4*i+2]=(char)((x>>16)&255);out[4*i+3]=(char)((x>>24)&255);}return (long)bytes;}

@@ -1,0 +1,15 @@
+def payback_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129 or input[0] < 0 or input[0] > 128.i64(): return -2
+    count: usize = input[0].usize()
+    if length != count + 1: return -2
+    total: i64 = 0
+    i: usize = 1
+    while i < length:
+        flow: i64 = input[i]
+        if flow < -1000000 or flow > 1000000: return -2
+        total <- total + flow
+        if total >= 0: return (i - 1).i64()
+        i <- i + 1
+    -1
+
+export fn payback(input: i64&, length: usize) -> i64 = payback_impl

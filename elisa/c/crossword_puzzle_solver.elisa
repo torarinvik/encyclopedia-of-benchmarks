@@ -1,0 +1,129 @@
+def crossword_puzzle_solver_search(grid: mutable i64&, rows: usize, cols: usize,
+                                   words: i64&, word_lengths: usize&, order: usize&,
+                                   depth: usize, word_count: usize) -> bool:
+    if depth == word_count:
+        return true
+    word_index: usize = order[depth]
+    word_length: usize = word_lengths[word_index]
+    row: mutable usize = 0
+    while row < rows:
+        col: mutable usize = 0
+        while col < cols:
+            direction: mutable usize = 0
+            while direction < 2:
+                vertical: bool = direction == 0
+                fits: bool = (vertical and row + word_length <= rows) or (not vertical and col + word_length <= cols)
+                if fits:
+                    cells: mutable usize[8] = zeroed
+                    added: mutable bool[8] = zeroed
+                    valid: mutable bool = true
+                    i: mutable usize = 0
+                    while i < word_length:
+                        cell: usize = row * cols + col + i
+                        if vertical:
+                            cell <- (row + i) * cols + col
+                        cells[i] <- cell
+                        letter: i64 = words[word_index * 8 + i]
+                        if grid[cell] != 0 and grid[cell] != letter:
+                            valid <- false
+                        i <- i + 1
+                    if valid:
+                        i <- 0
+                        while i < word_length:
+                            added[i] <- grid[cells[i]] == 0
+                            grid[cells[i]] <- words[word_index * 8 + i]
+                            i <- i + 1
+                        if crossword_puzzle_solver_search(&grid[0], rows, cols, &words[0], &word_lengths[0], &order[0], depth + 1, word_count):
+                            return true
+                        i <- 0
+                        while i < word_length:
+                            if added[i]:
+                                grid[cells[i]] <- 0
+                            i <- i + 1
+                direction <- direction + 1
+            col <- col + 1
+        row <- row + 1
+    false
+
+def crossword_puzzle_solver_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 3:
+        return -1
+    rows_value: i64 = values[0]
+    cols_value: i64 = values[1]
+    count_value: i64 = values[2]
+    if rows_value < 1 or rows_value > 8 or cols_value < 1 or cols_value > 8 or count_value < 0 or count_value > 8:
+        return -1
+    rows: usize = rows_value.usize()
+    cols: usize = cols_value.usize()
+    word_count: usize = count_value.usize()
+    if length < 3 + rows * cols:
+        return -1
+
+    grid: mutable i64[64] = zeroed
+    words: mutable i64[64] = zeroed
+    word_lengths: mutable usize[8] = zeroed
+    position: mutable usize = 3 + rows * cols
+    i: mutable usize = 0
+    while i < rows * cols:
+        cell: i64 = values[3 + i]
+        if cell != 0 and cell != -1 and (cell < 65 or cell > 90):
+            return -1
+        grid[i] <- cell
+        i <- i + 1
+    word: mutable usize = 0
+    while word < word_count:
+        if position >= length or values[position] < 1 or values[position] > 8:
+            return -1
+        word_length: usize = values[position].usize()
+        word_lengths[word] <- word_length
+        position <- position + 1
+        if word_length > length - position:
+            return -1
+        i <- 0
+        while i < word_length:
+            letter: i64 = values[position]
+            if letter < 65 or letter > 90:
+                return -1
+            words[word * 8 + i] <- letter
+            position <- position + 1
+            i <- i + 1
+        word <- word + 1
+    if position != length:
+        return -1
+
+    order: mutable usize[8] = zeroed
+    word <- 0
+    while word < word_count:
+        order[word] <- word
+        word <- word + 1
+    i <- 1
+    while i < word_count:
+        value: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and word_lengths[order[j - 1]] < word_lengths[value]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- value
+        i <- i + 1
+
+    solved: bool = crossword_puzzle_solver_search(&grid[0], rows, cols, &words[0], &word_lengths[0], &order[0], 0, word_count)
+    required: usize = (1 + rows * cols) * 8
+    if output.is_null() or output_capacity < required:
+        return -2
+    i <- 0
+    while i < 1 + rows * cols:
+        value: mutable i64 = 0
+        if i == 0:
+            if solved:
+                value <- 1
+        else:
+            value <- grid[i - 1]
+        bits: u64 = value.u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[i * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        i <- i + 1
+    required.i64()
+
+export fn crossword_puzzle_solver(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = crossword_puzzle_solver_impl

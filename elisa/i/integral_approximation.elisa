@@ -1,0 +1,16 @@
+def sample(id: i64, x: f64) -> f64:
+    if id == 0: return x * x
+    return x * x * x - x * x + 378.0
+export fn integral_approximation(v: i64&, n: usize) -> f64:
+    if v.is_null() or n != 4: return -1.0e300
+    id: i64 = v[0]; li: i64 = v[1]; ui: i64 = v[2]; di: i64 = v[3]
+    if id < 0 or id > 1 or li < 0 or ui > 32 or li >= ui or di < 1 or di > 8: return -1.0e300
+    lo: f64 = li.f64() / 8.0; hi: f64 = ui.f64() / 8.0; d: f64 = di.f64() / 8.0
+    count: usize = ((hi - lo) / d).usize()
+    if count > 32: return -1.0e300
+    total: mutable f64 = 0.0
+    for i in 0..count:
+        begin: f64 = lo + i.f64() * d
+        finish: f64 = lo + (i + 1).f64() * d
+        total <- total + d * (sample(id, begin) + sample(id, finish)) / 2.0
+    return total

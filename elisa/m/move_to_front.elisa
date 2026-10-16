@@ -1,0 +1,60 @@
+def move_to_front_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > 164: return -1
+    mode: i64 = values[0]
+    alphabet_length: i64 = values[1]
+    text_length: i64 = values[2]
+    if (mode != 0 and mode != 1) or alphabet_length < 0 or alphabet_length > 32 or text_length < 0 or text_length > 128:
+        return -1
+    if length != 3 + alphabet_length.usize() + text_length.usize(): return -1
+    alphabet: mutable i64[32] = zeroed
+    result: mutable u8[128] = zeroed
+    i: mutable usize = 0
+    while i < alphabet_length.usize():
+        symbol: i64 = values[3 + i]
+        if symbol < 0 or symbol > 127: return -1
+        j: mutable usize = 0
+        while j < i:
+            if alphabet[j] == symbol: return -1
+            j <- j + 1
+        alphabet[i] <- symbol
+        i <- i + 1
+    result_length: mutable usize = 0
+    if mode == 0:
+        if text_length > 0 and alphabet_length == 0: return -1
+        i <- 0
+        while i < text_length.usize():
+            symbol: i64 = values[3 + alphabet_length.usize() + i]
+            if symbol < 0 or symbol > 127: return -1
+            position: mutable usize = 0
+            while position < alphabet_length.usize() and alphabet[position] != symbol:
+                position <- position + 1
+            if position == alphabet_length.usize(): return -1
+            result[result_length] <- position.u8()
+            result_length <- result_length + 1
+            while position > 0:
+                alphabet[position] <- alphabet[position - 1]
+                position <- position - 1
+            alphabet[0] <- symbol
+            i <- i + 1
+    else if alphabet_length > 0:
+        i <- 0
+        while i < text_length.usize():
+            index: i64 = values[3 + alphabet_length.usize() + i]
+            if index < 0 or index >= alphabet_length: return -1
+            symbol: i64 = alphabet[index.usize()]
+            result[result_length] <- symbol.u8()
+            result_length <- result_length + 1
+            position: usize = index.usize()
+            while position > 0:
+                alphabet[position] <- alphabet[position - 1]
+                position <- position - 1
+            alphabet[0] <- symbol
+            i <- i + 1
+    if capacity < result_length or (result_length > 0 and output.is_null()): return -2
+    i <- 0
+    while i < result_length:
+        output[i] <- result[i]
+        i <- i + 1
+    result_length.i64()
+
+export fn move_to_front(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = move_to_front_impl

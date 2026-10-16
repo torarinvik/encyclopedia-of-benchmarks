@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn permutation_and_combination(v:*const i64,n:usize)->i64{if v.is_null()||n!=3{return -1}let a=std::slice::from_raw_parts(v,n);let(op,num,r)=(a[0],a[1],a[2]);if !(0..=2).contains(&op)||!(0..=18).contains(&num){return -1}if op!=0&&(r<0||r>num){return -1}let mut result=1i64;if op==0{for i in 2..=num{result*=i}}else if op==1{for i in num-r+1..=num{result*=i}}else{let mut k=r;if k>num-k{k=num-k}for i in 1..=k{result=result*(num-k+i)/i}}result}

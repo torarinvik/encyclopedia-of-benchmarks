@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "csharp-jaro-similarity-ascii-v1",
+  "algorithm": "jaro_similarity",
+  "function_symbol": "jaro_similarity",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[s1_length, s1_codepoints..., s2_length, s2_codepoints...]",
+    "string_length_range": [
+      0,
+      32
+    ],
+    "codepoint_range": [
+      0,
+      127
+    ],
+    "required_order": "s1_length >= s2_length",
+    "maximum_input_length": 66,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "equal-strings",
+      "input_values": [
+        4,
+        84,
+        69,
+        83,
+        84,
+        4,
+        84,
+        69,
+        83,
+        84
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "empty-strings",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "no-matches",
+      "input_values": [
+        3,
+        65,
+        66,
+        67,
+        3,
+        88,
+        89,
+        90
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "transposed-middle",
+      "input_values": [
+        4,
+        77,
+        65,
+        82,
+        84,
+        4,
+        77,
+        82,
+        65,
+        84
+      ],
+      "expected_result": 0.9166666666666666
+    },
+    {
+      "id": "one-character-match",
+      "input_values": [
+        3,
+        65,
+        66,
+        67,
+        1,
+        66
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "first-string-shorter",
+      "input_values": [
+        1,
+        65,
+        2,
+        65,
+        66
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-codepoint",
+      "input_values": [
+        1,
+        128,
+        1,
+        128
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-layout",
+      "input_values": [
+        2,
+        65,
+        66,
+        1
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

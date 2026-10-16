@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "number-to-words-title-case-decimal-v1",
+  "algorithm": "number_to_words",
+  "function_symbol": "number_to_words",
+  "input": {
+    "kind": "sign_whole_and_fraction_digits",
+    "layout": "[sign, whole_part, fractional_digit_count, digit0, ...]",
+    "sign_values": [
+      -1,
+      0,
+      1
+    ],
+    "whole_part_range": [
+      0,
+      999999999999999
+    ],
+    "fractional_digit_count_range": [
+      0,
+      6
+    ],
+    "fraction_digits_range": [
+      0,
+      9
+    ],
+    "maximum_input_values": 9,
+    "formatting_note": "fractional digits retain their supplied scale when at least one is nonzero; all-zero fractional remainder is omitted"
+  },
+  "output": {
+    "kind": "raw_ascii_title_case_bytes",
+    "return_value": "bytes written",
+    "maximum_output_bytes": 256,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "5a65726f"
+    },
+    {
+      "id": "source_example",
+      "input_values": [
+        1,
+        12345,
+        2,
+        6,
+        7
+      ],
+      "expected_result": 56,
+      "expected_output_hex": "5477656c76652054686f7573616e642054687265652048756e6472656420466f727479204669766520506f696e742053697820536576656e"
+    },
+    {
+      "id": "negative_fraction",
+      "input_values": [
+        -1,
+        42,
+        3,
+        0,
+        5,
+        0
+      ],
+      "expected_result": 39,
+      "expected_output_hex": "4e6567617469766520466f7274792054776f20506f696e74205a65726f2046697665205a65726f"
+    },
+    {
+      "id": "trillion_scale",
+      "input_values": [
+        1,
+        1002003004005,
+        0
+      ],
+      "expected_result": 57,
+      "expected_output_hex": "4f6e65205472696c6c696f6e2054776f2042696c6c696f6e205468726565204d696c6c696f6e20466f75722054686f7573616e642046697665"
+    },
+    {
+      "id": "fractional_zero_omitted",
+      "input_values": [
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "5a65726f"
+    },
+    {
+      "id": "negative_integer",
+      "input_values": [
+        -1,
+        999999999999999,
+        0
+      ],
+      "expected_result": 167,
+      "expected_output_hex": "4e65676174697665204e696e652048756e64726564204e696e657479204e696e65205472696c6c696f6e204e696e652048756e64726564204e696e657479204e696e652042696c6c696f6e204e696e652048756e64726564204e696e657479204e696e65204d696c6c696f6e204e696e652048756e64726564204e696e657479204e696e652054686f7573616e64204e696e652048756e64726564204e696e657479204e696e65"
+    }
+  ]
+}

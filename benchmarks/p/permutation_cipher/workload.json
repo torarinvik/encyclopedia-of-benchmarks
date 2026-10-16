@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "java-permutation-cipher-uppercase-whitespace-pad-x-v1",
+  "algorithm": "permutation_cipher",
+  "function_symbol": "permutation_cipher",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[ASCII text length, ASCII text bytes..., key length, one-based permutation positions...]",
+    "text_length_range": [
+      0,
+      64
+    ],
+    "key_length_range": [
+      1,
+      8
+    ],
+    "maximum_input_length": 74
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "polynomial hash modulo 1,000,000,007 of encrypted ASCII bytes (h = h*257 + byte, initial h=0)",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "Follows pinned Java encrypt: validate a one-based permutation; remove ASCII whitespace; uppercase ASCII lowercase; pad cleaned text with X to a full block; and emit each block in key order."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "hello-padding-permutation",
+      "input_values": [
+        5,
+        72,
+        69,
+        76,
+        76,
+        79,
+        3,
+        3,
+        1,
+        2
+      ],
+      "input_length": 10,
+      "expected_result": 46221383
+    },
+    {
+      "id": "lowercase-whitespace",
+      "input_values": [
+        11,
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        87,
+        111,
+        114,
+        108,
+        100,
+        2,
+        2,
+        1
+      ],
+      "input_length": 15,
+      "expected_result": 211099851
+    },
+    {
+      "id": "identity-key",
+      "input_values": [
+        9,
+        66,
+        69,
+        78,
+        67,
+        72,
+        77,
+        65,
+        82,
+        75,
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 14,
+      "expected_result": 806064099
+    },
+    {
+      "id": "empty-text",
+      "input_values": [
+        0,
+        3,
+        2,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "already-aligned",
+      "input_values": [
+        4,
+        65,
+        66,
+        67,
+        68,
+        2,
+        2,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 124633859
+    },
+    {
+      "id": "trailing-x-preserved",
+      "input_values": [
+        3,
+        66,
+        79,
+        88,
+        2,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 125563706
+    }
+  ]
+}

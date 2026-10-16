@@ -1,0 +1,45 @@
+def otsu_threshold_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2: return -1
+    count: i64 = values[0]
+    if count < 1 or count > 32 or length != (count + 1).usize(): return -1
+    hist: mutable [256]i64 = [0; 256]
+    j: mutable usize = 0
+    while j < count.usize():
+        p: i64 = values[j + 1]
+        if p < 0 or p > 255: return -1
+        hist[p.usize()] <- hist[p.usize()] + 1
+        j <- j + 1
+    total: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < 256:
+        total <- total + (i.i64() * hist[i]).f64()
+        i <- i + 1
+    maxv: mutable f64 = 0.0
+    sum: mutable f64 = 0.0
+    wb: mutable i64 = 0
+    threshold: mutable usize = 0
+    i <- 0
+    while i < 256:
+        wb <- wb + hist[i]
+        if wb > 0:
+            wf: i64 = count - wb
+            if wf == 0: break
+            sum <- sum + (i.i64() * hist[i]).f64()
+            mb: f64 = sum / wb.f64()
+            mf: f64 = (total - sum) / wf.f64()
+            delta: f64 = mb - mf
+            variance: f64 = (wb * wf).f64() * delta * delta
+            if variance > maxv:
+                maxv <- variance
+                threshold <- i
+        i <- i + 1
+    if capacity < count.usize(): return -2
+    j <- 0
+    while j < count.usize():
+        value: u8 = 0u8()
+        if values[j + 1] > threshold.i64(): value <- 255u8()
+        output[j] <- value
+        j <- j + 1
+    return count
+
+export fn otsu_threshold(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = otsu_threshold_impl

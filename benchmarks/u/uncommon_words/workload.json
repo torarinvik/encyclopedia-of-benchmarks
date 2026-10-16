@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "uncommon-words-ruby-v1",
+  "algorithm": "uncommon_words",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[word_count,(word_length,lowercase_ASCII_codes...)*]",
+    "word_count_range": [
+      0,
+      64
+    ],
+    "word_length_range": [
+      1,
+      16
+    ],
+    "alphabet": "lowercase ASCII a..z",
+    "maximum_input_values": 1089,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "NUL_terminated_newline_separated_ASCII_bytes",
+    "encoding": "each word occurring once in first-seen order, LF-separated, final NUL; empty result is NUL",
+    "successful_result": "number of bytes written including final NUL",
+    "insufficient_capacity_result": -2
+  },
+  "cases": [
+    {
+      "id": "ruby_source_example_1",
+      "input_values": [
+        8,
+        4,
+        116,
+        104,
+        105,
+        115,
+        5,
+        97,
+        112,
+        112,
+        108,
+        101,
+        2,
+        105,
+        115,
+        5,
+        115,
+        119,
+        101,
+        101,
+        116,
+        4,
+        116,
+        104,
+        105,
+        115,
+        5,
+        97,
+        112,
+        112,
+        108,
+        101,
+        2,
+        105,
+        115,
+        4,
+        115,
+        111,
+        117,
+        114
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "73776565740a736f757200"
+    },
+    {
+      "id": "ruby_source_example_2",
+      "input_values": [
+        3,
+        5,
+        97,
+        112,
+        112,
+        108,
+        101,
+        5,
+        97,
+        112,
+        112,
+        108,
+        101,
+        6,
+        98,
+        97,
+        110,
+        97,
+        110,
+        97
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "62616e616e6100"
+    },
+    {
+      "id": "all_words_repeat",
+      "input_values": [
+        4,
+        1,
+        97,
+        1,
+        98,
+        1,
+        97,
+        1,
+        98
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "empty_list",
+      "input_values": [
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "invalid_character",
+      "input_values": [
+        1,
+        1,
+        65
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "malformed_word",
+      "input_values": [
+        1,
+        3,
+        97,
+        98
+      ],
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "node-neighbors-undirected-insertion-order-v1",
+  "algorithm": "node_neighbors",
+  "function_symbol": "node_neighbors",
+  "input": {
+    "kind": "edge_count_query_node_then_endpoint_pairs",
+    "layout": "[edge_count, node, endpoint_0a, endpoint_0b, ...]",
+    "edge_count_range": [0, 64],
+    "node_id_range": [0, 63],
+    "maximum_input_values": 130
+  },
+  "output": {
+    "kind": "comma_separated_unique_neighbor_ids_ascii",
+    "return_value": "bytes written",
+    "ordering": "first incident edge encounter order",
+    "maximum_output_bytes": 192,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "unique_in_first_encounter_order", "input_values": [6, 2, 1, 2, 2, 3, 4, 2, 1, 2, 4, 4, 5]},
+    {"id": "self_loop_and_duplicate", "input_values": [4, 7, 7, 7, 6, 6, 7, 7, 5]},
+    {"id": "isolated_node", "input_values": [2, 0, 3, 4, 5]},
+    {"id": "no_edges", "input_values": [0, 5]}
+  ]
+}

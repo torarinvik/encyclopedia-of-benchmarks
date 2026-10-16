@@ -1,0 +1,6 @@
+def liters_to_usgallons_impl(liters: f64) -> f64:
+    if liters != liters or liters < -1.0e100 or liters > 1.0e100:
+        return -1.0e300
+    liters / 3.785411784
+
+export fn liters_to_usgallons(liters: f64) -> f64 = liters_to_usgallons_impl

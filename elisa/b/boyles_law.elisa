@@ -8,7 +8,7 @@ def rounded_milli(numerator: i64, denominator: i64) -> i64:
     quotient
 
 def boyles_law_impl(values: i64&, length: usize) -> f64:
-    if length != 4:
+    if values.is_null() or length != 4:
         return -1.0e300
     target: i64 = values[0]
     a: i64 = values[1]

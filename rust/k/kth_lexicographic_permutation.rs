@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn kth_lexicographic_permutation(v:*const i64,n:usize)->i64{if v.is_null()||n!=2{return -1;}let x=unsafe{std::slice::from_raw_parts(v,2)};let(mut k,m)=(x[0],x[1]);if !(2..=9).contains(&m)||k<0{return -1;}let mut fact=1i64;for i in 2..=m{fact*=i;}if k>=fact{return -1;}let mut a=[0i64;9];for i in 0..m as usize{a[i]=i as i64;}let mut code=m;for block in (1..m).rev(){let mut f=1i64;for j in 2..=block{f*=j;}let idx=(k/f) as usize;k%=f;code=code*10+a[idx]+1;for j in idx..block as usize{a[j]=a[j+1];}}code*10+a[0]+1}

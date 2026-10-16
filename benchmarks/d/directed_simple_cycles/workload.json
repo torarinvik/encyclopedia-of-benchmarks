@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "id": "directed-simple-cycles-java-source-v1",
+  "algorithm": "directed_simple_cycles",
+  "function_symbol": "directed_simple_cycles",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": [
+      "vertex_count",
+      "edge_count",
+      "source_0",
+      "destination_0",
+      "..."
+    ],
+    "vertex_count_range": [
+      0,
+      6
+    ],
+    "edge_count_range": [
+      0,
+      36
+    ],
+    "maximum_length": 74,
+    "edge_semantics": "directed; duplicate arcs are idempotent in the source adjacency matrix; self-loops form one-vertex cycles",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "layout": "For each discovered cycle, emit its vertices in DFS order, repeat its start vertex, then emit byte 255 as a record separator.",
+    "maximum_bytes": 2786,
+    "return_value": "number of output bytes",
+    "no_cycles_result": 0,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "notes": "The source scans start vertices and each adjacency-matrix row in ascending order, then clears all arcs incident to each completed start. The bounded complete six-vertex digraph attains the output bound."
+  },
+  "workspace": {
+    "bytes": 2786
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty-graph",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "workspace_bytes": 2786,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "self-loop",
+      "input_values": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "workspace_bytes": 2786,
+      "expected_result": 3,
+      "expected_output_hex": "0000ff"
+    },
+    {
+      "id": "two-vertex-cycle",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 2786,
+      "expected_result": 4,
+      "expected_output_hex": "000100ff"
+    },
+    {
+      "id": "source-order-multiple-cycles",
+      "input_values": [
+        3,
+        6,
+        0,
+        1,
+        1,
+        0,
+        0,
+        2,
+        2,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 14,
+      "workspace_bytes": 2786,
+      "expected_result": 22,
+      "expected_output_hex": "000100ff00010200ff000200ff00020100ff010201ff"
+    },
+    {
+      "id": "directed-acyclic-graph",
+      "input_values": [
+        4,
+        4,
+        0,
+        1,
+        0,
+        2,
+        1,
+        3,
+        2,
+        3
+      ],
+      "input_length": 10,
+      "workspace_bytes": 2786,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate-arcs-are-idempotent",
+      "input_values": [
+        2,
+        3,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 8,
+      "workspace_bytes": 2786,
+      "expected_result": 4,
+      "expected_output_hex": "000100ff"
+    },
+    {
+      "id": "disconnected-cycles",
+      "input_values": [
+        4,
+        4,
+        0,
+        0,
+        1,
+        2,
+        2,
+        1,
+        3,
+        3
+      ],
+      "input_length": 10,
+      "workspace_bytes": 2786,
+      "expected_result": 10,
+      "expected_output_hex": "0000ff010201ff0303ff"
+    },
+    {
+      "id": "complete-six-vertex-digraph",
+      "input_values": [
+        6,
+        36,
+        0,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        1,
+        0,
+        1,
+        1,
+        1,
+        2,
+        1,
+        3,
+        1,
+        4,
+        1,
+        5,
+        2,
+        0,
+        2,
+        1,
+        2,
+        2,
+        2,
+        3,
+        2,
+        4,
+        2,
+        5,
+        3,
+        0,
+        3,
+        1,
+        3,
+        2,
+        3,
+        3,
+        3,
+        4,
+        3,
+        5,
+        4,
+        0,
+        4,
+        1,
+        4,
+        2,
+        4,
+        3,
+        4,
+        4,
+        4,
+        5,
+        5,
+        0,
+        5,
+        1,
+        5,
+        2,
+        5,
+        3,
+        5,
+        4,
+        5,
+        5
+      ],
+      "input_length": 74,
+      "workspace_bytes": 2786,
+      "expected_result": 2786,
+      "expected_output_hex": "0000ff000100ff00010200ff0001020300ff000102030400ff00010203040500ff000102030500ff00010203050400ff0001020400ff000102040300ff00010204030500ff000102040500ff00010204050300ff0001020500ff000102050300ff00010205030400ff000102050400ff00010205040300ff00010300ff0001030200ff000103020400ff00010302040500ff000103020500ff00010302050400ff0001030400ff000103040200ff00010304020500ff000103040500ff00010304050200ff0001030500ff000103050200ff00010305020400ff000103050400ff00010305040200ff00010400ff0001040200ff000104020300ff00010402030500ff000104020500ff00010402050300ff0001040300ff000104030200ff00010403020500ff000104030500ff00010403050200ff0001040500ff000104050200ff00010405020300ff000104050300ff00010405030200ff00010500ff0001050200ff000105020300ff00010502030400ff000105020400ff00010502040300ff0001050300ff000105030200ff00010503020400ff000105030400ff00010503040200ff0001050400ff000105040200ff00010504020300ff000105040300ff00010504030200ff000200ff00020100ff0002010300ff000201030400ff00020103040500ff000201030500ff00020103050400ff0002010400ff000201040300ff00020104030500ff000201040500ff00020104050300ff0002010500ff000201050300ff00020105030400ff000201050400ff00020105040300ff00020300ff0002030100ff000203010400ff00020301040500ff000203010500ff00020301050400ff0002030400ff000203040100ff00020304010500ff000203040500ff00020304050100ff0002030500ff000203050100ff00020305010400ff000203050400ff00020305040100ff00020400ff0002040100ff000204010300ff00020401030500ff000204010500ff00020401050300ff0002040300ff000204030100ff00020403010500ff000204030500ff00020403050100ff0002040500ff000204050100ff00020405010300ff000204050300ff00020405030100ff00020500ff0002050100ff000205010300ff00020501030400ff000205010400ff00020501040300ff0002050300ff000205030100ff00020503010400ff000205030400ff00020503040100ff0002050400ff000205040100ff00020504010300ff000205040300ff00020504030100ff000300ff00030100ff0003010200ff000301020400ff00030102040500ff000301020500ff00030102050400ff0003010400ff000301040200ff00030104020500ff000301040500ff00030104050200ff0003010500ff000301050200ff00030105020400ff000301050400ff00030105040200ff00030200ff0003020100ff000302010400ff00030201040500ff000302010500ff00030201050400ff0003020400ff000302040100ff00030204010500ff000302040500ff00030204050100ff0003020500ff000302050100ff00030205010400ff000302050400ff00030205040100ff00030400ff0003040100ff000304010200ff00030401020500ff000304010500ff00030401050200ff0003040200ff000304020100ff00030402010500ff000304020500ff00030402050100ff0003040500ff000304050100ff00030405010200ff000304050200ff00030405020100ff00030500ff0003050100ff000305010200ff00030501020400ff000305010400ff00030501040200ff0003050200ff000305020100ff00030502010400ff000305020400ff00030502040100ff0003050400ff000305040100ff00030504010200ff000305040200ff00030504020100ff000400ff00040100ff0004010200ff000401020300ff00040102030500ff000401020500ff00040102050300ff0004010300ff000401030200ff00040103020500ff000401030500ff00040103050200ff0004010500ff000401050200ff00040105020300ff000401050300ff00040105030200ff00040200ff0004020100ff000402010300ff00040201030500ff000402010500ff00040201050300ff0004020300ff000402030100ff00040203010500ff000402030500ff00040203050100ff0004020500ff000402050100ff00040205010300ff000402050300ff00040205030100ff00040300ff0004030100ff000403010200ff00040301020500ff000403010500ff00040301050200ff0004030200ff000403020100ff00040302010500ff000403020500ff00040302050100ff0004030500ff000403050100ff00040305010200ff000403050200ff00040305020100ff00040500ff0004050100ff000405010200ff00040501020300ff000405010300ff00040501030200ff0004050200ff000405020100ff00040502010300ff000405020300ff00040502030100ff0004050300ff000405030100ff00040503010200ff000405030200ff00040503020100ff000500ff00050100ff0005010200ff000501020300ff00050102030400ff000501020400ff00050102040300ff0005010300ff000501030200ff00050103020400ff000501030400ff00050103040200ff0005010400ff000501040200ff00050104020300ff000501040300ff00050104030200ff00050200ff0005020100ff000502010300ff00050201030400ff000502010400ff00050201040300ff0005020300ff000502030100ff00050203010400ff000502030400ff00050203040100ff0005020400ff000502040100ff00050204010300ff000502040300ff00050204030100ff00050300ff0005030100ff000503010200ff00050301020400ff000503010400ff00050301040200ff0005030200ff000503020100ff00050302010400ff000503020400ff00050302040100ff0005030400ff000503040100ff00050304010200ff000503040200ff00050304020100ff00050400ff0005040100ff000504010200ff00050401020300ff000504010300ff00050401030200ff0005040200ff000504020100ff00050402010300ff000504020300ff00050402030100ff0005040300ff000504030100ff00050403010200ff000504030200ff00050403020100ff0101ff010201ff01020301ff0102030401ff010203040501ff0102030501ff010203050401ff01020401ff0102040301ff010204030501ff0102040501ff010204050301ff01020501ff0102050301ff010205030401ff0102050401ff010205040301ff010301ff01030201ff0103020401ff010302040501ff0103020501ff010302050401ff01030401ff0103040201ff010304020501ff0103040501ff010304050201ff01030501ff0103050201ff010305020401ff0103050401ff010305040201ff010401ff01040201ff0104020301ff010402030501ff0104020501ff010402050301ff01040301ff0104030201ff010403020501ff0104030501ff010403050201ff01040501ff0104050201ff010405020301ff0104050301ff010405030201ff010501ff01050201ff0105020301ff010502030401ff0105020401ff010502040301ff01050301ff0105030201ff010503020401ff0105030401ff010503040201ff01050401ff0105040201ff010504020301ff0105040301ff010504030201ff0202ff020302ff02030402ff0203040502ff02030502ff0203050402ff020402ff02040302ff0204030502ff02040502ff0204050302ff020502ff02050302ff0205030402ff02050402ff0205040302ff0303ff030403ff03040503ff030503ff03050403ff0404ff040504ff0505ff"
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [
+        2,
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "workspace_bytes": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "capacity_error_result": -2
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-header",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative-vertex-count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-too-many-vertices",
+      "input_values": [
+        7,
+        0
+      ],
+      "input_length": 2,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-negative-edge-count",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-too-many-edges",
+      "input_values": [
+        6,
+        37
+      ],
+      "input_length": 2,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-edge-list",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-out-of-range-source",
+      "input_values": [
+        2,
+        1,
+        2,
+        0
+      ],
+      "input_length": 4,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-out-of-range-destination",
+      "input_values": [
+        2,
+        1,
+        0,
+        2
+      ],
+      "input_length": 4,
+      "workspace_bytes": 2786,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

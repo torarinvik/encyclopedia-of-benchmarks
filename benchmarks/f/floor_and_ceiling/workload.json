@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "floor-and-ceiling-indexed-bst-pair-i64-bytes-v1",
+  "algorithm": "floor_and_ceiling",
+  "function_symbol": "floor_and_ceiling",
+  "description": "Find the floor and ceiling for one key by following a strict BST search path.",
+  "input": {
+    "kind": "packed_indexed_binary_search_tree_query",
+    "encoding": "[node_count, root_index, key, (value, left_index, right_index)...]",
+    "node_count_range": [0, 127],
+    "node_value_range": [-1000000, 1000000],
+    "key_range": [-1000000, 1000000],
+    "tree_requirement": "one valid strict binary search tree with unique node values; -1 child index means absent",
+    "empty_tree_root_index": -1,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "output": {
+    "kind": "two_little_endian_signed_64_bit_integers",
+    "encoding": "[floor, ceiling]",
+    "missing_value_sentinel": -9223372036854775808,
+    "successful_result": 16
+  },
+  "workspace": {"bytes": 16, "meaning": "Two signed 64-bit results"},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/binary_tree/floor_and_ceiling.py"
+  },
+  "cases": [
+    {"id":"empty-tree","input_values":[0,-1,22],"input_length":3,"expected_result":16,"expected_output_hex":"00000000000000800000000000000080"},
+    {"id":"exact-match","input_values":[7,0,10,30,1,2,20,3,4,40,5,6,10,-1,-1,25,-1,-1,35,-1,-1,50,-1,-1],"input_length":24,"expected_result":16,"expected_output_hex":"0a000000000000000a00000000000000"},
+    {"id":"between-nodes","input_values":[7,0,22,30,1,2,20,3,4,40,5,6,10,-1,-1,25,-1,-1,35,-1,-1,50,-1,-1],"input_length":24,"expected_result":16,"expected_output_hex":"14000000000000001900000000000000"},
+    {"id":"below-minimum","input_values":[7,0,0,30,1,2,20,3,4,40,5,6,10,-1,-1,25,-1,-1,35,-1,-1,50,-1,-1],"input_length":24,"expected_result":16,"expected_output_hex":"00000000000000800a00000000000000"},
+    {"id":"above-maximum","input_values":[7,0,60,30,1,2,20,3,4,40,5,6,10,-1,-1,25,-1,-1,35,-1,-1,50,-1,-1],"input_length":24,"expected_result":16,"expected_output_hex":"32000000000000000000000000008000"},
+    {"id":"negative-values","input_values":[3,0,-5,-2,1,2,-10,-1,-1,5,-1,-1],"input_length":12,"expected_result":16,"expected_output_hex":"f6fffffffffffffffeffffffffffffff"},
+    {"id":"valid-negative-one","input_values":[1,0,-1,-1,-1,-1],"input_length":6,"expected_result":16,"expected_output_hex":"ffffffffffffffffffffffffffffffff"},
+    {"id":"invalid-truncated-table","input_values":[1,0,10],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-root-index","input_values":[1,1,10,5,-1,-1],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-child-index-on-path","input_values":[1,0,10,5,1,-1],"input_length":6,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-key-range","input_values":[0,-1,1000001],"input_length":3,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[0,-1,22],"input_length":3,"workspace_bytes":15,"capacity_error_result":-2,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

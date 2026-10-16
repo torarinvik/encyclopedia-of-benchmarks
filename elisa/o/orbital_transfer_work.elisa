@@ -1,0 +1,21 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put_double(output: mutable u8&, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    k: mutable usize = 0
+    while k < 8:
+        output[k] <- (bits & 255).u8()
+        bits <- bits >> 8
+        k <- k+1
+def orbital_transfer_work_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length != 4: return -1
+    central: i64 = values[0]
+    object: i64 = values[1]
+    initial: i64 = values[2]
+    final: i64 = values[3]
+    if central < -1000000000 or central > 1000000000 or object < -1000000 or object > 1000000 or initial < 1 or initial > 1000000000 or final < 1 or final > 1000000000: return -1
+    if capacity < 8: return -2
+    work: f64 = (6.67430e-11*central.f64()*object.f64()/2.0)*(1.0/initial.f64()-1.0/final.f64())
+    put_double(output,work)
+    8
+export orbital_transfer_work(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = orbital_transfer_work_impl

@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn ic_555_timer(v:*const i64,n:usize)->f64{const BAD:f64=-1e300;if v.is_null()||n!=4{return BAD;}let x=unsafe{std::slice::from_raw_parts(v,n)};let (m,a,b,c)=(x[0],x[1],x[2],x[3]);if (m!=0&&m!=1)||!(1..=1_000_000).contains(&a)||!(1..=1_000_000).contains(&b)|| (if m==0{!(1..=1_000_000).contains(&c)}else{!(0..=1_000_000).contains(&c)}) {return BAD;}if m==0{(1.44/((a+2*b)as f64*c as f64))*1e6}else{((a+b)as f64/(a+2*b)as f64)*100.0}}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "go-parenthesis-counter-ascii-v1",
+  "algorithm": "parenthesis",
+  "function_symbol": "parenthesis",
+  "input": {"kind":"signed_i64_array", "encoding":"[byte_count, ASCII bytes...]", "count_range":[0,128], "element_range":[0,127], "maximum_input_length":129},
+  "output": {"kind":"signed_i64_scalar", "meaning":"1 if parentheses are balanced, otherwise 0", "invalid_input_result":-1},
+  "source_bound": {"description":"The pinned Go function counts '(' and ')' only, rejects an early negative balance, and ignores all other runes."},
+  "measurement": {"comparison_model":"scalar_call", "sample_count":7, "warmup_rounds":2, "repetitions_per_sample":10000},
+  "cases": [
+    {"id":"empty","input_values":[0],"input_length":1,"expected_result":1},
+    {"id":"simple-balanced","input_values":[4,40,97,41,98],"input_length":5,"expected_result":1},
+    {"id":"nested","input_values":[6,40,40,41,40,41,41],"input_length":7,"expected_result":1},
+    {"id":"early-close","input_values":[2,41,40],"input_length":3,"expected_result":0},
+    {"id":"ignores-non-parentheses","input_values":[4,97,40,98,41],"input_length":5,"expected_result":1}
+  ]
+}

@@ -1,0 +1,486 @@
+{
+  "schema_version": 1,
+  "id": "railway-time-conversion-normalized-ascii-v1",
+  "algorithm": "railway_time_conversion",
+  "function_symbol": "railway_time_conversion",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[10, ten ASCII code values for hh:mm:ssAM or hh:mm:ssPM]",
+    "text_length": 10,
+    "valid_hour_range": [
+      1,
+      12
+    ],
+    "valid_minute_and_second_range": [
+      0,
+      59
+    ],
+    "alphabet": "ASCII digits, colon separators, and uppercase AM or PM",
+    "exact_array_length": 11,
+    "maximum_parseable_array_length": 12,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII_bytes",
+    "meaning": "eight ASCII bytes in HH:MM:SS 24-hour form",
+    "maximum_length": 8,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "source_bound": {
+    "description": "The pinned JavaScript function converts normalized hh:mm:ssAM or hh:mm:ssPM text. The benchmark accepts exactly that 10-byte ASCII form with 01..12 hours and 00..59 minutes and seconds; malformed forms are rejected by the adapter.",
+    "benchmark_domain": "Valid normalized 12-hour clock times with uppercase AM or PM. The output preserves minute and second digits and returns a two-digit 24-hour hour."
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "maximum result length"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned-example-pm",
+      "input_values": [
+        10,
+        48,
+        55,
+        58,
+        48,
+        53,
+        58,
+        52,
+        53,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "31393a30353a3435"
+    },
+    {
+      "id": "midnight",
+      "input_values": [
+        10,
+        49,
+        50,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "30303a30303a3030"
+    },
+    {
+      "id": "noon",
+      "input_values": [
+        10,
+        49,
+        50,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "31323a30303a3030"
+    },
+    {
+      "id": "one-am",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "30313a30303a3030"
+    },
+    {
+      "id": "one-pm",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "31333a30303a3030"
+    },
+    {
+      "id": "last-second-before-midnight",
+      "input_values": [
+        10,
+        49,
+        49,
+        58,
+        53,
+        57,
+        58,
+        53,
+        57,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "32333a35393a3539"
+    },
+    {
+      "id": "last-second-before-noon",
+      "input_values": [
+        10,
+        49,
+        49,
+        58,
+        53,
+        57,
+        58,
+        53,
+        57,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "31313a35393a3539"
+    },
+    {
+      "id": "leading-zero-fields",
+      "input_values": [
+        10,
+        48,
+        57,
+        58,
+        48,
+        52,
+        58,
+        48,
+        54,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "30393a30343a3036"
+    },
+    {
+      "id": "midday-minute-and-second",
+      "input_values": [
+        10,
+        49,
+        48,
+        58,
+        48,
+        56,
+        58,
+        48,
+        57,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": 8,
+      "expected_output_hex": "32323a30383a3039"
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [
+        10,
+        48,
+        55,
+        58,
+        48,
+        53,
+        58,
+        52,
+        53,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-midnight-hour",
+      "input_values": [
+        10,
+        48,
+        48,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-hour-thirteen",
+      "input_values": [
+        10,
+        49,
+        51,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        80,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-minute-sixty",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        54,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-second-sixty",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        54,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-meridiem",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        88,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-first-separator",
+      "input_values": [
+        10,
+        48,
+        49,
+        45,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-prefix-length",
+      "input_values": [
+        9,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-packed-input",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65
+      ],
+      "input_length": 10,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "overlong-packed-input",
+      "input_values": [
+        10,
+        48,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77,
+        0
+      ],
+      "input_length": 12,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "non-ascii-digit",
+      "input_values": [
+        10,
+        128,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "i64-extreme-byte",
+      "input_values": [
+        10,
+        9223372036854775807,
+        49,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-before-capacity-check",
+      "input_values": [
+        10,
+        48,
+        48,
+        58,
+        48,
+        48,
+        58,
+        48,
+        48,
+        65,
+        77
+      ],
+      "input_length": 11,
+      "workspace_bytes": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "python-langtons-ant-bounded-state-v1",
+  "algorithm": "langtons_ant",
+  "function_symbol": "langtons_ant",
+  "input": {
+    "kind": "signed_i64_integer_array",
+    "encoding": "[steps]",
+    "board": "fixed 5x5 all-white board; ant begins at (2,2) facing left",
+    "steps_range": [
+      0,
+      6
+    ],
+    "maximum_input_length": 1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "packed final state: 25-bit black-cell mask in row-major order, then 5-bit ant position index (x*5+y), then 2-bit direction"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "cellular_automata/langtons_ant.py"
+  },
+  "cases": [
+    {
+      "id": "steps_0",
+      "input_values": [
+        0
+      ],
+      "expected_result": 3623878656,
+      "input_length": 1
+    },
+    {
+      "id": "steps_1",
+      "input_values": [
+        1
+      ],
+      "expected_result": 234885120,
+      "input_length": 1
+    },
+    {
+      "id": "steps_2",
+      "input_values": [
+        2
+      ],
+      "expected_result": 1342181504,
+      "input_length": 1
+    },
+    {
+      "id": "steps_3",
+      "input_values": [
+        3
+      ],
+      "expected_result": 2583695744,
+      "input_length": 1
+    },
+    {
+      "id": "steps_4",
+      "input_values": [
+        4
+      ],
+      "expected_result": 3623891328,
+      "input_length": 1
+    },
+    {
+      "id": "steps_5",
+      "input_values": [
+        5
+      ],
+      "expected_result": 2717917568,
+      "input_length": 1
+    },
+    {
+      "id": "steps_6",
+      "input_values": [
+        6
+      ],
+      "expected_result": 3758236032,
+      "input_length": 1
+    },
+    {
+      "id": "negative_steps",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "too_many_steps",
+      "input_values": [
+        7
+      ],
+      "expected_result": -1,
+      "input_length": 1
+    },
+    {
+      "id": "empty",
+      "input_values": [],
+      "expected_result": -1,
+      "input_length": 0
+    }
+  ]
+}

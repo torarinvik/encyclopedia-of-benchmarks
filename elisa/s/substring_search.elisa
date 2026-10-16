@@ -1,0 +1,37 @@
+def substring_search_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > 195:
+        return -2
+    text_length: i64 = values[0]
+    pattern_length: i64 = values[1]
+    if text_length < 0 or text_length > 128 or pattern_length < 0 or pattern_length > 64:
+        return -2
+    if length != (2 + text_length + pattern_length).usize():
+        return -2
+    text_start: usize = 2
+    pattern_start: usize = text_start + text_length.usize()
+    index: mutable usize = text_start
+    while index < length:
+        if values[index] < 1 or values[index] > 127:
+            return -2
+        index <- index + 1
+    text_index: mutable usize = 0
+    pattern_index: mutable usize = 0
+    match_start: mutable i64 = -1
+    while text_index < text_length.usize():
+        expected: i64 = 0
+        if pattern_index < pattern_length.usize():
+            expected <- values[pattern_start + pattern_index]
+        if values[text_start + text_index] == expected:
+            if match_start == -1:
+                match_start <- text_index.i64()
+            pattern_index <- pattern_index + 1
+            if pattern_index == pattern_length.usize():
+                return match_start
+            text_index <- text_index + 1
+        else:
+            match_start <- -1
+            pattern_index <- 0
+            text_index <- text_index + 1
+    -1
+
+export fn substring_search(values: i64&, length: usize) -> i64 = substring_search_impl

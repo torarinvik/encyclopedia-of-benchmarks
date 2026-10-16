@@ -1,0 +1,5 @@
+#include <cstddef>
+#include <cstdint>
+static constexpr int MAX_SIZE = 16;
+static void fill(int *board,int width,int row,int col,int mr,int mc,int &tile){if(width==1)return;int h=width/2,t=tile++;int qr[4]={row,row,row+h,row+h},qc[4]={col,col+h,col,col+h},cr[4]={row+h-1,row+h-1,row+h,row+h},cc[4]={col+h-1,col+h,col+h-1,col+h};int missing=mr<row+h?(mc<col+h?0:1):(mc<col+h?2:3);for(int q=0;q<4;++q){int nr=mr,nc=mc;if(q!=missing){board[cr[q]*MAX_SIZE+cc[q]]=t;nr=cr[q];nc=cc[q];}fill(board,h,qr[q],qc[q],nr,nc,tile);}}
+extern "C" std::int64_t tiling_problem(const std::int64_t *v,std::size_t n,std::uint8_t *out,std::size_t cap){if(!v||n!=3||v[0]<1||v[0]>MAX_SIZE||(v[0]&(v[0]-1))||v[1]<0||v[1]>=v[0]||v[2]<0||v[2]>=v[0])return -1;int size=int(v[0]),board[MAX_SIZE*MAX_SIZE]={},tile=1;fill(board,size,0,0,int(v[1]),int(v[2]),tile);std::size_t bytes=std::size_t(size)*size*4;if(!out||cap<bytes)return -2;for(int i=0;i<size*size;++i){std::uint32_t x=std::uint32_t(board[(i/size)*MAX_SIZE+i%size]);for(int b=0;b<4;++b)out[i*4+b]=std::uint8_t(x>>(8*b));}return std::int64_t(bytes);}

@@ -1,0 +1,5 @@
+# Nearest neighbour search
+
+This benchmark ports the pinned Python KD-tree nearest-neighbor traversal. The input is `[dimension, node_count, query..., node_0..., ...]`; each node record contains its coordinates followed by left and right child indices (`-1` means absent). Node 0 is the root. The bounded contract accepts dimension 2 or 3, 1–15 nodes, and integer coordinates in `[-1000, 1000]`. The serialized structure must be a connected, acyclic tree with each non-root node referenced exactly once.
+
+Search visits the near branch first, chooses the left branch when the query coordinate is less than or equal to the node coordinate, and visits the far branch only when the squared split distance is strictly less than the best squared Euclidean distance. A new best point replaces the prior point only on strictly smaller distance, so traversal order resolves ties. Output is six little-endian signed 64-bit values: dimension, the nearest point padded to three coordinates with zeros, squared distance, and nodes visited. The runtime oracle is `nearest_neighbour_search_oracle.py`.

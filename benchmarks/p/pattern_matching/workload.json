@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "javascript-naive-case-sensitive-pattern-search-v1",
+  "algorithm": "pattern_matching",
+  "function_symbol": "pattern_matching",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_length, ASCII text bytes..., pattern_length, ASCII pattern bytes...]",
+    "text_length_range": [
+      0,
+      64
+    ],
+    "pattern_length_range": [
+      1,
+      64
+    ],
+    "byte_range": [
+      0,
+      127
+    ],
+    "maximum_input_length": 130
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "zero-based first matching start index, or -1 when absent or input is invalid",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The pinned JavaScript implementation performs a naive left-to-right comparison and returns the first index. Executable code is case-sensitive despite a comment claiming lowercase normalization; the benchmark preserves code behavior and excludes empty patterns."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 10,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {
+      "id": "first-match",
+      "input_values": [
+        13,
+        97,
+        98,
+        97,
+        98,
+        99,
+        97,
+        98,
+        99,
+        97,
+        99,
+        98,
+        97,
+        98,
+        3,
+        97,
+        98,
+        99
+      ],
+      "input_length": 18,
+      "expected_result": 2
+    },
+    {
+      "id": "match-at-start",
+      "input_values": [
+        5,
+        104,
+        101,
+        108,
+        108,
+        111,
+        2,
+        104,
+        101
+      ],
+      "input_length": 9,
+      "expected_result": 0
+    },
+    {
+      "id": "match-at-end",
+      "input_values": [
+        11,
+        109,
+        105,
+        115,
+        115,
+        105,
+        115,
+        115,
+        105,
+        112,
+        112,
+        105,
+        3,
+        112,
+        112,
+        105
+      ],
+      "input_length": 16,
+      "expected_result": 8
+    },
+    {
+      "id": "case-sensitive",
+      "input_values": [
+        4,
+        65,
+        98,
+        67,
+        100,
+        2,
+        98,
+        99
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "overlapping",
+      "input_values": [
+        5,
+        97,
+        97,
+        97,
+        97,
+        97,
+        3,
+        97,
+        97,
+        97
+      ],
+      "input_length": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "no-match",
+      "input_values": [
+        6,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        3,
+        120,
+        121,
+        122
+      ],
+      "input_length": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "pattern-longer",
+      "input_values": [
+        3,
+        97,
+        98,
+        99,
+        4,
+        97,
+        98,
+        99,
+        100
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "empty-text",
+      "input_values": [
+        0,
+        1,
+        97
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "empty-pattern",
+      "input_values": [
+        3,
+        97,
+        98,
+        99,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong-size",
+      "input_values": [
+        2,
+        97,
+        98,
+        1,
+        97,
+        120
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    }
+  ]
+}

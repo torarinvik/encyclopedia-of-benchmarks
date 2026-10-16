@@ -1,0 +1,3 @@
+fn find_peak(a:&[i64])->i64{let n=a.len();let m=n/2;let l=a[m-1];let c=a[m];let r=a[m+1];if c>l&&c>r{return c}if l<r{let start=if m==2{m-1}else{m};return find_peak(&a[start..])}let end=if m==2{m+1}else{m};find_peak(&a[..end])}
+#[no_mangle]
+pub unsafe extern "C" fn peak(v:*const i64,n:usize)->i64{if v.is_null()||n<4||n>65{return -1}let a=std::slice::from_raw_parts(v,n);if !(3..=64).contains(&a[0])||n!=a[0]as usize+1{return -1}let vals=&a[1..];if vals.iter().any(|&x|!(-1_000_000..=1_000_000).contains(&x)){return -1}let mut p=1usize;while p<vals.len()-1&&vals[p]>vals[p-1]{p+=1}if p==1||p>=vals.len()-1{return -1}for i in p..vals.len()-1{if vals[i+1]>=vals[i]{return -1}}find_peak(vals)}

@@ -1,0 +1,48 @@
+def simple_keyword_cypher_decipher_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 323: return -1
+    key_length: i64 = values[0]
+    message_length: i64 = values[1]
+    if key_length < 0 or key_length > 64 or message_length < 0 or message_length > 256 or length != 2 + key_length.usize() + message_length.usize(): return -1
+    key: mutable u8[26] = zeroed
+    count: mutable usize = 0
+    i: mutable usize = 0
+    while i < key_length.usize():
+        x: i64 = values[2 + i]
+        if not ((x >= 65 and x <= 90) or (x >= 97 and x <= 122)): return -1
+        c: u8 = (if x >= 97: x - 32 else: x).u8()
+        found: mutable bool = false
+        j: mutable usize = 0
+        while j < count:
+            if key[j] == c: found <- true
+            j <- j + 1
+        if not found: key[count] <- c; count <- count + 1
+        i <- i + 1
+    map: mutable u8[26] = zeroed
+    k: mutable usize = 0
+    i <- 0
+    while i < count: map[k] <- key[i]; k <- k + 1; i <- i + 1
+    x: mutable i64 = 65
+    while x <= 90:
+        found <- false; j <- 0
+        while j < count: if key[j] == x.u8(): found <- true; j <- j + 1
+        if not found: map[k] <- x.u8(); k <- k + 1
+        x <- x + 1
+    result: mutable u8[256] = zeroed
+    i <- 0
+    while i < message_length.usize():
+        x <- values[2 + key_length.usize() + i]
+        if x < 0 or x > 127: return -1
+        c: u8 = (if x >= 97 and x <= 122: x - 32 else: x).u8()
+        if c >= 65 and c <= 90:
+            j <- 0
+            while j < 26 and map[j] != c: j <- j + 1
+            if j == 26: return -1
+            result[i] <- (65 + j).u8()
+        else: result[i] <- c
+        i <- i + 1
+    if output.is_null() or capacity < message_length.usize(): return -2
+    i <- 0
+    while i < message_length.usize(): output[i] <- result[i]; i <- i + 1
+    message_length
+
+export fn simple_keyword_cypher_decipher(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = simple_keyword_cypher_decipher_impl

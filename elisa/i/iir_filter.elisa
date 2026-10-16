@@ -1,0 +1,33 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+def put64(out: mutable u8&, slot: usize, value: f64):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for k in 0..8:
+        out[slot * 8 + k] <- ((bits >> (8 * k)) & 255).u8()
+def iir_filter_impl(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64:
+    if v.is_null() or n < 7 or n > 26: return -1
+    order: i64 = v[0]; samples: i64 = v[1]
+    if order < 1 or order > 3 or samples < 1 or samples > 16 or n != (4 + 2 * order + samples).usize(): return -1
+    a: mutable f64[4] = zeroed; b: mutable f64[4] = zeroed
+    xh: mutable f64[3] = zeroed; yh: mutable f64[3] = zeroed
+    for i in 0..(order + 1).usize():
+        av: i64 = v[2 + i]; bv: i64 = v[3 + order.usize() + i]
+        if av < -500 or av > 2000 or bv < -500 or bv > 500: return -1
+        a[i] <- av.f64() / 1000.0; b[i] <- bv.f64() / 1000.0
+    if a[0] < 0.5: return -1
+    for i in 0..samples.usize():
+        if v[4 + 2 * order.usize() + i] < -1000 or v[4 + 2 * order.usize() + i] > 1000: return -1
+    bytes: usize = samples.usize() * 8
+    if out.is_null() or capacity < bytes: return -2
+    for sample in 0..samples.usize():
+        x: f64 = v[4 + 2 * order.usize() + sample].f64() / 1000.0
+        y: mutable f64 = 0.0
+        for i in 1..(order + 1).usize(): y <- y + b[i] * xh[i - 1] - a[i] * yh[i - 1]
+        y <- (y + b[0] * x) / a[0]
+        i: mutable usize = order.usize()
+        while i > 1:
+            i <- i - 1; xh[i] <- xh[i - 1]; yh[i] <- yh[i - 1]
+        xh[0] <- x; yh[0] <- y
+        put64(out, sample, y)
+    bytes.i64()
+export fn iir_filter(v: i64&, n: usize, out: mutable u8&, capacity: usize) -> i64 = iir_filter_impl

@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "id": "hsv-to-rgb-javascript-midpoint-rounding-scaled-i64-v1",
+  "algorithm": "hsv_to_rgb_conversion",
+  "function_symbol": "hsv_to_rgb_conversion",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[hue_millidegrees, saturation_scaled, value_scaled]",
+    "exact_length": 3,
+    "hue_range_millidegrees": [
+      0,
+      360000
+    ],
+    "saturation_range": [
+      0,
+      255000000
+    ],
+    "value_range": [
+      0,
+      255000000
+    ],
+    "saturation_value_decode": "divide by 255000000 to obtain a binary64 value in 0..1",
+    "hue_decode": "divide by 1000 to obtain degrees in 0..360",
+    "maximum_valid_array_length": 3,
+    "maximum_parseable_array_length": 4,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "three rounded unsigned 8-bit channel bytes in R,G,B order",
+    "length": 3,
+    "successful_result": "number of output bytes written",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 3,
+    "meaning": "fixed RGB output capacity"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "black",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "white",
+      "input_values": [
+        0,
+        0,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ffffff"
+    },
+    {
+      "id": "red_hue_zero",
+      "input_values": [
+        0,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ff0000"
+    },
+    {
+      "id": "yellow_section_boundary_60",
+      "input_values": [
+        60000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ffff00"
+    },
+    {
+      "id": "green_section_boundary_120",
+      "input_values": [
+        120000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "00ff00"
+    },
+    {
+      "id": "cyan_section_boundary_180",
+      "input_values": [
+        180000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "00ffff"
+    },
+    {
+      "id": "blue_section_boundary_240",
+      "input_values": [
+        240000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "0000ff"
+    },
+    {
+      "id": "magenta_section_boundary_300",
+      "input_values": [
+        300000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ff00ff"
+    },
+    {
+      "id": "hue_360_wraps_to_red",
+      "input_values": [
+        360000,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ff0000"
+    },
+    {
+      "id": "pinned_js_180_050_050",
+      "input_values": [
+        180000,
+        127500000,
+        127500000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "408080"
+    },
+    {
+      "id": "pinned_js_234_014_088",
+      "input_values": [
+        234000,
+        35700000,
+        224400000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "c1c4e0"
+    },
+    {
+      "id": "pinned_js_330_075_050",
+      "input_values": [
+        330000,
+        191250000,
+        127500000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "802050"
+    },
+    {
+      "id": "odd_half_tie_rounds_up_gray",
+      "input_values": [
+        0,
+        0,
+        128500000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "818181"
+    },
+    {
+      "id": "even_half_tie_rounds_up_gray",
+      "input_values": [
+        0,
+        0,
+        127500000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "808080"
+    },
+    {
+      "id": "chroma_component_half_tie",
+      "input_values": [
+        60000,
+        127500000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ffff80"
+    },
+    {
+      "id": "zero_saturation_midpoint",
+      "input_values": [
+        123456,
+        0,
+        500000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "010101"
+    },
+    {
+      "id": "zero_value_with_full_saturation",
+      "input_values": [
+        270000,
+        255000000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "000000"
+    },
+    {
+      "id": "invalid_empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_two_values",
+      "input_values": [
+        0,
+        255000000
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_four_values",
+      "input_values": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_hue_below_range",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_hue_above_range",
+      "input_values": [
+        360001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_saturation_below_range",
+      "input_values": [
+        0,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_saturation_above_range",
+      "input_values": [
+        0,
+        255000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_value_below_range",
+      "input_values": [
+        0,
+        0,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_value_above_range",
+      "input_values": [
+        0,
+        0,
+        255000001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "output_capacity_too_small",
+      "input_values": [
+        0,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 2,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "output_capacity_exact",
+      "input_values": [
+        0,
+        255000000,
+        255000000
+      ],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "ff0000",
+      "workspace_bytes": 3,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "invalid_input_precedes_capacity",
+      "input_values": [
+        360001,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "workspace_bytes": 0,
+      "capacity_error_result": -2
+    }
+  ]
+}

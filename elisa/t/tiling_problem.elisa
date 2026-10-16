@@ -1,0 +1,49 @@
+const INVALID_RESULT: i64 = -1
+const MAX_SIZE: usize = 16
+
+def tiling_problem_fill(board: mutable i32&, width: usize, row: usize, col: usize, missing_row: usize, missing_col: usize, tile: mutable i32&) -> void:
+    if width == 1:
+        return
+    half: usize = width / 2
+    label: i32 = tile
+    tile <- tile + 1
+    qr: usize[4] = [row, row, row + half, row + half]
+    qc: usize[4] = [col, col + half, col, col + half]
+    cr: usize[4] = [row + half - 1, row + half - 1, row + half, row + half]
+    cc: usize[4] = [col + half - 1, col + half, col + half - 1, col + half]
+    missing: usize = if missing_row < row + half: (if missing_col < col + half: 0 else: 1) else: (if missing_col < col + half: 2 else: 3)
+    q: mutable usize = 0
+    while q < 4:
+        next_row: usize = missing_row
+        next_col: usize = missing_col
+        if q != missing:
+            board[cr[q] * MAX_SIZE + cc[q]] <- label
+            next_row = cr[q]
+            next_col = cc[q]
+        tiling_problem_fill(board, half, qr[q], qc[q], next_row, next_col, tile)
+        q <- q + 1
+
+def tiling_problem_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length != 3:
+        return INVALID_RESULT
+    size_value: i64 = values[0]
+    if size_value < 1 or size_value > 16 or (size_value & (size_value - 1)) != 0 or values[1] < 0 or values[1] >= size_value or values[2] < 0 or values[2] >= size_value:
+        return INVALID_RESULT
+    size: usize = size_value.usize()
+    board: mutable i32[256] = zeroed
+    tile: mutable i32 = 1
+    tiling_problem_fill(board, size, 0, 0, values[1].usize(), values[2].usize(), tile)
+    byte_count: usize = size * size * 4
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    index: mutable usize = 0
+    while index < size * size:
+        value: i32 = board[(index / size) * MAX_SIZE + index % size]
+        byte_index: mutable usize = 0
+        while byte_index < 4:
+            output[index * 4 + byte_index] <- ((value >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    byte_count.i64()
+
+export fn tiling_problem(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = tiling_problem_impl

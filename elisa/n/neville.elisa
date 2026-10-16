@@ -1,0 +1,31 @@
+def neville_impl(values: i64&, length: usize) -> f64:
+    invalid: f64 = -1.0e300
+    if length < 4 or length > 34: return invalid
+    count: i64 = values[0]
+    target_i: i64 = values[1]
+    if count < 1 or count > 16 or length != (2 * count + 2).usize() or target_i < -1000000 or target_i > 1000000: return invalid
+    x: mutable [16]f64 = [0.0; 16]
+    p: mutable [16]f64 = [0.0; 16]
+    i: mutable usize = 0
+    while i < count.usize():
+        xi: i64 = values[2 + 2 * i]
+        yi: i64 = values[3 + 2 * i]
+        if xi < -1000000 or xi > 1000000 or yi < -1000000 or yi > 1000000: return invalid
+        j: mutable usize = 0
+        while j < i:
+            if values[2 + 2 * j] == xi: return invalid
+            j <- j + 1
+        x[i] <- xi.f64()
+        p[i] <- yi.f64()
+        i <- i + 1
+    target: f64 = target_i.f64()
+    k: mutable usize = 1
+    while k < count.usize():
+        i <- 0
+        while i < count.usize() - k:
+            p[i] <- ((target - x[i + k]) * p[i] + (x[i] - target) * p[i + 1]) / (x[i] - x[i + k])
+            i <- i + 1
+        k <- k + 1
+    return p[0]
+
+export fn neville(values: i64&, length: usize) -> f64 = neville_impl

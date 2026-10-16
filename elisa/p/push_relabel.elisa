@@ -1,0 +1,125 @@
+# Push–Relabel maximum flow for bounded multi-terminal integral networks.
+const MAX_VERTICES: usize = 14
+const AUGMENTED_VERTICES: usize = 16
+const MAX_INPUT_LENGTH: usize = 227
+const MAX_CAPACITY: i64 = 1000000
+
+export def push_relabel(input: i64&, length: usize) -> i64:
+    if length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    n64: i64 = input[0]
+    source_count64: i64 = input[1]
+    if n64 < 2 or n64 > MAX_VERTICES.i64() or source_count64 < 1 or source_count64 >= n64:
+        return -1
+    n: usize = n64.usize()
+    source_count: usize = source_count64.usize()
+    sink_count_index: usize = 2 + source_count
+    if length <= sink_count_index:
+        return -1
+
+    is_source: mutable bool[MAX_VERTICES] = zeroed
+    is_sink: mutable bool[MAX_VERTICES] = zeroed
+    sources: mutable usize[MAX_VERTICES] = zeroed
+    index: mutable usize = 0
+    while index < source_count:
+        node64: i64 = input[2 + index]
+        if node64 < 0 or node64 >= n64 or is_source[node64.usize()]:
+            return -1
+        sources[index] <- node64.usize()
+        is_source[node64.usize()] <- true
+        index <- index + 1
+
+    sink_count64: i64 = input[sink_count_index]
+    if sink_count64 < 1 or sink_count64 > n64 - source_count64:
+        return -1
+    sink_count: usize = sink_count64.usize()
+    matrix_start: usize = sink_count_index + 1 + sink_count
+    if length < matrix_start or length != matrix_start + n * n:
+        return -1
+    index <- 0
+    while index < sink_count:
+        node64: i64 = input[sink_count_index + 1 + index]
+        if node64 < 0 or node64 >= n64 or is_sink[node64.usize()] or is_source[node64.usize()]:
+            return -1
+        is_sink[node64.usize()] <- true
+        index <- index + 1
+
+    residual: mutable i64[AUGMENTED_VERTICES * AUGMENTED_VERTICES] = zeroed
+    source_out: mutable i64[MAX_VERTICES] = zeroed
+    flow_limit: mutable i64 = 0
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            capacity: i64 = input[matrix_start + row * n + column]
+            if capacity < 0 or capacity > MAX_CAPACITY or (row == column and capacity != 0):
+                return -1
+            residual[row * AUGMENTED_VERTICES + column] <- capacity
+            if is_source[row]:
+                source_out[row] <- source_out[row] + capacity
+                flow_limit <- flow_limit + capacity
+            column <- column + 1
+        row <- row + 1
+
+    super_source: usize = n
+    super_sink: usize = n + 1
+    index <- 0
+    while index < source_count:
+        residual[super_source * AUGMENTED_VERTICES + sources[index]] <- source_out[sources[index]]
+        index <- index + 1
+    index <- 0
+    while index < sink_count:
+        sink: usize = input[sink_count_index + 1 + index].usize()
+        residual[sink * AUGMENTED_VERTICES + super_sink] <- flow_limit
+        index <- index + 1
+
+    height: mutable i64[AUGMENTED_VERTICES] = zeroed
+    excess: mutable i64[AUGMENTED_VERTICES] = zeroed
+    active: mutable bool[AUGMENTED_VERTICES] = zeroed
+    height[super_source] <- n.i64() + 2
+    index <- 0
+    while index < source_count:
+        source: usize = sources[index]
+        initial_excess: i64 = residual[super_source * AUGMENTED_VERTICES + source]
+        residual[super_source * AUGMENTED_VERTICES + source] <- 0
+        residual[source * AUGMENTED_VERTICES + super_source] <- residual[source * AUGMENTED_VERTICES + super_source] + initial_excess
+        excess[source] <- excess[source] + initial_excess
+        if excess[source] > 0:
+            active[source] <- true
+        index <- index + 1
+
+    while true:
+        node: mutable usize = 0
+        while node < n and not active[node]:
+            node <- node + 1
+        if node == n:
+            break
+        active[node] <- false
+        while excess[node] > 0:
+            pushed: mutable bool = false
+            neighbor: mutable usize = 0
+            while neighbor < n + 2 and excess[node] > 0:
+                edge: usize = node * AUGMENTED_VERTICES + neighbor
+                if residual[edge] > 0 and height[node] == height[neighbor] + 1:
+                    amount: i64 = if excess[node] < residual[edge]: excess[node] else residual[edge]
+                    residual[edge] <- residual[edge] - amount
+                    reverse_edge: usize = neighbor * AUGMENTED_VERTICES + node
+                    residual[reverse_edge] <- residual[reverse_edge] + amount
+                    excess[node] <- excess[node] - amount
+                    previous_excess: i64 = excess[neighbor]
+                    excess[neighbor] <- excess[neighbor] + amount
+                    if neighbor < n and previous_excess == 0:
+                        active[neighbor] <- true
+                    pushed <- true
+                neighbor <- neighbor + 1
+            if excess[node] > 0 and not pushed:
+                minimum_height: mutable i64 = 1000
+                neighbor <- 0
+                while neighbor < n + 2:
+                    if residual[node * AUGMENTED_VERTICES + neighbor] > 0 and height[neighbor] < minimum_height:
+                        minimum_height <- height[neighbor]
+                    neighbor <- neighbor + 1
+                if minimum_height == 1000:
+                    return -1
+                height[node] <- minimum_height + 1
+    return excess[super_sink]

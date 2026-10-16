@@ -1,0 +1,60 @@
+def word_pattern_matcher_visit(input: i64&, pattern_start: usize, text_start: usize,
+    plen: usize, tlen: usize, pi: usize, ti: usize,
+    starts: mutable i32&, sizes: mutable i32&) -> bool:
+    if pi == plen: return ti == tlen
+    symbol: usize = (input[pattern_start + pi] - 32).usize()
+    if sizes[symbol] >= 0:
+        count: usize = sizes[symbol].usize()
+        if ti + count > tlen: return false
+        index: usize = 0
+        while index < count:
+            if input[text_start + ti + index] != input[text_start + starts[symbol].usize() + index]: return false
+            index <- index + 1
+        return word_pattern_matcher_visit(input, pattern_start, text_start, plen, tlen, pi + 1, ti + count, starts, sizes)
+    count: mutable usize = 1
+    while ti + count <= tlen:
+        used: mutable bool = false
+        other: mutable usize = 0
+        while other < 95:
+            if sizes[other] == count.i32():
+                same: mutable bool = true
+                index: mutable usize = 0
+                while index < count:
+                    if input[text_start + ti + index] != input[text_start + starts[other].usize() + index]: same <- false
+                    index <- index + 1
+                if same: used <- true
+            other <- other + 1
+        if not used:
+            starts[symbol] <- ti.i32()
+            sizes[symbol] <- count.i32()
+            if word_pattern_matcher_visit(input, pattern_start, text_start, plen, tlen, pi + 1, ti + count, starts, sizes): return true
+            sizes[symbol] <- -1
+        count <- count + 1
+    false
+
+def word_pattern_matcher_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or input[0] < 0 or input[0] > 8: return -1
+    plen: usize = input[0].usize()
+    if length < plen + 2: return -1
+    text_index: usize = plen + 1
+    if input[text_index] < 0 or input[text_index] > 32: return -1
+    tlen: usize = input[text_index].usize()
+    if length != text_index + 1 + tlen: return -1
+    index: mutable usize = 0
+    while index < plen:
+        if input[1 + index] < 32 or input[1 + index] > 126: return -1
+        index <- index + 1
+    index <- 0
+    while index < tlen:
+        if input[text_index + 1 + index] < 32 or input[text_index + 1 + index] > 126: return -1
+        index <- index + 1
+    starts: mutable i32[95] = zeroed
+    sizes: mutable i32[95] = zeroed
+    index <- 0
+    while index < 95:
+        starts[index] <- -1
+        sizes[index] <- -1
+        index <- index + 1
+    if word_pattern_matcher_visit(input, 1, text_index + 1, plen, tlen, 0, 0, &starts[0], &sizes[0]): 1 else: 0
+
+export fn word_pattern_matcher(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_pattern_matcher_impl

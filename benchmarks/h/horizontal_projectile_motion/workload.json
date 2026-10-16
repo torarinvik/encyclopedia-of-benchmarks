@@ -4,7 +4,7 @@
   "algorithm": "horizontal_projectile_motion",
   "function_symbol": "horizontal_projectile_motion",
   "input": {
-    "kind": "signed_64_bit_integer_array",
+    "kind": "signed_i64_array",
     "exact_length": 2,
     "layout": [
       "velocity_milli",
@@ -26,14 +26,11 @@
   },
   "output": {
     "kind": "float64_vector",
-    "encoding": "little_endian_float64",
-    "layout": [
-      "horizontal_distance_meters",
-      "maximum_height_meters",
-      "total_flight_time_seconds"
-    ],
-    "length": 3,
-    "maximum_bytes": 24,
+    "encoding": "little-endian IEEE-754 binary64",
+    "layout": "[horizontal distance in meters, maximum height in meters, total flight time in seconds]",
+    "max_length": 3,
+    "max_output_bytes": 24,
+    "valid_result": 24,
     "absolute_tolerance": 1e-12,
     "relative_tolerance": 0.0,
     "invalid_result": -1,

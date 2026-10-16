@@ -1,0 +1,17 @@
+def find_peak(input: i64&, low: i64, high: i64, count: i64) -> i64:
+    middle: i64 = low + (high - low) / 2
+    if (middle == 0 or input[middle] >= input[middle - 1]) and (middle == count - 1 or input[middle] >= input[middle + 1]): return middle
+    if middle > 0 and input[middle - 1] > input[middle]: return find_peak(input, low, middle - 1, count)
+    find_peak(input, middle + 1, high, count)
+
+def peak_element_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 129 or input[0] < 1 or input[0] > 128.i64(): return -1
+    count: usize = input[0].usize()
+    if length != count + 1: return -1
+    i: usize = 0
+    while i < count:
+        if input[i + 1] < -2147483648 or input[i + 1] > 2147483647: return -1
+        i <- i + 1
+    find_peak(input + 1, 0, count.i64() - 1, count.i64())
+
+export fn peak_element(input: i64&, length: usize) -> i64 = peak_element_impl

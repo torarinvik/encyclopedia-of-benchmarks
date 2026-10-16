@@ -1,0 +1,40 @@
+def optimal_file_merging_impl(values: i64&, length: usize) -> i64:
+    if length < 1 or length > 33: return -1
+    count: i64 = values[0]
+    if count < 0 or count > 32 or length != count.usize() + 1: return -1
+    files: mutable [32]i64 = [0; 32]
+    index: mutable usize = 0
+    while index < count.usize():
+        item: i64 = values[index + 1]
+        if item < 0 or item > 1000000: return -1
+        files[index] <- item
+        index <- index + 1
+    n: mutable usize = count.usize()
+    total: mutable i64 = 0
+    while n > 1:
+        a: mutable usize = 0
+        b: mutable usize = 1
+        if files[b] < files[a]:
+            temp: usize = a
+            a <- b
+            b <- temp
+        index <- 2
+        while index < n:
+            if files[index] < files[a]:
+                b <- a
+                a <- index
+            elif files[index] < files[b]:
+                b <- index
+            index <- index + 1
+        merged: i64 = files[a] + files[b]
+        total <- total + merged
+        if a > b:
+            temp: usize = a
+            a <- b
+            b <- temp
+        files[a] <- merged
+        files[b] <- files[n - 1]
+        n <- n - 1
+    return total
+
+export fn optimal_file_merging(values: i64&, length: usize) -> i64 = optimal_file_merging_impl

@@ -14,6 +14,8 @@ The formulas use the source expression order and `g = 9.80665`:
 - `round(v² * sin(radians(angle))² / (2 * g), 2)`
 - `round(2 * v * sin(radians(angle)) / g, 2)`
 
+The ports round the exact binary64 formula result to the nearest hundredth with ties to even, then store that rounded value as binary64. This preserves the source rounding boundary without an extra floating-point multiply by 100.
+
 ## Workload
 
 Cases, expected vectors, and output-capacity probes are in [`workload.json`](workload.json).

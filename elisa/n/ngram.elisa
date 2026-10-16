@@ -1,0 +1,23 @@
+def ngram_impl(v: i64&, n: usize, out: mutable u8&, cap: usize) -> i64:
+    if v.is_null() or n < 2 or n > 258 or v[0] < 1 or v[0] > 16 or v[1] < 0 or v[1] > 256 or n != v[1].usize() + 2: return -1
+    width: usize = v[0].usize()
+    text: usize = v[1].usize()
+    i: usize = 0
+    while i < text:
+        if v[i + 2] < 32 or v[i + 2] > 126: return -1
+        i <- i + 1
+    grams: usize = 0
+    if text >= width: grams <- text - width + 1
+    bytes: usize = 0
+    if grams > 0: bytes <- grams * width + grams - 1
+    if bytes > cap or (bytes > 0 and out.is_null()): return -2
+    w: mutable usize = 0
+    i <- 0
+    while i < grams:
+        if i > 0: out[w] <- 10u8(); w <- w + 1
+        j: usize = 0
+        while j < width: out[w] <- v[i + j + 2].u8(); w <- w + 1; j <- j + 1
+        i <- i + 1
+    return w.i64()
+
+export fn ngram(v: i64&, n: usize, out: mutable u8&, cap: usize) -> i64 = ngram_impl

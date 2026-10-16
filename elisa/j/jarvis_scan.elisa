@@ -1,0 +1,91 @@
+# Return an integer Jarvis-scan hull in counter-clockwise order.
+const MAX_POINTS: usize = 64
+const MIN_COORDINATE: i64 = -10000
+const MAX_COORDINATE: i64 = 10000
+
+def jarvis_scan_orientation(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def jarvis_scan_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_POINTS.i64():
+        return -1
+    count: usize = input[0].usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    x: mutable i64[MAX_POINTS] = zeroed
+    y: mutable i64[MAX_POINTS] = zeroed
+    point: mutable usize = 0
+    while point < count:
+        x[point] <- input[1 + 2 * point]
+        y[point] <- input[2 + 2 * point]
+        if x[point] < MIN_COORDINATE or x[point] > MAX_COORDINATE or
+                y[point] < MIN_COORDINATE or y[point] > MAX_COORDINATE:
+            return -1
+        point <- point + 1
+    if count <= 2:
+        return 0
+
+    first: mutable usize = 0
+    while first < count:
+        second: mutable usize = first + 1
+        while second < count:
+            if x[first] == x[second] and y[first] == y[second]:
+                return -1
+            second <- second + 1
+        first <- first + 1
+    first <- 0
+    while first + 2 < count:
+        second <- first + 1
+        while second + 1 < count:
+            third: mutable usize = second + 1
+            while third < count:
+                if jarvis_scan_orientation(x[first], y[first], x[second], y[second], x[third], y[third]) == 0:
+                    return -1
+                third <- third + 1
+            second <- second + 1
+        first <- first + 1
+
+    start: mutable usize = 0
+    point <- 1
+    while point < count:
+        if x[point] < x[start] or (x[point] == x[start] and y[point] < y[start]):
+            start <- point
+        point <- point + 1
+    hull: mutable usize[MAX_POINTS] = zeroed
+    hull_count: mutable usize = 0
+    current: mutable usize = start
+    while true:
+        if hull_count == count:
+            return -1
+        hull[hull_count] <- current
+        hull_count <- hull_count + 1
+        candidate: mutable usize = (current + 1) % count
+        point <- 0
+        while point < count:
+            if jarvis_scan_orientation(x[current], y[current], x[point], y[point],
+                    x[candidate], y[candidate]) > 0:
+                candidate <- point
+            point <- point + 1
+        if candidate == start:
+            break
+        current <- candidate
+    bytes: usize = hull_count * 16
+    if output.is_null() or capacity < bytes:
+        return -2
+    point <- 0
+    while point < hull_count:
+        jarvis_scan_put_i64(output, point * 16, x[hull[point]])
+        jarvis_scan_put_i64(output, point * 16 + 8, y[hull[point]])
+        point <- point + 1
+    bytes.i64()
+
+export fn jarvis_scan(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = jarvis_scan_impl

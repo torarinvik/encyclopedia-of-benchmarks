@@ -18,7 +18,7 @@ from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
-              "magicdiamondpattern")
+              "magicdiamondpattern", "prime_factorial")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -52,22 +52,31 @@ def corpus(workload: dict) -> tuple[str, int]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         add(value, output_capacity, case.get("capacity_error_result"))
 
-    for value in range(4097):
-        add(value)
-    rng = random.Random(20261014)
-    for _ in range(512):
-        add(rng.randrange(0, I64_MAX + 1))
-    for value in (I64_MIN, I64_MIN + 1, -1024, -2, -1, 0, 1, 2, I64_MAX - 1, I64_MAX):
-        add(value)
-    capacity_cases = ((0, 1, 7, 33, I64_MAX) if encoding == "pascal_triangle_row"
-                      else (0, 1, 7, 90, I64_MAX) if encoding == "floyd_triangle"
-                      else (0, 1, 7, 512, I64_MAX) if encoding == "harmonic_series"
-                      else (0, 1, 45, 46, I64_MAX) if encoding == "butterfly_pattern"
-                      else (0, 1, 7, 45, I64_MAX) if encoding == "magicdiamondpattern"
-                      else (0, 1, 7, I64_MAX))
-    for value in capacity_cases:
-        result, _ = expected_output(value, encoding)
-        add(value, max(0, result - 1))
+    if encoding == "prime_factorial_unique_u32le":
+        # The pinned routine scans every candidate and trial-divides each one;
+        # keep this corpus small while still covering the upper bound.
+        for value in (2, 3, 4, 12, 30, 210, 2310, 4093, 4096):
+            add(value)
+        for value, capacity in ((2310, 0), (2310, 4), (2310, 19), (2310, 20),
+                                (4096, 3), (4096, 4)):
+            add(value, capacity)
+    else:
+        for value in range(4097):
+            add(value)
+        rng = random.Random(20261014)
+        for _ in range(512):
+            add(rng.randrange(0, I64_MAX + 1))
+        for value in (I64_MIN, I64_MIN + 1, -1024, -2, -1, 0, 1, 2, I64_MAX - 1, I64_MAX):
+            add(value)
+        capacity_cases = ((0, 1, 7, 33, I64_MAX) if encoding == "pascal_triangle_row"
+                          else (0, 1, 7, 90, I64_MAX) if encoding == "floyd_triangle"
+                          else (0, 1, 7, 512, I64_MAX) if encoding == "harmonic_series"
+                          else (0, 1, 45, 46, I64_MAX) if encoding == "butterfly_pattern"
+                          else (0, 1, 7, 45, I64_MAX) if encoding == "magicdiamondpattern"
+                          else (0, 1, 7, I64_MAX))
+        for value in capacity_cases:
+            result, _ = expected_output(value, encoding)
+            add(value, max(0, result - 1))
 
     lines = [f"{len(cases)}\n"]
     for (value, capacity), (result, output) in sorted(cases.items()):

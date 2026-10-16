@@ -1,0 +1,87 @@
+def word_ladder_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4:
+        return -1
+    width_value: i64 = input[0]
+    begin: i64 = input[1]
+    ending: i64 = input[2]
+    count_value: i64 = input[3]
+    if width_value < 1 or width_value > 5 or count_value < 0 or count_value > 32:
+        return -1
+    width: usize = width_value.usize()
+    count: usize = count_value.usize()
+    if length != 4 + count:
+        return -1
+    limit: mutable i64 = 1
+    i: mutable usize = 0
+    while i < width:
+        limit <- limit * 26
+        i <- i + 1
+    if begin < 0 or begin >= limit or ending < 0 or ending >= limit:
+        return -1
+    dict: mutable i64[32] = zeroed
+    has_end: mutable bool = false
+    i <- 0
+    while i < count:
+        code: i64 = input[4 + i]
+        if code < 0 or code >= limit:
+            return -1
+        dict[i] <- code
+        if code == ending: has_end <- true
+        i <- i + 1
+    if output == null or capacity < 8:
+        return -2
+    answer: mutable i64 = 0
+    if has_end:
+        queue: mutable i64[33] = zeroed
+        dist: mutable i64[33] = zeroed
+        head: mutable usize = 0
+        queue_end: mutable usize = 1
+        queue[0] <- begin
+        dist[0] <- 1
+        while head < queue_end and answer == 0:
+            word: i64 = queue[head]
+            depth: i64 = dist[head]
+            head <- head + 1
+            place: mutable i64 = 1
+            position: mutable usize = 0
+            while position < width and answer == 0:
+                digit: i64 = (word / place) % 26
+                letter: mutable i64 = 0
+                while letter < 26:
+                    if letter != digit:
+                        neighbor: i64 = word + (letter - digit) * place
+                        if neighbor == ending:
+                            answer <- depth + 1
+                            break
+                        in_dict: mutable bool = false
+                        j: mutable usize = 0
+                        while j < count:
+                            if dict[j] == neighbor:
+                                in_dict <- true
+                                break
+                            j <- j + 1
+                        seen: mutable bool = false
+                        j <- 0
+                        while j < queue_end:
+                            if j > 0 and queue[j] == neighbor:
+                                seen <- true
+                                break
+                            j <- j + 1
+                        if in_dict and not seen and queue_end < 33:
+                            queue[queue_end] <- neighbor
+                            dist[queue_end] <- depth + 1
+                            queue_end <- queue_end + 1
+                    letter <- letter + 1
+                place <- place * 26
+                position <- position + 1
+    bits: mutable u64 = answer.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[b] <- (bits & 255).u8()
+        bits <- bits >> 8
+        b <- b + 1
+    return 8
+
+
+
+export fn word_ladder(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_ladder_impl

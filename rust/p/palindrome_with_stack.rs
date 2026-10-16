@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn palindrome_with_stack(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>129{return -1}let a=std::slice::from_raw_parts(v,n);if !(0..=128).contains(&a[0])||n!=a[0]as usize+1{return -1}let mut stack=[0u8;128];let len=a[0]as usize;for i in 0..len{if !(0..=127).contains(&a[i+1]){return -1}let mut c=a[i+1]as u8;if (b'A'..=b'Z').contains(&c){c+=32}stack[i]=c}for i in 0..len{if stack[i]!=stack[len-1-i]{return 0}}1}

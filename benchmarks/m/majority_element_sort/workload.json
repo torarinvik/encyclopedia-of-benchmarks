@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "majority-element-sort-count-v1",
+  "algorithm": "majority_element_sort",
+  "function_symbol": "majority_element_sort",
+  "input": {"kind":"signed_i64_array","minimum_length":2,"maximum_length":128,"element_range":[-2147483648,2147483647]},
+  "output": {"kind":"signed_i64_scalar","meaning":"strict majority element or -1 when no element occurs more than floor(n/2) times","invalid_input_result":-1},
+  "source_bound":{"description":"The pinned Dart source sorts the array and scans runs; despite its filename, it does not implement Moore voting.","benchmark_strategy":"insertion sort then count consecutive equal values"},
+  "measurement":{"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases":[
+    {"id":"strict_majority","input_values":[1,2,2,2,2,5,1],"input_length":7,"expected_result":2},
+    {"id":"majority_at_start","input_values":[4,4,4,2,3,4,5],"input_length":7,"expected_result":4},
+    {"id":"no_majority","input_values":[3,3,22,21,21,5,21],"input_length":7,"expected_result":-1},
+    {"id":"two_equal","input_values":[-7,-7],"input_length":2,"expected_result":-7},
+    {"id":"two_distinct","input_values":[-1,1],"input_length":2,"expected_result":-1},
+    {"id":"empty_input","input_values":[],"input_length":0,"expected_result":-1},
+    {"id":"outside_i32","input_values":[2147483648,1],"input_length":2,"expected_result":-1}
+  ]
+}

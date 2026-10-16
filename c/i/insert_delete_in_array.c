@@ -1,0 +1,4 @@
+#include <stddef.h>
+#include <stdint.h>
+static void write_i32(uint8_t *out,size_t i,int64_t x){uint32_t v=(uint32_t)(int32_t)x;out[4*i]=(uint8_t)v;out[4*i+1]=(uint8_t)(v>>8);out[4*i+2]=(uint8_t)(v>>16);out[4*i+3]=(uint8_t)(v>>24);}
+int64_t insert_delete_in_array(const int64_t *v,size_t n,uint8_t*out,size_t cap){if(!v||n<4||n>260)return -1;int64_t op=v[0],len=v[1],pos=v[2],element=v[3];if((op!=0&&op!=1)||len<0||len>256||n!=(size_t)len+4||pos<0||(op==0?pos>len:pos>=len)||(op==1&&element!=0))return -1;for(size_t i=0;i<(size_t)len;i++)if(v[i+4]<INT32_MIN||v[i+4]>INT32_MAX)return -1;if(op==0&&(element<INT32_MIN||element>INT32_MAX))return -1;size_t outn=(size_t)len+(op==0);if(outn*4>cap||(outn>0&&!out))return -2;for(size_t i=0;i<outn;i++){int64_t x;if(op==0)x=i<(size_t)pos?v[i+4]:(i==(size_t)pos?element:v[i+3]);else x=i<(size_t)pos?v[i+4]:v[i+5];write_i32(out,i,x);}return (int64_t)(outn*4);}

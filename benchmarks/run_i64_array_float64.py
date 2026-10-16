@@ -37,6 +37,9 @@ from cone_oracle import INVALID_RESULT as CONE_INVALID_RESULT
 from cone_oracle import expected_result as cone_expected
 from cohen_sutherland_oracle import INVALID_RESULT as COHEN_SUTHERLAND_INVALID_RESULT
 from cohen_sutherland_oracle import expected_result as cohen_sutherland_expected
+from reverse_polish_notation_oracle import INVALID_RESULT as REVERSE_POLISH_NOTATION_INVALID_RESULT
+from reverse_polish_notation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
+from reverse_polish_notation_oracle import expected_result as reverse_polish_notation_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -47,6 +50,8 @@ from euclidean_distance_oracle import INVALID_RESULT as EUCLIDEAN_DISTANCE_INVAL
 from euclidean_distance_oracle import expected_result as euclidean_distance_expected
 from dynamic_time_warping_oracle import INVALID_RESULT as DYNAMIC_TIME_WARPING_INVALID_RESULT
 from dynamic_time_warping_oracle import expected_result as dynamic_time_warping_expected
+from yin_oracle import INVALID_RESULT as YIN_INVALID_RESULT
+from yin_oracle import expected_result as yin_expected
 from boyles_law_oracle import INVALID_RESULT as BOYLES_LAW_INVALID_RESULT
 from boyles_law_oracle import expected_result as boyles_law_expected
 from harmonic_mean_oracle import INVALID_RESULT as HARMONIC_MEAN_INVALID_RESULT
@@ -130,6 +135,9 @@ from energy_oracle import expected_result as energy_expected
 from trapezoidal_integration_oracle import INVALID_RESULT as TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
 from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
 from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_expected
+from neville_oracle import INVALID_RESULT as NEVILLE_INVALID_RESULT
+from neville_oracle import MAX_INPUT_LENGTH as MAX_NEVILLE_INPUT_LENGTH
+from neville_oracle import expected_result as neville_expected
 from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
 from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
 from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_expected
@@ -207,6 +215,27 @@ from newton_raphson_oracle import INVALID_RESULT as NEWTON_RAPHSON_INVALID_RESUL
 from newton_raphson_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH
 from newton_raphson_oracle import expected_result as newton_raphson_expected
 from reynolds_number_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REYNOLDS_NUMBER_PARSEABLE_INPUT_LENGTH
+from integral_approximation_oracle import INVALID_RESULT as INTEGRAL_APPROXIMATION_INVALID_RESULT
+from integral_approximation_oracle import MAX_INPUT_LENGTH as MAX_INTEGRAL_APPROXIMATION_INPUT_LENGTH
+from integral_approximation_oracle import expected_result as integral_approximation_expected
+from integration_by_simpson_approx_oracle import INVALID_RESULT as SIMPSON_APPROX_INVALID_RESULT
+from integration_by_simpson_approx_oracle import MAX_INPUT_LENGTH as SIMPSON_APPROX_MAX_INPUT_LENGTH
+from integration_by_simpson_approx_oracle import expected_result as simpson_approx_expected
+from jaro_similarity_oracle import INVALID_RESULT as JARO_SIMILARITY_INVALID_RESULT
+from jaro_similarity_oracle import MAX_INPUT_LENGTH as JARO_SIMILARITY_MAX_INPUT_LENGTH
+from jaro_similarity_oracle import expected_result as jaro_similarity_expected
+from jaro_winkler_oracle import INVALID_RESULT as JARO_WINKLER_INVALID_RESULT
+from jaro_winkler_oracle import MAX_INPUT_LENGTH as JARO_WINKLER_MAX_INPUT_LENGTH
+from jaro_winkler_oracle import expected_result as jaro_winkler_expected
+from ic_555_timer_oracle import INVALID_RESULT as IC_555_TIMER_INVALID_RESULT
+from ic_555_timer_oracle import MAX_INPUT_LENGTH as IC_555_TIMER_MAX_INPUT_LENGTH
+from ic_555_timer_oracle import expected_result as ic_555_timer_expected
+from pythagoras_oracle import INVALID_RESULT as PYTHAGORAS_INVALID_RESULT
+from pythagoras_oracle import MAX_INPUT_LENGTH as PYTHAGORAS_MAX_INPUT_LENGTH
+from pythagoras_oracle import expected_result as pythagoras_expected
+from pow_oracle import INVALID_RESULT as POW_INVALID_RESULT
+from pow_oracle import MAX_INPUT_LENGTH as POW_MAX_INPUT_LENGTH
+from pow_oracle import expected_result as pow_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
@@ -263,6 +292,8 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "energy" else
                         MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
                         if algorithm == "trapezoidal_integration" else
+                        MAX_NEVILLE_INPUT_LENGTH
+                        if algorithm == "neville" else
                         MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
                         if algorithm == "midpoint_integral_method" else
                         MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
@@ -271,8 +302,17 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "cosine_similarity" else
                         MAX_SECANT_METHOD_INPUT_LENGTH if algorithm == "secant_method" else
                         MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH if algorithm == "newton_raphson" else
+                        MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "reverse_polish_notation" else
                         MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH if algorithm == "newton_raphson_method" else
                         MAX_REYNOLDS_NUMBER_PARSEABLE_INPUT_LENGTH if algorithm == "reynolds_number" else
+                        MAX_INTEGRAL_APPROXIMATION_INPUT_LENGTH if algorithm == "integral_approximation" else
+                        SIMPSON_APPROX_MAX_INPUT_LENGTH if algorithm == "integration_by_simpson_approx" else
+                        JARO_SIMILARITY_MAX_INPUT_LENGTH if algorithm == "jaro_similarity" else
+                        JARO_WINKLER_MAX_INPUT_LENGTH if algorithm == "jaro_winkler" else
+                        IC_555_TIMER_MAX_INPUT_LENGTH if algorithm == "ic_555_timer" else
+                        PYTHAGORAS_MAX_INPUT_LENGTH if algorithm == "pythagoras" else
+                        POW_MAX_INPUT_LENGTH if algorithm == "pow" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -286,6 +326,46 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-15, abs_tol=1e-12):
             raise ValueError("charging_capacitor expected_result must match the rounded RC voltage formula")
+    elif algorithm == "integral_approximation":
+        source_result = integral_approximation_expected(values)
+        if source_result == INTEGRAL_APPROXIMATION_INVALID_RESULT:
+            if expected != INTEGRAL_APPROXIMATION_INVALID_RESULT:
+                raise ValueError("invalid integral_approximation inputs must use the -1e300 result sentinel")
+        elif expected == INTEGRAL_APPROXIMATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("integral_approximation expected_result must match the source-ordered Riemann sum")
+    elif algorithm == "integration_by_simpson_approx":
+        source_result = simpson_approx_expected(values)
+        if source_result == SIMPSON_APPROX_INVALID_RESULT:
+            if expected != SIMPSON_APPROX_INVALID_RESULT:
+                raise ValueError("invalid integration_by_simpson_approx inputs must use the -1e300 result sentinel")
+        elif expected == SIMPSON_APPROX_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("integration_by_simpson_approx expected_result must match the rounded Simpson sum")
+    elif algorithm == "ic_555_timer":
+        source_result = ic_555_timer_expected(values)
+        if source_result == IC_555_TIMER_INVALID_RESULT:
+            if expected != IC_555_TIMER_INVALID_RESULT:
+                raise ValueError("invalid ic_555_timer inputs must use the -1e300 result sentinel")
+        elif expected == IC_555_TIMER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("ic_555_timer expected_result must match the pinned frequency or duty-cycle formula")
+    elif algorithm == "jaro_similarity":
+        source_result = jaro_similarity_expected(values)
+        if source_result == JARO_SIMILARITY_INVALID_RESULT:
+            if expected != JARO_SIMILARITY_INVALID_RESULT:
+                raise ValueError("invalid jaro_similarity inputs must use the -1e300 result sentinel")
+        elif expected == JARO_SIMILARITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("jaro_similarity expected_result must match the pinned matching-window algorithm")
+    elif algorithm == "jaro_winkler":
+        source_result = jaro_winkler_expected(values)
+        if source_result == JARO_WINKLER_INVALID_RESULT:
+            if expected != JARO_WINKLER_INVALID_RESULT:
+                raise ValueError("invalid jaro_winkler inputs must use the -1e300 result sentinel")
+        elif expected == JARO_WINKLER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("jaro_winkler expected_result must match the pinned Python matching-window algorithm")
     elif algorithm == "arithmetic_mean":
         source_result = arithmetic_mean_expected(values)
         if source_result == ARITHMETIC_MEAN_INVALID_RESULT:
@@ -454,6 +534,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == DYNAMIC_TIME_WARPING_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("dynamic_time_warping expected_result must match the source banded recurrence")
+    elif algorithm == "yin":
+        source_result = yin_expected(values)
+        if source_result == YIN_INVALID_RESULT:
+            if expected != YIN_INVALID_RESULT:
+                raise ValueError("invalid yin inputs must use the -1e300 result sentinel")
+        elif expected == YIN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("yin expected_result must match the source-order interpolated pitch estimate")
     elif algorithm == "apparent_power":
         source_result = apparent_power_expected(values)
         if source_result == APPARENT_POWER_INVALID_RESULT:
@@ -517,6 +605,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == COHEN_SUTHERLAND_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
             raise ValueError("cohen_sutherland expected_result must match the selected clipped coordinate or acceptance flag")
+    elif algorithm == "reverse_polish_notation":
+        source_result = reverse_polish_notation_expected(values)
+        if source_result == REVERSE_POLISH_NOTATION_INVALID_RESULT:
+            if expected != REVERSE_POLISH_NOTATION_INVALID_RESULT:
+                raise ValueError("invalid reverse_polish_notation inputs must use the -1e300 result sentinel")
+        elif expected == REVERSE_POLISH_NOTATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("reverse_polish_notation expected_result must match the bounded source-order stack evaluation")
     elif algorithm == "kinetic_energy":
         source_result = kinetic_energy_expected(values)
         if source_result == KINETIC_ENERGY_INVALID_RESULT:
@@ -697,6 +793,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == TRAPEZOIDAL_INTEGRATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("trapezoidal_integration expected_result must match the oriented source-order trapezoid sum")
+    elif algorithm == "neville":
+        source_result = neville_expected(values)
+        if source_result == NEVILLE_INVALID_RESULT:
+            if expected != NEVILLE_INVALID_RESULT:
+                raise ValueError("invalid neville inputs must use the -1e300 result sentinel")
+        elif expected == NEVILLE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("neville expected_result must match the source-ordered interpolation recurrence")
     elif algorithm == "midpoint_integral_method":
         source_result = midpoint_integral_method_expected(values)
         if source_result == MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT:
@@ -803,6 +907,31 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == -1e300 or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
             raise ValueError("logistic_regression_csharp_binary_gd expected_result must match the C# batch weight/bias updates and query probability")
+    elif algorithm == "negative_log_likelihood":
+        valid = (len(values) >= 1 and 1 <= values[0] <= 64
+                 and len(values) == 1 + 2 * values[0])
+        source_result = -1e300
+        if valid:
+            n = values[0]
+            actual = values[1:1 + n]
+            predicted = values[1 + n:]
+            valid = (all(0 <= value <= 1_000_000 for value in actual)
+                     and all(1 <= value <= 999_999 for value in predicted))
+            if valid:
+                scale = 1_000_000.0
+                total = 0.0
+                for actual_value, predicted_value in zip(actual, predicted):
+                    actual_probability = actual_value / scale
+                    predicted_probability = predicted_value / scale
+                    total += (-actual_probability * math.log(predicted_probability)
+                              - (1.0 - actual_probability) * math.log(1.0 - predicted_probability))
+                source_result = total / n
+        if not valid:
+            if expected != -1e300:
+                raise ValueError("invalid negative_log_likelihood inputs must use the -1e300 result sentinel")
+        elif expected == -1e300 or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("negative_log_likelihood expected_result must match the pinned source-ordered mean")
     elif algorithm == "cross_entropy_loss":
         valid = (len(values) >= 1 and 1 <= values[0] <= 64
                  and len(values) == 1 + 2 * values[0])
@@ -1876,6 +2005,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == NEWTON_RAPHSON_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=0.0, abs_tol=1e-8):
             raise ValueError("newton_raphson expected_result must match the bounded positive root")
+    elif algorithm == "pythagoras":
+        source_result = pythagoras_expected(values)
+        if source_result == PYTHAGORAS_INVALID_RESULT:
+            if expected != PYTHAGORAS_INVALID_RESULT:
+                raise ValueError("invalid pythagoras inputs must use the -1e300 result sentinel")
+        elif expected == PYTHAGORAS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("pythagoras expected_result must match the pinned 3D Euclidean distance")
+    elif algorithm == "pow":
+        source_result = pow_expected(values)
+        if source_result == POW_INVALID_RESULT:
+            if expected != POW_INVALID_RESULT:
+                raise ValueError("invalid pow inputs must use the -1e300 result sentinel")
+        elif expected == POW_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("pow expected_result must match the pinned repeated-multiplication loop")
     return values, float(expected)
 
 

@@ -1,0 +1,2 @@
+#[no_mangle]
+pub unsafe extern "C" fn palindrome_singly_linked_list(v:*const i64,n:usize)->i64{if v.is_null()||n<1||n>65{return -1}let a=std::slice::from_raw_parts(v,n);if !(0..=64).contains(&a[0])||n!=a[0]as usize+1||a[1..].iter().any(|&x|x<i32::MIN as i64||x>i32::MAX as i64){return -1}let len=a[0]as usize;let(mut slow,mut fast)=(0usize,0usize);while fast+1<len{slow+=1;fast+=2}let suffix=len-slow;for i in 0..suffix{if a[i+1]!=a[len-i]{return 0}}1}

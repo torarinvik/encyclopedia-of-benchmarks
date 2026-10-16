@@ -1,0 +1,3 @@
+#[no_mangle]
+pub extern "C" fn kth_order_statistic(v:*const i64,n:usize)->i64{if v.is_null()||n<2||n>65{return -1;}let x=unsafe{std::slice::from_raw_parts(v,n)};let k=x[0];let a=&x[1..];if k<1||k as usize>a.len()||a.iter().any(|&z|!(-10000..=10000).contains(&z)){return -1;}let mut s=a.to_vec();s.sort();if s.windows(2).any(|w|w[0]==w[1]){return -1;}qs(&s,k as usize)}
+fn qs(a:&[i64],k:usize)->i64{if a.len()==1{return a[0];}let p=a[0];let small:Vec<i64>=a.iter().copied().filter(|&x|x<p).collect();let big:Vec<i64>=a.iter().copied().filter(|&x|x>p).collect();if k==small.len()+1{return p;}if k<=small.len(){qs(&small,k)}else{qs(&big,k-small.len()-1)}}

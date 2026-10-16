@@ -1,0 +1,9 @@
+def nimply_gate_impl(values: i64&, length: usize) -> i64:
+    if length != 2: return -1
+    a: i64 = values[0]
+    b: i64 = values[1]
+    if (a != 0 and a != 1) or (b != 0 and b != 1): return -1
+    if a == 1 and b == 0: return 1
+    return 0
+
+export fn nimply_gate(values: i64&, length: usize) -> i64 = nimply_gate_impl

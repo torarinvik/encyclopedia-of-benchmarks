@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "number-container-system-bounded-change-find-v1",
+  "algorithm": "number_container_system",
+  "function_symbol": "number_container_system",
+  "input": {
+    "kind": "count_then_operation_triplets",
+    "layout": "[operation_count, (opcode, a, b)...]; change=(0,index,number), find=(1,number,0)",
+    "operation_count_range": [0, 32],
+    "index_range": [0, 63],
+    "number_range": [-100, 100],
+    "maximum_input_values": 97
+  },
+  "output": {
+    "kind": "comma_separated_find_indices_ascii",
+    "return_value": "bytes written",
+    "maximum_output_bytes": 128,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "replace_and_find_minimum", "input_values": [8, 0, 5, 7, 0, 2, 7, 1, 7, 0, 0, 5, -2, 1, 7, 0, 1, 5, 0, 1, -2, 0, 1, 7, 0]},
+    {"id": "empty_trace", "input_values": [0]},
+    {"id": "no_matches", "input_values": [1, 1, 12, 0]}
+  ]
+}

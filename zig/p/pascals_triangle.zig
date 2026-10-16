@@ -1,0 +1,1 @@
+export fn pascals_triangle(v:[*c]const i64,n:usize)i64{if(v==null or n!=1 or v[0]<1 or v[0]>31)return -1;const rows:usize=@intCast(v[0]);var a=[_]i64{0}**31;a[0]=1;for(1..rows)|r|{a[r]=1;var j=r;while(j>1){j-=1;a[j]+=a[j-1];}}var h:i64=0;for(0..rows)|i|h=@mod(h*31+a[i],1000000007);return h;}

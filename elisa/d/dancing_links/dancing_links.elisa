@@ -1,0 +1,53 @@
+def dancing_links_impl(input: i64&, length: usize,
+                       output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2:
+        return -1
+    universe_value: i64 = input[0]
+    row_count_value: i64 = input[1]
+    if universe_value < 1 or universe_value > 8 or row_count_value < 0 or row_count_value > 8:
+        return -1
+    universe: usize = universe_value.usize()
+    row_count: usize = row_count_value.usize()
+    if length != row_count + 2:
+        return -1
+    full_mask: i64 = (1 << universe) - 1
+    for row in 0..<row_count:
+        mask: i64 = input[row + 2]
+        if mask <= 0 or (mask & ~full_mask) != 0:
+            return -1
+    selection_limit: usize = 1 << row_count
+    solution_count: mutable usize = 0
+    for selection in 0..<selection_limit:
+        covered: mutable i64 = 0
+        valid: mutable bool = true
+        for row in 0..<row_count:
+            if (selection & (1 << row)) == 0:
+                continue
+            mask: i64 = input[row + 2]
+            if (covered & mask) != 0:
+                valid <- false
+                break
+            covered <- covered | mask
+        if valid and covered == full_mask:
+            solution_count <- solution_count + 1
+    if output_capacity < solution_count or (solution_count > 0 and output == null):
+        return -2
+    position: mutable usize = 0
+    for selection in 0..<selection_limit:
+        covered: mutable i64 = 0
+        valid: mutable bool = true
+        for row in 0..<row_count:
+            if (selection & (1 << row)) == 0:
+                continue
+            mask: i64 = input[row + 2]
+            if (covered & mask) != 0:
+                valid <- false
+                break
+            covered <- covered | mask
+        if valid and covered == full_mask:
+            output[position] <- selection.u8()
+            position <- position + 1
+    solution_count.i64()
+
+export fn dancing_links(input: i64&, length: usize, output: mutable u8&,
+                        output_capacity: usize) -> i64 = dancing_links_impl

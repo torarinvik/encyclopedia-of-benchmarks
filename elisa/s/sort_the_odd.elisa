@@ -1,0 +1,62 @@
+def sort_the_odd_impl(input: i64&, length: usize) -> i64:
+    if length > 256 or (length != 0 and input.is_null()):
+        return -1
+
+    odds: mutable i64[256] = zeroed
+    odd_count: mutable usize = 0
+    index: usize = 0
+    while index < length:
+        value: i64 = input[index]
+        if value < -1000000 or value > 1000000:
+            return -1
+        if value % 2 != 0:
+            odds[odd_count] <- value
+            odd_count <- odd_count + 1
+        index <- index + 1
+
+    start: mutable usize = odd_count / 2
+    while start > 0:
+        start <- start - 1
+        root: mutable usize = start
+        while root * 2 + 1 < odd_count:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < odd_count and odds[child] < odds[child + 1]:
+                child <- child + 1
+            if odds[root] >= odds[child]:
+                break
+            temporary: i64 = odds[root]
+            odds[root] <- odds[child]
+            odds[child] <- temporary
+            root <- child
+
+    heap_end: mutable usize = odd_count
+    while heap_end > 1:
+        heap_end <- heap_end - 1
+        temporary: mutable i64 = odds[0]
+        odds[0] <- odds[heap_end]
+        odds[heap_end] <- temporary
+        root: mutable usize = 0
+        while root * 2 + 1 < heap_end:
+            child: mutable usize = root * 2 + 1
+            if child + 1 < heap_end and odds[child] < odds[child + 1]:
+                child <- child + 1
+            if odds[root] >= odds[child]:
+                break
+            temporary <- odds[root]
+            odds[root] <- odds[child]
+            odds[child] <- temporary
+            root <- child
+
+    checksum: mutable i64 = 0
+    odd_index: mutable usize = 0
+    index <- 0
+    while index < length:
+        value: mutable i64 = input[index]
+        if value % 2 != 0:
+            value <- odds[odd_index]
+            odd_index <- odd_index + 1
+        checksum <- checksum + (index + 1).i64() * (value + 1000001)
+        index <- index + 1
+    checksum
+
+export fn sort_the_odd_benchmark(input: i64&, length: usize) -> i64 = sort_the_odd_impl

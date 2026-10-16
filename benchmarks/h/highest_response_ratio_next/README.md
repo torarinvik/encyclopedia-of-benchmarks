@@ -1,0 +1,5 @@
+# Highest response ratio next
+
+Implements non-preemptive highest response ratio next scheduling. Input is `[process_count, arrival_0, burst_0, ...]`; output is each process's turnaround time in ascending arrival order, encoded as little-endian signed 64-bit integers. The benchmark bounds the workload to 1–64 processes, arrivals from 0 through 100000, and positive bursts from 1 through 1000. Arrival times must be distinct so the Python source’s ordering is deterministic.
+
+At each scheduling decision, the process with the greatest `(waiting_time + burst) / burst` ratio runs next. If no process has arrived, time advances to the next arrival. The contract follows the pinned Python and Java scheduling sources on the bounded domain. See the [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/scheduling/highest_response_ratio_next.py) and [Java source](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/HighestResponseRatioNextScheduling.java).

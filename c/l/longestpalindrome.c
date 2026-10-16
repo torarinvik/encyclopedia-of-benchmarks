@@ -1,0 +1,3 @@
+#include <stddef.h>
+#include <stdint.h>
+int64_t longestpalindrome(const int64_t*v,size_t n){if(!v||n<1||n>65)return -1;int64_t count=v[0];if(count<0||count>64||n!=(size_t)count+1)return -1;int64_t a[64];size_t m=0;for(size_t i=0;i<(size_t)count;i++){int64_t x=v[i+1];if(x<32||x>126||x==35)return -1;if(x!=32)a[m++]=x;}int64_t t[129];size_t z=2*m+1;for(size_t i=0;i<z;i++)t[i]=(i%2==0)?-1:a[i/2];size_t p[129]={0},center=0,right=0;size_t best=0;for(size_t i=0;i<z;i++){if(i<right){size_t mirror=2*center-i;p[i]=p[mirror]<(right-i)?p[mirror]:(right-i);}while(i>=p[i]+1&&i+p[i]+1<z&&t[i-p[i]-1]==t[i+p[i]+1])p[i]++;if(p[i]>best)best=p[i];if(i+p[i]>right){center=i;right=i+p[i];}}return (int64_t)best;}

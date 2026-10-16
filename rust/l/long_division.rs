@@ -1,0 +1,2 @@
+#[no_mangle]
+pub extern "C" fn long_division(v:*const i64,n:usize)->i64{if v.is_null()||n!=2{return -1;}let x=unsafe{std::slice::from_raw_parts(v,2)};let(a,b)=(x[0],x[1]);if !(-1000000..=1000000).contains(&a)||!(-10000..=10000).contains(&b){return -1;}if b==0{return 0;}let neg=(a<0)^(b<0);let(mut aa,bb)=(a.abs(),b.abs());let mut ds=[0i64;16];let mut len=0;if aa==0{len=1;}while aa>0{ds[len]=aa%10;aa/=10;len+=1;}let(mut rem,mut q)=(0i64,0i64);while len>0{len-=1;rem=rem*10+ds[len];let mut d=0;while rem>=bb{rem-=bb;d+=1;}q=q*10+d;}if neg{-q}else{q}}

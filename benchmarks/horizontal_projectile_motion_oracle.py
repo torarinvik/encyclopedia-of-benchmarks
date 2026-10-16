@@ -8,9 +8,14 @@ import struct
 INVALID_RESULT = -1
 CAPACITY_ERROR_RESULT = -2
 MAX_INPUT_LENGTH = 2
-MAX_PARSEABLE_INPUT_LENGTH = 3
+MAX_PARSEABLE_INPUT_LENGTH = 3  # Include the first rejected length for validation.
+MAX_VELOCITY_MILLI = 100_000
+MIN_ANGLE_MILLIDEGREES = 1_000
+MAX_ANGLE_MILLIDEGREES = 90_000
 OUTPUT_BYTES = 24
 GRAVITY = 9.80665
+I64_MIN = -(1 << 63)
+I64_MAX = (1 << 63) - 1
 
 
 def _to_cents(value: float) -> float:
@@ -21,12 +26,11 @@ def _to_cents(value: float) -> float:
 def expected_output(values: list[int] | tuple[int, ...]) -> tuple[int, bytes]:
     """Return the source-ordered distance, height, and flight-time vector."""
     if (not isinstance(values, (list, tuple)) or len(values) != 2
-            or any(type(value) is not int or not -(2**63) <= value < 2**63
-                   for value in values)):
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
         return INVALID_RESULT, b""
     velocity_milli, angle_millidegrees = values
-    if (not 0 <= velocity_milli <= 100_000
-            or not 1_000 <= angle_millidegrees <= 90_000):
+    if (not 0 <= velocity_milli <= MAX_VELOCITY_MILLI
+            or not MIN_ANGLE_MILLIDEGREES <= angle_millidegrees <= MAX_ANGLE_MILLIDEGREES):
         return INVALID_RESULT, b""
 
     velocity = velocity_milli / 1_000.0

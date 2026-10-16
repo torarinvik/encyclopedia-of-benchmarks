@@ -1,0 +1,24 @@
+def longest_increasing_subsequence_iterative_impl(v: i64&, length: usize) -> i64:
+    if length < 1 or length > 65: return -1
+    count: i64 = v[0]
+    if count < 0 or count > 64 or length != count.usize() + 1: return -1
+    dp: mutable i64[64] = zeroed
+    i: mutable usize = 0
+    while i < count.usize():
+        if v[i + 1] < -1000000 or v[i + 1] > 1000000: return -1
+        dp[i] <- 1
+        i <- i + 1
+    i <- 0
+    while i < count.usize():
+        j: mutable usize = 0
+        while j < i:
+            if v[j + 1] <= v[i + 1] and dp[j] + 1 > dp[i]: dp[i] <- dp[j] + 1
+            j <- j + 1
+        i <- i + 1
+    best: mutable i64 = 0
+    i <- 0
+    while i < count.usize():
+        if dp[i] > best: best <- dp[i]
+        i <- i + 1
+    best
+export fn longest_increasing_subsequence_iterative(v: i64&, length: usize) -> i64 = longest_increasing_subsequence_iterative_impl

@@ -1,0 +1,97 @@
+const MAX_INPUT_LENGTH: usize = 255
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 256
+const MAX_TOKEN_COUNT: usize = 63
+const MAX_OPERAND_MAGNITUDE: i64 = 1000000
+const MAX_INTERMEDIATE_MAGNITUDE: f64 = 1.0e200
+const INVALID_RESULT: f64 = -1.0e300
+
+def reverse_polish_notation_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length == 0 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return INVALID_RESULT
+    if length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    for index in 0..<length:
+        if input[index] < 0 or input[index] > 127:
+            return INVALID_RESULT
+
+    stack: mutable f64[MAX_TOKEN_COUNT] = zeroed
+    top: mutable usize = 0
+    position: mutable usize = 0
+    token_count: mutable usize = 0
+    while position < length:
+        token_start: usize = position
+        while position < length and input[position] != 32:
+            position <- position + 1
+        token_length: usize = position - token_start
+        if token_length == 0:
+            return INVALID_RESULT
+        token_count <- token_count + 1
+        if token_count > MAX_TOKEN_COUNT:
+            return INVALID_RESULT
+
+        token: i64 = input[token_start]
+        is_operator: bool = token_length == 1 and
+            (token == 43 or token == 45 or token == 42 or token == 47)
+        if is_operator:
+            if top < 2:
+                return INVALID_RESULT
+            a: f64 = stack[top - 1]
+            b: f64 = stack[top - 2]
+            result: mutable f64 = 0.0
+            if token == 43:
+                result <- a + b
+            else if token == 45:
+                result <- a - b
+            else if token == 42:
+                result <- a * b
+            else:
+                if a == 0.0:
+                    return INVALID_RESULT
+                result <- b / a
+            if result != result or result < -MAX_INTERMEDIATE_MAGNITUDE or
+               result > MAX_INTERMEDIATE_MAGNITUDE:
+                return INVALID_RESULT
+            stack[top - 2] <- result
+            top <- top - 1
+        else:
+            number_position: mutable usize = token_start
+            negative: mutable bool = false
+            if input[number_position] == 43 or input[number_position] == 45:
+                negative <- input[number_position] == 45
+                number_position <- number_position + 1
+            if number_position == position:
+                return INVALID_RESULT
+
+            magnitude: mutable i64 = 0
+            while number_position < position:
+                byte: i64 = input[number_position]
+                number_position <- number_position + 1
+                if byte < 48 or byte > 57:
+                    return INVALID_RESULT
+                digit: i64 = byte - 48
+                if magnitude > (MAX_OPERAND_MAGNITUDE - digit) / 10:
+                    return INVALID_RESULT
+                magnitude <- magnitude * 10 + digit
+            if top >= MAX_TOKEN_COUNT:
+                return INVALID_RESULT
+            value: f64 = (magnitude.f64())
+            if negative:
+                value <- -value
+            stack[top] <- value
+            top <- top + 1
+
+        if position < length:
+            position <- position + 1
+            if position == length or input[position] == 32:
+                return INVALID_RESULT
+
+    if token_count == 0 or top != 1:
+        return INVALID_RESULT
+    result: f64 = stack[0]
+    if result != result or result < -MAX_INTERMEDIATE_MAGNITUDE or
+       result > MAX_INTERMEDIATE_MAGNITUDE:
+        return INVALID_RESULT
+    result
+
+export fn reverse_polish_notation(input: i64&, length: usize) -> f64 =
+    reverse_polish_notation_impl

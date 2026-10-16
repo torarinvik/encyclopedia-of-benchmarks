@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "liters-to-us-gallons-js-float64-unary-v1",
+  "algorithm": "liters_to_usgallons",
+  "function_symbol": "liters_to_usgallons",
+  "input": {
+    "kind": "finite_binary64_liters",
+    "minimum": -1e100,
+    "maximum": 1e100,
+    "conversion_factor_liters_per_us_gallon": 3.785411784,
+    "formula_order": "liters / 3.785411784",
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64_us_liquid_gallons",
+    "relative_tolerance": 1e-15,
+    "absolute_tolerance": 1e-15,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "float64_unary_call",
+    "relative_tolerance": 1e-15,
+    "absolute_tolerance": 1e-15,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100000
+  },
+  "cases": [
+    {"id": "zero_liters", "input_values": [0.0], "expected_result": 0.0},
+    {"id": "one_liter", "input_values": [1.0], "expected_result": 0.26417205235814845},
+    {"id": "one_us_gallon_in_liters", "input_values": [3.785411784], "expected_result": 1.0},
+    {"id": "negative_one_us_gallon_in_liters", "input_values": [-3.785411784], "expected_result": -1.0},
+    {"id": "half_liter", "input_values": [0.5], "expected_result": 0.13208602617907422},
+    {"id": "ten_liters", "input_values": [10.0], "expected_result": 2.6417205235814842},
+    {"id": "negative_ten_liters", "input_values": [-10.0], "expected_result": -2.6417205235814842},
+    {"id": "small_positive", "input_values": [1e-12], "expected_result": 2.6417205235814844e-13},
+    {"id": "small_negative", "input_values": [-1e-12], "expected_result": -2.6417205235814844e-13},
+    {"id": "large_positive", "input_values": [1000.0], "expected_result": 264.17205235814845},
+    {"id": "large_negative", "input_values": [-1000.0], "expected_result": -264.17205235814845},
+    {"id": "minimum_valid_input", "input_values": [-1e100], "expected_result": -2.6417205235814844e99},
+    {"id": "maximum_valid_input", "input_values": [1e100], "expected_result": 2.6417205235814844e99},
+    {"id": "above_maximum", "input_values": [1.0000000000000002e100], "expected_result": -1e300},
+    {"id": "below_minimum", "input_values": [-1.0000000000000002e100], "expected_result": -1e300}
+  ]
+}

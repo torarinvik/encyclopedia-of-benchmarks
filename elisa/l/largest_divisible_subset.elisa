@@ -1,0 +1,22 @@
+def largest_divisible_subset_impl(v: i64&, length: usize) -> i64:
+    if length > 64: return -1
+    a: mutable [i64; 64] = [0; 64]
+    for i in 0..length:
+        if v[i] < 1 or v[i] > 50000: return -1
+        a[i] <- v[i]
+    for i in 1..length:
+        x: i64 = a[i]
+        j: mutable usize = i
+        while j > 0 and a[j - 1] > x:
+            a[j] <- a[j - 1]
+            j <- j - 1
+        a[j] <- x
+    d: mutable [i64; 64] = [0; 64]
+    best: mutable i64 = 0
+    for i in 0..length:
+        d[i] <- 1
+        for j in 0..i:
+            if a[i] % a[j] == 0 and d[j] + 1 > d[i]: d[i] <- d[j] + 1
+        if d[i] > best: best <- d[i]
+    best
+export fn largest_divisible_subset(v: i64&, length: usize) -> i64 = largest_divisible_subset_impl

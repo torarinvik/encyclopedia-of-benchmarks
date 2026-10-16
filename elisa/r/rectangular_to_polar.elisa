@@ -1,0 +1,23 @@
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+extern round(value: f64) -> f64
+
+const DEGREE_FACTOR: f64 = 57.2957795130823208768
+
+def rectangular_to_polar_round_two(value: f64) -> f64:
+    if value == 0.0:
+        return value
+    round(value * 100.0) / 100.0
+
+def rectangular_to_polar_impl(real: f64, imag: f64, component: f64) -> f64:
+    if real != real or imag != imag or component != component:
+        return -1.0e300
+    if real < -1000000.0 or real > 1000000.0 or imag < -1000000.0 or imag > 1000000.0:
+        return -1.0e300
+    if component != 0.0 and component != 1.0:
+        return -1.0e300
+    if component == 0.0:
+        return rectangular_to_polar_round_two(sqrt(real * real + imag * imag))
+    rectangular_to_polar_round_two(atan2(imag, real) * DEGREE_FACTOR)
+
+export fn rectangular_to_polar(real: f64, imag: f64, component: f64) -> f64 = rectangular_to_polar_impl

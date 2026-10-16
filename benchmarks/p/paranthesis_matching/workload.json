@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "cpp-parenthesis-matching-stack-v1",
+  "algorithm": "paranthesis_matching",
+  "function_symbol": "paranthesis_matching",
+  "input": {"kind":"signed_i64_array","encoding":"[length, visible_ascii_character_codes...]","count_range":[1,99],"character_range":[33,126],"maximum_input_length":100},
+  "output": {"kind":"signed_i64_scalar","meaning":"1 for balanced delimiters, 0 for mismatch","invalid_input_result":-1},
+  "source_bound": {"description":"The source recognizes four delimiter pairs and rejects every non-delimiter byte; it reads a single whitespace-delimited expression token."},
+  "measurement": {"comparison_model":"scalar_call","sample_count":7,"warmup_rounds":2,"repetitions_per_sample":10000},
+  "cases": [
+    {"id":"nested_four_pair_types","input_values":[8,40,91,123,60,62,125,93,41],"input_length":9,"expected_result":1},
+    {"id":"simple_pair","input_values":[2,40,41],"input_length":3,"expected_result":1},
+    {"id":"crossed_pair","input_values":[2,40,93],"input_length":3,"expected_result":0},
+    {"id":"extra_closer","input_values":[3,40,41,125],"input_length":4,"expected_result":0},
+    {"id":"unclosed_opener","input_values":[1,60],"input_length":2,"expected_result":0},
+    {"id":"non_delimiter","input_values":[3,40,97,41],"input_length":4,"expected_result":0},
+    {"id":"invalid_length_field","input_values":[2,40],"input_length":2,"expected_result":-1}
+  ]
+}

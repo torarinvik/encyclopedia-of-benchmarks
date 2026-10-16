@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "hill-encoder-3x3-ascii-code-units-v1",
+  "algorithm": "hill_encoder",
+  "function_symbol": "hill_encoder",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, ASCII uppercase letter codepoints..., row-major key[0..8]]",
+    "text_length_range": [
+      0,
+      64
+    ],
+    "text_codepoint_range": [
+      65,
+      90
+    ],
+    "key_entry_range": [
+      -2,
+      2
+    ],
+    "maximum_input_length": 74,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_vector",
+    "encoding": "little-endian signed 64-bit integers",
+    "layout": "transformed UTF-16 character code units in chunk and row order",
+    "max_length": 66,
+    "max_output_bytes": 528,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 528,
+    "meaning": "output space for 66 transformed code units"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "three-letter-identity",
+      "input_values": [
+        3,
+        65,
+        66,
+        67,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 24,
+      "expected_output": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "id": "padding-to-three",
+      "input_values": [
+        2,
+        65,
+        66,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 24,
+      "expected_output": [
+        65,
+        66,
+        32
+      ]
+    },
+    {
+      "id": "nontrivial-matrix",
+      "input_values": [
+        3,
+        65,
+        66,
+        67,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected_result": 24,
+      "expected_output": [
+        131,
+        133,
+        132
+      ]
+    },
+    {
+      "id": "empty-text",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-text-codepoint",
+      "input_values": [
+        1,
+        97,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid-key-entry",
+      "input_values": [
+        1,
+        65,
+        3,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed-layout",
+      "input_values": [
+        1,
+        65,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient-capacity",
+      "input_values": [
+        3,
+        65,
+        66,
+        67,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "workspace_bytes": 23,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

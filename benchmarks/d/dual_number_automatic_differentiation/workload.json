@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "dual-number-power-derivative-v1",
+  "algorithm": "dual_number_automatic_differentiation",
+  "function_symbol": "dual_number_automatic_differentiation",
+  "input": {
+    "kind": "float64_triple",
+    "encoding": "[position, nonnegative_integral_power, integral_derivative_order]",
+    "position_range": [
+      -1.0,
+      1.0
+    ],
+    "power_range": [
+      0,
+      8
+    ],
+    "derivative_order_range": "[0, power]",
+    "invalid_result": -1e+300,
+    "tolerance": "input_scaled_tolerance"
+  },
+  "measurement": {
+    "comparison_model": "float64_triple_call",
+    "input_scaled_tolerance": 1e-09,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "identity-first-derivative",
+      "input_values": [
+        0.5,
+        1.0,
+        1.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "square-first-derivative",
+      "input_values": [
+        0.25,
+        2.0,
+        1.0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "square-second-derivative",
+      "input_values": [
+        -0.75,
+        2.0,
+        2.0
+      ],
+      "expected_result": 2.0
+    },
+    {
+      "id": "cubic-value",
+      "input_values": [
+        -0.75,
+        3.0,
+        0.0
+      ],
+      "expected_result": -0.421875
+    },
+    {
+      "id": "eighth-order-derivative",
+      "input_values": [
+        0.5,
+        8.0,
+        8.0
+      ],
+      "expected_result": 40320.0
+    },
+    {
+      "id": "sixth-derivative-of-eighth-power",
+      "input_values": [
+        -0.5,
+        8.0,
+        6.0
+      ],
+      "expected_result": 5040.0
+    },
+    {
+      "id": "seventh-derivative-at-zero",
+      "input_values": [
+        0.0,
+        8.0,
+        7.0
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "constant-function",
+      "input_values": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "endpoint-maximum-value",
+      "input_values": [
+        1.0,
+        8.0,
+        0.0
+      ],
+      "expected_result": 1.0
+    },
+    {
+      "id": "invalid-position",
+      "input_values": [
+        1.5,
+        4.0,
+        2.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-nonintegral-power",
+      "input_values": [
+        0.5,
+        3.5,
+        1.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-order-above-degree",
+      "input_values": [
+        0.5,
+        3.0,
+        4.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid-negative-order",
+      "input_values": [
+        0.5,
+        3.0,
+        -1.0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -12,7 +12,7 @@ fn rounded_milli(numerator i64, denominator i64) i64 {
 
 @[export: 'boyles_law']
 pub fn boyles_law(values &i64, length usize) f64 {
-	if length != 4 { return -1.0e300 }
+	if unsafe { values == nil } || length != 4 { return -1.0e300 }
 	target := unsafe { values[0] }
 	a := unsafe { values[1] }
 	b := unsafe { values[2] }

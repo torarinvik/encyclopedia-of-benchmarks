@@ -1,0 +1,3 @@
+module integration_by_simpson_approx;
+fn double round_even(double x,int p){double scale=1.0;for(int i=0;i<p;i++)scale*=10.0;double y=x*scale;long lower=(long)y;double fraction=y-(double)lower;if(fraction>0.5||(fraction==0.5&&lower%2!=0))lower++;return (double)lower/scale;}
+fn double integration_by_simpson_approx(long *v,usz n) @export("integration_by_simpson_approx"){if(v==null||n!=3)return -1.0e300;long a=v[0],b=v[1],p=v[2];if(a < -10||a>10||b < -10||b>10||a>=b||p<0||p>4)return -1.0e300;double h=(double)(b-a)/1000.0,total=(double)(a*a)+(double)(b*b);for(int i=1;i<1000;i++){double x=(double)a+h*(double)i;if(i%2==1)total+=x*x*4.0;else total+=x*x*2.0;}total*=h/3.0;return round_even(total,(int)p);}

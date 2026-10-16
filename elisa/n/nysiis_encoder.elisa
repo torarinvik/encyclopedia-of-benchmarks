@@ -1,0 +1,88 @@
+def vowel(c: u8) -> bool = c == 65 or c == 69 or c == 73 or c == 79 or c == 85
+def matches(s: u8&, n: usize, at: usize, p: u8&, m: usize) -> bool:
+    if at + m > n: return false
+    i: mutable usize = 0
+    while i < m:
+        if s[at + i] != p[i]: return false
+        i <- i + 1
+    return true
+
+def replace_at(s: mutable u8&, n: mutable usize&, at: usize, old: usize, p: u8&, m: usize):
+    if m > old:
+        i: mutable usize = n
+        while i > at + old:
+            i <- i - 1
+            s[i - old + m] <- s[i]
+    else:
+        i: mutable usize = at + old
+        while i < n:
+            s[i - old + m] <- s[i]
+            i <- i + 1
+    i: mutable usize = 0
+    while i < m:
+        s[at + i] <- p[i]
+        i <- i + 1
+    n <- n - old + m
+
+def nysiis_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 2 or length > 65: return -1
+    count: i64 = values[0]
+    if count < 1 or count > 64 or length != (count + 1).usize(): return -1
+    s: mutable [256]u8 = [0; 256]
+    n: mutable usize = 0
+    i: mutable usize = 0
+    while i < count.usize():
+        c: mutable i64 = values[i + 1]
+        if c >= 97 and c <= 122: c <- c - 32
+        if c < 65 or c > 90: return -1
+        s[n] <- c.u8()
+        n <- n + 1
+        i <- i + 1
+    p_mac: u8[3] = [77,65,67]; t_mcc: u8[3] = [77,67,67]
+    p_kn: u8[2] = [75,78]; t_nn: u8[2] = [78,78]
+    p_k: u8[1] = [75]; t_c: u8[1] = [67]
+    p_ph: u8[2] = [80,72]; t_ff: u8[2] = [70,70]
+    p_pf: u8[2] = [80,70]; p_sch: u8[3] = [83,67,72]; t_sss: u8[3] = [83,83,83]
+    if matches(s[0]&, n, 0, p_mac[0]&, 3): replace_at(s[0]&, n&, 0, 3, t_mcc[0]&, 3)
+    else if matches(s[0]&, n, 0, p_kn[0]&, 2): replace_at(s[0]&, n&, 0, 2, t_nn[0]&, 2)
+    else if matches(s[0]&, n, 0, p_k[0]&, 1): replace_at(s[0]&, n&, 0, 1, t_c[0]&, 1)
+    else if matches(s[0]&, n, 0, p_ph[0]&, 2): replace_at(s[0]&, n&, 0, 2, t_ff[0]&, 2)
+    else if matches(s[0]&, n, 0, p_pf[0]&, 2): replace_at(s[0]&, n&, 0, 2, t_ff[0]&, 2)
+    else if matches(s[0]&, n, 0, p_sch[0]&, 3): replace_at(s[0]&, n&, 0, 3, t_sss[0]&, 3)
+    p_ee: u8[2] = [69,69]; p_ie: u8[2] = [73,69]; p_dt: u8[2] = [68,84]; p_rt: u8[2] = [82,84]; p_nt: u8[2] = [78,84]; p_nd: u8[2] = [78,68]
+    one_y: u8[1] = [89]; one_d: u8[1] = [68]
+    if n >= 2:
+        if matches(s[0]&, n,n-2,p_ee[0]&,2): replace_at(s[0]&,n&,n-2,2,one_y[0]&,1)
+        else if matches(s[0]&, n,n-2,p_ie[0]&,2): replace_at(s[0]&,n&,n-2,2,one_y[0]&,1)
+        else if matches(s[0]&, n,n-2,p_dt[0]&,2): replace_at(s[0]&,n&,n-2,2,one_d[0]&,1)
+        else if matches(s[0]&, n,n-2,p_rt[0]&,2): replace_at(s[0]&,n&,n-2,2,one_d[0]&,1)
+        else if matches(s[0]&, n,n-2,p_nt[0]&,2): replace_at(s[0]&,n&,n-2,2,one_d[0]&,1)
+        else if matches(s[0]&, n,n-2,p_nd[0]&,2): replace_at(s[0]&,n&,n-2,2,one_d[0]&,1)
+    i <- 1
+    while i < n:
+        if i + 1 < n and s[i] == 69 and s[i+1] == 86: s[i] <- 65; s[i+1] <- 70
+        else if s[i] == 69 or s[i] == 73 or s[i] == 79 or s[i] == 85: s[i] <- 65
+        else if s[i] == 81: s[i] <- 71
+        else if s[i] == 90: s[i] <- 83
+        else if s[i] == 77: s[i] <- 78
+        else if i + 1 < n and s[i] == 75 and s[i+1] == 78: s[i] <- 78; s[i+1] <- 78
+        else if s[i] == 75: s[i] <- 67
+        else if i + 2 < n and s[i] == 83 and s[i+1] == 67 and s[i+2] == 72: s[i] <- 83; s[i+1] <- 83; s[i+2] <- 83
+        else if i + 1 < n and s[i] == 80 and s[i+1] == 72: s[i] <- 70; s[i+1] <- 70
+        else if s[i] == 72 and (not vowel(s[i-1]) or (i+1<n and not vowel(s[i+1]))): s[i] <- s[i-1]
+        else if s[i] == 87 and vowel(s[i-1]): s[i] <- s[i-1]
+        i <- i + 1
+    w: mutable usize = 0
+    i <- 0
+    while i < n:
+        if i == 0 or s[i] != s[i-1]: s[w] <- s[i]; w <- w + 1
+        i <- i + 1
+    n <- w
+    if n > 0 and s[n-1] == 83: n <- n - 1
+    else if n >= 2 and s[n-2] == 65 and s[n-1] == 89: s[n-2] <- 89; n <- n - 1
+    else if n > 0 and s[n-1] == 65: n <- n - 1
+    if n > capacity: return -2
+    i <- 0
+    while i < n: output[i] <- s[i]; i <- i + 1
+    return n.i64()
+export fn nysiis_encoder(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nysiis_impl

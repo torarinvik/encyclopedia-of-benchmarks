@@ -1,0 +1,15 @@
+const INVALID_RESULT: i64 = -9223372036854775808
+
+# Multiply two bounded signed operands; the bounds guarantee an i64 result.
+def multiply_digit_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 2:
+        return INVALID_RESULT
+    first: i64 = values[0]
+    second: i64 = values[1]
+    if first < -1000000000 or first > 1000000000:
+        return INVALID_RESULT
+    if second < -1000000000 or second > 1000000000:
+        return INVALID_RESULT
+    first * second
+
+export fn multiply_digit(values: i64&, length: usize) -> i64 = multiply_digit_impl

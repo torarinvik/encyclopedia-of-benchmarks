@@ -1,0 +1,3 @@
+fn down(h:[]i64,i0:usize)void{var i=i0;while(true){const l=2*i+1;const r=l+1;var m=i;if(l<h.len and h[l]>h[m])m=l;if(r<h.len and h[r]>h[m])m=r;if(m==i)return;std.mem.swap(i64,&h[i],&h[m]);i=m;}}
+const std=@import("std");
+export fn kth_smallest_heap(v:[*]const i64,n:usize)i64{if(n<2 or n>65)return -1;const k=v[0];if(k<1 or k>=@as(i64,@intCast(n)))return -1;var h:[64]i64=@splat(0);const m:usize=@intCast(k);for(0..m)|i|{if(v[i+1]< -100000 or v[i+1]>100000)return -1;h[i]=v[i+1];}var start=m/2;while(start>0){start-=1;down(h[0..m],start);}for(m+1..n)|i|{const x=v[i];if(x< -100000 or x>100000)return -1;if(x<=h[0]){h[0]=x;down(h[0..m],0);}}return h[0];}

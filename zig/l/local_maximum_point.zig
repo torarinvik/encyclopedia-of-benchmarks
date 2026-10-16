@@ -1,0 +1,1 @@
+export fn local_maximum_point(v:[*]const i64,n:usize)i64{if(n<1 or n>64)return -1;for(0..n)|i|{if(v[i]< -1000000 or v[i]>1000000)return -1;}var s:usize=0;var e=n-1;while(true){const m=s+(e-s)/2;if((m==0 or v[m-1]<=v[m]) and (m==n-1 or v[m+1]<=v[m]))return @intCast(m);if(m>0 and v[m-1]>v[m]){e=m-1;}else{s=m+1;}}}

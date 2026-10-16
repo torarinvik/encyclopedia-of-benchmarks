@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "nysiis-ascii-letters-v1",
+  "algorithm": "nysiis_encoder",
+  "function_symbol": "nysiis_encoder",
+  "input": {
+    "kind": "length_prefixed_ascii_name",
+    "layout": "[length, ASCII letters...]",
+    "length_range": [
+      1,
+      64
+    ],
+    "alphabet": "ASCII A-Z or a-z only",
+    "maximum_input_values": 65
+  },
+  "output": {
+    "kind": "raw_ascii_bytes",
+    "return_value": "bytes written",
+    "maximum_output_bytes": 64,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_robert",
+      "input_values": [
+        6,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "5241424144"
+    },
+    {
+      "id": "macdonald",
+      "input_values": [
+        9,
+        77,
+        97,
+        99,
+        68,
+        111,
+        110,
+        97,
+        108,
+        100
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "4d4344414e414c44"
+    },
+    {
+      "id": "knuth",
+      "input_values": [
+        5,
+        75,
+        110,
+        117,
+        116,
+        104
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "4e4154"
+    },
+    {
+      "id": "philip",
+      "input_values": [
+        6,
+        80,
+        104,
+        105,
+        108,
+        105,
+        112
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "46414c4150"
+    },
+    {
+      "id": "ashcraft",
+      "input_values": [
+        8,
+        65,
+        115,
+        104,
+        99,
+        114,
+        97,
+        102,
+        116
+      ],
+      "expected_result": 7,
+      "expected_output_hex": "41534352414654"
+    },
+    {
+      "id": "wright",
+      "input_values": [
+        6,
+        87,
+        114,
+        105,
+        103,
+        104,
+        116
+      ],
+      "expected_result": 5,
+      "expected_output_hex": "5752414754"
+    },
+    {
+      "id": "edge_single_letter",
+      "input_values": [
+        1,
+        65
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    }
+  ]
+}
